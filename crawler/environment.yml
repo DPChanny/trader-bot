@@ -1,17 +1,14 @@
-name: trader
+name: trader-crawler
 channels:
   - defaults
   - conda-forge
 dependencies:
   - python=3.12
   - pip
-  - fastapi
-  - uvicorn
   - sqlalchemy
   - pydantic
-  - aiohttp
   - python-dotenv
-  - pyjwt
-  - discord.py
+  - selenium
   - pip:
+      - webdriver-manager
       - pymysql

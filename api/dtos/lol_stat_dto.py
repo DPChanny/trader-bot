@@ -12,12 +12,12 @@ class ChampionDto(BaseModel):
     win_rate: float
 
 
-class LolDto(BaseModel):
+class LolStatDto(BaseModel):
     tier: str
     rank: str
     lp: int
     top_champions: List[ChampionDto]
 
 
-class GetLolResponseDTO(BaseResponseDTO[LolDto]):
+class GetLolResponseDTO(BaseResponseDTO[LolStatDto]):
     pass

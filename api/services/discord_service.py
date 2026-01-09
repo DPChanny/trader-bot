@@ -176,10 +176,11 @@ class DiscordBotService:
                 embed = discord.Embed(title="창식이 내전 경매")
                 embed.add_field(
                     name="참가 링크",
-                    value=f"[참가]({auction_url})",
+                    value=auction_url,
                     inline=False,
                 )
 
+                logger.info(f"Sending URL to {discord_id}: {auction_url}")
                 await user.send(embed=embed)
                 logger.info(f"Sent: {discord_id}")
                 return True

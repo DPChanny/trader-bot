@@ -14,7 +14,6 @@ from dtos.user_dto import (
 from entities.user import User
 from services.discord_service import discord_service
 from utils.exception import CustomException, handle_exception
-from services.crawler_service import crawler_service
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +61,9 @@ async def add_user_service(
 
         logger.info(f"Added: {user.user_id}")
 
-        if dto.riot_id:
-            crawler_service.invalidate_cache(user.user_id)
+        # Note: Crawler service is now separated. Cache invalidation should be handled by crawler service.
+        # if dto.riot_id:
+        #     crawler_service.invalidate_cache(user.user_id)
 
         if dto.discord_id:
             discord_service.refresh_profile(dto.discord_id)
@@ -128,11 +128,12 @@ async def update_user_service(
 
         db.commit()
 
-        if riot_id_changed:
-            if user.riot_id:
-                crawler_service.invalidate_cache(user_id)
-            else:
-                crawler_service.remove_cache(user_id)
+        # Note: Crawler service is now separated. Cache operations should be handled by crawler service.
+        # if riot_id_changed:
+        #     if user.riot_id:
+        #         crawler_service.invalidate_cache(user_id)
+        #     else:
+        #         crawler_service.remove_cache(user_id)
 
         if discord_id_changed:
             if old_discord_id:
@@ -160,7 +161,8 @@ def delete_user_service(
         db.delete(user)
         db.commit()
 
-        crawler_service.remove_cache(user_id)
+        # Note: Crawler service is now separated. Cache operations should be handled by crawler service.
+        # crawler_service.remove_cache(user_id)
         discord_service.remove_profile(discord_id)
 
         logger.info(f"Deleted: {user_id}")

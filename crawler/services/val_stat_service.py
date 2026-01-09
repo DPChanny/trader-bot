@@ -8,15 +8,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from dtos.val_dto import GetValResponseDTO, ValDto, AgentDto
+from dtos.val_stat_dto import GetValResponseDTO, ValStatDto, AgentDto
 from services.crawler_service import crawler_service, WEB_DRIVER_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
 
-def crawl_val(
+def crawl_val_stat(
     driver: webdriver.Chrome, game_name: str, tag_line: str
-) -> ValDto:
+) -> ValStatDto:
     encoded_name = game_name.replace(" ", "%20")
     url = f"https://op.gg/ko/valorant/profile/{encoded_name}-{tag_line}?statQueueId=competitive"
 
@@ -30,14 +30,14 @@ def crawl_val(
         logger.info(f"Page loaded: {url}")
     except TimeoutException as e:
         logger.warning(f"Page load timeout: {url}")
-        return ValDto(
+        return ValStatDto(
             tier=tier,
             rank=rank,
             top_agents=top_agents,
         )
     except Exception as e:
         logger.warning(f"Page load error: {url} - {type(e).__name__}")
-        return ValDto(
+        return ValStatDto(
             tier=tier,
             rank=rank,
             top_agents=top_agents,
@@ -175,12 +175,12 @@ def crawl_val(
     except Exception as e:
         logger.warning(f"Agent list error: {url} - {type(e).__name__}")
 
-    return ValDto(
+    return ValStatDto(
         tier=tier,
         rank=rank,
         top_agents=top_agents,
     )
 
 
-async def get_val(user_id: int) -> Optional[GetValResponseDTO]:
-    return await crawler_service.get_val(user_id)
+async def get_val_stat(user_id: int) -> Optional[GetValResponseDTO]:
+    return await crawler_service.get_val_stat(user_id)

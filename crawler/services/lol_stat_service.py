@@ -8,15 +8,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from dtos.lol_dto import GetLolResponseDTO, LolDto, ChampionDto
+from dtos.lol_stat_dto import GetLolResponseDTO, LolStatDto, ChampionDto
 from services.crawler_service import crawler_service, WEB_DRIVER_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
 
-def crawl_lol(
+def crawl_lol_stat(
     driver: webdriver.Chrome, game_name: str, tag_line: str
-) -> LolDto:
+) -> LolStatDto:
     encoded_name = game_name.replace(" ", "%20")
     url = f"https://op.gg/ko/lol/summoners/kr/{encoded_name}-{tag_line}?queue_type=SOLORANKED"
 
@@ -31,7 +31,7 @@ def crawl_lol(
         logger.info(f"Page loaded: {url}")
     except TimeoutException as e:
         logger.warning(f"Page load timeout: {url}")
-        return LolDto(
+        return LolStatDto(
             tier=tier,
             rank=rank,
             lp=lp,
@@ -39,7 +39,7 @@ def crawl_lol(
         )
     except Exception as e:
         logger.warning(f"Page load error: {url} - {type(e).__name__}")
-        return LolDto(
+        return LolStatDto(
             tier=tier,
             rank=rank,
             lp=lp,
@@ -160,7 +160,7 @@ def crawl_lol(
     except Exception as e:
         logger.warning(f"Champion list error: {url} - {type(e).__name__}")
 
-    return LolDto(
+    return LolStatDto(
         tier=tier,
         rank=rank,
         lp=lp,
@@ -168,5 +168,5 @@ def crawl_lol(
     )
 
 
-async def get_lol(user_id: int) -> Optional[GetLolResponseDTO]:
-    return await crawler_service.get_lol(user_id)
+async def get_lol_stat(user_id: int) -> Optional[GetLolResponseDTO]:
+    return await crawler_service.get_lol_stat(user_id)

@@ -9,8 +9,8 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
-from dtos.lol_dto import GetLolResponseDTO
-from dtos.val_dto import GetValResponseDTO
+from dtos.lol_stat_dto import GetLolResponseDTO
+from dtos.val_stat_dto import GetValResponseDTO
 from utils.crawler import get_chrome_options
 
 logger = logging.getLogger(__name__)
@@ -124,6 +124,108 @@ class CrawlerService:
         finally:
             self._close_driver(driver, user_id)
 
+    def _save_lol_to_db(self, user_id: int, lol_dto):
+        """Save LOL data to database"""
+        try:
+            from entities.lol_stat import LolStat, LolChampion
+            from utils.database import get_db
+
+            db = next(get_db())
+
+            # Get or create LolStat
+            lol_stat = (
+                db.query(LolStat).filter(LolStat.user_id == user_id).first()
+            )
+
+            if lol_stat:
+                # Update existing data
+                lol_stat.tier = lol_dto.tier
+                lol_stat.rank = lol_dto.rank
+                lol_stat.lp = lol_dto.lp
+                # Delete old champions
+                db.query(LolChampion).filter(
+                    LolChampion.lol_stat_id == lol_stat.id
+                ).delete()
+            else:
+                # Create new data
+                lol_stat = LolStat(
+                    user_id=user_id,
+                    tier=lol_dto.tier,
+                    rank=lol_dto.rank,
+                    lp=lol_dto.lp,
+                )
+                db.add(lol_stat)
+                db.flush()  # Get the ID
+
+            # Add champions
+            for idx, champ in enumerate(lol_dto.top_champions, start=1):
+                champion = LolChampion(
+                    lol_stat_id=lol_stat.id,
+                    name=champ.name,
+                    icon_url=champ.icon_url,
+                    games=champ.games,
+                    win_rate=champ.win_rate,
+                    rank_order=idx,
+                )
+                db.add(champion)
+
+            db.commit()
+            db.close()
+        except Exception as e:
+            logger.error(f"Failed to save LOL data to DB: {user_id} - {e}")
+            import traceback
+
+            logger.error(traceback.format_exc())
+
+    def _save_val_to_db(self, user_id: int, val_dto):
+        """Save VAL data to database"""
+        try:
+            from entities.val_stat import ValStat, ValAgent
+            from utils.database import get_db
+
+            db = next(get_db())
+
+            # Get or create ValStat
+            val_stat = (
+                db.query(ValStat).filter(ValStat.user_id == user_id).first()
+            )
+
+            if val_stat:
+                # Update existing data
+                val_stat.tier = val_dto.tier
+                val_stat.rank = val_dto.rank
+                # Delete old agents
+                db.query(ValAgent).filter(
+                    ValAgent.val_stat_id == val_stat.id
+                ).delete()
+            else:
+                # Create new data
+                val_stat = ValStat(
+                    user_id=user_id, tier=val_dto.tier, rank=val_dto.rank
+                )
+                db.add(val_stat)
+                db.flush()  # Get the ID
+
+            # Add agents
+            for idx, agent in enumerate(val_dto.top_agents, start=1):
+                agent_obj = ValAgent(
+                    val_stat_id=val_stat.id,
+                    name=agent.name,
+                    icon_url=agent.icon_url,
+                    games=agent.games,
+                    win_rate=agent.win_rate,
+                    rank_order=idx,
+                )
+                db.add(agent_obj)
+
+            db.commit()
+            db.close()
+        except Exception as e:
+            logger.error(f"Failed to save VAL data to DB: {user_id} - {e}")
+            import traceback
+
+            logger.error(traceback.format_exc())
+
     async def _refresh_cache(self, user_id: int):
         if not self._ready:
             logger.warning(f"Not ready: {user_id}")
@@ -154,61 +256,45 @@ class CrawlerService:
             logger.error(f"Executor not ready: {user_id}")
             return
 
-        from services import lol_service, val_service
+        from services import lol_stat_service, val_stat_service
 
+        # Crawl LOL data
         lol_future = self._executor.submit(
             self._crawl,
             user_id,
             game_name,
             tag_line,
-            lol_service.crawl_lol,
+            lol_stat_service.crawl_lol_stat,
         )
 
         try:
             lol_dto = lol_future.result()
-            if user_id not in self._cache:
-                self._cache[user_id] = Cache()
-            self._cache[user_id].lol = GetLolResponseDTO(
-                success=True,
-                code=200,
-                message="LOL info retrieved successfully.",
-                data=lol_dto,
-            )
-            logger.info(f"LOL cached: {user_id}")
+            # Save to database
+            self._save_lol_to_db(user_id, lol_dto)
+            logger.info(f"LOL data saved to DB: {user_id}")
         except Exception as e:
             logger.error(
                 f"LOL failed: {user_id} - {type(e).__name__}: {str(e)}"
             )
-            if user_id in self._cache and self._cache[user_id].lol:
-                self._cache[user_id].lol = None
-                logger.info(f"LOL cache deleted: {user_id}")
 
+        # Crawl VAL data
         val_future = self._executor.submit(
             self._crawl,
             user_id,
             game_name,
             tag_line,
-            val_service.crawl_val,
+            val_stat_service.crawl_val_stat,
         )
 
         try:
             val_dto = val_future.result()
-            if user_id not in self._cache:
-                self._cache[user_id] = Cache()
-            self._cache[user_id].val = GetValResponseDTO(
-                success=True,
-                code=200,
-                message="VAL info retrieved successfully.",
-                data=val_dto,
-            )
-            logger.info(f"VAL cached: {user_id}")
+            # Save to database
+            self._save_val_to_db(user_id, val_dto)
+            logger.info(f"VAL data saved to DB: {user_id}")
         except Exception as e:
             logger.error(
                 f"VAL failed: {user_id} - {type(e).__name__}: {str(e)}"
             )
-            if user_id in self._cache and self._cache[user_id].val:
-                self._cache[user_id].val = None
-                logger.info(f"VAL cache deleted: {user_id}")
 
         logger.info(f"Finished: {user_id}")
 
@@ -354,7 +440,7 @@ class CrawlerService:
             del self._cache[user_id]
             logger.info(f"Cache removed: {user_id}")
 
-    async def get_lol(self, user_id: int) -> Optional[GetLolResponseDTO]:
+    async def get_lol_stat(self, user_id: int) -> Optional[GetLolResponseDTO]:
         if user_id in self._cache and self._cache[user_id].lol:
             logger.debug(f"LOL hit: {user_id}")
             return self._cache[user_id].lol
@@ -362,7 +448,7 @@ class CrawlerService:
         logger.debug(f"LOL miss: {user_id}")
         return None
 
-    async def get_val(self, user_id: int) -> Optional[GetValResponseDTO]:
+    async def get_val_stat(self, user_id: int) -> Optional[GetValResponseDTO]:
         if user_id in self._cache and self._cache[user_id].val:
             logger.debug(f"VAL hit: {user_id}")
             return self._cache[user_id].val
