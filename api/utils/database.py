@@ -9,13 +9,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "trader.db"
-DEFAULT_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    f"sqlite:///{DEFAULT_DB_PATH}",
+    "sqlite:///data/trader.db",
 )
 
 engine: Optional[Engine] = None
