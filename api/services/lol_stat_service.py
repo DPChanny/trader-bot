@@ -20,7 +20,6 @@ async def get_lol_stat(
             logger.debug(f"No LOL data found for user {user_id}")
             return None
 
-        # Convert champions to DTOs
         champions = [
             ChampionDto(
                 name=champ.name,
@@ -31,7 +30,7 @@ async def get_lol_stat(
             for champ in sorted(lol_stat.champions, key=lambda x: x.rank_order)
         ]
 
-        lol_dto = LolStatDto(
+        lol_stat_dto = LolStatDto(
             tier=lol_stat.tier,
             rank=lol_stat.rank,
             lp=lol_stat.lp,
@@ -42,7 +41,7 @@ async def get_lol_stat(
             success=True,
             code=200,
             message="LOL info retrieved successfully.",
-            data=lol_dto,
+            data=lol_stat_dto,
         )
     except Exception as e:
         logger.error(f"Failed to get LOL data for user {user_id}: {e}")

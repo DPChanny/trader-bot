@@ -31,7 +31,6 @@ class LolStat(Base):
         onupdate=datetime.utcnow,
     )
 
-    # Relationships
     user: Mapped[User] = relationship("User", back_populates="lol_stat")
     champions: Mapped[List[Champion]] = relationship(
         "LolChampion", back_populates="lol_stat", cascade="all, delete-orphan"
@@ -51,11 +50,8 @@ class Champion(Base):
     icon_url: Mapped[str] = mapped_column(String(500), nullable=False)
     games: Mapped[int] = mapped_column(Integer, nullable=False)
     win_rate: Mapped[float] = mapped_column(Float, nullable=False)
-    rank_order: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=0
-    )  # 1, 2, 3 for top 3
+    rank_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
-    # Relationships
     lol_stat: Mapped[LolStat] = relationship(
         "LolStat", back_populates="champions"
     )

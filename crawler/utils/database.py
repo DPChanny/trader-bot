@@ -4,9 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-from utils.env import get_db_url
-
-DATABASE_URL = get_db_url()
+from .env import get_db_url
 
 engine: Optional[Engine] = None
 SessionLocal: Optional[sessionmaker] = None
@@ -17,7 +15,7 @@ def init_engine():
     global engine, SessionLocal
 
     engine = create_engine(
-        DATABASE_URL,
+        get_db_url(),
         pool_size=5,
         max_overflow=10,
         pool_pre_ping=True,

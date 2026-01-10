@@ -28,7 +28,6 @@ class LolStat(Base):
         onupdate=datetime.utcnow,
     )
 
-    # Relationships
     champions: Mapped[List[LolChampion]] = relationship(
         "LolChampion", back_populates="lol_stat", cascade="all, delete-orphan"
     )
@@ -49,7 +48,6 @@ class LolChampion(Base):
     win_rate: Mapped[float] = mapped_column(Float, nullable=False)
     rank_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
-    # Relationships
     lol_stat: Mapped[LolStat] = relationship(
         "LolStat", back_populates="champions"
     )

@@ -20,7 +20,6 @@ async def get_val_stat(
             logger.debug(f"No VAL data found for user {user_id}")
             return None
 
-        # Convert agents to DTOs
         agents = [
             AgentDto(
                 name=agent.name,
@@ -31,7 +30,7 @@ async def get_val_stat(
             for agent in sorted(val_stat.agents, key=lambda x: x.rank_order)
         ]
 
-        val_dto = ValStatDto(
+        val_stat_dto = ValStatDto(
             tier=val_stat.tier, rank=val_stat.rank, top_agents=agents
         )
 
@@ -39,7 +38,7 @@ async def get_val_stat(
             success=True,
             code=200,
             message="VAL info retrieved successfully.",
-            data=val_dto,
+            data=val_stat_dto,
         )
     except Exception as e:
         logger.error(f"Failed to get VAL data for user {user_id}: {e}")

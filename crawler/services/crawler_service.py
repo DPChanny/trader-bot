@@ -132,22 +132,18 @@ class CrawlerService:
 
             db = next(get_db())
 
-            # Get or create LolStat
             lol_stat = (
                 db.query(LolStat).filter(LolStat.user_id == user_id).first()
             )
 
             if lol_stat:
-                # Update existing data
                 lol_stat.tier = lol_dto.tier
                 lol_stat.rank = lol_dto.rank
                 lol_stat.lp = lol_dto.lp
-                # Delete old champions
                 db.query(LolChampion).filter(
                     LolChampion.lol_stat_id == lol_stat.id
                 ).delete()
             else:
-                # Create new data
                 lol_stat = LolStat(
                     user_id=user_id,
                     tier=lol_dto.tier,
@@ -155,9 +151,8 @@ class CrawlerService:
                     lp=lol_dto.lp,
                 )
                 db.add(lol_stat)
-                db.flush()  # Get the ID
+                db.flush()
 
-            # Add champions
             for idx, champ in enumerate(lol_dto.top_champions, start=1):
                 champion = LolChampion(
                     lol_stat_id=lol_stat.id,
@@ -185,28 +180,23 @@ class CrawlerService:
 
             db = next(get_db())
 
-            # Get or create ValStat
             val_stat = (
                 db.query(ValStat).filter(ValStat.user_id == user_id).first()
             )
 
             if val_stat:
-                # Update existing data
                 val_stat.tier = val_dto.tier
                 val_stat.rank = val_dto.rank
-                # Delete old agents
                 db.query(ValAgent).filter(
                     ValAgent.val_stat_id == val_stat.id
                 ).delete()
             else:
-                # Create new data
                 val_stat = ValStat(
                     user_id=user_id, tier=val_dto.tier, rank=val_dto.rank
                 )
                 db.add(val_stat)
-                db.flush()  # Get the ID
+                db.flush()
 
-            # Add agents
             for idx, agent in enumerate(val_dto.top_agents, start=1):
                 agent_obj = ValAgent(
                     val_stat_id=val_stat.id,
@@ -258,7 +248,6 @@ class CrawlerService:
 
         from services import lol_stat_service, val_stat_service
 
-        # Crawl LOL data
         lol_future = self._executor.submit(
             self._crawl,
             user_id,
@@ -269,7 +258,6 @@ class CrawlerService:
 
         try:
             lol_dto = lol_future.result()
-            # Save to database
             self._save_lol_to_db(user_id, lol_dto)
             logger.info(f"LOL data saved to DB: {user_id}")
         except Exception as e:
@@ -277,7 +265,6 @@ class CrawlerService:
                 f"LOL failed: {user_id} - {type(e).__name__}: {str(e)}"
             )
 
-        # Crawl VAL data
         val_future = self._executor.submit(
             self._crawl,
             user_id,
@@ -288,7 +275,6 @@ class CrawlerService:
 
         try:
             val_dto = val_future.result()
-            # Save to database
             self._save_val_to_db(user_id, val_dto)
             logger.info(f"VAL data saved to DB: {user_id}")
         except Exception as e:
