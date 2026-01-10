@@ -55,6 +55,6 @@ jobs:
             nohup serve -s dist -l tcp://0.0.0.0:8080 > output.log 2>&1 &
 
             cd ~/trader/api
-            conda env update
             conda activate trader
+            conda env update
             nohup uvicorn main:app --host 0.0.0.0 --port 8000 > output.log 2>&1 &
