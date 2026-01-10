@@ -52,14 +52,6 @@ def add_auction_service(
                 400, "At least 2 leaders are required to start an auction."
             )
 
-        required_users = len(leaders) * 5
-        if len(preset_users) < required_users:
-            logger.warning(f"Users < {required_users}: {len(preset_users)}")
-            raise CustomException(
-                400,
-                f"At least {required_users} users are required ({len(leaders)} leaders × 5 members each).",
-            )
-
         teams = []
         leader_user_ids = set()
         for idx, leader in enumerate(leaders):

@@ -38,7 +38,7 @@ export function PresetPage({}: PresetPageProps) {
   );
   const [isCreating, setIsCreating] = useState(false);
   const [newPresetName, setNewPresetName] = useState("");
-  const [points, setPoints] = useState(1000);
+  const [inputPoints, setInputPoints] = useState(1000);
   const [pointScale, setPointScale] = useState(1);
   const [time, setTime] = useState(30);
   const [statistics, setStatistics] = useState<Statistics>("NONE");
@@ -108,19 +108,22 @@ export function PresetPage({}: PresetPageProps) {
     setRemovingUserIds(new Set());
   };
 
+  const isDivisible = inputPoints % pointScale === 0;
+
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!newPresetName.trim()) return;
+    if (!newPresetName.trim() || pointScale <= 0 || !isDivisible) return;
+    const actualPoints = inputPoints / pointScale;
     try {
       await addPreset.mutateAsync({
         name: newPresetName.trim(),
-        points,
+        points: actualPoints,
         time,
         pointScale,
         statistics,
       });
       setNewPresetName("");
-      setPoints(1000);
+      setInputPoints(1000);
       setPointScale(1);
       setTime(30);
       setStatistics("NONE");
@@ -135,14 +138,8 @@ export function PresetPage({}: PresetPageProps) {
 
     const leaderCount =
       presetDetail.presetUsers?.filter((pu) => pu.isLeader).length || 0;
-    const userCount = presetDetail.presetUsers?.length || 0;
-    const requiredUsers = leaderCount * 5;
 
     if (leaderCount < 2) {
-      return;
-    }
-
-    if (userCount < requiredUsers) {
       return;
     }
 
@@ -187,14 +184,14 @@ export function PresetPage({}: PresetPageProps) {
     presetDetail?.presetUsers?.filter((pu) => pu.isLeader).length || 0;
   const userCount = presetDetail?.presetUsers?.length || 0;
   const requiredUsers = leaderCount * 5;
-  const canStartAuction = leaderCount >= 2 && userCount >= requiredUsers;
+  const canStartAuction = leaderCount >= 2;
 
   let auctionValidationMessage = "";
   if (selectedPresetId && presetDetail) {
     if (leaderCount < 2) {
       auctionValidationMessage = `팀장이 부족합니다. (현재: ${leaderCount}명, 필요: 2명 이상)`;
     } else if (userCount < requiredUsers) {
-      auctionValidationMessage = `유저가 부족합니다. (현재: ${userCount}명, 필요: ${requiredUsers}명)`;
+      auctionValidationMessage = `경고: 유저가 권장 인원보다 적습니다. (현재: ${userCount}명, 권장: ${requiredUsers}명)`;
     }
   }
 
@@ -232,7 +229,7 @@ export function PresetPage({}: PresetPageProps) {
                     >
                       {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
                     </PrimaryButton>
-                    {!canStartAuction && auctionValidationMessage && (
+                    {auctionValidationMessage && (
                       <Error>{auctionValidationMessage}</Error>
                     )}
                     {addAuction.isError && (
@@ -376,8 +373,10 @@ export function PresetPage({}: PresetPageProps) {
           onSubmit={handleSubmit}
           presetName={newPresetName}
           onNameChange={setNewPresetName}
-          points={points}
-          onPointsChange={(value) => setPoints(parseInt(value) || 1000)}
+          inputPoints={inputPoints}
+          onInputPointsChange={(value) =>
+            setInputPoints(parseInt(value) || 1000)
+          }
           pointScale={pointScale}
           onPointScaleChange={(value) => setPointScale(parseInt(value) || 1)}
           time={time}
@@ -386,6 +385,7 @@ export function PresetPage({}: PresetPageProps) {
           onStatisticsChange={setStatistics}
           isPending={addPreset.isPending}
           error={addPreset.error}
+          isDivisible={isDivisible}
         />
       </PageContainer>
     </PageLayout>

@@ -13,8 +13,8 @@ interface AddPresetModalProps {
   onSubmit: (e: Event) => void;
   presetName: string;
   onNameChange: (value: string) => void;
-  points: number;
-  onPointsChange: (value: string) => void;
+  inputPoints: number;
+  onInputPointsChange: (value: string) => void;
   pointScale: number;
   onPointScaleChange: (value: string) => void;
   time: number;
@@ -23,6 +23,7 @@ interface AddPresetModalProps {
   onStatisticsChange: (value: Statistics) => void;
   isPending?: boolean;
   error?: Error | null;
+  isDivisible: boolean;
 }
 
 export function AddPresetModal({
@@ -31,8 +32,8 @@ export function AddPresetModal({
   onSubmit,
   presetName,
   onNameChange,
-  points: pointsPerTeam,
-  onPointsChange,
+  inputPoints,
+  onInputPointsChange,
   pointScale,
   onPointScaleChange,
   time: timerDuration,
@@ -41,6 +42,7 @@ export function AddPresetModal({
   onStatisticsChange,
   isPending = false,
   error,
+  isDivisible,
 }: AddPresetModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="프리셋 추가">
@@ -54,10 +56,10 @@ export function AddPresetModal({
         />
         <ModalRow>
           <LabelInput
-            label="팀당 포인트"
+            label="표시 포인트"
             type="number"
-            value={pointsPerTeam.toString()}
-            onChange={onPointsChange}
+            value={inputPoints.toString()}
+            onChange={onInputPointsChange}
           />
           <LabelInput
             label="포인트 스케일"
@@ -66,6 +68,9 @@ export function AddPresetModal({
             onChange={onPointScaleChange}
           />
         </ModalRow>
+        {!isDivisible && (
+          <Error>표시 포인트는 스케일로 나뉘어떨어져야 합니다.</Error>
+        )}
         <LabelInput
           label="경매 타이머 (초)"
           type="number"
@@ -102,7 +107,9 @@ export function AddPresetModal({
           <SecondaryButton onClick={onClose}>취소</SecondaryButton>
           <PrimaryButton
             type="submit"
-            disabled={isPending || !presetName.trim()}
+            disabled={
+              isPending || !presetName.trim() || !isDivisible || pointScale <= 0
+            }
           >
             추가
           </PrimaryButton>

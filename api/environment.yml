@@ -15,3 +15,4 @@ dependencies:
   - discord.py
   - pymysql
   - boto3
+  - websockets

@@ -128,11 +128,11 @@ class Auction:
 
     async def broadcast(self, message: WebSocketMessage):
         async with self._broadcast_lock:
-            connections_snapshot = self.connections.copy()
+            connections = self.connections.copy()
 
         disconnected = []
         message_dict = message.model_dump()
-        for connection in connections_snapshot:
+        for connection in connections:
             try:
                 await connection.send_json(message_dict)
             except Exception:
@@ -159,6 +159,8 @@ class Auction:
         )
 
     async def set_status(self, new_status: AuctionStatus):
+        next_user = False
+
         async with self._state_lock:
             if self.status == AuctionStatus.COMPLETED:
                 return
@@ -187,8 +189,7 @@ class Auction:
                         self.was_in_progress = False
                         self._start_timer()
                     else:
-                        await self._next_user_internal()
-                        return
+                        next_user = True
 
             elif new_status == AuctionStatus.COMPLETED:
                 self.current_user_id = None
@@ -201,6 +202,9 @@ class Auction:
                 )
 
             self.status = new_status
+
+        if next_user:
+            await self._next_user()
 
         await self.broadcast(
             WebSocketMessage(
@@ -365,7 +369,7 @@ class Auction:
                     )
                 )
 
-            await self._next_user_internal()
+        await self._next_user()
 
     async def place_bid(self, token: str, amount: int) -> Dict:
         async with self._state_lock:
@@ -442,8 +446,7 @@ class Auction:
         return {"success": True}
 
     async def terminate_auction(self):
-        if self.timer_task and not self.timer_task.done():
-            self.timer_task.cancel()
+        self._stop_timer()
 
         for connection in self.connections[:]:
             try:
