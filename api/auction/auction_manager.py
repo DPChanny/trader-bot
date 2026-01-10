@@ -2,7 +2,7 @@ import uuid
 from typing import Dict, Optional, List
 
 from .auction import Auction
-from ..dtos.auction_dto import Team
+from dtos.auction_dto import Team
 
 
 class Token:

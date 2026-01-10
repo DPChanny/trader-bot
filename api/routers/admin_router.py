@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, Header
 
-from ..dtos.admin_dto import (
+from dtos.admin_dto import (
     AdminLoginRequest,
     AdminLoginResponse,
     TokenRefreshResponse,
 )
-from ..services.admin_service import (
+from services.admin_service import (
     verify_admin_password,
     generate_admin_token,
     refresh_admin_token,

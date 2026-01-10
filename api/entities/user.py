@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, List, Optional
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..utils.database import Base
+from utils.database import Base
 
 if TYPE_CHECKING:
     from .preset_user import PresetUser

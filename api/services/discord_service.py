@@ -6,7 +6,7 @@ from typing import Optional
 import discord
 from discord.ext import commands
 
-from ..utils.env import get_discord_bot_token
+from utils.env import get_discord_bot_token
 
 logger = logging.getLogger(__name__)
 

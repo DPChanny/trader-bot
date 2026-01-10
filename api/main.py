@@ -7,9 +7,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .utils.database import init_engine
-from .routers import *
-from .services.discord_service import discord_service
+from utils.database import init_engine
+from routers import *
+from services.discord_service import discord_service
 
 logging.basicConfig(
     level=logging.INFO,

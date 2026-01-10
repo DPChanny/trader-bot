@@ -2,18 +2,18 @@ import logging
 
 from sqlalchemy.orm import Session, joinedload
 
-from ..auction.auction_manager import auction_manager
-from ..dtos.auction_dto import (
+from auction.auction_manager import auction_manager
+from dtos.auction_dto import (
     AddAuctionResponseDTO,
     AuctionDTO,
     Team,
 )
-from ..entities.preset import Preset
-from ..entities.preset_user import PresetUser
-from ..entities.user import User
+from entities.preset import Preset
+from entities.preset_user import PresetUser
+from entities.user import User
 from .discord_service import discord_service
-from ..utils.env import get_auction_url
-from ..utils.exception import CustomException, handle_exception
+from utils.env import get_auction_url
+from utils.exception import CustomException, handle_exception
 
 logger = logging.getLogger(__name__)
 

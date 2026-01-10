@@ -6,7 +6,7 @@ from .base_dto import BaseResponseDTO
 from .position_dto import PositionDTO
 from .preset_user_dto import PresetUserDetailDTO
 from .tier_dto import TierDTO
-from ..entities.preset import Statistics
+from entities.preset import Statistics
 
 
 class PresetDTO(BaseModel):

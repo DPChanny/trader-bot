@@ -3,8 +3,8 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from ..dtos.val_stat_dto import GetValResponseDTO, ValStatDto, AgentDto
-from ..entities.val_stat import ValStat
+from dtos.val_stat_dto import GetValResponseDTO, ValStatDto, AgentDto
+from entities.val_stat import ValStat
 
 logger = logging.getLogger(__name__)
 

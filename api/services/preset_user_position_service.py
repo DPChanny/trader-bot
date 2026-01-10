@@ -3,15 +3,15 @@ import logging
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..dtos.base_dto import BaseResponseDTO
-from ..dtos.preset_user_position_dto import (
+from dtos.base_dto import BaseResponseDTO
+from dtos.preset_user_position_dto import (
     AddPresetUserPositionRequestDTO,
     DeletePresetUserPositionRequestDTO,
     GetPresetUserPositionResponseDTO,
     PresetUserPositionDTO,
 )
-from ..entities.preset_user_position import PresetUserPosition
-from ..utils.exception import CustomException, handle_exception
+from entities.preset_user_position import PresetUserPosition
+from utils.exception import CustomException, handle_exception
 
 logger = logging.getLogger(__name__)
 

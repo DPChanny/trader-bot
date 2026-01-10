@@ -25,7 +25,7 @@ def init_engine():
 
     SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
-    from .. import entities
+    import entities
 
     Base.metadata.create_all(bind=engine)
 

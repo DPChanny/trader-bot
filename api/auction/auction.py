@@ -2,7 +2,7 @@ import asyncio
 import random
 from typing import Dict, List, Optional
 
-from ..dtos.auction_dto import (
+from dtos.auction_dto import (
     AuctionStateDTO,
     AuctionStatus,
     Team,
