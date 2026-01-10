@@ -9,9 +9,9 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
-from ..dtos.lol_stat_dto import GetLolResponseDTO
-from ..dtos.val_stat_dto import GetValResponseDTO
-from ..utils.crawler import get_chrome_options
+from dtos.lol_stat_dto import GetLolResponseDTO
+from dtos.val_stat_dto import GetValResponseDTO
+from utils.crawler import get_chrome_options
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +127,7 @@ class CrawlerService:
     def _save_lol_to_db(self, user_id: int, lol_dto):
         """Save LOL data to database"""
         try:
-            from entities.lol_stat import LolStat, LolChampion
+            from entities.lol_stat import LolStat, Champion
             from utils.database import get_db
 
             db = next(get_db())
@@ -140,8 +140,8 @@ class CrawlerService:
                 lol_stat.tier = lol_dto.tier
                 lol_stat.rank = lol_dto.rank
                 lol_stat.lp = lol_dto.lp
-                db.query(LolChampion).filter(
-                    LolChampion.lol_stat_id == lol_stat.id
+                db.query(Champion).filter(
+                    Champion.lol_stat_id == lol_stat.id
                 ).delete()
             else:
                 lol_stat = LolStat(
@@ -154,7 +154,7 @@ class CrawlerService:
                 db.flush()
 
             for idx, champ in enumerate(lol_dto.top_champions, start=1):
-                champion = LolChampion(
+                champion = Champion(
                     lol_stat_id=lol_stat.id,
                     name=champ.name,
                     icon_url=champ.icon_url,

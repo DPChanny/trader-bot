@@ -6,7 +6,7 @@ from typing import List
 from sqlalchemy import String, Integer, Float, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..utils.database import Base
+from utils.database import Base
 
 
 class LolStat(Base):
@@ -28,15 +28,15 @@ class LolStat(Base):
         onupdate=datetime.utcnow,
     )
 
-    champions: Mapped[List[LolChampion]] = relationship(
-        "LolChampion", back_populates="lol_stat", cascade="all, delete-orphan"
+    champions: Mapped[List[Champion]] = relationship(
+        "Champion", back_populates="lol_stat", cascade="all, delete-orphan"
     )
 
 
-class LolChampion(Base):
+class Champion(Base):
     """Top champions for a user's LOL data"""
 
-    __tablename__ = "lol_champion"
+    __tablename__ = "champion"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     lol_stat_id: Mapped[int] = mapped_column(

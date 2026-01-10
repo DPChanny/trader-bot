@@ -3,8 +3,8 @@ import logging
 import signal
 import sys
 
-from .services.crawler_service import crawler_service
-from .utils.database import init_engine
+from services.crawler_service import crawler_service
+from utils.database import init_engine
 
 logging.basicConfig(
     level=logging.INFO,

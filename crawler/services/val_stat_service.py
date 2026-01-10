@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from ..dtos.val_stat_dto import GetValResponseDTO, ValStatDto, AgentDto
+from dtos.val_stat_dto import GetValResponseDTO, ValStatDto, AgentDto
 from .crawler_service import crawler_service, WEB_DRIVER_TIMEOUT
 
 logger = logging.getLogger(__name__)

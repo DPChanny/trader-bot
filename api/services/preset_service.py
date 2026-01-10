@@ -14,7 +14,6 @@ from dtos.preset_dto import (
 from entities.preset import Preset
 from entities.preset_user import PresetUser
 from entities.preset_user_position import PresetUserPosition
-from .discord_service import discord_service
 from utils.exception import CustomException, handle_exception
 
 logger = logging.getLogger(__name__)
@@ -45,25 +44,6 @@ async def get_preset_detail_service(
             raise CustomException(404, "Preset not found.")
 
         preset_dto = PresetDetailDTO.model_validate(preset)
-
-        for preset_user in preset_dto.preset_users:
-            if preset_user.user and preset.preset_users:
-                user_entity = next(
-                    (
-                        pu.user
-                        for pu in preset.preset_users
-                        if pu.user_id == preset_user.user_id
-                    ),
-                    None,
-                )
-                if user_entity:
-                    try:
-                        profile_url = await discord_service.get_profile_url(
-                            user_entity.discord_id
-                        )
-                        preset_user.user.profile_url = profile_url
-                    except Exception:
-                        preset_user.user.profile_url = None
 
         return GetPresetDetailResponseDTO(
             success=True,

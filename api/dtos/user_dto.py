@@ -16,7 +16,7 @@ class UserDTO(BaseModel):
     @computed_field
     @property
     def discord_profile_url(self) -> str:
-        from ..utils.env import get_discord_profile_url
+        from utils.env import get_discord_profile_url
 
         return get_discord_profile_url(self.user_id)
 

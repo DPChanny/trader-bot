@@ -40,15 +40,6 @@ async def get_preset_user_detail_service(
 
         preset_user_dto = PresetUserDetailDTO.model_validate(preset_user)
 
-        if preset_user_dto.user:
-            try:
-                profile_url = await discord_service.get_profile_url(
-                    preset_user.user.discord_id
-                )
-                preset_user_dto.user.profile_url = profile_url
-            except Exception:
-                preset_user_dto.user.profile_url = None
-
         return GetPresetUserDetailResponseDTO(
             success=True,
             code=200,
@@ -86,15 +77,6 @@ async def add_preset_user_service(
         )
 
         preset_user_dto = PresetUserDetailDTO.model_validate(preset_user)
-
-        if preset_user_dto.user:
-            try:
-                profile_url = await discord_service.get_profile_url(
-                    preset_user.user.discord_id
-                )
-                preset_user_dto.user.profile_url = profile_url
-            except Exception:
-                preset_user_dto.user.profile_url = None
 
         return GetPresetUserDetailResponseDTO(
             success=True,
@@ -157,15 +139,6 @@ async def update_preset_user_service(
         )
 
         preset_user_dto = PresetUserDetailDTO.model_validate(preset_user)
-
-        if preset_user_dto.user:
-            try:
-                profile_url = await discord_service.get_profile_url(
-                    preset_user.user.discord_id
-                )
-                preset_user_dto.user.profile_url = profile_url
-            except Exception:
-                preset_user_dto.user.profile_url = None
 
         return GetPresetUserDetailResponseDTO(
             success=True,

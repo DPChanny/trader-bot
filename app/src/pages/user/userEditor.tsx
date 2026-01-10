@@ -100,7 +100,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
                 name: name,
                 riotId: riotId,
                 discordId: discordId,
-                profileUrl: user.profileUrl,
+                discordProfileUrl: user.discordProfileUrl,
               }}
               variant="detail"
             />

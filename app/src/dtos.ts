@@ -105,7 +105,7 @@ export interface User {
   name: string;
   riotId: string;
   discordId: string;
-  profileUrl?: string | null;
+  discordProfileUrl: string;
 }
 
 export interface Tier {

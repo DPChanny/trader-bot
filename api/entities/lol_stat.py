@@ -33,14 +33,14 @@ class LolStat(Base):
 
     user: Mapped[User] = relationship("User", back_populates="lol_stat")
     champions: Mapped[List[Champion]] = relationship(
-        "LolChampion", back_populates="lol_stat", cascade="all, delete-orphan"
+        "Champion", back_populates="lol_stat", cascade="all, delete-orphan"
     )
 
 
 class Champion(Base):
     """Top champions for a user's LOL data"""
 
-    __tablename__ = "lol_champion"
+    __tablename__ = "champion"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     lol_stat_id: Mapped[int] = mapped_column(
