@@ -9,6 +9,5 @@ dependencies:
   - pydantic
   - python-dotenv
   - selenium
-  - pip:
-      - webdriver-manager
-      - pymysql
+  - pymysql
+  - webdriver-manager
