@@ -72,7 +72,6 @@ class S3Client:
             return False
 
     async def delete_discord_profile(self, user_id: int) -> bool:
-        """Async version of delete_discord_profile"""
         if not self.client:
             logger.error("S3 client not initialized")
             return False

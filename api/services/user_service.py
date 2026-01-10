@@ -18,6 +18,37 @@ from utils.exception import CustomException, handle_exception
 logger = logging.getLogger(__name__)
 
 
+async def update_discord_profile(user_id: int, discord_id: str) -> bool:
+    try:
+        await s3_client.delete_discord_profile(user_id)
+
+        profile_url = await discord_service.fetch_discord_profile_url(
+            discord_id
+        )
+        if not profile_url:
+            return False
+
+        import aiohttp
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(profile_url) as response:
+                if response.status == 200:
+                    image_data = await response.read()
+                    await s3_client.upload_discord_profile(user_id, image_data)
+                    logger.info(
+                        f"Successfully uploaded discord profile for user: {user_id}"
+                    )
+                    return True
+                else:
+                    logger.warning(
+                        f"Failed to download discord profile: {response.status}"
+                    )
+                    return False
+    except Exception as e:
+        logger.error(f"Failed to process discord profile: {e}")
+        return False
+
+
 async def get_user_detail_service(
     user_id: int, db: Session
 ) -> GetUserDetailResponseDTO | None:
@@ -56,26 +87,7 @@ async def add_user_service(
         logger.info(f"Added: {user.user_id}")
 
         if dto.discord_id:
-            profile_url = await discord_service.fetch_discord_profile_url(
-                dto.discord_id
-            )
-            if profile_url:
-                import aiohttp
-
-                try:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(profile_url) as response:
-                            if response.status == 200:
-                                image_data = await response.read()
-                                await s3_client.upload_discord_profile(
-                                    user.user_id, image_data
-                                )
-                            else:
-                                logger.warning(
-                                    f"Failed to download discord profile: {response.status}"
-                                )
-                except Exception as e:
-                    logger.error(f"Failed to process discord profile: {e}")
+            await update_discord_profile(user.user_id, dto.discord_id)
 
         return await get_user_detail_service(user.user_id, db)
 
@@ -119,32 +131,37 @@ async def update_user_service(
 
         db.commit()
 
-        if discord_id_changed:
-            if old_discord_id:
-                await s3_client.delete_discord_profile(user.user_id)
+        if discord_id_changed and user.discord_id:
+            await update_discord_profile(user.user_id, user.discord_id)
 
-            if user.discord_id:
-                profile_url = await discord_service.fetch_discord_profile_url(
-                    user.discord_id
-                )
-                if profile_url:
-                    import aiohttp
+        return await get_user_detail_service(user.user_id, db)
 
-                    try:
-                        async with aiohttp.ClientSession() as session:
-                            async with session.get(profile_url) as response:
-                                if response.status == 200:
-                                    image_data = await response.read()
-                                    await s3_client.upload_discord_profile(
-                                        user.user_id, image_data
-                                    )
-                                else:
-                                    logger.warning(
-                                        f"Failed to download discord profile: {response.status}"
-                                    )
-                    except Exception as e:
-                        logger.error(f"Failed to process discord profile: {e}")
+    except Exception as e:
+        handle_exception(e, db)
 
+
+async def update_discord_profile_service(
+    user_id: int, db: Session
+) -> GetUserDetailResponseDTO | None:
+    try:
+        user = db.query(User).filter(User.user_id == user_id).first()
+        if not user:
+            logger.warning(f"User missing: {user_id}")
+            raise CustomException(404, "User not found")
+
+        if not user.discord_id:
+            logger.warning(f"No discord_id for user: {user_id}")
+            raise CustomException(400, "User has no discord_id")
+
+        success = await update_discord_profile(user.user_id, user.discord_id)
+
+        if not success:
+            logger.warning(
+                f"Failed to update discord profile for user: {user_id}"
+            )
+            raise CustomException(500, "Failed to update discord profile")
+
+        logger.info(f"Discord profile updated: {user_id}")
         return await get_user_detail_service(user.user_id, db)
 
     except Exception as e:

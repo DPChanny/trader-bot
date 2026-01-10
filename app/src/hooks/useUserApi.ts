@@ -63,6 +63,24 @@ export const userApi = {
     });
     if (!response.ok) throw new Error("Failed to delete user");
   },
+
+  updateDiscordProfile: async (userId: number): Promise<User> => {
+    const response = await fetch(`${USER_API_URL}/${userId}/discord-profile`, {
+      method: "POST",
+      headers: getAuthHeadersForMutation(),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        "Update discord profile failed:",
+        response.status,
+        errorText
+      );
+      throw new Error(`Failed to update discord profile: ${response.status}`);
+    }
+    const json: ApiResponse<any> = await response.json();
+    return toCamelCase<User>(json.data);
+  },
 };
 
 export const useUsers = () => {
@@ -122,6 +140,18 @@ export const useDeleteUser = () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.removeQueries({ queryKey: ["users", userId] });
       queryClient.invalidateQueries({ queryKey: ["preset"] });
+    },
+  });
+};
+
+export const useUpdateDiscordProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: userApi.updateDiscordProfile,
+    onSuccess: (_, userId) => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["users", userId] });
     },
   });
 };

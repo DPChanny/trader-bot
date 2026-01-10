@@ -2,10 +2,19 @@ import { useEffect, useState } from "preact/hooks";
 import { UserCard } from "@/components/userCard";
 import { LolCard } from "@/components/lolCard";
 import { ValCard } from "@/components/valCard";
-import { useDeleteUser, useUpdateUser } from "@/hooks/useUserApi";
+import {
+  useDeleteUser,
+  useUpdateUser,
+  useUpdateDiscordProfile,
+} from "@/hooks/useUserApi";
 import { useLolInfo } from "@/hooks/useLolApi";
 import { useValInfo } from "@/hooks/useValApi";
-import { CloseButton, DangerButton, SaveButton } from "@/components/button";
+import {
+  Button,
+  CloseButton,
+  DangerButton,
+  SaveButton,
+} from "@/components/button";
 import { LabelInput } from "@/components/labelInput";
 import { Error } from "@/components/error";
 import { Bar } from "@/components/bar";
@@ -24,6 +33,7 @@ interface UserEditorProps {
 export function UserEditor({ user, onClose }: UserEditorProps) {
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
+  const updateDiscordProfile = useUpdateDiscordProfile();
   const lolInfo = useLolInfo(user.userId);
   const valInfo = useValInfo(user.userId);
 
@@ -68,6 +78,14 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
     }
   };
 
+  const handleUpdateDiscordProfile = async () => {
+    try {
+      await updateDiscordProfile.mutateAsync(user.userId);
+    } catch (err) {
+      console.error("Failed to update discord profile:", err);
+    }
+  };
+
   return (
     <Section variantType="primary" className={styles.panel}>
       <Section variantTone="ghost">
@@ -89,6 +107,9 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
 
         {updateUser.isError && <Error>유저 정보 수정에 실패했습니다.</Error>}
         {deleteUser.isError && <Error>유저 삭제에 실패했습니다.</Error>}
+        {updateDiscordProfile.isError && (
+          <Error>Discord 프로필 업데이트에 실패했습니다.</Error>
+        )}
       </Section>
 
       <div className={styles.content}>
@@ -113,6 +134,15 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
             value={discordId}
             onChange={setDiscordId}
           />
+
+          <Button
+            onClick={handleUpdateDiscordProfile}
+            disabled={updateDiscordProfile.isPending || !user.discordId}
+          >
+            {updateDiscordProfile.isPending
+              ? "업데이트 중..."
+              : "Discord 프로필 업데이트"}
+          </Button>
 
           <Bar />
 

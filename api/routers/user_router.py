@@ -17,6 +17,7 @@ from services.user_service import (
     get_user_list_service,
     get_user_detail_service,
     update_user_service,
+    update_discord_profile_service,
 )
 from utils.auth import verify_admin_token
 from utils.database import get_db
@@ -57,6 +58,18 @@ async def update_user_route(
 ):
     logger.info(f"Updating: {user_id}")
     return await update_user_service(user_id, dto, db)
+
+
+@user_router.post(
+    "/{user_id}/discord-profile", response_model=GetUserDetailResponseDTO
+)
+async def update_discord_profile_route(
+    user_id: int,
+    db: Session = Depends(get_db),
+    _: dict = Depends(verify_admin_token),
+):
+    logger.info(f"Updating discord profile: {user_id}")
+    return await update_discord_profile_service(user_id, db)
 
 
 @user_router.delete("/{user_id}", response_model=BaseResponseDTO[NoneType])
