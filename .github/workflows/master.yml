@@ -43,6 +43,10 @@ jobs:
             DB_USER=${{ vars.DB_USER }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_NAME=${{ vars.DB_NAME }}
+            AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+            AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+            AWS_REGION=${{ vars.AWS_REGION }}
+            AWS_BUCKET_NAME=${{ vars.AWS_BUCKET_NAME }}
             EOF
 
             cat << EOF > ~/trader/app/.env
