@@ -1,4 +1,3 @@
-import asyncio
 import logging
 
 from sqlalchemy.orm import Session
@@ -13,6 +12,7 @@ from ..dtos.user_dto import (
 )
 from ..entities.user import User
 from .discord_service import discord_service
+from ..utils.s3 import s3_client
 from ..utils.exception import CustomException, handle_exception
 
 logger = logging.getLogger(__name__)
@@ -29,12 +29,6 @@ async def get_user_detail_service(
             raise CustomException(404, "User not found.")
 
         user_dto = UserDTO.model_validate(user)
-
-        try:
-            profile_url = await discord_service.get_profile_url(user.discord_id)
-            user_dto.profile_url = profile_url
-        except Exception:
-            user_dto.profile_url = None
 
         return GetUserDetailResponseDTO(
             success=True,
@@ -62,7 +56,26 @@ async def add_user_service(
         logger.info(f"Added: {user.user_id}")
 
         if dto.discord_id:
-            discord_service.refresh_profile(dto.discord_id)
+            profile_url = await discord_service.fetch_discord_profile_url(
+                dto.discord_id
+            )
+            if profile_url:
+                import aiohttp
+
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(profile_url) as response:
+                            if response.status == 200:
+                                image_data = await response.read()
+                                await s3_client.upload_discord_profile(
+                                    user.user_id, image_data
+                                )
+                            else:
+                                logger.warning(
+                                    f"Failed to download discord profile: {response.status}"
+                                )
+                except Exception as e:
+                    logger.error(f"Failed to process discord profile: {e}")
 
         return await get_user_detail_service(user.user_id, db)
 
@@ -74,21 +87,7 @@ async def get_user_list_service(db: Session) -> GetUserListResponseDTO | None:
     try:
         users = db.query(User).all()
 
-        profile_tasks = [
-            discord_service.get_profile_url(u.discord_id) for u in users
-        ]
-        profile_urls = await asyncio.gather(
-            *profile_tasks, return_exceptions=True
-        )
-
-        user_dtos = []
-        for u, profile_url in zip(users, profile_urls):
-            user_dto = UserDTO.model_validate(u)
-            if isinstance(profile_url, Exception):
-                user_dto.profile_url = None
-            else:
-                user_dto.profile_url = profile_url
-            user_dtos.append(user_dto)
+        user_dtos = [UserDTO.model_validate(u) for u in users]
 
         return GetUserListResponseDTO(
             success=True,
@@ -110,14 +109,10 @@ async def update_user_service(
             logger.warning(f"Missing: {user_id}")
             raise CustomException(404, "User not found")
 
-        old_riot_id = user.riot_id
         old_discord_id = user.discord_id
-        riot_id_changed = False
         discord_id_changed = False
 
         for key, value in dto.model_dump(exclude_unset=True).items():
-            if key == "riot_id" and value != old_riot_id:
-                riot_id_changed = True
             if key == "discord_id" and value != old_discord_id:
                 discord_id_changed = True
             setattr(user, key, value)
@@ -126,9 +121,29 @@ async def update_user_service(
 
         if discord_id_changed:
             if old_discord_id:
-                discord_service.remove_profile(old_discord_id)
+                await s3_client.delete_discord_profile(user.user_id)
+
             if user.discord_id:
-                discord_service.refresh_profile(user.discord_id)
+                profile_url = await discord_service.fetch_discord_profile_url(
+                    user.discord_id
+                )
+                if profile_url:
+                    import aiohttp
+
+                    try:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get(profile_url) as response:
+                                if response.status == 200:
+                                    image_data = await response.read()
+                                    await s3_client.upload_discord_profile(
+                                        user.user_id, image_data
+                                    )
+                                else:
+                                    logger.warning(
+                                        f"Failed to download discord profile: {response.status}"
+                                    )
+                    except Exception as e:
+                        logger.error(f"Failed to process discord profile: {e}")
 
         return await get_user_detail_service(user.user_id, db)
 
@@ -136,7 +151,7 @@ async def update_user_service(
         handle_exception(e, db)
 
 
-def delete_user_service(
+async def delete_user_service(
     user_id: int, db: Session
 ) -> BaseResponseDTO[None] | None:
     try:
@@ -145,12 +160,10 @@ def delete_user_service(
             logger.warning(f"User missing: {user_id}")
             raise CustomException(404, "User not found")
 
-        discord_id = user.discord_id
-
         db.delete(user)
         db.commit()
 
-        discord_service.remove_profile(discord_id)
+        await s3_client.delete_discord_profile(user_id)
 
         logger.info(f"Deleted: {user_id}")
 

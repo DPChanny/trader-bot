@@ -60,10 +60,10 @@ async def update_user_route(
 
 
 @user_router.delete("/{user_id}", response_model=BaseResponseDTO[NoneType])
-def delete_user_route(
+async def delete_user_route(
     user_id: int,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
     logger.info(f"Deleting: {user_id}")
-    return delete_user_service(user_id, db)
+    return await delete_user_service(user_id, db)
