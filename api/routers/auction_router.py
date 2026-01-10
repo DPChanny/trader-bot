@@ -6,12 +6,12 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 
-from dtos.auction_dto import (
+from ..dtos.auction_dto import (
     AddAuctionResponseDTO,
 )
-from services.auction_service import add_auction_service
-from utils.auth import verify_admin_token
-from utils.database import get_db
+from ..services.auction_service import add_auction_service
+from ..utils.auth import verify_admin_token
+from ..utils.database import get_db
 
 logger = logging.getLogger(__name__)
 

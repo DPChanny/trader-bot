@@ -3,8 +3,8 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from dtos.lol_stat_dto import GetLolResponseDTO, LolStatDto, ChampionDto
-from entities.lol_stat import LolStat
+from ..dtos.lol_stat_dto import GetLolResponseDTO, LolStatDto, ChampionDto
+from ..entities.lol_stat import LolStat
 
 logger = logging.getLogger(__name__)
 

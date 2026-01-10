@@ -8,7 +8,7 @@ from typing import Optional
 import discord
 from discord.ext import commands
 
-from utils.env import (
+from ..utils.env import (
     get_discord_bot_token,
     get_profile_url,
     get_profile_path,

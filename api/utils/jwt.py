@@ -3,7 +3,7 @@ import logging
 
 import jwt
 
-from utils.env import get_jwt_secret
+from .env import get_jwt_secret
 
 logger = logging.getLogger(__name__)
 

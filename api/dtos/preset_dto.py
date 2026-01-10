@@ -2,11 +2,11 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from dtos.base_dto import BaseResponseDTO
-from dtos.position_dto import PositionDTO
-from dtos.preset_user_dto import PresetUserDetailDTO
-from dtos.tier_dto import TierDTO
-from entities.preset import Statistics
+from .base_dto import BaseResponseDTO
+from .position_dto import PositionDTO
+from .preset_user_dto import PresetUserDetailDTO
+from .tier_dto import TierDTO
+from ..entities.preset import Statistics
 
 
 class PresetDTO(BaseModel):

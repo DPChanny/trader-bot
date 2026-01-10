@@ -3,9 +3,9 @@ import logging
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from dtos.lol_stat_dto import GetLolResponseDTO
-from services import lol_stat_service
-from utils.database import get_db
+from ..dtos.lol_stat_dto import GetLolResponseDTO
+from ..services import lol_stat_service
+from ..utils.database import get_db
 
 logger = logging.getLogger(__name__)
 

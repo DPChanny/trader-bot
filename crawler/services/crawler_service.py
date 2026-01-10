@@ -9,9 +9,9 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
-from dtos.lol_stat_dto import GetLolResponseDTO
-from dtos.val_stat_dto import GetValResponseDTO
-from utils.crawler import get_chrome_options
+from ..dtos.lol_stat_dto import GetLolResponseDTO
+from ..dtos.val_stat_dto import GetValResponseDTO
+from ..utils.crawler import get_chrome_options
 
 logger = logging.getLogger(__name__)
 

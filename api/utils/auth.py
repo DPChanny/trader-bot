@@ -1,7 +1,7 @@
 from fastapi import Header, HTTPException, Response
 import logging
 
-from utils.jwt import decode_jwt_token, should_refresh_token, refresh_jwt_token
+from .jwt import decode_jwt_token, should_refresh_token, refresh_jwt_token
 
 logger = logging.getLogger(__name__)
 

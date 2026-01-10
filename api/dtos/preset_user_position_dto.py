@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
-from dtos.base_dto import BaseResponseDTO
-from dtos.position_dto import PositionDTO
+from .base_dto import BaseResponseDTO
+from .position_dto import PositionDTO
 
 
 class PresetUserPositionDTO(BaseModel):

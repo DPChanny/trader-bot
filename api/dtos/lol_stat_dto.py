@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from dtos.base_dto import BaseResponseDTO
+from .base_dto import BaseResponseDTO
 
 
 class ChampionDto(BaseModel):

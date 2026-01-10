@@ -3,17 +3,17 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from dtos.base_dto import BaseResponseDTO
-from dtos.user_dto import (
+from ..dtos.base_dto import BaseResponseDTO
+from ..dtos.user_dto import (
     AddUserRequestDTO,
     UpdateUserRequestDTO,
     GetUserDetailResponseDTO,
     GetUserListResponseDTO,
     UserDTO,
 )
-from entities.user import User
-from services.discord_service import discord_service
-from utils.exception import CustomException, handle_exception
+from ..entities.user import User
+from .discord_service import discord_service
+from ..utils.exception import CustomException, handle_exception
 
 logger = logging.getLogger(__name__)
 

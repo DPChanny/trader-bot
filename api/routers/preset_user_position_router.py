@@ -2,17 +2,17 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 import logging
 
-from dtos.base_dto import BaseResponseDTO
-from dtos.preset_user_position_dto import (
+from ..dtos.base_dto import BaseResponseDTO
+from ..dtos.preset_user_position_dto import (
     AddPresetUserPositionRequestDTO,
     DeletePresetUserPositionRequestDTO,
     GetPresetUserPositionResponseDTO,
 )
-from services.preset_user_position_service import (
+from ..services.preset_user_position_service import (
     add_preset_user_position_service,
     delete_preset_user_position_service,
 )
-from utils.database import get_db
+from ..utils.database import get_db
 
 logger = logging.getLogger(__name__)
 

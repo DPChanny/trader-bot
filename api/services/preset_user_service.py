@@ -2,8 +2,8 @@ import logging
 
 from sqlalchemy.orm import Session, joinedload
 
-from dtos.base_dto import BaseResponseDTO
-from dtos.preset_user_dto import (
+from ..dtos.base_dto import BaseResponseDTO
+from ..dtos.preset_user_dto import (
     AddPresetUserRequestDTO,
     UpdatePresetUserRequestDTO,
     GetPresetUserDetailResponseDTO,
@@ -11,9 +11,9 @@ from dtos.preset_user_dto import (
     PresetUserDTO,
     PresetUserDetailDTO,
 )
-from entities.preset_user import PresetUser
-from services.discord_service import discord_service
-from utils.exception import CustomException, handle_exception
+from ..entities.preset_user import PresetUser
+from .discord_service import discord_service
+from ..utils.exception import CustomException, handle_exception
 
 logger = logging.getLogger(__name__)
 

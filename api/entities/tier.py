@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from utils.database import Base
+from ..utils.database import Base
 
 if TYPE_CHECKING:
-    from entities.preset import Preset
-    from entities.preset_user import PresetUser
+    from .preset import Preset
+    from .preset_user import PresetUser
 
 
 class Tier(Base):

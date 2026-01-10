@@ -2,7 +2,7 @@ import asyncio
 import random
 from typing import Dict, List, Optional
 
-from dtos.auction_dto import (
+from ..dtos.auction_dto import (
     AuctionStateDTO,
     AuctionStatus,
     Team,
@@ -38,7 +38,9 @@ class Auction:
         self.connected_tokens: Dict[str, int] = {}
         self.leader_user_ids = {team.leader_id for team in teams}
 
-        auction_users = [uid for uid in user_ids if uid not in self.leader_user_ids]
+        auction_users = [
+            uid for uid in user_ids if uid not in self.leader_user_ids
+        ]
         shuffled_users = auction_users.copy()
         random.shuffle(shuffled_users)
         self.auction_queue = shuffled_users
@@ -190,7 +192,9 @@ class Auction:
         await self.broadcast(
             WebSocketMessage(
                 type=MessageType.STATUS,
-                data=StatusMessageData(status=str(self.status.value)).model_dump(),
+                data=StatusMessageData(
+                    status=str(self.status.value)
+                ).model_dump(),
             )
         )
 

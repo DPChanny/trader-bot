@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-from utils.env import get_db_url
+from .env import get_db_url
 
 engine: Optional[Engine] = None
 SessionLocal: Optional[sessionmaker] = None
@@ -25,7 +25,7 @@ def init_engine():
 
     SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
-    import entities
+    from .. import entities
 
     Base.metadata.create_all(bind=engine)
 

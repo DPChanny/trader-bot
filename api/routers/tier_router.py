@@ -4,22 +4,22 @@ from types import NoneType
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from dtos.base_dto import BaseResponseDTO
-from dtos.tier_dto import (
+from ..dtos.base_dto import BaseResponseDTO
+from ..dtos.tier_dto import (
     AddTierRequestDTO,
     UpdateTierRequestDTO,
     GetTierDetailResponseDTO,
     GetTierListResponseDTO,
 )
-from services.tier_service import (
+from ..services.tier_service import (
     add_tier_service,
     delete_tier_service,
     get_tier_list_service,
     get_tier_detail_service,
     update_tier_service,
 )
-from utils.auth import verify_admin_token
-from utils.database import get_db
+from ..utils.auth import verify_admin_token
+from ..utils.database import get_db
 
 logger = logging.getLogger(__name__)
 

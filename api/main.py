@@ -10,19 +10,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-import utils.database as database
-from routers.admin_router import admin_router
-from routers.auction_router import auction_router
-from routers.auction_websocket_router import auction_websocket_router
-from routers.lol_stat_router import lol_stat_router
-from routers.position_router import position_router
-from routers.preset_router import preset_router
-from routers.preset_user_position_router import preset_user_position_router
-from routers.preset_user_router import preset_user_router
-from routers.tier_router import tier_router
-from routers.user_router import user_router
-from routers.val_stat_router import val_stat_router
-from services.discord_service import discord_service
+from .utils.database import init_engine
+from .routers import *
+from .services.discord_service import discord_service
 
 logging.basicConfig(
     level=logging.INFO,
@@ -73,7 +63,7 @@ if sys.platform == "win32":
 
 @asynccontextmanager
 async def lifespan(_):
-    database.init_engine()
+    init_engine()
 
     await discord_service.start()
 

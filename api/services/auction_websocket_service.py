@@ -3,9 +3,9 @@ from typing import Optional, Tuple
 
 from fastapi import WebSocket
 
-from auction.auction import Auction
-from auction.auction_manager import auction_manager
-from dtos.auction_dto import MessageType, AuctionStatus
+from ..auction.auction import Auction
+from ..auction.auction_manager import auction_manager
+from ..dtos.auction_dto import MessageType, AuctionStatus
 
 logger = logging.getLogger(__name__)
 

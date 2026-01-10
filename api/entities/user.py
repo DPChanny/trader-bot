@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING, List, Optional
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from utils.database import Base
+from ..utils.database import Base
 
 if TYPE_CHECKING:
-    from entities.preset_user import PresetUser
-    from entities.lol_stat import LolStat
-    from entities.val_stat import ValStat
+    from .preset_user import PresetUser
+    from .lol_stat import LolStat
+    from .val_stat import ValStat
 
 
 class User(Base):

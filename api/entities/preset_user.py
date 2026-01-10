@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, List, Optional
 from sqlalchemy import Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from utils.database import Base
+from ..utils.database import Base
 
 if TYPE_CHECKING:
-    from entities.preset import Preset
-    from entities.user import User
-    from entities.tier import Tier
-    from entities.preset_user_position import PresetUserPosition
+    from .preset import Preset
+    from .user import User
+    from .tier import Tier
+    from .preset_user_position import PresetUserPosition
 
 
 class PresetUser(Base):

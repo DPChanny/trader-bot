@@ -1,7 +1,11 @@
 import logging
 
-from utils.env import get_admin_password
-from utils.jwt import create_jwt_token, refresh_jwt_token, should_refresh_token
+from ..utils.env import get_admin_password
+from ..utils.jwt import (
+    create_jwt_token,
+    refresh_jwt_token,
+    should_refresh_token,
+)
 
 logger = logging.getLogger(__name__)
 

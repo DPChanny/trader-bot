@@ -6,10 +6,10 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import String, Integer, Float, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from utils.database import Base
+from ..utils.database import Base
 
 if TYPE_CHECKING:
-    from entities.user import User
+    from .user import User
 
 
 class LolStat(Base):

@@ -6,7 +6,7 @@ from typing import List
 from sqlalchemy import String, Integer, Float, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from utils.database import Base
+from ..utils.database import Base
 
 
 class ValStat(Base):

@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import String, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from utils.database import Base
+from ..utils.database import Base
 
 if TYPE_CHECKING:
-    from entities.tier import Tier
-    from entities.position import Position
-    from entities.preset_user import PresetUser
+    from .tier import Tier
+    from .position import Position
+    from .preset_user import PresetUser
 
 
 class Statistics(enum.Enum):

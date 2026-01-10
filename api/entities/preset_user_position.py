@@ -5,18 +5,20 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from utils.database import Base
+from ..utils.database import Base
 
 if TYPE_CHECKING:
-    from entities.preset_user import PresetUser
-    from entities.position import Position
+    from .preset_user import PresetUser
+    from .position import Position
 
 
 class PresetUserPosition(Base):
     __tablename__ = "preset_user_position"
     __table_args__ = (
         UniqueConstraint(
-            "preset_user_id", "position_id", name="uq_preset_user_position_user_pos"
+            "preset_user_id",
+            "position_id",
+            name="uq_preset_user_position_user_pos",
         ),
     )
 
