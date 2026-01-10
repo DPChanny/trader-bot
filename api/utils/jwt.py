@@ -3,11 +3,10 @@ import logging
 
 import jwt
 
-from .env import get_jwt_secret
+from .env import get_jwt_secret, get_jwt_algorithm
 
 logger = logging.getLogger(__name__)
 
-JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 JWT_REFRESH_THRESHOLD_HOURS = 6
 
@@ -22,7 +21,9 @@ def create_jwt_token(
         "exp": int(expiration.timestamp()),
         "iat": int(now.timestamp()),
     }
-    return jwt.encode(token_data, get_jwt_secret(), algorithm=JWT_ALGORITHM)
+    return jwt.encode(
+        token_data, get_jwt_secret(), algorithm=get_jwt_algorithm()
+    )
 
 
 def decode_jwt_token(token: str) -> dict:
@@ -30,7 +31,7 @@ def decode_jwt_token(token: str) -> dict:
         payload = jwt.decode(
             token,
             get_jwt_secret(),
-            algorithms=[JWT_ALGORITHM],
+            algorithms=[get_jwt_algorithm()],
             options={"verify_iat": False},
         )
         return payload
@@ -57,7 +58,7 @@ def should_refresh_token(token: str) -> bool:
         payload = jwt.decode(
             token,
             get_jwt_secret(),
-            algorithms=[JWT_ALGORITHM],
+            algorithms=[get_jwt_algorithm()],
             options={"verify_exp": False},
         )
         exp_timestamp = payload.get("exp")
@@ -77,7 +78,7 @@ def refresh_jwt_token(token: str) -> str:
         payload = jwt.decode(
             token,
             get_jwt_secret(),
-            algorithms=[JWT_ALGORITHM],
+            algorithms=[get_jwt_algorithm()],
             options={"verify_exp": False},
         )
 

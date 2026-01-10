@@ -82,3 +82,7 @@ def get_admin_password() -> str:
 
 def get_jwt_secret() -> str:
     return os.getenv("JWT_SECRET", "jwt-secret")
+
+
+def get_jwt_algorithm() -> str:
+    return os.getenv("JWT_ALGORITHM", "HS256")
