@@ -232,6 +232,7 @@ class Auction:
         self.timer_task = asyncio.create_task(self._timer())
 
     async def _next_user(self):
+        completed = False
         async with self._state_lock:
             self._stop_timer()
 
@@ -272,17 +273,13 @@ class Auction:
                     )
                 )
 
-                self.status = AuctionStatus.COMPLETED
-                await self.broadcast(
-                    WebSocketMessage(
-                        type=MessageType.STATUS,
-                        data=StatusMessageData(
-                            status=str(self.status.value)
-                        ).model_dump(),
-                    )
-                )
-                return
+                completed = True
 
+        if completed:
+            await self.set_status(AuctionStatus.COMPLETED)
+            return
+
+        async with self._state_lock:
             if not self.auction_queue and self.unsold_queue:
                 self.auction_queue = self.unsold_queue
                 self.unsold_queue = []
@@ -290,17 +287,13 @@ class Auction:
             if self.auction_queue:
                 self.current_user_id = self.auction_queue.pop(0)
             else:
-                self.status = AuctionStatus.COMPLETED
-                await self.broadcast(
-                    WebSocketMessage(
-                        type=MessageType.STATUS,
-                        data=StatusMessageData(
-                            status=str(self.status.value)
-                        ).model_dump(),
-                    )
-                )
-                return
+                completed = True
 
+        if completed:
+            await self.set_status(AuctionStatus.COMPLETED)
+            return
+
+        async with self._state_lock:
             self.current_bid = None
             self.current_bidder = None
             self.timer = self.timer_duration
