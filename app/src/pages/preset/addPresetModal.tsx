@@ -68,9 +68,9 @@ export function AddPresetModal({
             onChange={onPointScaleChange}
           />
         </ModalRow>
-        {!isDivisible && (
+        {!isDivisible ? (
           <Error>표시 포인트는 스케일로 나뉘어떨어져야 합니다.</Error>
-        )}
+        ) : null}
         <LabelInput
           label="경매 타이머 (초)"
           type="number"
