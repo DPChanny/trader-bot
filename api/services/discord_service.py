@@ -20,6 +20,7 @@ class DiscordBotService:
         self._thread: Optional[threading.Thread] = None
         self._should_run = True
         self._reconnect_task: Optional[asyncio.Task] = None
+        self._state_lock = threading.Lock()
 
     def _run_bot(self):
         self._loop = asyncio.new_event_loop()
@@ -34,17 +35,20 @@ class DiscordBotService:
         @self.bot.event
         async def on_ready():
             logger.info(f"Ready: {self.bot.user}")
-            self._ready = True
+            with self._state_lock:
+                self._ready = True
 
         @self.bot.event
         async def on_disconnect():
             logger.warning("Disconnected")
-            self._ready = False
+            with self._state_lock:
+                self._ready = False
 
         @self.bot.event
         async def on_resumed():
             logger.info("Resumed")
-            self._ready = True
+            with self._state_lock:
+                self._ready = True
 
         @self.bot.event
         async def on_error(event, *args, **kwargs):
@@ -105,7 +109,8 @@ class DiscordBotService:
         if self.bot and self._loop:
             try:
                 logger.info("Stopping...")
-                self._should_run = False
+                with self._state_lock:
+                    self._should_run = False
 
                 if self._loop.is_running():
                     future = asyncio.run_coroutine_threadsafe(
@@ -127,7 +132,8 @@ class DiscordBotService:
                     else:
                         logger.info("Thread stopped")
 
-                self._ready = False
+                with self._state_lock:
+                    self._ready = False
                 logger.info("Stopped")
             except Exception as e:
                 logger.error(f"Stop error: {e}")
@@ -136,17 +142,20 @@ class DiscordBotService:
                 logger.error(traceback.format_exc())
 
     def send_auction_urls(self, invites: list[tuple[str, str]]) -> None:
-        if not self.bot or not self._ready:
-            logger.error("Not ready")
+        with self._state_lock:
+            is_ready = self._ready
+            loop = self._loop
+            loop_running = loop and loop.is_running()
+
+        if not self.bot or not is_ready:
+            logger.error("Bot not ready")
             return 0
 
-        if not self._loop or not self._loop.is_running():
+        if not loop_running:
             logger.error("Loop not running")
             return
 
-        asyncio.run_coroutine_threadsafe(
-            self._send_auction_urls(invites), self._loop
-        )
+        asyncio.run_coroutine_threadsafe(self._send_auction_urls(invites), loop)
 
     async def _send_auction_urls(
         self, invites: list[tuple[str, str]]
@@ -218,16 +227,21 @@ class DiscordBotService:
             logger.warning("Empty discord_id")
             return None
 
-        if not self.bot or not self._ready:
+        with self._state_lock:
+            is_ready = self._ready
+            loop = self._loop
+            loop_running = loop and loop.is_running()
+
+        if not self.bot or not is_ready:
             logger.error("Bot not ready")
             return None
 
-        if not self._loop or not self._loop.is_running():
+        if not loop_running:
             logger.error("Loop not running")
             return None
 
         future = asyncio.run_coroutine_threadsafe(
-            self._fetch_discord_profile_url(discord_id), self._loop
+            self._fetch_discord_profile_url(discord_id), loop
         )
 
         try:
