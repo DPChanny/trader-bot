@@ -1,18 +1,12 @@
-import os
-from pathlib import Path
 from typing import Optional
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from dotenv import load_dotenv
 
-load_dotenv()
+from utils.env import get_db_url
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///data/trader.db",
-)
+DATABASE_URL = get_db_url()
 
 engine: Optional[Engine] = None
 SessionLocal: Optional[sessionmaker] = None
@@ -24,30 +18,14 @@ def init_engine():
 
     engine = create_engine(
         DATABASE_URL,
-        connect_args={
-            "check_same_thread": False,
-            "timeout": 30,
-        },
         pool_size=5,
         max_overflow=10,
         pool_pre_ping=True,
+        pool_recycle=3600,
         echo=False,
     )
 
-    @event.listens_for(engine, "connect")
-    def set_sqlite_pragma(dbapi_conn, _):
-        cursor = dbapi_conn.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA busy_timeout=30000")
-        cursor.execute("PRAGMA synchronous=NORMAL")
-        cursor.close()
-
     SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
-
-    import entities
-
-    Base.metadata.create_all(bind=engine)
 
 
 def get_db():
