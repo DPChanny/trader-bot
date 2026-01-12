@@ -1,6 +1,5 @@
 import logging
 import re
-from typing import Optional
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
@@ -8,10 +7,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from dtos.lol_stat_dto import GetLolResponseDTO, LolStatDto, ChampionDto
-from .crawler_service import crawler_service, WEB_DRIVER_TIMEOUT
+from dtos.lol_stat_dto import LolStatDto, ChampionDto
 
 logger = logging.getLogger(__name__)
+
+WEB_DRIVER_TIMEOUT = 20
 
 
 def crawl_lol_stat(
@@ -166,7 +166,3 @@ def crawl_lol_stat(
         lp=lp,
         top_champions=top_champions,
     )
-
-
-async def get_lol_stat(user_id: int) -> Optional[GetLolResponseDTO]:
-    return await crawler_service.get_lol_stat(user_id)

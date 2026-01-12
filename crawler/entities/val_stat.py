@@ -27,15 +27,15 @@ class ValStat(Base):
         onupdate=datetime.utcnow,
     )
 
-    agents: Mapped[List[ValAgent]] = relationship(
-        "ValAgent", back_populates="val_stat", cascade="all, delete-orphan"
+    agents: Mapped[List[Agent]] = relationship(
+        "Agent", back_populates="val_stat", cascade="all, delete-orphan"
     )
 
 
-class ValAgent(Base):
+class Agent(Base):
     """Top agents for a user's Valorant data"""
 
-    __tablename__ = "val_agent"
+    __tablename__ = "agent"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     val_stat_id: Mapped[int] = mapped_column(

@@ -1,6 +1,5 @@
 import logging
 import re
-from typing import Optional
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
@@ -8,10 +7,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from dtos.val_stat_dto import GetValResponseDTO, ValStatDto, AgentDto
-from .crawler_service import crawler_service, WEB_DRIVER_TIMEOUT
+from dtos.val_stat_dto import ValStatDto, AgentDto
 
 logger = logging.getLogger(__name__)
+
+WEB_DRIVER_TIMEOUT = 20
 
 
 def crawl_val_stat(
@@ -180,7 +180,3 @@ def crawl_val_stat(
         rank=rank,
         top_agents=top_agents,
     )
-
-
-async def get_val_stat(user_id: int) -> Optional[GetValResponseDTO]:
-    return await crawler_service.get_val_stat(user_id)
