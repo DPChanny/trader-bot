@@ -160,7 +160,7 @@ class DiscordBotService:
     async def _send_auction_urls(
         self, invites: list[tuple[str, str]]
     ) -> dict[str, bool]:
-        async def _send_one(discord_id: str, auction_url: str):
+        async def _send_auction_url(discord_id: str, auction_url: str):
             try:
                 if not discord_id or not discord_id.strip():
                     logger.debug(f"Empty discord_id")
@@ -198,7 +198,7 @@ class DiscordBotService:
         try:
             results = await asyncio.gather(
                 *[
-                    _send_one(discord_id, auction_url)
+                    _send_auction_url(discord_id, auction_url)
                     for discord_id, auction_url in invites
                 ],
                 return_exceptions=True,

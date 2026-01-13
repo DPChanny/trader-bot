@@ -55,9 +55,7 @@ def get_discord_bot_token() -> str:
 
 
 def get_auction_url(token: str) -> str:
-    return (
-        f"http://{get_app_host()}:{get_app_port()}/auction.html?token={token}"
-    )
+    return f"http://{get_app_host()}:{get_app_port()}/auction?token={token}"
 
 
 def get_admin_password() -> str:
