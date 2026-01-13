@@ -14,7 +14,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-MAX_WORKERS = 4
+MAX_WORKERS = 2
 
 
 def crawl_user(user_id: int, game_name: str, tag_line: str):
