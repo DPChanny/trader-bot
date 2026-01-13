@@ -8,6 +8,7 @@ import { Header } from "@/components/header";
 import { queryClient } from "@/lib/queryClient.ts";
 import "@/styles/global.css";
 import "@/styles/app.css";
+import { AuctionPage } from "./pages/auction/auctionPage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <HomePage path="/" />
       <UserPageWrapper path="/user" />
       <PresetPageWrapper path="/preset" />
+      <AuctionPageWrapper path="/auction" />
     </Router>
   );
 }
@@ -37,6 +39,14 @@ function PresetPageWrapper({}: PageWrapperProps) {
     <div className="app-container">
       <Header currentPage="preset" />
       <PresetPage />
+    </div>
+  );
+}
+
+function AuctionPageWrapper({}: PageWrapperProps) {
+  return (
+    <div className="app-container">
+      <AuctionPage />
     </div>
   );
 }
