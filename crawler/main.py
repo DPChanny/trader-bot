@@ -20,14 +20,15 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-MAX_WORKERS = 5
-PAGE_LOAD_TIMEOUT = 5
-SCRIPT_TIMEOUT = 5
+MAX_WORKERS = 2
+PAGE_LOAD_TIMEOUT = 10
+SCRIPT_TIMEOUT = 10
 
 
-def create_driver(chrome_service: Service) -> webdriver.Chrome:
+def create_driver() -> webdriver.Chrome:
     chrome_options = get_chrome_options()
     chrome_options.page_load_strategy = "eager"
+    chrome_service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
     driver.execute_script(
         "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
@@ -43,7 +44,7 @@ def close_driver(driver: webdriver.Chrome):
         try:
             driver.quit()
         except Exception as e:
-            logger.error(f"Driver quit error: {e}")
+            logger.warning(f"Driver quit error: {e}")
 
 
 def save_lol_stat_to_db(user_id: int, lol_stat_dto):
@@ -120,15 +121,13 @@ def save_val_stat_to_db(user_id: int, val_stat_dto):
         logger.error(f"Failed to save VAL stat data: {user_id} - {e}")
 
 
-def crawl_user(
-    user_id: int, game_name: str, tag_line: str, chrome_service: Service
-):
+def crawl_user(user_id: int, game_name: str, tag_line: str):
     driver = None
     try:
         logger.info(
             f"Starting crawl for user {user_id}: {game_name}#{tag_line}"
         )
-        driver = create_driver(chrome_service)
+        driver = create_driver()
 
         try:
             lol_stat_dto = crawl_lol_stat(driver, game_name, tag_line)
@@ -160,10 +159,6 @@ def main():
 
     init_engine()
 
-    logger.info("Initializing ChromeDriver...")
-    chrome_service = Service(ChromeDriverManager().install())
-    logger.info("ChromeDriver initialized")
-
     logger.info("Fetching users from database...")
     db = next(get_db())
     users = db.query(User).filter(User.riot_id.isnot(None)).all()
@@ -186,9 +181,7 @@ def main():
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = {
-            executor.submit(
-                crawl_user, user_id, game_name, tag_line, chrome_service
-            ): user_id
+            executor.submit(crawl_user, user_id, game_name, tag_line): user_id
             for user_id, game_name, tag_line in crawl_tasks
         }
 
