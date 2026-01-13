@@ -1,8 +1,36 @@
 import logging
 
+from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 logger = logging.getLogger(__name__)
+
+PAGE_LOAD_TIMEOUT = 10
+SCRIPT_TIMEOUT = 10
+
+
+def create_driver() -> webdriver.Chrome:
+    chrome_options = get_chrome_options()
+    chrome_options.page_load_strategy = "eager"
+    chrome_service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+    driver.execute_script(
+        "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+    )
+    driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT)
+    driver.set_script_timeout(SCRIPT_TIMEOUT)
+    driver.implicitly_wait(0)
+    return driver
+
+
+def close_driver(driver: webdriver.Chrome):
+    if driver:
+        try:
+            driver.quit()
+        except Exception as e:
+            logger.warning(f"Driver quit error: {e}")
 
 
 def get_chrome_options() -> Options:

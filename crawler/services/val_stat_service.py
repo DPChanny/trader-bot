@@ -8,10 +8,49 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from dtos.val_stat_dto import ValStatDto, AgentDto
+from entities.val_stat import ValStat, Agent
+from utils.database import get_db
 
 logger = logging.getLogger(__name__)
 
 WEB_DRIVER_TIMEOUT = 20
+
+
+def save_val_stat_to_db(user_id: int, val_stat_dto: ValStatDto):
+    """
+    VAL 스탯 데이터를 데이터베이스에 저장합니다.
+    """
+    try:
+        db = next(get_db())
+        val_stat = db.query(ValStat).filter(ValStat.user_id == user_id).first()
+
+        if val_stat:
+            val_stat.tier = val_stat_dto.tier
+            val_stat.rank = val_stat_dto.rank
+            db.query(Agent).filter(Agent.val_stat_id == val_stat.id).delete()
+        else:
+            val_stat = ValStat(
+                user_id=user_id, tier=val_stat_dto.tier, rank=val_stat_dto.rank
+            )
+            db.add(val_stat)
+            db.flush()
+
+        for idx, agent in enumerate(val_stat_dto.top_agents, start=1):
+            agent_obj = Agent(
+                val_stat_id=val_stat.id,
+                name=agent.name,
+                icon_url=agent.icon_url,
+                games=agent.games,
+                win_rate=agent.win_rate,
+                rank_order=idx,
+            )
+            db.add(agent_obj)
+
+        db.commit()
+        db.close()
+        logger.info(f"VAL stat data saved: {user_id}")
+    except Exception as e:
+        logger.error(f"Failed to save VAL stat data: {user_id} - {e}")
 
 
 def crawl_val_stat(

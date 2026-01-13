@@ -8,10 +8,55 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from dtos.lol_stat_dto import LolStatDto, ChampionDto
+from entities.lol_stat import LolStat, Champion
+from utils.database import get_db
 
 logger = logging.getLogger(__name__)
 
 WEB_DRIVER_TIMEOUT = 20
+
+
+def save_lol_stat_to_db(user_id: int, lol_stat_dto: LolStatDto):
+    """
+    LOL 스탯 데이터를 데이터베이스에 저장합니다.
+    """
+    try:
+        db = next(get_db())
+        lol_stat = db.query(LolStat).filter(LolStat.user_id == user_id).first()
+
+        if lol_stat:
+            lol_stat.tier = lol_stat_dto.tier
+            lol_stat.rank = lol_stat_dto.rank
+            lol_stat.lp = lol_stat_dto.lp
+            db.query(Champion).filter(
+                Champion.lol_stat_id == lol_stat.id
+            ).delete()
+        else:
+            lol_stat = LolStat(
+                user_id=user_id,
+                tier=lol_stat_dto.tier,
+                rank=lol_stat_dto.rank,
+                lp=lol_stat_dto.lp,
+            )
+            db.add(lol_stat)
+            db.flush()
+
+        for idx, champ in enumerate(lol_stat_dto.top_champions, start=1):
+            champion = Champion(
+                lol_stat_id=lol_stat.id,
+                name=champ.name,
+                icon_url=champ.icon_url,
+                games=champ.games,
+                win_rate=champ.win_rate,
+                rank_order=idx,
+            )
+            db.add(champion)
+
+        db.commit()
+        db.close()
+        logger.info(f"LOL stat data saved: {user_id}")
+    except Exception as e:
+        logger.error(f"Failed to save LOL stat data: {user_id} - {e}")
 
 
 def crawl_lol_stat(
