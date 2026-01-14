@@ -16,7 +16,7 @@ function App() {
       <HomePage path="/" />
       <UserPageWrapper path="/user" />
       <PresetPageWrapper path="/preset" />
-      <AuctionPageWrapper path="/auction" />
+      <AuctionPage path="/auction" />
     </Router>
   );
 }
@@ -39,14 +39,6 @@ function PresetPageWrapper({}: PageWrapperProps) {
     <div className="app-container">
       <Header currentPage="preset" />
       <PresetPage />
-    </div>
-  );
-}
-
-function AuctionPageWrapper({}: PageWrapperProps) {
-  return (
-    <div className="app-container">
-      <AuctionPage />
     </div>
   );
 }

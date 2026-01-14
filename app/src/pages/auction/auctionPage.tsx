@@ -20,7 +20,11 @@ import type { PresetUserDetail } from "@/dtos";
 
 import styles from "@/styles/pages/auction/auctionPage.module.css";
 
-export function AuctionPage() {
+interface AuctionPageProps {
+  path?: string;
+}
+
+export function AuctionPage({}: AuctionPageProps) {
   const [bidAmount, setBidAmount] = useState<string>("");
   const [token, setToken] = useState<string | null>(null);
 
