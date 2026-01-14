@@ -44,7 +44,11 @@ function PresetPageWrapper({}: PageWrapperProps) {
 }
 
 function AuctionPageWrapper({}: PageWrapperProps) {
-  return <AuctionPage />;
+  return (
+    <div className="app-container">
+      <AuctionPage />
+    </div>
+  );
 }
 
 render(
