@@ -103,7 +103,7 @@ export function EditPresetModal({
           </ModalRow>
           {!isDivisible && (
             <div className={modalStyles.errorContainer}>
-              <Error>포인트는 포인트 스케일의 배수여야 합니다.</Error>
+              <Error>포인트는 포인트 스케일로 나뉘어떨어져야 합니다.</Error>
             </div>
           )}
         </div>

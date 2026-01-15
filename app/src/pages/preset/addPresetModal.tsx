@@ -56,7 +56,7 @@ export function AddPresetModal({
         />
         <ModalRow>
           <LabelInput
-            label="표시 포인트"
+            label="포인트"
             type="number"
             value={inputPoints.toString()}
             onChange={onInputPointsChange}
@@ -69,7 +69,7 @@ export function AddPresetModal({
           />
         </ModalRow>
         {!isDivisible ? (
-          <Error>표시 포인트는 스케일로 나뉘어떨어져야 합니다.</Error>
+          <Error>포인트는 포인트 스케일로 나뉘어떨어져야 합니다.</Error>
         ) : null}
         <LabelInput
           label="경매 타이머 (초)"
