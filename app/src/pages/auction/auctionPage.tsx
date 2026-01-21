@@ -36,6 +36,8 @@ export function AuctionPage({}: AuctionPageProps) {
     state,
     isLeader,
     teamId,
+    connectedUsers,
+    userId,
   } = useAuctionWebSocket();
 
   const {
@@ -207,6 +209,8 @@ export function AuctionPage({}: AuctionPageProps) {
             teams={state.teams}
             presetUsers={presetUsers}
             pointScale={pointScale}
+            clientUserId={userId}
+            connectedUsers={connectedUsers}
           />
         </Section>
 
@@ -299,6 +303,8 @@ export function AuctionPage({}: AuctionPageProps) {
                 presetUsers={auctionQueueUsers}
                 onUserClick={() => {}}
                 variant="compact"
+                clientUserId={userId}
+                connectedUsers={connectedUsers}
               />
             </Section>
           </Section>
@@ -310,6 +316,8 @@ export function AuctionPage({}: AuctionPageProps) {
               <PresetUserGrid
                 presetUsers={unsoldQueueUsers}
                 onUserClick={() => {}}
+                connectedUsers={connectedUsers}
+                clientUserId={userId}
                 variant="compact"
               />
             </Section>

@@ -21,6 +21,7 @@ interface AuctionWebSocketHook {
   isLeader: boolean;
   userId: number | null;
   teamId: number | null;
+  connectedUsers: number[];
 }
 
 export function useAuctionWebSocket(): AuctionWebSocketHook {
@@ -30,6 +31,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
   const [isLeader, setIsLeader] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
   const [teamId, setTeamId] = useState<number | null>(null);
+  const [connectedUsers, setConnectedUsers] = useState<number[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
   const sessionIdRef = useRef<string | null>(null);
   const accessCodeRef = useRef<string | null>(null);
@@ -43,8 +45,22 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         setIsLeader(data.isLeader);
         setUserId(data.userId);
         setTeamId(data.teamId);
+        setConnectedUsers(data.connectedUsers);
 
         setState(data);
+        break;
+      }
+      case "user_connected": {
+        const userId = message.data.user_id;
+        setConnectedUsers((prev) => {
+          if (prev.includes(userId)) return prev;
+          return [...prev, userId];
+        });
+        break;
+      }
+      case "user_disconnected": {
+        const userId = message.data.user_id;
+        setConnectedUsers((prev) => prev.filter((id) => id !== userId));
         break;
       }
 
@@ -221,5 +237,6 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     isLeader,
     userId,
     teamId,
+    connectedUsers,
   };
 }

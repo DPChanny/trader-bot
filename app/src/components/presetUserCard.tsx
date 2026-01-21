@@ -27,16 +27,33 @@ export interface PresetUserCardProps extends VariantProps<
   typeof presetUserCardVariants
 > {
   presetUser: PresetUserDetail;
+  isConnected?: boolean | null;
+  isClientUser?: boolean | null;
 }
 
-export function PresetUserCard({ presetUser, variant }: PresetUserCardProps) {
+export function PresetUserCard({
+  presetUser,
+  variant,
+  isConnected = null,
+  isClientUser = null,
+}: PresetUserCardProps) {
   const { user, tier, positions, isLeader } = presetUser;
 
   const positionNames = positions?.map((p) => p.position.name) || [];
 
+  const statusClass = (() => {
+    if (isClientUser) return styles["card__statusDot--client"];
+    if (isConnected === true) return styles["card__statusDot--online"];
+    if (isConnected === false) return styles["card__statusDot--offline"];
+    return null;
+  })();
+
   return (
     <Section className={cn(presetUserCardVariants({ variant, isLeader }))}>
       <div class={styles.card__badgesLeft}>
+        {statusClass && (
+          <div className={cn(styles.card__statusDot, statusClass)} />
+        )}
         {variant === "detail" && (
           <Badge variantColor="gray">{`#${user.userId}`}</Badge>
         )}

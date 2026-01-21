@@ -7,9 +7,17 @@ interface TeamListProps {
   teams: Team[];
   presetUsers: PresetUserDetail[];
   pointScale: number;
+  connectedUsers?: number[];
+  clientUserId?: number | null;
 }
 
-export function TeamList({ teams, presetUsers, pointScale }: TeamListProps) {
+export function TeamList({
+  teams,
+  presetUsers,
+  pointScale,
+  connectedUsers,
+  clientUserId,
+}: TeamListProps) {
   return (
     <Section
       variantTone="ghost"
@@ -27,6 +35,8 @@ export function TeamList({ teams, presetUsers, pointScale }: TeamListProps) {
             team={team}
             members={members}
             pointScale={pointScale}
+            connectedUsers={connectedUsers}
+            clientUserId={clientUserId}
           />
         );
       })}

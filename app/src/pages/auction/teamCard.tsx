@@ -9,9 +9,17 @@ interface TeamCardProps {
   team: Team;
   members: PresetUserDetail[];
   pointScale: number;
+  connectedUsers?: number[];
+  clientUserId?: number | null;
 }
 
-export function TeamCard({ team, members, pointScale }: TeamCardProps) {
+export function TeamCard({
+  team,
+  members,
+  pointScale,
+  connectedUsers,
+  clientUserId,
+}: TeamCardProps) {
   const leader = members.find((member) => member.isLeader);
   const teamName = leader ? `${leader.user.name} 팀` : `Team ${team.teamId}`;
   const isFull = members.length === 5;
@@ -31,6 +39,8 @@ export function TeamCard({ team, members, pointScale }: TeamCardProps) {
         presetUsers={members}
         onUserClick={() => {}}
         variant="compact"
+        connectedUsers={connectedUsers}
+        clientUserId={clientUserId}
       />
     </Section>
   );

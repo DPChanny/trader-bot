@@ -20,7 +20,9 @@ export type MessageType =
   | "queue_update"
   | "init"
   | "status"
-  | "error";
+  | "error"
+  | "user_connected"
+  | "user_disconnected";
 
 export interface WebSocketMessage {
   type: MessageType;
@@ -41,6 +43,7 @@ export interface AuctionInitData {
   teamId: number | null;
   userId: number;
   isLeader: boolean;
+  connectedUsers: number[];
 }
 
 export interface BidResponseData {
