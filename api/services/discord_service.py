@@ -208,7 +208,7 @@ class DiscordBotService:
             for (discord_id, auction_url), result in zip(invites, results):
                 if isinstance(result, Exception) or not result:
                     result_dict[discord_id] = False
-                    logger.debug(f"Invite failed: {discord_id} {auction_url}")
+                    logger.info(f"Invite failed: {discord_id} {auction_url}")
                 else:
                     result_dict[discord_id] = result
 
