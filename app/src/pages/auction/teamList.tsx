@@ -18,7 +18,7 @@ export function TeamList({ teams, presetUsers, pointScale }: TeamListProps) {
     >
       {teams.map((team) => {
         const members = presetUsers.filter((pu) =>
-          team.memberIdList.includes(pu.userId)
+          team.memberIdList.includes(pu.userId),
         );
 
         return (

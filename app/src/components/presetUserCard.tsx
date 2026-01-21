@@ -23,8 +23,9 @@ const presetUserCardVariants = cva(styles.card, {
   },
 });
 
-export interface PresetUserCardProps
-  extends VariantProps<typeof presetUserCardVariants> {
+export interface PresetUserCardProps extends VariantProps<
+  typeof presetUserCardVariants
+> {
   presetUser: PresetUserDetail;
 }
 
@@ -100,7 +101,7 @@ export function PresetUserCard({ presetUser, variant }: PresetUserCardProps) {
                   >
                     {p.position.name.charAt(0)}
                   </Badge>
-                )
+                ),
               )}
             </Section>
           )}

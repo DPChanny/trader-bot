@@ -5,7 +5,7 @@ from fastapi import WebSocket
 
 from auction.auction import Auction
 from auction.auction_manager import auction_manager
-from dtos.auction_dto import MessageType, AuctionStatus
+from dtos.auction_dto import MessageType, AuctionStatus, WebSocketMessage
 
 logger = logging.getLogger(__name__)
 
@@ -33,18 +33,13 @@ async def handle_websocket_connect(
     await websocket.accept()
     logger.info(f"Connected: {user_id}")
 
-    result = auction.connect(token)
+    result = await auction.connect(token, websocket)
 
     if not result["success"]:
-        await websocket.send_json(
-            {"type": MessageType.ERROR, "data": {"error": result["error"]}}
-        )
-        await websocket.close()
+        await websocket.close(code=4003, reason=result["error"])
         return None, None, False, None
 
     team_id = result.get("team_id")
-
-    auction.add_connection(websocket)
 
     return auction, user_id, is_leader, team_id
 
@@ -100,9 +95,8 @@ async def handle_websocket_disconnect(
     token: str,
     websocket: WebSocket,
 ) -> None:
-    auction.disconnect_token(token)
-    auction.remove_connection(websocket)
-    logger.info(f"Disconnected")
+    user_id = await auction.disconnect(token, websocket)
+    logger.info(f"Disconnected: {user_id}")
 
     if (
         auction.status == AuctionStatus.IN_PROGRESS

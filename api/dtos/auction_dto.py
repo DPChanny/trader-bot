@@ -23,6 +23,8 @@ class MessageType(str, Enum):
     INIT = "init"
     STATUS = "status"
     ERROR = "error"
+    USER_CONNECTED = "user_connected"
+    USER_DISCONNECTED = "user_disconnected"
 
 
 class Team(BaseModel):
@@ -43,6 +45,7 @@ class AuctionStateDTO(BaseModel):
     teams: List[Team]
     auction_queue: List[int]
     unsold_queue: List[int]
+    connected_users: List[int]
 
 
 class AuctionDTO(BaseModel):

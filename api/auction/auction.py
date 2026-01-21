@@ -1,6 +1,7 @@
 import asyncio
 import random
 from typing import Dict, List, Optional
+from fastapi import WebSocket
 
 from dtos.auction_dto import (
     AuctionStateDTO,
@@ -81,7 +82,7 @@ class Auction:
 
             auction_manager.remove_auction(self.auction_id)
 
-    def connect(self, token: str) -> Dict:
+    async def connect(self, token: str, websocket: WebSocket) -> Dict:
         if token not in self.token_to_user:
             return {"success": False, "error": "Invalid token"}
 
@@ -102,6 +103,14 @@ class Auction:
                     break
 
         self.connected_tokens[token] = user_id
+        self.connections.append(websocket)
+
+        await self.broadcast(
+            WebSocketMessage(
+                type=MessageType.USER_CONNECTED,
+                data={"user_id": user_id},
+            )
+        )
 
         return {
             "success": True,
@@ -111,20 +120,30 @@ class Auction:
             "reconnected": False,
         }
 
-    def disconnect_token(self, token: str):
+    async def disconnect(
+        self, token: str, websocket: WebSocket
+    ) -> Optional[int]:
+        user_id = None
         if token in self.connected_tokens:
+            user_id = self.connected_tokens[token]
             del self.connected_tokens[token]
+
+        if websocket in self.connections:
+            self.connections.remove(websocket)
+
+        if user_id:
+            await self.broadcast(
+                WebSocketMessage(
+                    type=MessageType.USER_DISCONNECTED,
+                    data={"user_id": user_id},
+                )
+            )
+
+        return user_id
 
     def are_all_leaders_connected(self) -> bool:
         connected_user_ids = set(self.connected_tokens.values())
         return self.leader_user_ids.issubset(connected_user_ids)
-
-    def add_connection(self, websocket):
-        self.connections.append(websocket)
-
-    def remove_connection(self, websocket):
-        if websocket in self.connections:
-            self.connections.remove(websocket)
 
     async def broadcast(self, message: WebSocketMessage):
         async with self._broadcast_lock:
@@ -156,6 +175,7 @@ class Auction:
             teams=list(self.teams.values()),
             auction_queue=self.auction_queue,
             unsold_queue=self.unsold_queue,
+            connected_users=list(self.connected_tokens.values()),
         )
 
     async def set_status(self, new_status: AuctionStatus):

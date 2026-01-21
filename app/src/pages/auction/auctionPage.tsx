@@ -51,13 +51,13 @@ export function AuctionPage({}: AuctionPageProps) {
   const { data: lolInfo } = useLolInfo(
     hasStatistics && presetDetail?.statistics === "LOL" && currentUserId
       ? currentUserId
-      : null
+      : null,
   );
 
   const { data: valInfo } = useValInfo(
     hasStatistics && presetDetail?.statistics === "VAL" && currentUserId
       ? currentUserId
-      : null
+      : null,
   );
 
   const pointScale = presetDetail?.pointScale || 1;
@@ -127,7 +127,7 @@ export function AuctionPage({}: AuctionPageProps) {
   }
 
   const presetUserMap = new Map<number, PresetUserDetail>(
-    presetDetail.presetUsers.map((pu) => [pu.userId, pu])
+    presetDetail.presetUsers.map((pu) => [pu.userId, pu]),
   );
 
   const auctionQueueUsers = state.auctionQueue

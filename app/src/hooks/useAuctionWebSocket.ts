@@ -58,7 +58,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
                 currentBid: null,
                 currentBidder: null,
               }
-            : null
+            : null,
         );
         break;
       }
@@ -72,7 +72,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
                 auctionQueue: data.auctionQueue,
                 unsoldQueue: data.unsoldQueue,
               }
-            : null
+            : null,
         );
         break;
       }
@@ -92,7 +92,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
                 currentBid: data.amount,
                 currentBidder: data.teamId,
               }
-            : null
+            : null,
         );
         break;
       }
@@ -105,7 +105,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
                 ...prev,
                 teams: data.teams,
               }
-            : null
+            : null,
         );
         break;
       }
@@ -124,7 +124,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
                 ...prev,
                 status: data.status,
               }
-            : null
+            : null,
         );
         break;
       }

@@ -26,7 +26,7 @@ async def update_discord_profile(user_id: int, discord_id: str) -> bool:
             discord_id
         )
         if not profile_url:
-            return False
+            return
 
         import aiohttp
 
@@ -38,15 +38,12 @@ async def update_discord_profile(user_id: int, discord_id: str) -> bool:
                     logger.info(
                         f"Successfully uploaded discord profile for user: {user_id}"
                     )
-                    return True
                 else:
                     logger.warning(
                         f"Failed to download discord profile: {response.status}"
                     )
-                    return False
     except Exception as e:
         logger.error(f"Failed to process discord profile: {e}")
-        return False
 
 
 async def get_user_detail_service(
@@ -131,7 +128,7 @@ async def update_user_service(
 
         db.commit()
 
-        if discord_id_changed and user.discord_id:
+        if discord_id_changed:
             await update_discord_profile(user.user_id, user.discord_id)
 
         return await get_user_detail_service(user.user_id, db)
@@ -149,17 +146,7 @@ async def update_discord_profile_service(
             logger.warning(f"User missing: {user_id}")
             raise CustomException(404, "User not found")
 
-        if not user.discord_id:
-            logger.warning(f"No discord_id for user: {user_id}")
-            raise CustomException(400, "User has no discord_id")
-
-        success = await update_discord_profile(user.user_id, user.discord_id)
-
-        if not success:
-            logger.warning(
-                f"Failed to update discord profile for user: {user_id}"
-            )
-            raise CustomException(500, "Failed to update discord profile")
+        await update_discord_profile(user.user_id, user.discord_id)
 
         logger.info(f"Discord profile updated: {user_id}")
         return await get_user_detail_service(user.user_id, db)
