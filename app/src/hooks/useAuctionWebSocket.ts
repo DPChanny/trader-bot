@@ -22,6 +22,7 @@ interface AuctionWebSocketHook {
   userId: number | null;
   teamId: number | null;
   connectedUsers: number[];
+  closeReason: string | null;
 }
 
 export function useAuctionWebSocket(): AuctionWebSocketHook {
@@ -32,6 +33,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
   const [userId, setUserId] = useState<number | null>(null);
   const [teamId, setTeamId] = useState<number | null>(null);
   const [connectedUsers, setConnectedUsers] = useState<number[]>([]);
+  const [closeReason, setCloseReason] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const sessionIdRef = useRef<string | null>(null);
   const accessCodeRef = useRef<string | null>(null);
@@ -161,11 +163,13 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       accessCodeRef.current = null;
       setIsConnected(false);
       setState(null);
+      setCloseReason(null);
     }
   };
 
   const connect = (token: string) => {
     disconnect();
+    setCloseReason(null);
 
     const url = `${AUCTION_WS_URL}/${token}`;
     const ws = new WebSocket(url);
@@ -188,9 +192,12 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       }
     };
 
-    ws.onclose = () => {
+    ws.onclose = (event) => {
       if (mountedRef.current) {
         setIsConnected(false);
+        if (event.reason) {
+          setCloseReason(event.reason);
+        }
       }
     };
 
@@ -237,6 +244,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     isLeader,
     userId,
     teamId,
+    closeReason,
     connectedUsers,
   };
 }

@@ -38,6 +38,7 @@ export function AuctionPage({}: AuctionPageProps) {
     teamId,
     connectedUsers,
     userId,
+    closeReason,
   } = useAuctionWebSocket();
 
   const {
@@ -82,6 +83,18 @@ export function AuctionPage({}: AuctionPageProps) {
             <Error>
               유효하지 않은 접근입니다. 경매 참가 링크를 확인해주세요.
             </Error>
+          </Section>
+        </PageContainer>
+      </PageLayout>
+    );
+  }
+
+  if (closeReason) {
+    return (
+      <PageLayout>
+        <PageContainer>
+          <Section variantType="primary" className={styles.centerSection}>
+            <Error>{closeReason}</Error>
           </Section>
         </PageContainer>
       </PageLayout>
