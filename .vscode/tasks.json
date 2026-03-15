@@ -110,6 +110,14 @@
         "clear": false
       },
       "problemMatcher": []
+    },
+    {
+      "label": "CSS DTS Watch",
+      "type": "shell",
+      "command": "npm run css:dts",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "isBackground": true,
+      "runOptions": { "runOn": "folderOpen" }
     }
   ],
   "inputs": [

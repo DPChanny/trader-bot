@@ -6,23 +6,25 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "css:dts": "tcm src --watch"
   },
   "dependencies": {
-    "preact": "latest",
-    "preact-router": "latest",
     "@tanstack/preact-query": "latest",
     "class-variance-authority": "latest",
-    "clsx": "latest"
+    "clsx": "latest",
+    "preact": "latest",
+    "preact-router": "latest"
   },
   "devDependencies": {
-    "@types/node": "latest",
-    "vite": "latest",
-    "vite-tsconfig-paths": "latest",
     "@preact/preset-vite": "latest",
-    "typescript": "latest",
     "@tsconfig/strictest": "latest",
+    "@types/node": "latest",
     "autoprefixer": "latest",
-    "postcss": "latest"
+    "postcss": "latest",
+    "typed-css-modules": "latest",
+    "typescript": "latest",
+    "vite": "latest",
+    "vite-tsconfig-paths": "latest"
   }
 }
