@@ -6,28 +6,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def get_app_host() -> str:
-    return os.getenv("APP_HOST", "localhost")
+def get_app_endpoint() -> str:
+    return os.getenv("APP_ENDPOINT", "localhost:8080")
 
 
-def get_app_port() -> int:
-    return int(os.getenv("APP_PORT", "8080"))
-
-
-def get_api_host() -> str:
-    return os.getenv("API_HOST", "localhost")
-
-
-def get_api_port() -> int:
-    return int(os.getenv("API_PORT", "8000"))
-
-
-def get_db_host() -> str:
-    return os.getenv("DB_HOST", "localhost")
-
-
-def get_db_port() -> int:
-    return int(os.getenv("DB_PORT", "3306"))
+def get_db_endpoint() -> str:
+    return os.getenv("DB_ENDPOINT", "localhost:5432")
 
 
 def get_db_user() -> str:
@@ -45,10 +29,10 @@ def get_db_name() -> str:
 def get_db_url() -> str:
     user = get_db_user()
     password = get_db_password()
-    host = get_db_host()
-    port = get_db_port()
+    endpoint = get_db_endpoint()
     name = get_db_name()
-    return f"mysql+pymysql://{user}:{password}@{host}:{port}/{name}?charset=utf8mb4"
+
+    return f"postgresql://{user}:{password}@{endpoint}/{name}"
 
 
 def get_discord_bot_token() -> str:
@@ -56,7 +40,7 @@ def get_discord_bot_token() -> str:
 
 
 def get_auction_url(token: str) -> str:
-    return f"http://{get_app_host()}:{get_app_port()}/auction?token={token}"
+    return f"http://{get_app_endpoint()}/auction?token={token}"
 
 
 def get_admin_password() -> str:
