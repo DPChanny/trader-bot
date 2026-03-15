@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import styles from "@/styles/components/userCard.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Badge } from "./badge";
@@ -49,10 +49,10 @@ export function PresetUserCard({
   })();
 
   return (
-    <Section className={cn(presetUserCardVariants({ variant, isLeader }))}>
+    <Section className={clsx(presetUserCardVariants({ variant, isLeader }))}>
       <div class={styles.card__badgesLeft}>
         {statusClass && (
-          <div className={cn(styles.card__statusDot, statusClass)} />
+          <div className={clsx(styles.card__statusDot, statusClass)} />
         )}
         {variant === "detail" && (
           <Badge variantColor="gray">{`#${user.userId}`}</Badge>

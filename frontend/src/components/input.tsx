@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import styles from "@/styles/components/input.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -68,7 +68,7 @@ export function Input({
       placeholder={placeholder}
       autoFocus={autoFocus}
       disabled={disabled}
-      className={cn(baseClass, className)}
+      className={clsx(baseClass, className)}
     />
   );
 }

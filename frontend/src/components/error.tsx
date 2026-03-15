@@ -1,5 +1,5 @@
 import styles from "@/styles/components/error.module.css";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 
 interface ErrorProps {
   message?: string;
@@ -9,7 +9,7 @@ interface ErrorProps {
 
 export function Error({ message, children, className }: ErrorProps) {
   return (
-    <div className={cn(styles.error, className)}>
+    <div className={clsx(styles.error, className)}>
       {children || message || "오류가 발생했습니다."}
     </div>
   );

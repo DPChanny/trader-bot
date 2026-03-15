@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import styles from "@/styles/components/userCard.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Badge } from "./badge";
@@ -23,7 +23,7 @@ export interface UserCardProps extends VariantProps<typeof userCardVariants> {
 
 export function UserCard({ user, variant }: UserCardProps) {
   return (
-    <Section className={cn(styles.card, userCardVariants({ variant }))}>
+    <Section className={clsx(styles.card, userCardVariants({ variant }))}>
       <div class={styles.card__badgesLeft}>
         {variant === "detail" && (
           <Badge variantColor="gray" variantSize="md">{`${user.userId}`}</Badge>

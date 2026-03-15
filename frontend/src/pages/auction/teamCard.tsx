@@ -2,7 +2,7 @@ import { PresetUserGrid } from "@/components/presetUserGrid";
 import type { PresetUserDetail, Team } from "@/dtos";
 import { Section } from "@/components/section";
 import { Bar } from "@/components/bar";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import styles from "@/styles/pages/auction/teamCard.module.css";
 
 interface TeamCardProps {
@@ -27,7 +27,7 @@ export function TeamCard({
   return (
     <Section
       variantType="secondary"
-      className={cn(styles.teamCard, isFull && styles["teamCard--full"])}
+      className={clsx(styles.teamCard, isFull && styles["teamCard--full"])}
     >
       <Section variantTone="ghost" variantLayout="row">
         <h4>{teamName}</h4>

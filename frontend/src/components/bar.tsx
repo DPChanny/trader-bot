@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import styles from "@/styles/components/bar.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -34,5 +34,5 @@ export function Bar({ className, variantColor, variantThickness }: BarProps) {
     thickness: variantThickness,
   });
 
-  return <div className={cn(baseClass, className)} />;
+  return <div className={clsx(baseClass, className)} />;
 }

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import styles from "@/styles/components/badge.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -52,7 +52,7 @@ export function IconBadge({
   });
 
   return (
-    <span className={cn(baseClass, className)}>
+    <span className={clsx(baseClass, className)}>
       {src ? (
         <img
           src={src}

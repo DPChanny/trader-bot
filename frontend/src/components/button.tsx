@@ -1,5 +1,5 @@
 import type { JSX } from "preact";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import styles from "@/styles/components/button.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -59,7 +59,9 @@ export function Button({
     isIcon: variantIsIcon,
   });
 
-  return <button type={type} className={cn(baseClass, className)} {...props} />;
+  return (
+    <button type={type} className={clsx(baseClass, className)} {...props} />
+  );
 }
 
 export function PrimaryButton(props: Omit<ButtonProps, "variantIntent">) {
@@ -75,7 +77,7 @@ export function DangerButton(props: Omit<ButtonProps, "variantIntent">) {
 }
 
 export function EditButton(
-  props: Omit<ButtonProps, "children" | "variantIsIcon">
+  props: Omit<ButtonProps, "children" | "variantIsIcon">,
 ) {
   return (
     <Button
@@ -90,7 +92,7 @@ export function EditButton(
 }
 
 export function DeleteButton(
-  props: Omit<ButtonProps, "children" | "variantIsIcon">
+  props: Omit<ButtonProps, "children" | "variantIsIcon">,
 ) {
   return (
     <Button
@@ -105,7 +107,7 @@ export function DeleteButton(
 }
 
 export function CloseButton(
-  props: Omit<ButtonProps, "children" | "variantIsIcon">
+  props: Omit<ButtonProps, "children" | "variantIsIcon">,
 ) {
   return (
     <Button
@@ -120,7 +122,7 @@ export function CloseButton(
 }
 
 export function SaveButton(
-  props: Omit<ButtonProps, "children" | "variantIsIcon">
+  props: Omit<ButtonProps, "children" | "variantIsIcon">,
 ) {
   return (
     <Button

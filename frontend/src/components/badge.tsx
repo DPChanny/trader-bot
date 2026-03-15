@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import styles from "@/styles/components/badge.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -49,5 +49,5 @@ export function Badge({
     size: variantSize,
   });
 
-  return <span className={cn(baseClass, className)}>{children}</span>;
+  return <span className={clsx(baseClass, className)}>{children}</span>;
 }

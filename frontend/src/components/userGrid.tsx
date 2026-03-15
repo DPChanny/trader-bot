@@ -1,7 +1,7 @@
 import { UserCard } from "./userCard";
 import { Section } from "./section";
 import { cva } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import styles from "@/styles/components/userGrid.module.css";
 import type { User } from "@/dtos";
 
@@ -48,7 +48,7 @@ export function UserGrid({
     <Section
       variantTone="ghost"
       variantLayout="grid"
-      className={cn(gridVariants({ variant }), className)}
+      className={clsx(gridVariants({ variant }), className)}
     >
       {users.map((user) => (
         <div

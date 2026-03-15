@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import styles from "@/styles/components/toggle.module.css";
 
 const toggleVariants = cva(styles.toggle, {
@@ -40,9 +40,9 @@ export function Toggle({
   return (
     <button
       type={type}
-      className={cn(
+      className={clsx(
         toggleVariants({ variantColor: color, variantActive: active }),
-        className
+        className,
       )}
       onClick={onClick}
     >

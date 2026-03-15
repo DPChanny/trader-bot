@@ -1,5 +1,5 @@
 import { createPortal } from "preact/compat";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import { Bar } from "@/components/bar";
 import { PrimaryButton, SecondaryButton } from "@/components/button";
 import styles from "@/styles/components/modal.module.css";
@@ -23,7 +23,7 @@ export function Modal({
   if (!isOpen) return null;
 
   const modalContent = (
-    <div className={cn(styles.modal, className)}>
+    <div className={clsx(styles.modal, className)}>
       <div className={styles.modal__overlay} onClick={onClose}>
         <div
           className={styles.modal__content}

@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import styles from "@/styles/components/section.module.css";
 
 const sectionVariants = cva(styles.section, {
@@ -43,9 +43,9 @@ export function Section({
 }: SectionProps) {
   return (
     <div
-      className={cn(
+      className={clsx(
         sectionVariants({ variantType, variantTone, variantLayout }),
-        className
+        className,
       )}
     >
       {children}
