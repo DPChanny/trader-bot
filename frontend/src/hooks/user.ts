@@ -11,12 +11,9 @@ interface AddUserData {
 }
 
 interface UpdateUserData {
-  userId: number;
-  data: Partial<{
-    name: string;
-    riotId: string;
-    discordId: string;
-  }>;
+  name?: string;
+  riotId?: string;
+  discordId?: string;
 }
 
 export function useUsers() {
@@ -68,7 +65,13 @@ export function useUpdateUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, data }: UpdateUserData): Promise<User> => {
+    mutationFn: async ({
+      userId,
+      data,
+    }: {
+      userId: number;
+      data: UpdateUserData;
+    }): Promise<User> => {
       const response = await fetch(`${USER_API_ENDPOINT}/${userId}`, {
         method: "PATCH",
         headers: getAuthHeadersForMutation(),

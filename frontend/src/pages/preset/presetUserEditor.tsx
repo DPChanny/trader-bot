@@ -91,8 +91,7 @@ export function PresetUserEditor({
         await updatePresetUser.mutateAsync({
           presetUserId: presetUser.presetUserId,
           presetId,
-          tierId,
-          isLeader,
+          data: { tierId, isLeader },
         });
       }
 

@@ -54,7 +54,7 @@ export function TierList({
       await updateTier.mutateAsync({
         tierId,
         presetId,
-        name: editingTierName.trim(),
+        data: { name: editingTierName.trim() },
       });
       setEditingTierId(null);
       setEditingTierName("");

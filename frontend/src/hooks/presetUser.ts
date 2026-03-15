@@ -7,19 +7,11 @@ interface AddPresetUserData {
   presetId: number;
   userId: number;
   tierId: number | null;
-  isLeader?: boolean;
 }
 
 interface UpdatePresetUserData {
-  presetUserId: number;
-  presetId: number;
   tierId: number | null;
   isLeader?: boolean;
-}
-
-interface RemovePresetUserData {
-  presetUserId: number;
-  presetId: number;
 }
 
 export function useAddPresetUser() {
@@ -49,16 +41,18 @@ export function useUpdatePresetUser() {
   return useMutation({
     mutationFn: async ({
       presetUserId,
-      presetId: _,
-      tierId,
-      isLeader,
-    }: UpdatePresetUserData) => {
+      data,
+    }: {
+      presetUserId: number;
+      presetId: number;
+      data: UpdatePresetUserData;
+    }) => {
       const response = await fetch(
         `${PRESET_USER_API_ENDPOINT}/${presetUserId}`,
         {
           method: "PATCH",
           headers: getAuthHeadersForMutation(),
-          body: JSON.stringify(toSnakeCase({ tierId, isLeader })),
+          body: JSON.stringify(toSnakeCase(data)),
         },
       );
       if (!response.ok) throw new Error("Failed to update preset user");
@@ -76,7 +70,12 @@ export function useRemovePresetUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ presetUserId }: RemovePresetUserData) => {
+    mutationFn: async ({
+      presetUserId,
+    }: {
+      presetUserId: number;
+      presetId: number;
+    }) => {
       const response = await fetch(
         `${PRESET_USER_API_ENDPOINT}/${presetUserId}`,
         {

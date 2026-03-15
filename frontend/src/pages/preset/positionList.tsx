@@ -68,8 +68,10 @@ export function PositionList({
       await updatePosition.mutateAsync({
         positionId,
         presetId,
-        name: editingName.trim(),
-        iconUrl: editingIconUrl.trim() === "" ? null : editingIconUrl.trim(),
+        data: {
+          name: editingName.trim(),
+          iconUrl: editingIconUrl.trim() === "" ? null : editingIconUrl.trim(),
+        },
       });
       setEditingPositionId(null);
       setEditingName("");

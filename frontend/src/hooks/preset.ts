@@ -13,7 +13,6 @@ interface AddPresetData {
 }
 
 interface UpdatePresetData {
-  presetId: number;
   name?: string;
   points?: number;
   time?: number;
@@ -73,8 +72,11 @@ export function useUpdatePreset() {
   return useMutation({
     mutationFn: async ({
       presetId,
-      ...data
-    }: UpdatePresetData): Promise<Preset> => {
+      data,
+    }: {
+      presetId: number;
+      data: UpdatePresetData;
+    }): Promise<Preset> => {
       const response = await fetch(`${PRESET_API_ENDPOINT}/${presetId}`, {
         method: "PATCH",
         headers: getAuthHeadersForMutation(),

@@ -10,15 +10,8 @@ interface AddPositionData {
 }
 
 interface UpdatePositionData {
-  positionId: number;
-  presetId: number;
   name?: string;
   iconUrl?: string | null;
-}
-
-interface DeletePositionData {
-  positionId: number;
-  presetId: number;
 }
 
 export function useAddPosition() {
@@ -48,9 +41,12 @@ export function useUpdatePosition() {
   return useMutation({
     mutationFn: async ({
       positionId,
-      presetId: _,
-      ...data
-    }: UpdatePositionData) => {
+      data,
+    }: {
+      positionId: number;
+      presetId: number;
+      data: UpdatePositionData;
+    }) => {
       const response = await fetch(`${POSITION_API_ENDPOINT}/${positionId}`, {
         method: "PATCH",
         headers: getAuthHeadersForMutation(),
@@ -71,7 +67,12 @@ export function useDeletePosition() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ positionId }: DeletePositionData) => {
+    mutationFn: async ({
+      positionId,
+    }: {
+      positionId: number;
+      presetId: number;
+    }) => {
       const response = await fetch(`${POSITION_API_ENDPOINT}/${positionId}`, {
         method: "DELETE",
         headers: getAuthHeadersForMutation(),

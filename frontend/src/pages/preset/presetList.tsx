@@ -47,11 +47,7 @@ export function PresetList({
     try {
       await updatePreset.mutateAsync({
         presetId: editingPresetId,
-        name: name.trim(),
-        points,
-        time,
-        pointScale: pointScale,
-        statistics,
+        data: { name: name.trim(), points, time, pointScale, statistics },
       });
       setIsEditing(false);
       setEditingPresetId(null);

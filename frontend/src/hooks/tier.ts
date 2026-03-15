@@ -9,14 +9,7 @@ interface AddTierData {
 }
 
 interface UpdateTierData {
-  tierId: number;
-  presetId: number;
   name: string;
-}
-
-interface DeleteTierData {
-  tierId: number;
-  presetId: number;
 }
 
 export function useAddTier() {
@@ -44,11 +37,18 @@ export function useUpdateTier() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ tierId, presetId: _, name }: UpdateTierData) => {
+    mutationFn: async ({
+      tierId,
+      data,
+    }: {
+      tierId: number;
+      presetId: number;
+      data: UpdateTierData;
+    }) => {
       const response = await fetch(`${TIER_API_ENDPOINT}/${tierId}`, {
         method: "PATCH",
         headers: getAuthHeadersForMutation(),
-        body: JSON.stringify(toSnakeCase({ name })),
+        body: JSON.stringify(toSnakeCase(data)),
       });
       if (!response.ok) throw new Error("Failed to update tier");
       return response.json();
@@ -65,7 +65,7 @@ export function useDeleteTier() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ tierId }: DeleteTierData) => {
+    mutationFn: async ({ tierId }: { tierId: number; presetId: number }) => {
       const response = await fetch(`${TIER_API_ENDPOINT}/${tierId}`, {
         method: "DELETE",
         headers: getAuthHeadersForMutation(),
