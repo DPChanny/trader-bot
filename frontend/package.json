@@ -13,7 +13,8 @@
     "class-variance-authority": "latest",
     "clsx": "latest",
     "preact": "latest",
-    "preact-router": "latest"
+    "preact-router": "latest",
+    "vite-tsconfig-paths": "latest"
   },
   "devDependencies": {
     "@preact/preset-vite": "latest",
