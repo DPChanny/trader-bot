@@ -11,8 +11,8 @@ import {
   useAddPresetUserPosition,
   useDeletePresetUserPosition,
 } from "@/hooks/usePresetUserPositionApi";
-import { useLolInfo } from "@/hooks/useLolApi";
-import { useValInfo } from "@/hooks/useValApi";
+import { useLolStat } from "@/hooks/useLolApi";
+import { useValStat } from "@/hooks/useValApi";
 import {
   type Position,
   type PresetUserDetail,
@@ -52,10 +52,10 @@ export function PresetUserEditor({
   const removePresetUser = useRemovePresetUser();
   const addPresetUserPosition = useAddPresetUserPosition();
   const deletePresetUserPosition = useDeletePresetUserPosition();
-  const lolInfo = useLolInfo(
+  const lolStat = useLolStat(
     statistics === "LOL" ? presetUser.user.userId : null,
   );
-  const valInfo = useValInfo(
+  const valStat = useValStat(
     statistics === "VAL" ? presetUser.user.userId : null,
   );
 
@@ -273,10 +273,10 @@ export function PresetUserEditor({
 
           {statistics === "LOL" && (
             <>
-              {lolInfo.isLoading ? (
+              {lolStat.isLoading ? (
                 <Loading />
-              ) : lolInfo.data ? (
-                <LolCard lolDto={lolInfo.data} />
+              ) : lolStat.data ? (
+                <LolCard lolStatDto={lolStat.data} />
               ) : (
                 <Error>LOL 통계를 불러오지 못했습니다.</Error>
               )}
@@ -285,10 +285,10 @@ export function PresetUserEditor({
 
           {statistics === "VAL" && (
             <>
-              {valInfo.isLoading ? (
+              {valStat.isLoading ? (
                 <Loading />
-              ) : valInfo.data ? (
-                <ValCard valDto={valInfo.data} />
+              ) : valStat.data ? (
+                <ValCard valStatDto={valStat.data} />
               ) : (
                 <Error>VAL 통계를 불러오지 못했습니다.</Error>
               )}

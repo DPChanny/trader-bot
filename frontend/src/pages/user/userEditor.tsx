@@ -7,8 +7,8 @@ import {
   useUpdateUser,
   useUpdateDiscordProfile,
 } from "@/hooks/useUserApi";
-import { useLolInfo } from "@/hooks/useLolApi";
-import { useValInfo } from "@/hooks/useValApi";
+import { useLolStat } from "@/hooks/useLolApi";
+import { useValStat } from "@/hooks/useValApi";
 import {
   Button,
   CloseButton,
@@ -34,8 +34,8 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
   const updateDiscordProfile = useUpdateDiscordProfile();
-  const lolInfo = useLolInfo(user.userId);
-  const valInfo = useValInfo(user.userId);
+  const lolStat = useLolStat(user.userId);
+  const valStat = useValStat(user.userId);
 
   const [name, setName] = useState(user.name);
   const [riotId, setRiotId] = useState(user.riotId);
@@ -146,20 +146,20 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
 
           <Bar />
 
-          {lolInfo.isLoading ? (
+          {lolStat.isLoading ? (
             <Loading />
-          ) : lolInfo.data ? (
-            <LolCard lolDto={lolInfo.data} />
+          ) : lolStat.data ? (
+            <LolCard lolStatDto={lolStat.data} />
           ) : (
             <Error>LOL 통계를 불러오지 못했습니다.</Error>
           )}
 
           <Bar />
 
-          {valInfo.isLoading ? (
+          {valStat.isLoading ? (
             <Loading />
-          ) : valInfo.data ? (
-            <ValCard valDto={valInfo.data} />
+          ) : valStat.data ? (
+            <ValCard valStatDto={valStat.data} />
           ) : (
             <Error>VAL 통계를 불러오지 못했습니다.</Error>
           )}

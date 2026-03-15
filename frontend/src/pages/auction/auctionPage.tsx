@@ -1,8 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
 import { useAuctionWebSocket } from "@/hooks/useAuctionWebSocket";
 import { usePresetDetail } from "@/hooks/usePresetApi";
-import { useLolInfo } from "@/hooks/useLolApi";
-import { useValInfo } from "@/hooks/useValApi";
+import { useLolStat } from "@/hooks/useLolApi";
+import { useValStat } from "@/hooks/useValApi";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import { LolCard } from "@/components/lolCard";
@@ -51,13 +51,13 @@ export function AuctionPage({}: AuctionPageProps) {
   const hasStatistics =
     presetDetail?.statistics && presetDetail.statistics !== "NONE";
 
-  const { data: lolInfo } = useLolInfo(
+  const { data: lolStat } = useLolStat(
     hasStatistics && presetDetail?.statistics === "LOL" && currentUserId
       ? currentUserId
       : null,
   );
 
-  const { data: valInfo } = useValInfo(
+  const { data: valStat } = useValStat(
     hasStatistics && presetDetail?.statistics === "VAL" && currentUserId
       ? currentUserId
       : null,
@@ -248,10 +248,10 @@ export function AuctionPage({}: AuctionPageProps) {
               )}
               {state.status !== "completed" &&
                 presetDetail?.statistics === "LOL" &&
-                lolInfo && <LolCard lolDto={lolInfo} />}
+                lolStat && <LolCard lolStatDto={lolStat} />}
               {state.status !== "completed" &&
                 presetDetail?.statistics === "VAL" &&
-                valInfo && <ValCard valDto={valInfo} />}
+                valStat && <ValCard valStatDto={valStat} />}
             </Section>
 
             <Section

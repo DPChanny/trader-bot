@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/preact-query";
-import type { ValDto, ApiResponse } from "@/dto";
+import type { ValStatDto, ApiResponse } from "@/dto";
 import { VAL_STAT_API_ENDPOINT } from "@/env";
 import { toCamelCase } from "@/utils/dto";
 
 export const valApi = {
-  getByUserId: async (userId: number): Promise<ValDto | null> => {
+  getByUserId: async (userId: number): Promise<ValStatDto | null> => {
     try {
       const response = await fetch(`${VAL_STAT_API_ENDPOINT}/${userId}`);
       if (!response.ok) {
@@ -13,7 +13,7 @@ export const valApi = {
       }
       const json: ApiResponse<any> = await response.json();
       if (!json.data) return null;
-      const result = toCamelCase<ValDto>(json.data);
+      const result = toCamelCase<ValStatDto>(json.data);
       return result ?? null;
     } catch (error) {
       console.error("Error fetching VAL info:", error);
@@ -22,7 +22,7 @@ export const valApi = {
   },
 };
 
-export const useValInfo = (userId: number | null) => {
+export const useValStat = (userId: number | null) => {
   return useQuery({
     queryKey: ["val", userId],
     queryFn: async () => {
