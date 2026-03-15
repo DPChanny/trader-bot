@@ -7,6 +7,7 @@ from dtos.val_stat_dto import GetValResponseDTO
 from services import val_stat_service
 from utils.database import get_db
 
+
 logger = logging.getLogger(__name__)
 
 val_stat_router = APIRouter(prefix="/val", tags=["val"])

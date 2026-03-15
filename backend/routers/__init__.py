@@ -10,6 +10,7 @@ from .tier_router import tier_router
 from .user_router import user_router
 from .val_stat_router import val_stat_router
 
+
 __all__ = [
     "admin_router",
     "auction_router",

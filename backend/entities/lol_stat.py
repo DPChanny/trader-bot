@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Integer, Float, ForeignKey, DateTime
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from utils.database import Base
+
 
 if TYPE_CHECKING:
     from .user import User
@@ -32,7 +33,7 @@ class LolStat(Base):
     )
 
     user: Mapped[User] = relationship("User", back_populates="lol_stat")
-    champions: Mapped[List[Champion]] = relationship(
+    champions: Mapped[list[Champion]] = relationship(
         "Champion", back_populates="lol_stat", cascade="all, delete-orphan"
     )
 
@@ -52,6 +53,4 @@ class Champion(Base):
     win_rate: Mapped[float] = mapped_column(Float, nullable=False)
     rank_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
-    lol_stat: Mapped[LolStat] = relationship(
-        "LolStat", back_populates="champions"
-    )
+    lol_stat: Mapped[LolStat] = relationship("LolStat", back_populates="champions")

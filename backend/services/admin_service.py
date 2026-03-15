@@ -7,6 +7,7 @@ from utils.jwt import (
     should_refresh_token,
 )
 
+
 logger = logging.getLogger(__name__)
 
 

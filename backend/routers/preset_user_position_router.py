@@ -1,6 +1,7 @@
+import logging
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-import logging
 
 from dtos.base_dto import BaseResponseDTO
 from dtos.preset_user_position_dto import (
@@ -14,6 +15,7 @@ from services.preset_user_position_service import (
 )
 from utils.database import get_db
 
+
 logger = logging.getLogger(__name__)
 
 preset_user_position_router = APIRouter(
@@ -21,9 +23,7 @@ preset_user_position_router = APIRouter(
 )
 
 
-@preset_user_position_router.post(
-    "", response_model=GetPresetUserPositionResponseDTO
-)
+@preset_user_position_router.post("", response_model=GetPresetUserPositionResponseDTO)
 def add_preset_user_position(
     dto: AddPresetUserPositionRequestDTO, db: Session = Depends(get_db)
 ):

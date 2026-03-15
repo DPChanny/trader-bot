@@ -10,15 +10,14 @@ from fastapi import (
 from dtos.auction_dto import AuctionStatus, MessageType
 from services.auction_websocket_service import (
     handle_websocket_connect,
-    handle_websocket_message,
     handle_websocket_disconnect,
+    handle_websocket_message,
 )
+
 
 logger = logging.getLogger(__name__)
 
-auction_websocket_router = APIRouter(
-    prefix="/auction", tags=["auction_websocket"]
-)
+auction_websocket_router = APIRouter(prefix="/auction", tags=["auction_websocket"])
 
 
 @auction_websocket_router.websocket("/{token}")

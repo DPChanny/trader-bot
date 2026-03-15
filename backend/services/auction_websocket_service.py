@@ -1,18 +1,18 @@
 import logging
-from typing import Optional, Tuple
 
 from fastapi import WebSocket
 
 from auction.auction import Auction
 from auction.auction_manager import auction_manager
-from dtos.auction_dto import MessageType, AuctionStatus, WebSocketMessage
+from dtos.auction_dto import AuctionStatus, MessageType
+
 
 logger = logging.getLogger(__name__)
 
 
 async def handle_websocket_connect(
     websocket: WebSocket, token: str
-) -> Tuple[Optional[Auction], Optional[int], bool, Optional[int]]:
+) -> tuple[Auction | None, int | None, bool, int | None]:
     auction = auction_manager.get_auction_by_token(token)
 
     if not auction:
@@ -102,5 +102,5 @@ async def handle_websocket_disconnect(
         auction.status == AuctionStatus.IN_PROGRESS
         and not auction.are_all_leaders_connected()
     ):
-        logger.warning(f"Leader disconnected, pausing to WAITING")
+        logger.warning("Leader disconnected, pausing to WAITING")
         await auction.set_status(AuctionStatus.WAITING)

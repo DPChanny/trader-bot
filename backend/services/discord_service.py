@@ -1,25 +1,25 @@
 import asyncio
 import logging
 import threading
-from typing import Optional
 
 import discord
 from discord.ext import commands
 
 from utils.env import get_discord_bot_token
 
+
 logger = logging.getLogger(__name__)
 
 
 class DiscordBotService:
     def __init__(self):
-        self.bot: Optional[commands.Bot] = None
+        self.bot: commands.Bot | None = None
         self.token = get_discord_bot_token()
         self._ready = False
-        self._loop: Optional[asyncio.AbstractEventLoop] = None
-        self._thread: Optional[threading.Thread] = None
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._thread: threading.Thread | None = None
         self._should_run = True
-        self._reconnect_task: Optional[asyncio.Task] = None
+        self._reconnect_task: asyncio.Task | None = None
         self._state_lock = threading.Lock()
 
     def _run_bot(self):
@@ -163,7 +163,7 @@ class DiscordBotService:
         async def _send_auction_url(discord_id: str, auction_url: str):
             try:
                 if not discord_id or not discord_id.strip():
-                    logger.debug(f"Empty discord_id")
+                    logger.debug("Empty discord_id")
                     return False
 
                 user_id = int(discord_id)
@@ -205,7 +205,9 @@ class DiscordBotService:
             )
 
             result_dict = {}
-            for (discord_id, auction_url), result in zip(invites, results):
+            for (discord_id, auction_url), result in zip(
+                invites, results, strict=False
+            ):
                 if isinstance(result, Exception) or not result:
                     result_dict[discord_id] = False
                     logger.info(f"Invite failed: {discord_id} {auction_url}")
@@ -219,7 +221,7 @@ class DiscordBotService:
             logger.error(f"Batch invite error: {e}")
             return {discord_id: False for discord_id, _ in invites}
 
-    async def fetch_discord_profile_url(self, discord_id: str) -> Optional[str]:
+    async def fetch_discord_profile_url(self, discord_id: str) -> str | None:
         if not discord_id or not discord_id.strip():
             logger.warning("Empty discord_id")
             return None
@@ -247,9 +249,7 @@ class DiscordBotService:
             logger.error(f"Failed to fetch discord profile URL: {e}")
             return None
 
-    async def _fetch_discord_profile_url(
-        self, discord_id: str
-    ) -> Optional[str]:
+    async def _fetch_discord_profile_url(self, discord_id: str) -> str | None:
         try:
             user_id_int = int(discord_id)
             user = await self.bot.fetch_user(user_id_int)

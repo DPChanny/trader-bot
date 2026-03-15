@@ -1,16 +1,16 @@
 import asyncio
 import logging
-from typing import Optional
 
 import boto3
 from botocore.exceptions import ClientError
 
 from .env import (
     get_aws_access_key,
-    get_aws_secret_key,
-    get_aws_region,
     get_aws_bucket_name,
+    get_aws_region,
+    get_aws_secret_key,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -36,15 +36,11 @@ class S3Client:
                 )
                 logger.info("S3 client initialized")
             else:
-                logger.warning(
-                    "AWS credentials missing - S3 operations will fail"
-                )
+                logger.warning("AWS credentials missing - S3 operations will fail")
         except Exception as e:
             logger.error(f"Failed to initialize S3 client: {e}")
 
-    async def upload_discord_profile(
-        self, user_id: int, image_data: bytes
-    ) -> bool:
+    async def upload_discord_profile(self, user_id: int, image_data: bytes) -> bool:
         """Async version of upload_discord_profile"""
         if not self.client:
             logger.error("S3 client not initialized")
@@ -81,9 +77,7 @@ class S3Client:
             loop = asyncio.get_event_loop()
             await loop.run_in_executor(
                 None,
-                lambda: self.client.delete_object(
-                    Bucket=self.bucket_name, Key=key
-                ),
+                lambda: self.client.delete_object(Bucket=self.bucket_name, Key=key),
             )
             logger.info(f"Discord profile deleted from S3: {key}")
             return True

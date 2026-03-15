@@ -11,16 +11,16 @@ from dtos.auction_dto import (
 from entities.preset import Preset
 from entities.preset_user import PresetUser
 from entities.user import User
-from .discord_service import discord_service
 from utils.env import get_auction_url
 from utils.exception import CustomException, handle_exception
+
+from .discord_service import discord_service
+
 
 logger = logging.getLogger(__name__)
 
 
-def add_auction_service(
-    preset_id: int, db: Session
-) -> AddAuctionResponseDTO | None:
+def add_auction_service(preset_id: int, db: Session) -> AddAuctionResponseDTO | None:
     try:
         logger.info(f"Adding: {preset_id}")
         preset = (

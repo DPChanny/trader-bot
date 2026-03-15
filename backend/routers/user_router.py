@@ -7,20 +7,21 @@ from sqlalchemy.orm import Session
 from dtos.base_dto import BaseResponseDTO
 from dtos.user_dto import (
     AddUserRequestDTO,
-    UpdateUserRequestDTO,
     GetUserDetailResponseDTO,
     GetUserListResponseDTO,
+    UpdateUserRequestDTO,
 )
 from services.user_service import (
     add_user_service,
     delete_user_service,
-    get_user_list_service,
     get_user_detail_service,
-    update_user_service,
+    get_user_list_service,
     update_discord_profile_service,
+    update_user_service,
 )
 from utils.auth import verify_admin_token
 from utils.database import get_db
+
 
 logger = logging.getLogger(__name__)
 
@@ -60,9 +61,7 @@ async def update_user_route(
     return await update_user_service(user_id, dto, db)
 
 
-@user_router.post(
-    "/{user_id}/discord-profile", response_model=GetUserDetailResponseDTO
-)
+@user_router.post("/{user_id}/discord-profile", response_model=GetUserDetailResponseDTO)
 async def update_discord_profile_route(
     user_id: int,
     db: Session = Depends(get_db),

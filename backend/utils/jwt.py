@@ -1,9 +1,10 @@
-from datetime import datetime, timedelta, timezone
 import logging
+from datetime import UTC, datetime, timedelta
 
 import jwt
 
-from .env import get_jwt_secret, get_jwt_algorithm
+from .env import get_jwt_algorithm, get_jwt_secret
+
 
 logger = logging.getLogger(__name__)
 
@@ -14,16 +15,14 @@ JWT_REFRESH_THRESHOLD_HOURS = 6
 def create_jwt_token(
     payload: dict, expiration_hours: int = JWT_EXPIRATION_HOURS
 ) -> str:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expiration = now + timedelta(hours=expiration_hours)
     token_data = {
         **payload,
         "exp": int(expiration.timestamp()),
         "iat": int(now.timestamp()),
     }
-    return jwt.encode(
-        token_data, get_jwt_secret(), algorithm=get_jwt_algorithm()
-    )
+    return jwt.encode(token_data, get_jwt_secret(), algorithm=get_jwt_algorithm())
 
 
 def decode_jwt_token(token: str) -> dict:
@@ -65,8 +64,8 @@ def should_refresh_token(token: str) -> bool:
         if not exp_timestamp:
             return True
 
-        exp_datetime = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
-        time_remaining = exp_datetime - datetime.now(timezone.utc)
+        exp_datetime = datetime.fromtimestamp(exp_timestamp, tz=UTC)
+        time_remaining = exp_datetime - datetime.now(UTC)
 
         return time_remaining < timedelta(hours=JWT_REFRESH_THRESHOLD_HOURS)
     except Exception:

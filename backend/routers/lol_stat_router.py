@@ -7,6 +7,7 @@ from dtos.lol_stat_dto import GetLolResponseDTO
 from services import lol_stat_service
 from utils.database import get_db
 
+
 logger = logging.getLogger(__name__)
 
 lol_stat_router = APIRouter(prefix="/lol", tags=["lol"])
