@@ -68,7 +68,11 @@ export function TierCard({
             {tier.name.charAt(0)}
           </Badge>
           <EditButton variantSize="small" onClick={onEdit} />
-          <DeleteButton variantSize="small" disabled={isDeletePending} />
+          <DeleteButton
+            variantSize="small"
+            disabled={isDeletePending}
+            onClick={onDelete}
+          />
         </>
       )}
     </Section>

@@ -222,7 +222,7 @@ export function AuctionPage({}: AuctionPageProps) {
             teams={state.teams}
             presetUsers={presetUsers}
             pointScale={pointScale}
-            clientUserId={userId}
+            clientUserId={userId ?? undefined}
             connectedUsers={connectedUsers}
           />
         </Section>
@@ -248,10 +248,10 @@ export function AuctionPage({}: AuctionPageProps) {
               )}
               {state.status !== "completed" &&
                 presetDetail?.statistics === "LOL" &&
-                lolInfo && <LolCard lolInfo={lolInfo} />}
+                lolInfo && <LolCard lolDto={lolInfo} />}
               {state.status !== "completed" &&
                 presetDetail?.statistics === "VAL" &&
-                valInfo && <ValCard valInfo={valInfo} />}
+                valInfo && <ValCard valDto={valInfo} />}
             </Section>
 
             <Section
@@ -322,7 +322,7 @@ export function AuctionPage({}: AuctionPageProps) {
                 presetUsers={auctionQueueUsers}
                 onUserClick={() => {}}
                 variantVariant="compact"
-                clientUserId={userId}
+                clientUserId={userId ?? undefined}
                 connectedUsers={connectedUsers}
               />
             </Section>
@@ -336,7 +336,7 @@ export function AuctionPage({}: AuctionPageProps) {
                 presetUsers={unsoldQueueUsers}
                 onUserClick={() => {}}
                 connectedUsers={connectedUsers}
-                clientUserId={userId}
+                clientUserId={userId ?? undefined}
                 variantVariant="compact"
               />
             </Section>

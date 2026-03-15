@@ -4,23 +4,23 @@ import type { ValDto } from "@/dto";
 import styles from "@/styles/components/valCard.module.css";
 
 interface ValCardProps {
-  valInfo: ValDto | null;
+  valDto: ValDto;
 }
 
-export function ValCard({ valInfo }: ValCardProps) {
+export function ValCard({ valDto }: ValCardProps) {
   return (
     <Section variantType="secondary">
       <Section variantTone="ghost" variantType="secondary">
         <h4 className={styles.gameTitle}>VALORANT</h4>
         <Toggle variantColor={"blue"} active={true} onClick={() => {}}>
-          {valInfo && valInfo.tier !== "Unranked"
-            ? `${valInfo.tier} ${valInfo.rank}`.trim()
+          {valDto.tier !== "Unranked"
+            ? `${valDto.tier} ${valDto.rank}`.trim()
             : "Unranked"}
         </Toggle>
       </Section>
-      {valInfo && valInfo.topAgents && valInfo.topAgents.length > 0 && (
+      {valDto.topAgents && (
         <Section variantTone="ghost" variantType="secondary">
-          {valInfo.topAgents.map((agent, index) => (
+          {valDto.topAgents.map((agent, index) => (
             <Section key={index} variantType="tertiary">
               <Section
                 variantTone="ghost"

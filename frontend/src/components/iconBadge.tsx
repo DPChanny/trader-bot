@@ -29,7 +29,7 @@ const iconBadgeVariants = cva(styles.badge, {
 });
 
 export type IconBadgeProps = {
-  src?: string | null;
+  src?: string;
   alt?: string;
   className?: string;
   variantColor?: VariantProps<typeof iconBadgeVariants>["variantColor"];
@@ -64,7 +64,7 @@ export function IconBadge({
             display: "block",
           }}
         />
-      ) : null}
+      ) : undefined}
     </span>
   );
 }

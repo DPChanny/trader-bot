@@ -30,8 +30,8 @@ const gridItemVariants = cva(styles.gridItem, {
 
 interface PresetUserGridProps {
   presetUsers: PresetUserCardProps["presetUser"][];
-  selectedUserId?: number | string | null;
-  onUserClick: (userId: number | string) => void;
+  selectedUserId?: number | null;
+  onUserClick: (userId: number) => void;
   variantVariant?: "detail" | "compact";
   className?: string;
   connectedUsers?: number[];

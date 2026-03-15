@@ -4,23 +4,23 @@ import type { LolDto } from "@/dto";
 import styles from "@/styles/components/lolCard.module.css";
 
 interface LolCardProps {
-  lolInfo: LolDto | null;
+  lolDto: LolDto;
 }
 
-export function LolCard({ lolInfo }: LolCardProps) {
+export function LolCard({ lolDto }: LolCardProps) {
   return (
     <Section variantType="secondary">
       <Section variantTone="ghost" variantType="secondary">
         <h4 className={styles.gameTitle}>League of Legends</h4>
         <Toggle variantColor={"blue"} active={true} onClick={() => {}}>
-          {lolInfo && lolInfo.tier !== "Unranked"
-            ? `${lolInfo.tier} ${lolInfo.rank} ${lolInfo.lp}LP`
+          {lolDto.tier !== "Unranked"
+            ? `${lolDto.tier} ${lolDto.rank} ${lolDto.lp}LP`
             : "Unranked"}
         </Toggle>
       </Section>
-      {lolInfo && lolInfo.topChampions && lolInfo.topChampions.length > 0 && (
+      {lolDto.topChampions && (
         <Section variantTone="ghost" variantType="secondary">
-          {lolInfo.topChampions.map((champion, index) => (
+          {lolDto.topChampions.map((champion, index) => (
             <Section key={index} variantType="tertiary">
               <Section
                 variantTone="ghost"

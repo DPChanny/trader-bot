@@ -148,16 +148,20 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
 
           {lolInfo.isLoading ? (
             <Loading />
+          ) : lolInfo.data ? (
+            <LolCard lolDto={lolInfo.data} />
           ) : (
-            <LolCard lolInfo={lolInfo.data ?? null} />
+            <Error>LOL 통계를 불러오지 못했습니다.</Error>
           )}
 
           <Bar />
 
           {valInfo.isLoading ? (
             <Loading />
+          ) : valInfo.data ? (
+            <ValCard valDto={valInfo.data} />
           ) : (
-            <ValCard valInfo={valInfo.data ?? null} />
+            <Error>VAL 통계를 불러오지 못했습니다.</Error>
           )}
         </Section>
       </div>
