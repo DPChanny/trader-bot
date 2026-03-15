@@ -219,24 +219,21 @@ export function PresetPage({}: PresetPageProps) {
                 onPresetDeleted={onPresetDeleted}
               />
               {selectedPresetId && presetDetail && (
-                <div className={styles.auctionButtonWrapper}>
-                  <Section variantTone="ghost">
-                    <Bar />
-                    <PrimaryButton
-                      onClick={handleStartAuction}
-                      disabled={addAuction.isPending || !canStartAuction}
-                      className={styles.startAuctionButton}
-                    >
-                      {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
-                    </PrimaryButton>
-                    {auctionValidationMessage && (
-                      <Error>{auctionValidationMessage}</Error>
-                    )}
-                    {addAuction.isError && (
-                      <Error>경매를 시작하는데 실패했습니다.</Error>
-                    )}
-                  </Section>
-                </div>
+                <Section variantTone="ghost">
+                  <Bar />
+                  <PrimaryButton
+                    onClick={handleStartAuction}
+                    disabled={addAuction.isPending || !canStartAuction}
+                  >
+                    {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
+                  </PrimaryButton>
+                  {auctionValidationMessage && (
+                    <Error>{auctionValidationMessage}</Error>
+                  )}
+                  {addAuction.isError && (
+                    <Error>경매를 시작하는데 실패했습니다.</Error>
+                  )}
+                </Section>
               )}
             </>
           )}
