@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 async def update_discord_profile(user_id: int, discord_id: str):
     try:
+        await s3_client.delete_discord_profile(user_id)
+
         profile_url = await discord_service.fetch_discord_profile_url(discord_id)
         if not profile_url:
             return
