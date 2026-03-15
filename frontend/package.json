@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@preact/preset-vite": "latest",
+    "@tsconfig/strictest": "latest",
     "@types/node": "latest",
     "autoprefixer": "latest",
     "postcss": "latest",

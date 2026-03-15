@@ -1,6 +1,6 @@
 import { render } from "preact";
 import Router from "preact-router";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/preact-query";
 import { HomePage } from "@/pages/home/homePage";
 import { PresetPage } from "@/pages/preset/presetPage";
 import { UserPage } from "@/pages/user/userPage";
@@ -47,5 +47,5 @@ render(
   <QueryClientProvider client={queryClient}>
     <App />
   </QueryClientProvider>,
-  document.getElementById("app")!
+  document.getElementById("app")!,
 );
