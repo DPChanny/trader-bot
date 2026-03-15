@@ -9,20 +9,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tanstack/preact-query": "latest",
-    "class-variance-authority": "latest",
-    "clsx": "latest",
     "preact": "latest",
     "preact-router": "latest",
-    "vite-tsconfig-paths": "latest"
+    "@tanstack/preact-query": "latest",
+    "class-variance-authority": "latest",
+    "clsx": "latest"
   },
   "devDependencies": {
-    "@preact/preset-vite": "latest",
-    "@tsconfig/strictest": "latest",
     "@types/node": "latest",
-    "autoprefixer": "latest",
-    "postcss": "latest",
+    "vite": "latest",
+    "vite-tsconfig-paths": "latest",
+    "@preact/preset-vite": "latest",
     "typescript": "latest",
-    "vite": "latest"
+    "@tsconfig/strictest": "latest",
+    "autoprefixer": "latest",
+    "postcss": "latest"
   }
 }
