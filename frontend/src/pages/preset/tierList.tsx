@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { useAddTier, useDeleteTier, useUpdateTier } from "@/hooks/useTierApi";
+import { useAddTier, useDeleteTier, useUpdateTier } from "@/hooks/tier";
 import { Error } from "@/components/error";
 import { Bar } from "@/components/bar";
 import { AddTierModal } from "./addTierModal";

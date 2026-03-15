@@ -6,7 +6,7 @@ import {
   removeAuthToken,
   refreshAuthToken,
 } from "@/utils/auth";
-import { useAdminLogin } from "@/hooks/useAdminApi";
+import { useAdminLogin } from "@/hooks/admin";
 import { Error } from "@/components/error";
 import { SecondaryButton, PrimaryButton } from "@/components/button";
 import { LabelInput } from "@/components/labelInput";

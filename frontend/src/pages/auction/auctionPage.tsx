@@ -1,8 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
-import { useAuctionWebSocket } from "@/hooks/useAuctionWebSocket";
-import { usePresetDetail } from "@/hooks/usePresetApi";
-import { useLolStat } from "@/hooks/useLolApi";
-import { useValStat } from "@/hooks/useValApi";
+import { useAuctionWebSocket } from "@/hooks/auctionWebSocket";
+import { usePresetDetail } from "@/hooks/preset";
+import { useLolStat } from "@/hooks/lolStat";
+import { useValStat } from "@/hooks/valStat";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import { LolCard } from "@/components/lolCard";

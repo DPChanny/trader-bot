@@ -1,12 +1,8 @@
 import { useState, useEffect, useMemo } from "preact/hooks";
-import { useUsers } from "@/hooks/useUserApi";
-import {
-  useAddPreset,
-  usePresetDetail,
-  usePresets,
-} from "@/hooks/usePresetApi";
-import { useAddPresetUser } from "@/hooks/usePresetUserApi";
-import { useAddAuction } from "@/hooks/useAuctionApi";
+import { useUsers } from "@/hooks/user";
+import { useAddPreset, usePresetDetail, usePresets } from "@/hooks/preset";
+import { useAddPresetUser } from "@/hooks/presetUser";
+import { useAddAuction } from "@/hooks/auction";
 import { PresetList } from "./presetList";
 import { TierList } from "./tierList";
 import { PositionList } from "./positionList";

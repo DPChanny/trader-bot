@@ -6,9 +6,9 @@ import {
   useDeleteUser,
   useUpdateUser,
   useUpdateDiscordProfile,
-} from "@/hooks/useUserApi";
-import { useLolStat } from "@/hooks/useLolApi";
-import { useValStat } from "@/hooks/useValApi";
+} from "@/hooks/user";
+import { useLolStat } from "@/hooks/lolStat";
+import { useValStat } from "@/hooks/valStat";
 import {
   Button,
   CloseButton,

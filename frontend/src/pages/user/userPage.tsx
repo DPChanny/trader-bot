@@ -1,5 +1,5 @@
 import { useState, useMemo } from "preact/hooks";
-import { useUsers, useAddUser } from "@/hooks/useUserApi";
+import { useUsers, useAddUser } from "@/hooks/user";
 import { PrimaryButton } from "@/components/button";
 import { UserGrid } from "@/components/userGrid";
 import { Section } from "@/components/section";

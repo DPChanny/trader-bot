@@ -3,16 +3,13 @@ import { PresetUserCard } from "@/components/presetUserCard";
 import { LolCard } from "@/components/lolCard";
 import { ValCard } from "@/components/valCard";
 import { Toggle } from "@/components/toggle";
-import {
-  useRemovePresetUser,
-  useUpdatePresetUser,
-} from "@/hooks/usePresetUserApi";
+import { useRemovePresetUser, useUpdatePresetUser } from "@/hooks/presetUser";
 import {
   useAddPresetUserPosition,
   useDeletePresetUserPosition,
-} from "@/hooks/usePresetUserPositionApi";
-import { useLolStat } from "@/hooks/useLolApi";
-import { useValStat } from "@/hooks/useValApi";
+} from "@/hooks/presetUserPosition";
+import { useLolStat } from "@/hooks/lolStat";
+import { useValStat } from "@/hooks/valStat";
 import {
   type Position,
   type PresetUserDetail,

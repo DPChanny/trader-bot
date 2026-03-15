@@ -4,7 +4,7 @@ import { PresetCard } from "./presetCard";
 import type { Preset, Statistics } from "@/dto";
 import styles from "@/styles/pages/preset/presetList.module.css";
 import { Section } from "@/components/section";
-import { useDeletePreset, useUpdatePreset } from "@/hooks/usePresetApi";
+import { useDeletePreset, useUpdatePreset } from "@/hooks/preset";
 import { ConfirmModal } from "@/components/modal";
 import { EditPresetModal } from "./editPresetModal";
 
@@ -50,7 +50,7 @@ export function PresetList({
         name: name.trim(),
         points,
         time,
-        point_scale: pointScale,
+        pointScale: pointScale,
         statistics,
       });
       setIsEditing(false);

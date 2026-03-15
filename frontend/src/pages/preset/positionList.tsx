@@ -3,7 +3,7 @@ import {
   useAddPosition,
   useDeletePosition,
   useUpdatePosition,
-} from "@/hooks/usePositionApi";
+} from "@/hooks/position";
 import { Error } from "@/components/error";
 import { Bar } from "@/components/bar";
 import { ConfirmModal } from "@/components/modal";
@@ -35,7 +35,7 @@ export function PositionList({
   onNewPositionIconUrlChange,
 }: PositionListProps) {
   const [editingPositionId, setEditingPositionId] = useState<number | null>(
-    null
+    null,
   );
   const [editingName, setEditingName] = useState("");
   const [editingIconUrl, setEditingIconUrl] = useState("");

@@ -1,0 +1,82 @@
+import { useMutation, useQueryClient } from "@tanstack/preact-query";
+import { TIER_API_ENDPOINT } from "@/env";
+import { getAuthHeadersForMutation } from "@/utils/auth";
+import { toSnakeCase } from "@/utils/dto";
+
+interface AddTierData {
+  presetId: number;
+  name: string;
+}
+
+interface UpdateTierData {
+  tierId: number;
+  presetId: number;
+  name: string;
+}
+
+interface DeleteTierData {
+  tierId: number;
+  presetId: number;
+}
+
+export function useAddTier() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: AddTierData) => {
+      const response = await fetch(`${TIER_API_ENDPOINT}`, {
+        method: "POST",
+        headers: getAuthHeadersForMutation(),
+        body: JSON.stringify(toSnakeCase(data)),
+      });
+      if (!response.ok) throw new Error("Failed to add tier");
+      return response.json();
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["preset", variables.presetId],
+      });
+    },
+  });
+}
+
+export function useUpdateTier() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ tierId, presetId: _, name }: UpdateTierData) => {
+      const response = await fetch(`${TIER_API_ENDPOINT}/${tierId}`, {
+        method: "PATCH",
+        headers: getAuthHeadersForMutation(),
+        body: JSON.stringify(toSnakeCase({ name })),
+      });
+      if (!response.ok) throw new Error("Failed to update tier");
+      return response.json();
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["preset", variables.presetId],
+      });
+    },
+  });
+}
+
+export function useDeleteTier() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ tierId }: DeleteTierData) => {
+      const response = await fetch(`${TIER_API_ENDPOINT}/${tierId}`, {
+        method: "DELETE",
+        headers: getAuthHeadersForMutation(),
+      });
+      if (!response.ok) throw new Error("Failed to delete tier");
+      return response.json();
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["preset", variables.presetId],
+      });
+    },
+  });
+}
