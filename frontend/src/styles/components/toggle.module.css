@@ -16,7 +16,7 @@
   border-color: var(--color-border-medium);
 }
 
-.colorBlue.isActive {
+.colorBlue.activeTrue {
   background: var(--color-primary-bg);
   border-color: var(--color-border-accent);
   color: var(--color-primary);
@@ -27,7 +27,7 @@
   border-color: var(--color-primary);
 }
 
-.colorRed.isActive {
+.colorRed.activeTrue {
   background: var(--color-red-bg);
   border-color: var(--color-red-border);
   color: var(--color-red);
@@ -38,7 +38,7 @@
   border-color: var(--color-red);
 }
 
-.colorGold.isActive {
+.colorGold.activeTrue {
   background: var(--color-gold-bg);
   border-color: var(--color-gold-border);
   color: var(--color-gold);

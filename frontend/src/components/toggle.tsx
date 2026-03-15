@@ -10,7 +10,7 @@ const toggleVariants = cva(styles.toggle, {
       gold: styles.colorGold,
     },
     variantActive: {
-      true: styles.isActive,
+      true: styles.activeTrue,
       false: "",
     },
   },
@@ -22,7 +22,7 @@ const toggleVariants = cva(styles.toggle, {
 
 interface ToggleProps extends VariantProps<typeof toggleVariants> {
   children?: string;
-  active: boolean;
+  variantActive: boolean;
   variantColor?: "blue" | "red" | "gold";
   onClick: () => void;
   className?: string;
@@ -31,7 +31,7 @@ interface ToggleProps extends VariantProps<typeof toggleVariants> {
 
 export function Toggle({
   children,
-  active,
+  variantActive,
   variantColor = "blue",
   onClick,
   className,
@@ -41,7 +41,7 @@ export function Toggle({
     <button
       type={type}
       className={clsx(
-        toggleVariants({ variantColor, variantActive: active }),
+        toggleVariants({ variantColor, variantActive }),
         className,
       )}
       onClick={onClick}

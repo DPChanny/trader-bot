@@ -82,21 +82,21 @@ export function AddPresetModal({
           <Section variantLayout="row" variantType="tertiary">
             <Toggle
               type="button"
-              active={statistics === "NONE"}
+              variantActive={statistics === "NONE"}
               onClick={() => onStatisticsChange("NONE")}
             >
               NONE
             </Toggle>
             <Toggle
               type="button"
-              active={statistics === "LOL"}
+              variantActive={statistics === "LOL"}
               onClick={() => onStatisticsChange("LOL")}
             >
               LOL
             </Toggle>
             <Toggle
               type="button"
-              active={statistics === "VAL"}
+              variantActive={statistics === "VAL"}
               onClick={() => onStatisticsChange("VAL")}
             >
               VAL

@@ -12,7 +12,7 @@ export function ValCard({ valStatDto }: ValCardProps) {
     <Section variantType="secondary">
       <Section variantTone="ghost" variantType="secondary">
         <h4 className={styles.gameTitle}>VALORANT</h4>
-        <Toggle variantColor={"blue"} active={true} onClick={() => {}}>
+        <Toggle variantColor={"blue"} variantActive={true} onClick={() => {}}>
           {valStatDto.tier !== "Unranked"
             ? `${valStatDto.tier} ${valStatDto.rank}`.trim()
             : "Unranked"}
@@ -46,10 +46,14 @@ export function ValCard({ valStatDto }: ValCardProps) {
                   >
                     <Toggle
                       variantColor="gold"
-                      active={true}
+                      variantActive={true}
                       onClick={() => {}}
                     >{`${agent.games} 게임`}</Toggle>
-                    <Toggle variantColor="red" active={true} onClick={() => {}}>
+                    <Toggle
+                      variantColor="red"
+                      variantActive={true}
+                      onClick={() => {}}
+                    >
                       {`승률 ${agent.winRate.toFixed(1)}%`}
                     </Toggle>
                   </Section>

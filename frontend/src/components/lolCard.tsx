@@ -12,7 +12,7 @@ export function LolCard({ lolStatDto }: LolCardProps) {
     <Section variantType="secondary">
       <Section variantTone="ghost" variantType="secondary">
         <h4 className={styles.gameTitle}>League of Legends</h4>
-        <Toggle variantColor={"blue"} active={true} onClick={() => {}}>
+        <Toggle variantColor={"blue"} variantActive={true} onClick={() => {}}>
           {lolStatDto.tier !== "Unranked"
             ? `${lolStatDto.tier} ${lolStatDto.rank} ${lolStatDto.lp}LP`
             : "Unranked"}
@@ -46,10 +46,14 @@ export function LolCard({ lolStatDto }: LolCardProps) {
                   >
                     <Toggle
                       variantColor="gold"
-                      active={true}
+                      variantActive={true}
                       onClick={() => {}}
                     >{`${champion.games} 게임`}</Toggle>
-                    <Toggle variantColor="red" active={true} onClick={() => {}}>
+                    <Toggle
+                      variantColor="red"
+                      variantActive={true}
+                      onClick={() => {}}
+                    >
                       {`승률 ${champion.winRate.toFixed(1)}%`}
                     </Toggle>
                   </Section>

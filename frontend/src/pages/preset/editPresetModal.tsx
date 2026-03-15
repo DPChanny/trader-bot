@@ -119,21 +119,21 @@ export function EditPresetModal({
           <Section variantLayout="row" variantType="tertiary">
             <Toggle
               type="button"
-              active={statistics === "NONE"}
+              variantActive={statistics === "NONE"}
               onClick={() => setStatistics("NONE")}
             >
               NONE
             </Toggle>
             <Toggle
               type="button"
-              active={statistics === "LOL"}
+              variantActive={statistics === "LOL"}
               onClick={() => setStatistics("LOL")}
             >
               LOL
             </Toggle>
             <Toggle
               type="button"
-              active={statistics === "VAL"}
+              variantActive={statistics === "VAL"}
               onClick={() => setStatistics("VAL")}
             >
               VAL
