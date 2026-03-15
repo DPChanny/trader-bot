@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/preact-query";
 import type { ValDto, ApiResponse } from "@/dto";
-import { VAL_API_URL } from "@/env";
+import { VAL_STAT_API_ENDPOINT } from "@/env";
 import { toCamelCase } from "@/utils/dto";
 
 export const valApi = {
   getByUserId: async (userId: number): Promise<ValDto | null> => {
     try {
-      const response = await fetch(`${VAL_API_URL}/${userId}`);
+      const response = await fetch(`${VAL_STAT_API_ENDPOINT}/${userId}`);
       if (!response.ok) {
         if (response.status === 404) return null;
         throw new Error("Failed to fetch VAL info");

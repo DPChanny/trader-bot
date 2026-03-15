@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { PRESET_USER_POSITION_API_URL } from "../env";
+import { PRESET_USER_POSITION_API_ENDPOINT } from "../env";
 import { toSnakeCase } from "@/utils/dto";
 
 interface AddPresetUserPositionData {
@@ -19,7 +19,7 @@ export function useAddPresetUserPosition() {
   return useMutation({
     mutationFn: async (data: AddPresetUserPositionData) => {
       const { presetId, ...payload } = data;
-      const response = await fetch(`${PRESET_USER_POSITION_API_URL}`, {
+      const response = await fetch(`${PRESET_USER_POSITION_API_ENDPOINT}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toSnakeCase(payload)),
@@ -43,7 +43,7 @@ export function useDeletePresetUserPosition() {
   return useMutation({
     mutationFn: async (data: DeletePresetUserPositionData) => {
       const { presetId, ...payload } = data;
-      const response = await fetch(`${PRESET_USER_POSITION_API_URL}`, {
+      const response = await fetch(`${PRESET_USER_POSITION_API_ENDPOINT}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toSnakeCase(payload)),

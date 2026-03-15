@@ -8,7 +8,7 @@ import type {
   UserSoldData,
   WebSocketMessage,
 } from "@/dto";
-import { AUCTION_WS_URL } from "@/env";
+import { AUCTION_WS_ENDPOINT } from "@/env";
 import { toCamelCase } from "@/utils/dto";
 
 interface AuctionWebSocketHook {
@@ -171,7 +171,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     disconnect();
     setCloseReason(null);
 
-    const url = `${AUCTION_WS_URL}/${token}`;
+    const url = `${AUCTION_WS_ENDPOINT}/${token}`;
     const ws = new WebSocket(url);
 
     ws.onopen = () => {

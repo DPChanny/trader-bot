@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/preact-query";
-import { ADMIN_API_URL } from "@/env";
+import { ADMIN_API_ENDPOINT } from "@/env";
 import { setAuthToken, getAuthToken } from "@/utils/auth";
 
 interface AdminLoginResponse {
@@ -13,7 +13,7 @@ interface TokenRefreshResponse {
 }
 
 async function adminLogin(password: string): Promise<AdminLoginResponse> {
-  const response = await fetch(`${ADMIN_API_URL}/login`, {
+  const response = await fetch(`${ADMIN_API_ENDPOINT}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -35,7 +35,7 @@ async function refreshToken(): Promise<TokenRefreshResponse> {
     throw new Error("No token available");
   }
 
-  const response = await fetch(`${ADMIN_API_URL}/refresh`, {
+  const response = await fetch(`${ADMIN_API_ENDPOINT}/refresh`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,

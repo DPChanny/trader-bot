@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { PRESET_USER_API_URL } from "@/env";
+import { PRESET_USER_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
 
@@ -10,7 +10,7 @@ export const presetUserApi = {
     tierId: number | null;
     isLeader?: boolean;
   }): Promise<any> => {
-    const response = await fetch(`${PRESET_USER_API_URL}`, {
+    const response = await fetch(`${PRESET_USER_API_ENDPOINT}`, {
       method: "POST",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),
@@ -23,20 +23,26 @@ export const presetUserApi = {
     presetUserId: number,
     data: { tierId: number | null; isLeader?: boolean },
   ): Promise<any> => {
-    const response = await fetch(`${PRESET_USER_API_URL}/${presetUserId}`, {
-      method: "PATCH",
-      headers: getAuthHeadersForMutation(),
-      body: JSON.stringify(toSnakeCase(data)),
-    });
+    const response = await fetch(
+      `${PRESET_USER_API_ENDPOINT}/${presetUserId}`,
+      {
+        method: "PATCH",
+        headers: getAuthHeadersForMutation(),
+        body: JSON.stringify(toSnakeCase(data)),
+      },
+    );
     if (!response.ok) throw new Error("Failed to update preset user");
     return response.json();
   },
 
   delete: async (presetUserId: number): Promise<any> => {
-    const response = await fetch(`${PRESET_USER_API_URL}/${presetUserId}`, {
-      method: "DELETE",
-      headers: getAuthHeadersForMutation(),
-    });
+    const response = await fetch(
+      `${PRESET_USER_API_ENDPOINT}/${presetUserId}`,
+      {
+        method: "DELETE",
+        headers: getAuthHeadersForMutation(),
+      },
+    );
     if (!response.ok) throw new Error("Failed to remove preset user");
     return response.json();
   },

@@ -1,19 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type { User, ApiResponse } from "@/dto";
-import { USER_API_URL } from "@/env";
+import { USER_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 
 export const userApi = {
   getAll: async (): Promise<User[]> => {
-    const response = await fetch(`${USER_API_URL}/`);
+    const response = await fetch(`${USER_API_ENDPOINT}/`);
     if (!response.ok) throw new Error("Failed to fetch users");
     const json: ApiResponse<any[]> = await response.json();
     return toCamelCase<User[]>(json.data);
   },
 
   getById: async (userId: number): Promise<User> => {
-    const response = await fetch(`${USER_API_URL}/${userId}`);
+    const response = await fetch(`${USER_API_ENDPOINT}/${userId}`);
     if (!response.ok) throw new Error("Failed to fetch user");
     const json: ApiResponse<any> = await response.json();
     return toCamelCase<User>(json.data);
@@ -24,7 +24,7 @@ export const userApi = {
     riotId: string;
     discordId: string;
   }): Promise<User> => {
-    const response = await fetch(`${USER_API_URL}/`, {
+    const response = await fetch(`${USER_API_ENDPOINT}/`, {
       method: "POST",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),
@@ -42,7 +42,7 @@ export const userApi = {
       discordId: string;
     }>,
   ): Promise<User> => {
-    const response = await fetch(`${USER_API_URL}/${userId}`, {
+    const response = await fetch(`${USER_API_ENDPOINT}/${userId}`, {
       method: "PATCH",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),
@@ -57,7 +57,7 @@ export const userApi = {
   },
 
   delete: async (userId: number): Promise<void> => {
-    const response = await fetch(`${USER_API_URL}/${userId}`, {
+    const response = await fetch(`${USER_API_ENDPOINT}/${userId}`, {
       method: "DELETE",
       headers: getAuthHeadersForMutation(),
     });
@@ -65,10 +65,13 @@ export const userApi = {
   },
 
   updateDiscordProfile: async (userId: number): Promise<User> => {
-    const response = await fetch(`${USER_API_URL}/${userId}/discord-profile`, {
-      method: "POST",
-      headers: getAuthHeadersForMutation(),
-    });
+    const response = await fetch(
+      `${USER_API_ENDPOINT}/${userId}/discord-profile`,
+      {
+        method: "POST",
+        headers: getAuthHeadersForMutation(),
+      },
+    );
     if (!response.ok) {
       const errorText = await response.text();
       console.error(

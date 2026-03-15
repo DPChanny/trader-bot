@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/preact-query";
 import type { LolDto, ApiResponse } from "@/dto";
-import { LOL_API_URL } from "@/env";
+import { LOL_STAT_API_ENDPOINT } from "@/env";
 import { toCamelCase } from "@/utils/dto";
 
 export const lolApi = {
   getByUserId: async (userId: number): Promise<LolDto | null> => {
     try {
-      const response = await fetch(`${LOL_API_URL}/${userId}`);
+      const response = await fetch(`${LOL_STAT_API_ENDPOINT}/${userId}`);
       if (!response.ok) {
         if (response.status === 404) return null;
         throw new Error("Failed to fetch LOL info");

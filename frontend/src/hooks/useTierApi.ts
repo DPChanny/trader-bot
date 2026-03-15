@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { TIER_API_URL } from "@/env";
+import { TIER_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
 
 export const tierApi = {
   add: async (data: { presetId: number; name: string }): Promise<any> => {
-    const response = await fetch(`${TIER_API_URL}`, {
+    const response = await fetch(`${TIER_API_ENDPOINT}`, {
       method: "POST",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),
@@ -15,7 +15,7 @@ export const tierApi = {
   },
 
   update: async (tierId: number, data: { name: string }): Promise<any> => {
-    const response = await fetch(`${TIER_API_URL}/${tierId}`, {
+    const response = await fetch(`${TIER_API_ENDPOINT}/${tierId}`, {
       method: "PATCH",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),
@@ -25,7 +25,7 @@ export const tierApi = {
   },
 
   delete: async (tierId: number): Promise<any> => {
-    const response = await fetch(`${TIER_API_URL}/${tierId}`, {
+    const response = await fetch(`${TIER_API_ENDPOINT}/${tierId}`, {
       method: "DELETE",
       headers: getAuthHeadersForMutation(),
     });

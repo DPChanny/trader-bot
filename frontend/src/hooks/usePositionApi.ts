@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { POSITION_API_URL } from "@/env";
+import { POSITION_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
 
@@ -9,7 +9,7 @@ export const positionApi = {
     name: string;
     iconUrl?: string;
   }): Promise<any> => {
-    const response = await fetch(`${POSITION_API_URL}`, {
+    const response = await fetch(`${POSITION_API_ENDPOINT}`, {
       method: "POST",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),
@@ -24,7 +24,7 @@ export const positionApi = {
     iconUrl?: string | null;
   }): Promise<any> => {
     const { positionId, ...rest } = data;
-    const response = await fetch(`${POSITION_API_URL}/${positionId}`, {
+    const response = await fetch(`${POSITION_API_ENDPOINT}/${positionId}`, {
       method: "PATCH",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(rest)),
@@ -34,7 +34,7 @@ export const positionApi = {
   },
 
   delete: async (positionId: number): Promise<any> => {
-    const response = await fetch(`${POSITION_API_URL}/${positionId}`, {
+    const response = await fetch(`${POSITION_API_ENDPOINT}/${positionId}`, {
       method: "DELETE",
       headers: getAuthHeadersForMutation(),
     });

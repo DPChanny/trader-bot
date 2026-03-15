@@ -6,12 +6,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def get_app_endpoint() -> str:
-    return os.getenv("APP_ENDPOINT", "localhost:8080")
+def get_app_origin() -> str:
+    return os.getenv("APP_ORIGIN", "http://localhost:8080")
 
 
-def get_db_endpoint() -> str:
-    return os.getenv("DB_ENDPOINT", "localhost:5432")
+def get_db_host() -> str:
+    return os.getenv("DB_HOST", "localhost")
+
+
+def get_db_port() -> str:
+    return os.getenv("DB_PORT", "5432")
 
 
 def get_db_user() -> str:
@@ -29,10 +33,11 @@ def get_db_name() -> str:
 def get_db_url() -> str:
     user = get_db_user()
     password = get_db_password()
-    endpoint = get_db_endpoint()
+    host = get_db_host()
+    port = get_db_port()
     name = get_db_name()
 
-    return f"postgresql://{user}:{password}@{endpoint}/{name}"
+    return f"postgresql://{user}:{password}@{host}:{port}/{name}"
 
 
 def get_discord_bot_token() -> str:
@@ -40,7 +45,7 @@ def get_discord_bot_token() -> str:
 
 
 def get_auction_url(token: str) -> str:
-    return f"http://{get_app_endpoint()}/auction?token={token}"
+    return f"{get_app_origin()}/auction?token={token}"
 
 
 def get_admin_password() -> str:

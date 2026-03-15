@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type { Preset, PresetDetail, ApiResponse } from "@/dto";
-import { PRESET_API_URL } from "@/env";
+import { PRESET_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 
 export const presetApi = {
   getAll: async (): Promise<Preset[]> => {
-    const response = await fetch(`${PRESET_API_URL}`);
+    const response = await fetch(`${PRESET_API_ENDPOINT}`);
     if (!response.ok) throw new Error("Failed to fetch presets");
     const json: ApiResponse<any[]> = await response.json();
     return toCamelCase<Preset[]>(json.data);
@@ -14,7 +14,7 @@ export const presetApi = {
 
   getById: async (presetId: number): Promise<PresetDetail | null> => {
     if (!presetId) return null;
-    const response = await fetch(`${PRESET_API_URL}/${presetId}`);
+    const response = await fetch(`${PRESET_API_ENDPOINT}/${presetId}`);
     if (!response.ok) throw new Error("Failed to fetch preset detail");
     const json: ApiResponse<any> = await response.json();
     return toCamelCase<PresetDetail>(json.data);
@@ -27,7 +27,7 @@ export const presetApi = {
     pointScale?: number;
     statistics?: string;
   }): Promise<Preset> => {
-    const response = await fetch(`${PRESET_API_URL}`, {
+    const response = await fetch(`${PRESET_API_ENDPOINT}`, {
       method: "POST",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),
@@ -47,7 +47,7 @@ export const presetApi = {
       statistics?: string;
     },
   ): Promise<Preset> => {
-    const response = await fetch(`${PRESET_API_URL}/${presetId}`, {
+    const response = await fetch(`${PRESET_API_ENDPOINT}/${presetId}`, {
       method: "PATCH",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),
@@ -58,7 +58,7 @@ export const presetApi = {
   },
 
   delete: async (presetId: number): Promise<void> => {
-    const response = await fetch(`${PRESET_API_URL}/${presetId}`, {
+    const response = await fetch(`${PRESET_API_ENDPOINT}/${presetId}`, {
       method: "DELETE",
       headers: getAuthHeadersForMutation(),
     });
