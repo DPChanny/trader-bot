@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type { Preset, PresetDetail, ApiResponse } from "@/dtos";
 import { PRESET_API_URL } from "@/config";
-import { getAuthHeadersForMutation } from "@/lib/auth";
-import { toCamelCase, toSnakeCase } from "@/lib/dtoMapper";
+import { getAuthHeadersForMutation } from "@/utils/auth";
+import { toCamelCase, toSnakeCase } from "@/utils/dtoMapper";
 
 export const presetApi = {
   getAll: async (): Promise<Preset[]> => {

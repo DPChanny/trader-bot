@@ -6,7 +6,7 @@ import { PresetPage } from "@/pages/preset/presetPage";
 import { UserPage } from "@/pages/user/userPage";
 import { AuctionPage } from "@/pages/auction/auctionPage";
 import { Header } from "@/components/header";
-import { queryClient } from "@/lib/queryClient.ts";
+import { queryClient } from "@/utils/queryClient";
 import "@/styles/global.css";
 import "@/styles/app.css";
 

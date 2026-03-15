@@ -1,7 +1,11 @@
 import { useState, useEffect } from "preact/hooks";
 import { route } from "preact-router";
 import styles from "@/styles/pages/home/homePage.module.css";
-import { isAuthenticated, removeAuthToken, refreshAuthToken } from "@/lib/auth";
+import {
+  isAuthenticated,
+  removeAuthToken,
+  refreshAuthToken,
+} from "@/utils/auth";
 import { useAdminLogin } from "@/hooks/useAdminApi";
 import { Error } from "@/components/error";
 import { SecondaryButton, PrimaryButton } from "@/components/button";
@@ -25,15 +29,18 @@ export function HomePage({}: HomeProps) {
   useEffect(() => {
     setIsLoggedIn(isAuthenticated());
 
-    const refreshInterval = setInterval(async () => {
-      if (isAuthenticated()) {
-        try {
-          await refreshAuthToken();
-        } catch (error) {
-          console.error("Auto token refresh failed:", error);
+    const refreshInterval = setInterval(
+      async () => {
+        if (isAuthenticated()) {
+          try {
+            await refreshAuthToken();
+          } catch (error) {
+            console.error("Auto token refresh failed:", error);
+          }
         }
-      }
-    }, 30 * 60 * 1000);
+      },
+      30 * 60 * 1000,
+    );
 
     return () => clearInterval(refreshInterval);
   }, []);

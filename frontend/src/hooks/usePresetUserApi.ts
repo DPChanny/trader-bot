@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { PRESET_USER_API_URL } from "@/config";
-import { getAuthHeadersForMutation } from "@/lib/auth";
-import { toSnakeCase } from "@/lib/dtoMapper";
+import { getAuthHeadersForMutation } from "@/utils/auth";
+import { toSnakeCase } from "@/utils/dtoMapper";
 
 export const presetUserApi = {
   add: async (data: {

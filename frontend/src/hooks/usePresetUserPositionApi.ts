@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { PRESET_USER_POSITION_API_URL } from "../config";
-import { toSnakeCase } from "@/lib/dtoMapper";
+import { toSnakeCase } from "@/utils/dtoMapper";
 
 interface AddPresetUserPositionData {
   presetUserId: number;

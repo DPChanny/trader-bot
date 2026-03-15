@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/preact-query";
 import type { ValDto, ApiResponse } from "@/dtos";
 import { VAL_API_URL } from "@/config";
-import { toCamelCase } from "@/lib/dtoMapper";
+import { toCamelCase } from "@/utils/dtoMapper";
 
 export const valApi = {
   getByUserId: async (userId: number): Promise<ValDto | null> => {

@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/preact-query";
 import type { Auction, ApiResponse } from "@/dtos";
 import { AUCTION_API_URL } from "@/config";
-import { getAuthHeadersForMutation } from "@/lib/auth";
+import { getAuthHeadersForMutation } from "@/utils/auth";
 
 export const auctionApi = {
   add: async (presetId: number): Promise<ApiResponse<Auction>> => {

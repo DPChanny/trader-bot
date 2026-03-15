@@ -9,7 +9,7 @@ import type {
   WebSocketMessage,
 } from "@/dtos";
 import { AUCTION_WS_URL } from "@/config";
-import { toCamelCase } from "@/lib/dtoMapper";
+import { toCamelCase } from "@/utils/dtoMapper";
 
 interface AuctionWebSocketHook {
   isConnected: boolean;
