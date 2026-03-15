@@ -1,5 +1,6 @@
 import logging
 
+import aiohttp
 from sqlalchemy.orm import Session
 
 from dtos.base_dto import BaseResponseDTO
@@ -20,17 +21,16 @@ from .discord_service import discord_service
 logger = logging.getLogger(__name__)
 
 
-async def update_discord_profile(user_id: int, discord_id: str) -> bool:
+async def update_discord_profile(user_id: int, discord_id: str):
     try:
-        await s3_client.delete_discord_profile(user_id)
-
         profile_url = await discord_service.fetch_discord_profile_url(discord_id)
         if not profile_url:
             return
 
-        import aiohttp
-
-        async with aiohttp.ClientSession().get(profile_url) as response:
+        async with (
+            aiohttp.ClientSession() as session,
+            session.get(profile_url) as response,
+        ):
             if response.status == 200:
                 image_data = await response.read()
                 await s3_client.upload_discord_profile(user_id, image_data)
