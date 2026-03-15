@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 user_router = APIRouter(prefix="/user", tags=["user"])
 
 
-@user_router.post("/", response_model=GetUserDetailResponseDTO)
+@user_router.post("", response_model=GetUserDetailResponseDTO)
 async def add_user_route(
     dto: AddUserRequestDTO,
     db: Session = Depends(get_db),
@@ -38,7 +38,7 @@ async def add_user_route(
     return await add_user_service(dto, db)
 
 
-@user_router.get("/", response_model=GetUserListResponseDTO)
+@user_router.get("", response_model=GetUserListResponseDTO)
 async def get_user_list_route(db: Session = Depends(get_db)):
     logger.info("Fetching list")
     return await get_user_list_service(db)

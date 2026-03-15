@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 tier_router = APIRouter(prefix="/tier", tags=["tier"])
 
 
-@tier_router.post("/", response_model=GetTierDetailResponseDTO)
+@tier_router.post("", response_model=GetTierDetailResponseDTO)
 def add_tier_route(
     dto: AddTierRequestDTO,
     db: Session = Depends(get_db),
@@ -37,7 +37,7 @@ def add_tier_route(
     return add_tier_service(dto, db)
 
 
-@tier_router.get("/", response_model=GetTierListResponseDTO)
+@tier_router.get("", response_model=GetTierListResponseDTO)
 def get_tier_list_route(db: Session = Depends(get_db)):
     logger.info("Fetching list")
     return get_tier_list_service(db)

@@ -6,7 +6,7 @@ import { toCamelCase, toSnakeCase } from "@/utils/dto";
 
 export const userApi = {
   getAll: async (): Promise<User[]> => {
-    const response = await fetch(`${USER_API_ENDPOINT}/`);
+    const response = await fetch(`${USER_API_ENDPOINT}`);
     if (!response.ok) throw new Error("Failed to fetch users");
     const json: ApiResponse<any[]> = await response.json();
     return toCamelCase<User[]>(json.data);
@@ -24,7 +24,7 @@ export const userApi = {
     riotId: string;
     discordId: string;
   }): Promise<User> => {
-    const response = await fetch(`${USER_API_ENDPOINT}/`, {
+    const response = await fetch(`${USER_API_ENDPOINT}`, {
       method: "POST",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),

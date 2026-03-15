@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 preset_router = APIRouter(prefix="/preset", tags=["preset"])
 
 
-@preset_router.post("/", response_model=GetPresetDetailResponseDTO)
+@preset_router.post("", response_model=GetPresetDetailResponseDTO)
 def add_preset_route(
     dto: AddPresetRequestDTO,
     db: Session = Depends(get_db),
@@ -37,7 +37,7 @@ def add_preset_route(
     return add_preset_service(dto, db)
 
 
-@preset_router.get("/", response_model=GetPresetListResponseDTO)
+@preset_router.get("", response_model=GetPresetListResponseDTO)
 def get_preset_list_route(db: Session = Depends(get_db)):
     logger.info("Fetching list")
     return get_preset_list_service(db)

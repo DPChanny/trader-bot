@@ -27,7 +27,7 @@ export const presetApi = {
     pointScale?: number;
     statistics?: string;
   }): Promise<Preset> => {
-    const response = await fetch(`${PRESET_API_ENDPOINT}/`, {
+    const response = await fetch(`${PRESET_API_ENDPOINT}`, {
       method: "POST",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),

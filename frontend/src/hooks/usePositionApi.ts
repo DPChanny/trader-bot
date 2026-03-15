@@ -9,7 +9,7 @@ export const positionApi = {
     name: string;
     iconUrl?: string;
   }): Promise<any> => {
-    const response = await fetch(`${POSITION_API_ENDPOINT}/`, {
+    const response = await fetch(`${POSITION_API_ENDPOINT}`, {
       method: "POST",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),

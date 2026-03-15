@@ -10,7 +10,7 @@ export const presetUserApi = {
     tierId: number | null;
     isLeader?: boolean;
   }): Promise<any> => {
-    const response = await fetch(`${PRESET_USER_API_ENDPOINT}/`, {
+    const response = await fetch(`${PRESET_USER_API_ENDPOINT}`, {
       method: "POST",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),

@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 position_router = APIRouter(prefix="/position", tags=["position"])
 
 
-@position_router.post("/", response_model=GetPositionDetailResponseDTO)
+@position_router.post("", response_model=GetPositionDetailResponseDTO)
 def add_position_route(
     dto: AddPositionRequestDTO,
     db: Session = Depends(get_db),
@@ -37,7 +37,7 @@ def add_position_route(
     return add_position_service(dto, db)
 
 
-@position_router.get("/", response_model=GetPositionListResponseDTO)
+@position_router.get("", response_model=GetPositionListResponseDTO)
 def get_position_list_route(db: Session = Depends(get_db)):
     logger.info("Fetching list")
     return get_position_list_service(db)

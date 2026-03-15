@@ -5,7 +5,7 @@ import { toSnakeCase } from "@/utils/dto";
 
 export const tierApi = {
   add: async (data: { presetId: number; name: string }): Promise<any> => {
-    const response = await fetch(`${TIER_API_ENDPOINT}/`, {
+    const response = await fetch(`${TIER_API_ENDPOINT}`, {
       method: "POST",
       headers: getAuthHeadersForMutation(),
       body: JSON.stringify(toSnakeCase(data)),

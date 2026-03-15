@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 preset_user_router = APIRouter(prefix="/preset_user", tags=["preset_user"])
 
 
-@preset_user_router.post("/", response_model=GetPresetUserDetailResponseDTO)
+@preset_user_router.post("", response_model=GetPresetUserDetailResponseDTO)
 async def add_preset_user_route(
     dto: AddPresetUserRequestDTO,
     db: Session = Depends(get_db),
@@ -37,7 +37,7 @@ async def add_preset_user_route(
     return await add_preset_user_service(dto, db)
 
 
-@preset_user_router.get("/", response_model=GetPresetUserListResponseDTO)
+@preset_user_router.get("", response_model=GetPresetUserListResponseDTO)
 def get_preset_user_list_route(db: Session = Depends(get_db)):
     logger.info("Fetching list")
     return get_preset_user_list_service(db)
