@@ -34,8 +34,8 @@ interface PresetUserGridProps {
   onUserClick: (userId: number | string) => void;
   variantVariant?: "detail" | "compact";
   className?: string;
-  connectedUsers?: number[] | null;
-  clientUserId?: number | null;
+  connectedUsers?: number[];
+  clientUserId?: number;
 }
 
 export function PresetUserGrid({
@@ -44,8 +44,8 @@ export function PresetUserGrid({
   onUserClick,
   variantVariant = "compact",
   className,
-  connectedUsers = null,
-  clientUserId = null,
+  connectedUsers,
+  clientUserId,
 }: PresetUserGridProps) {
   const leaders = presetUsers.filter((pu) => pu.isLeader);
   const nonLeaders = presetUsers.filter((pu) => !pu.isLeader);
@@ -69,10 +69,12 @@ export function PresetUserGrid({
             presetUser={presetUser}
             variantVariant={variantVariant}
             isConnected={
-              connectedUsers ? connectedUsers.includes(presetUser.userId) : null
+              connectedUsers
+                ? connectedUsers.includes(presetUser.userId)
+                : undefined
             }
             isClientUser={
-              clientUserId ? clientUserId === presetUser.userId : null
+              clientUserId ? clientUserId === presetUser.userId : undefined
             }
           />
         </div>

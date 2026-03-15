@@ -27,15 +27,15 @@ export interface PresetUserCardProps extends VariantProps<
   typeof presetUserCardVariants
 > {
   presetUser: PresetUserDetail;
-  isConnected?: boolean | null;
-  isClientUser?: boolean | null;
+  isConnected?: boolean;
+  isClientUser?: boolean;
 }
 
 export function PresetUserCard({
   presetUser,
   variantVariant,
-  isConnected = null,
-  isClientUser = null,
+  isConnected,
+  isClientUser,
 }: PresetUserCardProps) {
   const { user, tier, positions, isLeader } = presetUser;
 

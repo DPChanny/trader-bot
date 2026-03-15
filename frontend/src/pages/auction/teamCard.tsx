@@ -9,8 +9,8 @@ interface TeamCardProps {
   team: Team;
   members: PresetUserDetail[];
   pointScale: number;
-  connectedUsers?: number[] | null;
-  clientUserId?: number | null;
+  connectedUsers?: number[];
+  clientUserId?: number;
 }
 
 export function TeamCard({
@@ -39,8 +39,8 @@ export function TeamCard({
         presetUsers={members}
         onUserClick={() => {}}
         variantVariant="compact"
-        connectedUsers={connectedUsers ?? null}
-        clientUserId={clientUserId ?? null}
+        connectedUsers={connectedUsers}
+        clientUserId={clientUserId}
       />
     </Section>
   );

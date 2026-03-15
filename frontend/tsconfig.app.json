@@ -18,7 +18,8 @@
     "erasableSyntaxOnly": true,
     "allowImportingTsExtensions": true,
     "noUncheckedSideEffectImports": true,
-    "noPropertyAccessFromIndexSignature": false
+
+    "exactOptionalPropertyTypes": false
   },
   "include": ["src"]
 }

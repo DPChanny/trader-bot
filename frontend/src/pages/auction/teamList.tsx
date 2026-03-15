@@ -8,7 +8,7 @@ interface TeamListProps {
   presetUsers: PresetUserDetail[];
   pointScale: number;
   connectedUsers?: number[];
-  clientUserId?: number | null;
+  clientUserId?: number;
 }
 
 export function TeamList({
