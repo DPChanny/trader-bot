@@ -1,8 +1,8 @@
 import uuid
-from typing import Dict, Optional, List
+
+from dtos.auction_dto import Team
 
 from .auction import Auction
-from dtos.auction_dto import Team
 
 
 class Token:
@@ -17,10 +17,10 @@ class Token:
 
 class AuctionManager:
     def __init__(self):
-        self.auctions: Dict[str, Auction] = {}
-        self.token_to_auction: Dict[str, str] = {}
-        self.tokens: Dict[str, Token] = {}
-        self.auction_tokens: Dict[str, List[str]] = {}
+        self.auctions: dict[str, Auction] = {}
+        self.token_to_auction: dict[str, str] = {}
+        self.tokens: dict[str, Token] = {}
+        self.auction_tokens: dict[str, list[str]] = {}
         self.next_auction_id: int = 1
 
     def add_auction(
@@ -30,7 +30,7 @@ class AuctionManager:
         user_ids: list[int],
         leader_user_ids: set[int],
         time: int,
-    ) -> tuple[str, Dict[int, str]]:
+    ) -> tuple[str, dict[int, str]]:
         auction_id = str(self.next_auction_id)
         self.next_auction_id += 1
         user_tokens = {}
@@ -63,25 +63,25 @@ class AuctionManager:
 
         return auction_id, user_tokens
 
-    def get_auction(self, auction_id: str) -> Optional[Auction]:
+    def get_auction(self, auction_id: str) -> Auction | None:
         return self.auctions.get(auction_id)
 
-    def get_auction_by_token(self, token: str) -> Optional[Auction]:
+    def get_auction_by_token(self, token: str) -> Auction | None:
         auction_id = self.token_to_auction.get(token)
         if auction_id:
             return self.auctions.get(auction_id)
         return None
 
-    def get_token(self, token: str) -> Optional[Token]:
+    def get_token(self, token: str) -> Token | None:
         return self.tokens.get(token)
 
-    def get_tokens(self, auction_id: str) -> List[Token]:
+    def get_tokens(self, auction_id: str) -> list[Token]:
         token_list = self.auction_tokens.get(auction_id, [])
         return [
             self.tokens[token] for token in token_list if token in self.tokens
         ]
 
-    def get_user_token(self, auction_id: str, user_id: int) -> Optional[Token]:
+    def get_user_token(self, auction_id: str, user_id: int) -> Token | None:
         token_list = self.auction_tokens.get(auction_id, [])
         for token in token_list:
             token_info = self.tokens.get(token)

@@ -1,20 +1,20 @@
 import asyncio
 import random
-from typing import Dict, List, Optional
+
 from fastapi import WebSocket
 
 from dtos.auction_dto import (
     AuctionStateDTO,
     AuctionStatus,
-    Team,
+    BidPlacedMessageData,
     MessageType,
-    WebSocketMessage,
-    TimerMessageData,
-    StatusMessageData,
     NextUserMessageData,
     QueueUpdateMessageData,
+    StatusMessageData,
+    Team,
+    TimerMessageData,
     UserSoldMessageData,
-    BidPlacedMessageData,
+    WebSocketMessage,
 )
 
 
@@ -23,9 +23,9 @@ class Auction:
         self,
         auction_id: str,
         preset_id: int,
-        teams: List[Team],
-        user_ids: List[int],
-        user_tokens: Dict[int, str],
+        teams: list[Team],
+        user_ids: list[int],
+        user_tokens: dict[int, str],
         timer_duration: int = 5,
     ):
         self.auction_id = auction_id
@@ -33,10 +33,10 @@ class Auction:
         self.status: AuctionStatus = AuctionStatus.WAITING
         self.teams = {team.team_id: team for team in teams}
         self.user_tokens = user_tokens
-        self.token_to_user: Dict[str, int] = {
+        self.token_to_user: dict[str, int] = {
             token: user_id for user_id, token in user_tokens.items()
         }
-        self.connected_tokens: Dict[str, int] = {}
+        self.connected_tokens: dict[str, int] = {}
         self.leader_user_ids = {team.leader_id for team in teams}
 
         auction_users = [
@@ -46,18 +46,18 @@ class Auction:
         random.shuffle(shuffled_users)
         self.auction_queue = shuffled_users
 
-        self.unsold_queue: List[int] = []
-        self.current_user_id: Optional[int] = None
-        self.current_bid: Optional[int] = None
-        self.current_bidder: Optional[int] = None
+        self.unsold_queue: list[int] = []
+        self.current_user_id: int | None = None
+        self.current_bid: int | None = None
+        self.current_bidder: int | None = None
         self.timer_duration = timer_duration
         self.timer = timer_duration
-        self.timer_task: Optional[asyncio.Task] = None
-        self.connections: List = []
-        self.auto_delete_task: Optional[asyncio.Task] = None
-        self.terminate_task: Optional[asyncio.Task] = None
+        self.timer_task: asyncio.Task | None = None
+        self.connections: list = []
+        self.auto_delete_task: asyncio.Task | None = None
+        self.terminate_task: asyncio.Task | None = None
 
-        self.paused_timer: Optional[int] = None
+        self.paused_timer: int | None = None
         self.was_in_progress: bool = False
 
         self._state_lock = asyncio.Lock()
@@ -82,7 +82,7 @@ class Auction:
 
             auction_manager.remove_auction(self.auction_id)
 
-    async def connect(self, token: str, websocket: WebSocket) -> Dict:
+    async def connect(self, token: str, websocket: WebSocket) -> dict:
         if token not in self.token_to_user:
             return {"success": False, "error": "Invalid token"}
 
@@ -122,7 +122,7 @@ class Auction:
 
     async def disconnect(
         self, token: str, websocket: WebSocket
-    ) -> Optional[int]:
+    ) -> int | None:
         user_id = None
         if token in self.connected_tokens:
             user_id = self.connected_tokens[token]
@@ -384,7 +384,7 @@ class Auction:
 
         await self._next_user()
 
-    async def place_bid(self, token: str, amount: int) -> Dict:
+    async def place_bid(self, token: str, amount: int) -> dict:
         async with self._state_lock:
             if token not in self.connected_tokens:
                 return {"success": False, "error": "Token not connected"}
@@ -427,7 +427,7 @@ class Auction:
         if amount > max_allowed_bid:
             return {
                 "success": False,
-                "error": f"Bid too high.",
+                "error": "Bid too high.",
             }
 
         if team.points < amount:

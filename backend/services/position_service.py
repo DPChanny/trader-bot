@@ -5,13 +5,14 @@ from sqlalchemy.orm import Session
 from dtos.base_dto import BaseResponseDTO
 from dtos.position_dto import (
     AddPositionRequestDTO,
-    UpdatePositionRequestDTO,
     GetPositionDetailResponseDTO,
     GetPositionListResponseDTO,
     PositionDTO,
+    UpdatePositionRequestDTO,
 )
 from entities.position import Position
 from utils.exception import CustomException, handle_exception
+
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,3 @@
-from typing import List, Optional
 
 from pydantic import BaseModel, computed_field
 
@@ -28,14 +27,14 @@ class AddUserRequestDTO(BaseModel):
 
 
 class UpdateUserRequestDTO(BaseModel):
-    name: Optional[str] = None
-    riot_id: Optional[str] = None
-    discord_id: Optional[str] = None
+    name: str | None = None
+    riot_id: str | None = None
+    discord_id: str | None = None
 
 
 class GetUserDetailResponseDTO(BaseResponseDTO[UserDTO]):
     pass
 
 
-class GetUserListResponseDTO(BaseResponseDTO[List[UserDTO]]):
+class GetUserListResponseDTO(BaseResponseDTO[list[UserDTO]]):
     pass

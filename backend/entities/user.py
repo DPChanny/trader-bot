@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from utils.database import Base
 
+
 if TYPE_CHECKING:
-    from .preset_user import PresetUser
     from .lol_stat import LolStat
+    from .preset_user import PresetUser
     from .val_stat import ValStat
 
 
@@ -21,16 +22,16 @@ class User(Base):
     riot_id: Mapped[str] = mapped_column(String(256), nullable=False)
     discord_id: Mapped[str] = mapped_column(String(256), nullable=False)
 
-    preset_users: Mapped[List[PresetUser]] = relationship(
+    preset_users: Mapped[list[PresetUser]] = relationship(
         "PresetUser", back_populates="user", cascade="all, delete-orphan"
     )
-    lol_stat: Mapped[Optional[LolStat]] = relationship(
+    lol_stat: Mapped[LolStat | None] = relationship(
         "LolStat",
         back_populates="user",
         uselist=False,
         cascade="all, delete-orphan",
     )
-    val_stat: Mapped[Optional[ValStat]] = relationship(
+    val_stat: Mapped[ValStat | None] = relationship(
         "ValStat",
         back_populates="user",
         uselist=False,

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from utils.database import Base
+
 
 if TYPE_CHECKING:
     from .preset import Preset
@@ -23,6 +24,6 @@ class Tier(Base):
     name: Mapped[str] = mapped_column(String(256), nullable=False)
 
     preset: Mapped[Preset] = relationship("Preset", back_populates="tiers")
-    preset_users: Mapped[List[PresetUser]] = relationship(
+    preset_users: Mapped[list[PresetUser]] = relationship(
         "PresetUser", back_populates="tier"
     )

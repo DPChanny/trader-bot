@@ -13,6 +13,7 @@ from dtos.preset_user_position_dto import (
 from entities.preset_user_position import PresetUserPosition
 from utils.exception import CustomException, handle_exception
 
+
 logger = logging.getLogger(__name__)
 
 

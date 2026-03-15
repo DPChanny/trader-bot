@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from utils.database import Base
 
+
 if TYPE_CHECKING:
     from .preset import Preset
-    from .user import User
-    from .tier import Tier
     from .preset_user_position import PresetUserPosition
+    from .tier import Tier
+    from .user import User
 
 
 class PresetUser(Base):
@@ -29,7 +30,7 @@ class PresetUser(Base):
         nullable=False,
         unique=True,
     )
-    tier_id: Mapped[Optional[int]] = mapped_column(
+    tier_id: Mapped[int | None] = mapped_column(
         ForeignKey("tier.tier_id", ondelete="SET NULL"),
         nullable=True,
     )
@@ -41,10 +42,10 @@ class PresetUser(Base):
         "Preset", back_populates="preset_users"
     )
     user: Mapped[User] = relationship("User", back_populates="preset_users")
-    tier: Mapped[Optional[Tier]] = relationship(
+    tier: Mapped[Tier | None] = relationship(
         "Tier", back_populates="preset_users"
     )
-    preset_user_positions: Mapped[List[PresetUserPosition]] = relationship(
+    preset_user_positions: Mapped[list[PresetUserPosition]] = relationship(
         "PresetUserPosition",
         back_populates="preset_user",
         cascade="all, delete-orphan",

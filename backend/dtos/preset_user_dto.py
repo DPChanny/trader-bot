@@ -1,4 +1,3 @@
-from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -13,16 +12,16 @@ class PresetUserDTO(BaseModel):
     preset_user_id: int
     preset_id: int
     user_id: int
-    tier_id: Optional[int] = None
+    tier_id: int | None = None
     is_leader: bool = False
 
     model_config = {"from_attributes": True}
 
 
 class PresetUserDetailDTO(PresetUserDTO):
-    user: Optional[UserDTO] = None
-    tier: Optional[TierDTO] = None
-    positions: List[PresetUserPositionDetailDTO] = []
+    user: UserDTO | None = None
+    tier: TierDTO | None = None
+    positions: list[PresetUserPositionDetailDTO] = []
 
     @classmethod
     def model_validate(cls, obj, **kwargs):
@@ -54,18 +53,18 @@ class PresetUserDetailDTO(PresetUserDTO):
 class AddPresetUserRequestDTO(BaseModel):
     preset_id: int
     user_id: int
-    tier_id: Optional[int] = None
+    tier_id: int | None = None
     is_leader: bool = False
 
 
 class UpdatePresetUserRequestDTO(BaseModel):
-    tier_id: Optional[int] = None
-    is_leader: Optional[bool] = None
+    tier_id: int | None = None
+    is_leader: bool | None = None
 
 
 class GetPresetUserDetailResponseDTO(BaseResponseDTO[PresetUserDetailDTO]):
     pass
 
 
-class GetPresetUserListResponseDTO(BaseResponseDTO[List[PresetUserDTO]]):
+class GetPresetUserListResponseDTO(BaseResponseDTO[list[PresetUserDTO]]):
     pass

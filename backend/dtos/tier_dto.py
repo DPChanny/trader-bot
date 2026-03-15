@@ -1,4 +1,3 @@
-from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -19,12 +18,12 @@ class AddTierRequestDTO(BaseModel):
 
 
 class UpdateTierRequestDTO(BaseModel):
-    name: Optional[str] = None
+    name: str | None = None
 
 
 class GetTierDetailResponseDTO(BaseResponseDTO[TierDTO]):
     pass
 
 
-class GetTierListResponseDTO(BaseResponseDTO[List[TierDTO]]):
+class GetTierListResponseDTO(BaseResponseDTO[list[TierDTO]]):
     pass

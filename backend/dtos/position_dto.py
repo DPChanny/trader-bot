@@ -1,4 +1,3 @@
-from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -9,7 +8,7 @@ class PositionDTO(BaseModel):
     position_id: int
     preset_id: int
     name: str
-    icon_url: Optional[str] = None
+    icon_url: str | None = None
 
     model_config = {"from_attributes": True}
 
@@ -17,17 +16,17 @@ class PositionDTO(BaseModel):
 class AddPositionRequestDTO(BaseModel):
     preset_id: int
     name: str
-    icon_url: Optional[str] = None
+    icon_url: str | None = None
 
 
 class UpdatePositionRequestDTO(BaseModel):
-    name: Optional[str] = None
-    icon_url: Optional[str] = None
+    name: str | None = None
+    icon_url: str | None = None
 
 
 class GetPositionDetailResponseDTO(BaseResponseDTO[PositionDTO]):
     pass
 
 
-class GetPositionListResponseDTO(BaseResponseDTO[List[PositionDTO]]):
+class GetPositionListResponseDTO(BaseResponseDTO[list[PositionDTO]]):
     pass

@@ -1,15 +1,15 @@
 import logging
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from dtos.lol_stat_dto import GetLolResponseDTO, LolStatDto, ChampionDto
+from dtos.lol_stat_dto import ChampionDto, GetLolResponseDTO, LolStatDto
 from entities.lol_stat import LolStat
+
 
 logger = logging.getLogger(__name__)
 
 
-async def get_lol_stat(user_id: int, db: Session) -> Optional[GetLolResponseDTO]:
+async def get_lol_stat(user_id: int, db: Session) -> GetLolResponseDTO | None:
     """Get LOL data from database"""
     try:
         lol_stat = db.query(LolStat).filter(LolStat.user_id == user_id).first()

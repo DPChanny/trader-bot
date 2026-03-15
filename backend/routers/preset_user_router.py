@@ -33,7 +33,7 @@ async def add_preset_user_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Adding preset user")
+    logger.info("Adding preset user")
     return await add_preset_user_service(dto, db)
 
 

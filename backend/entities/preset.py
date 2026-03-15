@@ -1,17 +1,18 @@
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Enum
+from sqlalchemy import Enum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from utils.database import Base
 
+
 if TYPE_CHECKING:
-    from .tier import Tier
     from .position import Position
     from .preset_user import PresetUser
+    from .tier import Tier
 
 
 class Statistics(enum.Enum):
@@ -32,17 +33,17 @@ class Preset(Base):
         Enum(Statistics), nullable=False, default=Statistics.NONE
     )
 
-    tiers: Mapped[List[Tier]] = relationship(
+    tiers: Mapped[list[Tier]] = relationship(
         "Tier",
         back_populates="preset",
         cascade="all, delete-orphan",
     )
-    positions: Mapped[List[Position]] = relationship(
+    positions: Mapped[list[Position]] = relationship(
         "Position",
         back_populates="preset",
         cascade="all, delete-orphan",
     )
-    preset_users: Mapped[List[PresetUser]] = relationship(
+    preset_users: Mapped[list[PresetUser]] = relationship(
         "PresetUser",
         back_populates="preset",
         cascade="all, delete-orphan",

@@ -1,17 +1,17 @@
 import logging
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from dtos.val_stat_dto import GetValResponseDTO, ValStatDto, AgentDto
+from dtos.val_stat_dto import AgentDto, GetValResponseDTO, ValStatDto
 from entities.val_stat import ValStat
+
 
 logger = logging.getLogger(__name__)
 
 
 async def get_val_stat(
     user_id: int, db: Session
-) -> Optional[GetValResponseDTO]:
+) -> GetValResponseDTO | None:
     """Get VAL data from database"""
     try:
         val_stat = db.query(ValStat).filter(ValStat.user_id == user_id).first()

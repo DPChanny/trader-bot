@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Integer, Float, ForeignKey, DateTime
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from utils.database import Base
+
 
 if TYPE_CHECKING:
     from .user import User
@@ -31,7 +32,7 @@ class ValStat(Base):
     )
 
     user: Mapped[User] = relationship("User", back_populates="val_stat")
-    agents: Mapped[List[Agent]] = relationship(
+    agents: Mapped[list[Agent]] = relationship(
         "Agent", back_populates="val_stat", cascade="all, delete-orphan"
     )
 

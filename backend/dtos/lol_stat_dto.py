@@ -1,4 +1,3 @@
-from typing import List
 
 from pydantic import BaseModel
 
@@ -16,7 +15,7 @@ class LolStatDto(BaseModel):
     tier: str
     rank: str
     lp: int
-    top_champions: List[ChampionDto]
+    top_champions: list[ChampionDto]
 
 
 class GetLolResponseDTO(BaseResponseDTO[LolStatDto]):

@@ -47,7 +47,7 @@ async def auction_websocket(websocket: WebSocket, token: str):
         )
 
         if is_leader and auction.are_all_leaders_connected():
-            logger.info(f"All leaders connected. Starting auction...")
+            logger.info("All leaders connected. Starting auction...")
             if auction.status == AuctionStatus.WAITING:
                 await auction.set_status(AuctionStatus.IN_PROGRESS)
         else:

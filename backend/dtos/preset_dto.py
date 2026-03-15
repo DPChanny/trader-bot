@@ -1,12 +1,12 @@
-from typing import List, Optional
 
 from pydantic import BaseModel
+
+from entities.preset import Statistics
 
 from .base_dto import BaseResponseDTO
 from .position_dto import PositionDTO
 from .preset_user_dto import PresetUserDetailDTO
 from .tier_dto import TierDTO
-from entities.preset import Statistics
 
 
 class PresetDTO(BaseModel):
@@ -21,9 +21,9 @@ class PresetDTO(BaseModel):
 
 
 class PresetDetailDTO(PresetDTO):
-    preset_users: List[PresetUserDetailDTO] = []
-    tiers: List[TierDTO] = []
-    positions: List[PositionDTO] = []
+    preset_users: list[PresetUserDetailDTO] = []
+    tiers: list[TierDTO] = []
+    positions: list[PositionDTO] = []
 
     @classmethod
     def model_validate(cls, obj, **kwargs):
@@ -61,16 +61,16 @@ class AddPresetRequestDTO(BaseModel):
 
 
 class UpdatePresetRequestDTO(BaseModel):
-    name: Optional[str] = None
-    points: Optional[int] = None
-    time: Optional[int] = None
-    point_scale: Optional[int] = None
-    statistics: Optional[Statistics] = None
+    name: str | None = None
+    points: int | None = None
+    time: int | None = None
+    point_scale: int | None = None
+    statistics: Statistics | None = None
 
 
 class GetPresetDetailResponseDTO(BaseResponseDTO[PresetDetailDTO]):
     pass
 
 
-class GetPresetListResponseDTO(BaseResponseDTO[List[PresetDTO]]):
+class GetPresetListResponseDTO(BaseResponseDTO[list[PresetDTO]]):
     pass

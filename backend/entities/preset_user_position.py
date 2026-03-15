@@ -7,9 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from utils.database import Base
 
+
 if TYPE_CHECKING:
-    from .preset_user import PresetUser
     from .position import Position
+    from .preset_user import PresetUser
 
 
 class PresetUserPosition(Base):

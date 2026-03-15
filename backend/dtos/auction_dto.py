@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -30,7 +29,7 @@ class MessageType(str, Enum):
 class Team(BaseModel):
     team_id: int
     leader_id: int
-    member_id_list: List[int] = []
+    member_id_list: list[int] = []
     points: int
 
 
@@ -38,14 +37,14 @@ class AuctionStateDTO(BaseModel):
     auction_id: str
     preset_id: int
     status: AuctionStatus
-    current_user_id: Optional[int] = None
-    current_bid: Optional[int] = None
-    current_bidder: Optional[int] = None
+    current_user_id: int | None = None
+    current_bid: int | None = None
+    current_bidder: int | None = None
     timer: int
-    teams: List[Team]
-    auction_queue: List[int]
-    unsold_queue: List[int]
-    connected_users: List[int]
+    teams: list[Team]
+    auction_queue: list[int]
+    unsold_queue: list[int]
+    connected_users: list[int]
 
 
 class AuctionDTO(BaseModel):
@@ -70,12 +69,12 @@ class NextUserMessageData(BaseModel):
 
 
 class QueueUpdateMessageData(BaseModel):
-    auction_queue: List[int]
-    unsold_queue: List[int]
+    auction_queue: list[int]
+    unsold_queue: list[int]
 
 
 class UserSoldMessageData(BaseModel):
-    teams: List[Team]
+    teams: list[Team]
 
 
 class BidPlacedMessageData(BaseModel):
@@ -90,4 +89,4 @@ class ErrorMessageData(BaseModel):
 
 class WebSocketMessage(BaseModel):
     type: str
-    data: Dict
+    data: dict
