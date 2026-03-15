@@ -1,17 +1,17 @@
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel
 
 from .base_dto import BaseResponseDTO
 
 
-class AuctionStatus(str, Enum):
+class AuctionStatus(StrEnum):
     WAITING = "waiting"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
 
 
-class MessageType(str, Enum):
+class MessageType(StrEnum):
     TIMER = "timer"
     PLACE_BID = "place_bid"
     BID_PLACED = "bid_placed"

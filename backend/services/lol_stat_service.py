@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 async def get_lol_stat(user_id: int, db: Session) -> GetLolResponseDTO | None:
-    """Get LOL data from database"""
     try:
         lol_stat = db.query(LolStat).filter(LolStat.user_id == user_id).first()
 

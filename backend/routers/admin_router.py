@@ -40,4 +40,4 @@ async def refresh_token(authorization: str = Header(None)):
             token=new_token, message="Token refreshed successfully"
         )
     except Exception as e:
-        raise HTTPException(status_code=401, detail=str(e))
+        raise HTTPException(status_code=401, detail=str(e)) from e

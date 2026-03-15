@@ -24,26 +24,21 @@ async def update_discord_profile(user_id: int, discord_id: str) -> bool:
     try:
         await s3_client.delete_discord_profile(user_id)
 
-        profile_url = await discord_service.fetch_discord_profile_url(
-            discord_id
-        )
+        profile_url = await discord_service.fetch_discord_profile_url(discord_id)
         if not profile_url:
             return
 
         import aiohttp
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(profile_url) as response:
-                if response.status == 200:
-                    image_data = await response.read()
-                    await s3_client.upload_discord_profile(user_id, image_data)
-                    logger.info(
-                        f"Successfully uploaded discord profile for user: {user_id}"
-                    )
-                else:
-                    logger.warning(
-                        f"Failed to download discord profile: {response.status}"
-                    )
+        async with aiohttp.ClientSession().get(profile_url) as response:
+            if response.status == 200:
+                image_data = await response.read()
+                await s3_client.upload_discord_profile(user_id, image_data)
+                logger.info(
+                    f"Successfully uploaded discord profile for user: {user_id}"
+                )
+            else:
+                logger.warning(f"Failed to download discord profile: {response.status}")
     except Exception as e:
         logger.error(f"Failed to process discord profile: {e}")
 

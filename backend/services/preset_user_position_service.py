@@ -45,11 +45,11 @@ def add_preset_user_position_service(
         db.add(preset_user_position)
         try:
             db.commit()
-        except IntegrityError:
+        except IntegrityError as e:
             db.rollback()
             raise CustomException(
                 400, "This position is already assigned to the preset_user."
-            )
+            ) from e
         db.refresh(preset_user_position)
 
         logger.info(f"Added: {preset_user_position.preset_user_position_id}")

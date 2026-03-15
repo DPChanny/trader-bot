@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar
+from typing import TypeVar
 
 from pydantic import BaseModel
 
@@ -6,7 +6,7 @@ from pydantic import BaseModel
 T = TypeVar("T")
 
 
-class BaseResponseDTO(BaseModel, Generic[T]):
+class BaseResponseDTO[T](BaseModel):
     success: bool
     code: int
     message: str

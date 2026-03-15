@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import random
 
 from fastapi import WebSocket
@@ -39,9 +40,7 @@ class Auction:
         self.connected_tokens: dict[str, int] = {}
         self.leader_user_ids = {team.leader_id for team in teams}
 
-        auction_users = [
-            uid for uid in user_ids if uid not in self.leader_user_ids
-        ]
+        auction_users = [uid for uid in user_ids if uid not in self.leader_user_ids]
         shuffled_users = auction_users.copy()
         random.shuffle(shuffled_users)
         self.auction_queue = shuffled_users
@@ -120,9 +119,7 @@ class Auction:
             "reconnected": False,
         }
 
-    async def disconnect(
-        self, token: str, websocket: WebSocket
-    ) -> int | None:
+    async def disconnect(self, token: str, websocket: WebSocket) -> int | None:
         user_id = None
         if token in self.connected_tokens:
             user_id = self.connected_tokens[token]
@@ -217,9 +214,7 @@ class Auction:
                 self.current_bidder = None
                 self._stop_timer()
                 self._cancel_auto_delete_task()
-                self.terminate_task = asyncio.create_task(
-                    self._delayed_terminate()
-                )
+                self.terminate_task = asyncio.create_task(self._delayed_terminate())
 
             self.status = new_status
 
@@ -229,9 +224,7 @@ class Auction:
         await self.broadcast(
             WebSocketMessage(
                 type=MessageType.STATUS,
-                data=StatusMessageData(
-                    status=str(self.status.value)
-                ).model_dump(),
+                data=StatusMessageData(status=str(self.status.value)).model_dump(),
             )
         )
 
@@ -257,9 +250,7 @@ class Auction:
             self._stop_timer()
 
             incomplete_teams = [
-                team
-                for team in self.teams.values()
-                if len(team.member_id_list) < 5
+                team for team in self.teams.values() if len(team.member_id_list) < 5
             ]
 
             if len(incomplete_teams) == 1:
@@ -462,10 +453,8 @@ class Auction:
         self._stop_timer()
 
         for connection in self.connections[:]:
-            try:
+            with contextlib.suppress(Exception):
                 await connection.close()
-            except Exception:
-                pass
 
         self.connections.clear()
         self.connected_tokens.clear()
