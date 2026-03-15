@@ -4,36 +4,36 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 const badgeVariants = cva(styles.badge, {
   variants: {
-    color: {
+    variantColor: {
       blue: styles.colorBlue,
       red: styles.colorRed,
       gold: styles.colorGold,
       green: styles.colorGreen,
       gray: styles.colorGray,
     },
-    variant: {
+    variantVariant: {
       solid: "",
       outline: styles.variantOutline,
     },
-    size: {
-      sm: styles.sizeSm,
-      md: styles.sizeMd,
-      lg: styles.sizeLg,
+    variantSize: {
+      small: styles.sizeSmall,
+      medium: styles.sizeMedium,
+      large: styles.sizeLarge,
     },
   },
   defaultVariants: {
-    color: "blue",
-    variant: "solid",
-    size: "md",
+    variantColor: "blue",
+    variantVariant: "solid",
+    variantSize: "medium",
   },
 });
 
 export type BadgeProps = {
   children: string;
   className?: string;
-  variantColor?: VariantProps<typeof badgeVariants>["color"];
-  variantVariant?: VariantProps<typeof badgeVariants>["variant"];
-  variantSize?: VariantProps<typeof badgeVariants>["size"];
+  variantColor?: VariantProps<typeof badgeVariants>["variantColor"];
+  variantVariant?: VariantProps<typeof badgeVariants>["variantVariant"];
+  variantSize?: VariantProps<typeof badgeVariants>["variantSize"];
 };
 
 export function Badge({
@@ -44,9 +44,9 @@ export function Badge({
   variantSize,
 }: BadgeProps) {
   const baseClass = badgeVariants({
-    color: variantColor,
-    variant: variantVariant,
-    size: variantSize,
+    variantColor,
+    variantVariant,
+    variantSize,
   });
 
   return <span className={clsx(baseClass, className)}>{children}</span>;

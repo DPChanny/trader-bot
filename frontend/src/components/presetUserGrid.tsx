@@ -6,13 +6,13 @@ import styles from "@/styles/components/userGrid.module.css";
 
 const gridVariants = cva(styles.grid, {
   variants: {
-    variant: {
+    variantVariant: {
       detail: styles.variantDetail,
       compact: styles.variantCompact,
     },
   },
   defaultVariants: {
-    variant: "compact",
+    variantVariant: "compact",
   },
 });
 
@@ -32,7 +32,7 @@ interface PresetUserGridProps {
   presetUsers: PresetUserCardProps["presetUser"][];
   selectedUserId?: number | string | null;
   onUserClick: (userId: number | string) => void;
-  variant?: "detail" | "compact";
+  variantVariant?: "detail" | "compact";
   className?: string;
   connectedUsers?: number[] | null;
   clientUserId?: number | null;
@@ -42,7 +42,7 @@ export function PresetUserGrid({
   presetUsers,
   selectedUserId,
   onUserClick,
-  variant = "compact",
+  variantVariant = "compact",
   className,
   connectedUsers = null,
   clientUserId = null,
@@ -55,7 +55,7 @@ export function PresetUserGrid({
     <Section
       variantTone="ghost"
       variantLayout="grid"
-      className={clsx(gridVariants({ variant }), className)}
+      className={clsx(gridVariants({ variantVariant }), className)}
     >
       {sortedUsers.map((presetUser) => (
         <div
@@ -67,7 +67,7 @@ export function PresetUserGrid({
         >
           <PresetUserCard
             presetUser={presetUser}
-            variant={variant}
+            variantVariant={variantVariant}
             isConnected={
               connectedUsers ? connectedUsers.includes(presetUser.userId) : null
             }

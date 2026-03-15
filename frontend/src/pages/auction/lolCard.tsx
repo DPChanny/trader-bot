@@ -16,7 +16,7 @@ export function LolCard({ lolInfo }: LolCardProps) {
     <Section variantType="secondary" className={styles.statsSection}>
       <div className={styles.header}>
         <h4 className={styles.gameTitle}>League of Legends</h4>
-        <Toggle color={"blue"} active={true} onClick={() => {}}>
+        <Toggle variantColor={"blue"} active={true} onClick={() => {}}>
           {lolInfo.tier !== "Unranked"
             ? `${lolInfo.tier} ${lolInfo.rank} ${lolInfo.lp}LP`
             : "Unranked"}
@@ -36,11 +36,11 @@ export function LolCard({ lolInfo }: LolCardProps) {
                 <span className={styles.championName}>{champion.name}</span>
                 <div className={styles.championStats}>
                   <Toggle
-                    color="gold"
+                    variantColor="gold"
                     active={true}
                     onClick={() => {}}
                   >{`${champion.games} 게임`}</Toggle>
-                  <Toggle color="red" active={true} onClick={() => {}}>
+                  <Toggle variantColor="red" active={true} onClick={() => {}}>
                     {`승률 ${champion.winRate.toFixed(1)}%`}
                   </Toggle>
                 </div>

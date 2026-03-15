@@ -4,25 +4,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 const inputVariants = cva(styles.input, {
   variants: {
-    intent: {
+    variantIntent: {
       default: styles.intentDefault,
       error: styles.intentError,
     },
-    tone: {
+    variantTone: {
       solid: styles.toneSolid,
       outline: styles.toneOutline,
       ghost: styles.toneGhost,
     },
-    size: {
-      sm: styles.sizeSm,
-      md: styles.sizeMd,
-      lg: styles.sizeLg,
+    variantSize: {
+      small: styles.sizeSmall,
+      medium: styles.sizeMedium,
+      large: styles.sizeLarge,
     },
   },
   defaultVariants: {
-    intent: "default",
-    tone: "solid",
-    size: "md",
+    variantIntent: "default",
+    variantTone: "solid",
+    variantSize: "medium",
   },
 });
 
@@ -35,9 +35,9 @@ export type InputProps = {
   disabled?: boolean;
   type?: "text" | "number" | "email" | "password";
   className?: string;
-  variantIntent?: VariantProps<typeof inputVariants>["intent"];
-  variantTone?: VariantProps<typeof inputVariants>["tone"];
-  variantSize?: VariantProps<typeof inputVariants>["size"];
+  variantIntent?: VariantProps<typeof inputVariants>["variantIntent"];
+  variantTone?: VariantProps<typeof inputVariants>["variantTone"];
+  variantSize?: VariantProps<typeof inputVariants>["variantSize"];
 };
 
 export function Input({
@@ -54,9 +54,9 @@ export function Input({
   variantSize,
 }: InputProps) {
   const baseClass = inputVariants({
-    intent: variantIntent,
-    tone: variantTone,
-    size: variantSize,
+    variantIntent,
+    variantTone,
+    variantSize,
   });
 
   return (

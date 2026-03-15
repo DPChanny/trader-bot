@@ -8,18 +8,18 @@ import type { PresetUserDetail } from "@/dto";
 
 const presetUserCardVariants = cva(styles.card, {
   variants: {
-    variant: {
+    variantVariant: {
       detail: styles.cardDetail,
       compact: styles.cardCompact,
     },
-    isLeader: {
+    variantIsLeader: {
       true: styles.cardLeader,
       false: "",
     },
   },
   defaultVariants: {
-    variant: "detail",
-    isLeader: false,
+    variantVariant: "detail",
+    variantIsLeader: false,
   },
 });
 
@@ -33,7 +33,7 @@ export interface PresetUserCardProps extends VariantProps<
 
 export function PresetUserCard({
   presetUser,
-  variant,
+  variantVariant,
   isConnected = null,
   isClientUser = null,
 }: PresetUserCardProps) {
@@ -49,10 +49,14 @@ export function PresetUserCard({
   })();
 
   return (
-    <Section className={clsx(presetUserCardVariants({ variant, isLeader }))}>
+    <Section
+      className={clsx(
+        presetUserCardVariants({ variantVariant, variantIsLeader: isLeader }),
+      )}
+    >
       <div class={styles.badgesLeft}>
         {statusClass && <div className={clsx(styles.statusDot, statusClass)} />}
-        {variant === "detail" && (
+        {variantVariant === "detail" && (
           <Badge variantColor="gray">{`#${user.userId}`}</Badge>
         )}
       </div>
@@ -89,7 +93,7 @@ export function PresetUserCard({
 
         <Section variantTone="ghost" variantType="tertiary">
           <h3 class={styles.name}>{user.name}</h3>
-          {variant === "detail" && user.riotId && (
+          {variantVariant === "detail" && user.riotId && (
             <div class={styles.riotId}>{user.riotId}</div>
           )}
           {positionNames && positionNames.length > 0 && (
@@ -102,7 +106,7 @@ export function PresetUserCard({
               {positions!.slice(0, 3).map((p) =>
                 p.position.iconUrl ? (
                   <IconBadge
-                    variantSize="md"
+                    variantSize="medium"
                     key={p.position.positionId}
                     src={p.position.iconUrl}
                     alt={p.position.name}
@@ -110,7 +114,7 @@ export function PresetUserCard({
                   />
                 ) : (
                   <Badge
-                    variantSize="md"
+                    variantSize="medium"
                     key={p.position.positionId}
                     variantColor="blue"
                   >

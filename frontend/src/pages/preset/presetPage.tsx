@@ -307,7 +307,7 @@ export function PresetPage({}: PresetPageProps) {
                   )}
                   selectedUserId={selectedPresetUserId}
                   onUserClick={(id) => setSelectedPresetUserId(id as number)}
-                  variant="compact"
+                  variantVariant="compact"
                 />
               </Section>
               <Section
@@ -335,7 +335,7 @@ export function PresetPage({}: PresetPageProps) {
                       });
                     }
                   }}
-                  variant="compact"
+                  variantVariant="compact"
                 />
               </Section>
               {selectedPresetUser && (

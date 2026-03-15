@@ -86,7 +86,7 @@ export function UserPage({}: UserPageProps) {
               users={users || []}
               selectedUserId={selectedUserId}
               onUserClick={(id) => setSelectedUserId(id as number)}
-              variant="detail"
+              variantVariant="detail"
             />
           )}
 

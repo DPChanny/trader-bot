@@ -123,7 +123,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
                 discordId: discordId,
                 discordProfileUrl: user.discordProfileUrl,
               }}
-              variant="detail"
+              variantVariant="detail"
             />
           </Section>
 
@@ -164,7 +164,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
 
       <Section variantTone="ghost" className={styles.footer}>
         <DangerButton
-          variantSize="lg"
+          variantSize="large"
           onClick={() => setShowDeleteConfirm(true)}
           disabled={deleteUser.isPending}
         >

@@ -39,19 +39,19 @@
   border: var(--border-width-default) solid var(--color-gray-border);
 }
 
-.sizeSm {
+.sizeSmall {
   width: 1.125rem;
   height: 1.125rem;
   font-size: var(--font-size-xs);
 }
 
-.sizeMd {
+.sizeMedium {
   width: 1.375rem;
   height: 1.375rem;
   font-size: var(--font-size-sm);
 }
 
-.sizeLg {
+.sizeLarge {
   width: 1.625rem;
   height: 1.625rem;
   font-size: var(--font-size-base);

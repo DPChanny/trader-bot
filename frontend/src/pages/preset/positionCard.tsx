@@ -52,15 +52,12 @@ export function PositionCard({
             value={editingName}
             onChange={onEditingNameChange}
             onKeyPress={(e) => e.key === "Enter" && onSave()}
-            variantSize="sm"
-            autoFocus
-            className={styles.editInputName}
+            variantSize="small"
           />
           <Input
             value={editingIconUrl}
             onChange={onEditingIconUrlChange}
-            variantSize="sm"
-            className={styles.editInputIcon}
+            variantSize="small"
           />
           <Section
             variantTone="ghost"
@@ -68,11 +65,11 @@ export function PositionCard({
             variantType="tertiary"
           >
             <SaveButton
-              variantSize="sm"
+              variantSize="small"
               onClick={onSave}
               disabled={isUpdatePending || !hasChanges || !editingName.trim()}
             />
-            <CloseButton variantSize="sm" onClick={onCancelEdit} />
+            <CloseButton variantSize="small" onClick={onCancelEdit} />
           </Section>
         </>
       ) : (
@@ -82,19 +79,15 @@ export function PositionCard({
               src={position.iconUrl}
               alt={position.name}
               variantColor="blue"
-              variantSize="lg"
+              variantSize="large"
             />
           ) : (
-            <Badge variantColor="blue" variantSize="lg">
+            <Badge variantColor="blue" variantSize="large">
               {position.name.charAt(0)}
             </Badge>
           )}
-          <EditButton variantSize="sm" onClick={onEdit} />
-          <DeleteButton
-            variantSize="sm"
-            onClick={onDelete}
-            disabled={isDeletePending}
-          />
+          <EditButton variantSize="small" onClick={onEdit} />
+          <DeleteButton variantSize="small" disabled={isDeletePending} />
         </>
       )}
     </Section>

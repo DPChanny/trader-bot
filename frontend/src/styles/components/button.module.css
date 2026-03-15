@@ -115,17 +115,17 @@
   filter: brightness(0.9);
 }
 
-.sizeSm {
+.sizeSmall {
   font-size: var(--font-size-xs);
   padding: var(--padding-sm) var(--padding-lg);
 }
 
-.sizeMd {
+.sizeMedium {
   font-size: var(--font-size-sm);
   padding: var(--padding-md) var(--padding-xl);
 }
 
-.sizeLg {
+.sizeLarge {
   font-size: var(--font-size-base);
   padding: var(--padding-lg) var(--space-6);
 }
@@ -137,14 +137,14 @@
   border-radius: var(--radius-button);
 }
 
-.isIcon.sizeSm {
+.isIcon.sizeSmall {
   width: var(--space-7);
   height: var(--space-7);
   font-size: var(--font-size-xs);
   padding: var(--padding-sm);
 }
 
-.isIcon.sizeLg {
+.isIcon.sizeLarge {
   width: var(--space-11);
   height: var(--space-11);
   font-size: var(--font-size-lg);

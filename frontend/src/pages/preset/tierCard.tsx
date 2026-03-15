@@ -43,9 +43,7 @@ export function TierCard({
             value={editingName}
             onChange={onEditingNameChange}
             onKeyPress={(e) => e.key === "Enter" && onSave()}
-            variantSize="sm"
-            autoFocus
-            className={styles.editInput}
+            variantSize="small"
           />
           <Section
             variantTone="ghost"
@@ -53,7 +51,7 @@ export function TierCard({
             variantType="tertiary"
           >
             <SaveButton
-              variantSize="sm"
+              variantSize="small"
               onClick={onSave}
               disabled={
                 isUpdatePending ||
@@ -61,20 +59,16 @@ export function TierCard({
                 !editingName.trim()
               }
             />
-            <CloseButton variantSize="sm" onClick={onCancelEdit} />
+            <CloseButton variantSize="small" onClick={onCancelEdit} />
           </Section>
         </>
       ) : (
         <>
-          <Badge variantColor="red" variantSize="lg">
+          <Badge variantColor="red" variantSize="large">
             {tier.name.charAt(0)}
           </Badge>
-          <EditButton variantSize="sm" onClick={onEdit} />
-          <DeleteButton
-            variantSize="sm"
-            onClick={onDelete}
-            disabled={isDeletePending}
-          />
+          <EditButton variantSize="small" onClick={onEdit} />
+          <DeleteButton variantSize="small" disabled={isDeletePending} />
         </>
       )}
     </Section>

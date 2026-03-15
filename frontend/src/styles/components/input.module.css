@@ -73,17 +73,17 @@
   border-bottom-color: var(--color-primary);
 }
 
-.sizeSm {
+.sizeSmall {
   font-size: var(--font-size-xs);
   padding: var(--padding-sm) var(--padding-md);
 }
 
-.sizeMd {
+.sizeMedium {
   font-size: var(--font-size-sm);
   padding: var(--padding-md);
 }
 
-.sizeLg {
+.sizeLarge {
   font-size: var(--font-size-base);
   padding: var(--padding-lg) var(--padding-xl);
 }

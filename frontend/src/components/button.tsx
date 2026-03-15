@@ -5,30 +5,30 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 const buttonVariants = cva(styles.button, {
   variants: {
-    intent: {
+    variantIntent: {
       primary: styles.intentPrimary,
       secondary: styles.intentSecondary,
       destructive: styles.intentDestructive,
     },
-    tone: {
+    variantTone: {
       solid: "",
       outline: styles.toneOutline,
     },
-    size: {
-      sm: styles.sizeSm,
-      md: styles.sizeMd,
-      lg: styles.sizeLg,
+    variantSize: {
+      small: styles.sizeSmall,
+      medium: styles.sizeMedium,
+      large: styles.sizeLarge,
     },
-    isIcon: {
+    variantIsIcon: {
       true: styles.isIcon,
       false: "",
     },
   },
   defaultVariants: {
-    intent: "primary",
-    tone: "solid",
-    size: "md",
-    isIcon: false,
+    variantIntent: "primary",
+    variantTone: "solid",
+    variantSize: "medium",
+    variantIsIcon: false,
   },
 });
 
@@ -37,10 +37,10 @@ export type ButtonProps = JSX.HTMLAttributes<HTMLButtonElement> & {
   children?: JSX.Element | string;
   disabled?: boolean;
   type?: "button" | "submit" | "reset";
-  variantIntent?: VariantProps<typeof buttonVariants>["intent"];
-  variantTone?: VariantProps<typeof buttonVariants>["tone"];
-  variantSize?: VariantProps<typeof buttonVariants>["size"];
-  variantIsIcon?: VariantProps<typeof buttonVariants>["isIcon"];
+  variantIntent?: VariantProps<typeof buttonVariants>["variantIntent"];
+  variantTone?: VariantProps<typeof buttonVariants>["variantTone"];
+  variantSize?: VariantProps<typeof buttonVariants>["variantSize"];
+  variantIsIcon?: VariantProps<typeof buttonVariants>["variantIsIcon"];
 };
 
 export function Button({
@@ -53,10 +53,10 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseClass = buttonVariants({
-    intent: variantIntent,
-    tone: variantTone,
-    size: variantSize,
-    isIcon: variantIsIcon,
+    variantIntent,
+    variantTone,
+    variantSize,
+    variantIsIcon,
   });
 
   return (

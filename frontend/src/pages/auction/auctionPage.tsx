@@ -241,7 +241,10 @@ export function AuctionPage({}: AuctionPageProps) {
               className={styles.auctionInfoTopSection}
             >
               {state.status !== "completed" && currentUser && (
-                <PresetUserCard presetUser={currentUser} variant="compact" />
+                <PresetUserCard
+                  presetUser={currentUser}
+                  variantVariant="compact"
+                />
               )}
               {state.status !== "completed" &&
                 presetDetail?.statistics === "LOL" &&
@@ -273,7 +276,10 @@ export function AuctionPage({}: AuctionPageProps) {
               </Section>
               <InfoCard label="입찰 팀장" value="">
                 {state.status !== "completed" && bidderLeader && (
-                  <PresetUserCard presetUser={bidderLeader} variant="compact" />
+                  <PresetUserCard
+                    presetUser={bidderLeader}
+                    variantVariant="compact"
+                  />
                 )}
               </InfoCard>
             </Section>
@@ -315,7 +321,7 @@ export function AuctionPage({}: AuctionPageProps) {
               <PresetUserGrid
                 presetUsers={auctionQueueUsers}
                 onUserClick={() => {}}
-                variant="compact"
+                variantVariant="compact"
                 clientUserId={userId}
                 connectedUsers={connectedUsers}
               />
@@ -331,7 +337,7 @@ export function AuctionPage({}: AuctionPageProps) {
                 onUserClick={() => {}}
                 connectedUsers={connectedUsers}
                 clientUserId={userId}
-                variant="compact"
+                variantVariant="compact"
               />
             </Section>
           </Section>

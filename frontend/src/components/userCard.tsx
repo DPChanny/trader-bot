@@ -7,13 +7,13 @@ import type { User } from "@/dto";
 
 const userCardVariants = cva("", {
   variants: {
-    variant: {
+    variantVariant: {
       detail: styles.cardDetail,
       compact: styles.cardCompact,
     },
   },
   defaultVariants: {
-    variant: "detail",
+    variantVariant: "detail",
   },
 });
 
@@ -21,12 +21,17 @@ export interface UserCardProps extends VariantProps<typeof userCardVariants> {
   user: User;
 }
 
-export function UserCard({ user, variant }: UserCardProps) {
+export function UserCard({ user, variantVariant }: UserCardProps) {
   return (
-    <Section className={clsx(styles.card, userCardVariants({ variant }))}>
+    <Section
+      className={clsx(styles.card, userCardVariants({ variantVariant }))}
+    >
       <div class={styles.badgesLeft}>
-        {variant === "detail" && (
-          <Badge variantColor="gray" variantSize="md">{`${user.userId}`}</Badge>
+        {variantVariant === "detail" && (
+          <Badge
+            variantColor="gray"
+            variantSize="medium"
+          >{`${user.userId}`}</Badge>
         )}
       </div>
 
@@ -59,7 +64,7 @@ export function UserCard({ user, variant }: UserCardProps) {
 
         <Section variantTone="ghost" variantType="tertiary">
           <h3 class={styles.name}>{user.name}</h3>
-          {variant === "detail" && user.riotId && (
+          {variantVariant === "detail" && user.riotId && (
             <div class={styles.riotId}>{user.riotId}</div>
           )}
         </Section>

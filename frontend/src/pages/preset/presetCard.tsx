@@ -44,9 +44,12 @@ export function PresetCard({
         </div>
       </div>
       <div className={styles.cardActions} onClick={handleStopPropagation}>
-        <EditButton variantSize="sm" onClick={() => onEdit(preset.presetId)} />
+        <EditButton
+          variantSize="small"
+          onClick={() => onEdit(preset.presetId)}
+        />
         <DeleteButton
-          variantSize="sm"
+          variantSize="small"
           onClick={() => onDelete(preset.presetId)}
         />
       </div>

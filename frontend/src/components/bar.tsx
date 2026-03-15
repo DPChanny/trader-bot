@@ -4,34 +4,34 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 const barVariants = cva(styles.bar, {
   variants: {
-    color: {
+    variantColor: {
       blue: styles.colorBlue,
       purple: styles.colorPurple,
       red: styles.colorRed,
       green: styles.colorGreen,
     },
-    thickness: {
+    variantThickness: {
       thin: styles.thicknessThin,
       medium: styles.thicknessMedium,
       thick: styles.thicknessThick,
     },
   },
   defaultVariants: {
-    color: "blue",
-    thickness: "thin",
+    variantColor: "blue",
+    variantThickness: "thin",
   },
 });
 
 export type BarProps = {
   className?: string;
-  variantColor?: VariantProps<typeof barVariants>["color"];
-  variantThickness?: VariantProps<typeof barVariants>["thickness"];
+  variantColor?: VariantProps<typeof barVariants>["variantColor"];
+  variantThickness?: VariantProps<typeof barVariants>["variantThickness"];
 };
 
 export function Bar({ className, variantColor, variantThickness }: BarProps) {
   const baseClass = barVariants({
-    color: variantColor,
-    thickness: variantThickness,
+    variantColor,
+    variantThickness,
   });
 
   return <div className={clsx(baseClass, className)} />;

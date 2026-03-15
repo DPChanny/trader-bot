@@ -7,13 +7,13 @@ import type { User } from "@/dto";
 
 const gridVariants = cva(styles.grid, {
   variants: {
-    variant: {
+    variantVariant: {
       detail: styles.variantDetail,
       compact: styles.variantCompact,
     },
   },
   defaultVariants: {
-    variant: "compact",
+    variantVariant: "compact",
   },
 });
 
@@ -33,7 +33,7 @@ interface UserGridProps {
   users: User[];
   selectedUserId?: number | string | null;
   onUserClick: (userId: number | string) => void;
-  variant?: "detail" | "compact";
+  variantVariant?: "detail" | "compact";
   className?: string;
 }
 
@@ -41,14 +41,14 @@ export function UserGrid({
   users,
   selectedUserId,
   onUserClick,
-  variant = "compact",
+  variantVariant = "compact",
   className,
 }: UserGridProps) {
   return (
     <Section
       variantTone="ghost"
       variantLayout="grid"
-      className={clsx(gridVariants({ variant }), className)}
+      className={clsx(gridVariants({ variantVariant }), className)}
     >
       {users.map((user) => (
         <div
@@ -58,7 +58,7 @@ export function UserGrid({
           })}
           onClick={() => onUserClick(user.userId)}
         >
-          <UserCard user={user} variant={variant} />
+          <UserCard user={user} variantVariant={variantVariant} />
         </div>
       ))}
     </Section>

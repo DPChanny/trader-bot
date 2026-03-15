@@ -216,14 +216,17 @@ export function PresetUserEditor({
       <div className={styles.content}>
         <Section variantTone="ghost">
           <Section variantTone="ghost" className={styles.cardSection}>
-            <PresetUserCard presetUser={previewPresetUser} variant="compact" />
+            <PresetUserCard
+              presetUser={previewPresetUser}
+              variantVariant="compact"
+            />
           </Section>
 
           <Label>팀장</Label>
           <Section variantType="secondary">
             <Toggle
               active={isLeader}
-              color="gold"
+              variantColor="gold"
               onClick={() => setIsLeader(!isLeader)}
             >
               팀장
@@ -240,7 +243,7 @@ export function PresetUserEditor({
               <Toggle
                 key={tier.tierId}
                 active={tierId === tier.tierId}
-                color="red"
+                variantColor="red"
                 onClick={() => handleToggleTier(tier.tierId)}
               >
                 {tier.name}
@@ -258,7 +261,7 @@ export function PresetUserEditor({
               <Toggle
                 key={position.positionId}
                 active={selectedPositionIds.includes(position.positionId)}
-                color="blue"
+                variantColor="blue"
                 onClick={() => handleTogglePosition(position.positionId)}
               >
                 {position.name}
@@ -292,7 +295,7 @@ export function PresetUserEditor({
 
       <Section variantTone="ghost" className={styles.footer}>
         <DangerButton
-          variantSize="lg"
+          variantSize="large"
           onClick={handleRemoveUser}
           disabled={removePresetUser.isPending}
         >

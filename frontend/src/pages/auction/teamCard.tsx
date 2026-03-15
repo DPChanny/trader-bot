@@ -38,7 +38,7 @@ export function TeamCard({
         className={styles.membersGrid}
         presetUsers={members}
         onUserClick={() => {}}
-        variant="compact"
+        variantVariant="compact"
         connectedUsers={connectedUsers}
         clientUserId={clientUserId}
       />
