@@ -12,7 +12,7 @@ export function getAuthToken(): string | null {
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split("=");
     if (name === TOKEN_COOKIE_NAME) {
-      return value;
+      return value ?? null;
     }
   }
   return null;
@@ -30,7 +30,7 @@ export function getAuthHeadersForMutation(): HeadersInit {
   const token = getAuthToken();
   console.log(
     "[Auth] Getting token for mutation:",
-    token ? `${token.substring(0, 20)}...` : "null"
+    token ? `${token.substring(0, 20)}...` : "null",
   );
   if (token) {
     return {

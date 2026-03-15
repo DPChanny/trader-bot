@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { PRESET_USER_POSITION_API_URL } from "../config";
 import { toSnakeCase } from "@/lib/dtoMapper";
 

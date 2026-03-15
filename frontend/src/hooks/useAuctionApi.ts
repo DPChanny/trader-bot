@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/preact-query";
 import type { Auction, ApiResponse } from "@/dtos";
 import { AUCTION_API_URL } from "@/config";
 import { getAuthHeadersForMutation } from "@/lib/auth";

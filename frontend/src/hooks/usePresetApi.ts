@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type { Preset, PresetDetail, ApiResponse } from "@/dtos";
 import { PRESET_API_URL } from "@/config";
 import { getAuthHeadersForMutation } from "@/lib/auth";
@@ -45,7 +45,7 @@ export const presetApi = {
       time?: number;
       pointScale?: number;
       statistics?: string;
-    }
+    },
   ): Promise<Preset> => {
     const response = await fetch(`${PRESET_API_URL}/${presetId}`, {
       method: "PATCH",

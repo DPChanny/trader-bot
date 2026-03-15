@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { TIER_API_URL } from "@/config";
 import { getAuthHeadersForMutation } from "@/lib/auth";
 import { toSnakeCase } from "@/lib/dtoMapper";

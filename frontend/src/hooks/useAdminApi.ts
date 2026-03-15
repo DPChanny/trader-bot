@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/preact-query";
 import { ADMIN_API_URL } from "@/config";
 import { setAuthToken, getAuthToken } from "@/lib/auth";
 

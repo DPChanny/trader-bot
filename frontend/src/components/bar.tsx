@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import styles from "@/styles/components/bar.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 
-const barVariants = cva(styles.bar, {
+const barVariants = cva(styles["bar"], {
   variants: {
     color: {
       blue: styles["bar--blue"],

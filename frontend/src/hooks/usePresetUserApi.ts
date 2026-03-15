@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { PRESET_USER_API_URL } from "@/config";
 import { getAuthHeadersForMutation } from "@/lib/auth";
 import { toSnakeCase } from "@/lib/dtoMapper";
@@ -21,7 +21,7 @@ export const presetUserApi = {
 
   update: async (
     presetUserId: number,
-    data: { tierId: number | null; isLeader?: boolean }
+    data: { tierId: number | null; isLeader?: boolean },
   ): Promise<any> => {
     const response = await fetch(`${PRESET_USER_API_URL}/${presetUserId}`, {
       method: "PATCH",

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type { User, ApiResponse } from "@/dtos";
 import { USER_API_URL } from "@/config";
 import { getAuthHeadersForMutation } from "@/lib/auth";
@@ -40,7 +40,7 @@ export const userApi = {
       name: string;
       riotId: string;
       discordId: string;
-    }>
+    }>,
   ): Promise<User> => {
     const response = await fetch(`${USER_API_URL}/${userId}`, {
       method: "PATCH",
@@ -74,7 +74,7 @@ export const userApi = {
       console.error(
         "Update discord profile failed:",
         response.status,
-        errorText
+        errorText,
       );
       throw new Error(`Failed to update discord profile: ${response.status}`);
     }
