@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/preact-query";
-import type { Auction, ApiResponse } from "@/dtos";
-import { AUCTION_API_URL } from "@/config";
+import type { Auction, ApiResponse } from "@/dto";
+import { AUCTION_API_URL } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 
 export const auctionApi = {

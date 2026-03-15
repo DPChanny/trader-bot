@@ -1,5 +1,5 @@
 import { DeleteButton, EditButton } from "@/components/button";
-import type { Preset } from "@/dtos";
+import type { Preset } from "@/dto";
 import { Section } from "@/components/section";
 import styles from "@/styles/pages/preset/presetCard.module.css";
 

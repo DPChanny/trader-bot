@@ -7,7 +7,7 @@ import {
 import { Badge } from "@/components/badge";
 import { Input } from "@/components/input";
 import { Section } from "@/components/section";
-import type { Position } from "@/dtos";
+import type { Position } from "@/dto";
 import { IconBadge } from "@/components/iconBadge";
 import styles from "@/styles/pages/preset/positionCard.module.css";
 

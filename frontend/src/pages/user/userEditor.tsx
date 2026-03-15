@@ -21,7 +21,7 @@ import { Bar } from "@/components/bar";
 import { Section } from "@/components/section";
 import { ConfirmModal } from "@/components/modal";
 import { Loading } from "@/components/loading";
-import type { User } from "@/dtos";
+import type { User } from "@/dto";
 
 import styles from "@/styles/pages/user/userEditor.module.css";
 

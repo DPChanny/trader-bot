@@ -18,7 +18,7 @@ import {
   type PresetUserDetail,
   type Statistics,
   type Tier,
-} from "@/dtos";
+} from "@/dto";
 import { CloseButton, DangerButton, SaveButton } from "@/components/button";
 import { Label } from "@/components/label";
 import { Error } from "@/components/error";
@@ -53,25 +53,25 @@ export function PresetUserEditor({
   const addPresetUserPosition = useAddPresetUserPosition();
   const deletePresetUserPosition = useDeletePresetUserPosition();
   const lolInfo = useLolInfo(
-    statistics === "LOL" ? presetUser.user.userId : null
+    statistics === "LOL" ? presetUser.user.userId : null,
   );
   const valInfo = useValInfo(
-    statistics === "VAL" ? presetUser.user.userId : null
+    statistics === "VAL" ? presetUser.user.userId : null,
   );
 
   const [isLeader, setIsLeader] = useState(presetUser.isLeader);
   const [tierId, setTierId] = useState<number | null>(
-    presetUser.tierId || null
+    presetUser.tierId || null,
   );
   const [selectedPositionIds, setSelectedPositionIds] = useState<number[]>(
-    presetUser.positions?.map((p) => p.position.positionId) || []
+    presetUser.positions?.map((p) => p.position.positionId) || [],
   );
 
   useEffect(() => {
     setIsLeader(presetUser.isLeader);
     setTierId(presetUser.tierId || null);
     setSelectedPositionIds(
-      presetUser.positions?.map((p) => p.position.positionId) || []
+      presetUser.positions?.map((p) => p.position.positionId) || [],
     );
   }, [
     presetUser.presetUserId,
@@ -100,15 +100,15 @@ export function PresetUserEditor({
       }
 
       const positionIdsToAdd = selectedPositionIds.filter(
-        (id) => !initialPositionIds.includes(id)
+        (id) => !initialPositionIds.includes(id),
       );
       const positionIdsToRemove = initialPositionIds.filter(
-        (id) => !selectedPositionIds.includes(id)
+        (id) => !selectedPositionIds.includes(id),
       );
 
       for (const positionId of positionIdsToRemove) {
         const position = presetUser.positions?.find(
-          (p) => p.position.positionId === positionId
+          (p) => p.position.positionId === positionId,
         );
         if (position) {
           await deletePresetUserPosition.mutateAsync({
@@ -133,7 +133,7 @@ export function PresetUserEditor({
   const handleTogglePosition = (positionId: number) => {
     if (selectedPositionIds.includes(positionId)) {
       setSelectedPositionIds(
-        selectedPositionIds.filter((id) => id !== positionId)
+        selectedPositionIds.filter((id) => id !== positionId),
       );
     } else {
       setSelectedPositionIds([...selectedPositionIds, positionId]);

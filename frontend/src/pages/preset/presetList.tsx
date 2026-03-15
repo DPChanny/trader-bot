@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import { Loading } from "@/components/loading";
 import { PresetCard } from "./presetCard";
-import type { Preset, Statistics } from "@/dtos";
+import type { Preset, Statistics } from "@/dto";
 import styles from "@/styles/pages/preset/presetList.module.css";
 import { Section } from "@/components/section";
 import { useDeletePreset, useUpdatePreset } from "@/hooks/usePresetApi";
@@ -41,7 +41,7 @@ export function PresetList({
     points: number,
     time: number,
     pointScale: number,
-    statistics: Statistics
+    statistics: Statistics,
   ) => {
     if (!editingPresetId || !name.trim()) return;
     try {

@@ -1,5 +1,5 @@
 import { PresetUserGrid } from "@/components/presetUserGrid";
-import type { PresetUserDetail, Team } from "@/dtos";
+import type { PresetUserDetail, Team } from "@/dto";
 import { Section } from "@/components/section";
 import { Bar } from "@/components/bar";
 import { clsx } from "clsx";

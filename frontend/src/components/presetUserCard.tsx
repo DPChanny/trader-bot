@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Badge } from "./badge";
 import { Section } from "./section";
 import { IconBadge } from "./iconBadge";
-import type { PresetUserDetail } from "@/dtos";
+import type { PresetUserDetail } from "@/dto";
 
 const presetUserCardVariants = cva(styles.card, {
   variants: {

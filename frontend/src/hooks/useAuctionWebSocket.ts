@@ -7,9 +7,9 @@ import type {
   TimerData,
   UserSoldData,
   WebSocketMessage,
-} from "@/dtos";
-import { AUCTION_WS_URL } from "@/config";
-import { toCamelCase } from "@/utils/dtoMapper";
+} from "@/dto";
+import { AUCTION_WS_URL } from "@/env";
+import { toCamelCase } from "@/utils/dto";
 
 interface AuctionWebSocketHook {
   isConnected: boolean;

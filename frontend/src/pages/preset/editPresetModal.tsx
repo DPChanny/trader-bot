@@ -6,7 +6,7 @@ import { Error } from "@/components/error";
 import { Toggle } from "@/components/toggle";
 import { Label } from "@/components/label";
 import { Section } from "@/components/section";
-import type { Statistics } from "@/dtos";
+import type { Statistics } from "@/dto";
 import modalStyles from "@/styles/components/modal.module.css";
 
 interface EditPresetModalProps {
@@ -17,7 +17,7 @@ interface EditPresetModalProps {
     points: number,
     time: number,
     pointScale: number,
-    statistics: Statistics
+    statistics: Statistics,
   ) => void;
   presetId: number | null;
   name: string;

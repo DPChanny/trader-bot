@@ -1,6 +1,6 @@
 import { Section } from "@/components/section";
 import { Toggle } from "@/components/toggle";
-import type { ValDto } from "@/dtos";
+import type { ValDto } from "@/dto";
 import styles from "@/styles/pages/auction/valCard.module.css";
 
 interface ValCardProps {

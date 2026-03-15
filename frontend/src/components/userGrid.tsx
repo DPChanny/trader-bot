@@ -3,7 +3,7 @@ import { Section } from "./section";
 import { cva } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@/styles/components/userGrid.module.css";
-import type { User } from "@/dtos";
+import type { User } from "@/dto";
 
 const gridVariants = cva(styles.grid, {
   variants: {

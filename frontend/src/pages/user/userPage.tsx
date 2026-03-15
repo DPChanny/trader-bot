@@ -8,7 +8,7 @@ import { Loading } from "@/components/loading";
 import { Error } from "@/components/error";
 import { UserEditor } from "./userEditor";
 import { AddUserModal } from "./addUserModal";
-import type { User } from "@/dtos";
+import type { User } from "@/dto";
 
 import styles from "@/styles/pages/user/userPage.module.css";
 import { Bar } from "@/components/bar";
@@ -35,7 +35,7 @@ export function UserPage({}: UserPageProps) {
       selectedUserId && users
         ? users.find((user: User) => user.userId === selectedUserId)
         : null,
-    [selectedUserId, users]
+    [selectedUserId, users],
   );
 
   const handleCloseEditor = () => {

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { TIER_API_URL } from "@/config";
+import { TIER_API_URL } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
-import { toSnakeCase } from "@/utils/dtoMapper";
+import { toSnakeCase } from "@/utils/dto";
 
 export const tierApi = {
   add: async (data: { presetId: number; name: string }): Promise<any> => {

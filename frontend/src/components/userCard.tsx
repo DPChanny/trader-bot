@@ -3,7 +3,7 @@ import styles from "@/styles/components/userCard.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Badge } from "./badge";
 import { Section } from "./section";
-import type { User } from "@/dtos";
+import type { User } from "@/dto";
 
 const userCardVariants = cva("", {
   variants: {

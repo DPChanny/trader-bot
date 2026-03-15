@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
-import type { User, ApiResponse } from "@/dtos";
-import { USER_API_URL } from "@/config";
+import type { User, ApiResponse } from "@/dto";
+import { USER_API_URL } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
-import { toCamelCase, toSnakeCase } from "@/utils/dtoMapper";
+import { toCamelCase, toSnakeCase } from "@/utils/dto";
 
 export const userApi = {
   getAll: async (): Promise<User[]> => {

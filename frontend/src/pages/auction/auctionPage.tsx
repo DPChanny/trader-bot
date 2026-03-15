@@ -16,7 +16,7 @@ import { PresetUserGrid } from "@/components/presetUserGrid";
 import { PresetUserCard } from "@/components/presetUserCard";
 import { Input } from "@/components/input";
 import { Bar } from "@/components/bar";
-import type { PresetUserDetail } from "@/dtos";
+import type { PresetUserDetail } from "@/dto";
 
 import styles from "@/styles/pages/auction/auctionPage.module.css";
 

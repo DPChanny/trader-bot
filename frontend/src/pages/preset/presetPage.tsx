@@ -20,7 +20,7 @@ import { PageContainer, PageLayout } from "@/components/page";
 import { Loading } from "@/components/loading";
 import { Error } from "@/components/error";
 import { Bar } from "@/components/bar";
-import type { Statistics } from "@/dtos";
+import type { Statistics } from "@/dto";
 import styles from "@/styles/pages/preset/presetPage.module.css";
 
 interface PresetPageProps {
@@ -34,7 +34,7 @@ export function PresetPage({}: PresetPageProps) {
   >(null);
   const [addingUserIds, setAddingUserIds] = useState<Set<number>>(new Set());
   const [removingUserIds, setRemovingUserIds] = useState<Set<number>>(
-    new Set()
+    new Set(),
   );
   const [isCreating, setIsCreating] = useState(false);
   const [newPresetName, setNewPresetName] = useState("");
@@ -68,7 +68,7 @@ export function PresetPage({}: PresetPageProps) {
   useEffect(() => {
     if (presetDetail) {
       const presetUserIds = new Set(
-        presetDetail.presetUsers.map((pu) => pu.userId)
+        presetDetail.presetUsers.map((pu) => pu.userId),
       );
 
       if (addingUserIds.size > 0) {
@@ -167,17 +167,17 @@ export function PresetPage({}: PresetPageProps) {
   const userGridUsers =
     users?.filter(
       (user) =>
-        !presetUserIds.has(user.userId) && !addingUserIds.has(user.userId)
+        !presetUserIds.has(user.userId) && !addingUserIds.has(user.userId),
     ) || [];
 
   const selectedPresetUser = useMemo(
     () =>
       selectedPresetUserId && presetDetail
         ? presetDetail.presetUsers.find(
-            (pu) => pu.presetUserId === selectedPresetUserId
+            (pu) => pu.presetUserId === selectedPresetUserId,
           )
         : null,
-    [selectedPresetUserId, presetDetail]
+    [selectedPresetUserId, presetDetail],
   );
 
   const leaderCount =
@@ -303,7 +303,7 @@ export function PresetPage({}: PresetPageProps) {
               >
                 <PresetUserGrid
                   presetUsers={presetDetail.presetUsers.filter(
-                    (pu) => !removingUserIds.has(pu.userId)
+                    (pu) => !removingUserIds.has(pu.userId),
                   )}
                   selectedUserId={selectedPresetUserId}
                   onUserClick={(id) => setSelectedPresetUserId(id as number)}

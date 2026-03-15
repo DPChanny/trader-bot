@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/preact-query";
-import { ADMIN_API_URL } from "@/config";
+import { ADMIN_API_URL } from "@/env";
 import { setAuthToken, getAuthToken } from "@/utils/auth";
 
 interface AdminLoginResponse {

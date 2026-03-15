@@ -1,6 +1,6 @@
 import { Section } from "@/components/section";
 import { Toggle } from "@/components/toggle";
-import type { LolDto } from "@/dtos";
+import type { LolDto } from "@/dto";
 import styles from "@/styles/pages/auction/lolCard.module.css";
 
 interface LolCardProps {

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/preact-query";
-import type { LolDto, ApiResponse } from "@/dtos";
-import { LOL_API_URL } from "@/config";
-import { toCamelCase } from "@/utils/dtoMapper";
+import type { LolDto, ApiResponse } from "@/dto";
+import { LOL_API_URL } from "@/env";
+import { toCamelCase } from "@/utils/dto";
 
 export const lolApi = {
   getByUserId: async (userId: number): Promise<LolDto | null> => {

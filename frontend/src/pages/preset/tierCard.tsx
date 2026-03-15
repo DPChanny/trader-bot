@@ -7,7 +7,7 @@ import {
 import { Badge } from "@/components/badge";
 import { Input } from "@/components/input";
 import { Section } from "@/components/section";
-import type { Tier } from "@/dtos";
+import type { Tier } from "@/dto";
 import styles from "@/styles/pages/preset/tierCard.module.css";
 
 interface TierCardProps {

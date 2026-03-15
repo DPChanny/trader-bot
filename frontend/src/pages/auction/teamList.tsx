@@ -1,5 +1,5 @@
 import { TeamCard } from "./teamCard";
-import type { PresetUserDetail, Team } from "@/dtos";
+import type { PresetUserDetail, Team } from "@/dto";
 import { Section } from "@/components/section";
 import styles from "@/styles/pages/auction/teamList.module.css";
 
