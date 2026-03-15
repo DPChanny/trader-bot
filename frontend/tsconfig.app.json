@@ -17,7 +17,8 @@
     "verbatimModuleSyntax": true,
     "erasableSyntaxOnly": true,
     "allowImportingTsExtensions": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "noPropertyAccessFromIndexSignature": false
   },
   "include": ["src"]
 }
