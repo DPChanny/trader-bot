@@ -2,12 +2,12 @@
   display: flex;
 }
 
-.section--solid {
+.toneSolid {
   backdrop-filter: blur(var(--blur-lg));
   border: var(--border-width-default) solid var(--color-border-default);
 }
 
-.section--ghost {
+.toneGhost {
   background: none !important;
   border: none !important;
   backdrop-filter: none !important;
@@ -15,21 +15,21 @@
   border-radius: 0 !important;
 }
 
-.section--primary {
+.typePrimary {
   background: var(--color-bg-tertiary);
   border-radius: var(--radius-xl);
   padding: var(--padding-xl);
   gap: var(--gap-lg);
 }
 
-.section--secondary {
+.typeSecondary {
   background: var(--color-bg-tertiary);
   border-radius: var(--radius-lg);
   padding: var(--padding-lg);
   gap: var(--gap-sm);
 }
 
-.section--tertiary {
+.typeTertiary {
   background: var(--color-bg-tertiary);
   border-radius: var(--radius-lg);
   padding: var(--padding-md);
@@ -37,22 +37,22 @@
   gap: var(--gap-xs);
 }
 
-.section--tertiary:hover {
+.typeTertiary:hover {
   background: var(--color-bg-surface);
   border-color: var(--color-border-medium);
 }
 
-.section--column {
+.layoutColumn {
   flex-direction: column;
 }
 
-.section--row {
+.layoutRow {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 }
 
-.section--grid {
+.layoutGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   gap: var(--gap-md);

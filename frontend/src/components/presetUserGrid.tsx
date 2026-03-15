@@ -7,8 +7,8 @@ import styles from "@/styles/components/userGrid.module.css";
 const gridVariants = cva(styles.grid, {
   variants: {
     variant: {
-      detail: styles["grid--detail"],
-      compact: styles["grid--compact"],
+      detail: styles.variantDetail,
+      compact: styles.variantCompact,
     },
   },
   defaultVariants: {
@@ -16,10 +16,10 @@ const gridVariants = cva(styles.grid, {
   },
 });
 
-const gridItemVariants = cva(styles.grid__item, {
+const gridItemVariants = cva(styles.gridItem, {
   variants: {
     variantSelected: {
-      true: styles["grid__item--selected"],
+      true: styles.gridItemSelected,
       false: "",
     },
   },

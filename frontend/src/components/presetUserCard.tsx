@@ -42,28 +42,26 @@ export function PresetUserCard({
   const positionNames = positions?.map((p) => p.position.name) || [];
 
   const statusClass = (() => {
-    if (isClientUser) return styles["card__statusDot--client"];
-    if (isConnected === true) return styles["card__statusDot--online"];
-    if (isConnected === false) return styles["card__statusDot--offline"];
+    if (isClientUser) return styles.statusDotClient;
+    if (isConnected === true) return styles.statusDotOnline;
+    if (isConnected === false) return styles.statusDotOffline;
     return null;
   })();
 
   return (
     <Section className={clsx(presetUserCardVariants({ variant, isLeader }))}>
-      <div class={styles.card__badgesLeft}>
-        {statusClass && (
-          <div className={clsx(styles.card__statusDot, statusClass)} />
-        )}
+      <div class={styles.badgesLeft}>
+        {statusClass && <div className={clsx(styles.statusDot, statusClass)} />}
         {variant === "detail" && (
           <Badge variantColor="gray">{`#${user.userId}`}</Badge>
         )}
       </div>
-      <div class={styles.card__badgesRight}>
+      <div class={styles.badgesRight}>
         {tier && <Badge variantColor="red">{tier.name.charAt(0)}</Badge>}
       </div>
 
       <Section variantTone="ghost" variantType="secondary">
-        <div class={styles.card__profile}>
+        <div class={styles.profile}>
           <img
             src={user.discordProfileUrl}
             alt={user.name}
@@ -74,7 +72,7 @@ export function PresetUserCard({
             }}
           />
           <svg
-            class={styles.card__profileIcon}
+            class={styles.profileIcon}
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -90,16 +88,16 @@ export function PresetUserCard({
         </div>
 
         <Section variantTone="ghost" variantType="tertiary">
-          <h3 class={styles.card__name}>{user.name}</h3>
+          <h3 class={styles.name}>{user.name}</h3>
           {variant === "detail" && user.riotId && (
-            <div class={styles.card__riotId}>{user.riotId}</div>
+            <div class={styles.riotId}>{user.riotId}</div>
           )}
           {positionNames && positionNames.length > 0 && (
             <Section
               variantTone="ghost"
               variantLayout="row"
               variantType="tertiary"
-              className={styles.card__positions}
+              className={styles.positions}
             >
               {positions!.slice(0, 3).map((p) =>
                 p.position.iconUrl ? (

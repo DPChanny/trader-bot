@@ -23,128 +23,128 @@
   cursor: not-allowed;
 }
 
-.button--primary {
+.intentPrimary {
   background: var(--color-primary);
   color: var(--color-text-primary);
 }
 
-.button--primary:hover:not(:disabled) {
+.intentPrimary:hover:not(:disabled) {
   background: var(--color-primary-dark);
 }
 
-.button--primary:active:not(:disabled) {
+.intentPrimary:active:not(:disabled) {
   background: var(--color-primary-dark);
 }
 
-.button--secondary {
+.intentSecondary {
   background: var(--color-secondary);
   color: var(--color-text-primary);
 }
 
-.button--secondary:hover:not(:disabled) {
+.intentSecondary:hover:not(:disabled) {
   background: var(--color-secondary-hover);
 }
 
-.button--secondary:active:not(:disabled) {
+.intentSecondary:active:not(:disabled) {
   background: var(--color-secondary-dark);
 }
 
-.button--destructive {
+.intentDestructive {
   background: var(--color-red);
   color: var(--color-text-primary);
 }
 
-.button--destructive:hover:not(:disabled) {
+.intentDestructive:hover:not(:disabled) {
   background: var(--color-red);
   filter: brightness(1.1);
 }
 
-.button--destructive:active:not(:disabled) {
+.intentDestructive:active:not(:disabled) {
   background: var(--color-red);
   filter: brightness(0.9);
 }
 
-.button--outline {
+.toneOutline {
   background-color: transparent;
   border: var(--border-width-default) solid;
 }
 
-.button--primary.button--outline {
+.intentPrimary.toneOutline {
   border-color: var(--color-primary);
   color: var(--color-primary);
 }
 
-.button--primary.button--outline:hover:not(:disabled) {
+.intentPrimary.toneOutline:hover:not(:disabled) {
   background: var(--color-primary);
   color: var(--color-text-primary);
 }
 
-.button--primary.button--outline:active:not(:disabled) {
+.intentPrimary.toneOutline:active:not(:disabled) {
   background: var(--color-primary-dark);
   color: var(--color-text-primary);
 }
 
-.button--secondary.button--outline {
+.intentSecondary.toneOutline {
   border-color: var(--color-secondary);
   color: var(--color-secondary-light);
 }
 
-.button--secondary.button--outline:hover:not(:disabled) {
+.intentSecondary.toneOutline:hover:not(:disabled) {
   border-color: var(--color-secondary-light);
   color: var(--color-text-primary);
   background: var(--color-secondary);
 }
 
-.button--secondary.button--outline:active:not(:disabled) {
+.intentSecondary.toneOutline:active:not(:disabled) {
   background: var(--color-secondary-dark);
 }
 
-.button--destructive.button--outline {
+.intentDestructive.toneOutline {
   border-color: var(--color-red);
   color: var(--color-red);
 }
 
-.button--destructive.button--outline:hover:not(:disabled) {
+.intentDestructive.toneOutline:hover:not(:disabled) {
   background: var(--color-red);
   color: var(--color-text-primary);
 }
 
-.button--destructive.button--outline:active:not(:disabled) {
+.intentDestructive.toneOutline:active:not(:disabled) {
   background: var(--color-red);
   color: var(--color-text-primary);
   filter: brightness(0.9);
 }
 
-.button--sm {
+.sizeSm {
   font-size: var(--font-size-xs);
   padding: var(--padding-sm) var(--padding-lg);
 }
 
-.button--md {
+.sizeMd {
   font-size: var(--font-size-sm);
   padding: var(--padding-md) var(--padding-xl);
 }
 
-.button--lg {
+.sizeLg {
   font-size: var(--font-size-base);
   padding: var(--padding-lg) var(--space-6);
 }
 
-.button--icon {
+.isIcon {
   padding: var(--padding-sm);
   width: var(--space-8);
   height: var(--space-8);
   border-radius: var(--radius-button);
 }
 
-.button--icon.button--sm {
+.isIcon.sizeSm {
   width: var(--space-7);
   height: var(--space-7);
   font-size: var(--font-size-xs);
   padding: var(--padding-sm);
 }
 
-.button--icon.button--lg {
+.isIcon.sizeLg {
   width: var(--space-11);
   height: var(--space-11);
   font-size: var(--font-size-lg);

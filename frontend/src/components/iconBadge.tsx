@@ -5,20 +5,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 const iconBadgeVariants = cva(styles.badge, {
   variants: {
     color: {
-      blue: styles["badge--blue"],
-      red: styles["badge--red"],
-      gold: styles["badge--gold"],
-      green: styles["badge--green"],
-      gray: styles["badge--gray"],
+      blue: styles.colorBlue,
+      red: styles.colorRed,
+      gold: styles.colorGold,
+      green: styles.colorGreen,
+      gray: styles.colorGray,
     },
     size: {
-      sm: styles["badge--sm"],
-      md: styles["badge--md"],
-      lg: styles["badge--lg"],
+      sm: styles.sizeSm,
+      md: styles.sizeMd,
+      lg: styles.sizeLg,
     },
     variant: {
       solid: "",
-      outline: styles["badge--outline"],
+      outline: styles.variantOutline,
     },
   },
   defaultVariants: {

@@ -5,18 +5,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 const inputVariants = cva(styles.input, {
   variants: {
     intent: {
-      default: styles["input--default"],
-      error: styles["input--error"],
+      default: styles.intentDefault,
+      error: styles.intentError,
     },
     tone: {
-      solid: styles["input--solid"],
-      outline: styles["input--outline"],
-      ghost: styles["input--ghost"],
+      solid: styles.toneSolid,
+      outline: styles.toneOutline,
+      ghost: styles.toneGhost,
     },
     size: {
-      sm: styles["input--sm"],
-      md: styles["input--md"],
-      lg: styles["input--lg"],
+      sm: styles.sizeSm,
+      md: styles.sizeMd,
+      lg: styles.sizeLg,
     },
   },
   defaultVariants: {

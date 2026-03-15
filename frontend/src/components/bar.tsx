@@ -2,18 +2,18 @@ import { clsx } from "clsx";
 import styles from "@/styles/components/bar.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 
-const barVariants = cva(styles["bar"], {
+const barVariants = cva(styles.bar, {
   variants: {
     color: {
-      blue: styles["bar--blue"],
-      purple: styles["bar--purple"],
-      red: styles["bar--red"],
-      green: styles["bar--green"],
+      blue: styles.colorBlue,
+      purple: styles.colorPurple,
+      red: styles.colorRed,
+      green: styles.colorGreen,
     },
     thickness: {
-      thin: styles["bar--thin"],
-      medium: styles["bar--medium"],
-      thick: styles["bar--thick"],
+      thin: styles.thicknessThin,
+      medium: styles.thicknessMedium,
+      thick: styles.thicknessThick,
     },
   },
   defaultVariants: {

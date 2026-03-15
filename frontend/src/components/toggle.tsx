@@ -5,12 +5,12 @@ import styles from "@/styles/components/toggle.module.css";
 const toggleVariants = cva(styles.toggle, {
   variants: {
     variantColor: {
-      blue: styles["toggle--blue"],
-      red: styles["toggle--red"],
-      gold: styles["toggle--gold"],
+      blue: styles.colorBlue,
+      red: styles.colorRed,
+      gold: styles.colorGold,
     },
     variantActive: {
-      true: styles["toggle--active"],
+      true: styles.isActive,
       false: "",
     },
   },

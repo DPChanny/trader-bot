@@ -16,35 +16,35 @@
   border-color: var(--color-border-medium);
 }
 
-.toggle--blue.toggle--active {
+.colorBlue.isActive {
   background: var(--color-primary-bg);
   border-color: var(--color-border-accent);
   color: var(--color-primary);
 }
 
-.toggle--blue:hover {
+.colorBlue:hover {
   background: var(--color-primary-bg-light);
   border-color: var(--color-primary);
 }
 
-.toggle--red.toggle--active {
+.colorRed.isActive {
   background: var(--color-red-bg);
   border-color: var(--color-red-border);
   color: var(--color-red);
 }
 
-.toggle--red:hover {
+.colorRed:hover {
   background: var(--color-red-bg);
   border-color: var(--color-red);
 }
 
-.toggle--gold.toggle--active {
+.colorGold.isActive {
   background: var(--color-gold-bg);
   border-color: var(--color-gold-border);
   color: var(--color-gold);
 }
 
-.toggle--gold:hover {
+.colorGold:hover {
   background: var(--color-gold-bg);
   border-color: var(--color-gold);
 }

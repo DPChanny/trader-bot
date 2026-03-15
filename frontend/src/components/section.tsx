@@ -5,18 +5,18 @@ import styles from "@/styles/components/section.module.css";
 const sectionVariants = cva(styles.section, {
   variants: {
     variantType: {
-      primary: styles["section--primary"],
-      secondary: styles["section--secondary"],
-      tertiary: styles["section--tertiary"],
+      primary: styles.typePrimary,
+      secondary: styles.typeSecondary,
+      tertiary: styles.typeTertiary,
     },
     variantTone: {
-      solid: styles["section--solid"],
-      ghost: styles["section--ghost"],
+      solid: styles.toneSolid,
+      ghost: styles.toneGhost,
     },
     variantLayout: {
-      column: styles["section--column"],
-      row: styles["section--row"],
-      grid: styles["section--grid"],
+      column: styles.layoutColumn,
+      row: styles.layoutRow,
+      grid: styles.layoutGrid,
     },
   },
   defaultVariants: {

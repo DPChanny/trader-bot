@@ -1,4 +1,4 @@
-const API_HOST = import.meta.env["VITE_API_HOST"];
+const API_HOST = import.meta.env.VITE_API_HOST;
 
 const API_HTTP_URL = "http://" + API_HOST;
 const API_WS_URL = "ws://" + API_HOST;

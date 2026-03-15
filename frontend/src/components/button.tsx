@@ -6,21 +6,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 const buttonVariants = cva(styles.button, {
   variants: {
     intent: {
-      primary: styles["button--primary"],
-      secondary: styles["button--secondary"],
-      destructive: styles["button--destructive"],
+      primary: styles.intentPrimary,
+      secondary: styles.intentSecondary,
+      destructive: styles.intentDestructive,
     },
     tone: {
       solid: "",
-      outline: styles["button--outline"],
+      outline: styles.toneOutline,
     },
     size: {
-      sm: styles["button--sm"],
-      md: styles["button--md"],
-      lg: styles["button--lg"],
+      sm: styles.sizeSm,
+      md: styles.sizeMd,
+      lg: styles.sizeLg,
     },
     isIcon: {
-      true: styles["button--icon"],
+      true: styles.isIcon,
       false: "",
     },
   },

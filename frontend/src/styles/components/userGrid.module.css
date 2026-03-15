@@ -7,23 +7,23 @@
   align-content: start;
 }
 
-.grid--compact {
+.variantCompact {
   grid-template-columns: repeat(auto-fill, 7rem);
   grid-auto-rows: 9rem;
 }
 
-.grid--detail {
+.variantDetail {
   grid-template-columns: repeat(auto-fill, 9rem);
   grid-auto-rows: 10rem;
 }
 
-.grid__item {
+.gridItem {
   cursor: pointer;
   transition: all 0.2s ease;
   width: fit-content;
 }
 
-.grid__item--selected :global(.user-card) {
+.gridItemSelected :global(.user-card) {
   background: linear-gradient(
     135deg,
     var(--color-interaction-primary-selected) 0%,

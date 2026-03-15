@@ -24,14 +24,14 @@ export interface UserCardProps extends VariantProps<typeof userCardVariants> {
 export function UserCard({ user, variant }: UserCardProps) {
   return (
     <Section className={clsx(styles.card, userCardVariants({ variant }))}>
-      <div class={styles.card__badgesLeft}>
+      <div class={styles.badgesLeft}>
         {variant === "detail" && (
           <Badge variantColor="gray" variantSize="md">{`${user.userId}`}</Badge>
         )}
       </div>
 
       <Section variantTone="ghost" variantType="secondary">
-        <div class={styles.card__profile}>
+        <div class={styles.profile}>
           <img
             src={user.discordProfileUrl}
             alt={user.name}
@@ -42,7 +42,7 @@ export function UserCard({ user, variant }: UserCardProps) {
             }}
           />
           <svg
-            class={styles.card__profileIcon}
+            class={styles.profileIcon}
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -58,9 +58,9 @@ export function UserCard({ user, variant }: UserCardProps) {
         </div>
 
         <Section variantTone="ghost" variantType="tertiary">
-          <h3 class={styles.card__name}>{user.name}</h3>
+          <h3 class={styles.name}>{user.name}</h3>
           {variant === "detail" && user.riotId && (
-            <div class={styles.card__riotId}>{user.riotId}</div>
+            <div class={styles.riotId}>{user.riotId}</div>
           )}
         </Section>
       </Section>

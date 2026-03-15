@@ -4,30 +4,30 @@
   border-radius: var(--radius-xs);
 }
 
-.bar--thin {
+.thicknessThin {
   height: var(--border-width-thin);
 }
 
-.bar--medium {
+.thicknessMedium {
   height: var(--border-width-medium);
 }
 
-.bar--thick {
+.thicknessThick {
   height: var(--border-width-thick);
 }
 
-.bar--blue {
+.colorBlue {
   background: var(--color-border-accent);
 }
 
-.bar--purple {
+.colorPurple {
   background: var(--color-interaction-secondary-border);
 }
 
-.bar--red {
+.colorRed {
   background: var(--color-red-border);
 }
 
-.bar--green {
+.colorGreen {
   background: var(--color-success-bg);
 }
