@@ -2,6 +2,7 @@ import type { JSX } from "preact";
 import { clsx } from "clsx";
 import styles from "@/styles/components/button.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
+import { type HTMLAttributes, type TargetedMouseEvent } from "preact";
 
 const buttonVariants = cva(styles.button, {
   variants: {
@@ -32,8 +33,8 @@ const buttonVariants = cva(styles.button, {
   },
 });
 
-export type ButtonProps = JSX.HTMLAttributes<HTMLButtonElement> & {
-  onClick?: (e: JSX.TargetedMouseEvent<HTMLButtonElement>) => void;
+export type ButtonProps = HTMLAttributes<HTMLButtonElement> & {
+  onClick?: (e: TargetedMouseEvent<HTMLButtonElement>) => void;
   children?: JSX.Element | string;
   disabled?: boolean;
   type?: "button" | "submit" | "reset";

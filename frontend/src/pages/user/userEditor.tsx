@@ -10,9 +10,9 @@ import {
 import { useLolStat } from "@/hooks/lolStat";
 import { useValStat } from "@/hooks/valStat";
 import {
-  Button,
   CloseButton,
   DangerButton,
+  PrimaryButton,
   SaveButton,
 } from "@/components/button";
 import { LabelInput } from "@/components/labelInput";
@@ -135,14 +135,14 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
             onChange={setDiscordId}
           />
 
-          <Button
+          <PrimaryButton
             onClick={handleUpdateDiscordProfile}
             disabled={updateDiscordProfile.isPending || !user.discordId}
           >
             {updateDiscordProfile.isPending
               ? "업데이트 중..."
               : "Discord 프로필 업데이트"}
-          </Button>
+          </PrimaryButton>
 
           <Bar />
 
