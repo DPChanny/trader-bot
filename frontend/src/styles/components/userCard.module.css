@@ -17,14 +17,6 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-}
-
-.cardDetail {
-  width: 9rem;
-  height: 10rem;
-}
-
-.cardCompact {
   width: 7rem;
   height: 9rem;
 }
@@ -82,48 +74,18 @@
 .profileIcon {
   color: var(--color-text-muted);
   flex-shrink: 0;
-}
-
-.cardDetail .profileIcon {
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
-.cardCompact .profileIcon {
   width: 2rem;
   height: 2rem;
 }
 
 .name {
   font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
   margin: 0;
   color: var(--color-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.cardDetail .name {
-  font-size: var(--font-size-sm);
-}
-
-.cardCompact .name {
-  font-size: var(--font-size-xs);
-}
-
-.riotId {
-  color: var(--color-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.cardDetail .riotId {
-  font-size: var(--font-size-xs);
-}
-
-.cardCompact .riotId {
-  font-size: var(--font-size-2xs);
 }
 
 .positions {

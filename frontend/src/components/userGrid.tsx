@@ -5,18 +5,6 @@ import { clsx } from "clsx";
 import styles from "@/styles/components/userGrid.module.css";
 import type { User } from "@/dto";
 
-const gridVariants = cva(styles.grid, {
-  variants: {
-    variantVariant: {
-      detail: styles.variantDetail,
-      compact: styles.variantCompact,
-    },
-  },
-  defaultVariants: {
-    variantVariant: "compact",
-  },
-});
-
 const gridItemVariants = cva(styles.gridItem, {
   variants: {
     variantSelected: {
@@ -33,7 +21,6 @@ interface UserGridProps {
   users: User[];
   selectedUserId?: number | null;
   onUserClick: (userId: number) => void;
-  variantVariant?: "detail" | "compact";
   className?: string;
 }
 
@@ -41,14 +28,13 @@ export function UserGrid({
   users,
   selectedUserId,
   onUserClick,
-  variantVariant = "compact",
   className,
 }: UserGridProps) {
   return (
     <Section
       variantTone="ghost"
       variantLayout="grid"
-      className={clsx(gridVariants({ variantVariant }), className)}
+      className={clsx(styles.grid, className)}
     >
       {users.map((user) => (
         <div
@@ -58,7 +44,7 @@ export function UserGrid({
           })}
           onClick={() => onUserClick(user.userId)}
         >
-          <UserCard user={user} variantVariant={variantVariant} />
+          <UserCard user={user} />
         </div>
       ))}
     </Section>

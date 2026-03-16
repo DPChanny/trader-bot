@@ -212,10 +212,7 @@ export function PresetUserEditor({
       <div className={styles.content}>
         <Section variantTone="ghost">
           <Section variantTone="ghost" className={styles.cardSection}>
-            <PresetUserCard
-              presetUser={previewPresetUser}
-              variantVariant="compact"
-            />
+            <PresetUserCard presetUser={previewPresetUser} />
           </Section>
 
           <Label>팀장</Label>

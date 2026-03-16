@@ -4,18 +4,6 @@ import { cva } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@/styles/components/userGrid.module.css";
 
-const gridVariants = cva(styles.grid, {
-  variants: {
-    variantVariant: {
-      detail: styles.variantDetail,
-      compact: styles.variantCompact,
-    },
-  },
-  defaultVariants: {
-    variantVariant: "compact",
-  },
-});
-
 const gridItemVariants = cva(styles.gridItem, {
   variants: {
     variantSelected: {
@@ -32,7 +20,6 @@ interface PresetUserGridProps {
   presetUsers: PresetUserCardProps["presetUser"][];
   selectedUserId?: number | null;
   onUserClick: (userId: number) => void;
-  variantVariant?: "detail" | "compact";
   className?: string;
   connectedUsers?: number[];
   clientUserId?: number;
@@ -42,7 +29,6 @@ export function PresetUserGrid({
   presetUsers,
   selectedUserId,
   onUserClick,
-  variantVariant = "compact",
   className,
   connectedUsers,
   clientUserId,
@@ -55,7 +41,7 @@ export function PresetUserGrid({
     <Section
       variantTone="ghost"
       variantLayout="grid"
-      className={clsx(gridVariants({ variantVariant }), className)}
+      className={clsx(styles.grid, className)}
     >
       {sortedUsers.map((presetUser) => (
         <div
@@ -67,7 +53,6 @@ export function PresetUserGrid({
         >
           <PresetUserCard
             presetUser={presetUser}
-            variantVariant={variantVariant}
             isConnected={
               connectedUsers
                 ? connectedUsers.includes(presetUser.userId)

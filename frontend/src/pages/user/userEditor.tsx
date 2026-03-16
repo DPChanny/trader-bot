@@ -123,7 +123,6 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
                 discordId: discordId,
                 discordProfileUrl: user.discordProfileUrl,
               }}
-              variantVariant="detail"
             />
           </Section>
 

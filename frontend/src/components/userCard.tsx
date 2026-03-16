@@ -1,40 +1,14 @@
-import { clsx } from "clsx";
 import styles from "@/styles/components/userCard.module.css";
-import { cva, type VariantProps } from "class-variance-authority";
-import { Badge } from "./badge";
 import { Section } from "./section";
 import type { User } from "@/dto";
 
-const userCardVariants = cva("", {
-  variants: {
-    variantVariant: {
-      detail: styles.cardDetail,
-      compact: styles.cardCompact,
-    },
-  },
-  defaultVariants: {
-    variantVariant: "detail",
-  },
-});
-
-export interface UserCardProps extends VariantProps<typeof userCardVariants> {
+export interface UserCardProps {
   user: User;
 }
 
-export function UserCard({ user, variantVariant }: UserCardProps) {
+export function UserCard({ user }: UserCardProps) {
   return (
-    <Section
-      className={clsx(styles.card, userCardVariants({ variantVariant }))}
-    >
-      <div class={styles.badgesLeft}>
-        {variantVariant === "detail" && (
-          <Badge
-            variantColor="gray"
-            variantSize="medium"
-          >{`${user.userId}`}</Badge>
-        )}
-      </div>
-
+    <Section className={styles.card}>
       <Section variantTone="ghost" variantType="secondary">
         <div class={styles.profile}>
           <img
@@ -64,9 +38,6 @@ export function UserCard({ user, variantVariant }: UserCardProps) {
 
         <Section variantTone="ghost" variantType="tertiary">
           <h3 class={styles.name}>{user.name}</h3>
-          {variantVariant === "detail" && user.riotId && (
-            <div class={styles.riotId}>{user.riotId}</div>
-          )}
         </Section>
       </Section>
     </Section>

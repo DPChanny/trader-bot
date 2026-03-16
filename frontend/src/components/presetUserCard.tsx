@@ -7,17 +7,12 @@ import type { PresetUserDetail } from "@/dto";
 
 const presetUserCardVariants = cva(styles.card, {
   variants: {
-    variantVariant: {
-      detail: styles.cardDetail,
-      compact: styles.cardCompact,
-    },
     variantIsLeader: {
       true: styles.cardLeader,
       false: "",
     },
   },
   defaultVariants: {
-    variantVariant: "detail",
     variantIsLeader: false,
   },
 });
@@ -32,7 +27,6 @@ export interface PresetUserCardProps extends VariantProps<
 
 export function PresetUserCard({
   presetUser,
-  variantVariant,
   isConnected,
   isClientUser,
 }: PresetUserCardProps) {
@@ -48,16 +42,9 @@ export function PresetUserCard({
   })();
 
   return (
-    <Section
-      className={clsx(
-        presetUserCardVariants({ variantVariant, variantIsLeader: isLeader }),
-      )}
-    >
+    <Section className={presetUserCardVariants({ variantIsLeader: isLeader })}>
       <div class={styles.badgesLeft}>
         {statusClass && <div className={clsx(styles.statusDot, statusClass)} />}
-        {variantVariant === "detail" && (
-          <Badge variantColor="gray">{`#${user.userId}`}</Badge>
-        )}
       </div>
       <div class={styles.badgesRight}>
         {tier && <Badge variantColor="red">{tier.name.charAt(0)}</Badge>}
@@ -92,9 +79,6 @@ export function PresetUserCard({
 
         <Section variantTone="ghost" variantType="tertiary">
           <h3 class={styles.name}>{user.name}</h3>
-          {variantVariant === "detail" && user.riotId && (
-            <div class={styles.riotId}>{user.riotId}</div>
-          )}
           {positionNames && positionNames.length > 0 && (
             <Section
               variantTone="ghost"

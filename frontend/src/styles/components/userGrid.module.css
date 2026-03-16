@@ -5,16 +5,8 @@
   height: 100%;
   justify-content: start;
   align-content: start;
-}
-
-.variantCompact {
   grid-template-columns: repeat(auto-fill, 7rem);
   grid-auto-rows: 9rem;
-}
-
-.variantDetail {
-  grid-template-columns: repeat(auto-fill, 9rem);
-  grid-auto-rows: 10rem;
 }
 
 .gridItem {
