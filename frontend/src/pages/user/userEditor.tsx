@@ -1,7 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { UserCard } from "@/components/userCard";
-import { LolCard } from "@/components/lolCard";
-import { ValCard } from "@/components/valCard";
+import { LolStatCard } from "@/components/lolStatCard";
+import { ValStatCard } from "@/components/valStatCard";
 import {
   useDeleteUser,
   useUpdateUser,
@@ -149,7 +149,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           {lolStat.isLoading ? (
             <Loading />
           ) : lolStat.data ? (
-            <LolCard lolStatDto={lolStat.data} />
+            <LolStatCard lolStatDto={lolStat.data} />
           ) : (
             <Error>LOL 통계를 불러오지 못했습니다.</Error>
           )}
@@ -159,7 +159,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           {valStat.isLoading ? (
             <Loading />
           ) : valStat.data ? (
-            <ValCard valStatDto={valStat.data} />
+            <ValStatCard valStatDto={valStat.data} />
           ) : (
             <Error>VAL 통계를 불러오지 못했습니다.</Error>
           )}

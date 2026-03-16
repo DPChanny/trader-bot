@@ -1,44 +1,44 @@
 import { Section } from "@/components/section";
 import { Toggle } from "@/components/toggle";
-import type { ValStatDto } from "@/dto";
-import styles from "@/styles/components/valCard.module.css";
+import type { LolStatDto } from "@/dto";
+import styles from "@/styles/components/lolCard.module.css";
 
-interface ValCardProps {
-  valStatDto: ValStatDto;
+interface LolStatCardProps {
+  lolStatDto: LolStatDto;
 }
 
-export function ValCard({ valStatDto }: ValCardProps) {
+export function LolStatCard({ lolStatDto }: LolStatCardProps) {
   return (
     <Section variantType="secondary">
       <Section variantTone="ghost" variantType="secondary">
-        <h4 className={styles.gameTitle}>VALORANT</h4>
+        <h4 className={styles.gameTitle}>League of Legends</h4>
         <Toggle variantColor={"blue"} variantActive={true} onClick={() => {}}>
-          {valStatDto.tier !== "Unranked"
-            ? `${valStatDto.tier} ${valStatDto.rank}`.trim()
+          {lolStatDto.tier !== "Unranked"
+            ? `${lolStatDto.tier} ${lolStatDto.rank} ${lolStatDto.lp}LP`
             : "Unranked"}
         </Toggle>
       </Section>
-      {valStatDto.topAgents && (
+      {lolStatDto.topChampions && (
         <Section variantTone="ghost" variantType="secondary">
-          {valStatDto.topAgents.map((agent, index) => (
+          {lolStatDto.topChampions.map((champion, index) => (
             <Section key={index} variantType="tertiary">
               <Section
                 variantTone="ghost"
                 variantType="primary"
                 variantLayout="row"
-                className={styles.agentSection}
+                className={styles.championSection}
               >
                 <img
-                  src={agent.iconUrl}
-                  alt={agent.name}
-                  className={styles.agentIcon}
+                  src={champion.iconUrl}
+                  alt={champion.name}
+                  className={styles.championIcon}
                 />
                 <Section
                   variantTone="ghost"
                   variantType="tertiary"
                   className={styles.infoSection}
                 >
-                  <span className={styles.agentName}>{agent.name}</span>
+                  <span className={styles.championName}>{champion.name}</span>
                   <Section
                     variantTone="ghost"
                     variantLayout="row"
@@ -48,13 +48,13 @@ export function ValCard({ valStatDto }: ValCardProps) {
                       variantColor="gold"
                       variantActive={true}
                       onClick={() => {}}
-                    >{`${agent.games} 게임`}</Toggle>
+                    >{`${champion.games} 게임`}</Toggle>
                     <Toggle
                       variantColor="red"
                       variantActive={true}
                       onClick={() => {}}
                     >
-                      {`승률 ${agent.winRate.toFixed(1)}%`}
+                      {`승률 ${champion.winRate.toFixed(1)}%`}
                     </Toggle>
                   </Section>
                 </Section>
