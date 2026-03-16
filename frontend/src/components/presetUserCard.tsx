@@ -3,7 +3,6 @@ import styles from "@/styles/components/userCard.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Badge } from "./badge";
 import { Section } from "./section";
-import { IconBadge } from "./iconBadge";
 import type { PresetUserDetail } from "@/dto";
 
 const presetUserCardVariants = cva(styles.card, {
@@ -103,25 +102,17 @@ export function PresetUserCard({
               variantType="tertiary"
               className={styles.positions}
             >
-              {positions!.slice(0, 3).map((p) =>
-                p.position.iconUrl ? (
-                  <IconBadge
-                    variantSize="medium"
-                    key={p.position.positionId}
-                    src={p.position.iconUrl}
-                    alt={p.position.name}
-                    variantColor="blue"
-                  />
-                ) : (
-                  <Badge
-                    variantSize="medium"
-                    key={p.position.positionId}
-                    variantColor="blue"
-                  >
-                    {p.position.name.charAt(0)}
-                  </Badge>
-                ),
-              )}
+              {positions!.slice(0, 3).map((p) => (
+                <Badge
+                  key={p.position.positionId}
+                  src={p.position.iconUrl || undefined}
+                  alt={p.position.name}
+                  variantSize="medium"
+                  variantColor="blue"
+                >
+                  {p.position.name.charAt(0)}
+                </Badge>
+              ))}
             </Section>
           )}
         </Section>

@@ -8,7 +8,6 @@ import { Badge } from "@/components/badge";
 import { Input } from "@/components/input";
 import { Section } from "@/components/section";
 import type { Position } from "@/dto";
-import { IconBadge } from "@/components/iconBadge";
 import styles from "@/styles/pages/preset/positionCard.module.css";
 
 interface PositionCardProps {
@@ -74,18 +73,14 @@ export function PositionCard({
         </>
       ) : (
         <>
-          {position.iconUrl ? (
-            <IconBadge
-              src={position.iconUrl}
-              alt={position.name}
-              variantColor="blue"
-              variantSize="large"
-            />
-          ) : (
-            <Badge variantColor="blue" variantSize="large">
-              {position.name.charAt(0)}
-            </Badge>
-          )}
+          <Badge
+            src={position.iconUrl || undefined}
+            alt={position.name}
+            variantColor="blue"
+            variantSize="large"
+          >
+            {position.name.charAt(0)}
+          </Badge>
           <EditButton variantSize="small" onClick={onEdit} />
           <DeleteButton
             variantSize="small"

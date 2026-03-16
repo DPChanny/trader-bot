@@ -11,7 +11,7 @@ const badgeVariants = cva(styles.badge, {
       green: styles.colorGreen,
       gray: styles.colorGray,
     },
-    variantVariant: {
+    variantTone: {
       solid: "",
       outline: styles.variantOutline,
     },
@@ -23,31 +23,52 @@ const badgeVariants = cva(styles.badge, {
   },
   defaultVariants: {
     variantColor: "blue",
-    variantVariant: "solid",
+    variantTone: "solid",
     variantSize: "medium",
   },
 });
 
 export type BadgeProps = {
-  children: string;
+  children?: string;
+  src?: string;
+  alt?: string;
   className?: string;
   variantColor?: VariantProps<typeof badgeVariants>["variantColor"];
-  variantVariant?: VariantProps<typeof badgeVariants>["variantVariant"];
+  variantTone?: VariantProps<typeof badgeVariants>["variantTone"];
   variantSize?: VariantProps<typeof badgeVariants>["variantSize"];
 };
 
 export function Badge({
   children,
+  src,
+  alt,
   className,
   variantColor,
-  variantVariant,
+  variantTone,
   variantSize,
 }: BadgeProps) {
   const baseClass = badgeVariants({
     variantColor,
-    variantVariant,
+    variantTone,
     variantSize,
   });
 
-  return <span className={clsx(baseClass, className)}>{children}</span>;
+  return (
+    <span className={clsx(baseClass, className)}>
+      {src ? (
+        <img
+          src={src}
+          alt={alt ?? "icon"}
+          style={{
+            width: "80%",
+            height: "80%",
+            objectFit: "cover",
+            display: "block",
+          }}
+        />
+      ) : (
+        children
+      )}
+    </span>
+  );
 }
