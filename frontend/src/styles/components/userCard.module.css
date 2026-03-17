@@ -1,16 +1,12 @@
 .card {
   position: relative;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
   border-radius: var(--radius-xl);
   padding: var(--padding-md);
   text-align: center;
-  border: var(--border-width-medium) solid var(--color-border-default) !important;
+  border: var(--border-width-medium) solid transparent;
   transition:
     border-color 0.2s,
+    background 0.2s,
     box-shadow 0.2s;
   display: flex;
   flex-direction: column;
@@ -21,19 +17,36 @@
   height: 9rem;
 }
 
-.cardLeader {
-  background: var(--color-gold-bg) !important;
-  border-color: var(--color-gold-border) !important;
-}
-
-.cardLeader:hover {
-  background: var(--color-gold-bg) !important;
-  border-color: var(--color-gold) !important;
-}
-
-.card:hover {
+.colorBlue {
+  background: var(--color-blue-bg);
   border-color: var(--color-border-default);
-  box-shadow: var(--shadow-card-hover);
+}
+
+.colorBlue:hover {
+  background: var(--color-blue-bg);
+  border-color: var(--color-border-accent);
+}
+
+.colorBlue.activeTrue {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+  box-shadow: 0 0.5rem 1.5625rem var(--color-interaction-primary-shadow);
+}
+
+.colorGold {
+  background: var(--color-gold-bg);
+  border-color: var(--color-gold-border);
+}
+
+.colorGold:hover {
+  background: var(--color-gold-bg);
+  border-color: var(--color-gold);
+}
+
+.colorGold.activeTrue {
+  background: var(--color-gold-bg);
+  border-color: var(--color-gold);
+  box-shadow: 0 0.5rem 1.5625rem var(--color-interaction-primary-shadow);
 }
 
 .badgesLeft {

@@ -1,32 +1,37 @@
 import { clsx } from "clsx";
 import styles from "@/styles/components/userCard.module.css";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { Badge } from "./badge";
 import { Section } from "./section";
 import type { PresetUserDetail } from "@/dto";
 
 const presetUserCardVariants = cva(styles.card, {
   variants: {
-    variantIsLeader: {
-      true: styles.cardLeader,
+    variantColor: {
+      blue: styles.colorBlue,
+      gold: styles.colorGold,
+    },
+    variantActive: {
+      true: styles.activeTrue,
       false: "",
     },
   },
   defaultVariants: {
-    variantIsLeader: false,
+    variantColor: "blue",
+    variantActive: false,
   },
 });
 
-export interface PresetUserCardProps extends VariantProps<
-  typeof presetUserCardVariants
-> {
+export interface PresetUserCardProps {
   presetUser: PresetUserDetail;
+  variantActive?: boolean;
   isConnected?: boolean;
   isClientUser?: boolean;
 }
 
 export function PresetUserCard({
   presetUser,
+  variantActive,
   isConnected,
   isClientUser,
 }: PresetUserCardProps) {
@@ -42,7 +47,12 @@ export function PresetUserCard({
   })();
 
   return (
-    <Section className={presetUserCardVariants({ variantIsLeader: isLeader })}>
+    <Section
+      className={presetUserCardVariants({
+        variantColor: isLeader ? "gold" : "blue",
+        variantActive,
+      })}
+    >
       <div class={styles.badgesLeft}>
         {statusClass && <div className={clsx(styles.statusDot, statusClass)} />}
       </div>

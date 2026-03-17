@@ -1,21 +1,8 @@
 import { UserCard } from "./userCard";
 import { Section } from "./section";
-import { cva } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@/styles/components/userGrid.module.css";
 import type { User } from "@/dto";
-
-const gridItemVariants = cva(styles.gridItem, {
-  variants: {
-    variantSelected: {
-      true: styles.gridItemSelected,
-      false: "",
-    },
-  },
-  defaultVariants: {
-    variantSelected: false,
-  },
-});
 
 interface UserGridProps {
   users: User[];
@@ -39,12 +26,13 @@ export function UserGrid({
       {users.map((user) => (
         <div
           key={user.userId}
-          className={gridItemVariants({
-            variantSelected: selectedUserId === user.userId,
-          })}
+          className={styles.gridItem}
           onClick={() => onUserClick(user.userId)}
         >
-          <UserCard user={user} />
+          <UserCard
+            user={user}
+            variantActive={selectedUserId === user.userId}
+          />
         </div>
       ))}
     </Section>

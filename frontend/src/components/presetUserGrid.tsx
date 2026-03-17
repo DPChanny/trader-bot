@@ -1,20 +1,7 @@
 import { PresetUserCard, type PresetUserCardProps } from "./presetUserCard";
 import { Section } from "./section";
-import { cva } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@/styles/components/userGrid.module.css";
-
-const gridItemVariants = cva(styles.gridItem, {
-  variants: {
-    variantSelected: {
-      true: styles.gridItemSelected,
-      false: "",
-    },
-  },
-  defaultVariants: {
-    variantSelected: false,
-  },
-});
 
 interface PresetUserGridProps {
   presetUsers: PresetUserCardProps["presetUser"][];
@@ -46,13 +33,12 @@ export function PresetUserGrid({
       {sortedUsers.map((presetUser) => (
         <div
           key={presetUser.presetUserId}
-          className={gridItemVariants({
-            variantSelected: selectedUserId === presetUser.presetUserId,
-          })}
+          className={styles.gridItem}
           onClick={() => onUserClick(presetUser.presetUserId)}
         >
           <PresetUserCard
             presetUser={presetUser}
+            variantActive={selectedUserId === presetUser.presetUserId}
             isConnected={
               connectedUsers
                 ? connectedUsers.includes(presetUser.userId)
