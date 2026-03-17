@@ -35,9 +35,6 @@
   --color-button-destructive-border-hover: #f87171;
   --color-button-destructive-border-active: #dc2626;
 
-  /* =============================================
-     Section
-  ============================================= */
   --color-section-primary-bg: rgb(22, 33, 62);
   --color-section-primary-border: rgba(255, 255, 255, 0.1);
   --color-section-primary-text: rgb(229, 231, 235);
@@ -49,4 +46,28 @@
   --color-section-tertiary-bg: rgb(10, 22, 48);
   --color-section-tertiary-border: rgba(255, 255, 255, 0.06);
   --color-section-tertiary-text: rgb(156, 163, 175);
+
+  --color-card-bg: rgb(30, 48, 92);
+  --color-card-bg-hover: rgb(38, 58, 108);
+  --color-card-bg-active: rgb(48, 72, 148);
+  --color-card-border: rgba(102, 126, 234, 0.2);
+  --color-card-border-hover: rgba(102, 126, 234, 0.5);
+  --color-card-border-active: rgb(102, 126, 234);
+  --color-card-text: rgb(229, 231, 235);
+  --color-card-text-active: rgb(255, 255, 255);
+
+  --color-card-gold-bg: rgb(36, 28, 10);
+  --color-card-gold-bg-hover: rgb(48, 38, 12);
+  --color-card-gold-bg-active: rgb(60, 46, 10);
+  --color-card-gold-border: rgba(234, 179, 8, 0.35);
+  --color-card-gold-border-hover: rgba(234, 179, 8, 0.7);
+  --color-card-gold-border-active: rgb(234, 179, 8);
+  --color-card-gold-text: rgb(251, 191, 36);
+  --color-card-gold-text-active: rgb(253, 211, 77);
+
+  --color-card-green-bg: rgb(14, 36, 22);
+  --color-card-green-bg-hover: rgb(18, 46, 28);
+  --color-card-green-border: rgba(34, 197, 94, 0.35);
+  --color-card-green-border-hover: rgb(34, 197, 94);
+  --color-card-green-text: rgb(74, 222, 128);
 }

@@ -3,12 +3,14 @@
 }
 
 .colorFull {
-  background: var(--color-green-bg);
-  border-color: var(--color-green-text);
+  background: var(--color-card-green-bg);
+  border-color: var(--color-card-green-border);
+  color: var(--color-card-green-text);
 }
 
 .colorFull:hover {
-  border-color: var(--color-green-border);
+  background: var(--color-card-green-bg-hover);
+  border-color: var(--color-card-green-border-hover);
 }
 
 .points {
