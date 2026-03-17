@@ -70,4 +70,11 @@
   --color-card-green-border: rgba(34, 197, 94, 0.35);
   --color-card-green-border-hover: rgb(34, 197, 94);
   --color-card-green-text: rgb(74, 222, 128);
+
+  --color-bar-blue: #667eea;
+  --color-bar-purple: #764ba2;
+  --color-bar-red: #ef4444;
+  --color-bar-green: #22c55e;
+  --color-bar-gold: #eab308;
+  --color-bar-white: rgba(255, 255, 255, 0.6);
 }

@@ -16,7 +16,6 @@
   color: var(--color-base-text-dark);
   margin-bottom: var(--space-12);
   text-align: center;
-  text-shadow: var(--shadow-text);
 }
 
 .homeButtons {
@@ -38,14 +37,10 @@
   border: var(--border-width-default) solid var(--color-base-border-light);
   border-radius: var(--radius-2xl);
   cursor: pointer;
-  transition: var(--transition-all);
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(var(--blur-lg));
 }
 
 .homeBtn:hover {
   background: var(--color-base-bg-dark);
-  box-shadow: var(--shadow-card-hover);
   transform: translateY(-0.25rem);
 }
 
@@ -109,10 +104,8 @@
 .loginBox {
   background: var(--color-base-bg-light);
   border: var(--border-width-default) solid var(--color-base-border-light);
-  backdrop-filter: blur(var(--blur-lg));
   padding: var(--space-10);
   border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-lg);
   width: 100%;
   max-width: 25rem;
 }
@@ -147,8 +140,6 @@
   border-radius: var(--radius-lg);
   font-size: var(--font-size-lg);
   cursor: pointer;
-  transition: var(--transition-all);
-  backdrop-filter: blur(var(--blur-lg));
 }
 
 .refreshBtn:hover:not(:disabled) {
@@ -171,8 +162,6 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--transition-all);
-  backdrop-filter: blur(var(--blur-lg));
 }
 
 .logoutBtn:hover {

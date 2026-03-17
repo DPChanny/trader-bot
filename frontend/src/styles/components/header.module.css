@@ -1,7 +1,6 @@
 ﻿.header {
   width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: var(--shadow-sm);
+  background: #667eea;
   position: sticky;
   top: 0;
   z-index: var(--z-header);
@@ -23,11 +22,9 @@
   gap: var(--gap-md);
   cursor: pointer;
   user-select: none;
-  transition: var(--transition-opacity);
 }
 
 .headerLogo:hover {
-  opacity: var(--opacity-hover);
 }
 
 .headerIcon {
@@ -57,7 +54,6 @@
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: var(--transition-all);
   position: relative;
 }
 

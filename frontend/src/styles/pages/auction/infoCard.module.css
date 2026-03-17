@@ -27,7 +27,6 @@
   color: var(--color-base-text-dark);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
-  text-shadow: var(--shadow-text);
   text-align: center;
 }
 

@@ -34,7 +34,6 @@
   border: var(--border-width-default) solid var(--color-section-tertiary-border);
   border-radius: var(--radius-lg);
   padding: var(--padding-md);
-  transition: var(--transition-all);
   gap: var(--gap-xs);
 }
 

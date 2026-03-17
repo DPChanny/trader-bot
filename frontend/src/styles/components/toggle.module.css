@@ -7,7 +7,6 @@
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: var(--transition-all);
   white-space: nowrap;
 }
 

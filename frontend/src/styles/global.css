@@ -5,8 +5,6 @@
 
 :root {
   --opacity-disabled: 0.5;
-  --opacity-hover: 0.8;
-  --opacity-muted: 0.6;
 
   --z-header: 1010;
   --z-panel: 1100;
@@ -41,7 +39,6 @@ body {
 a {
   color: var(--color-primary-text);
   text-decoration: underline;
-  transition: var(--transition-colors);
 }
 
 a:hover {
@@ -73,7 +70,6 @@ a:hover {
 ::-webkit-scrollbar-thumb {
   background: var(--color-base-scrollbar);
   border-radius: var(--radius-full);
-  transition: var(--transition-colors);
   border: 0.25rem solid transparent;
   background-clip: padding-box;
 }

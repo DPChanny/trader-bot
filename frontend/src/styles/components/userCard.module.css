@@ -70,7 +70,6 @@
 
 .statusDotOnline {
   background-color: var(--color-card-green-text);
-  box-shadow: 0 0 8px var(--color-card-green-bg);
 }
 
 .statusDotOffline {
@@ -79,5 +78,4 @@
 
 .statusDotClient {
   background-color: var(--color-button-primary-bg);
-  box-shadow: 0 0 8px var(--color-card-blue-bg);
 }

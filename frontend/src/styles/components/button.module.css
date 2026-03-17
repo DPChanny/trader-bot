@@ -4,7 +4,6 @@
   justify-content: center;
   font-weight: var(--font-weight-medium);
   border-radius: var(--radius-button);
-  transition: var(--transition-all);
   padding: var(--padding-md);
   cursor: pointer;
   border: none;
@@ -15,7 +14,6 @@
 .button:focus-visible {
   outline: var(--space-0-5) solid transparent;
   outline-offset: var(--space-0-5);
-  box-shadow: 0 0 0 var(--space-0-5) var(--color-button-primary-border);
 }
 
 .button:disabled {

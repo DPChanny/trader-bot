@@ -17,17 +17,25 @@
 }
 
 .colorBlue {
-  background: var(--color-primary-border);
+  background: var(--color-bar-blue);
 }
 
 .colorPurple {
-  background: var(--color-secondary-border);
+  background: var(--color-bar-purple);
 }
 
 .colorRed {
-  background: var(--color-red-border);
+  background: var(--color-bar-red);
 }
 
 .colorGreen {
-  background: var(--color-green-bg);
+  background: var(--color-bar-green);
+}
+
+.colorGold {
+  background: var(--color-bar-gold);
+}
+
+.colorWhite {
+  background: var(--color-bar-white);
 }

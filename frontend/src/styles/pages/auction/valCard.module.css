@@ -37,7 +37,6 @@
   padding: 0.5rem;
   background: #16213e;
   border-radius: var(--radius-md);
-  transition: background-color 0.2s;
 }
 
 .championCard:hover {

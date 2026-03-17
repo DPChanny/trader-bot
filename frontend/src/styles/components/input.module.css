@@ -4,20 +4,17 @@
   -webkit-appearance: none;
   appearance: none;
   border-radius: var(--radius-input);
-  transition: var(--transition-all);
   outline: none;
   font-family: var(--font-sans);
   border: var(--border-width-default) solid var(--color-base-border);
   background-color: var(--color-base-bg-light);
   color: var(--color-base-text-dark);
-  backdrop-filter: blur(var(--blur-md));
 }
 
 .input:focus {
   outline: var(--border-width-medium) solid transparent;
   outline-offset: var(--border-width-medium);
   border-color: var(--color-primary-text);
-  box-shadow: 0 0 0 0.1875rem var(--color-primary-bg-light);
   background-color: var(--color-base-bg);
 }
 
@@ -36,7 +33,6 @@
 
 .intentDefault:focus {
   border-color: var(--color-primary-text);
-  box-shadow: 0 0 0 0.1875rem var(--color-primary-bg-light);
 }
 
 .intentError {
@@ -50,7 +46,6 @@
 
 .intentError:focus {
   border-color: var(--color-red-text);
-  box-shadow: 0 0 0 0.1875rem var(--color-red-bg);
 }
 
 .toneSolid {
@@ -69,7 +64,6 @@
 }
 
 .toneGhost:focus {
-  box-shadow: none;
   border-bottom-color: var(--color-primary-text);
 }
 

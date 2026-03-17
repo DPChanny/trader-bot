@@ -65,7 +65,6 @@
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-wide);
-  transition: var(--transition-all);
 }
 
 .statusBadge--active {
@@ -90,17 +89,6 @@
   background: var(--color-red-bg);
   color: var(--color-red-text);
   border: var(--border-width-default) solid var(--color-red-text);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
 }
 
 @media (max-width: 1024px) {
