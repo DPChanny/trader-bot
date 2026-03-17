@@ -4,10 +4,10 @@ import styles from "@/styles/components/section.module.css";
 
 const sectionVariants = cva(styles.section, {
   variants: {
-    variantType: {
-      primary: styles.typePrimary,
-      secondary: styles.typeSecondary,
-      tertiary: styles.typeTertiary,
+    variantIntent: {
+      primary: styles.intentPrimary,
+      secondary: styles.intentSecondary,
+      tertiary: styles.intentTertiary,
     },
     variantTone: {
       solid: styles.toneSolid,
@@ -20,7 +20,7 @@ const sectionVariants = cva(styles.section, {
     },
   },
   defaultVariants: {
-    variantType: "primary",
+    variantIntent: "primary",
     variantTone: "solid",
     variantLayout: "column",
   },
@@ -28,7 +28,7 @@ const sectionVariants = cva(styles.section, {
 
 interface SectionProps extends VariantProps<typeof sectionVariants> {
   children: any;
-  variantType?: "primary" | "secondary" | "tertiary";
+  variantIntent?: "primary" | "secondary" | "tertiary";
   variantTone?: "solid" | "ghost";
   variantLayout?: "column" | "row" | "grid";
   className?: string;
@@ -36,7 +36,7 @@ interface SectionProps extends VariantProps<typeof sectionVariants> {
 
 export function Section({
   children,
-  variantType = "primary",
+  variantIntent = "primary",
   variantTone = "solid",
   variantLayout = "column",
   className,
@@ -44,7 +44,7 @@ export function Section({
   return (
     <div
       className={clsx(
-        sectionVariants({ variantType, variantTone, variantLayout }),
+        sectionVariants({ variantIntent, variantTone, variantLayout }),
         className,
       )}
     >

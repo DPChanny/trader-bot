@@ -87,14 +87,14 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
   };
 
   return (
-    <Section variantType="primary" className={styles.panel}>
+    <Section variantIntent="primary" className={styles.panel}>
       <Section variantTone="ghost">
         <Section variantTone="ghost" variantLayout="row">
           <h3>{user.name}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
-            variantType="secondary"
+            variantIntent="secondary"
           >
             <SaveButton
               onClick={handleSave}

@@ -37,7 +37,7 @@ export function PresetCard({
 
   return (
     <Section
-      variantType="tertiary"
+      variantIntent="tertiary"
       variantLayout="row"
       className={presetCardVariants({ variantActive: isActive })}
     >

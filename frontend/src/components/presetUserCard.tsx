@@ -60,7 +60,7 @@ export function PresetUserCard({
         {tier && <Badge variantColor="red">{tier.name.charAt(0)}</Badge>}
       </div>
 
-      <Section variantTone="ghost" variantType="secondary">
+      <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
           <img
             src={user.discordProfileUrl}
@@ -87,13 +87,13 @@ export function PresetUserCard({
           </svg>
         </div>
 
-        <Section variantTone="ghost" variantType="tertiary">
+        <Section variantTone="ghost" variantIntent="tertiary">
           <h3 class={styles.name}>{user.name}</h3>
           {positionNames && positionNames.length > 0 && (
             <Section
               variantTone="ghost"
               variantLayout="row"
-              variantType="tertiary"
+              variantIntent="tertiary"
               className={styles.positions}
             >
               {positions!.slice(0, 3).map((p) => (

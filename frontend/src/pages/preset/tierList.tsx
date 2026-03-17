@@ -81,7 +81,7 @@ export function TierList({
   };
 
   return (
-    <Section variantTone="ghost" variantType="secondary">
+    <Section variantTone="ghost" variantIntent="secondary">
       <Section variantTone="ghost">
         <Bar />
         {(updateTier.isError || deleteTier.isError) && (
@@ -92,7 +92,7 @@ export function TierList({
       <Section
         variantTone="ghost"
         variantLayout="row"
-        variantType="secondary"
+        variantIntent="secondary"
         className={styles.tierList}
       >
         {tiers?.map((tier) => (

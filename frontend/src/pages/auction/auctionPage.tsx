@@ -79,7 +79,7 @@ export function AuctionPage({}: AuctionPageProps) {
     return (
       <PageLayout>
         <PageContainer>
-          <Section variantType="primary" className={styles.centerSection}>
+          <Section variantIntent="primary" className={styles.centerSection}>
             <Error>
               유효하지 않은 접근입니다. 경매 참가 링크를 확인해주세요.
             </Error>
@@ -93,7 +93,7 @@ export function AuctionPage({}: AuctionPageProps) {
     return (
       <PageLayout>
         <PageContainer>
-          <Section variantType="primary" className={styles.centerSection}>
+          <Section variantIntent="primary" className={styles.centerSection}>
             <Error>{closeReason}</Error>
           </Section>
         </PageContainer>
@@ -201,7 +201,7 @@ export function AuctionPage({}: AuctionPageProps) {
     <PageLayout>
       <Section
         variantTone="ghost"
-        variantType="secondary"
+        variantIntent="secondary"
         className={styles.pageHeader}
       >
         <Section variantTone="ghost" variantLayout="row">
@@ -215,7 +215,7 @@ export function AuctionPage({}: AuctionPageProps) {
         <Bar />
       </Section>
       <PageContainer>
-        <Section variantType="primary" className={styles.teamsSection}>
+        <Section variantIntent="primary" className={styles.teamsSection}>
           <h3>팀 목록</h3>
           <Bar />
           <TeamList
@@ -227,7 +227,7 @@ export function AuctionPage({}: AuctionPageProps) {
           />
         </Section>
 
-        <Section variantType="primary" className={styles.auctionInfoSection}>
+        <Section variantIntent="primary" className={styles.auctionInfoSection}>
           <Section variantTone="ghost" variantLayout="row">
             <h3>경매 정보</h3>
           </Section>
@@ -237,7 +237,7 @@ export function AuctionPage({}: AuctionPageProps) {
             className={styles.auctionInfoContentSection}
           >
             <Section
-              variantType="secondary"
+              variantIntent="secondary"
               className={styles.auctionInfoTopSection}
             >
               {state.status !== "completed" && currentUser && (
@@ -308,7 +308,7 @@ export function AuctionPage({}: AuctionPageProps) {
         </Section>
 
         <Section variantTone="ghost" className={styles.queueSection}>
-          <Section variantType="primary" className={styles.queueSection}>
+          <Section variantIntent="primary" className={styles.queueSection}>
             <h3>경매 순서</h3>
             <Bar />
             <Section variantTone="ghost" className={styles.queueGrid}>
@@ -321,7 +321,7 @@ export function AuctionPage({}: AuctionPageProps) {
             </Section>
           </Section>
 
-          <Section variantType="primary" className={styles.queueSection}>
+          <Section variantIntent="primary" className={styles.queueSection}>
             <h3>유찰 목록</h3>
             <Bar />
             <Section variantTone="ghost" className={styles.queueGrid}>

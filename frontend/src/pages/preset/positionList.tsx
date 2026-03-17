@@ -102,7 +102,7 @@ export function PositionList({
   };
 
   return (
-    <Section variantTone="ghost" variantType="secondary">
+    <Section variantTone="ghost" variantIntent="secondary">
       <Section variantTone="ghost">
         <Bar />
         {(updatePosition.isError || deletePosition.isError) && (
@@ -113,7 +113,7 @@ export function PositionList({
       <Section
         variantTone="ghost"
         variantLayout="row"
-        variantType="secondary"
+        variantIntent="secondary"
         className={styles.positionList}
       >
         {positions?.map((position) => (

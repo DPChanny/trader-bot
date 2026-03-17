@@ -188,14 +188,14 @@ export function PresetUserEditor({
   };
 
   return (
-    <Section variantType="primary" className={styles.panel}>
+    <Section variantIntent="primary" className={styles.panel}>
       <Section variantTone="ghost">
         <Section variantTone="ghost" variantLayout="row">
           <h3>{presetUser.user.name}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
-            variantType="secondary"
+            variantIntent="secondary"
           >
             <SaveButton
               onClick={handleSave}
@@ -216,7 +216,7 @@ export function PresetUserEditor({
           </Section>
 
           <Label>팀장</Label>
-          <Section variantType="secondary">
+          <Section variantIntent="secondary">
             <Toggle
               isActive={isLeader}
               variantColor="gold"
@@ -229,7 +229,7 @@ export function PresetUserEditor({
           <Label>티어</Label>
           <Section
             variantLayout="row"
-            variantType="secondary"
+            variantIntent="secondary"
             className={styles.toggleSection}
           >
             {tiers?.map((tier) => (
@@ -247,7 +247,7 @@ export function PresetUserEditor({
           <Label>포지션</Label>
           <Section
             variantLayout="row"
-            variantType="secondary"
+            variantIntent="secondary"
             className={styles.toggleSection}
           >
             {positions.map((position) => (

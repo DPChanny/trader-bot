@@ -77,9 +77,9 @@ export function AddPresetModal({
           value={timerDuration.toString()}
           onChange={onTimerChange}
         />
-        <Section variantTone="ghost" variantType="tertiary">
+        <Section variantTone="ghost" variantIntent="tertiary">
           <Label>통계</Label>
-          <Section variantLayout="row" variantType="tertiary">
+          <Section variantLayout="row" variantIntent="tertiary">
             <Toggle
               type="button"
               isActive={statistics === "NONE"}

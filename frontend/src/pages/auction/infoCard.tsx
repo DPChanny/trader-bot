@@ -15,7 +15,7 @@ export function InfoCard({
   children,
 }: InfoCardProps) {
   return (
-    <Section variantType="secondary" className={styles.infoCard}>
+    <Section variantIntent="secondary" className={styles.infoCard}>
       <span className={styles.infoLabel}>{label}</span>
       <Section variantTone="ghost" className={styles.valueSection}>
         {children ? (

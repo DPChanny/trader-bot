@@ -9,8 +9,8 @@ interface LolStatCardProps {
 
 export function LolStatCard({ lolStatDto }: LolStatCardProps) {
   return (
-    <Section variantType="secondary">
-      <Section variantTone="ghost" variantType="secondary">
+    <Section variantIntent="secondary">
+      <Section variantTone="ghost" variantIntent="secondary">
         <h4 className={styles.gameTitle}>League of Legends</h4>
         <Toggle variantColor={"blue"} isActive={true} onClick={() => {}}>
           {lolStatDto.tier !== "Unranked"
@@ -19,12 +19,12 @@ export function LolStatCard({ lolStatDto }: LolStatCardProps) {
         </Toggle>
       </Section>
       {lolStatDto.topChampions && (
-        <Section variantTone="ghost" variantType="secondary">
+        <Section variantTone="ghost" variantIntent="secondary">
           {lolStatDto.topChampions.map((champion, index) => (
-            <Section key={index} variantType="tertiary">
+            <Section key={index} variantIntent="tertiary">
               <Section
                 variantTone="ghost"
-                variantType="primary"
+                variantIntent="primary"
                 variantLayout="row"
                 className={styles.championSection}
               >
@@ -35,14 +35,14 @@ export function LolStatCard({ lolStatDto }: LolStatCardProps) {
                 />
                 <Section
                   variantTone="ghost"
-                  variantType="tertiary"
+                  variantIntent="tertiary"
                   className={styles.infoSection}
                 >
                   <span className={styles.championName}>{champion.name}</span>
                   <Section
                     variantTone="ghost"
                     variantLayout="row"
-                    variantType="tertiary"
+                    variantIntent="tertiary"
                   >
                     <Toggle
                       variantColor="gold"

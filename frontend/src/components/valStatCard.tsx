@@ -9,8 +9,8 @@ interface ValStatCardProps {
 
 export function ValStatCard({ valStatDto }: ValStatCardProps) {
   return (
-    <Section variantType="secondary">
-      <Section variantTone="ghost" variantType="secondary">
+    <Section variantIntent="secondary">
+      <Section variantTone="ghost" variantIntent="secondary">
         <h4 className={styles.gameTitle}>VALORANT</h4>
         <Toggle variantColor={"blue"} isActive={true} onClick={() => {}}>
           {valStatDto.tier !== "Unranked"
@@ -19,12 +19,12 @@ export function ValStatCard({ valStatDto }: ValStatCardProps) {
         </Toggle>
       </Section>
       {valStatDto.topAgents && (
-        <Section variantTone="ghost" variantType="secondary">
+        <Section variantTone="ghost" variantIntent="secondary">
           {valStatDto.topAgents.map((agent, index) => (
-            <Section key={index} variantType="tertiary">
+            <Section key={index} variantIntent="tertiary">
               <Section
                 variantTone="ghost"
-                variantType="primary"
+                variantIntent="primary"
                 variantLayout="row"
                 className={styles.agentSection}
               >
@@ -35,14 +35,14 @@ export function ValStatCard({ valStatDto }: ValStatCardProps) {
                 />
                 <Section
                   variantTone="ghost"
-                  variantType="tertiary"
+                  variantIntent="tertiary"
                   className={styles.infoSection}
                 >
                   <span className={styles.agentName}>{agent.name}</span>
                   <Section
                     variantTone="ghost"
                     variantLayout="row"
-                    variantType="tertiary"
+                    variantIntent="tertiary"
                   >
                     <Toggle
                       variantColor="gold"

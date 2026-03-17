@@ -4,7 +4,6 @@
 
 .toneSolid {
   backdrop-filter: blur(var(--blur-lg));
-  border: var(--border-width-default) solid var(--color-base-border-light);
 }
 
 .toneGhost {
@@ -15,31 +14,33 @@
   border-radius: 0 !important;
 }
 
-.typePrimary {
-  background: var(--color-base-bg-light);
+.intentPrimary {
+  background: var(--color-section-primary-bg);
+  color: var(--color-section-primary-text);
+  border: var(--border-width-default) solid var(--color-section-primary-border);
   border-radius: var(--radius-xl);
   padding: var(--padding-xl);
   gap: var(--gap-lg);
 }
 
-.typeSecondary {
-  background: var(--color-base-bg-light);
+.intentSecondary {
+  background: var(--color-section-secondary-bg);
+  color: var(--color-section-secondary-text);
+  border: var(--border-width-default) solid
+    var(--color-section-secondary-border);
   border-radius: var(--radius-lg);
   padding: var(--padding-lg);
   gap: var(--gap-sm);
 }
 
-.typeTertiary {
-  background: var(--color-base-bg-light);
+.intentTertiary {
+  background: var(--color-section-tertiary-bg);
+  color: var(--color-section-tertiary-text);
+  border: var(--border-width-default) solid var(--color-section-tertiary-border);
   border-radius: var(--radius-lg);
   padding: var(--padding-md);
   transition: var(--transition-all);
   gap: var(--gap-xs);
-}
-
-.typeTertiary:hover {
-  background: var(--color-base-bg);
-  border-color: var(--color-base-border);
 }
 
 .layoutColumn {

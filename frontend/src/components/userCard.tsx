@@ -23,7 +23,7 @@ export interface UserCardProps extends VariantProps<typeof userCardVariants> {
 export function UserCard({ user, isActive }: UserCardProps) {
   return (
     <Section className={userCardVariants({ variantActive: isActive })}>
-      <Section variantTone="ghost" variantType="secondary">
+      <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
           <img
             src={user.discordProfileUrl}
@@ -50,7 +50,7 @@ export function UserCard({ user, isActive }: UserCardProps) {
           </svg>
         </div>
 
-        <Section variantTone="ghost" variantType="tertiary">
+        <Section variantTone="ghost" variantIntent="tertiary">
           <h3 class={styles.name}>{user.name}</h3>
         </Section>
       </Section>

@@ -38,7 +38,7 @@ export function TeamCard({
 
   return (
     <Section
-      variantType="secondary"
+      variantIntent="secondary"
       className={teamCardVariants({
         variantColor: isFull ? "full" : "default",
       })}

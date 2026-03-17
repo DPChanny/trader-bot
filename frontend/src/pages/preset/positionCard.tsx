@@ -44,7 +44,7 @@ export function PositionCard({
     editingIconUrl !== (position.iconUrl || "");
 
   return (
-    <Section variantType="tertiary" variantLayout="row" className={styles.card}>
+    <Section variantIntent="tertiary" variantLayout="row" className={styles.card}>
       {isEditing ? (
         <>
           <Input
@@ -61,7 +61,7 @@ export function PositionCard({
           <Section
             variantTone="ghost"
             variantLayout="row"
-            variantType="tertiary"
+            variantIntent="tertiary"
           >
             <SaveButton
               variantSize="small"

@@ -36,7 +36,7 @@ export function TierCard({
   isDeletePending,
 }: TierCardProps) {
   return (
-    <Section variantType="tertiary" variantLayout="row" className={styles.card}>
+    <Section variantIntent="tertiary" variantLayout="row" className={styles.card}>
       {isEditing ? (
         <>
           <Input
@@ -48,7 +48,7 @@ export function TierCard({
           <Section
             variantTone="ghost"
             variantLayout="row"
-            variantType="tertiary"
+            variantIntent="tertiary"
           >
             <SaveButton
               variantSize="small"

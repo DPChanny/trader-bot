@@ -34,4 +34,19 @@
   --color-button-destructive-border: #ef4444;
   --color-button-destructive-border-hover: #f87171;
   --color-button-destructive-border-active: #dc2626;
+
+  /* =============================================
+     Section
+  ============================================= */
+  --color-section-primary-bg: rgb(22, 33, 62);
+  --color-section-primary-border: rgba(255, 255, 255, 0.1);
+  --color-section-primary-text: rgb(229, 231, 235);
+
+  --color-section-secondary-bg: rgb(15, 28, 55);
+  --color-section-secondary-border: rgba(255, 255, 255, 0.08);
+  --color-section-secondary-text: rgb(209, 213, 219);
+
+  --color-section-tertiary-bg: rgb(10, 22, 48);
+  --color-section-tertiary-border: rgba(255, 255, 255, 0.06);
+  --color-section-tertiary-text: rgb(156, 163, 175);
 }

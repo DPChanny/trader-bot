@@ -194,7 +194,7 @@ export function PresetPage({}: PresetPageProps) {
   return (
     <PageLayout>
       <PageContainer>
-        <Section variantType="primary" className={styles.presetListSection}>
+        <Section variantIntent="primary" className={styles.presetListSection}>
           <Section variantTone="ghost" variantLayout="row">
             <h3>프리셋 목록</h3>
             <PrimaryButton onClick={() => setIsCreating(true)}>
@@ -235,7 +235,7 @@ export function PresetPage({}: PresetPageProps) {
           )}
         </Section>
 
-        <Section variantType="primary" className={styles.presetDetailSection}>
+        <Section variantIntent="primary" className={styles.presetDetailSection}>
           {addPresetUser.isError && (
             <Error>유저를 프리셋에 추가하는데 실패했습니다.</Error>
           )}
@@ -252,7 +252,7 @@ export function PresetPage({}: PresetPageProps) {
           !usersError ? (
             <>
               <Section variantTone="ghost" variantLayout="row">
-                <Section variantType="secondary" className={styles.tierSection}>
+                <Section variantIntent="secondary" className={styles.tierSection}>
                   <Section variantTone="ghost" variantLayout="row">
                     <h3>티어 목록</h3>
                     <PrimaryButton onClick={() => setShowTierForm(true)}>
@@ -269,7 +269,7 @@ export function PresetPage({}: PresetPageProps) {
                   />
                 </Section>
                 <Section
-                  variantType="secondary"
+                  variantIntent="secondary"
                   className={styles.positionSection}
                 >
                   <Section variantTone="ghost" variantLayout="row">
@@ -291,7 +291,7 @@ export function PresetPage({}: PresetPageProps) {
                 </Section>
               </Section>
               <Section
-                variantType="secondary"
+                variantIntent="secondary"
                 className={styles.userGridSection}
               >
                 <PresetUserGrid
@@ -303,7 +303,7 @@ export function PresetPage({}: PresetPageProps) {
                 />
               </Section>
               <Section
-                variantType="secondary"
+                variantIntent="secondary"
                 className={styles.userGridSection}
               >
                 <UserGrid

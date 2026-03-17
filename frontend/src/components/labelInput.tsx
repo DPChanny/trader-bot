@@ -9,7 +9,7 @@ type LabelInputProps = InputProps & {
 
 export function LabelInput({ label, htmlFor, ...inputProps }: LabelInputProps) {
   return (
-    <Section variantTone="ghost" variantType="tertiary">
+    <Section variantTone="ghost" variantIntent="tertiary">
       <Label htmlFor={htmlFor}>{label}</Label>
       <Input {...inputProps} />
     </Section>
