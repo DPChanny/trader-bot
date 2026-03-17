@@ -27,13 +27,10 @@ export function Modal({
     <div className={styles.modal}>
       <div className={styles.overlay} onClick={onClose}>
         <Section
-          variantLayout="column"
           className={clsx(styles.content, className)}
           onClick={(e) => e.stopPropagation()}
         >
-          <Section variantTone="ghost">
-            <h3>{title}</h3>
-          </Section>
+          <h3>{title}</h3>
           <Bar variantColor="blue" variantThickness="thin" />
           {children}
         </Section>
