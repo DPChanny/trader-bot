@@ -23,17 +23,17 @@
   --color-button-secondary-border-hover: #6b7280;
   --color-button-secondary-border-active: #374151;
 
-  --color-button-destructive-bg: #ef4444;
-  --color-button-destructive-bg-hover: #f87171;
-  --color-button-destructive-bg-active: #dc2626;
+  --color-button-danger-bg: #ef4444;
+  --color-button-danger-bg-hover: #f87171;
+  --color-button-danger-bg-active: #dc2626;
 
-  --color-button-destructive-text: #ffffff;
-  --color-button-destructive-text-hover: #ffffff;
-  --color-button-destructive-text-active: #ffffff;
+  --color-button-danger-text: #ffffff;
+  --color-button-danger-text-hover: #ffffff;
+  --color-button-danger-text-active: #ffffff;
 
-  --color-button-destructive-border: #ef4444;
-  --color-button-destructive-border-hover: #f87171;
-  --color-button-destructive-border-active: #dc2626;
+  --color-button-danger-border: #ef4444;
+  --color-button-danger-border-hover: #f87171;
+  --color-button-danger-border-active: #dc2626;
 
   --color-section-primary-bg: rgb(22, 33, 62);
   --color-section-primary-border: rgba(255, 255, 255, 0.1);

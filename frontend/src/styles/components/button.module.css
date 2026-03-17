@@ -61,23 +61,23 @@
   border-color: var(--color-button-secondary-border-active);
 }
 
-/* --- Solid: Destructive --- */
-.intentDestructive {
-  background: var(--color-button-destructive-bg);
-  color: var(--color-button-destructive-text);
-  border-color: var(--color-button-destructive-border);
+/* --- Solid: Danger --- */
+.intentDanger {
+  background: var(--color-button-danger-bg);
+  color: var(--color-button-danger-text);
+  border-color: var(--color-button-danger-border);
 }
 
-.intentDestructive:hover:not(:disabled) {
-  background: var(--color-button-destructive-bg-hover);
-  color: var(--color-button-destructive-text-hover);
-  border-color: var(--color-button-destructive-border-hover);
+.intentDanger:hover:not(:disabled) {
+  background: var(--color-button-danger-bg-hover);
+  color: var(--color-button-danger-text-hover);
+  border-color: var(--color-button-danger-border-hover);
 }
 
-.intentDestructive:active:not(:disabled) {
-  background: var(--color-button-destructive-bg-active);
-  color: var(--color-button-destructive-text-active);
-  border-color: var(--color-button-destructive-border-active);
+.intentDanger:active:not(:disabled) {
+  background: var(--color-button-danger-bg-active);
+  color: var(--color-button-danger-text-active);
+  border-color: var(--color-button-danger-border-active);
 }
 
 /* --- Outline base --- */
@@ -124,23 +124,23 @@
   border-color: var(--color-button-secondary-border-active);
 }
 
-/* --- Outline: Destructive --- */
-.intentDestructive.toneOutline {
+/* --- Outline: Danger --- */
+.intentDanger.toneOutline {
   background: transparent;
-  border-color: var(--color-button-destructive-border);
-  color: var(--color-button-destructive-bg);
+  border-color: var(--color-button-danger-border);
+  color: var(--color-button-danger-bg);
 }
 
-.intentDestructive.toneOutline:hover:not(:disabled) {
-  background: var(--color-button-destructive-bg-hover);
-  color: var(--color-button-destructive-text-hover);
-  border-color: var(--color-button-destructive-border-hover);
+.intentDanger.toneOutline:hover:not(:disabled) {
+  background: var(--color-button-danger-bg-hover);
+  color: var(--color-button-danger-text-hover);
+  border-color: var(--color-button-danger-border-hover);
 }
 
-.intentDestructive.toneOutline:active:not(:disabled) {
-  background: var(--color-button-destructive-bg-active);
-  color: var(--color-button-destructive-text-active);
-  border-color: var(--color-button-destructive-border-active);
+.intentDanger.toneOutline:active:not(:disabled) {
+  background: var(--color-button-danger-bg-active);
+  color: var(--color-button-danger-text-active);
+  border-color: var(--color-button-danger-border-active);
 }
 
 .sizeSmall {

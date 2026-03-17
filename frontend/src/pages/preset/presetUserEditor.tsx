@@ -22,7 +22,7 @@ import { Error } from "@/components/error";
 import { Bar } from "@/components/bar";
 import { Section } from "@/components/section";
 import { Loading } from "@/components/loading";
-import styles from "@/styles/pages/preset/presetUserEditor.module.css";
+import styles from "@/styles/components/userEditor.module.css";
 
 interface PresetUserEditorProps {
   presetUser: PresetUserDetail;
@@ -290,7 +290,7 @@ export function PresetUserEditor({
         </Section>
       </div>
 
-      <Section variantTone="ghost" className={styles.footer}>
+      <Section variantTone="ghost">
         <DangerButton
           variantSize="large"
           onClick={handleRemoveUser}

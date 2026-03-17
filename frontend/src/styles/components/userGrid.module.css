@@ -10,7 +10,6 @@
 }
 
 .gridItem {
-  cursor: pointer;
   transition: all 0.2s ease;
   width: fit-content;
 }

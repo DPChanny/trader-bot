@@ -1,31 +1,4 @@
-﻿.presetCard {
-  border-radius: var(--radius-md);
-  cursor: pointer;
-}
-
-.content {
-  flex: 1;
-  min-width: 0;
-  cursor: pointer;
-}
-
-.name {
+﻿.name {
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-base);
-}
-
-.details {
-  flex-wrap: wrap;
-}
-
-.detail {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  background: rgba(255, 255, 255, 0.06);
-  padding: var(--padding-xs) var(--padding-sm);
-  border-radius: var(--radius-sm);
-}
-
-.actions {
-  flex-shrink: 0;
 }

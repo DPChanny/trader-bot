@@ -73,6 +73,11 @@ export interface TimerData {
 }
 
 export type Statistics = "NONE" | "LOL" | "VAL";
+export const StatisticsDisplay: { [key in Statistics]: string } = {
+  NONE: "",
+  LOL: "LoL",
+  VAL: "Valorant",
+};
 
 export interface Preset {
   presetId: number;

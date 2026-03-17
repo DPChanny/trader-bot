@@ -3,10 +3,6 @@
   border-radius: var(--radius-xl);
   padding: var(--padding-md);
   border: var(--border-width-default) solid transparent;
-  transition:
-    border-color 0.2s,
-    background 0.2s,
-    box-shadow 0.2s;
   flex-shrink: 0;
 }
 
@@ -25,7 +21,6 @@
   background: var(--color-card-blue-bg-active);
   border-color: var(--color-card-blue-border-active);
   color: var(--color-card-blue-text-active);
-  box-shadow: 0 0.5rem 1.5625rem var(--color-card-blue-bg-active);
 }
 
 .colorGold {
@@ -43,7 +38,6 @@
   background: var(--color-card-gold-bg-active);
   border-color: var(--color-card-gold-border-active);
   color: var(--color-card-gold-text-active);
-  box-shadow: 0 0.5rem 1.5625rem var(--color-card-gold-bg-active);
 }
 
 .colorGreen {

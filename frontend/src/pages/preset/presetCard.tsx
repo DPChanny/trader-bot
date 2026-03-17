@@ -27,27 +27,13 @@ export function PresetCard({
     <Card
       variantLayout="row"
       variantActive={isActive}
-      className={styles.presetCard}
       onClick={() => onSelect(preset.presetId)}
     >
       <span className={styles.name}>{preset.name}</span>
       <Section
         variantTone="ghost"
-        variantIntent="secondary"
-        variantLayout="row"
-        className={styles.details}
-      >
-        <span className={styles.detail}>
-          포인트: {preset.points * preset.pointScale}
-        </span>
-        <span className={styles.detail}>타이머: {preset.time}초</span>
-        <span className={styles.detail}>통계: {preset.statistics}</span>
-      </Section>
-      <Section
-        variantTone="ghost"
         variantIntent="tertiary"
         variantLayout="row"
-        className={styles.actions}
         onClick={handleStopPropagation}
       >
         <EditButton

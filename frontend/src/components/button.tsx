@@ -9,7 +9,7 @@ const buttonVariants = cva(styles.button, {
     variantIntent: {
       primary: styles.intentPrimary,
       secondary: styles.intentSecondary,
-      destructive: styles.intentDestructive,
+      danger: styles.intentDanger,
     },
     variantTone: {
       solid: "",
@@ -74,7 +74,7 @@ export function SecondaryButton(props: Omit<ButtonProps, "variantIntent">) {
 }
 
 export function DangerButton(props: Omit<ButtonProps, "variantIntent">) {
-  return <Button variantIntent="destructive" {...props} />;
+  return <Button variantIntent="danger" {...props} />;
 }
 
 export function EditButton(
@@ -91,12 +91,7 @@ export function DeleteButton(
   props: Omit<ButtonProps, "children" | "variantType">,
 ) {
   return (
-    <Button
-      variantType="icon"
-      variantIntent="destructive"
-      title="삭제"
-      {...props}
-    >
+    <Button variantType="icon" variantIntent="danger" title="삭제" {...props}>
       🗑
     </Button>
   );
@@ -106,12 +101,7 @@ export function CloseButton(
   props: Omit<ButtonProps, "children" | "variantType">,
 ) {
   return (
-    <Button
-      variantType="icon"
-      variantIntent="destructive"
-      title="닫기"
-      {...props}
-    >
+    <Button variantType="icon" variantIntent="danger" title="닫기" {...props}>
       ✕
     </Button>
   );

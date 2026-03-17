@@ -2,14 +2,9 @@
   display: flex;
 }
 
-.toneSolid {
-  backdrop-filter: blur(var(--blur-lg));
-}
-
 .toneGhost {
   background: none !important;
   border: none !important;
-  backdrop-filter: none !important;
   padding: 0 !important;
   border-radius: 0 !important;
 }

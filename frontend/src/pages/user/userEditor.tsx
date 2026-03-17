@@ -23,7 +23,7 @@ import { ConfirmModal } from "@/components/modal";
 import { Loading } from "@/components/loading";
 import type { User } from "@/dto";
 
-import styles from "@/styles/pages/user/userEditor.module.css";
+import styles from "@/styles/components/userEditor.module.css";
 
 interface UserEditorProps {
   user: User;
@@ -165,7 +165,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
         </Section>
       </div>
 
-      <Section variantTone="ghost" className={styles.footer}>
+      <Section variantTone="ghost">
         <DangerButton
           variantSize="large"
           onClick={() => setShowDeleteConfirm(true)}
