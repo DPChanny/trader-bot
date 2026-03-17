@@ -11,7 +11,7 @@ const sectionVariants = cva(styles.section, {
       tertiary: styles.intentTertiary,
     },
     variantTone: {
-      solid: styles.toneSolid,
+      solid: "",
       ghost: styles.toneGhost,
     },
     variantLayout: {
