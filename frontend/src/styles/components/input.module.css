@@ -6,16 +6,18 @@
   border-radius: var(--radius-input);
   outline: none;
   font-family: var(--font-sans);
-  border: var(--border-width-default) solid var(--color-base-border);
-  background-color: var(--color-base-bg-light);
-  color: var(--color-base-text-dark);
+  background-color: var(--color-input-default-bg);
+  color: var(--color-input-default-text);
+  border: var(--border-width-default) solid var(--color-input-default-border);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .input:focus {
-  outline: var(--border-width-medium) solid transparent;
-  outline-offset: var(--border-width-medium);
-  border-color: var(--color-primary-text);
-  background-color: var(--color-base-bg);
+  outline: none;
+  background-color: var(--color-input-default-bg-focus);
+  border-color: var(--color-input-default-border-focus);
 }
 
 .input:disabled {
@@ -24,32 +26,43 @@
 }
 
 .input::placeholder {
-  color: var(--color-base-text-light);
+  color: var(--color-input-default-placeholder);
 }
 
+/* --- Intent --- */
 .intentDefault {
-  border-color: var(--color-base-border);
+  background-color: var(--color-input-default-bg);
+  color: var(--color-input-default-text);
+  border-color: var(--color-input-default-border);
+}
+
+.intentDefault::placeholder {
+  color: var(--color-input-default-placeholder);
 }
 
 .intentDefault:focus {
-  border-color: var(--color-primary-text);
+  background-color: var(--color-input-default-bg-focus);
+  border-color: var(--color-input-default-border-focus);
 }
 
 .intentError {
-  border-color: var(--color-red-text);
-  background-color: var(--color-red-bg);
+  background-color: var(--color-input-error-bg);
+  color: var(--color-input-error-text);
+  border-color: var(--color-input-error-border);
 }
 
 .intentError::placeholder {
-  color: rgba(239, 83, 80, 0.5);
+  color: var(--color-input-error-placeholder);
 }
 
 .intentError:focus {
-  border-color: var(--color-red-text);
+  background-color: var(--color-input-error-bg-focus);
+  border-color: var(--color-input-error-border-focus);
 }
 
+/* --- Tone --- */
 .toneSolid {
-  background-color: var(--color-base-bg-light);
+  background-color: var(--color-input-default-bg);
 }
 
 .toneOutline {
@@ -59,14 +72,16 @@
 .toneGhost {
   background-color: transparent;
   border: 0;
-  border-bottom: var(--border-width-default) solid var(--color-base-border);
+  border-bottom: var(--border-width-default) solid
+    var(--color-input-default-border);
   border-radius: 0;
 }
 
 .toneGhost:focus {
-  border-bottom-color: var(--color-primary-text);
+  border-bottom-color: var(--color-input-default-border-focus);
 }
 
+/* --- Size --- */
 .sizeSmall {
   font-size: var(--font-size-xs);
   padding: var(--padding-sm) var(--padding-md);

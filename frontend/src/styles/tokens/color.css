@@ -120,4 +120,19 @@
   --color-error-border: rgba(239, 68, 68, 0.6);
 
   --color-label-text: rgb(209, 213, 219);
+
+  /* Input */
+  --color-input-default-bg: rgb(22, 33, 55);
+  --color-input-default-bg-focus: rgb(15, 25, 50);
+  --color-input-default-text: rgb(229, 231, 235);
+  --color-input-default-border: rgba(255, 255, 255, 0.15);
+  --color-input-default-border-focus: rgba(102, 126, 234, 0.8);
+  --color-input-default-placeholder: rgb(107, 114, 128);
+
+  --color-input-error-bg: rgb(60, 18, 18);
+  --color-input-error-bg-focus: rgb(72, 20, 20);
+  --color-input-error-text: rgb(252, 165, 165);
+  --color-input-error-border: rgba(239, 68, 68, 0.6);
+  --color-input-error-border-focus: rgba(239, 68, 68, 0.9);
+  --color-input-error-placeholder: rgba(252, 165, 165, 0.4);
 }
