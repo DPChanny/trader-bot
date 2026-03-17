@@ -1,28 +1,20 @@
 import styles from "@/styles/components/userCard.module.css";
-import { cva, type VariantProps } from "class-variance-authority";
+import { Card } from "./card";
 import { Section } from "./section";
 import type { User } from "@/dto";
 
-const userCardVariants = cva([styles.card, styles.colorBlue], {
-  variants: {
-    variantActive: {
-      true: styles.activeTrue,
-      false: "",
-    },
-  },
-  defaultVariants: {
-    variantActive: false,
-  },
-});
-
-export interface UserCardProps extends VariantProps<typeof userCardVariants> {
+export interface UserCardProps {
   user: User;
   isActive?: boolean;
 }
 
 export function UserCard({ user, isActive }: UserCardProps) {
   return (
-    <Section className={userCardVariants({ variantActive: isActive })}>
+    <Card
+      variantColor="blue"
+      variantActive={isActive}
+      className={styles.userCard}
+    >
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
           <img
@@ -54,6 +46,6 @@ export function UserCard({ user, isActive }: UserCardProps) {
           <h3 class={styles.name}>{user.name}</h3>
         </Section>
       </Section>
-    </Section>
+    </Card>
   );
 }

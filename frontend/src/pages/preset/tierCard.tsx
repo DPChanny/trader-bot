@@ -6,6 +6,7 @@ import {
 } from "@/components/button";
 import { Badge } from "@/components/badge";
 import { Input } from "@/components/input";
+import { Card } from "@/components/card";
 import { Section } from "@/components/section";
 import type { Tier } from "@/dto";
 import styles from "@/styles/pages/preset/tierCard.module.css";
@@ -36,7 +37,7 @@ export function TierCard({
   isDeletePending,
 }: TierCardProps) {
   return (
-    <Section variantIntent="tertiary" variantLayout="row" className={styles.card}>
+    <Card variantLayout="row" className={styles.card}>
       {isEditing ? (
         <>
           <Input
@@ -75,6 +76,6 @@ export function TierCard({
           />
         </>
       )}
-    </Section>
+    </Card>
   );
 }

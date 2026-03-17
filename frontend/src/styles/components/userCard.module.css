@@ -1,56 +1,7 @@
-﻿.card {
-  position: relative;
-  border-radius: var(--radius-xl);
-  padding: var(--padding-md);
-  text-align: center;
-  border: var(--border-width-medium) solid transparent;
-  transition:
-    border-color 0.2s,
-    background 0.2s,
-    box-shadow 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+﻿.userCard {
   width: 7rem;
   height: 9rem;
-}
-
-.colorBlue {
-  background: var(--color-card-bg);
-  border-color: var(--color-card-border);
-  color: var(--color-card-text);
-}
-
-.colorBlue:hover {
-  background: var(--color-card-bg-hover);
-  border-color: var(--color-card-border-hover);
-}
-
-.colorBlue.activeTrue {
-  background: var(--color-card-bg-active);
-  border-color: var(--color-card-border-active);
-  color: var(--color-card-text-active);
-  box-shadow: 0 0.5rem 1.5625rem var(--color-card-bg-active);
-}
-
-.colorGold {
-  background: var(--color-card-gold-bg);
-  border-color: var(--color-card-gold-border);
-  color: var(--color-card-gold-text);
-}
-
-.colorGold:hover {
-  background: var(--color-card-gold-bg-hover);
-  border-color: var(--color-card-gold-border-hover);
-}
-
-.colorGold.activeTrue {
-  background: var(--color-card-gold-bg-active);
-  border-color: var(--color-card-gold-border-active);
-  color: var(--color-card-gold-text-active);
-  box-shadow: 0 0.5rem 1.5625rem var(--color-card-gold-bg-active);
+  border-width: var(--border-width-medium);
 }
 
 .badgesLeft {
@@ -73,8 +24,8 @@
   height: 3.75rem;
   border-radius: var(--radius-full);
   overflow: hidden;
-  border: var(--border-width-medium) solid var(--color-card-border);
-  background: var(--color-card-bg);
+  border: var(--border-width-medium) solid var(--color-card-blue-border);
+  background: var(--color-card-blue-bg);
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -99,7 +50,7 @@
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-xs);
   margin: 0;
-  color: var(--color-card-text);
+  color: var(--color-card-blue-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -113,7 +64,7 @@
   width: 0.625rem;
   height: 0.625rem;
   border-radius: 50%;
-  border: 1px solid var(--color-card-border);
+  border: 1px solid var(--color-card-blue-border);
   margin-right: var(--space-1);
 }
 
@@ -128,5 +79,5 @@
 
 .statusDotClient {
   background-color: var(--color-button-primary-bg);
-  box-shadow: 0 0 8px var(--color-card-bg);
+  box-shadow: 0 0 8px var(--color-card-blue-bg);
 }

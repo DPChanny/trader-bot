@@ -1,21 +1,6 @@
-﻿.teamCard {
-  transition: var(--transition-all);
-}
-
-.colorFull {
-  background: var(--color-card-green-bg);
-  border-color: var(--color-card-green-border);
-  color: var(--color-card-green-text);
-}
-
-.colorFull:hover {
-  background: var(--color-card-green-bg-hover);
-  border-color: var(--color-card-green-border-hover);
-}
-
-.points {
+﻿.points {
   font-weight: var(--font-weight-semibold);
-  color: var(--color-primary-text);
+  color: var(--color-button-primary-bg);
 }
 
 .membersGrid {

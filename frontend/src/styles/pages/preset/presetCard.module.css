@@ -1,68 +1,31 @@
-﻿.card {
-  background: var(--color-card-bg);
-  color: var(--color-card-text);
-  padding: var(--padding-md);
+﻿.presetCard {
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: var(--transition-all);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: var(--border-width-default) solid var(--color-card-border);
-  gap: var(--space-2);
 }
 
-.card:hover {
-  background: var(--color-card-bg-hover);
-  border-color: var(--color-card-border-hover);
-  box-shadow: var(--shadow-md);
-}
-
-.activeTrue {
-  background: var(--color-card-bg-active);
-  border-color: var(--color-card-border-active);
-  color: var(--color-card-text-active);
-}
-
-.activeTrue:hover {
-  background: var(--color-card-bg-active);
-  border-color: var(--color-card-border-active);
-}
-
-.cardContent {
+.content {
   flex: 1;
   min-width: 0;
+  cursor: pointer;
 }
 
-.cardInfo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.cardName {
+.name {
   font-weight: var(--font-weight-semibold);
-  color: var(--color-base-text-dark);
   font-size: var(--font-size-base);
 }
 
-.cardDetails {
-  display: flex;
-  gap: var(--space-3);
+.details {
   flex-wrap: wrap;
 }
 
-.cardDetail {
+.detail {
   font-size: var(--font-size-xs);
-  color: var(--color-base-text-dark);
   font-weight: var(--font-weight-medium);
-  background: var(--color-base-bg-light);
+  background: rgba(255, 255, 255, 0.06);
   padding: var(--padding-xs) var(--padding-sm);
   border-radius: var(--radius-sm);
 }
 
-.cardActions {
-  display: flex;
-  gap: var(--space-1);
+.actions {
   flex-shrink: 0;
 }

@@ -1,20 +1,8 @@
 import { DeleteButton, EditButton } from "@/components/button";
 import type { Preset } from "@/dto";
+import { Card } from "@/components/card";
 import { Section } from "@/components/section";
-import { cva } from "class-variance-authority";
 import styles from "@/styles/pages/preset/presetCard.module.css";
-
-const presetCardVariants = cva(styles.card, {
-  variants: {
-    variantActive: {
-      true: styles.activeTrue,
-      false: "",
-    },
-  },
-  defaultVariants: {
-    variantActive: false,
-  },
-});
 
 interface PresetCardProps {
   preset: Preset;
@@ -36,27 +24,32 @@ export function PresetCard({
   };
 
   return (
-    <Section
-      variantIntent="tertiary"
+    <Card
       variantLayout="row"
-      className={presetCardVariants({ variantActive: isActive })}
+      variantActive={isActive}
+      className={styles.presetCard}
+      onSelect={() => onSelect(preset.presetId)}
     >
-      <div
-        className={styles.cardContent}
-        onClick={() => onSelect(preset.presetId)}
+      <span className={styles.name}>{preset.name}</span>
+      <Section
+        variantTone="ghost"
+        variantIntent="secondary"
+        variantLayout="row"
+        className={styles.details}
       >
-        <div className={styles.cardInfo}>
-          <span className={styles.cardName}>{preset.name}</span>
-          <div className={styles.cardDetails}>
-            <span className={styles.cardDetail}>
-              포인트: {preset.points * preset.pointScale}
-            </span>
-            <span className={styles.cardDetail}>타이머: {preset.time}초</span>
-            <span className={styles.cardDetail}>통계: {preset.statistics}</span>
-          </div>
-        </div>
-      </div>
-      <div className={styles.cardActions} onClick={handleStopPropagation}>
+        <span className={styles.detail}>
+          포인트: {preset.points * preset.pointScale}
+        </span>
+        <span className={styles.detail}>타이머: {preset.time}초</span>
+        <span className={styles.detail}>통계: {preset.statistics}</span>
+      </Section>
+      <Section
+        variantTone="ghost"
+        variantIntent="tertiary"
+        variantLayout="row"
+        className={styles.actions}
+        onClick={handleStopPropagation}
+      >
         <EditButton
           variantSize="small"
           onClick={() => onEdit(preset.presetId)}
@@ -65,7 +58,7 @@ export function PresetCard({
           variantSize="small"
           onClick={() => onDelete(preset.presetId)}
         />
-      </div>
-    </Section>
+      </Section>
+    </Card>
   );
 }

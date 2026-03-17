@@ -1,21 +1,9 @@
 import { PresetUserGrid } from "@/components/presetUserGrid";
 import type { PresetUserDetail, Team } from "@/dto";
+import { Card } from "@/components/card";
 import { Section } from "@/components/section";
 import { Bar } from "@/components/bar";
-import { cva } from "class-variance-authority";
 import styles from "@/styles/pages/auction/teamCard.module.css";
-
-const teamCardVariants = cva(styles.teamCard, {
-  variants: {
-    variantColor: {
-      default: "",
-      full: styles.colorFull,
-    },
-  },
-  defaultVariants: {
-    variantColor: "default",
-  },
-});
 
 interface TeamCardProps {
   team: Team;
@@ -37,12 +25,7 @@ export function TeamCard({
   const isFull = members.length === 5;
 
   return (
-    <Section
-      variantIntent="secondary"
-      className={teamCardVariants({
-        variantColor: isFull ? "full" : "default",
-      })}
-    >
+    <Card variantColor={isFull ? "green" : "blue"} variantLayout="column">
       <Section variantTone="ghost" variantLayout="row">
         <h4>{teamName}</h4>
         <span className={styles.points}>{team.points * pointScale} 포인트</span>
@@ -55,6 +38,6 @@ export function TeamCard({
         connectedUsers={connectedUsers}
         clientUserId={clientUserId}
       />
-    </Section>
+    </Card>
   );
 }

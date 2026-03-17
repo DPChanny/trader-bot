@@ -1,6 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@/styles/components/section.module.css";
+import type { HTMLAttributes } from "preact";
 
 const sectionVariants = cva(styles.section, {
   variants: {
@@ -26,13 +27,16 @@ const sectionVariants = cva(styles.section, {
   },
 });
 
-interface SectionProps extends VariantProps<typeof sectionVariants> {
-  children: any;
+interface SectionProps
+  extends VariantProps<typeof sectionVariants>, HTMLAttributes<HTMLDivElement> {
+  children?: any;
   variantIntent?: "primary" | "secondary" | "tertiary";
   variantTone?: "solid" | "ghost";
   variantLayout?: "column" | "row" | "grid";
   className?: string;
 }
+
+export type { SectionProps };
 
 export function Section({
   children,
@@ -40,6 +44,7 @@ export function Section({
   variantTone = "solid",
   variantLayout = "column",
   className,
+  ...props
 }: SectionProps) {
   return (
     <div
@@ -47,6 +52,7 @@ export function Section({
         sectionVariants({ variantIntent, variantTone, variantLayout }),
         className,
       )}
+      {...props}
     >
       {children}
     </div>

@@ -47,14 +47,14 @@
   --color-section-tertiary-border: rgba(255, 255, 255, 0.06);
   --color-section-tertiary-text: rgb(156, 163, 175);
 
-  --color-card-bg: rgb(30, 48, 92);
-  --color-card-bg-hover: rgb(38, 58, 108);
-  --color-card-bg-active: rgb(48, 72, 148);
-  --color-card-border: rgba(102, 126, 234, 0.2);
-  --color-card-border-hover: rgba(102, 126, 234, 0.5);
-  --color-card-border-active: rgb(102, 126, 234);
-  --color-card-text: rgb(229, 231, 235);
-  --color-card-text-active: rgb(255, 255, 255);
+  --color-card-blue-bg: rgb(30, 48, 92);
+  --color-card-blue-bg-hover: rgb(38, 58, 108);
+  --color-card-blue-bg-active: rgb(48, 72, 148);
+  --color-card-blue-border: rgba(102, 126, 234, 0.2);
+  --color-card-blue-border-hover: rgba(102, 126, 234, 0.5);
+  --color-card-blue-border-active: rgb(102, 126, 234);
+  --color-card-blue-text: rgb(229, 231, 235);
+  --color-card-blue-text-active: rgb(255, 255, 255);
 
   --color-card-gold-bg: rgb(36, 28, 10);
   --color-card-gold-bg-hover: rgb(48, 38, 12);

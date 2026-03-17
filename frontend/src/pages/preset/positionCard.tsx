@@ -6,6 +6,7 @@ import {
 } from "@/components/button";
 import { Badge } from "@/components/badge";
 import { Input } from "@/components/input";
+import { Card } from "@/components/card";
 import { Section } from "@/components/section";
 import type { Position } from "@/dto";
 import styles from "@/styles/pages/preset/positionCard.module.css";
@@ -44,7 +45,7 @@ export function PositionCard({
     editingIconUrl !== (position.iconUrl || "");
 
   return (
-    <Section variantIntent="tertiary" variantLayout="row" className={styles.card}>
+    <Card variantLayout="row" className={styles.card}>
       {isEditing ? (
         <>
           <Input
@@ -89,6 +90,6 @@ export function PositionCard({
           />
         </>
       )}
-    </Section>
+    </Card>
   );
 }
