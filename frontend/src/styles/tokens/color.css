@@ -1,2 +1,37 @@
 :root {
+  --color-button-primary-bg: #667eea;
+  --color-button-primary-bg-hover: #7b8ff0;
+  --color-button-primary-bg-active: #4a61e6;
+
+  --color-button-primary-text: #ffffff;
+  --color-button-primary-text-hover: #ffffff;
+  --color-button-primary-text-active: #ffffff;
+
+  --color-button-primary-border: #667eea;
+  --color-button-primary-border-hover: #7b8ff0;
+  --color-button-primary-border-active: #4a61e6;
+
+  --color-button-secondary-bg: #374151;
+  --color-button-secondary-bg-hover: #4b5563;
+  --color-button-secondary-bg-active: #1f2937;
+
+  --color-button-secondary-text: #e5e7eb;
+  --color-button-secondary-text-hover: #ffffff;
+  --color-button-secondary-text-active: #d1d5db;
+
+  --color-button-secondary-border: #4b5563;
+  --color-button-secondary-border-hover: #6b7280;
+  --color-button-secondary-border-active: #374151;
+
+  --color-button-destructive-bg: #ef4444;
+  --color-button-destructive-bg-hover: #f87171;
+  --color-button-destructive-bg-active: #dc2626;
+
+  --color-button-destructive-text: #ffffff;
+  --color-button-destructive-text-hover: #ffffff;
+  --color-button-destructive-text-active: #ffffff;
+
+  --color-button-destructive-border: #ef4444;
+  --color-button-destructive-border-hover: #f87171;
+  --color-button-destructive-border-active: #dc2626;
 }

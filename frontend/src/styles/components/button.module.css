@@ -15,7 +15,7 @@
 .button:focus-visible {
   outline: var(--space-0-5) solid transparent;
   outline-offset: var(--space-0-5);
-  box-shadow: 0 0 0 var(--space-0-5) var(--color-primary-text);
+  box-shadow: 0 0 0 var(--space-0-5) var(--color-button-primary-border);
 }
 
 .button:disabled {
@@ -23,96 +23,124 @@
   cursor: not-allowed;
 }
 
+/* --- Solid: Primary --- */
 .intentPrimary {
-  background: var(--color-primary-text);
-  color: var(--color-base-text-dark);
+  background: var(--color-button-primary-bg);
+  color: var(--color-button-primary-text);
+  border-color: var(--color-button-primary-border);
 }
 
 .intentPrimary:hover:not(:disabled) {
-  background: var(--color-primary-text-dark);
+  background: var(--color-button-primary-bg-hover);
+  color: var(--color-button-primary-text-hover);
+  border-color: var(--color-button-primary-border-hover);
 }
 
 .intentPrimary:active:not(:disabled) {
-  background: var(--color-primary-text-dark);
+  background: var(--color-button-primary-bg-active);
+  color: var(--color-button-primary-text-active);
+  border-color: var(--color-button-primary-border-active);
 }
 
+/* --- Solid: Secondary --- */
 .intentSecondary {
-  background: var(--color-secondary-text);
-  color: var(--color-base-text-dark);
+  background: var(--color-button-secondary-bg);
+  color: var(--color-button-secondary-text);
+  border-color: var(--color-button-secondary-border);
 }
 
 .intentSecondary:hover:not(:disabled) {
-  background: var(--color-secondary-text);
+  background: var(--color-button-secondary-bg-hover);
+  color: var(--color-button-secondary-text-hover);
+  border-color: var(--color-button-secondary-border-hover);
 }
 
 .intentSecondary:active:not(:disabled) {
-  background: var(--color-secondary-text-dark);
+  background: var(--color-button-secondary-bg-active);
+  color: var(--color-button-secondary-text-active);
+  border-color: var(--color-button-secondary-border-active);
 }
 
+/* --- Solid: Destructive --- */
 .intentDestructive {
-  background: var(--color-red-text);
-  color: var(--color-base-text-dark);
+  background: var(--color-button-destructive-bg);
+  color: var(--color-button-destructive-text);
+  border-color: var(--color-button-destructive-border);
 }
 
 .intentDestructive:hover:not(:disabled) {
-  background: var(--color-red-text);
-  filter: brightness(1.1);
+  background: var(--color-button-destructive-bg-hover);
+  color: var(--color-button-destructive-text-hover);
+  border-color: var(--color-button-destructive-border-hover);
 }
 
 .intentDestructive:active:not(:disabled) {
-  background: var(--color-red-text);
-  filter: brightness(0.9);
+  background: var(--color-button-destructive-bg-active);
+  color: var(--color-button-destructive-text-active);
+  border-color: var(--color-button-destructive-border-active);
 }
 
+/* --- Outline base --- */
 .toneOutline {
   background-color: transparent;
   border: var(--border-width-default) solid;
 }
 
+/* --- Outline: Primary --- */
 .intentPrimary.toneOutline {
-  border-color: var(--color-primary-text);
-  color: var(--color-primary-text);
+  background: transparent;
+  border-color: var(--color-button-primary-border);
+  color: var(--color-button-primary-bg);
 }
 
 .intentPrimary.toneOutline:hover:not(:disabled) {
-  background: var(--color-primary-text);
-  color: var(--color-base-text-dark);
+  background: var(--color-button-primary-bg-hover);
+  color: var(--color-button-primary-text-hover);
+  border-color: var(--color-button-primary-border-hover);
 }
 
 .intentPrimary.toneOutline:active:not(:disabled) {
-  background: var(--color-primary-text-dark);
-  color: var(--color-base-text-dark);
+  background: var(--color-button-primary-bg-active);
+  color: var(--color-button-primary-text-active);
+  border-color: var(--color-button-primary-border-active);
 }
 
+/* --- Outline: Secondary --- */
 .intentSecondary.toneOutline {
-  border-color: var(--color-secondary-text);
-  color: var(--color-secondary-text-light);
+  background: transparent;
+  border-color: var(--color-button-secondary-border);
+  color: var(--color-button-secondary-text);
 }
 
 .intentSecondary.toneOutline:hover:not(:disabled) {
-  border-color: var(--color-secondary-text-light);
-  color: var(--color-base-text-dark);
-  background: var(--color-secondary-text);
+  background: var(--color-button-secondary-bg-hover);
+  color: var(--color-button-secondary-text-hover);
+  border-color: var(--color-button-secondary-border-hover);
 }
 
 .intentSecondary.toneOutline:active:not(:disabled) {
-  background: var(--color-secondary-text-dark);
+  background: var(--color-button-secondary-bg-active);
+  color: var(--color-button-secondary-text-active);
+  border-color: var(--color-button-secondary-border-active);
 }
 
+/* --- Outline: Destructive --- */
 .intentDestructive.toneOutline {
-  border-color: var(--color-red-text);
-  color: var(--color-red-text);
+  background: transparent;
+  border-color: var(--color-button-destructive-border);
+  color: var(--color-button-destructive-bg);
 }
 
 .intentDestructive.toneOutline:hover:not(:disabled) {
-  background: var(--color-red-text);
-  color: var(--color-base-text-dark);
+  background: var(--color-button-destructive-bg-hover);
+  color: var(--color-button-destructive-text-hover);
+  border-color: var(--color-button-destructive-border-hover);
 }
 
 .intentDestructive.toneOutline:active:not(:disabled) {
-  background: var(--color-red-text);
-  color: var(--color-base-text-dark);
-  filter: brightness(0.9);
+  background: var(--color-button-destructive-bg-active);
+  color: var(--color-button-destructive-text-active);
+  border-color: var(--color-button-destructive-border-active);
 }
 
 .sizeSmall {
