@@ -2,12 +2,12 @@
   transition: var(--transition-all);
 }
 
-.teamCard--full {
+.colorFull {
   background: var(--color-green-bg);
   border-color: var(--color-green);
 }
 
-.teamCard--full:hover {
+.colorFull:hover {
   border-color: var(--color-green-border);
   box-shadow: var(--shadow-glow-success);
 }

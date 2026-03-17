@@ -17,11 +17,12 @@ const userCardVariants = cva([styles.card, styles.colorBlue], {
 
 export interface UserCardProps extends VariantProps<typeof userCardVariants> {
   user: User;
+  isActive?: boolean;
 }
 
-export function UserCard({ user, variantActive }: UserCardProps) {
+export function UserCard({ user, isActive }: UserCardProps) {
   return (
-    <Section className={userCardVariants({ variantActive })}>
+    <Section className={userCardVariants({ variantActive: isActive })}>
       <Section variantTone="ghost" variantType="secondary">
         <div class={styles.profile}>
           <img

@@ -29,10 +29,7 @@ export function UserGrid({
           className={styles.gridItem}
           onClick={() => onUserClick(user.userId)}
         >
-          <UserCard
-            user={user}
-            variantActive={selectedUserId === user.userId}
-          />
+          <UserCard user={user} isActive={selectedUserId === user.userId} />
         </div>
       ))}
     </Section>

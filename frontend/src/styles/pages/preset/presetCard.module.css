@@ -17,13 +17,13 @@
   box-shadow: var(--shadow-md);
 }
 
-.card--selected {
+.activeTrue {
   background: var(--gradient-primary);
   box-shadow: var(--shadow-gradient);
   border-color: var(--color-primary);
 }
 
-.card--selected:hover {
+.activeTrue:hover {
   background: var(--gradient-primary);
   border-color: var(--color-primary);
 }

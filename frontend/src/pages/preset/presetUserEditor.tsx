@@ -218,7 +218,7 @@ export function PresetUserEditor({
           <Label>팀장</Label>
           <Section variantType="secondary">
             <Toggle
-              variantActive={isLeader}
+              isActive={isLeader}
               variantColor="gold"
               onClick={() => setIsLeader(!isLeader)}
             >
@@ -235,7 +235,7 @@ export function PresetUserEditor({
             {tiers?.map((tier) => (
               <Toggle
                 key={tier.tierId}
-                variantActive={tierId === tier.tierId}
+                isActive={tierId === tier.tierId}
                 variantColor="red"
                 onClick={() => handleToggleTier(tier.tierId)}
               >
@@ -253,9 +253,7 @@ export function PresetUserEditor({
             {positions.map((position) => (
               <Toggle
                 key={position.positionId}
-                variantActive={selectedPositionIds.includes(
-                  position.positionId,
-                )}
+                isActive={selectedPositionIds.includes(position.positionId)}
                 variantColor="blue"
                 onClick={() => handleTogglePosition(position.positionId)}
               >

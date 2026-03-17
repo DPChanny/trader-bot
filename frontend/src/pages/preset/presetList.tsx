@@ -84,7 +84,7 @@ export function PresetList({
             <PresetCard
               key={preset.presetId}
               preset={preset}
-              isSelected={selectedPresetId === preset.presetId}
+              isActive={selectedPresetId === preset.presetId}
               onSelect={onSelectPreset}
               onEdit={handleEdit}
               onDelete={handleDeleteClick}

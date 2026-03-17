@@ -2,8 +2,20 @@ import { PresetUserGrid } from "@/components/presetUserGrid";
 import type { PresetUserDetail, Team } from "@/dto";
 import { Section } from "@/components/section";
 import { Bar } from "@/components/bar";
-import { clsx } from "clsx";
+import { cva } from "class-variance-authority";
 import styles from "@/styles/pages/auction/teamCard.module.css";
+
+const teamCardVariants = cva(styles.teamCard, {
+  variants: {
+    variantColor: {
+      default: "",
+      full: styles.colorFull,
+    },
+  },
+  defaultVariants: {
+    variantColor: "default",
+  },
+});
 
 interface TeamCardProps {
   team: Team;
@@ -27,7 +39,9 @@ export function TeamCard({
   return (
     <Section
       variantType="secondary"
-      className={clsx(styles.teamCard, isFull && styles["teamCard--full"])}
+      className={teamCardVariants({
+        variantColor: isFull ? "full" : "default",
+      })}
     >
       <Section variantTone="ghost" variantLayout="row">
         <h4>{teamName}</h4>

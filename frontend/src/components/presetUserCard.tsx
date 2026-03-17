@@ -24,14 +24,14 @@ const presetUserCardVariants = cva(styles.card, {
 
 export interface PresetUserCardProps {
   presetUser: PresetUserDetail;
-  variantActive?: boolean;
+  isActive?: boolean;
   isConnected?: boolean;
   isClientUser?: boolean;
 }
 
 export function PresetUserCard({
   presetUser,
-  variantActive,
+  isActive,
   isConnected,
   isClientUser,
 }: PresetUserCardProps) {
@@ -50,7 +50,7 @@ export function PresetUserCard({
     <Section
       className={presetUserCardVariants({
         variantColor: isLeader ? "gold" : "blue",
-        variantActive,
+        variantActive: isActive,
       })}
     >
       <div class={styles.badgesLeft}>

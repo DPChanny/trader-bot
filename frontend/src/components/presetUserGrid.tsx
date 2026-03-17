@@ -38,7 +38,7 @@ export function PresetUserGrid({
         >
           <PresetUserCard
             presetUser={presetUser}
-            variantActive={selectedUserId === presetUser.presetUserId}
+            isActive={selectedUserId === presetUser.presetUserId}
             isConnected={
               connectedUsers
                 ? connectedUsers.includes(presetUser.userId)

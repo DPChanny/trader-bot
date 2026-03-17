@@ -1,11 +1,24 @@
 import { DeleteButton, EditButton } from "@/components/button";
 import type { Preset } from "@/dto";
 import { Section } from "@/components/section";
+import { cva } from "class-variance-authority";
 import styles from "@/styles/pages/preset/presetCard.module.css";
+
+const presetCardVariants = cva(styles.card, {
+  variants: {
+    variantActive: {
+      true: styles.activeTrue,
+      false: "",
+    },
+  },
+  defaultVariants: {
+    variantActive: false,
+  },
+});
 
 interface PresetCardProps {
   preset: Preset;
-  isSelected: boolean;
+  isActive: boolean;
   onSelect: (presetId: number) => void;
   onEdit: (presetId: number) => void;
   onDelete: (presetId: number) => void;
@@ -13,7 +26,7 @@ interface PresetCardProps {
 
 export function PresetCard({
   preset,
-  isSelected,
+  isActive,
   onSelect,
   onEdit,
   onDelete,
@@ -26,7 +39,7 @@ export function PresetCard({
     <Section
       variantType="tertiary"
       variantLayout="row"
-      className={`${styles.card} ${isSelected ? styles["card--selected"] : ""}`}
+      className={presetCardVariants({ variantActive: isActive })}
     >
       <div
         className={styles.cardContent}
