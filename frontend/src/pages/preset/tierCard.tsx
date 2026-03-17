@@ -37,7 +37,7 @@ export function TierCard({
   isDeletePending,
 }: TierCardProps) {
   return (
-    <Card variantLayout="row" className={styles.card}>
+    <Card variantLayout="row" className={styles.card} variantIntent="tertiary">
       {isEditing ? (
         <>
           <Input

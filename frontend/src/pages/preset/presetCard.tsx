@@ -28,7 +28,7 @@ export function PresetCard({
       variantLayout="row"
       variantActive={isActive}
       className={styles.presetCard}
-      onSelect={() => onSelect(preset.presetId)}
+      onClick={() => onSelect(preset.presetId)}
     >
       <span className={styles.name}>{preset.name}</span>
       <Section

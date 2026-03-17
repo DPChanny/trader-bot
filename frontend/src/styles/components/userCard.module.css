@@ -2,6 +2,9 @@
   width: 7rem;
   height: 9rem;
   border-width: var(--border-width-medium);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .badgesLeft {
@@ -57,7 +60,7 @@
 }
 
 .positions {
-  justify-content: center !important;
+  justify-content: center;
 }
 
 .statusDot {

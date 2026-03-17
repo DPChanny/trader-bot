@@ -45,7 +45,7 @@ export function PositionCard({
     editingIconUrl !== (position.iconUrl || "");
 
   return (
-    <Card variantLayout="row" className={styles.card}>
+    <Card variantLayout="row" className={styles.card} variantIntent="tertiary">
       {isEditing ? (
         <>
           <Input
