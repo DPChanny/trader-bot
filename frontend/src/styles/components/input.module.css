@@ -1,4 +1,4 @@
-.input {
+﻿.input {
   display: block;
   width: 100%;
   -webkit-appearance: none;
@@ -7,18 +7,18 @@
   transition: var(--transition-all);
   outline: none;
   font-family: var(--font-sans);
-  border: var(--border-width-default) solid var(--color-border-medium);
-  background-color: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
+  border: var(--border-width-default) solid var(--color-base-border);
+  background-color: var(--color-base-bg-light);
+  color: var(--color-base-text-dark);
   backdrop-filter: blur(var(--blur-md));
 }
 
 .input:focus {
   outline: var(--border-width-medium) solid transparent;
   outline-offset: var(--border-width-medium);
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 0.1875rem rgba(79, 195, 247, 0.1);
-  background-color: var(--color-bg-surface);
+  border-color: var(--color-primary-text);
+  box-shadow: 0 0 0 0.1875rem var(--color-primary-bg-light);
+  background-color: var(--color-base-bg);
 }
 
 .input:disabled {
@@ -27,20 +27,20 @@
 }
 
 .input::placeholder {
-  color: var(--color-text-muted);
+  color: var(--color-base-text-light);
 }
 
 .intentDefault {
-  border-color: var(--color-border-medium);
+  border-color: var(--color-base-border);
 }
 
 .intentDefault:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 0.1875rem rgba(79, 195, 247, 0.1);
+  border-color: var(--color-primary-text);
+  box-shadow: 0 0 0 0.1875rem var(--color-primary-bg-light);
 }
 
 .intentError {
-  border-color: var(--color-red);
+  border-color: var(--color-red-text);
   background-color: var(--color-red-bg);
 }
 
@@ -49,12 +49,12 @@
 }
 
 .intentError:focus {
-  border-color: var(--color-red);
+  border-color: var(--color-red-text);
   box-shadow: 0 0 0 0.1875rem var(--color-red-bg);
 }
 
 .toneSolid {
-  background-color: var(--color-bg-tertiary);
+  background-color: var(--color-base-bg-light);
 }
 
 .toneOutline {
@@ -64,13 +64,13 @@
 .toneGhost {
   background-color: transparent;
   border: 0;
-  border-bottom: var(--border-width-default) solid var(--color-border-medium);
+  border-bottom: var(--border-width-default) solid var(--color-base-border);
   border-radius: 0;
 }
 
 .toneGhost:focus {
   box-shadow: none;
-  border-bottom-color: var(--color-primary);
+  border-bottom-color: var(--color-primary-text);
 }
 
 .sizeSmall {

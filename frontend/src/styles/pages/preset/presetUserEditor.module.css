@@ -1,11 +1,11 @@
-.panel {
+﻿.panel {
   position: absolute;
   right: 0;
   top: 0;
   bottom: 0;
   width: 25rem;
-  background: var(--color-bg-secondary);
-  border-left: var(--border-width-default) solid var(--color-border-default);
+  background: #16213e;
+  border-left: var(--border-width-default) solid var(--color-base-border-light);
   box-shadow: var(--shadow-panel);
   z-index: var(--z-modal);
   animation: slideInFromRight var(--duration-normal) ease;
@@ -33,8 +33,8 @@
 
 .footer {
   padding: var(--spacing-md);
-  border-top: var(--border-width-default) solid var(--color-border-default);
-  background: var(--color-bg-secondary);
+  border-top: var(--border-width-default) solid var(--color-base-border-light);
+  background: #16213e;
 }
 
 .cardSection {

@@ -1,4 +1,4 @@
-.bar {
+﻿.bar {
   width: 100%;
   height: var(--border-width-thin);
   border-radius: var(--radius-xs);
@@ -17,11 +17,11 @@
 }
 
 .colorBlue {
-  background: var(--color-border-accent);
+  background: var(--color-primary-border);
 }
 
 .colorPurple {
-  background: var(--color-interaction-secondary-border);
+  background: var(--color-secondary-border);
 }
 
 .colorRed {
@@ -29,5 +29,5 @@
 }
 
 .colorGreen {
-  background: var(--color-success-bg);
+  background: var(--color-green-bg);
 }

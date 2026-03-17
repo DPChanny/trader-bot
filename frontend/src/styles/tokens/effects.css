@@ -4,8 +4,9 @@
   --transition-slow: 350ms ease;
 
   --transition-all: all var(--transition-base);
-  --transition-colors: color var(--transition-fast),
-    background-color var(--transition-fast), border-color var(--transition-fast);
+  --transition-colors:
+    color var(--transition-fast), background-color var(--transition-fast),
+    border-color var(--transition-fast);
   --transition-opacity: opacity var(--transition-fast);
   --transition-transform: transform var(--transition-base);
 

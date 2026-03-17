@@ -1,4 +1,4 @@
-.button {
+﻿.button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -15,7 +15,7 @@
 .button:focus-visible {
   outline: var(--space-0-5) solid transparent;
   outline-offset: var(--space-0-5);
-  box-shadow: 0 0 0 var(--space-0-5) var(--color-primary);
+  box-shadow: 0 0 0 var(--space-0-5) var(--color-primary-text);
 }
 
 .button:disabled {
@@ -24,43 +24,43 @@
 }
 
 .intentPrimary {
-  background: var(--color-primary);
-  color: var(--color-text-primary);
+  background: var(--color-primary-text);
+  color: var(--color-base-text-dark);
 }
 
 .intentPrimary:hover:not(:disabled) {
-  background: var(--color-primary-dark);
+  background: var(--color-primary-text-dark);
 }
 
 .intentPrimary:active:not(:disabled) {
-  background: var(--color-primary-dark);
+  background: var(--color-primary-text-dark);
 }
 
 .intentSecondary {
-  background: var(--color-secondary);
-  color: var(--color-text-primary);
+  background: var(--color-secondary-text);
+  color: var(--color-base-text-dark);
 }
 
 .intentSecondary:hover:not(:disabled) {
-  background: var(--color-secondary-hover);
+  background: var(--color-secondary-text);
 }
 
 .intentSecondary:active:not(:disabled) {
-  background: var(--color-secondary-dark);
+  background: var(--color-secondary-text-dark);
 }
 
 .intentDestructive {
-  background: var(--color-red);
-  color: var(--color-text-primary);
+  background: var(--color-red-text);
+  color: var(--color-base-text-dark);
 }
 
 .intentDestructive:hover:not(:disabled) {
-  background: var(--color-red);
+  background: var(--color-red-text);
   filter: brightness(1.1);
 }
 
 .intentDestructive:active:not(:disabled) {
-  background: var(--color-red);
+  background: var(--color-red-text);
   filter: brightness(0.9);
 }
 
@@ -70,48 +70,48 @@
 }
 
 .intentPrimary.toneOutline {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: var(--color-primary-text);
+  color: var(--color-primary-text);
 }
 
 .intentPrimary.toneOutline:hover:not(:disabled) {
-  background: var(--color-primary);
-  color: var(--color-text-primary);
+  background: var(--color-primary-text);
+  color: var(--color-base-text-dark);
 }
 
 .intentPrimary.toneOutline:active:not(:disabled) {
-  background: var(--color-primary-dark);
-  color: var(--color-text-primary);
+  background: var(--color-primary-text-dark);
+  color: var(--color-base-text-dark);
 }
 
 .intentSecondary.toneOutline {
-  border-color: var(--color-secondary);
-  color: var(--color-secondary-light);
+  border-color: var(--color-secondary-text);
+  color: var(--color-secondary-text-light);
 }
 
 .intentSecondary.toneOutline:hover:not(:disabled) {
-  border-color: var(--color-secondary-light);
-  color: var(--color-text-primary);
-  background: var(--color-secondary);
+  border-color: var(--color-secondary-text-light);
+  color: var(--color-base-text-dark);
+  background: var(--color-secondary-text);
 }
 
 .intentSecondary.toneOutline:active:not(:disabled) {
-  background: var(--color-secondary-dark);
+  background: var(--color-secondary-text-dark);
 }
 
 .intentDestructive.toneOutline {
-  border-color: var(--color-red);
-  color: var(--color-red);
+  border-color: var(--color-red-text);
+  color: var(--color-red-text);
 }
 
 .intentDestructive.toneOutline:hover:not(:disabled) {
-  background: var(--color-red);
-  color: var(--color-text-primary);
+  background: var(--color-red-text);
+  color: var(--color-base-text-dark);
 }
 
 .intentDestructive.toneOutline:active:not(:disabled) {
-  background: var(--color-red);
-  color: var(--color-text-primary);
+  background: var(--color-red-text);
+  color: var(--color-base-text-dark);
   filter: brightness(0.9);
 }
 

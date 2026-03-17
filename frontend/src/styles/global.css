@@ -1,4 +1,4 @@
-@import "./tokens/color.css";
+﻿@import "./tokens/color.css";
 @import "./tokens/typography.css";
 @import "./tokens/spacing.css";
 @import "./tokens/radius.css";
@@ -16,8 +16,8 @@
 
 html,
 body {
-  background: var(--gradient-bg);
-  color: var(--color-text-primary);
+  background: #1a1a2e;
+  color: var(--color-base-text-dark);
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
@@ -32,13 +32,13 @@ body {
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   text-decoration: underline;
   transition: var(--transition-colors);
 }
 
 a:hover {
-  color: var(--color-primary-light);
+  color: var(--color-primary-text-light);
   text-decoration: none;
 }
 
@@ -64,7 +64,7 @@ a:hover {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-scrollbar-thumb);
+  background: var(--color-base-scrollbar);
   border-radius: var(--radius-full);
   transition: var(--transition-colors);
   border: 0.25rem solid transparent;
@@ -72,6 +72,6 @@ a:hover {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-scrollbar-thumb-hover);
+  background: var(--color-base-scrollbar-dark);
   background-clip: padding-box;
 }

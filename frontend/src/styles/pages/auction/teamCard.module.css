@@ -1,20 +1,19 @@
-.teamCard {
+﻿.teamCard {
   transition: var(--transition-all);
 }
 
 .colorFull {
   background: var(--color-green-bg);
-  border-color: var(--color-green);
+  border-color: var(--color-green-text);
 }
 
 .colorFull:hover {
   border-color: var(--color-green-border);
-  box-shadow: var(--shadow-glow-success);
 }
 
 .points {
   font-weight: var(--font-weight-semibold);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .membersGrid {

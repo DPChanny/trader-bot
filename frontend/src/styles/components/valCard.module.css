@@ -1,7 +1,7 @@
-.gameTitle {
+﻿.gameTitle {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-base-text-dark);
   margin: 0;
 }
 
@@ -10,14 +10,14 @@
   height: 3.5rem;
   border-radius: var(--radius-md);
   object-fit: cover;
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--color-base-border-light);
   flex-shrink: 0;
 }
 
 .agentName {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--color-base-text-dark);
 }
 
 .agentSection {

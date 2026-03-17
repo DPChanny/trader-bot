@@ -1,4 +1,4 @@
-.teamsSection {
+﻿.teamsSection {
   flex: 3;
   overflow: hidden;
 }
@@ -69,28 +69,27 @@
 }
 
 .statusBadge--active {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-  border: var(--border-width-default) solid var(--color-success);
-  box-shadow: var(--shadow-glow-success);
+  background: var(--color-green-bg);
+  color: var(--color-green-text);
+  border: var(--border-width-default) solid var(--color-green-text);
 }
 
 .statusBadge--waiting {
   background: var(--color-gold-bg);
-  color: var(--color-gold);
-  border: var(--border-width-default) solid var(--color-gold);
+  color: var(--color-gold-text);
+  border: var(--border-width-default) solid var(--color-gold-text);
 }
 
 .statusBadge--inactive {
   background: rgba(158, 158, 158, 0.2);
-  color: var(--color-text-secondary);
-  border: var(--border-width-default) solid var(--color-border-default);
+  color: var(--color-base-text);
+  border: var(--border-width-default) solid var(--color-base-border-light);
 }
 
 .statusBadge--error {
   background: var(--color-red-bg);
-  color: var(--color-red);
-  border: var(--border-width-default) solid var(--color-red);
+  color: var(--color-red-text);
+  border: var(--border-width-default) solid var(--color-red-text);
   animation: pulse 2s infinite;
 }
 

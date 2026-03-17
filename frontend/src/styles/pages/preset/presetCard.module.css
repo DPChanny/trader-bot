@@ -1,5 +1,5 @@
-.card {
-  background: var(--color-bg-surface);
+﻿.card {
+  background: var(--color-base-bg);
   padding: var(--padding-md);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -7,25 +7,24 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: var(--border-width-default) solid var(--color-border-default);
+  border: var(--border-width-default) solid var(--color-base-border-light);
   gap: var(--space-2);
 }
 
 .card:hover {
-  background: var(--color-bg-hover);
-  border-color: var(--color-border-accent-hover);
+  background: var(--color-base-bg-dark);
+  border-color: var(--color-primary-border-dark);
   box-shadow: var(--shadow-md);
 }
 
 .activeTrue {
-  background: var(--gradient-primary);
-  box-shadow: var(--shadow-gradient);
-  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary-text);
 }
 
 .activeTrue:hover {
-  background: var(--gradient-primary);
-  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary-text);
 }
 
 .cardContent {
@@ -41,7 +40,7 @@
 
 .cardName {
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--color-base-text-dark);
   font-size: var(--font-size-base);
 }
 
@@ -53,9 +52,9 @@
 
 .cardDetail {
   font-size: var(--font-size-xs);
-  color: var(--color-text-primary);
+  color: var(--color-base-text-dark);
   font-weight: var(--font-weight-medium);
-  background: var(--color-bg-tertiary);
+  background: var(--color-base-bg-light);
   padding: var(--padding-xs) var(--padding-sm);
   border-radius: var(--radius-sm);
 }

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PageLayout
  *
  * Role: 페이지 전체 레이아웃의 최상위 컨테이너
@@ -13,7 +13,7 @@
 .pageLayout {
   width: 100vw;
   height: 100vh;
-  background: var(--gradient-bg);
+  background: #1a1a2e;
   overflow: hidden;
   display: flex;
   flex-direction: column;

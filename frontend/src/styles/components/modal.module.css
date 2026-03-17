@@ -1,4 +1,4 @@
-.modal {
+﻿.modal {
   position: fixed;
   inset: 0;
   z-index: var(--z-modal);
@@ -16,9 +16,9 @@
 }
 
 .modal__content {
-  background: var(--gradient-primary);
+  background: var(--color-primary-bg);
   border-radius: var(--radius-2xl);
-  border: var(--border-width-default) solid var(--color-border-default);
+  border: var(--border-width-default) solid var(--color-base-border-light);
   box-shadow: var(--shadow-modal);
   backdrop-filter: blur(var(--blur-xl));
   max-width: 32rem;
@@ -50,12 +50,12 @@
 .modal__title {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  color: var(--color-base-text-dark);
   margin: 0;
 }
 
 .modal__body {
-  color: var(--color-text-secondary);
+  color: var(--color-base-text);
   padding: var(--space-6) var(--space-8) var(--space-8);
   display: flex;
   flex-direction: column;
@@ -88,6 +88,6 @@
 
 .confirm__message {
   margin-bottom: var(--space-5);
-  color: var(--color-text-primary);
+  color: var(--color-base-text-dark);
   line-height: var(--line-height-relaxed);
 }
