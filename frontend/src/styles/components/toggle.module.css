@@ -1,9 +1,9 @@
 ﻿.toggle {
   padding: var(--space-1-5) var(--padding-md);
-  background: var(--color-base-bg-light);
-  border: var(--border-width-default) solid var(--color-base-border);
+  background: var(--color-toggle-default-bg);
+  border: var(--border-width-default) solid var(--color-toggle-default-border);
   border-radius: var(--radius-md);
-  color: var(--color-base-text-light);
+  color: var(--color-toggle-default-text);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
@@ -11,39 +11,38 @@
 }
 
 .toggle:hover {
-  background: var(--color-base-bg-dark);
-  border-color: var(--color-base-border);
-}
-
-.colorBlue.activeTrue {
-  background: var(--color-primary-bg-dark);
-  border-color: var(--color-primary-border);
-  color: var(--color-primary-text);
+  background: var(--color-toggle-default-bg-hover);
 }
 
 .colorBlue:hover {
-  background: var(--color-primary-bg-light);
-  border-color: var(--color-primary-text);
-}
-
-.colorRed.activeTrue {
-  background: var(--color-red-bg);
-  border-color: var(--color-red-border);
-  color: var(--color-red-text);
+  background: var(--color-toggle-blue-bg-hover);
+  border-color: var(--color-toggle-blue-border-hover);
 }
 
 .colorRed:hover {
-  background: var(--color-red-bg);
-  border-color: var(--color-red-text);
-}
-
-.colorGold.activeTrue {
-  background: var(--color-gold-bg);
-  border-color: var(--color-gold-border);
-  color: var(--color-gold-text);
+  background: var(--color-toggle-red-bg-hover);
+  border-color: var(--color-toggle-red-border-hover);
 }
 
 .colorGold:hover {
-  background: var(--color-gold-bg);
-  border-color: var(--color-gold-text);
+  background: var(--color-toggle-gold-bg-hover);
+  border-color: var(--color-toggle-gold-border-hover);
+}
+
+.colorBlue.activeTrue {
+  background: var(--color-toggle-blue-bg-active);
+  border-color: var(--color-toggle-blue-border-active);
+  color: var(--color-toggle-blue-text-active);
+}
+
+.colorRed.activeTrue {
+  background: var(--color-toggle-red-bg-active);
+  border-color: var(--color-toggle-red-border-active);
+  color: var(--color-toggle-red-text-active);
+}
+
+.colorGold.activeTrue {
+  background: var(--color-toggle-gold-bg-active);
+  border-color: var(--color-toggle-gold-border-active);
+  color: var(--color-toggle-gold-text-active);
 }

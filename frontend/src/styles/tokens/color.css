@@ -2,11 +2,9 @@
   --color-button-primary-bg: #667eea;
   --color-button-primary-bg-hover: #7b8ff0;
   --color-button-primary-bg-active: #4a61e6;
-
   --color-button-primary-text: #ffffff;
   --color-button-primary-text-hover: #ffffff;
   --color-button-primary-text-active: #ffffff;
-
   --color-button-primary-border: #667eea;
   --color-button-primary-border-hover: #7b8ff0;
   --color-button-primary-border-active: #4a61e6;
@@ -14,11 +12,9 @@
   --color-button-secondary-bg: #374151;
   --color-button-secondary-bg-hover: #4b5563;
   --color-button-secondary-bg-active: #1f2937;
-
   --color-button-secondary-text: #e5e7eb;
   --color-button-secondary-text-hover: #ffffff;
   --color-button-secondary-text-active: #d1d5db;
-
   --color-button-secondary-border: #4b5563;
   --color-button-secondary-border-hover: #6b7280;
   --color-button-secondary-border-active: #374151;
@@ -26,11 +22,9 @@
   --color-button-danger-bg: #ef4444;
   --color-button-danger-bg-hover: #f87171;
   --color-button-danger-bg-active: #dc2626;
-
   --color-button-danger-text: #ffffff;
   --color-button-danger-text-hover: #ffffff;
   --color-button-danger-text-active: #ffffff;
-
   --color-button-danger-border: #ef4444;
   --color-button-danger-border-hover: #f87171;
   --color-button-danger-border-active: #dc2626;
@@ -77,4 +71,27 @@
   --color-bar-green: #22c55e;
   --color-bar-gold: #eab308;
   --color-bar-white: rgba(255, 255, 255, 0.6);
+
+  --color-toggle-default-bg: rgb(22, 33, 55);
+  --color-toggle-default-bg-hover: rgb(30, 42, 66);
+  --color-toggle-default-border: rgba(255, 255, 255, 0.12);
+  --color-toggle-default-text: rgb(156, 163, 175);
+
+  --color-toggle-blue-bg-hover: rgb(30, 48, 92);
+  --color-toggle-blue-bg-active: rgb(38, 58, 108);
+  --color-toggle-blue-border-hover: rgba(102, 126, 234, 0.4);
+  --color-toggle-blue-border-active: rgba(102, 126, 234, 0.6);
+  --color-toggle-blue-text-active: rgb(165, 180, 252);
+
+  --color-toggle-red-bg-hover: rgb(48, 16, 16);
+  --color-toggle-red-bg-active: rgb(60, 18, 18);
+  --color-toggle-red-border-hover: rgba(239, 68, 68, 0.4);
+  --color-toggle-red-border-active: rgba(239, 68, 68, 0.6);
+  --color-toggle-red-text-active: rgb(252, 165, 165);
+
+  --color-toggle-gold-bg-hover: rgb(36, 28, 10);
+  --color-toggle-gold-bg-active: rgb(48, 38, 12);
+  --color-toggle-gold-border-hover: rgba(234, 179, 8, 0.4);
+  --color-toggle-gold-border-active: rgba(234, 179, 8, 0.6);
+  --color-toggle-gold-text-active: rgb(253, 224, 71);
 }

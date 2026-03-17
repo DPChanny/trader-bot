@@ -1,6 +1,7 @@
 import { createPortal } from "preact/compat";
 import { clsx } from "clsx";
 import { Bar } from "@/components/bar";
+import { Section } from "@/components/section";
 import { PrimaryButton, SecondaryButton } from "@/components/button";
 import styles from "@/styles/components/modal.module.css";
 import type { JSX } from "preact";
@@ -22,28 +23,25 @@ export function Modal({
 }: ModalProps) {
   if (!isOpen) return null;
 
-  const modalContent = (
-    <div className={clsx(styles.modal, className)}>
-      <div className={styles.modal__overlay} onClick={onClose}>
-        <div
-          className={styles.modal__content}
+  const content = (
+    <div className={styles.modal}>
+      <div className={styles.overlay} onClick={onClose}>
+        <Section
+          variantLayout="column"
+          className={clsx(styles.content, className)}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className={styles.modal__header}>
-            <h3 className={styles.modal__title}>{title}</h3>
-          </div>
-          <Bar
-            variantColor="blue"
-            variantThickness="thin"
-            className={styles.divider}
-          />
-          <div className={styles.modal__body}>{children}</div>
-        </div>
+          <Section variantTone="ghost">
+            <h3>{title}</h3>
+          </Section>
+          <Bar variantColor="blue" variantThickness="thin" />
+          {children}
+        </Section>
       </div>
     </div>
   );
 
-  return createPortal(modalContent, document.body);
+  return createPortal(content, document.body);
 }
 
 interface ModalFormProps {
@@ -54,8 +52,14 @@ interface ModalFormProps {
 
 export function ModalForm({ onSubmit, children, className }: ModalFormProps) {
   return (
-    <form onSubmit={onSubmit} className={className || styles.form}>
-      {children}
+    <form onSubmit={onSubmit}>
+      <Section
+        variantTone="ghost"
+        variantIntent="secondary"
+        className={clsx(className)}
+      >
+        {children}
+      </Section>
     </form>
   );
 }
@@ -66,7 +70,16 @@ interface ModalRowProps {
 }
 
 export function ModalRow({ children, className }: ModalRowProps) {
-  return <div className={className || styles.row}>{children}</div>;
+  return (
+    <Section
+      variantTone="ghost"
+      variantLayout="row"
+      variantIntent="secondary"
+      className={clsx(styles.row, className)}
+    >
+      {children}
+    </Section>
+  );
 }
 
 interface ModalFooterProps {
@@ -75,7 +88,15 @@ interface ModalFooterProps {
 }
 
 export function ModalFooter({ children, className }: ModalFooterProps) {
-  return <div className={className || styles.modalFooter}>{children}</div>;
+  return (
+    <Section
+      variantTone="ghost"
+      variantLayout="row"
+      className={clsx(styles.footer, className)}
+    >
+      {children}
+    </Section>
+  );
 }
 
 interface ConfirmModalProps {
@@ -106,13 +127,15 @@ export function ConfirmModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
-      <div className={styles.confirm__message}>{message}</div>
-      <ModalFooter>
-        <SecondaryButton onClick={onClose}>{cancelText}</SecondaryButton>
-        <PrimaryButton onClick={handleConfirm} disabled={isPending}>
-          {confirmText}
-        </PrimaryButton>
-      </ModalFooter>
+      <Section variantTone="ghost" variantIntent="secondary">
+        {message}
+        <ModalFooter>
+          <SecondaryButton onClick={onClose}>{cancelText}</SecondaryButton>
+          <PrimaryButton onClick={handleConfirm} disabled={isPending}>
+            {confirmText}
+          </PrimaryButton>
+        </ModalFooter>
+      </Section>
     </Modal>
   );
 }
