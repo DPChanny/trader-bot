@@ -10,7 +10,5 @@
   --radius-full: 9999px;
 
   --radius-button: var(--radius-lg);
-  --radius-card: var(--radius-xl);
-  --radius-modal: var(--radius-2xl);
   --radius-input: var(--radius-md);
 }

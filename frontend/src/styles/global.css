@@ -2,9 +2,16 @@
 @import "./tokens/typography.css";
 @import "./tokens/spacing.css";
 @import "./tokens/radius.css";
-@import "./tokens/shadow.css";
-@import "./tokens/zIndex.css";
-@import "./tokens/effects.css";
+
+:root {
+  --opacity-disabled: 0.5;
+  --opacity-hover: 0.8;
+  --opacity-muted: 0.6;
+
+  --z-header: 1010;
+  --z-panel: 1100;
+  --z-modal: 1300;
+}
 
 *,
 *::before,
