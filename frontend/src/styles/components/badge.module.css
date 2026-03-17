@@ -3,40 +3,39 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-full);
-  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .colorBlue {
-  background-color: var(--color-blue-bg);
-  color: var(--color-blue-text);
-  border: var(--border-width-default) solid var(--color-blue-border);
+  background-color: var(--color-badge-blue-bg);
+  color: var(--color-badge-blue-text);
+  border: var(--border-width-default) solid var(--color-badge-blue-border);
 }
 
 .colorRed {
-  background-color: var(--color-red-bg);
-  color: var(--color-red-text);
-  border: var(--border-width-default) solid var(--color-red-border);
+  background-color: var(--color-badge-red-bg);
+  color: var(--color-badge-red-text);
+  border: var(--border-width-default) solid var(--color-badge-red-border);
 }
 
 .colorGold {
-  background-color: var(--color-gold-bg);
-  color: var(--color-gold-text);
-  border: var(--border-width-default) solid var(--color-gold-border);
+  background-color: var(--color-badge-gold-bg);
+  color: var(--color-badge-gold-text);
+  border: var(--border-width-default) solid var(--color-badge-gold-border);
 }
 
 .colorGreen {
-  background-color: var(--color-green-bg);
-  color: var(--color-green-text);
-  border: var(--border-width-default) solid var(--color-green-border);
+  background-color: var(--color-badge-green-bg);
+  color: var(--color-badge-green-text);
+  border: var(--border-width-default) solid var(--color-badge-green-border);
 }
 
 .colorGray {
-  background-color: var(--color-gray-bg);
-  color: var(--color-gray-text);
-  border: var(--border-width-default) solid var(--color-gray-border);
+  background-color: var(--color-badge-gray-bg);
+  color: var(--color-badge-gray-text);
+  border: var(--border-width-default) solid var(--color-badge-gray-border);
 }
 
 .sizeSmall {
@@ -59,29 +58,5 @@
 
 .variantOutline {
   background-color: transparent;
-}
-
-.variantOutline.colorBlue {
-  color: var(--color-blue-text);
-  border-color: var(--color-blue-text);
-}
-
-.variantOutline.colorRed {
-  color: var(--color-red-text);
-  border-color: var(--color-red-text);
-}
-
-.variantOutline.colorGold {
-  color: var(--color-gold-text);
-  border-color: var(--color-gold-text);
-}
-
-.variantOutline.colorGreen {
-  color: var(--color-green-text);
-  border-color: var(--color-green-text);
-}
-
-.variantOutline.colorGray {
-  color: var(--color-gray-text);
-  border-color: var(--color-gray-text);
+  border-color: currentColor;
 }

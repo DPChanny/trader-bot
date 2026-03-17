@@ -94,4 +94,30 @@
   --color-toggle-gold-border-hover: rgba(234, 179, 8, 0.4);
   --color-toggle-gold-border-active: rgba(234, 179, 8, 0.6);
   --color-toggle-gold-text-active: rgb(253, 224, 71);
+
+  --color-badge-blue-bg: rgb(38, 58, 108);
+  --color-badge-blue-text: rgb(165, 180, 252);
+  --color-badge-blue-border: rgba(102, 126, 234, 0.6);
+
+  --color-badge-red-bg: rgb(60, 18, 18);
+  --color-badge-red-text: rgb(252, 165, 165);
+  --color-badge-red-border: rgba(239, 68, 68, 0.6);
+
+  --color-badge-gold-bg: rgb(48, 38, 12);
+  --color-badge-gold-text: rgb(253, 224, 71);
+  --color-badge-gold-border: rgba(234, 179, 8, 0.6);
+
+  --color-badge-green-bg: rgb(18, 50, 28);
+  --color-badge-green-text: rgb(74, 222, 128);
+  --color-badge-green-border: rgba(34, 197, 94, 0.6);
+
+  --color-badge-gray-bg: rgb(42, 48, 60);
+  --color-badge-gray-text: rgb(209, 213, 219);
+  --color-badge-gray-border: rgba(156, 163, 175, 0.6);
+
+  --color-error-bg: rgb(60, 18, 18);
+  --color-error-text: rgb(252, 165, 165);
+  --color-error-border: rgba(239, 68, 68, 0.6);
+
+  --color-label-text: rgb(209, 213, 219);
 }
