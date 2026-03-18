@@ -194,7 +194,7 @@ export function PresetPage({}: PresetPageProps) {
   return (
     <PageLayout>
       <PageContainer>
-        <Section variantIntent="primary" className={styles.presetListSection}>
+        <Section variantIntent="primary" className={styles.panelSection}>
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -219,20 +219,23 @@ export function PresetPage({}: PresetPageProps) {
                 onPresetDeleted={onPresetDeleted}
               />
               <Bar />
-              {selectedPresetId && presetDetail && (
-                <Section variantTone="ghost" variantIntent="secondary">
-                  <PrimaryButton
-                    onClick={handleStartAuction}
-                    disabled={addAuction.isPending || !canStartAuction}
-                  >
-                    {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
-                  </PrimaryButton>
-                  {presetValidMessage && <Error>{presetValidMessage}</Error>}
-                  {addAuction.isError && (
-                    <Error>경매를 시작하는데 실패했습니다.</Error>
-                  )}
-                </Section>
-              )}
+              <Section variantTone="ghost" variantIntent="secondary">
+                <PrimaryButton
+                  onClick={handleStartAuction}
+                  disabled={
+                    addAuction.isPending ||
+                    !canStartAuction ||
+                    !selectedPresetId ||
+                    !presetDetail
+                  }
+                >
+                  {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
+                </PrimaryButton>
+                {presetValidMessage && <Error>{presetValidMessage}</Error>}
+                {addAuction.isError && (
+                  <Error>경매를 시작하는데 실패했습니다.</Error>
+                )}
+              </Section>
             </>
           )}
         </Section>

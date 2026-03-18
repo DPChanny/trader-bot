@@ -1,19 +1,18 @@
 ﻿.bar {
   width: 100%;
-  height: var(--border-width-thin);
   border-radius: var(--radius-xs);
 }
 
 .thicknessThin {
-  height: var(--border-width-thin);
+  height: var(--border-width-thin) !important;
 }
 
 .thicknessMedium {
-  height: var(--border-width-medium);
+  height: var(--border-width-medium) !important;
 }
 
 .thicknessThick {
-  height: var(--border-width-thick);
+  height: var(--border-width-thick) !important;
 }
 
 .colorBlue {

@@ -1,4 +1,10 @@
-﻿.content {
+﻿.panelSection {
+  flex: 1;
+  min-width: 20%;
+  min-height: 0;
+}
+
+.content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;

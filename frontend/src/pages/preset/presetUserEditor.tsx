@@ -188,7 +188,7 @@ export function PresetUserEditor({
   };
 
   return (
-    <Section variantIntent="primary">
+    <Section variantIntent="primary" className={styles.panelSection}>
       <Section variantTone="ghost" variantIntent="secondary">
         <Section
           variantTone="ghost"

@@ -88,7 +88,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
   };
 
   return (
-    <Section variantIntent="primary">
+    <Section variantIntent="primary" className={styles.panelSection}>
       <Section variantTone="ghost" variantIntent="secondary">
         <Section
           variantTone="ghost"
