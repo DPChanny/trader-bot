@@ -6,4 +6,6 @@
   border: var(--border-width-default) solid var(--color-error-border);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
+  display: flex;
+  justify-content: center;
 }

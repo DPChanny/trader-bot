@@ -188,9 +188,13 @@ export function PresetUserEditor({
   };
 
   return (
-    <Section variantIntent="primary" className={styles.panel}>
-      <Section variantTone="ghost">
-        <Section variantTone="ghost" variantLayout="row">
+    <Section variantIntent="primary">
+      <Section variantTone="ghost" variantIntent="secondary">
+        <Section
+          variantTone="ghost"
+          variantLayout="row"
+          variantIntent="secondary"
+        >
           <h3>{presetUser.user.name}</h3>
           <Section
             variantTone="ghost"
@@ -204,12 +208,16 @@ export function PresetUserEditor({
             <CloseButton onClick={onClose} />
           </Section>
         </Section>
-        <Bar />
-
         {hasError && <Error>프리셋 유저 정보 저장에 실패했습니다.</Error>}
       </Section>
 
-      <div className={styles.content}>
+      <Bar />
+
+      <Section
+        className={styles.content}
+        variantTone="ghost"
+        variantIntent="secondary"
+      >
         <Section variantTone="ghost">
           <Section variantTone="ghost" className={styles.cardSection}>
             <PresetUserCard presetUser={previewPresetUser} />
@@ -262,7 +270,7 @@ export function PresetUserEditor({
             ))}
           </Section>
 
-          <Bar />
+          <Label>통계</Label>
 
           {statistics === "LOL" && (
             <>
@@ -271,7 +279,7 @@ export function PresetUserEditor({
               ) : lolStat.data ? (
                 <LolStatCard lolStatDto={lolStat.data} />
               ) : (
-                <Error>LOL 통계를 불러오지 못했습니다.</Error>
+                <Error>통계를 불러오지 못했습니다.</Error>
               )}
             </>
           )}
@@ -283,14 +291,15 @@ export function PresetUserEditor({
               ) : valStat.data ? (
                 <ValStatCard valStatDto={valStat.data} />
               ) : (
-                <Error>VAL 통계를 불러오지 못했습니다.</Error>
+                <Error>통계를 불러오지 못했습니다.</Error>
               )}
             </>
           )}
         </Section>
-      </div>
+      </Section>
 
-      <Section variantTone="ghost">
+      <Bar />
+      <Section variantTone="ghost" variantIntent="secondary">
         <DangerButton
           variantSize="large"
           onClick={handleRemoveUser}

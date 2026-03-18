@@ -1,19 +1,8 @@
-﻿.panel {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 25rem;
-  z-index: var(--z-modal);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.content {
+﻿.content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  min-height: 0;
 }
 
 .cardSection {

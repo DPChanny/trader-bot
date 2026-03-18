@@ -1,13 +1,13 @@
-import type { JSX } from "preact";
+import type { ComponentChildren } from "preact";
 import styles from "@/styles/components/page.module.css";
 
 interface PageLayoutProps {
-  children: JSX.Element | JSX.Element[] | null | undefined;
+  children: ComponentChildren;
   className?: string;
 }
 
 interface PageContainerProps {
-  children: JSX.Element | JSX.Element[] | null | undefined;
+  children: ComponentChildren;
   className?: string;
 }
 

@@ -1,7 +1,6 @@
 import { useState } from "preact/hooks";
 import { useAddTier, useDeleteTier, useUpdateTier } from "@/hooks/tier";
 import { Error } from "@/components/error";
-import { Bar } from "@/components/bar";
 import { AddTierModal } from "./addTierModal";
 import { ConfirmModal } from "@/components/modal";
 import { TierCard } from "./tierCard";
@@ -82,12 +81,9 @@ export function TierList({
 
   return (
     <Section variantTone="ghost" variantIntent="secondary">
-      <Section variantTone="ghost">
-        <Bar />
-        {(updateTier.isError || deleteTier.isError) && (
-          <Error>티어 작업 중 오류가 발생했습니다.</Error>
-        )}
-      </Section>
+      {(updateTier.isError || deleteTier.isError) && (
+        <Error>티어 작업 중 오류가 발생했습니다.</Error>
+      )}
 
       <Section
         variantTone="ghost"

@@ -182,12 +182,12 @@ export function PresetPage({}: PresetPageProps) {
   const requiredUsers = leaderCount * 5;
   const canStartAuction = leaderCount >= 2;
 
-  let auctionValidationMessage = "";
+  let presetValidMessage = "";
   if (selectedPresetId && presetDetail) {
     if (leaderCount < 2) {
-      auctionValidationMessage = `팀장이 부족합니다. (현재: ${leaderCount}명, 필요: 2명 이상)`;
+      presetValidMessage = `현재 팀장 인원(${leaderCount}명)이 최소 인원(2명)보다 적습니다.`;
     } else if (userCount < requiredUsers) {
-      auctionValidationMessage = `경고: 유저가 권장 인원보다 적습니다. (현재: ${userCount}명, 권장: ${requiredUsers}명)`;
+      presetValidMessage = `현재 인원(${userCount}명)이 권장 인원(${requiredUsers}명)보다 적습니다.`;
     }
   }
 
@@ -195,7 +195,11 @@ export function PresetPage({}: PresetPageProps) {
     <PageLayout>
       <PageContainer>
         <Section variantIntent="primary" className={styles.presetListSection}>
-          <Section variantTone="ghost" variantLayout="row">
+          <Section
+            variantTone="ghost"
+            variantLayout="row"
+            variantIntent="secondary"
+          >
             <h3>프리셋 목록</h3>
             <PrimaryButton onClick={() => setIsCreating(true)}>
               추가
@@ -214,18 +218,16 @@ export function PresetPage({}: PresetPageProps) {
                 isLoading={presetsLoading}
                 onPresetDeleted={onPresetDeleted}
               />
+              <Bar />
               {selectedPresetId && presetDetail && (
-                <Section variantTone="ghost">
-                  <Bar />
+                <Section variantTone="ghost" variantIntent="secondary">
                   <PrimaryButton
                     onClick={handleStartAuction}
                     disabled={addAuction.isPending || !canStartAuction}
                   >
                     {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
                   </PrimaryButton>
-                  {auctionValidationMessage && (
-                    <Error>{auctionValidationMessage}</Error>
-                  )}
+                  {presetValidMessage && <Error>{presetValidMessage}</Error>}
                   {addAuction.isError && (
                     <Error>경매를 시작하는데 실패했습니다.</Error>
                   )}
@@ -252,13 +254,17 @@ export function PresetPage({}: PresetPageProps) {
           !usersError ? (
             <>
               <Section variantTone="ghost" variantLayout="row">
-                <Section variantIntent="secondary" className={styles.tierSection}>
+                <Section
+                  variantIntent="secondary"
+                  className={styles.tierSection}
+                >
                   <Section variantTone="ghost" variantLayout="row">
                     <h3>티어 목록</h3>
                     <PrimaryButton onClick={() => setShowTierForm(true)}>
                       추가
                     </PrimaryButton>
                   </Section>
+                  <Bar />
                   <TierList
                     presetId={presetDetail.presetId}
                     tiers={presetDetail.tiers || []}
@@ -278,6 +284,7 @@ export function PresetPage({}: PresetPageProps) {
                       추가
                     </PrimaryButton>
                   </Section>
+                  <Bar />
                   <PositionList
                     presetId={presetDetail.presetId}
                     positions={presetDetail.positions || []}
@@ -329,27 +336,6 @@ export function PresetPage({}: PresetPageProps) {
                   }}
                 />
               </Section>
-              {selectedPresetUser && (
-                <PresetUserEditor
-                  key={selectedPresetUser.presetUserId}
-                  presetUser={selectedPresetUser}
-                  presetId={presetDetail.presetId}
-                  statistics={presetDetail.statistics}
-                  tiers={presetDetail.tiers || []}
-                  positions={presetDetail.positions || []}
-                  onClose={handleClosePresetUserEditor}
-                  onRemoveStart={(userId: number) => {
-                    setRemovingUserIds((prev) => new Set(prev).add(userId));
-                  }}
-                  onRemoveError={(userId: number) => {
-                    setRemovingUserIds((prev) => {
-                      const next = new Set(prev);
-                      next.delete(userId);
-                      return next;
-                    });
-                  }}
-                />
-              )}
             </>
           ) : selectedPresetId && detailLoading ? (
             <Loading />
@@ -357,6 +343,28 @@ export function PresetPage({}: PresetPageProps) {
             <div />
           )}
         </Section>
+
+        {selectedPresetUser && presetDetail && (
+          <PresetUserEditor
+            key={selectedPresetUser.presetUserId}
+            presetUser={selectedPresetUser}
+            presetId={presetDetail.presetId}
+            statistics={presetDetail.statistics}
+            tiers={presetDetail.tiers || []}
+            positions={presetDetail.positions || []}
+            onClose={handleClosePresetUserEditor}
+            onRemoveStart={(userId: number) => {
+              setRemovingUserIds((prev) => new Set(prev).add(userId));
+            }}
+            onRemoveError={(userId: number) => {
+              setRemovingUserIds((prev) => {
+                const next = new Set(prev);
+                next.delete(userId);
+                return next;
+              });
+            }}
+          />
+        )}
 
         <AddPresetModal
           isOpen={isCreating}

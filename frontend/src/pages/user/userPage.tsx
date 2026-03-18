@@ -88,11 +88,11 @@ export function UserPage({}: UserPageProps) {
               onUserClick={(id) => setSelectedUserId(id as number)}
             />
           )}
-
-          {selectedUser && (
-            <UserEditor user={selectedUser} onClose={handleCloseEditor} />
-          )}
         </Section>
+
+        {selectedUser && (
+          <UserEditor user={selectedUser} onClose={handleCloseEditor} />
+        )}
       </PageContainer>
 
       <AddUserModal

@@ -5,7 +5,6 @@ import {
   useUpdatePosition,
 } from "@/hooks/position";
 import { Error } from "@/components/error";
-import { Bar } from "@/components/bar";
 import { ConfirmModal } from "@/components/modal";
 import { Section } from "@/components/section";
 import { AddPositionModal } from "./addPositionModal";
@@ -103,12 +102,9 @@ export function PositionList({
 
   return (
     <Section variantTone="ghost" variantIntent="secondary">
-      <Section variantTone="ghost">
-        <Bar />
-        {(updatePosition.isError || deletePosition.isError) && (
-          <Error>포지션 작업 중 오류가 발생했습니다.</Error>
-        )}
-      </Section>
+      {(updatePosition.isError || deletePosition.isError) && (
+        <Error>포지션 작업 중 오류가 발생했습니다.</Error>
+      )}
 
       <Section
         variantTone="ghost"

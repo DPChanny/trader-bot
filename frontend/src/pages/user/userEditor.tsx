@@ -24,6 +24,7 @@ import { Loading } from "@/components/loading";
 import type { User } from "@/dto";
 
 import styles from "@/styles/components/userEditor.module.css";
+import { Label } from "@/components/label";
 
 interface UserEditorProps {
   user: User;
@@ -87,9 +88,13 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
   };
 
   return (
-    <Section variantIntent="primary" className={styles.panel}>
-      <Section variantTone="ghost">
-        <Section variantTone="ghost" variantLayout="row">
+    <Section variantIntent="primary">
+      <Section variantTone="ghost" variantIntent="secondary">
+        <Section
+          variantTone="ghost"
+          variantLayout="row"
+          variantIntent="secondary"
+        >
           <h3>{user.name}</h3>
           <Section
             variantTone="ghost"
@@ -103,16 +108,28 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
             <CloseButton onClick={onClose} />
           </Section>
         </Section>
-        <Bar />
-
-        {updateUser.isError && <Error>유저 정보 수정에 실패했습니다.</Error>}
-        {deleteUser.isError && <Error>유저 삭제에 실패했습니다.</Error>}
-        {updateDiscordProfile.isError && (
-          <Error>Discord 프로필 업데이트에 실패했습니다.</Error>
+        {(updateUser.isError ||
+          deleteUser.isError ||
+          updateDiscordProfile.isError) && (
+          <>
+            {updateUser.isError && (
+              <Error>유저 정보 수정에 실패했습니다.</Error>
+            )}
+            {deleteUser.isError && <Error>유저 삭제에 실패했습니다.</Error>}
+            {updateDiscordProfile.isError && (
+              <Error>Discord 프로필 업데이트에 실패했습니다.</Error>
+            )}
+          </>
         )}
       </Section>
 
-      <div className={styles.content}>
+      <Bar />
+
+      <Section
+        className={styles.content}
+        variantTone="ghost"
+        variantIntent="secondary"
+      >
         <Section variantTone="ghost">
           <Section variantTone="ghost" className={styles.cardSection}>
             <UserCard
@@ -143,29 +160,31 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
               : "Discord 프로필 업데이트"}
           </PrimaryButton>
 
-          <Bar />
+          <Label>League of Legends 통계</Label>
 
           {lolStat.isLoading ? (
             <Loading />
           ) : lolStat.data ? (
             <LolStatCard lolStatDto={lolStat.data} />
           ) : (
-            <Error>LOL 통계를 불러오지 못했습니다.</Error>
+            <Error>통계를 불러오지 못했습니다.</Error>
           )}
 
-          <Bar />
+          <Label>Valorant 통계</Label>
 
           {valStat.isLoading ? (
             <Loading />
           ) : valStat.data ? (
             <ValStatCard valStatDto={valStat.data} />
           ) : (
-            <Error>VAL 통계를 불러오지 못했습니다.</Error>
+            <Error>통계를 불러오지 못했습니다.</Error>
           )}
         </Section>
-      </div>
+      </Section>
 
-      <Section variantTone="ghost">
+      <Bar />
+
+      <Section variantTone="ghost" variantIntent="secondary">
         <DangerButton
           variantSize="large"
           onClick={() => setShowDeleteConfirm(true)}
