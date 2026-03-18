@@ -1,6 +1,7 @@
 ﻿.header {
   width: 100%;
-  background: #667eea;
+  background: rgb(16, 22, 42);
+  border-bottom: var(--border-width-default) solid rgba(255, 255, 255, 0.07);
   position: sticky;
   top: 0;
   z-index: var(--z-header);
@@ -10,13 +11,17 @@
   max-width: 87.5rem;
   margin: 0 auto;
   padding: 0 var(--space-6);
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  height: 4rem;
+  justify-content: flex-end;
+  height: 3.5rem;
 }
 
 .headerLogo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: var(--gap-md);
@@ -25,78 +30,19 @@
 }
 
 .headerIcon {
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-2xl);
   line-height: 1;
 }
 
 .headerText {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-base-text-dark);
+  color: #ffffff;
   letter-spacing: var(--letter-spacing-tight);
 }
 
 .headerNav {
   display: flex;
-  gap: var(--gap-sm);
+  gap: var(--gap-xs);
   align-items: center;
-}
-
-.navItem {
-  background: transparent;
-  border: none;
-  color: var(--color-base-text);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  position: relative;
-}
-
-.navItem:hover {
-  background: var(--color-base-bg-dark);
-  color: var(--color-base-text-dark);
-}
-
-.navItemActive {
-  background: var(--color-base-bg-dark);
-  color: var(--color-base-text-dark);
-  font-weight: var(--font-weight-semibold);
-}
-
-.navItemActive::after {
-  content: "";
-  position: absolute;
-  bottom: -0.125rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: var(--space-6);
-  height: 0.1875rem;
-  background: var(--color-base-text-dark);
-  border-radius: var(--radius-xs);
-}
-
-@media (max-width: 768px) {
-  .headerContent {
-    padding: 0 var(--space-4);
-    height: 3.5rem;
-  }
-
-  .headerText {
-    font-size: var(--font-size-xl);
-  }
-
-  .headerIcon {
-    font-size: var(--font-size-2xl);
-  }
-
-  .headerNav {
-    gap: var(--gap-xs);
-  }
-
-  .navItem {
-    font-size: var(--font-size-sm);
-    padding: var(--space-1-5) var(--space-3);
-  }
 }

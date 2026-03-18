@@ -97,7 +97,7 @@ export function HomePage({}: HomeProps) {
           </div>
           <div class={styles.homeButtons}>
             <button
-              class={`${styles.homeBtn} ${styles.homeBtnUser}`}
+              class={styles.homeBtn}
               onClick={() => handleNavigate("/user")}
             >
               <div class={styles.btnIcon}>👤</div>
@@ -105,7 +105,7 @@ export function HomePage({}: HomeProps) {
               <div class={styles.btnDescription}>유저 추가, 수정, 삭제</div>
             </button>
             <button
-              class={`${styles.homeBtn} ${styles.homeBtnPreset}`}
+              class={styles.homeBtn}
               onClick={() => handleNavigate("/preset")}
             >
               <div class={styles.btnIcon}>⚙️</div>

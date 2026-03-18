@@ -1,27 +1,16 @@
-import { cva } from "class-variance-authority";
 import { route } from "preact-router";
 import styles from "@/styles/components/header.module.css";
+import { Button, DangerButton } from "@/components/button";
 
 type PageView = "home" | "user" | "preset";
-
-const navItemVariants = cva(styles.navItem, {
-  variants: {
-    variantActive: {
-      true: styles.navItemActive,
-      false: "",
-    },
-  },
-  defaultVariants: {
-    variantActive: false,
-  },
-});
 
 interface HeaderProps {
   currentPage: PageView;
   showNav?: boolean;
+  onLogout?: () => void;
 }
 
-export function Header({ currentPage, showNav = true }: HeaderProps) {
+export function Header({ currentPage, showNav = true, onLogout }: HeaderProps) {
   const handleNavigate = (path: string) => {
     route(path);
   };
@@ -36,30 +25,32 @@ export function Header({ currentPage, showNav = true }: HeaderProps) {
 
         {showNav && (
           <nav className={styles.headerNav}>
-            <button
-              className={navItemVariants({
-                variantActive: currentPage === "home",
-              })}
+            <Button
+              variantIntent={currentPage === "home" ? "primary" : "secondary"}
+              variantSize="small"
               onClick={() => handleNavigate("/")}
             >
               홈
-            </button>
-            <button
-              className={navItemVariants({
-                variantActive: currentPage === "user",
-              })}
+            </Button>
+            <Button
+              variantIntent={currentPage === "user" ? "primary" : "secondary"}
+              variantSize="small"
               onClick={() => handleNavigate("/user")}
             >
               유저 관리
-            </button>
-            <button
-              className={navItemVariants({
-                variantActive: currentPage === "preset",
-              })}
+            </Button>
+            <Button
+              variantIntent={currentPage === "preset" ? "primary" : "secondary"}
+              variantSize="small"
               onClick={() => handleNavigate("/preset")}
             >
               프리셋 관리
-            </button>
+            </Button>
+            {onLogout && (
+              <DangerButton variantSize="small" onClick={onLogout}>
+                로그아웃
+              </DangerButton>
+            )}
           </nav>
         )}
       </div>

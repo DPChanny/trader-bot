@@ -7,6 +7,8 @@ import { UserPage } from "@/pages/user/userPage";
 import { AuctionPage } from "@/pages/auction/auctionPage";
 import { Header } from "@/components/header";
 import { queryClient } from "@/utils/queryClient";
+import { removeAuthToken } from "@/utils/auth";
+import { route } from "preact-router";
 import "@/styles/global.css";
 import "@/styles/app.css";
 
@@ -25,10 +27,15 @@ interface PageWrapperProps {
   path?: string;
 }
 
+function handleLogout() {
+  removeAuthToken();
+  route("/");
+}
+
 function UserPageWrapper({}: PageWrapperProps) {
   return (
     <div className="app-container">
-      <Header currentPage="user" />
+      <Header currentPage="user" onLogout={handleLogout} />
       <UserPage />
     </div>
   );
@@ -37,7 +44,7 @@ function UserPageWrapper({}: PageWrapperProps) {
 function PresetPageWrapper({}: PageWrapperProps) {
   return (
     <div className="app-container">
-      <Header currentPage="preset" />
+      <Header currentPage="preset" onLogout={handleLogout} />
       <PresetPage />
     </div>
   );
