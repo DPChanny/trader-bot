@@ -29,7 +29,6 @@
   color: var(--color-input-default-placeholder);
 }
 
-/* --- Intent --- */
 .intentDefault {
   background-color: var(--color-input-default-bg);
   color: var(--color-input-default-text);
@@ -60,7 +59,6 @@
   border-color: var(--color-input-error-border-focus);
 }
 
-/* --- Tone --- */
 .toneSolid {
   background-color: var(--color-input-default-bg);
 }
@@ -81,7 +79,6 @@
   border-bottom-color: var(--color-input-default-border-focus);
 }
 
-/* --- Size --- */
 .sizeSmall {
   font-size: var(--font-size-xs);
   padding: var(--padding-sm) var(--padding-md);

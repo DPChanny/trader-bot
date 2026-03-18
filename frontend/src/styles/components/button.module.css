@@ -21,7 +21,6 @@
   cursor: not-allowed;
 }
 
-/* --- Solid: Primary --- */
 .intentPrimary {
   background: var(--color-button-primary-bg);
   color: var(--color-button-primary-text);
@@ -40,7 +39,6 @@
   border-color: var(--color-button-primary-border-active);
 }
 
-/* --- Solid: Secondary --- */
 .intentSecondary {
   background: var(--color-button-secondary-bg);
   color: var(--color-button-secondary-text);
@@ -59,7 +57,6 @@
   border-color: var(--color-button-secondary-border-active);
 }
 
-/* --- Solid: Danger --- */
 .intentDanger {
   background: var(--color-button-danger-bg);
   color: var(--color-button-danger-text);
@@ -78,13 +75,11 @@
   border-color: var(--color-button-danger-border-active);
 }
 
-/* --- Outline base --- */
 .toneOutline {
   background-color: transparent;
   border: var(--border-width-default) solid;
 }
 
-/* --- Outline: Primary --- */
 .intentPrimary.toneOutline {
   background: transparent;
   border-color: var(--color-button-primary-border);
@@ -103,7 +98,6 @@
   border-color: var(--color-button-primary-border-active);
 }
 
-/* --- Outline: Secondary --- */
 .intentSecondary.toneOutline {
   background: transparent;
   border-color: var(--color-button-secondary-border);
@@ -122,7 +116,6 @@
   border-color: var(--color-button-secondary-border-active);
 }
 
-/* --- Outline: Danger --- */
 .intentDanger.toneOutline {
   background: transparent;
   border-color: var(--color-button-danger-border);

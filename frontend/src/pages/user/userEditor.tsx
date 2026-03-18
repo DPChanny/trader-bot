@@ -161,7 +161,6 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           </PrimaryButton>
 
           <Label>League of Legends 통계</Label>
-
           {lolStat.isLoading ? (
             <Loading />
           ) : lolStat.data ? (
@@ -171,7 +170,6 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           )}
 
           <Label>Valorant 통계</Label>
-
           {valStat.isLoading ? (
             <Loading />
           ) : valStat.data ? (

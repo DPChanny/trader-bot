@@ -37,7 +37,7 @@ export function TierCard({
   isDeletePending,
 }: TierCardProps) {
   return (
-    <Card variantLayout="row" className={styles.card} variantIntent="tertiary">
+    <Card variantLayout="row" className={styles.card} variantIntent="secondary">
       {isEditing ? (
         <>
           <Input
@@ -68,12 +68,19 @@ export function TierCard({
           <Badge variantColor="red" variantSize="large">
             {tier.name.charAt(0)}
           </Badge>
-          <EditButton variantSize="small" onClick={onEdit} />
-          <DeleteButton
-            variantSize="small"
-            disabled={isDeletePending}
-            onClick={onDelete}
-          />
+
+          <Section
+            variantTone="ghost"
+            variantLayout="row"
+            variantIntent="tertiary"
+          >
+            <EditButton variantSize="small" onClick={onEdit} />
+            <DeleteButton
+              variantSize="small"
+              disabled={isDeletePending}
+              onClick={onDelete}
+            />
+          </Section>
         </>
       )}
     </Card>

@@ -24,9 +24,6 @@
   user-select: none;
 }
 
-.headerLogo:hover {
-}
-
 .headerIcon {
   font-size: var(--font-size-3xl);
   line-height: 1;
