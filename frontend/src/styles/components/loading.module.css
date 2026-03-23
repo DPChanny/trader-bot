@@ -1,4 +1,4 @@
-﻿.loading {
+﻿.container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -7,7 +7,7 @@
   flex: 1;
 }
 
-.loading__inner {
+.inner {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -16,7 +16,7 @@
   padding: var(--space-10);
 }
 
-.loading__spinner {
+.spinner {
   width: var(--space-10);
   height: var(--space-10);
   border: var(--border-width-heavy) solid var(--color-loading-spinner-track);
@@ -31,7 +31,7 @@
   }
 }
 
-.loading__text {
+.text {
   color: var(--color-loading-text);
   font-size: var(--font-size-base);
   text-align: center;
