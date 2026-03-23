@@ -1,0 +1,107 @@
+.card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  padding: var(--padding-md);
+  border: var(--border-width-default) solid transparent;
+  flex-shrink: 0;
+}
+
+.colorBlue {
+  --color-card-bg: var(--color-card-blue-bg);
+  --color-card-text: var(--color-card-blue-text);
+  --color-card-border: var(--color-card-blue-border);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+  color: var(--color-card-text);
+}
+
+.colorBlue:hover {
+  --color-card-bg: var(--color-card-blue-bg-hover);
+  --color-card-border: var(--color-card-blue-border-hover);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+}
+
+.colorBlue.activeTrue {
+  --color-card-bg: var(--color-card-blue-bg-active);
+  --color-card-text: var(--color-card-blue-text-active);
+  --color-card-border: var(--color-card-blue-border-active);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+  color: var(--color-card-text);
+}
+
+.colorGold {
+  --color-card-bg: var(--color-card-gold-bg);
+  --color-card-text: var(--color-card-gold-text);
+  --color-card-border: var(--color-card-gold-border);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+  color: var(--color-card-text);
+}
+
+.colorGold:hover {
+  --color-card-bg: var(--color-card-gold-bg-hover);
+  --color-card-border: var(--color-card-gold-border-hover);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+}
+
+.colorGold.activeTrue {
+  --color-card-bg: var(--color-card-gold-bg-active);
+  --color-card-text: var(--color-card-gold-text-active);
+  --color-card-border: var(--color-card-gold-border-active);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+  color: var(--color-card-text);
+}
+
+.colorGreen {
+  --color-card-bg: var(--color-card-green-bg);
+  --color-card-text: var(--color-card-green-text);
+  --color-card-border: var(--color-card-green-border);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+  color: var(--color-card-text);
+}
+
+.colorGreen:hover {
+  --color-card-bg: var(--color-card-green-bg-hover);
+  --color-card-border: var(--color-card-green-border-hover);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+}
+
+.colorGreen.activeTrue {
+  --color-card-bg: var(--color-card-green-bg-active);
+  --color-card-text: var(--color-card-green-text-active);
+  --color-card-border: var(--color-card-green-border-active);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+  color: var(--color-card-text);
+}
+
+.colorGray {
+  --color-card-bg: var(--color-card-gray-bg);
+  --color-card-text: var(--color-card-gray-text);
+  --color-card-border: var(--color-card-gray-border);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+  color: var(--color-card-text);
+}
+
+.colorGray:hover {
+  --color-card-bg: var(--color-card-gray-bg-hover);
+  --color-card-border: var(--color-card-gray-border-hover);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+}
+
+.colorGray.activeTrue {
+  --color-card-bg: var(--color-card-gray-bg-active);
+  --color-card-text: var(--color-card-gray-text-active);
+  --color-card-border: var(--color-card-gray-border-active);
+  background: var(--color-card-bg);
+  border-color: var(--color-card-border);
+  color: var(--color-card-text);
+}

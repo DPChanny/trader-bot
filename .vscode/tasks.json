@@ -2,121 +2,32 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Front: Start Dev Server",
+      "label": "Run Frontend",
       "type": "shell",
       "command": "npm run dev",
-      "options": {
-        "cwd": "${workspaceFolder}/app"
-      },
-      "isBackground": true,
-      "problemMatcher": {
-        "pattern": {
-          "regexp": "^.*$",
-          "file": 1,
-          "location": 2,
-          "message": 3
-        },
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "^.*VITE.*",
-          "endsPattern": "Local:.*http://localhost:\\d+"
-        }
-      },
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "showReuseMessage": true,
-        "clear": false,
-        "group": "frontend"
-      }
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "presentation": { "group": "dev", "panel": "dedicated" }
     },
     {
-      "label": "Back: Start API Server",
+      "label": "Run Backend",
       "type": "shell",
-      "command": "conda activate trader && uvicorn main:app --reload --host localhost --port 8000",
-      "options": {
-        "cwd": "${workspaceFolder}/api"
-      },
-      "isBackground": true,
-      "problemMatcher": {
-        "pattern": {
-          "regexp": "^.*$",
-          "file": 1,
-          "location": 2,
-          "message": 3
-        },
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "Started server process",
-          "endsPattern": "Application startup complete"
-        }
-      },
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "dedicated",
-        "showReuseMessage": true,
-        "clear": false,
-        "group": "backend"
-      }
+      "command": "uv run python -m uvicorn main:app --reload --host localhost --port 8000",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "presentation": { "group": "dev", "panel": "dedicated" }
     },
     {
-      "label": "Both: Start All Servers",
-      "dependsOn": ["Front: Start Dev Server", "Back: Start API Server"],
+      "label": "CSS: Watch",
+      "type": "shell",
+      "command": "npm run css:dts",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": { "reveal": "silent", "panel": "shared" }
+    },
+    {
+      "label": "Run All",
+      "dependsOn": ["Run Frontend", "Run Backend"],
       "dependsOrder": "parallel",
-      "problemMatcher": []
-    },
-    {
-      "label": "Front: Stop Dev Server",
-      "type": "shell",
-      "command": "echo ${input:terminate}",
-      "presentation": {
-        "echo": false,
-        "reveal": "never",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": false,
-        "clear": false
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Back: Stop API Server",
-      "type": "shell",
-      "command": "echo ${input:terminate}",
-      "presentation": {
-        "echo": false,
-        "reveal": "never",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": false,
-        "clear": false
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Both: Stop All Servers",
-      "type": "shell",
-      "command": "echo 'Please manually terminate running tasks from the Terminal panel'",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": false,
-        "clear": false
-      },
-      "problemMatcher": []
-    }
-  ],
-  "inputs": [
-    {
-      "id": "terminate",
-      "type": "command",
-      "command": "workbench.action.tasks.terminate"
+      "group": { "kind": "build", "isDefault": true }
     }
   ]
 }

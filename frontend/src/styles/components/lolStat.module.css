@@ -1,0 +1,36 @@
+﻿.gameTitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-card-text);
+  margin: 0;
+}
+
+.championIcon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  border: var(--border-width-medium) solid var(--color-card-border);
+  flex-shrink: 0;
+}
+
+.championName {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-card-text);
+}
+
+.championCard {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.infoSection {
+  align-items: flex-start;
+  gap: var(--gap-xs);
+}
+
+.statsRow {
+  justify-content: flex-start;
+  gap: var(--gap-xs);
+}

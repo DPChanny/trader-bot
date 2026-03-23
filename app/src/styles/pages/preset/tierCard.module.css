@@ -1,9 +1,0 @@
-.card {
-  flex-shrink: 0;
-  width: fit-content;
-}
-
-.editInput {
-  width: 8rem;
-  flex-shrink: 0;
-}

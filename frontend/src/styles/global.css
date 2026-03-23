@@ -1,0 +1,80 @@
+﻿@import "./tokens/color.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/radius.css";
+
+:root {
+  --opacity-disabled: 0.5;
+
+  --z-header: 1010;
+  --z-panel: 1100;
+  --z-modal: 1300;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background: #1a1a2e;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--color-text-accent);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--color-text-accent-hover);
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  width: 1rem;
+  height: 1rem;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border: 0.25rem solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-track:vertical {
+  border-left: 0.25rem solid transparent;
+  border-right: 0.25rem solid transparent;
+}
+
+::-webkit-scrollbar-track:horizontal {
+  border-top: 0.25rem solid transparent;
+  border-bottom: 0.25rem solid transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar-bg);
+  border-radius: var(--radius-full);
+  border: 0.25rem solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scrollbar-bg-hover);
+  background-clip: padding-box;
+}

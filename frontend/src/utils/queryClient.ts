@@ -1,0 +1,21 @@
+import { QueryClient } from "@tanstack/preact-query";
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 10,
+      gcTime: 1000 * 60 * 30,
+      refetchOnWindowFocus: false,
+      retry: (failureCount, error) => {
+        if (error instanceof Error && "status" in error) {
+          const status = (error as any).status;
+          if (status >= 400 && status < 500) return false;
+        }
+        return failureCount < 2;
+      },
+    },
+    mutations: {
+      retry: false,
+    },
+  },
+});

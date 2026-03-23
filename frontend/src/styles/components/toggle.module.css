@@ -1,0 +1,48 @@
+﻿.toggle {
+  padding: var(--space-1-5) var(--padding-md);
+  background: var(--color-toggle-bg);
+  border: var(--border-width-default) solid var(--color-toggle-border);
+  border-radius: var(--radius-md);
+  color: var(--color-toggle-text);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toggle:hover {
+  background: var(--color-toggle-bg-hover);
+}
+
+.colorBlue:hover {
+  background: var(--color-toggle-blue-bg-hover);
+  border-color: var(--color-toggle-blue-border-hover);
+}
+
+.colorRed:hover {
+  background: var(--color-toggle-red-bg-hover);
+  border-color: var(--color-toggle-red-border-hover);
+}
+
+.colorGold:hover {
+  background: var(--color-toggle-gold-bg-hover);
+  border-color: var(--color-toggle-gold-border-hover);
+}
+
+.colorBlue.activeTrue {
+  background: var(--color-toggle-blue-bg-active);
+  border-color: var(--color-toggle-blue-border-active);
+  color: var(--color-toggle-blue-text-active);
+}
+
+.colorRed.activeTrue {
+  background: var(--color-toggle-red-bg-active);
+  border-color: var(--color-toggle-red-border-active);
+  color: var(--color-toggle-red-text-active);
+}
+
+.colorGold.activeTrue {
+  background: var(--color-toggle-gold-bg-active);
+  border-color: var(--color-toggle-gold-border-active);
+  color: var(--color-toggle-gold-text-active);
+}

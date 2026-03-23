@@ -1,0 +1,291 @@
+import { useEffect, useState } from "preact/hooks";
+import { useAuctionWebSocket } from "@/hooks/auctionWebSocket";
+import { usePresetDetail } from "@/hooks/preset";
+import { useLolStat } from "@/hooks/lolStat";
+import { useValStat } from "@/hooks/valStat";
+import { TeamList } from "./teamList";
+import { InfoCard } from "./infoCard";
+import { LolStat } from "@/components/lolStat";
+import { ValStat } from "@/components/valStat";
+import { Section } from "@/components/section";
+import { PageContainer, PageLayout } from "@/components/page";
+import { Loading } from "@/components/loading";
+import { Error } from "@/components/error";
+import { PrimaryButton } from "@/components/button";
+import { PresetUserGrid } from "@/components/presetUserGrid";
+import { PresetUserCard } from "@/components/presetUserCard";
+import { Input } from "@/components/input";
+import { Bar } from "@/components/bar";
+import type { PresetUserDetail } from "@/dto";
+
+import styles from "@/styles/pages/auction/auctionPage.module.css";
+
+interface AuctionPageProps {
+  path?: string;
+}
+
+export function AuctionPage({}: AuctionPageProps) {
+  const [bidAmount, setBidAmount] = useState<string>("");
+  const [token] = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("token");
+  });
+
+  const {
+    isConnected,
+    wasConnected,
+    connect,
+    placeBid,
+    state,
+    isLeader,
+    teamId,
+    connectedUsers,
+    userId,
+    closeReason,
+  } = useAuctionWebSocket();
+
+  const {
+    data: presetDetail,
+    isLoading: isPresetLoading,
+    isFetching: isPresetFetching,
+  } = usePresetDetail(state?.presetId || null);
+
+  const currentUserId = state?.currentUserId || null;
+  const hasStatistics =
+    presetDetail?.statistics && presetDetail.statistics !== "NONE";
+
+  const { data: lolStat } = useLolStat(
+    hasStatistics && presetDetail?.statistics === "LOL" && currentUserId
+      ? currentUserId
+      : null,
+  );
+
+  const { data: valStat } = useValStat(
+    hasStatistics && presetDetail?.statistics === "VAL" && currentUserId
+      ? currentUserId
+      : null,
+  );
+
+  const pointScale = presetDetail?.pointScale || 1;
+
+  useEffect(() => {
+    if (token) {
+      connect(token);
+    }
+  }, []);
+
+  const isCompleted = state?.status === "completed";
+
+  const errorMessage = !token
+    ? "유효하지 않은 접근입니다. 경매 참가 링크를 확인해주세요."
+    : closeReason
+      ? closeReason
+      : !isCompleted && wasConnected && !isConnected
+        ? "서버와의 연결이 끊어졌습니다."
+        : null;
+
+  if (errorMessage) {
+    return (
+      <PageLayout>
+        <PageContainer>
+          <Section variantIntent="primary" className={styles.centerSection}>
+            <Error>{errorMessage}</Error>
+          </Section>
+        </PageContainer>
+      </PageLayout>
+    );
+  }
+
+  const isLoading =
+    !isCompleted &&
+    (!isConnected ||
+      !state ||
+      !state.presetId ||
+      (!presetDetail && (isPresetLoading || isPresetFetching)) ||
+      !presetDetail);
+
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <PageContainer>
+          <Loading />
+        </PageContainer>
+      </PageLayout>
+    );
+  }
+
+  const presetUserMap = new Map<number, PresetUserDetail>(
+    presetDetail?.presetUsers.map((pu) => [pu.userId, pu]) ?? [],
+  );
+
+  const auctionQueueUsers = state!.auctionQueue
+    .map((userId) => presetUserMap.get(userId))
+    .filter((user): user is PresetUserDetail => user !== undefined);
+
+  const unsoldQueueUsers = state!.unsoldQueue
+    .map((userId) => presetUserMap.get(userId))
+    .filter((user): user is PresetUserDetail => user !== undefined);
+
+  const presetUsers: PresetUserDetail[] = Array.from(presetUserMap.values());
+
+  const currentTeam = teamId
+    ? state.teams.find((t) => t.teamId === teamId)
+    : null;
+  const teamMemberCount = currentTeam ? currentTeam.memberIdList.length : 0;
+  const isTeamFull = teamMemberCount >= 5;
+
+  const getStatusText = (status: string) => {
+    if (wasConnected && !isConnected && status !== "completed")
+      return "연결 끊김";
+    if (status === "waiting") return "대기중";
+    if (status === "in_progress") return "진행중";
+    if (status === "completed") return "완료";
+    return status;
+  };
+
+  const currentUser = state.currentUserId
+    ? presetUserMap.get(state.currentUserId)
+    : null;
+
+  const bidderTeam = state.currentBidder
+    ? state.teams.find((t) => t.teamId === state.currentBidder)
+    : null;
+  const leaderUserId = bidderTeam?.leaderId;
+  const bidderLeader = leaderUserId ? presetUserMap.get(leaderUserId) : null;
+
+  const handlePlaceBid = () => {
+    const displayAmount = parseInt(bidAmount);
+    if (displayAmount > 0 && displayAmount % pointScale === 0) {
+      const actualAmount = displayAmount / pointScale;
+      placeBid(actualAmount);
+      setBidAmount("");
+    }
+  };
+
+  return (
+    <PageLayout>
+      <PageContainer>
+        <Section variantIntent="primary" className={styles.teamsSection}>
+          <h3>팀 목록</h3>
+          <Bar />
+          <TeamList
+            teams={state.teams}
+            presetUsers={presetUsers}
+            pointScale={pointScale}
+            clientUserId={userId ?? undefined}
+            connectedUsers={connectedUsers}
+          />
+        </Section>
+
+        <Section variantIntent="primary" className={styles.auctionInfoSection}>
+          <Section variantTone="ghost" variantLayout="row">
+            <h3>경매 정보</h3>
+            <span>{getStatusText(state.status)}</span>
+          </Section>
+          <Bar />
+          <Section
+            variantTone="ghost"
+            className={styles.auctionInfoContentSection}
+          >
+            <Section
+              variantIntent="secondary"
+              className={styles.auctionInfoTopSection}
+            >
+              {state.status !== "completed" && currentUser && (
+                <PresetUserCard presetUser={currentUser} />
+              )}
+              {state.status !== "completed" &&
+                presetDetail?.statistics === "LOL" &&
+                lolStat && <LolStat lolStatDto={lolStat} />}
+              {state.status !== "completed" &&
+                presetDetail?.statistics === "VAL" &&
+                valStat && <ValStat valStatDto={valStat} />}
+            </Section>
+
+            <Section
+              variantTone="ghost"
+              className={styles.auctionInfoGridSection}
+            >
+              <Section variantTone="ghost">
+                <InfoCard
+                  label="남은 시간"
+                  value={state.status === "completed" ? 0 : state.timer}
+                  variant="time"
+                />
+                <InfoCard
+                  label="입찰 포인트"
+                  value={
+                    state.status === "completed"
+                      ? 0
+                      : (state.currentBid || 0) * pointScale
+                  }
+                  variant="bid"
+                />
+              </Section>
+              <InfoCard label="입찰 팀장" value="">
+                {state.status !== "completed" && bidderLeader && (
+                  <PresetUserCard presetUser={bidderLeader} />
+                )}
+              </InfoCard>
+            </Section>
+
+            {isLeader && !isTeamFull && (
+              <Section
+                variantTone="ghost"
+                variantLayout="row"
+                className={styles.auctionInfoBottomSection}
+              >
+                <Input
+                  type="number"
+                  placeholder={`입찰 금액 (${pointScale}의 배수)`}
+                  value={bidAmount}
+                  onChange={(value) => setBidAmount(value)}
+                  disabled={state.status !== "in_progress"}
+                />
+                <PrimaryButton
+                  onClick={handlePlaceBid}
+                  disabled={
+                    state.status !== "in_progress" ||
+                    !bidAmount ||
+                    parseInt(bidAmount) <= 0 ||
+                    parseInt(bidAmount) % pointScale !== 0
+                  }
+                >
+                  입찰하기
+                </PrimaryButton>
+              </Section>
+            )}
+          </Section>
+        </Section>
+
+        <Section variantTone="ghost" className={styles.queueSection}>
+          <Section variantIntent="primary" className={styles.queueSection}>
+            <h3>경매 순서</h3>
+            <Bar />
+            <Section variantTone="ghost" className={styles.queueGrid}>
+              <PresetUserGrid
+                presetUsers={auctionQueueUsers}
+                onUserClick={() => {}}
+                clientUserId={userId ?? undefined}
+                connectedUsers={connectedUsers}
+              />
+            </Section>
+          </Section>
+
+          <Section variantIntent="primary" className={styles.queueSection}>
+            <h3>유찰 목록</h3>
+            <Bar />
+            <Section variantTone="ghost" className={styles.queueGrid}>
+              <PresetUserGrid
+                presetUsers={unsoldQueueUsers}
+                onUserClick={() => {}}
+                connectedUsers={connectedUsers}
+                clientUserId={userId ?? undefined}
+              />
+            </Section>
+          </Section>
+        </Section>
+      </PageContainer>
+    </PageLayout>
+  );
+}

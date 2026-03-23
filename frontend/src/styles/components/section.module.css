@@ -1,0 +1,56 @@
+﻿.section {
+  display: flex;
+}
+
+.toneGhost {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.intentPrimary {
+  background: var(--color-section-primary-bg);
+  color: var(--color-section-primary-text);
+  border: var(--border-width-default) solid var(--color-section-primary-border);
+  border-radius: var(--radius-xl);
+  padding: var(--padding-xl);
+  gap: var(--gap-lg);
+}
+
+.intentSecondary {
+  background: var(--color-section-secondary-bg);
+  color: var(--color-section-secondary-text);
+  border: var(--border-width-default) solid
+    var(--color-section-secondary-border);
+  border-radius: var(--radius-lg);
+  padding: var(--padding-lg);
+  gap: var(--gap-sm);
+}
+
+.intentTertiary {
+  background: var(--color-section-tertiary-bg);
+  color: var(--color-section-tertiary-text);
+  border: var(--border-width-default) solid var(--color-section-tertiary-border);
+  border-radius: var(--radius-lg);
+  padding: var(--padding-md);
+  gap: var(--gap-xs);
+}
+
+.layoutColumn {
+  flex-direction: column;
+}
+
+.layoutRow {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.layoutGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: var(--gap-md);
+  justify-items: center;
+  align-items: flex-start;
+}

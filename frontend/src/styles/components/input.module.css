@@ -1,0 +1,95 @@
+﻿.input {
+  display: block;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: var(--radius-input);
+  outline: none;
+  font-family: var(--font-sans);
+  background-color: var(--color-input-bg);
+  color: var(--color-input-text);
+  border: var(--border-width-default) solid var(--color-input-border);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.input:focus {
+  outline: none;
+  background-color: var(--color-input-bg-focus);
+  border-color: var(--color-input-border-focus);
+}
+
+.input:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.input::placeholder {
+  color: var(--color-input-placeholder);
+}
+
+.intentDefault {
+  background-color: var(--color-input-bg);
+  color: var(--color-input-text);
+  border-color: var(--color-input-border);
+}
+
+.intentDefault::placeholder {
+  color: var(--color-input-placeholder);
+}
+
+.intentDefault:focus {
+  background-color: var(--color-input-bg-focus);
+  border-color: var(--color-input-border-focus);
+}
+
+.intentError {
+  background-color: var(--color-input-error-bg);
+  color: var(--color-input-error-text);
+  border-color: var(--color-input-error-border);
+}
+
+.intentError::placeholder {
+  color: var(--color-input-error-placeholder);
+}
+
+.intentError:focus {
+  background-color: var(--color-input-error-bg-focus);
+  border-color: var(--color-input-error-border-focus);
+}
+
+.toneSolid {
+  background-color: var(--color-input-bg);
+}
+
+.toneOutline {
+  background-color: transparent;
+}
+
+.toneGhost {
+  background-color: transparent;
+  border: 0;
+  border-bottom: var(--border-width-default) solid
+    var(--color-input-border);
+  border-radius: 0;
+}
+
+.toneGhost:focus {
+  border-bottom-color: var(--color-input-border-focus);
+}
+
+.sizeSmall {
+  font-size: var(--font-size-xs);
+  padding: var(--padding-sm) var(--padding-md);
+}
+
+.sizeMedium {
+  font-size: var(--font-size-sm);
+  padding: var(--padding-md);
+}
+
+.sizeLarge {
+  font-size: var(--font-size-base);
+  padding: var(--padding-lg) var(--padding-xl);
+}

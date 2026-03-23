@@ -1,0 +1,28 @@
+﻿.bar {
+  width: 100%;
+  border-radius: var(--radius-xs);
+}
+
+.thicknessThin {
+  height: var(--border-width-thin) !important;
+}
+
+.thicknessMedium {
+  height: var(--border-width-medium) !important;
+}
+
+.thicknessThick {
+  height: var(--border-width-thick) !important;
+}
+
+.colorBlue {
+  background: var(--color-bar-blue);
+}
+
+.colorGreen {
+  background: var(--color-bar-green);
+}
+
+.colorGold {
+  background: var(--color-bar-gold);
+}
