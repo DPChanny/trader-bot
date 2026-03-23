@@ -4,7 +4,7 @@ import random
 
 from fastapi import WebSocket
 
-from dtos.auction_dto import (
+from ..dtos.auction_dto import (
     AuctionStateDTO,
     AuctionStatus,
     BidPlacedMessageData,
@@ -77,7 +77,7 @@ class Auction:
         await asyncio.sleep(300)
         if self.status == AuctionStatus.WAITING:
             await self.terminate_auction()
-            from auction.auction_manager import auction_manager
+            from .auction_manager import auction_manager
 
             auction_manager.remove_auction(self.auction_id)
 
@@ -462,6 +462,6 @@ class Auction:
     async def _delayed_terminate(self):
         await asyncio.sleep(5)
         await self.terminate_auction()
-        from auction.auction_manager import auction_manager
+        from .auction_manager import auction_manager
 
         auction_manager.remove_auction(self.auction_id)

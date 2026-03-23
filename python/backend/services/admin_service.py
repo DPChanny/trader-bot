@@ -1,7 +1,8 @@
 import logging
 
-from utils.env import get_admin_password
-from utils.jwt import (
+from shared.env import get_admin_password
+
+from ..utils.jwt import (
     create_jwt_token,
     refresh_jwt_token,
     should_refresh_token,

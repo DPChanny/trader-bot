@@ -1,11 +1,13 @@
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from entities.user import User
-from services.lol_stat_service import crawl_lol_stat, save_lol_stat_to_db
-from services.val_stat_service import crawl_val_stat, save_val_stat_to_db
-from utils.database import init_engine, get_db
-from utils.crawler import create_driver, close_driver
+from shared.entities.user import User
+
+from .services.lol_stat_service import crawl_lol_stat, save_lol_stat_to_db
+from .services.val_stat_service import crawl_val_stat, save_val_stat_to_db
+from .utils.crawler import close_driver, create_driver
+from .utils.database import get_db, init_engine
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -21,9 +23,7 @@ def crawl_user(user_id: int, game_name: str, tag_line: str):
     lol_driver = None
     val_driver = None
     try:
-        logger.info(
-            f"Starting crawl for user {user_id}: {game_name}#{tag_line}"
-        )
+        logger.info(f"Starting crawl for user {user_id}: {game_name}#{tag_line}")
 
         try:
             lol_driver = create_driver()

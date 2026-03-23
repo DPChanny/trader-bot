@@ -1,7 +1,6 @@
-
 from pydantic import BaseModel, computed_field
 
-from .base_dto import BaseResponseDTO
+from shared.dtos.base_dto import BaseResponseDTO
 
 
 class UserDTO(BaseModel):
@@ -15,7 +14,7 @@ class UserDTO(BaseModel):
     @computed_field
     @property
     def discord_profile_url(self) -> str:
-        from utils.env import get_discord_profile_url
+        from shared.env import get_discord_profile_url
 
         return get_discord_profile_url(self.user_id)
 

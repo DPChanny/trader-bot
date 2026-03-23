@@ -4,14 +4,15 @@ from types import NoneType
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from dtos.base_dto import BaseResponseDTO
-from dtos.user_dto import (
+from shared.dtos.base_dto import BaseResponseDTO
+
+from ..dtos.user_dto import (
     AddUserRequestDTO,
     GetUserDetailResponseDTO,
     GetUserListResponseDTO,
     UpdateUserRequestDTO,
 )
-from services.user_service import (
+from ..services.user_service import (
     add_user_service,
     delete_user_service,
     get_user_detail_service,
@@ -19,8 +20,8 @@ from services.user_service import (
     update_discord_profile_service,
     update_user_service,
 )
-from utils.auth import verify_admin_token
-from utils.database import get_db
+from ..utils.auth import verify_admin_token
+from ..utils.database import get_db
 
 
 logger = logging.getLogger(__name__)

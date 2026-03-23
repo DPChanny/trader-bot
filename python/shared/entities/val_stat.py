@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List
+from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Integer, Float, ForeignKey, DateTime
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from utils.database import Base
+from .base import Base
+
+
+if TYPE_CHECKING:
+    from .user import User
 
 
 class ValStat(Base):
@@ -27,7 +31,8 @@ class ValStat(Base):
         onupdate=datetime.utcnow,
     )
 
-    agents: Mapped[List[Agent]] = relationship(
+    user: Mapped[User] = relationship("User", back_populates="val_stat")
+    agents: Mapped[list[Agent]] = relationship(
         "Agent", back_populates="val_stat", cascade="all, delete-orphan"
     )
 

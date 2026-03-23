@@ -1,9 +1,8 @@
-
 from pydantic import BaseModel
 
-from entities.preset import Statistics
+from shared.dtos.base_dto import BaseResponseDTO
+from shared.entities.preset import Statistics
 
-from .base_dto import BaseResponseDTO
 from .position_dto import PositionDTO
 from .preset_user_dto import PresetUserDetailDTO
 from .tier_dto import TierDTO
@@ -30,8 +29,7 @@ class PresetDetailDTO(PresetDTO):
         preset_users = []
         if hasattr(obj, "preset_users") and obj.preset_users:
             preset_users = [
-                PresetUserDetailDTO.model_validate(pu)
-                for pu in obj.preset_users
+                PresetUserDetailDTO.model_validate(pu) for pu in obj.preset_users
             ]
 
         data = {
@@ -44,9 +42,7 @@ class PresetDetailDTO(PresetDTO):
             "preset_users": preset_users,
             "tiers": obj.tiers if hasattr(obj, "tiers") and obj.tiers else [],
             "positions": (
-                obj.positions
-                if hasattr(obj, "positions") and obj.positions
-                else []
+                obj.positions if hasattr(obj, "positions") and obj.positions else []
             ),
         }
         return super().model_validate(data, **kwargs)

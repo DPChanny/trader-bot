@@ -2,9 +2,9 @@ import logging
 
 from fastapi import WebSocket
 
-from auction.auction import Auction
-from auction.auction_manager import auction_manager
-from dtos.auction_dto import AuctionStatus, MessageType
+from ..auction.auction import Auction
+from ..auction.auction_manager import auction_manager
+from ..dtos.auction_dto import AuctionStatus, MessageType
 
 
 logger = logging.getLogger(__name__)

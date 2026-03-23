@@ -1,21 +1,20 @@
-from typing import Optional
-
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker
 
-from .env import get_db_url
+from shared.entities.base import Base
+from shared.env import get_crawler_db_url
 
-engine: Optional[Engine] = None
-SessionLocal: Optional[sessionmaker] = None
-Base = declarative_base()
+
+engine: Engine | None = None
+SessionLocal: sessionmaker | None = None
 
 
 def init_engine():
     global engine, SessionLocal
 
     engine = create_engine(
-        get_db_url(),
+        get_crawler_db_url(),
         pool_size=5,
         max_overflow=10,
         pool_pre_ping=True,
@@ -25,7 +24,7 @@ def init_engine():
 
     SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
-    import entities
+    import shared.entities  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
 

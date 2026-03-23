@@ -1,7 +1,6 @@
-
 from pydantic import BaseModel
 
-from .base_dto import BaseResponseDTO
+from shared.dtos.base_dto import BaseResponseDTO
 
 
 class PositionDTO(BaseModel):

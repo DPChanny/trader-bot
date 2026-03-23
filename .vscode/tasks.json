@@ -11,8 +11,8 @@
     {
       "label": "Run Backend",
       "type": "shell",
-      "command": "uv run python -m uvicorn main:app --reload --host localhost --port 8000",
-      "options": { "cwd": "${workspaceFolder}/backend" },
+      "command": "uv run python -m uvicorn backend.main:app --reload --host localhost --port 8000",
+      "options": { "cwd": "${workspaceFolder}/python" },
       "presentation": { "group": "dev", "panel": "dedicated" }
     },
     {

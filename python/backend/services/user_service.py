@@ -3,18 +3,18 @@ import logging
 import aiohttp
 from sqlalchemy.orm import Session
 
-from dtos.base_dto import BaseResponseDTO
-from dtos.user_dto import (
+from shared.dtos.base_dto import BaseResponseDTO
+from shared.entities.user import User
+
+from ..dtos.user_dto import (
     AddUserRequestDTO,
     GetUserDetailResponseDTO,
     GetUserListResponseDTO,
     UpdateUserRequestDTO,
     UserDTO,
 )
-from entities.user import User
-from utils.exception import CustomException, handle_exception
-from utils.s3 import s3_client
-
+from ..utils.exception import CustomException, handle_exception
+from ..utils.s3 import s3_client
 from .discord_service import discord_service
 
 

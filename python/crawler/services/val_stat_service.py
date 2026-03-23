@@ -4,12 +4,14 @@ import re
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-from dtos.val_stat_dto import ValStatDto, AgentDto
-from entities.val_stat import ValStat, Agent
-from utils.database import get_db
+from shared.dtos.val_stat_dto import AgentDto, ValStatDto
+from shared.entities.val_stat import Agent, ValStat
+
+from ..utils.database import get_db
+
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +69,7 @@ def crawl_val_stat(
         logger.info(f"Scraping: {url}")
         driver.get(url)
         logger.info(f"Page loaded: {url}")
-    except TimeoutException as e:
+    except TimeoutException:
         logger.warning(f"Page load timeout: {url}")
         return ValStatDto(
             tier=tier,
@@ -94,11 +96,11 @@ def crawl_val_stat(
         for selector in tier_selectors:
             try:
                 tier_element = wait.until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+                    ec.presence_of_element_located((By.CSS_SELECTOR, selector))
                 )
                 if tier_element and tier_element.text.strip():
                     break
-            except:
+            except Exception:
                 continue
 
         if tier_element:
@@ -126,22 +128,18 @@ def crawl_val_stat(
                 tier = tier_map.get(tier_kr, "Unranked")
             else:
                 tier_en_pattern = r"(Unranked|Iron|Bronze|Silver|Gold|Platinum|Diamond|Ascendant|Immortal|Radiant)(?:\s+(1|2|3))?"
-                tier_en_match = re.search(
-                    tier_en_pattern, tier_text, re.IGNORECASE
-                )
+                tier_en_match = re.search(tier_en_pattern, tier_text, re.IGNORECASE)
 
                 if tier_en_match:
                     tier = tier_en_match.group(1).capitalize()
-                    rank = (
-                        tier_en_match.group(2) if tier_en_match.group(2) else ""
-                    )
+                    rank = tier_en_match.group(2) if tier_en_match.group(2) else ""
                 else:
                     tier = "Unranked"
                     rank = ""
         else:
             tier = "Unranked"
             rank = ""
-    except TimeoutException as e:
+    except TimeoutException:
         logger.warning(f"Tier info timeout: {url}")
     except Exception as e:
         logger.warning(f"Tier info error: {url} - {type(e).__name__}")
@@ -150,7 +148,7 @@ def crawl_val_stat(
         wait = WebDriverWait(driver, WEB_DRIVER_TIMEOUT)
 
         wait.until(
-            EC.presence_of_element_located(
+            ec.presence_of_element_located(
                 (By.CSS_SELECTOR, "li.box-border.flex.h-\\[50px\\].w-full")
             )
         )
@@ -186,10 +184,8 @@ def crawl_val_stat(
                         By.CSS_SELECTOR, "span.text-\\[12px\\]"
                     )
                     wr_text = wr_span.text.strip().replace("%", "")
-                    win_rate = (
-                        float(wr_text) if wr_text and wr_text != "" else 0.0
-                    )
-                except:
+                    win_rate = float(wr_text) if wr_text and wr_text != "" else 0.0
+                except Exception:
                     wr_match = re.search(r"(\d+(?:\.\d+)?)%", agent_text)
                     if wr_match:
                         win_rate = float(wr_match.group(1))
@@ -209,7 +205,7 @@ def crawl_val_stat(
                     )
             except Exception:
                 continue
-    except TimeoutException as e:
+    except TimeoutException:
         logger.warning(f"Agent list timeout: {url}")
     except Exception as e:
         logger.warning(f"Agent list error: {url} - {type(e).__name__}")

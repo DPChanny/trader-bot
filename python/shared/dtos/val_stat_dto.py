@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import BaseModel
 
 from .base_dto import BaseResponseDTO
@@ -15,7 +13,7 @@ class AgentDto(BaseModel):
 class ValStatDto(BaseModel):
     tier: str
     rank: str
-    top_agents: List[AgentDto]
+    top_agents: list[AgentDto]
 
 
 class GetValResponseDTO(BaseResponseDTO[ValStatDto]):

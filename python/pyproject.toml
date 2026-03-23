@@ -1,7 +1,6 @@
 [project]
 name = "trader"
 version = "0.1.0"
-description = "Trader"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi",
@@ -17,6 +16,9 @@ dependencies = [
     "websockets",
     "asyncpg",
     "psycopg2-binary",
+    "selenium",
+    "webdriver-manager",
+    "pymysql",
 ]
 
 [dependency-groups]
@@ -45,7 +47,7 @@ docstring-code-format = true
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "N", "UP", "B", "SIM"]
-ignore = ["E501"]
+ignore = ["E501", "B008"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

@@ -4,7 +4,7 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 
-from .env import (
+from shared.env import (
     get_aws_access_key,
     get_aws_bucket_name,
     get_aws_region,

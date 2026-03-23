@@ -2,8 +2,8 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from dtos.lol_stat_dto import ChampionDto, GetLolResponseDTO, LolStatDto
-from entities.lol_stat import LolStat
+from shared.dtos.lol_stat_dto import ChampionDto, GetLolResponseDTO, LolStatDto
+from shared.entities.lol_stat import LolStat
 
 
 logger = logging.getLogger(__name__)

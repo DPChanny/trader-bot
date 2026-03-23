@@ -1,20 +1,20 @@
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import sessionmaker
 
-from .env import get_db_url
+from shared.entities.base import Base
+from shared.env import get_backend_db_url
 
 
 engine: Engine | None = None
 SessionLocal: sessionmaker | None = None
-Base = declarative_base()
 
 
 def init_engine():
     global engine, SessionLocal
 
     engine = create_engine(
-        get_db_url(),
+        get_backend_db_url(),
         pool_size=10,
         max_overflow=20,
         pool_pre_ping=True,
@@ -24,7 +24,7 @@ def init_engine():
 
     SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
-    import entities  # noqa: F401
+    import shared.entities  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
 

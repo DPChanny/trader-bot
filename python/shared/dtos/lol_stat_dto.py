@@ -1,21 +1,21 @@
-
 from pydantic import BaseModel
 
 from .base_dto import BaseResponseDTO
 
 
-class AgentDto(BaseModel):
+class ChampionDto(BaseModel):
     name: str
     icon_url: str
     games: int
     win_rate: float
 
 
-class ValStatDto(BaseModel):
+class LolStatDto(BaseModel):
     tier: str
     rank: str
-    top_agents: list[AgentDto]
+    lp: int
+    top_champions: list[ChampionDto]
 
 
-class GetValResponseDTO(BaseResponseDTO[ValStatDto]):
+class GetLolResponseDTO(BaseResponseDTO[LolStatDto]):
     pass

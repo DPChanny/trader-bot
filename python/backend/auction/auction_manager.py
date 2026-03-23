@@ -1,14 +1,11 @@
 import uuid
 
-from dtos.auction_dto import Team
-
+from ..dtos.auction_dto import Team
 from .auction import Auction
 
 
 class Token:
-    def __init__(
-        self, auction_id: str, user_id: int, token: str, is_leader: bool
-    ):
+    def __init__(self, auction_id: str, user_id: int, token: str, is_leader: bool):
         self.auction_id = auction_id
         self.user_id = user_id
         self.token = token
@@ -77,9 +74,7 @@ class AuctionManager:
 
     def get_tokens(self, auction_id: str) -> list[Token]:
         token_list = self.auction_tokens.get(auction_id, [])
-        return [
-            self.tokens[token] for token in token_list if token in self.tokens
-        ]
+        return [self.tokens[token] for token in token_list if token in self.tokens]
 
     def get_user_token(self, auction_id: str, user_id: int) -> Token | None:
         token_list = self.auction_tokens.get(auction_id, [])

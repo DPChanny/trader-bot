@@ -2,16 +2,17 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from dtos.base_dto import BaseResponseDTO
-from dtos.tier_dto import (
+from shared.dtos.base_dto import BaseResponseDTO
+from shared.entities.tier import Tier
+
+from ..dtos.tier_dto import (
     AddTierRequestDTO,
     GetTierDetailResponseDTO,
     GetTierListResponseDTO,
     TierDTO,
     UpdateTierRequestDTO,
 )
-from entities.tier import Tier
-from utils.exception import CustomException, handle_exception
+from ..utils.exception import CustomException, handle_exception
 
 
 logger = logging.getLogger(__name__)
@@ -107,9 +108,7 @@ def update_tier_service(
         handle_exception(e, db)
 
 
-def delete_tier_service(
-    tier_id: int, db: Session
-) -> BaseResponseDTO[None] | None:
+def delete_tier_service(tier_id: int, db: Session) -> BaseResponseDTO[None] | None:
     try:
         logger.info(f"Delete: {tier_id}")
         tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()

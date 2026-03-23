@@ -2,8 +2,10 @@ import logging
 
 from sqlalchemy.orm import Session, joinedload
 
-from dtos.base_dto import BaseResponseDTO
-from dtos.preset_user_dto import (
+from shared.dtos.base_dto import BaseResponseDTO
+from shared.entities.preset_user import PresetUser
+
+from ..dtos.preset_user_dto import (
     AddPresetUserRequestDTO,
     GetPresetUserDetailResponseDTO,
     GetPresetUserListResponseDTO,
@@ -11,8 +13,7 @@ from dtos.preset_user_dto import (
     PresetUserDTO,
     UpdatePresetUserRequestDTO,
 )
-from entities.preset_user import PresetUser
-from utils.exception import CustomException, handle_exception
+from ..utils.exception import CustomException, handle_exception
 
 
 logger = logging.getLogger(__name__)
@@ -94,9 +95,7 @@ def get_preset_user_list_service(
 ) -> GetPresetUserListResponseDTO | None:
     try:
         preset_users = db.query(PresetUser).all()
-        preset_user_dtos = [
-            PresetUserDTO.model_validate(pu) for pu in preset_users
-        ]
+        preset_user_dtos = [PresetUserDTO.model_validate(pu) for pu in preset_users]
 
         return GetPresetUserListResponseDTO(
             success=True,

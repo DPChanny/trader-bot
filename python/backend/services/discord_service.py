@@ -2,10 +2,10 @@ import asyncio
 import logging
 import threading
 
-import discord
 from discord.ext import commands
 
-from utils.env import get_discord_bot_token
+import discord
+from shared.env import get_discord_bot_token
 
 
 logger = logging.getLogger(__name__)

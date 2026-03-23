@@ -2,16 +2,17 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from dtos.base_dto import BaseResponseDTO
-from dtos.position_dto import (
+from shared.dtos.base_dto import BaseResponseDTO
+from shared.entities.position import Position
+
+from ..dtos.position_dto import (
     AddPositionRequestDTO,
     GetPositionDetailResponseDTO,
     GetPositionListResponseDTO,
     PositionDTO,
     UpdatePositionRequestDTO,
 )
-from entities.position import Position
-from utils.exception import CustomException, handle_exception
+from ..utils.exception import CustomException, handle_exception
 
 
 logger = logging.getLogger(__name__)
@@ -23,9 +24,7 @@ def get_position_detail_service(
     try:
         logger.info(f"Get: {position_id}")
         position = (
-            db.query(Position)
-            .filter(Position.position_id == position_id)
-            .first()
+            db.query(Position).filter(Position.position_id == position_id).first()
         )
 
         if not position:
@@ -92,9 +91,7 @@ def update_position_service(
     try:
         logger.info(f"Update: {position_id}")
         position = (
-            db.query(Position)
-            .filter(Position.position_id == position_id)
-            .first()
+            db.query(Position).filter(Position.position_id == position_id).first()
         )
         if not position:
             logger.warning(f"Position missing: {position_id}")
@@ -123,9 +120,7 @@ def delete_position_service(
     try:
         logger.info(f"Delete: {position_id}")
         position = (
-            db.query(Position)
-            .filter(Position.position_id == position_id)
-            .first()
+            db.query(Position).filter(Position.position_id == position_id).first()
         )
         if not position:
             logger.warning(f"Position missing: {position_id}")

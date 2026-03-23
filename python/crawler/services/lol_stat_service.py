@@ -4,12 +4,14 @@ import re
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-from dtos.lol_stat_dto import LolStatDto, ChampionDto
-from entities.lol_stat import LolStat, Champion
-from utils.database import get_db
+from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
+from shared.entities.lol_stat import Champion, LolStat
+
+from ..utils.database import get_db
+
 
 logger = logging.getLogger(__name__)
 
@@ -28,9 +30,7 @@ def save_lol_stat_to_db(user_id: int, lol_stat_dto: LolStatDto):
             lol_stat.tier = lol_stat_dto.tier
             lol_stat.rank = lol_stat_dto.rank
             lol_stat.lp = lol_stat_dto.lp
-            db.query(Champion).filter(
-                Champion.lol_stat_id == lol_stat.id
-            ).delete()
+            db.query(Champion).filter(Champion.lol_stat_id == lol_stat.id).delete()
         else:
             lol_stat = LolStat(
                 user_id=user_id,
@@ -74,7 +74,7 @@ def crawl_lol_stat(
         logger.info(f"Scraping: {url}")
         driver.get(url)
         logger.info(f"Page loaded: {url}")
-    except TimeoutException as e:
+    except TimeoutException:
         logger.warning(f"Page load timeout: {url}")
         return LolStatDto(
             tier=tier,
@@ -104,11 +104,11 @@ def crawl_lol_stat(
         for selector in tier_selectors:
             try:
                 tier_element = wait.until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, selector))
+                    ec.presence_of_element_located((By.CSS_SELECTOR, selector))
                 )
                 if tier_element and tier_element.text.strip():
                     break
-            except:
+            except Exception:
                 continue
 
         if tier_element:
@@ -131,13 +131,13 @@ def crawl_lol_stat(
                 lp_text = lp_span.text.strip()
                 lp_match = re.search(r"(\d+)\s*LP", lp_text)
                 lp = int(lp_match.group(1)) if lp_match else 0
-            except:
+            except Exception:
                 lp = 0
         else:
             tier = "Unranked"
             rank = ""
             lp = 0
-    except TimeoutException as e:
+    except TimeoutException:
         logger.warning(f"Tier info timeout: {url}")
     except Exception as e:
         logger.warning(f"Tier info error: {url} - {type(e).__name__}")
@@ -146,7 +146,7 @@ def crawl_lol_stat(
         wait = WebDriverWait(driver, WEB_DRIVER_TIMEOUT)
 
         wait.until(
-            EC.presence_of_element_located(
+            ec.presence_of_element_located(
                 (
                     By.CSS_SELECTOR,
                     "li.box-border.flex.w-full.items-center.border-b",
@@ -200,7 +200,7 @@ def crawl_lol_stat(
             except Exception as e:
                 logger.debug(f"Champion parsing error: {type(e).__name__}")
                 continue
-    except TimeoutException as e:
+    except TimeoutException:
         logger.warning(f"Champion list timeout: {url}")
     except Exception as e:
         logger.warning(f"Champion list error: {url} - {type(e).__name__}")

@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 
 import jwt
 
-from .env import get_jwt_algorithm, get_jwt_secret
+from shared.env import get_jwt_algorithm, get_jwt_secret
 
 
 logger = logging.getLogger(__name__)
