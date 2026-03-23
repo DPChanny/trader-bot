@@ -68,13 +68,13 @@ a:hover {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-base-scrollbar);
+  background: var(--color-scrollbar-bg);
   border-radius: var(--radius-full);
   border: 0.25rem solid transparent;
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-base-scrollbar-dark);
+  background: var(--color-scrollbar-bg-hover);
   background-clip: padding-box;
 }

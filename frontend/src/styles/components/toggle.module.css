@@ -1,9 +1,9 @@
 ﻿.toggle {
   padding: var(--space-1-5) var(--padding-md);
-  background: var(--color-toggle-default-bg);
-  border: var(--border-width-default) solid var(--color-toggle-default-border);
+  background: var(--color-toggle-bg);
+  border: var(--border-width-default) solid var(--color-toggle-border);
   border-radius: var(--radius-md);
-  color: var(--color-toggle-default-text);
+  color: var(--color-toggle-text);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
@@ -11,7 +11,7 @@
 }
 
 .toggle:hover {
-  background: var(--color-toggle-default-bg-hover);
+  background: var(--color-toggle-bg-hover);
 }
 
 .colorBlue:hover {
