@@ -10,6 +10,7 @@ from shared.env import (
     get_aws_bucket_name,
     get_aws_region,
     get_aws_secret_key,
+    get_profile_key,
 )
 
 
@@ -24,12 +25,8 @@ _bucket_name = get_aws_bucket_name()
 
 
 async def get_bucket() -> AsyncGenerator[Any, None]:
-    async with _session.client("s3") as client:
-        yield client
-
-
-def get_profile_key(user_id: int) -> str:
-    return f"profiles/{user_id}.png"
+    async with _session.client("s3") as bucket:
+        yield bucket
 
 
 async def upload_profile(bucket: Any, user_id: int, profile: bytes) -> bool:
