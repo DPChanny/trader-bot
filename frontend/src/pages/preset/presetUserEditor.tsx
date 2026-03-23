@@ -1,7 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { PresetUserCard } from "@/components/presetUserCard";
-import { LolStat } from "@/components/lolStatCard";
-import { ValStat } from "@/components/valStatCard";
+import { LolStat } from "@/components/lolStat";
+import { ValStat } from "@/components/valStat";
 import { Toggle } from "@/components/toggle";
 import { useRemovePresetUser, useUpdatePresetUser } from "@/hooks/presetUser";
 import {

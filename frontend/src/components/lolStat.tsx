@@ -2,7 +2,7 @@ import { Card } from "@/components/card";
 import { Section } from "@/components/section";
 import { Toggle } from "@/components/toggle";
 import type { ChampionDto, LolStatDto } from "@/dto";
-import styles from "@/styles/components/lolCard.module.css";
+import styles from "@/styles/components/lolStat.module.css";
 
 interface LolStatCardProps {
   champion: ChampionDto;
