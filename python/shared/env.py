@@ -76,7 +76,7 @@ def get_aws_bucket_name() -> str:
     return os.getenv("AWS_BUCKET_NAME", "")
 
 
-def get_discord_profile_url(user_id: int) -> str:
+def get_profile_url(user_id: int) -> str:
     bucket = get_aws_bucket_name()
     region = get_aws_region()
-    return f"https://{bucket}.s3.{region}.amazonaws.com/discord_profiles/{user_id}.png"
+    return f"https://{bucket}.s3.{region}.amazonaws.com/profiles/{user_id}.png"

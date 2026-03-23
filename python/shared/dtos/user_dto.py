@@ -13,10 +13,10 @@ class UserDTO(BaseModel):
 
     @computed_field
     @property
-    def discord_profile_url(self) -> str:
-        from ..env import get_discord_profile_url
+    def profile_url(self) -> str:
+        from ..env import get_profile_url
 
-        return get_discord_profile_url(self.user_id)
+        return get_profile_url(self.user_id)
 
 
 class AddUserRequestDTO(BaseModel):

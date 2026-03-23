@@ -19,11 +19,11 @@ from ..services.user_service import (
     delete_user_service,
     get_user_detail_service,
     get_user_list_service,
-    update_discord_profile_service,
+    update_profile_service,
     update_user_service,
 )
 from ..utils.auth import verify_admin_token
-from ..utils.s3 import get_bucket
+from ..utils.bucket import get_bucket
 
 
 logger = logging.getLogger(__name__)
@@ -67,14 +67,14 @@ async def update_user_route(
 
 
 @user_router.post("/{user_id}/discord-profile", response_model=GetUserDetailResponseDTO)
-async def update_discord_profile_route(
+async def update_profile_route(
     user_id: int,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
     bucket: Any = Depends(get_bucket),
 ):
-    logger.info(f"Updating discord profile: {user_id}")
-    return await update_discord_profile_service(user_id, db, bucket)
+    logger.info(f"Updating profile: {user_id}")
+    return await update_profile_service(user_id, db, bucket)
 
 
 @user_router.delete("/{user_id}", response_model=BaseResponseDTO[NoneType])

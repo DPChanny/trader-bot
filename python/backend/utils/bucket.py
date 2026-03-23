@@ -28,11 +28,15 @@ async def get_bucket() -> AsyncGenerator[Any, None]:
         yield client
 
 
-async def upload_discord_profile(bucket: Any, user_id: int, image_data: bytes) -> bool:
-    key = f"discord_profiles/{user_id}.png"
+def get_profile_key(user_id: int) -> str:
+    return f"profiles/{user_id}.png"
+
+
+async def upload_profile(bucket: Any, user_id: int, profile: bytes) -> bool:
+    key = get_profile_key(user_id)
     try:
         await bucket.put_object(
-            Bucket=_bucket_name, Key=key, Body=image_data, ContentType="image/png"
+            Bucket=_bucket_name, Key=key, Body=profile, ContentType="image/png"
         )
         logger.info(f"Uploaded: {key}")
         return True
@@ -44,8 +48,8 @@ async def upload_discord_profile(bucket: Any, user_id: int, image_data: bytes) -
         return False
 
 
-async def delete_discord_profile(bucket: Any, user_id: int) -> bool:
-    key = f"discord_profiles/{user_id}.png"
+async def delete_profile(bucket: Any, user_id: int) -> bool:
+    key = get_profile_key(user_id)
     try:
         await bucket.delete_object(Bucket=_bucket_name, Key=key)
         logger.info(f"Deleted: {key}")

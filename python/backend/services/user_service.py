@@ -14,19 +14,19 @@ from shared.dtos.user_dto import (
 )
 from shared.entities.user import User
 
+from ..utils.bucket import delete_profile, upload_profile
 from ..utils.exception import CustomException, handle_exception
-from ..utils.s3 import delete_discord_profile, upload_discord_profile
 from .discord_service import discord_service
 
 
 logger = logging.getLogger(__name__)
 
 
-async def _sync_discord_profile(bucket: Any, user_id: int, discord_id: str):
+async def _sync_profile(bucket: Any, user_id: int, discord_id: str):
     try:
-        await delete_discord_profile(bucket, user_id)
+        await delete_profile(bucket, user_id)
 
-        profile_url = await discord_service.fetch_discord_profile_url(discord_id)
+        profile_url = await discord_service.fetch_profile_url(discord_id)
         if not profile_url:
             return
 
@@ -36,12 +36,12 @@ async def _sync_discord_profile(bucket: Any, user_id: int, discord_id: str):
         ):
             if response.status == 200:
                 image_data = await response.read()
-                await upload_discord_profile(bucket, user_id, image_data)
-                logger.info(f"Discord profile synced: {user_id}")
+                await upload_profile(bucket, user_id, image_data)
+                logger.info(f"Profile synced: {user_id}")
             else:
-                logger.warning(f"Failed to download discord profile: {response.status}")
+                logger.warning(f"Failed to download profile: {response.status}")
     except Exception as e:
-        logger.error(f"Failed to sync discord profile: {e}")
+        logger.error(f"Failed to sync profile: {e}")
 
 
 async def get_user_detail_service(
@@ -82,7 +82,7 @@ async def add_user_service(
         logger.info(f"Added: {user.user_id}")
 
         if dto.discord_id:
-            await _sync_discord_profile(bucket, user.user_id, dto.discord_id)
+            await _sync_profile(bucket, user.user_id, dto.discord_id)
 
         return await get_user_detail_service(user.user_id, db)
 
@@ -127,7 +127,7 @@ async def update_user_service(
         db.commit()
 
         if discord_id_changed:
-            await _sync_discord_profile(bucket, user.user_id, user.discord_id)
+            await _sync_profile(bucket, user.user_id, user.discord_id)
 
         return await get_user_detail_service(user.user_id, db)
 
@@ -135,7 +135,7 @@ async def update_user_service(
         handle_exception(e, db)
 
 
-async def update_discord_profile_service(
+async def update_profile_service(
     user_id: int, db: Session, bucket: Any
 ) -> GetUserDetailResponseDTO | None:
     try:
@@ -144,7 +144,7 @@ async def update_discord_profile_service(
             logger.warning(f"User missing: {user_id}")
             raise CustomException(404, "User not found")
 
-        await _sync_discord_profile(bucket, user.user_id, user.discord_id)
+        await _sync_profile(bucket, user.user_id, user.discord_id)
 
         logger.info(f"Discord profile updated: {user_id}")
         return await get_user_detail_service(user.user_id, db)
@@ -165,7 +165,7 @@ async def delete_user_service(
         db.delete(user)
         db.commit()
 
-        await delete_discord_profile(bucket, user_id)
+        await delete_profile(bucket, user_id)
 
         logger.info(f"Deleted: {user_id}")
 

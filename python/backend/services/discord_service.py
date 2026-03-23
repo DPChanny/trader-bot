@@ -221,7 +221,7 @@ class DiscordBotService:
             logger.error(f"Batch invite error: {e}")
             return {discord_id: False for discord_id, _ in invites}
 
-    async def fetch_discord_profile_url(self, discord_id: str) -> str | None:
+    async def fetch_profile_url(self, discord_id: str) -> str | None:
         if not discord_id or not discord_id.strip():
             logger.warning("Empty discord_id")
             return None
@@ -240,16 +240,16 @@ class DiscordBotService:
             return None
 
         future = asyncio.run_coroutine_threadsafe(
-            self._fetch_discord_profile_url(discord_id), loop
+            self._fetch_profile_url(discord_id), loop
         )
 
         try:
             return future.result(timeout=30.0)
         except Exception as e:
-            logger.error(f"Failed to fetch discord profile URL: {e}")
+            logger.error(f"Failed to fetch profile URL: {e}")
             return None
 
-    async def _fetch_discord_profile_url(self, discord_id: str) -> str | None:
+    async def _fetch_profile_url(self, discord_id: str) -> str | None:
         try:
             user_id_int = int(discord_id)
             user = await self.bot.fetch_user(user_id_int)
@@ -259,14 +259,14 @@ class DiscordBotService:
                 return None
 
             profile_url = user.display_avatar.url
-            logger.info(f"Discord profile URL fetched: {discord_id}")
+            logger.info(f"Profile URL fetched: {discord_id}")
             return profile_url
 
         except ValueError:
             logger.error(f"Invalid discord_id format: {discord_id}")
             return None
         except Exception as e:
-            logger.error(f"Discord profile URL fetch error {discord_id}: {e}")
+            logger.error(f"Profile URL fetch error {discord_id}: {e}")
             import traceback
 
             logger.error(traceback.format_exc())
