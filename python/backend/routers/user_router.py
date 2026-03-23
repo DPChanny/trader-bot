@@ -4,14 +4,15 @@ from types import NoneType
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from shared.database import get_db
 from shared.dtos.base_dto import BaseResponseDTO
-
-from ..dtos.user_dto import (
+from shared.dtos.user_dto import (
     AddUserRequestDTO,
     GetUserDetailResponseDTO,
     GetUserListResponseDTO,
     UpdateUserRequestDTO,
 )
+
 from ..services.user_service import (
     add_user_service,
     delete_user_service,
@@ -21,7 +22,6 @@ from ..services.user_service import (
     update_user_service,
 )
 from ..utils.auth import verify_admin_token
-from ..utils.database import get_db
 
 
 logger = logging.getLogger(__name__)

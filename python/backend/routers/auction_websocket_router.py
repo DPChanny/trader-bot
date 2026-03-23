@@ -7,7 +7,8 @@ from fastapi import (
     WebSocketDisconnect,
 )
 
-from ..dtos.auction_dto import AuctionStatus, MessageType
+from shared.dtos.auction_dto import AuctionStatus, MessageType
+
 from ..services.auction_websocket_service import (
     handle_websocket_connect,
     handle_websocket_disconnect,

@@ -1,12 +1,12 @@
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from shared.database import get_db, init_engine
 from shared.entities.user import User
 
 from .services.lol_stat_service import crawl_lol_stat, save_lol_stat_to_db
 from .services.val_stat_service import crawl_val_stat, save_val_stat_to_db
 from .utils.crawler import close_driver, create_driver
-from .utils.database import get_db, init_engine
 
 
 logging.basicConfig(

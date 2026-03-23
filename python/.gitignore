@@ -20,3 +20,7 @@ build/
 *.swo
 *~
 *.db
+chromedriver*
+geckodriver*
+.DS_Store
+.ruff_cache/

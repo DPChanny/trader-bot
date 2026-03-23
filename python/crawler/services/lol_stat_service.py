@@ -7,10 +7,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
+from shared.database import get_db
 from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
 from shared.entities.lol_stat import Champion, LolStat
-
-from ..utils.database import get_db
 
 
 logger = logging.getLogger(__name__)

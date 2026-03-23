@@ -3,15 +3,15 @@ import logging
 from sqlalchemy.orm import Session
 
 from shared.dtos.base_dto import BaseResponseDTO
-from shared.entities.tier import Tier
-
-from ..dtos.tier_dto import (
+from shared.dtos.tier_dto import (
     AddTierRequestDTO,
     GetTierDetailResponseDTO,
     GetTierListResponseDTO,
     TierDTO,
     UpdateTierRequestDTO,
 )
+from shared.entities.tier import Tier
+
 from ..utils.exception import CustomException, handle_exception
 
 

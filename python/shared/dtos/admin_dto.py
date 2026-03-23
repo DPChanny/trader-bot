@@ -12,4 +12,3 @@ class AdminLoginResponse(BaseModel):
 
 class TokenRefreshResponse(BaseModel):
     token: str
-    message: str

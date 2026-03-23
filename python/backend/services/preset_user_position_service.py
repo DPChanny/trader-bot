@@ -4,14 +4,14 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from shared.dtos.base_dto import BaseResponseDTO
-from shared.entities.preset_user_position import PresetUserPosition
-
-from ..dtos.preset_user_position_dto import (
+from shared.dtos.preset_user_position_dto import (
     AddPresetUserPositionRequestDTO,
     DeletePresetUserPositionRequestDTO,
     GetPresetUserPositionResponseDTO,
     PresetUserPositionDTO,
 )
+from shared.entities.preset_user_position import PresetUserPosition
+
 from ..utils.exception import CustomException, handle_exception
 
 

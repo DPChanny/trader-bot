@@ -7,6 +7,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from shared.database import init_engine
+
 from .routers import (
     admin_router,
     auction_router,
@@ -21,7 +23,6 @@ from .routers import (
     val_stat_router,
 )
 from .services.discord_service import discord_service
-from .utils.database import init_engine
 
 
 logging.basicConfig(

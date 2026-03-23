@@ -4,7 +4,7 @@ import random
 
 from fastapi import WebSocket
 
-from ..dtos.auction_dto import (
+from shared.dtos.auction_dto import (
     AuctionStateDTO,
     AuctionStatus,
     BidPlacedMessageData,

@@ -1,6 +1,7 @@
 import uuid
 
-from ..dtos.auction_dto import Team
+from shared.dtos.auction_dto import Team
+
 from .auction import Auction
 
 

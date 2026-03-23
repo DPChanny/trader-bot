@@ -3,15 +3,15 @@ import logging
 from sqlalchemy.orm import Session
 
 from shared.dtos.base_dto import BaseResponseDTO
-from shared.entities.position import Position
-
-from ..dtos.position_dto import (
+from shared.dtos.position_dto import (
     AddPositionRequestDTO,
     GetPositionDetailResponseDTO,
     GetPositionListResponseDTO,
     PositionDTO,
     UpdatePositionRequestDTO,
 )
+from shared.entities.position import Position
+
 from ..utils.exception import CustomException, handle_exception
 
 
