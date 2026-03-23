@@ -5,8 +5,8 @@ import { useLolStat } from "@/hooks/lolStat";
 import { useValStat } from "@/hooks/valStat";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
-import { LolStatCard } from "@/components/lolStatCard";
-import { ValStatCard } from "@/components/valStatCard";
+import { LolStat } from "@/components/lolStatCard";
+import { ValStat } from "@/components/valStatCard";
 import { Section } from "@/components/section";
 import { PageContainer, PageLayout } from "@/components/page";
 import { Loading } from "@/components/loading";
@@ -196,10 +196,10 @@ export function AuctionPage({}: AuctionPageProps) {
               )}
               {state.status !== "completed" &&
                 presetDetail?.statistics === "LOL" &&
-                lolStat && <LolStatCard lolStatDto={lolStat} />}
+                lolStat && <LolStat lolStatDto={lolStat} />}
               {state.status !== "completed" &&
                 presetDetail?.statistics === "VAL" &&
-                valStat && <ValStatCard valStatDto={valStat} />}
+                valStat && <ValStat valStatDto={valStat} />}
             </Section>
 
             <Section

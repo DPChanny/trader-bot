@@ -24,8 +24,8 @@
   height: 3.75rem;
   border-radius: var(--radius-full);
   overflow: hidden;
-  border: var(--border-width-medium) solid var(--card-profile-border);
-  background: var(--card-profile-bg);
+  border: var(--border-width-medium) solid var(--color-card-border);
+  background: var(--color-card-bg);
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -50,7 +50,7 @@
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-xs);
   margin: 0;
-  color: var(--card-profile-text);
+  color: var(--color-card-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

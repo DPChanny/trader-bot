@@ -1,7 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { PresetUserCard } from "@/components/presetUserCard";
-import { LolStatCard } from "@/components/lolStatCard";
-import { ValStatCard } from "@/components/valStatCard";
+import { LolStat } from "@/components/lolStatCard";
+import { ValStat } from "@/components/valStatCard";
 import { Toggle } from "@/components/toggle";
 import { useRemovePresetUser, useUpdatePresetUser } from "@/hooks/presetUser";
 import {
@@ -277,7 +277,7 @@ export function PresetUserEditor({
               {lolStat.isLoading ? (
                 <Loading />
               ) : lolStat.data ? (
-                <LolStatCard lolStatDto={lolStat.data} />
+                <LolStat lolStatDto={lolStat.data} />
               ) : (
                 <Error>통계를 불러오지 못했습니다.</Error>
               )}
@@ -289,7 +289,7 @@ export function PresetUserEditor({
               {valStat.isLoading ? (
                 <Loading />
               ) : valStat.data ? (
-                <ValStatCard valStatDto={valStat.data} />
+                <ValStat valStatDto={valStat.data} />
               ) : (
                 <Error>통계를 불러오지 못했습니다.</Error>
               )}
