@@ -36,10 +36,10 @@ def decode_jwt_token(token: str) -> dict:
         return payload
     except jwt.ExpiredSignatureError as e:
         logger.warning(f"Token expired: {str(e)}")
-        raise Exception("Token has expired")
+        raise Exception("Token has expired") from e
     except jwt.InvalidTokenError as e:
         logger.error(f"Invalid token: {type(e).__name__}: {str(e)}")
-        raise Exception("Invalid token")
+        raise Exception("Invalid token") from e
 
 
 def is_token_expired(token: str) -> bool:
@@ -85,5 +85,5 @@ def refresh_jwt_token(token: str) -> str:
         payload.pop("iat", None)
 
         return create_jwt_token(payload)
-    except jwt.InvalidTokenError:
-        raise Exception("Invalid token for refresh")
+    except jwt.InvalidTokenError as e:
+        raise Exception("Invalid token for refresh") from e

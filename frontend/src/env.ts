@@ -1,8 +1,5 @@
-const API_HOST = import.meta.env["VITE_API_HOST"] || "localhost";
-const WS_HOST = import.meta.env["VITE_WS_HOST"] || "localhost";
-
-const API_ORIGIN = "http://" + API_HOST;
-const WS_ORIGIN = "ws://" + WS_HOST;
+const API_ORIGIN = import.meta.env["VITE_API_ORIGIN"];
+const WS_ORIGIN = import.meta.env["VITE_WS_ORIGIN"];
 
 export const API_ENDPOINT = `${API_ORIGIN}/api`;
 export const WS_ENDPOINT = `${WS_ORIGIN}/ws`;

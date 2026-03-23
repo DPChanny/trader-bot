@@ -19,9 +19,7 @@ class S3Client:
     def __init__(self):
         self.client = None
         self.bucket_name = get_aws_bucket_name()
-        self._init_client()
 
-    def _init_client(self):
         try:
             access_key = get_aws_access_key()
             secret_key = get_aws_secret_key()

@@ -13,15 +13,11 @@ async def verify_admin_token(
 ) -> dict:
     if not authorization:
         logger.warning("Missing auth header")
-        raise HTTPException(
-            status_code=401, detail="Authorization header missing"
-        )
+        raise HTTPException(status_code=401, detail="Authorization header missing")
 
     if not authorization.startswith("Bearer "):
         logger.warning(f"Invalid format: {authorization[:20]}...")
-        raise HTTPException(
-            status_code=401, detail="Invalid authorization format"
-        )
+        raise HTTPException(status_code=401, detail="Invalid authorization format")
 
     token = authorization.replace("Bearer ", "")
 
@@ -40,4 +36,4 @@ async def verify_admin_token(
 
         return payload
     except Exception as e:
-        raise HTTPException(status_code=401, detail=str(e))
+        raise HTTPException(status_code=401, detail=str(e)) from e
