@@ -113,7 +113,7 @@ export interface User {
   name: string;
   riotId: string;
   discordId: string;
-  discordProfileUrl: string;
+  profileUrl: string | null;
 }
 
 export interface Tier {

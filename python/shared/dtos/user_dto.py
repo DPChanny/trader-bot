@@ -13,9 +13,11 @@ class UserDTO(BaseModel):
 
     @computed_field
     @property
-    def profile_url(self) -> str:
+    def profile_url(self) -> str | None:
         from ..env import get_profile_url
 
+        if not self.discord_id:
+            return None
         return get_profile_url(self.user_id)
 
 
