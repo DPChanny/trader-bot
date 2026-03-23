@@ -137,4 +137,8 @@
 
   --color-scrollbar-bg: rgba(255, 255, 255, 0.15);
   --color-scrollbar-bg-hover: rgba(255, 255, 255, 0.3);
+
+  --color-loading-spinner-track: rgba(255, 255, 255, 0.08);
+  --color-loading-spinner-accent: #667eea;
+  --color-loading-text: rgb(156, 163, 175);
 }

@@ -7,8 +7,8 @@ interface LoadingProps {
 
 export function Loading({ message, children }: LoadingProps) {
   return (
-    <div className={styles.loadingContainer}>
-      <div className={styles.loading}>
+    <div className={styles.loading}>
+      <div className={styles.loading__inner}>
         <div className={styles.loading__spinner}></div>
         <div className={styles.loading__text}>
           {children || message || "로딩중"}
