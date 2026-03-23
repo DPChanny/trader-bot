@@ -1,5 +1,6 @@
 import logging
 from types import NoneType
+from typing import Any
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -22,6 +23,7 @@ from ..services.user_service import (
     update_user_service,
 )
 from ..utils.auth import verify_admin_token
+from ..utils.s3 import get_bucket
 
 
 logger = logging.getLogger(__name__)
@@ -34,9 +36,10 @@ async def add_user_route(
     dto: AddUserRequestDTO,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
+    bucket: Any = Depends(get_bucket),
 ):
     logger.info(f"Adding: {dto.name}")
-    return await add_user_service(dto, db)
+    return await add_user_service(dto, db, bucket)
 
 
 @user_router.get("", response_model=GetUserListResponseDTO)
@@ -57,9 +60,10 @@ async def update_user_route(
     dto: UpdateUserRequestDTO,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
+    bucket: Any = Depends(get_bucket),
 ):
     logger.info(f"Updating: {user_id}")
-    return await update_user_service(user_id, dto, db)
+    return await update_user_service(user_id, dto, db, bucket)
 
 
 @user_router.post("/{user_id}/discord-profile", response_model=GetUserDetailResponseDTO)
@@ -67,9 +71,10 @@ async def update_discord_profile_route(
     user_id: int,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
+    bucket: Any = Depends(get_bucket),
 ):
     logger.info(f"Updating discord profile: {user_id}")
-    return await update_discord_profile_service(user_id, db)
+    return await update_discord_profile_service(user_id, db, bucket)
 
 
 @user_router.delete("/{user_id}", response_model=BaseResponseDTO[NoneType])
@@ -77,6 +82,7 @@ async def delete_user_route(
     user_id: int,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
+    bucket: Any = Depends(get_bucket),
 ):
     logger.info(f"Deleting: {user_id}")
-    return await delete_user_service(user_id, db)
+    return await delete_user_service(user_id, db, bucket)

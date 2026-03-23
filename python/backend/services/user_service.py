@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 import aiohttp
 from sqlalchemy.orm import Session
@@ -14,16 +15,16 @@ from shared.dtos.user_dto import (
 from shared.entities.user import User
 
 from ..utils.exception import CustomException, handle_exception
-from ..utils.s3 import s3_client
+from ..utils.s3 import delete_discord_profile, upload_discord_profile
 from .discord_service import discord_service
 
 
 logger = logging.getLogger(__name__)
 
 
-async def update_discord_profile(user_id: int, discord_id: str):
+async def _sync_discord_profile(bucket: Any, user_id: int, discord_id: str):
     try:
-        await s3_client.delete_discord_profile(user_id)
+        await delete_discord_profile(bucket, user_id)
 
         profile_url = await discord_service.fetch_discord_profile_url(discord_id)
         if not profile_url:
@@ -35,14 +36,12 @@ async def update_discord_profile(user_id: int, discord_id: str):
         ):
             if response.status == 200:
                 image_data = await response.read()
-                await s3_client.upload_discord_profile(user_id, image_data)
-                logger.info(
-                    f"Successfully uploaded discord profile for user: {user_id}"
-                )
+                await upload_discord_profile(bucket, user_id, image_data)
+                logger.info(f"Discord profile synced: {user_id}")
             else:
                 logger.warning(f"Failed to download discord profile: {response.status}")
     except Exception as e:
-        logger.error(f"Failed to process discord profile: {e}")
+        logger.error(f"Failed to sync discord profile: {e}")
 
 
 async def get_user_detail_service(
@@ -69,7 +68,7 @@ async def get_user_detail_service(
 
 
 async def add_user_service(
-    dto: AddUserRequestDTO, db: Session
+    dto: AddUserRequestDTO, db: Session, bucket: Any
 ) -> GetUserDetailResponseDTO | None:
     try:
         user = User(
@@ -83,7 +82,7 @@ async def add_user_service(
         logger.info(f"Added: {user.user_id}")
 
         if dto.discord_id:
-            await update_discord_profile(user.user_id, dto.discord_id)
+            await _sync_discord_profile(bucket, user.user_id, dto.discord_id)
 
         return await get_user_detail_service(user.user_id, db)
 
@@ -109,7 +108,7 @@ async def get_user_list_service(db: Session) -> GetUserListResponseDTO | None:
 
 
 async def update_user_service(
-    user_id: int, dto: UpdateUserRequestDTO, db: Session
+    user_id: int, dto: UpdateUserRequestDTO, db: Session, bucket: Any
 ) -> GetUserDetailResponseDTO | None:
     try:
         user = db.query(User).filter(User.user_id == user_id).first()
@@ -128,7 +127,7 @@ async def update_user_service(
         db.commit()
 
         if discord_id_changed:
-            await update_discord_profile(user.user_id, user.discord_id)
+            await _sync_discord_profile(bucket, user.user_id, user.discord_id)
 
         return await get_user_detail_service(user.user_id, db)
 
@@ -137,7 +136,7 @@ async def update_user_service(
 
 
 async def update_discord_profile_service(
-    user_id: int, db: Session
+    user_id: int, db: Session, bucket: Any
 ) -> GetUserDetailResponseDTO | None:
     try:
         user = db.query(User).filter(User.user_id == user_id).first()
@@ -145,7 +144,7 @@ async def update_discord_profile_service(
             logger.warning(f"User missing: {user_id}")
             raise CustomException(404, "User not found")
 
-        await update_discord_profile(user.user_id, user.discord_id)
+        await _sync_discord_profile(bucket, user.user_id, user.discord_id)
 
         logger.info(f"Discord profile updated: {user_id}")
         return await get_user_detail_service(user.user_id, db)
@@ -155,7 +154,7 @@ async def update_discord_profile_service(
 
 
 async def delete_user_service(
-    user_id: int, db: Session
+    user_id: int, db: Session, bucket: Any
 ) -> BaseResponseDTO[None] | None:
     try:
         user = db.query(User).filter(User.user_id == user_id).first()
@@ -166,7 +165,7 @@ async def delete_user_service(
         db.delete(user)
         db.commit()
 
-        await s3_client.delete_discord_profile(user_id)
+        await delete_discord_profile(bucket, user_id)
 
         logger.info(f"Deleted: {user_id}")
 

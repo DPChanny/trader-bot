@@ -7,14 +7,8 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent.parent / ".env")
 
 
-# ─── App ────────────────────────────────────────────────────────────────────
-
-
 def get_app_origin() -> str:
     return os.getenv("APP_ORIGIN", "http://localhost:8080")
-
-
-# ─── Database (Backend – PostgreSQL) ────────────────────────────────────────
 
 
 def get_db_host() -> str:
@@ -46,18 +40,12 @@ def get_db_url() -> str:
     return f"postgresql://{user}:{password}@{host}:{port}/{name}"
 
 
-# ─── Discord ─────────────────────────────────────────────────────────────────
-
-
 def get_discord_bot_token() -> str:
     return os.getenv("DISCORD_BOT_TOKEN", "")
 
 
 def get_auction_url(token: str) -> str:
     return f"{get_app_origin()}/auction?token={token}"
-
-
-# ─── Admin / Auth ────────────────────────────────────────────────────────────
 
 
 def get_admin_password() -> str:
@@ -70,9 +58,6 @@ def get_jwt_secret() -> str:
 
 def get_jwt_algorithm() -> str:
     return os.getenv("JWT_ALGORITHM", "HS256")
-
-
-# ─── AWS / S3 ────────────────────────────────────────────────────────────────
 
 
 def get_aws_access_key() -> str:
