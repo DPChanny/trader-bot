@@ -54,10 +54,10 @@ export function LolStat({ lolStatDto }: LolStatProps) {
             : "Unranked"}
         </Toggle>
       </Section>
-      {lolStatDto.topChampions && lolStatDto.topChampions.length > 0 && (
+      {lolStatDto.topChampions?.length > 0 && (
         <Section variantTone="ghost">
-          {lolStatDto.topChampions.map((champion, index) => (
-            <LolStatCard key={index} champion={champion} />
+          {lolStatDto.topChampions.map((champion) => (
+            <LolStatCard key={champion.name} champion={champion} />
           ))}
         </Section>
       )}

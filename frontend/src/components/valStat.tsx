@@ -46,10 +46,10 @@ export function ValStat({ valStatDto }: ValStatProps) {
             : "Unranked"}
         </Toggle>
       </Section>
-      {valStatDto.topAgents && valStatDto.topAgents.length > 0 && (
+      {valStatDto.topAgents?.length > 0 && (
         <Section variantTone="ghost">
-          {valStatDto.topAgents.map((agent, index) => (
-            <ValStatCard key={index} agent={agent} />
+          {valStatDto.topAgents.map((agent) => (
+            <ValStatCard key={agent.name} agent={agent} />
           ))}
         </Section>
       )}

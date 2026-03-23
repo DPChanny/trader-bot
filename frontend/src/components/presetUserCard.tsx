@@ -71,7 +71,7 @@ export function PresetUserCard({
 
         <Section variantTone="ghost" variantIntent="tertiary">
           <h3 class={styles.name}>{user.name}</h3>
-          {positionNames && positionNames.length > 0 && (
+          {positionNames?.length > 0 && (
             <Section
               variantTone="ghost"
               variantLayout="row"
