@@ -4,16 +4,10 @@ import styles from "@/styles/pages/auction/infoCard.module.css";
 interface InfoCardProps {
   label: string;
   value: string | number;
-  variant?: "time" | "bid" | "default";
   children?: any;
 }
 
-export function InfoCard({
-  label,
-  value,
-  variant = "default",
-  children,
-}: InfoCardProps) {
+export function InfoCard({ label, value, children }: InfoCardProps) {
   return (
     <Section variantIntent="secondary" className={styles.infoCard}>
       <span className={styles.infoLabel}>{label}</span>
@@ -21,13 +15,7 @@ export function InfoCard({
         {children ? (
           children
         ) : (
-          <span
-            className={`${styles.infoValue} ${
-              variant !== "default" ? styles[variant] : ""
-            }`}
-          >
-            {value}
-          </span>
+          <span className={styles.infoValue}>{value}</span>
         )}
       </Section>
     </Section>

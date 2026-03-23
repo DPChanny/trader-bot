@@ -8,7 +8,6 @@
 }
 
 .infoLabel {
-  color: var(--color-base-text);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
@@ -24,16 +23,7 @@
 }
 
 .infoValue {
-  color: var(--color-base-text-dark);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
   text-align: center;
-}
-
-.infoValue.time {
-  color: var(--color-gold-text);
-}
-
-.infoValue.bid {
-  color: var(--color-green-text);
 }
