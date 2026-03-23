@@ -23,14 +23,15 @@ export function TeamCard({
   const leader = members.find((member) => member.isLeader);
   const teamName = leader ? `${leader.user.name} 팀` : `Team ${team.teamId}`;
   const isFull = members.length === 5;
+  const variantColor = isFull ? "green" : "blue";
 
   return (
-    <Card variantColor={isFull ? "green" : "blue"} variantLayout="column">
+    <Card variantColor={variantColor} variantLayout="column">
       <Section variantTone="ghost" variantLayout="row">
         <h4>{teamName}</h4>
         <span className={styles.points}>{team.points * pointScale} 포인트</span>
       </Section>
-      <Bar />
+      <Bar variantColor={variantColor} />
       <PresetUserGrid
         className={styles.membersGrid}
         presetUsers={members}

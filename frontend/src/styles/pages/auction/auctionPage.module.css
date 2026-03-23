@@ -50,47 +50,6 @@
   overflow-y: auto;
 }
 
-.pageHeader {
-  margin-top: var(--padding-lg);
-  margin-left: var(--padding-lg);
-  margin-right: var(--padding-lg);
-}
-
-.statusBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--padding-sm) var(--padding-md);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-.statusBadge--active {
-  background: var(--color-green-bg);
-  color: var(--color-green-text);
-  border: var(--border-width-default) solid var(--color-green-text);
-}
-
-.statusBadge--waiting {
-  background: var(--color-gold-bg);
-  color: var(--color-gold-text);
-  border: var(--border-width-default) solid var(--color-gold-text);
-}
-
-.statusBadge--inactive {
-  background: rgba(158, 158, 158, 0.2);
-  color: var(--color-base-text);
-  border: var(--border-width-default) solid var(--color-base-border-light);
-}
-
-.statusBadge--error {
-  background: var(--color-red-bg);
-  color: var(--color-red-text);
-  border: var(--border-width-default) solid var(--color-red-text);
-}
-
 @media (max-width: 1024px) {
   .auctionInfoGridSection {
     grid-template-columns: 1fr;

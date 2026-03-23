@@ -31,7 +31,7 @@ export function PresetUserCard({
 
   return (
     <Card
-      variantColor={isLeader ? "gold" : "blue"}
+      variantColor={isLeader ? "gold" : "gray"}
       variantActive={isActive}
       className={styles.userCard}
     >

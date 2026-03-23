@@ -173,9 +173,11 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
     const url = `${AUCTION_WS_ENDPOINT}/${token}`;
     const ws = new WebSocket(url);
+    let opened = false;
 
     ws.onopen = () => {
       if (mountedRef.current) {
+        opened = true;
         setIsConnected(true);
         setWasConnected(true);
       }
@@ -197,6 +199,8 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         setIsConnected(false);
         if (event.reason) {
           setCloseReason(event.reason);
+        } else if (!opened) {
+          setCloseReason("유효하지 않은 토큰이거나 서버에 연결할 수 없습니다.");
         }
       }
     };

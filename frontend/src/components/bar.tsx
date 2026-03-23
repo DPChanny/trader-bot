@@ -6,9 +6,8 @@ const barVariants = cva(styles.bar, {
   variants: {
     variantColor: {
       blue: styles.colorBlue,
-      purple: styles.colorPurple,
-      red: styles.colorRed,
       green: styles.colorGreen,
+      gold: styles.colorGold,
     },
     variantThickness: {
       thin: styles.thicknessThin,

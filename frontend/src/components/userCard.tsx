@@ -11,7 +11,7 @@ export interface UserCardProps {
 export function UserCard({ user, isActive }: UserCardProps) {
   return (
     <Card
-      variantColor="blue"
+      variantColor="gray"
       variantActive={isActive}
       className={styles.userCard}
     >

@@ -26,7 +26,10 @@ interface AuctionPageProps {
 
 export function AuctionPage({}: AuctionPageProps) {
   const [bidAmount, setBidAmount] = useState<string>("");
-  const [token, setToken] = useState<string | null>(null);
+  const [token] = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("token");
+  });
 
   const {
     isConnected,
@@ -66,72 +69,42 @@ export function AuctionPage({}: AuctionPageProps) {
   const pointScale = presetDetail?.pointScale || 1;
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-
     if (token) {
-      setToken(token);
       connect(token);
     }
   }, []);
 
-  if (!token) {
+  const isCompleted = state?.status === "completed";
+
+  const errorMessage = !token
+    ? "유효하지 않은 접근입니다. 경매 참가 링크를 확인해주세요."
+    : closeReason
+      ? closeReason
+      : !isCompleted && wasConnected && !isConnected
+        ? "서버와의 연결이 끊어졌습니다."
+        : null;
+
+  if (errorMessage) {
     return (
       <PageLayout>
         <PageContainer>
           <Section variantIntent="primary" className={styles.centerSection}>
-            <Error>
-              유효하지 않은 접근입니다. 경매 참가 링크를 확인해주세요.
-            </Error>
+            <Error>{errorMessage}</Error>
           </Section>
         </PageContainer>
       </PageLayout>
     );
   }
 
-  if (closeReason) {
-    return (
-      <PageLayout>
-        <PageContainer>
-          <Section variantIntent="primary" className={styles.centerSection}>
-            <Error>{closeReason}</Error>
-          </Section>
-        </PageContainer>
-      </PageLayout>
-    );
-  }
+  const isLoading =
+    !isCompleted &&
+    (!isConnected ||
+      !state ||
+      !state.presetId ||
+      (!presetDetail && (isPresetLoading || isPresetFetching)) ||
+      !presetDetail);
 
-  if (!isConnected || !state) {
-    return (
-      <PageLayout>
-        <PageContainer>
-          <Loading />
-        </PageContainer>
-      </PageLayout>
-    );
-  }
-
-  if (!state.presetId) {
-    return (
-      <PageLayout>
-        <PageContainer>
-          <Loading />
-        </PageContainer>
-      </PageLayout>
-    );
-  }
-
-  if ((isPresetLoading || isPresetFetching) && !presetDetail) {
-    return (
-      <PageLayout>
-        <PageContainer>
-          <Loading />
-        </PageContainer>
-      </PageLayout>
-    );
-  }
-
-  if (!presetDetail) {
+  if (isLoading) {
     return (
       <PageLayout>
         <PageContainer>
@@ -142,14 +115,14 @@ export function AuctionPage({}: AuctionPageProps) {
   }
 
   const presetUserMap = new Map<number, PresetUserDetail>(
-    presetDetail.presetUsers.map((pu) => [pu.userId, pu]),
+    presetDetail?.presetUsers.map((pu) => [pu.userId, pu]) ?? [],
   );
 
-  const auctionQueueUsers = state.auctionQueue
+  const auctionQueueUsers = state!.auctionQueue
     .map((userId) => presetUserMap.get(userId))
     .filter((user): user is PresetUserDetail => user !== undefined);
 
-  const unsoldQueueUsers = state.unsoldQueue
+  const unsoldQueueUsers = state!.unsoldQueue
     .map((userId) => presetUserMap.get(userId))
     .filter((user): user is PresetUserDetail => user !== undefined);
 
@@ -164,18 +137,10 @@ export function AuctionPage({}: AuctionPageProps) {
   const getStatusText = (status: string) => {
     if (wasConnected && !isConnected && status !== "completed")
       return "연결 끊김";
-    if (status === "waiting") return "접속 대기 중";
-    if (status === "in_progress") return "경매 진행 중";
-    if (status === "completed") return "경매 완료";
+    if (status === "waiting") return "대기중";
+    if (status === "in_progress") return "진행중";
+    if (status === "completed") return "완료";
     return status;
-  };
-
-  const getStatusClass = (status: string) => {
-    if (wasConnected && !isConnected && status !== "completed")
-      return styles["statusBadge--error"];
-    if (status === "in_progress") return styles["statusBadge--active"];
-    if (status === "waiting") return styles["statusBadge--waiting"];
-    return styles["statusBadge--inactive"];
   };
 
   const currentUser = state.currentUserId
@@ -199,21 +164,6 @@ export function AuctionPage({}: AuctionPageProps) {
 
   return (
     <PageLayout>
-      <Section
-        variantTone="ghost"
-        variantIntent="secondary"
-        className={styles.pageHeader}
-      >
-        <Section variantTone="ghost" variantLayout="row">
-          <h2>경매 상태</h2>
-          <span
-            className={`${styles.statusBadge} ${getStatusClass(state.status)}`}
-          >
-            {getStatusText(state.status)}
-          </span>
-        </Section>
-        <Bar />
-      </Section>
       <PageContainer>
         <Section variantIntent="primary" className={styles.teamsSection}>
           <h3>팀 목록</h3>
@@ -230,6 +180,7 @@ export function AuctionPage({}: AuctionPageProps) {
         <Section variantIntent="primary" className={styles.auctionInfoSection}>
           <Section variantTone="ghost" variantLayout="row">
             <h3>경매 정보</h3>
+            <span>{getStatusText(state.status)}</span>
           </Section>
           <Bar />
           <Section
@@ -262,7 +213,7 @@ export function AuctionPage({}: AuctionPageProps) {
                   variant="time"
                 />
                 <InfoCard
-                  label="최고 입찰"
+                  label="입찰 포인트"
                   value={
                     state.status === "completed"
                       ? 0

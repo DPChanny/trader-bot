@@ -7,6 +7,9 @@
 }
 
 .colorBlue {
+  --card-profile-bg: var(--color-card-blue-bg);
+  --card-profile-border: var(--color-card-blue-border);
+  --card-profile-text: var(--color-card-blue-text);
   background: var(--color-card-blue-bg);
   border-color: var(--color-card-blue-border);
   color: var(--color-card-blue-text);
@@ -24,6 +27,9 @@
 }
 
 .colorGold {
+  --card-profile-bg: var(--color-card-gold-bg);
+  --card-profile-border: var(--color-card-gold-border);
+  --card-profile-text: var(--color-card-gold-text);
   background: var(--color-card-gold-bg);
   border-color: var(--color-card-gold-border);
   color: var(--color-card-gold-text);
@@ -41,6 +47,9 @@
 }
 
 .colorGreen {
+  --card-profile-bg: var(--color-card-green-bg);
+  --card-profile-border: var(--color-card-green-border);
+  --card-profile-text: var(--color-card-green-text);
   background: var(--color-card-green-bg);
   border-color: var(--color-card-green-border);
   color: var(--color-card-green-text);
@@ -49,4 +58,30 @@
 .colorGreen:hover {
   background: var(--color-card-green-bg-hover);
   border-color: var(--color-card-green-border-hover);
+}
+
+.colorGreen.activeTrue {
+  background: var(--color-card-green-bg-active);
+  border-color: var(--color-card-green-border-active);
+  color: var(--color-card-green-text-active);
+}
+
+.colorGray {
+  --card-profile-bg: var(--color-card-gray-bg);
+  --card-profile-border: var(--color-card-gray-border);
+  --card-profile-text: var(--color-card-gray-text);
+  background: var(--color-card-gray-bg);
+  border-color: var(--color-card-gray-border);
+  color: var(--color-card-gray-text);
+}
+
+.colorGray:hover {
+  background: var(--color-card-gray-bg-hover);
+  border-color: var(--color-card-gray-border-hover);
+}
+
+.colorGray.activeTrue {
+  background: var(--color-card-gray-bg-active);
+  border-color: var(--color-card-gray-border-active);
+  color: var(--color-card-gray-text-active);
 }

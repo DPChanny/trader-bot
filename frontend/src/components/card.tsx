@@ -9,6 +9,7 @@ const cardVariants = cva(styles.card, {
       blue: styles.colorBlue,
       gold: styles.colorGold,
       green: styles.colorGreen,
+      gray: styles.colorGray,
     },
     variantActive: {
       true: styles.activeTrue,
