@@ -2,9 +2,9 @@ import asyncio
 import logging
 import threading
 
+import discord
 from discord.ext import commands
 
-import discord
 from shared.env import get_discord_bot_token
 
 

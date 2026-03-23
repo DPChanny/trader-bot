@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 async def get_val_stat(user_id: int, db: Session) -> GetValResponseDTO | None:
-    """Get VAL data from database"""
     try:
         val_stat = db.query(ValStat).filter(ValStat.user_id == user_id).first()
 
