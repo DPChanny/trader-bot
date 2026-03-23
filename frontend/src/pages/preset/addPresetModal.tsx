@@ -85,21 +85,21 @@ export function AddPresetModal({
               isActive={statistics === "NONE"}
               onClick={() => onStatisticsChange("NONE")}
             >
-              NONE
+              없음
             </Toggle>
             <Toggle
               type="button"
               isActive={statistics === "LOL"}
               onClick={() => onStatisticsChange("LOL")}
             >
-              LOL
+              LoL
             </Toggle>
             <Toggle
               type="button"
               isActive={statistics === "VAL"}
               onClick={() => onStatisticsChange("VAL")}
             >
-              VAL
+              VALORANT
             </Toggle>
           </Section>
         </Section>

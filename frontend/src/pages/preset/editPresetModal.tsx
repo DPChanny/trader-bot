@@ -122,21 +122,21 @@ export function EditPresetModal({
               isActive={statistics === "NONE"}
               onClick={() => setStatistics("NONE")}
             >
-              NONE
+              없음
             </Toggle>
             <Toggle
               type="button"
               isActive={statistics === "LOL"}
               onClick={() => setStatistics("LOL")}
             >
-              LOL
+              LoL
             </Toggle>
             <Toggle
               type="button"
               isActive={statistics === "VAL"}
               onClick={() => setStatistics("VAL")}
             >
-              VAL
+              VALORANT
             </Toggle>
           </Section>
         </Section>

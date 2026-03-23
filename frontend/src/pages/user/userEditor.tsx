@@ -169,7 +169,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
             <Error>통계를 불러오지 못했습니다.</Error>
           )}
 
-          <Label>Valorant 통계</Label>
+          <Label>VALORANT 통계</Label>
           {valStat.isLoading ? (
             <Loading />
           ) : valStat.data ? (
