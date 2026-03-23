@@ -138,7 +138,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
                 name: name,
                 riotId: riotId,
                 discordId: discordId,
-                discordProfileUrl: user.discordProfileUrl,
+                profileUrl: user.profileUrl,
               }}
             />
           </Section>
