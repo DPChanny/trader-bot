@@ -22,7 +22,7 @@
 html,
 body {
   background: #1a1a2e;
-  color: var(--color-base-text-dark);
+  color: var(--color-text);
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
@@ -37,12 +37,12 @@ body {
 }
 
 a {
-  color: var(--color-primary-text);
+  color: var(--color-text-accent);
   text-decoration: underline;
 }
 
 a:hover {
-  color: var(--color-primary-text-light);
+  color: var(--color-text-accent-hover);
   text-decoration: none;
 }
 

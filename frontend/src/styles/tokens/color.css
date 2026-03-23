@@ -1,33 +1,38 @@
 :root {
-  --color-button-primary-bg: #667eea;
-  --color-button-primary-bg-hover: #7b8ff0;
-  --color-button-primary-bg-active: #4a61e6;
-  --color-button-primary-text: #ffffff;
-  --color-button-primary-text-hover: #ffffff;
-  --color-button-primary-text-active: #ffffff;
-  --color-button-primary-border: #667eea;
-  --color-button-primary-border-hover: #7b8ff0;
-  --color-button-primary-border-active: #4a61e6;
+  --color-text: rgb(229, 231, 235);
+  --color-text-muted: rgb(156, 163, 175);
+  --color-text-accent: rgb(102, 126, 234);
+  --color-text-accent-hover: rgb(165, 180, 252);
 
-  --color-button-secondary-bg: #374151;
-  --color-button-secondary-bg-hover: #4b5563;
-  --color-button-secondary-bg-active: #1f2937;
-  --color-button-secondary-text: #e5e7eb;
-  --color-button-secondary-text-hover: #ffffff;
-  --color-button-secondary-text-active: #d1d5db;
-  --color-button-secondary-border: #4b5563;
-  --color-button-secondary-border-hover: #6b7280;
-  --color-button-secondary-border-active: #374151;
+  --color-button-primary-bg: rgb(102, 126, 234);
+  --color-button-primary-bg-hover: rgb(123, 143, 240);
+  --color-button-primary-bg-active: rgb(74, 97, 230);
+  --color-button-primary-text: rgb(255, 255, 255);
+  --color-button-primary-text-hover: rgb(255, 255, 255);
+  --color-button-primary-text-active: rgb(255, 255, 255);
+  --color-button-primary-border: rgb(102, 126, 234);
+  --color-button-primary-border-hover: rgb(123, 143, 240);
+  --color-button-primary-border-active: rgb(74, 97, 230);
 
-  --color-button-danger-bg: #ef4444;
-  --color-button-danger-bg-hover: #f87171;
-  --color-button-danger-bg-active: #dc2626;
-  --color-button-danger-text: #ffffff;
-  --color-button-danger-text-hover: #ffffff;
-  --color-button-danger-text-active: #ffffff;
-  --color-button-danger-border: #ef4444;
-  --color-button-danger-border-hover: #f87171;
-  --color-button-danger-border-active: #dc2626;
+  --color-button-secondary-bg: rgb(55, 65, 81);
+  --color-button-secondary-bg-hover: rgb(75, 85, 99);
+  --color-button-secondary-bg-active: rgb(31, 41, 55);
+  --color-button-secondary-text: rgb(229, 231, 235);
+  --color-button-secondary-text-hover: rgb(255, 255, 255);
+  --color-button-secondary-text-active: rgb(209, 213, 219);
+  --color-button-secondary-border: rgb(75, 85, 99);
+  --color-button-secondary-border-hover: rgb(107, 114, 128);
+  --color-button-secondary-border-active: rgb(55, 65, 81);
+
+  --color-button-danger-bg: rgb(239, 68, 68);
+  --color-button-danger-bg-hover: rgb(248, 113, 113);
+  --color-button-danger-bg-active: rgb(220, 38, 38);
+  --color-button-danger-text: rgb(255, 255, 255);
+  --color-button-danger-text-hover: rgb(255, 255, 255);
+  --color-button-danger-text-active: rgb(255, 255, 255);
+  --color-button-danger-border: rgb(239, 68, 68);
+  --color-button-danger-border-hover: rgb(248, 113, 113);
+  --color-button-danger-border-active: rgb(220, 38, 38);
 
   --color-section-primary-bg: rgb(22, 33, 62);
   --color-section-primary-border: rgba(255, 255, 255, 0.1);
@@ -65,11 +70,11 @@
   --color-card-green-border-hover: rgb(34, 197, 94);
   --color-card-green-text: rgb(74, 222, 128);
 
-  --color-bar-blue: #667eea;
-  --color-bar-purple: #764ba2;
-  --color-bar-red: #ef4444;
-  --color-bar-green: #22c55e;
-  --color-bar-gold: #eab308;
+  --color-bar-blue: rgb(102, 126, 234);
+  --color-bar-purple: rgb(118, 75, 162);
+  --color-bar-red: rgb(239, 68, 68);
+  --color-bar-green: rgb(34, 197, 94);
+  --color-bar-gold: rgb(234, 179, 8);
   --color-bar-white: rgba(255, 255, 255, 0.6);
 
   --color-toggle-bg: rgb(22, 33, 55);
@@ -139,6 +144,6 @@
   --color-scrollbar-bg-hover: rgba(255, 255, 255, 0.3);
 
   --color-loading-spinner-track: rgba(255, 255, 255, 0.08);
-  --color-loading-spinner-accent: #667eea;
+  --color-loading-spinner-accent: rgb(102, 126, 234);
   --color-loading-text: rgb(156, 163, 175);
 }
