@@ -6,9 +6,9 @@ from shared.database import get_db, setup_engine
 from shared.entities.user import User
 from shared.log import setup_logging
 
+from .crawler import close_driver, create_driver
 from .services.lol_stat_service import crawl_lol_stat, save_lol_stat_to_db
 from .services.val_stat_service import crawl_val_stat, save_val_stat_to_db
-from .utils.crawler import close_driver, create_driver
 
 
 setup_logging()

@@ -4,6 +4,7 @@ import discord
 from fastapi import Depends, HTTPException
 from loguru import logger
 
+from shared.dtos.bot_dto import InviteResultDTO
 from shared.exception import service_exception_handler
 
 from .utils import get_bot
@@ -28,7 +29,7 @@ async def get_profile_service(
 @service_exception_handler
 async def invite_service(
     invites: list[tuple[str, str]], bot: discord.Client = Depends(get_bot)
-) -> None:
+) -> InviteResultDTO:
 
     async def _send(discord_id: str, auction_url: str) -> bool:
         try:
@@ -54,4 +55,6 @@ async def invite_service(
     )
 
     success_count = sum(1 for r in results if r is True)
-    logger.info(f"Sent: {success_count}/{len(invites)}")
+    total_count = len(invites)
+    logger.info(f"Sent: {success_count}/{total_count}")
+    return InviteResultDTO(success_count=success_count, total_count=total_count)

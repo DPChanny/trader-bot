@@ -16,9 +16,6 @@ WEB_DRIVER_TIMEOUT = 20
 
 
 def save_val_stat_to_db(user_id: int, val_stat_dto: ValStatDto):
-    """
-    VAL 스탯 데이터를 데이터베이스에 저장합니다.
-    """
     try:
         db = next(get_db())
         val_stat = db.query(ValStat).filter(ValStat.user_id == user_id).first()

@@ -16,9 +16,6 @@ WEB_DRIVER_TIMEOUT = 20
 
 
 def save_lol_stat_to_db(user_id: int, lol_stat_dto: LolStatDto):
-    """
-    LOL 스탯 데이터를 데이터베이스에 저장합니다.
-    """
     try:
         db = next(get_db())
         lol_stat = db.query(LolStat).filter(LolStat.user_id == user_id).first()
