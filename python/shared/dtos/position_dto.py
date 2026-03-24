@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from .base_dto import BaseResponseDTO
+from .base_dto import BaseResponseDTO, NullableStr
 
 
 class PositionDTO(BaseModel):
@@ -15,12 +15,12 @@ class PositionDTO(BaseModel):
 class AddPositionRequestDTO(BaseModel):
     preset_id: int
     name: str
-    icon_url: str | None = None
+    icon_url: NullableStr = None
 
 
 class UpdatePositionRequestDTO(BaseModel):
-    name: str | None = None
-    icon_url: str | None = None
+    name: NullableStr = None
+    icon_url: NullableStr = None
 
 
 class GetPositionDetailResponseDTO(BaseResponseDTO[PositionDTO]):

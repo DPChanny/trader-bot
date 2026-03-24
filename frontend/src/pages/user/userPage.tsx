@@ -22,7 +22,7 @@ export function UserPage({}: UserPageProps) {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   const [formData, setFormData] = useState({
-    name: "",
+    alias: "",
     riotId: "",
     discordId: "",
   });
@@ -43,13 +43,13 @@ export function UserPage({}: UserPageProps) {
   };
 
   const handleOpenModal = () => {
-    setFormData({ name: "", riotId: "", discordId: "" });
+    setFormData({ alias: "", riotId: "", discordId: "" });
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setFormData({ name: "", riotId: "", discordId: "" });
+    setFormData({ alias: "", riotId: "", discordId: "" });
   };
 
   const handleSubmit = async (e: Event) => {

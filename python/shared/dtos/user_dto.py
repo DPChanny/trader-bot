@@ -1,13 +1,13 @@
 from pydantic import BaseModel, computed_field
 
-from .base_dto import BaseResponseDTO
+from .base_dto import BaseResponseDTO, NullableStr
 
 
 class UserDTO(BaseModel):
     user_id: int
-    name: str
-    riot_id: str
-    discord_id: str
+    alias: str | None
+    riot_id: str | None
+    discord_id: str | None
 
     model_config = {"from_attributes": True}
 
@@ -22,15 +22,15 @@ class UserDTO(BaseModel):
 
 
 class AddUserRequestDTO(BaseModel):
-    name: str
-    riot_id: str
-    discord_id: str
+    alias: NullableStr = None
+    riot_id: NullableStr = None
+    discord_id: NullableStr = None
 
 
 class UpdateUserRequestDTO(BaseModel):
-    name: str | None = None
-    riot_id: str | None = None
-    discord_id: str | None = None
+    alias: NullableStr = None
+    riot_id: NullableStr = None
+    discord_id: NullableStr = None
 
 
 class GetUserDetailResponseDTO(BaseResponseDTO[UserDTO]):

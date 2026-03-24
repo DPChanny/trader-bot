@@ -45,7 +45,7 @@ export function PresetUserCard({
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
           {user.profileUrl ? (
-            <img src={user.profileUrl} alt={user.name} />
+            <img src={user.profileUrl} alt={user.alias ?? ""} />
           ) : (
             <svg
               class={styles.profileIcon}
@@ -64,7 +64,7 @@ export function PresetUserCard({
         </div>
 
         <Section variantTone="ghost" variantIntent="tertiary">
-          <h3 class={styles.name}>{user.name}</h3>
+          <h3 class={styles.name}>{user.alias}</h3>
           {positionNames?.length > 0 && (
             <Section
               variantTone="ghost"

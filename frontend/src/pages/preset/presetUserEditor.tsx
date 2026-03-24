@@ -195,7 +195,7 @@ export function PresetUserEditor({
           variantLayout="row"
           variantIntent="secondary"
         >
-          <h3>{presetUser.user.name}</h3>
+          <h3>{presetUser.user.alias}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"

@@ -110,9 +110,9 @@ export interface PresetUserDetail extends PresetUser {
 
 export interface User {
   userId: number;
-  name: string;
-  riotId: string;
-  discordId: string;
+  alias: string | null;
+  riotId: string | null;
+  discordId: string | null;
   profileUrl: string | null;
 }
 

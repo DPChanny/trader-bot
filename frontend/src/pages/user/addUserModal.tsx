@@ -8,7 +8,7 @@ interface AddUserModalProps {
   onClose: () => void;
   onSubmit: (e: Event) => void;
   formData: {
-    name: string;
+    alias: string;
     riotId: string;
     discordId: string;
   };
@@ -33,8 +33,8 @@ export function AddUserModal({
         <LabelInput
           label="이름"
           type="text"
-          value={formData.name}
-          onChange={(value) => onFormChange("name", value)}
+          value={formData.alias}
+          onChange={(value) => onFormChange("alias", value)}
         />
         <LabelInput
           label="Riot ID (선택 사항)"

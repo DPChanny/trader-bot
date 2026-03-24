@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from .base_dto import BaseResponseDTO
+from .base_dto import BaseResponseDTO, NullableStr
 
 
 class TierDTO(BaseModel):
@@ -17,7 +17,7 @@ class AddTierRequestDTO(BaseModel):
 
 
 class UpdateTierRequestDTO(BaseModel):
-    name: str | None = None
+    name: NullableStr = None
 
 
 class GetTierDetailResponseDTO(BaseResponseDTO[TierDTO]):

@@ -38,28 +38,28 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
   const lolStat = useLolStat(user.userId);
   const valStat = useValStat(user.userId);
 
-  const [name, setName] = useState(user.name);
-  const [riotId, setRiotId] = useState(user.riotId);
-  const [discordId, setDiscordId] = useState(user.discordId);
+  const [alias, setAlias] = useState(user.alias ?? "");
+  const [riotId, setRiotId] = useState(user.riotId ?? "");
+  const [discordId, setDiscordId] = useState(user.discordId ?? "");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    setName(user.name);
-    setRiotId(user.riotId);
-    setDiscordId(user.discordId);
-  }, [user.userId, user.name, user.riotId, user.discordId]);
+    setAlias(user.alias ?? "");
+    setRiotId(user.riotId ?? "");
+    setDiscordId(user.discordId ?? "");
+  }, [user.userId, user.alias, user.riotId, user.discordId]);
 
   const hasChanges =
-    name !== user.name ||
-    riotId !== user.riotId ||
-    discordId !== user.discordId;
+    alias !== (user.alias ?? "") ||
+    riotId !== (user.riotId ?? "") ||
+    discordId !== (user.discordId ?? "");
 
   const handleSave = async () => {
     try {
       await updateUser.mutateAsync({
         userId: user.userId,
         data: {
-          name,
+          alias,
           riotId,
           discordId,
         },
@@ -95,7 +95,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           variantLayout="row"
           variantIntent="secondary"
         >
-          <h3>{user.name}</h3>
+          <h3>{user.alias}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -135,7 +135,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
             <UserCard
               user={{
                 userId: user.userId,
-                name: name,
+                alias: alias,
                 riotId: riotId,
                 discordId: discordId,
                 profileUrl: user.profileUrl,
@@ -143,7 +143,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
             />
           </Section>
 
-          <LabelInput label="이름" value={name} onChange={setName} />
+          <LabelInput label="이름" value={alias} onChange={setAlias} />
           <LabelInput label="Riot ID" value={riotId} onChange={setRiotId} />
           <LabelInput
             label="Discord ID"

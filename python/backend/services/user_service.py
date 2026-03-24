@@ -72,7 +72,7 @@ async def add_user_service(
 ) -> GetUserDetailResponseDTO | None:
     try:
         user = User(
-            name=dto.name,
+            alias=dto.alias,
             riot_id=dto.riot_id,
             discord_id=dto.discord_id,
         )
@@ -126,7 +126,7 @@ async def update_user_service(
 
         db.commit()
 
-        if discord_id_changed:
+        if discord_id_changed and user.discord_id:
             await _sync_profile(bucket, user.user_id, user.discord_id)
 
         return await get_user_detail_service(user.user_id, db)
@@ -144,7 +144,8 @@ async def update_profile_service(
             logger.warning(f"User missing: {user_id}")
             raise CustomException(404, "User not found")
 
-        await _sync_profile(bucket, user.user_id, user.discord_id)
+        if user.discord_id:
+            await _sync_profile(bucket, user.user_id, user.discord_id)
 
         logger.info(f"Discord profile updated: {user_id}")
         return await get_user_detail_service(user.user_id, db)

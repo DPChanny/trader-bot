@@ -38,7 +38,7 @@ async def add_user_route(
     _: dict = Depends(verify_admin_token),
     bucket: Any = Depends(get_bucket),
 ):
-    logger.info(f"Adding: {dto.name}")
+    logger.info(f"Adding: {dto.alias}")
     return await add_user_service(dto, db, bucket)
 
 

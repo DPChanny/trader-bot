@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 from ..entities.preset import Statistics
-from .base_dto import BaseResponseDTO
+from .base_dto import BaseResponseDTO, NullableStr
 from .position_dto import PositionDTO
 from .preset_user_dto import PresetUserDetailDTO
 from .tier_dto import TierDTO
@@ -56,7 +56,7 @@ class AddPresetRequestDTO(BaseModel):
 
 
 class UpdatePresetRequestDTO(BaseModel):
-    name: str | None = None
+    name: NullableStr = None
     points: int | None = None
     time: int | None = None
     point_scale: int | None = None

@@ -5,15 +5,15 @@ import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 
 interface AddUserData {
-  name: string;
-  riotId: string;
-  discordId: string;
+  alias?: string | null;
+  riotId?: string | null;
+  discordId?: string | null;
 }
 
 interface UpdateUserData {
-  name?: string;
-  riotId?: string;
-  discordId?: string;
+  alias?: string | null;
+  riotId?: string | null;
+  discordId?: string | null;
 }
 
 export function useUsers() {
