@@ -4,7 +4,6 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.auction_dto import (
-    AddAuctionResponseDTO,
     AuctionDTO,
     Team,
 )
@@ -22,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 @service_exception_handler
-def add_auction_service(preset_id: int, db: Session) -> AddAuctionResponseDTO:
+def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
     logger.info(f"Adding: {preset_id}")
     preset = (
         db.query(Preset)
@@ -95,12 +94,7 @@ def add_auction_service(preset_id: int, db: Session) -> AddAuctionResponseDTO:
     if invites:
         discord_service.send_auction_urls(invites)
 
-    return AddAuctionResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=AuctionDTO(
-            auction_id=auction_id,
-            preset_id=preset_id,
-        ),
+    return AuctionDTO(
+        auction_id=auction_id,
+        preset_id=preset_id,
     )

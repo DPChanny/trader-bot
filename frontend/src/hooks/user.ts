@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
-import type { User, ApiResponse } from "@/dto";
+import type { User } from "@/dto";
 import { USER_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
@@ -22,8 +22,8 @@ export function useUsers() {
     queryFn: async (): Promise<User[]> => {
       const response = await fetch(`${USER_API_ENDPOINT}`);
       if (!response.ok) throw new Error("Failed to fetch users");
-      const json: ApiResponse<any[]> = await response.json();
-      return toCamelCase<User[]>(json.data);
+      const json = await response.json();
+      return toCamelCase<User[]>(json);
     },
   });
 }
@@ -34,8 +34,8 @@ export function useUser(userId: number) {
     queryFn: async (): Promise<User> => {
       const response = await fetch(`${USER_API_ENDPOINT}/${userId}`);
       if (!response.ok) throw new Error("Failed to fetch user");
-      const json: ApiResponse<any> = await response.json();
-      return toCamelCase<User>(json.data);
+      const json = await response.json();
+      return toCamelCase<User>(json);
     },
     enabled: !!userId,
   });
@@ -52,8 +52,8 @@ export function useAddUser() {
         body: JSON.stringify(toSnakeCase(data)),
       });
       if (!response.ok) throw new Error("Failed to add user");
-      const json: ApiResponse<any> = await response.json();
-      return toCamelCase<User>(json.data);
+      const json = await response.json();
+      return toCamelCase<User>(json);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -82,8 +82,8 @@ export function useUpdateUser() {
         console.error("Update user failed:", response.status, errorText);
         throw new Error(`Failed to update user: ${response.status}`);
       }
-      const json: ApiResponse<any> = await response.json();
-      return toCamelCase<User>(json.data);
+      const json = await response.json();
+      return toCamelCase<User>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -132,8 +132,8 @@ export function useUpdateDiscordProfile() {
         );
         throw new Error(`Failed to update discord profile: ${response.status}`);
       }
-      const json: ApiResponse<any> = await response.json();
-      return toCamelCase<User>(json.data);
+      const json = await response.json();
+      return toCamelCase<User>(json);
     },
     onSuccess: (_, userId) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });

@@ -2,8 +2,6 @@ from enum import StrEnum
 
 from pydantic import BaseModel
 
-from .base_dto import BaseResponseDTO
-
 
 class AuctionStatus(StrEnum):
     WAITING = "waiting"
@@ -50,10 +48,6 @@ class AuctionStateDTO(BaseModel):
 class AuctionDTO(BaseModel):
     auction_id: str
     preset_id: int
-
-
-class AddAuctionResponseDTO(BaseResponseDTO[AuctionDTO]):
-    pass
 
 
 class TimerMessageData(BaseModel):

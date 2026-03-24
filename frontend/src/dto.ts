@@ -1,10 +1,3 @@
-export interface ApiResponse<T> {
-  success: boolean;
-  code: number;
-  message: string;
-  data: T;
-}
-
 export interface Auction {
   auctionId: string;
   presetId: number;

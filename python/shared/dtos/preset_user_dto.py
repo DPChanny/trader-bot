@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-from .base_dto import BaseResponseDTO
 from .position_dto import PositionDTO
 from .preset_user_position_dto import PresetUserPositionDetailDTO
 from .tier_dto import TierDTO
@@ -59,11 +58,3 @@ class AddPresetUserRequestDTO(BaseModel):
 class UpdatePresetUserRequestDTO(BaseModel):
     tier_id: int | None = None
     is_leader: bool | None = None
-
-
-class GetPresetUserDetailResponseDTO(BaseResponseDTO[PresetUserDetailDTO]):
-    pass
-
-
-class GetPresetUserListResponseDTO(BaseResponseDTO[list[PresetUserDTO]]):
-    pass

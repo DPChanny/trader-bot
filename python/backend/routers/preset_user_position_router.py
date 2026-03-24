@@ -1,14 +1,13 @@
 import logging
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from shared.database import get_db
-from shared.dtos.base_dto import BaseResponseDTO
 from shared.dtos.preset_user_position_dto import (
     AddPresetUserPositionRequestDTO,
     DeletePresetUserPositionRequestDTO,
-    GetPresetUserPositionResponseDTO,
+    PresetUserPositionDTO,
 )
 
 from ..services.preset_user_position_service import (
@@ -24,7 +23,7 @@ preset_user_position_router = APIRouter(
 )
 
 
-@preset_user_position_router.post("", response_model=GetPresetUserPositionResponseDTO)
+@preset_user_position_router.post("", response_model=PresetUserPositionDTO)
 def add_preset_user_position(
     dto: AddPresetUserPositionRequestDTO, db: Session = Depends(get_db)
 ):
@@ -32,9 +31,10 @@ def add_preset_user_position(
     return add_preset_user_position_service(dto, db)
 
 
-@preset_user_position_router.delete("", response_model=BaseResponseDTO)
+@preset_user_position_router.delete("", status_code=204)
 def delete_preset_user_position(
     dto: DeletePresetUserPositionRequestDTO, db: Session = Depends(get_db)
 ):
     logger.info(f"Delete: {dto.preset_user_position_id}")
-    return delete_preset_user_position_service(dto, db)
+    delete_preset_user_position_service(dto, db)
+    return Response(status_code=204)

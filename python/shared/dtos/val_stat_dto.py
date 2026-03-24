@@ -1,7 +1,5 @@
 from pydantic import BaseModel
 
-from .base_dto import BaseResponseDTO
-
 
 class AgentDto(BaseModel):
     name: str
@@ -14,7 +12,3 @@ class ValStatDto(BaseModel):
     tier: str
     rank: str
     top_agents: list[AgentDto]
-
-
-class GetValResponseDTO(BaseResponseDTO[ValStatDto]):
-    pass

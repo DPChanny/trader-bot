@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
-import type { Preset, PresetDetail, ApiResponse } from "@/dto";
+import type { Preset, PresetDetail } from "@/dto";
 import { PRESET_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
@@ -26,8 +26,8 @@ export function usePresets() {
     queryFn: async (): Promise<Preset[]> => {
       const response = await fetch(`${PRESET_API_ENDPOINT}`);
       if (!response.ok) throw new Error("Failed to fetch presets");
-      const json: ApiResponse<any[]> = await response.json();
-      return toCamelCase<Preset[]>(json.data);
+      const json = await response.json();
+      return toCamelCase<Preset[]>(json);
     },
   });
 }
@@ -39,8 +39,8 @@ export function usePresetDetail(presetId: number | null) {
       if (!presetId) return null;
       const response = await fetch(`${PRESET_API_ENDPOINT}/${presetId}`);
       if (!response.ok) throw new Error("Failed to fetch preset detail");
-      const json: ApiResponse<any> = await response.json();
-      return toCamelCase<PresetDetail>(json.data);
+      const json = await response.json();
+      return toCamelCase<PresetDetail>(json);
     },
     enabled: !!presetId,
   });
@@ -57,8 +57,8 @@ export function useAddPreset() {
         body: JSON.stringify(toSnakeCase(data)),
       });
       if (!response.ok) throw new Error("Failed to add preset");
-      const json: ApiResponse<any> = await response.json();
-      return toCamelCase<Preset>(json.data);
+      const json = await response.json();
+      return toCamelCase<Preset>(json);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["presets"] });
@@ -83,8 +83,8 @@ export function useUpdatePreset() {
         body: JSON.stringify(toSnakeCase(data)),
       });
       if (!response.ok) throw new Error("Failed to update preset");
-      const json: ApiResponse<any> = await response.json();
-      return toCamelCase<Preset>(json.data);
+      const json = await response.json();
+      return toCamelCase<Preset>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["presets"] });

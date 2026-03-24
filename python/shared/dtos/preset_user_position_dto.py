@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-from .base_dto import BaseResponseDTO
 from .position_dto import PositionDTO
 
 
@@ -23,7 +22,3 @@ class AddPresetUserPositionRequestDTO(BaseModel):
 
 class DeletePresetUserPositionRequestDTO(BaseModel):
     preset_user_position_id: int
-
-
-class GetPresetUserPositionResponseDTO(BaseResponseDTO[PresetUserPositionDTO]):
-    pass

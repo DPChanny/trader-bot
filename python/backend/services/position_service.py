@@ -3,11 +3,8 @@ import logging
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from shared.dtos.base_dto import BaseResponseDTO
 from shared.dtos.position_dto import (
     AddPositionRequestDTO,
-    GetPositionDetailResponseDTO,
-    GetPositionListResponseDTO,
     PositionDTO,
     UpdatePositionRequestDTO,
 )
@@ -20,27 +17,18 @@ logger = logging.getLogger(__name__)
 
 
 @service_exception_handler
-def get_position_detail_service(
-    position_id: int, db: Session
-) -> GetPositionDetailResponseDTO:
+def get_position_detail_service(position_id: int, db: Session) -> PositionDTO:
     position = db.query(Position).filter(Position.position_id == position_id).first()
 
     if position is None:
         logger.warning(f"Missing: {position_id}")
         raise HTTPException(status_code=404, detail="Position not found.")
 
-    return GetPositionDetailResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=PositionDTO.model_validate(position),
-    )
+    return PositionDTO.model_validate(position)
 
 
 @service_exception_handler
-def add_position_service(
-    dto: AddPositionRequestDTO, db: Session
-) -> GetPositionDetailResponseDTO:
+def add_position_service(dto: AddPositionRequestDTO, db: Session) -> PositionDTO:
     position = Position(
         preset_id=dto.preset_id,
         name=dto.name,
@@ -51,31 +39,19 @@ def add_position_service(
     db.refresh(position)
 
     logger.info(f"Added: {position.position_id}")
-    return GetPositionDetailResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=PositionDTO.model_validate(position),
-    )
+    return PositionDTO.model_validate(position)
 
 
 @service_exception_handler
-def get_position_list_service(db: Session) -> GetPositionListResponseDTO:
+def get_position_list_service(db: Session) -> list[PositionDTO]:
     positions = db.query(Position).all()
-    position_dtos = [PositionDTO.model_validate(p) for p in positions]
-
-    return GetPositionListResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=position_dtos,
-    )
+    return [PositionDTO.model_validate(p) for p in positions]
 
 
 @service_exception_handler
 def update_position_service(
     position_id: int, dto: UpdatePositionRequestDTO, db: Session
-) -> GetPositionDetailResponseDTO:
+) -> PositionDTO:
     position = db.query(Position).filter(Position.position_id == position_id).first()
     if position is None:
         logger.warning(f"Missing: {position_id}")
@@ -88,16 +64,11 @@ def update_position_service(
     db.refresh(position)
     logger.info(f"Updated: {position_id}")
 
-    return GetPositionDetailResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=PositionDTO.model_validate(position),
-    )
+    return PositionDTO.model_validate(position)
 
 
 @service_exception_handler
-def delete_position_service(position_id: int, db: Session) -> BaseResponseDTO[None]:
+def delete_position_service(position_id: int, db: Session) -> None:
     position = db.query(Position).filter(Position.position_id == position_id).first()
     if position is None:
         logger.warning(f"Missing: {position_id}")
@@ -106,10 +77,3 @@ def delete_position_service(position_id: int, db: Session) -> BaseResponseDTO[No
     db.delete(position)
     db.commit()
     logger.info(f"Deleted: {position_id}")
-
-    return BaseResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=None,
-    )

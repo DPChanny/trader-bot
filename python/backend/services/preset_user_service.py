@@ -3,11 +3,8 @@ import logging
 from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 
-from shared.dtos.base_dto import BaseResponseDTO
 from shared.dtos.preset_user_dto import (
     AddPresetUserRequestDTO,
-    GetPresetUserDetailResponseDTO,
-    GetPresetUserListResponseDTO,
     PresetUserDetailDTO,
     PresetUserDTO,
     UpdatePresetUserRequestDTO,
@@ -36,25 +33,20 @@ def _load_preset_user(preset_user_id: int, db: Session) -> PresetUser | None:
 @service_exception_handler
 async def get_preset_user_detail_service(
     preset_user_id: int, db: Session
-) -> GetPresetUserDetailResponseDTO:
+) -> PresetUserDetailDTO:
     preset_user = _load_preset_user(preset_user_id, db)
 
     if preset_user is None:
         logger.warning(f"Missing: {preset_user_id}")
         raise HTTPException(status_code=404, detail="Preset user not found.")
 
-    return GetPresetUserDetailResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=PresetUserDetailDTO.model_validate(preset_user),
-    )
+    return PresetUserDetailDTO.model_validate(preset_user)
 
 
 @service_exception_handler
 async def add_preset_user_service(
     dto: AddPresetUserRequestDTO, db: Session
-) -> GetPresetUserDetailResponseDTO:
+) -> PresetUserDetailDTO:
     preset_user = PresetUser(
         preset_id=dto.preset_id,
         user_id=dto.user_id,
@@ -68,31 +60,19 @@ async def add_preset_user_service(
 
     preset_user = _load_preset_user(preset_user.preset_user_id, db)
 
-    return GetPresetUserDetailResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=PresetUserDetailDTO.model_validate(preset_user),
-    )
+    return PresetUserDetailDTO.model_validate(preset_user)
 
 
 @service_exception_handler
-def get_preset_user_list_service(db: Session) -> GetPresetUserListResponseDTO:
+def get_preset_user_list_service(db: Session) -> list[PresetUserDTO]:
     preset_users = db.query(PresetUser).all()
-    preset_user_dtos = [PresetUserDTO.model_validate(pu) for pu in preset_users]
-
-    return GetPresetUserListResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=preset_user_dtos,
-    )
+    return [PresetUserDTO.model_validate(pu) for pu in preset_users]
 
 
 @service_exception_handler
 async def update_preset_user_service(
     preset_user_id: int, dto: UpdatePresetUserRequestDTO, db: Session
-) -> GetPresetUserDetailResponseDTO:
+) -> PresetUserDetailDTO:
     preset_user = (
         db.query(PresetUser).filter(PresetUser.preset_user_id == preset_user_id).first()
     )
@@ -108,18 +88,11 @@ async def update_preset_user_service(
 
     preset_user = _load_preset_user(preset_user_id, db)
 
-    return GetPresetUserDetailResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=PresetUserDetailDTO.model_validate(preset_user),
-    )
+    return PresetUserDetailDTO.model_validate(preset_user)
 
 
 @service_exception_handler
-def delete_preset_user_service(
-    preset_user_id: int, db: Session
-) -> BaseResponseDTO[None]:
+def delete_preset_user_service(preset_user_id: int, db: Session) -> None:
     preset_user = (
         db.query(PresetUser).filter(PresetUser.preset_user_id == preset_user_id).first()
     )
@@ -129,10 +102,3 @@ def delete_preset_user_service(
     db.delete(preset_user)
     db.commit()
     logger.info(f"Deleted: {preset_user_id}")
-
-    return BaseResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=None,
-    )

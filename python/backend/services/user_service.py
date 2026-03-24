@@ -5,11 +5,8 @@ import aiohttp
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from shared.dtos.base_dto import BaseResponseDTO
 from shared.dtos.user_dto import (
     AddUserRequestDTO,
-    GetUserDetailResponseDTO,
-    GetUserListResponseDTO,
     UpdateUserRequestDTO,
     UserDTO,
 )
@@ -46,27 +43,18 @@ async def _sync_profile(bucket: Any, user_id: int, discord_id: str):
 
 
 @service_exception_handler
-async def get_user_detail_service(
-    user_id: int, db: Session
-) -> GetUserDetailResponseDTO:
+async def get_user_detail_service(user_id: int, db: Session) -> UserDTO:
     user = db.query(User).filter(User.user_id == user_id).first()
 
     if user is None:
         logger.warning(f"Missing: {user_id}")
         raise HTTPException(status_code=404, detail="User not found.")
 
-    return GetUserDetailResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=UserDTO.model_validate(user),
-    )
+    return UserDTO.model_validate(user)
 
 
 @service_exception_handler
-async def add_user_service(
-    dto: AddUserRequestDTO, db: Session, bucket: Any
-) -> GetUserDetailResponseDTO:
+async def add_user_service(dto: AddUserRequestDTO, db: Session, bucket: Any) -> UserDTO:
     user = User(
         alias=dto.alias,
         riot_id=dto.riot_id,
@@ -84,22 +72,15 @@ async def add_user_service(
 
 
 @service_exception_handler
-async def get_user_list_service(db: Session) -> GetUserListResponseDTO:
+async def get_user_list_service(db: Session) -> list[UserDTO]:
     users = db.query(User).all()
-    user_dtos = [UserDTO.model_validate(u) for u in users]
-
-    return GetUserListResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=user_dtos,
-    )
+    return [UserDTO.model_validate(u) for u in users]
 
 
 @service_exception_handler
 async def update_user_service(
     user_id: int, dto: UpdateUserRequestDTO, db: Session, bucket: Any
-) -> GetUserDetailResponseDTO:
+) -> UserDTO:
     user = db.query(User).filter(User.user_id == user_id).first()
     if user is None:
         logger.warning(f"Missing: {user_id}")
@@ -123,9 +104,7 @@ async def update_user_service(
 
 
 @service_exception_handler
-async def update_profile_service(
-    user_id: int, db: Session, bucket: Any
-) -> GetUserDetailResponseDTO:
+async def update_profile_service(user_id: int, db: Session, bucket: Any) -> UserDTO:
     user = db.query(User).filter(User.user_id == user_id).first()
     if user is None:
         logger.warning(f"Missing: {user_id}")
@@ -139,9 +118,7 @@ async def update_profile_service(
 
 
 @service_exception_handler
-async def delete_user_service(
-    user_id: int, db: Session, bucket: Any
-) -> BaseResponseDTO[None]:
+async def delete_user_service(user_id: int, db: Session, bucket: Any) -> None:
     user = db.query(User).filter(User.user_id == user_id).first()
     if user is None:
         logger.warning(f"Missing: {user_id}")
@@ -153,10 +130,3 @@ async def delete_user_service(
     await delete_profile(bucket, user_id)
 
     logger.info(f"Deleted: {user_id}")
-
-    return BaseResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=None,
-    )

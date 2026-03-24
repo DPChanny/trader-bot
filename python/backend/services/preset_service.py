@@ -3,11 +3,8 @@ import logging
 from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 
-from shared.dtos.base_dto import BaseResponseDTO
 from shared.dtos.preset_dto import (
     AddPresetRequestDTO,
-    GetPresetDetailResponseDTO,
-    GetPresetListResponseDTO,
     PresetDetailDTO,
     PresetDTO,
     UpdatePresetRequestDTO,
@@ -40,27 +37,18 @@ def _load_preset(preset_id: int, db: Session) -> Preset | None:
 
 
 @service_exception_handler
-async def get_preset_detail_service(
-    preset_id: int, db: Session
-) -> GetPresetDetailResponseDTO:
+async def get_preset_detail_service(preset_id: int, db: Session) -> PresetDetailDTO:
     preset = _load_preset(preset_id, db)
 
     if preset is None:
         logger.warning(f"Missing: {preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found.")
 
-    return GetPresetDetailResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=PresetDetailDTO.model_validate(preset),
-    )
+    return PresetDetailDTO.model_validate(preset)
 
 
 @service_exception_handler
-def add_preset_service(
-    dto: AddPresetRequestDTO, db: Session
-) -> GetPresetDetailResponseDTO:
+def add_preset_service(dto: AddPresetRequestDTO, db: Session) -> PresetDetailDTO:
     preset = Preset(
         name=dto.name,
         points=dto.points,
@@ -75,31 +63,19 @@ def add_preset_service(
     preset = _load_preset(preset.preset_id, db)
 
     logger.info(f"Added: {preset.preset_id}")
-    return GetPresetDetailResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=PresetDetailDTO.model_validate(preset),
-    )
+    return PresetDetailDTO.model_validate(preset)
 
 
 @service_exception_handler
-def get_preset_list_service(db: Session) -> GetPresetListResponseDTO:
+def get_preset_list_service(db: Session) -> list[PresetDTO]:
     presets = db.query(Preset).all()
-    preset_dtos = [PresetDTO.model_validate(p) for p in presets]
-
-    return GetPresetListResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=preset_dtos,
-    )
+    return [PresetDTO.model_validate(p) for p in presets]
 
 
 @service_exception_handler
 def update_preset_service(
     preset_id: int, dto: UpdatePresetRequestDTO, db: Session
-) -> GetPresetDetailResponseDTO:
+) -> PresetDetailDTO:
     preset = db.query(Preset).filter(Preset.preset_id == preset_id).first()
     if preset is None:
         logger.warning(f"Missing: {preset_id}")
@@ -114,16 +90,11 @@ def update_preset_service(
 
     preset = _load_preset(preset_id, db)
 
-    return GetPresetDetailResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=PresetDetailDTO.model_validate(preset),
-    )
+    return PresetDetailDTO.model_validate(preset)
 
 
 @service_exception_handler
-def delete_preset_service(preset_id: int, db: Session) -> BaseResponseDTO[None]:
+def delete_preset_service(preset_id: int, db: Session) -> None:
     preset = db.query(Preset).filter(Preset.preset_id == preset_id).first()
     if preset is None:
         logger.warning(f"Missing: {preset_id}")
@@ -132,10 +103,3 @@ def delete_preset_service(preset_id: int, db: Session) -> BaseResponseDTO[None]:
     db.delete(preset)
     db.commit()
     logger.info(f"Deleted: {preset_id}")
-
-    return BaseResponseDTO(
-        success=True,
-        code=200,
-        message="ok.",
-        data=None,
-    )

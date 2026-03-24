@@ -1,15 +1,13 @@
 import logging
-from types import NoneType
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from shared.database import get_db
-from shared.dtos.base_dto import BaseResponseDTO
 from shared.dtos.preset_dto import (
     AddPresetRequestDTO,
-    GetPresetDetailResponseDTO,
-    GetPresetListResponseDTO,
+    PresetDetailDTO,
+    PresetDTO,
     UpdatePresetRequestDTO,
 )
 
@@ -28,7 +26,7 @@ logger = logging.getLogger(__name__)
 preset_router = APIRouter(prefix="/preset", tags=["preset"])
 
 
-@preset_router.post("", response_model=GetPresetDetailResponseDTO)
+@preset_router.post("", response_model=PresetDetailDTO)
 def add_preset_route(
     dto: AddPresetRequestDTO,
     db: Session = Depends(get_db),
@@ -38,19 +36,19 @@ def add_preset_route(
     return add_preset_service(dto, db)
 
 
-@preset_router.get("", response_model=GetPresetListResponseDTO)
+@preset_router.get("", response_model=list[PresetDTO])
 def get_preset_list_route(db: Session = Depends(get_db)):
     logger.info("Get list")
     return get_preset_list_service(db)
 
 
-@preset_router.get("/{preset_id}", response_model=GetPresetDetailResponseDTO)
+@preset_router.get("/{preset_id}", response_model=PresetDetailDTO)
 async def get_preset_detail_route(preset_id: int, db: Session = Depends(get_db)):
     logger.info(f"Get: {preset_id}")
     return await get_preset_detail_service(preset_id, db)
 
 
-@preset_router.patch("/{preset_id}", response_model=GetPresetDetailResponseDTO)
+@preset_router.patch("/{preset_id}", response_model=PresetDetailDTO)
 def update_preset_route(
     preset_id: int,
     dto: UpdatePresetRequestDTO,
@@ -61,11 +59,12 @@ def update_preset_route(
     return update_preset_service(preset_id, dto, db)
 
 
-@preset_router.delete("/{preset_id}", response_model=BaseResponseDTO[NoneType])
+@preset_router.delete("/{preset_id}", status_code=204)
 def delete_preset_route(
     preset_id: int,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
     logger.info(f"Delete: {preset_id}")
-    return delete_preset_service(preset_id, db)
+    delete_preset_service(preset_id, db)
+    return Response(status_code=204)

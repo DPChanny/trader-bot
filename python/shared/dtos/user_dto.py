@@ -1,6 +1,6 @@
 from pydantic import BaseModel, computed_field
 
-from .base_dto import BaseResponseDTO, NullableStr
+from .base_dto import NullableStr
 
 
 class UserDTO(BaseModel):
@@ -31,11 +31,3 @@ class UpdateUserRequestDTO(BaseModel):
     alias: NullableStr = None
     riot_id: NullableStr = None
     discord_id: NullableStr = None
-
-
-class GetUserDetailResponseDTO(BaseResponseDTO[UserDTO]):
-    pass
-
-
-class GetUserListResponseDTO(BaseResponseDTO[list[UserDTO]]):
-    pass

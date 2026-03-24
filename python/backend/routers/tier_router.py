@@ -1,15 +1,12 @@
 import logging
-from types import NoneType
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from shared.database import get_db
-from shared.dtos.base_dto import BaseResponseDTO
 from shared.dtos.tier_dto import (
     AddTierRequestDTO,
-    GetTierDetailResponseDTO,
-    GetTierListResponseDTO,
+    TierDTO,
     UpdateTierRequestDTO,
 )
 
@@ -28,7 +25,7 @@ logger = logging.getLogger(__name__)
 tier_router = APIRouter(prefix="/tier", tags=["tier"])
 
 
-@tier_router.post("", response_model=GetTierDetailResponseDTO)
+@tier_router.post("", response_model=TierDTO)
 def add_tier_route(
     dto: AddTierRequestDTO,
     db: Session = Depends(get_db),
@@ -38,19 +35,19 @@ def add_tier_route(
     return add_tier_service(dto, db)
 
 
-@tier_router.get("", response_model=GetTierListResponseDTO)
+@tier_router.get("", response_model=list[TierDTO])
 def get_tier_list_route(db: Session = Depends(get_db)):
     logger.info("Get list")
     return get_tier_list_service(db)
 
 
-@tier_router.get("/{tier_id}", response_model=GetTierDetailResponseDTO)
+@tier_router.get("/{tier_id}", response_model=TierDTO)
 def get_tier_detail_route(tier_id: int, db: Session = Depends(get_db)):
     logger.info(f"Get: {tier_id}")
     return get_tier_detail_service(tier_id, db)
 
 
-@tier_router.patch("/{tier_id}", response_model=GetTierDetailResponseDTO)
+@tier_router.patch("/{tier_id}", response_model=TierDTO)
 def update_tier_route(
     tier_id: int,
     dto: UpdateTierRequestDTO,
@@ -61,11 +58,12 @@ def update_tier_route(
     return update_tier_service(tier_id, dto, db)
 
 
-@tier_router.delete("/{tier_id}", response_model=BaseResponseDTO[NoneType])
+@tier_router.delete("/{tier_id}", status_code=204)
 def delete_tier_route(
     tier_id: int,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
     logger.info(f"Delete: {tier_id}")
-    return delete_tier_service(tier_id, db)
+    delete_tier_service(tier_id, db)
+    return Response(status_code=204)

@@ -1,15 +1,12 @@
 import logging
-from types import NoneType
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from shared.database import get_db
-from shared.dtos.base_dto import BaseResponseDTO
 from shared.dtos.position_dto import (
     AddPositionRequestDTO,
-    GetPositionDetailResponseDTO,
-    GetPositionListResponseDTO,
+    PositionDTO,
     UpdatePositionRequestDTO,
 )
 
@@ -28,7 +25,7 @@ logger = logging.getLogger(__name__)
 position_router = APIRouter(prefix="/position", tags=["position"])
 
 
-@position_router.post("", response_model=GetPositionDetailResponseDTO)
+@position_router.post("", response_model=PositionDTO)
 def add_position_route(
     dto: AddPositionRequestDTO,
     db: Session = Depends(get_db),
@@ -38,19 +35,19 @@ def add_position_route(
     return add_position_service(dto, db)
 
 
-@position_router.get("", response_model=GetPositionListResponseDTO)
+@position_router.get("", response_model=list[PositionDTO])
 def get_position_list_route(db: Session = Depends(get_db)):
     logger.info("Get list")
     return get_position_list_service(db)
 
 
-@position_router.get("/{position_id}", response_model=GetPositionDetailResponseDTO)
+@position_router.get("/{position_id}", response_model=PositionDTO)
 def get_position_detail_route(position_id: int, db: Session = Depends(get_db)):
     logger.info(f"Get: {position_id}")
     return get_position_detail_service(position_id, db)
 
 
-@position_router.patch("/{position_id}", response_model=GetPositionDetailResponseDTO)
+@position_router.patch("/{position_id}", response_model=PositionDTO)
 def update_position_route(
     position_id: int,
     dto: UpdatePositionRequestDTO,
@@ -61,11 +58,12 @@ def update_position_route(
     return update_position_service(position_id, dto, db)
 
 
-@position_router.delete("/{position_id}", response_model=BaseResponseDTO[NoneType])
+@position_router.delete("/{position_id}", status_code=204)
 def delete_position_route(
     position_id: int,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
     logger.info(f"Delete: {position_id}")
-    return delete_position_service(position_id, db)
+    delete_position_service(position_id, db)
+    return Response(status_code=204)
