@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from shared.database import get_db
@@ -73,5 +73,4 @@ async def delete_user_route(
     _: dict = Depends(verify_admin_token),
     bucket: Any = Depends(get_bucket),
 ):
-    await delete_user_service(user_id, db, bucket)
-    return Response(status_code=204)
+    return await delete_user_service(user_id, db, bucket)

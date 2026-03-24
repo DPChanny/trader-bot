@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Response
 from loguru import logger
 from sqlalchemy.orm import Session
 
@@ -29,7 +29,6 @@ def add_tier_service(dto: AddTierRequestDTO, db: Session) -> TierDTO:
     db.add(tier)
     db.commit()
     db.refresh(tier)
-
     logger.info(f"Tier created: id={tier.tier_id}, name={dto.name}")
     return TierDTO.model_validate(tier)
 
@@ -60,7 +59,7 @@ def update_tier_service(
 
 
 @service_exception_handler
-def delete_tier_service(tier_id: int, db: Session) -> None:
+def delete_tier_service(tier_id: int, db: Session) -> Response:
     tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()
     if tier is None:
         logger.warning(f"Tier not found: id={tier_id}")
@@ -69,3 +68,4 @@ def delete_tier_service(tier_id: int, db: Session) -> None:
     db.delete(tier)
     db.commit()
     logger.info(f"Tier deleted: id={tier_id}")
+    return Response(status_code=204)

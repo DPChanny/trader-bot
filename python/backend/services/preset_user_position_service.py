@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Response
 from loguru import logger
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -50,8 +50,8 @@ def add_preset_user_position_service(
             status_code=400,
             detail="PresetUserPosition duplicated",
         ) from e
-    db.refresh(preset_user_position)
 
+    db.refresh(preset_user_position)
     logger.info(
         f"PresetUserPosition created: id={preset_user_position.preset_user_position_id}"
     )
@@ -61,7 +61,7 @@ def add_preset_user_position_service(
 @service_exception_handler
 def delete_preset_user_position_service(
     dto: DeletePresetUserPositionRequestDTO, db: Session
-) -> None:
+) -> Response:
     preset_user_position = (
         db.query(PresetUserPosition)
         .filter(
@@ -79,3 +79,4 @@ def delete_preset_user_position_service(
     db.delete(preset_user_position)
     db.commit()
     logger.info(f"PresetUserPosition deleted: id={dto.preset_user_position_id}")
+    return Response(status_code=204)

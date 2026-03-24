@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from shared.database import get_db
@@ -30,5 +30,4 @@ def add_preset_user_position(
 def delete_preset_user_position(
     dto: DeletePresetUserPositionRequestDTO, db: Session = Depends(get_db)
 ):
-    delete_preset_user_position_service(dto, db)
-    return Response(status_code=204)
+    return delete_preset_user_position_service(dto, db)

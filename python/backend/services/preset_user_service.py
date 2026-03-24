@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Response
 from loguru import logger
 from sqlalchemy.orm import Session, joinedload
 
@@ -14,7 +14,7 @@ from shared.entities.preset_user_position import PresetUserPosition
 from ..utils.exception import service_exception_handler
 
 
-def _load_preset_user_detail(preset_user_id: int, db: Session) -> PresetUser | None:
+def _query_preset_user_detail(preset_user_id: int, db: Session) -> PresetUser | None:
     return (
         db.query(PresetUser)
         .options(
@@ -33,7 +33,7 @@ def _load_preset_user_detail(preset_user_id: int, db: Session) -> PresetUser | N
 async def get_preset_user_detail_service(
     preset_user_id: int, db: Session
 ) -> PresetUserDetailDTO:
-    preset_user = _load_preset_user_detail(preset_user_id, db)
+    preset_user = _query_preset_user_detail(preset_user_id, db)
 
     if preset_user is None:
         logger.warning(f"PresetUser not found: id={preset_user_id}")
@@ -56,7 +56,7 @@ async def add_preset_user_service(
     db.commit()
     logger.info(f"PresetUser created: id={preset_user.preset_user_id}")
 
-    preset_user = _load_preset_user_detail(preset_user.preset_user_id, db)
+    preset_user = _query_preset_user_detail(preset_user.preset_user_id, db)
 
     return PresetUserDetailDTO.model_validate(preset_user)
 
@@ -84,13 +84,13 @@ async def update_preset_user_service(
     db.commit()
     logger.info(f"PresetUser updated: id={preset_user_id}")
 
-    preset_user = _load_preset_user_detail(preset_user_id, db)
+    preset_user = _query_preset_user_detail(preset_user_id, db)
 
     return PresetUserDetailDTO.model_validate(preset_user)
 
 
 @service_exception_handler
-def delete_preset_user_service(preset_user_id: int, db: Session) -> None:
+def delete_preset_user_service(preset_user_id: int, db: Session) -> Response:
     preset_user = (
         db.query(PresetUser).filter(PresetUser.preset_user_id == preset_user_id).first()
     )
@@ -101,3 +101,4 @@ def delete_preset_user_service(preset_user_id: int, db: Session) -> None:
     db.delete(preset_user)
     db.commit()
     logger.info(f"PresetUser deleted: id={preset_user_id}")
+    return Response(status_code=204)

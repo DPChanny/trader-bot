@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Response
 from loguru import logger
 from sqlalchemy.orm import Session
 
@@ -33,7 +33,6 @@ def add_position_service(dto: AddPositionRequestDTO, db: Session) -> PositionDTO
     db.add(position)
     db.commit()
     db.refresh(position)
-
     logger.info(f"Position created: id={position.position_id}, name={dto.name}")
     return PositionDTO.model_validate(position)
 
@@ -64,7 +63,7 @@ def update_position_service(
 
 
 @service_exception_handler
-def delete_position_service(position_id: int, db: Session) -> None:
+def delete_position_service(position_id: int, db: Session) -> Response:
     position = db.query(Position).filter(Position.position_id == position_id).first()
     if position is None:
         logger.warning(f"Position not found: id={position_id}")
@@ -73,3 +72,4 @@ def delete_position_service(position_id: int, db: Session) -> None:
     db.delete(position)
     db.commit()
     logger.info(f"Position deleted: id={position_id}")
+    return Response(status_code=204)

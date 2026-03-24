@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Response
 from loguru import logger
 from sqlalchemy.orm import Session
 
@@ -53,7 +53,8 @@ async def add_user_service(dto: AddUserRequestDTO, db: Session, bucket: Any) -> 
     db.commit()
     logger.info(f"User created: id={user.user_id}, alias={dto.alias}")
 
-    return await get_user_detail_service(user.user_id, db)
+    db.refresh(user)
+    return UserDTO.model_validate(user)
 
 
 @service_exception_handler
@@ -89,7 +90,8 @@ async def update_user_service(
     db.commit()
     logger.info(f"User updated: id={user_id}")
 
-    return await get_user_detail_service(user.user_id, db)
+    db.refresh(user)
+    return UserDTO.model_validate(user)
 
 
 @service_exception_handler
@@ -104,11 +106,12 @@ async def update_profile_service(user_id: int, db: Session, bucket: Any) -> User
         await _upload_profile(bucket, user.user_id, user.discord_id)
 
     logger.info(f"User profile updated: id={user_id}")
-    return await get_user_detail_service(user.user_id, db)
+    db.refresh(user)
+    return UserDTO.model_validate(user)
 
 
 @service_exception_handler
-async def delete_user_service(user_id: int, db: Session, bucket: Any) -> None:
+async def delete_user_service(user_id: int, db: Session, bucket: Any) -> Response:
     user = db.query(User).filter(User.user_id == user_id).first()
     if user is None:
         logger.warning(f"User not found: id={user_id}")
@@ -121,3 +124,4 @@ async def delete_user_service(user_id: int, db: Session, bucket: Any) -> None:
 
     db.commit()
     logger.info(f"User deleted: id={user_id}")
+    return Response(status_code=204)

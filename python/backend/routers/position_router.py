@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from shared.database import get_db
@@ -56,5 +56,4 @@ def delete_position_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    delete_position_service(position_id, db)
-    return Response(status_code=204)
+    return delete_position_service(position_id, db)
