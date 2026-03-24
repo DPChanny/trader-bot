@@ -1,5 +1,6 @@
 import logging
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.base_dto import BaseResponseDTO
@@ -13,159 +14,125 @@ from shared.dtos.preset_user_dto import (
 )
 from shared.entities.preset_user import PresetUser
 
-from ..utils.exception import CustomException, handle_exception
+from ..utils.exception import service_exception_handler
 
 
 logger = logging.getLogger(__name__)
 
 
+def _load_preset_user(preset_user_id: int, db: Session) -> PresetUser | None:
+    return (
+        db.query(PresetUser)
+        .options(
+            joinedload(PresetUser.user),
+            joinedload(PresetUser.tier),
+            joinedload(PresetUser.preset_user_positions),
+        )
+        .filter(PresetUser.preset_user_id == preset_user_id)
+        .first()
+    )
+
+
+@service_exception_handler
 async def get_preset_user_detail_service(
     preset_user_id: int, db: Session
-) -> GetPresetUserDetailResponseDTO | None:
-    try:
-        preset_user = (
-            db.query(PresetUser)
-            .options(
-                joinedload(PresetUser.user),
-                joinedload(PresetUser.tier),
-                joinedload(PresetUser.preset_user_positions),
-            )
-            .filter(PresetUser.preset_user_id == preset_user_id)
-            .first()
-        )
+) -> GetPresetUserDetailResponseDTO:
+    preset_user = _load_preset_user(preset_user_id, db)
 
-        if preset_user is None:
-            logger.warning(f"Missing: {preset_user_id}")
-            raise CustomException(404, "Preset user not found.")
+    if preset_user is None:
+        logger.warning(f"Missing: {preset_user_id}")
+        raise HTTPException(status_code=404, detail="Preset user not found.")
 
-        preset_user_dto = PresetUserDetailDTO.model_validate(preset_user)
-
-        return GetPresetUserDetailResponseDTO(
-            success=True,
-            code=200,
-            message="ok.",
-            data=preset_user_dto,
-        )
-
-    except Exception as e:
-        handle_exception(e, db)
+    return GetPresetUserDetailResponseDTO(
+        success=True,
+        code=200,
+        message="ok.",
+        data=PresetUserDetailDTO.model_validate(preset_user),
+    )
 
 
+@service_exception_handler
 async def add_preset_user_service(
     dto: AddPresetUserRequestDTO, db: Session
-) -> GetPresetUserDetailResponseDTO | None:
-    try:
-        preset_user = PresetUser(
-            preset_id=dto.preset_id,
-            user_id=dto.user_id,
-            tier_id=dto.tier_id,
-            is_leader=dto.is_leader,
-        )
-        db.add(preset_user)
-        db.commit()
-        db.refresh(preset_user)
-        logger.info(f"Added: {preset_user.preset_user_id}")
+) -> GetPresetUserDetailResponseDTO:
+    preset_user = PresetUser(
+        preset_id=dto.preset_id,
+        user_id=dto.user_id,
+        tier_id=dto.tier_id,
+        is_leader=dto.is_leader,
+    )
+    db.add(preset_user)
+    db.commit()
+    db.refresh(preset_user)
+    logger.info(f"Added: {preset_user.preset_user_id}")
 
-        preset_user = (
-            .first()
-        )
+    preset_user = _load_preset_user(preset_user.preset_user_id, db)
 
-        preset_user_dto = PresetUserDetailDTO.model_validate(preset_user)
-
-        return GetPresetUserDetailResponseDTO(
-            success=True,
-            code=200,
-            message="ok.",
-            data=preset_user_dto,
-        )
-
-    except Exception as e:
-        handle_exception(e, db)
+    return GetPresetUserDetailResponseDTO(
+        success=True,
+        code=200,
+        message="ok.",
+        data=PresetUserDetailDTO.model_validate(preset_user),
+    )
 
 
-def get_preset_user_list_service(
-    db: Session,
-) -> GetPresetUserListResponseDTO | None:
-    try:
-        preset_users = db.query(PresetUser).all()
-        preset_user_dtos = [PresetUserDTO.model_validate(pu) for pu in preset_users]
+@service_exception_handler
+def get_preset_user_list_service(db: Session) -> GetPresetUserListResponseDTO:
+    preset_users = db.query(PresetUser).all()
+    preset_user_dtos = [PresetUserDTO.model_validate(pu) for pu in preset_users]
 
-        return GetPresetUserListResponseDTO(
-            success=True,
-            code=200,
-            message="ok.",
-            data=preset_user_dtos,
-        )
-
-    except Exception as e:
-        handle_exception(e, db)
+    return GetPresetUserListResponseDTO(
+        success=True,
+        code=200,
+        message="ok.",
+        data=preset_user_dtos,
+    )
 
 
+@service_exception_handler
 async def update_preset_user_service(
     preset_user_id: int, dto: UpdatePresetUserRequestDTO, db: Session
-) -> GetPresetUserDetailResponseDTO | None:
-    try:
-        preset_user = (
-            db.query(PresetUser)
-            .filter(PresetUser.preset_user_id == preset_user_id)
-            .first()
-        )
-        if preset_user is None:
-            raise CustomException(404, "Preset user not found")
+) -> GetPresetUserDetailResponseDTO:
+    preset_user = (
+        db.query(PresetUser).filter(PresetUser.preset_user_id == preset_user_id).first()
+    )
+    if preset_user is None:
+        raise HTTPException(status_code=404, detail="Preset user not found")
 
-        for key, value in dto.model_dump(exclude_unset=True).items():
-            setattr(preset_user, key, value)
+    for key, value in dto.model_dump(exclude_unset=True).items():
+        setattr(preset_user, key, value)
 
-        db.commit()
-        db.refresh(preset_user)
-        logger.info(f"Updated: {preset_user_id}")
+    db.commit()
+    db.refresh(preset_user)
+    logger.info(f"Updated: {preset_user_id}")
 
-        preset_user = (
-            db.query(PresetUser)
-            .options(
-                joinedload(PresetUser.user),
-                joinedload(PresetUser.tier),
-                joinedload(PresetUser.preset_user_positions),
-            )
-            .filter(PresetUser.preset_user_id == preset_user_id)
-            .first()
-        )
+    preset_user = _load_preset_user(preset_user_id, db)
 
-        preset_user_dto = PresetUserDetailDTO.model_validate(preset_user)
-
-        return GetPresetUserDetailResponseDTO(
-            success=True,
-            code=200,
-            message="ok.",
-            data=preset_user_dto,
-        )
-
-    except Exception as e:
-        handle_exception(e, db)
+    return GetPresetUserDetailResponseDTO(
+        success=True,
+        code=200,
+        message="ok.",
+        data=PresetUserDetailDTO.model_validate(preset_user),
+    )
 
 
+@service_exception_handler
 def delete_preset_user_service(
     preset_user_id: int, db: Session
-) -> BaseResponseDTO[None] | None:
-    try:
-        preset_user = (
-            db.query(PresetUser)
-            .filter(PresetUser.preset_user_id == preset_user_id)
-            .first()
-        )
-        if preset_user is None:
-            raise CustomException(404, "Preset user not found")
+) -> BaseResponseDTO[None]:
+    preset_user = (
+        db.query(PresetUser).filter(PresetUser.preset_user_id == preset_user_id).first()
+    )
+    if preset_user is None:
+        raise HTTPException(status_code=404, detail="Preset user not found")
 
-        db.delete(preset_user)
-        db.commit()
-        logger.info(f"Deleted: {preset_user_id}")
+    db.delete(preset_user)
+    db.commit()
+    logger.info(f"Deleted: {preset_user_id}")
 
-        return BaseResponseDTO(
-            success=True,
-            code=200,
-            message="ok.",
-            data=None,
-        )
-
-    except Exception as e:
-        handle_exception(e, db)
+    return BaseResponseDTO(
+        success=True,
+        code=200,
+        message="ok.",
+        data=None,
+    )

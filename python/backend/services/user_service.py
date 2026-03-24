@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 import aiohttp
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from shared.dtos.base_dto import BaseResponseDTO
@@ -15,7 +16,7 @@ from shared.dtos.user_dto import (
 from shared.entities.user import User
 
 from ..utils.bucket import delete_profile, upload_profile
-from ..utils.exception import CustomException, handle_exception
+from ..utils.exception import service_exception_handler
 from .discord_service import discord_service
 
 
@@ -44,139 +45,118 @@ async def _sync_profile(bucket: Any, user_id: int, discord_id: str):
         logger.error(f"Sync failed: {e}")
 
 
+@service_exception_handler
 async def get_user_detail_service(
     user_id: int, db: Session
-) -> GetUserDetailResponseDTO | None:
-    try:
-        user = db.query(User).filter(User.user_id == user_id).first()
+) -> GetUserDetailResponseDTO:
+    user = db.query(User).filter(User.user_id == user_id).first()
 
-        if user is None:
-            logger.warning(f"Missing: {user_id}")
-            raise CustomException(404, "User not found.")
+    if user is None:
+        logger.warning(f"Missing: {user_id}")
+        raise HTTPException(status_code=404, detail="User not found.")
 
-        user_dto = UserDTO.model_validate(user)
-
-        return GetUserDetailResponseDTO(
-            success=True,
-            code=200,
-            message="ok.",
-            data=user_dto,
-        )
-
-    except Exception as e:
-        handle_exception(e, db)
+    return GetUserDetailResponseDTO(
+        success=True,
+        code=200,
+        message="ok.",
+        data=UserDTO.model_validate(user),
+    )
 
 
+@service_exception_handler
 async def add_user_service(
     dto: AddUserRequestDTO, db: Session, bucket: Any
-) -> GetUserDetailResponseDTO | None:
-    try:
-        user = User(
-            alias=dto.alias,
-            riot_id=dto.riot_id,
-            discord_id=dto.discord_id,
-        )
-        db.add(user)
-        db.commit()
+) -> GetUserDetailResponseDTO:
+    user = User(
+        alias=dto.alias,
+        riot_id=dto.riot_id,
+        discord_id=dto.discord_id,
+    )
+    db.add(user)
+    db.commit()
 
-        logger.info(f"Added: {user.user_id}")
+    logger.info(f"Added: {user.user_id}")
 
-        if dto.discord_id is not None:
-            await _sync_profile(bucket, user.user_id, dto.discord_id)
+    if dto.discord_id is not None:
+        await _sync_profile(bucket, user.user_id, dto.discord_id)
 
-        return await get_user_detail_service(user.user_id, db)
-
-    except Exception as e:
-        handle_exception(e, db)
+    return await get_user_detail_service(user.user_id, db)
 
 
-async def get_user_list_service(db: Session) -> GetUserListResponseDTO | None:
-    try:
-        users = db.query(User).all()
+@service_exception_handler
+async def get_user_list_service(db: Session) -> GetUserListResponseDTO:
+    users = db.query(User).all()
+    user_dtos = [UserDTO.model_validate(u) for u in users]
 
-        user_dtos = [UserDTO.model_validate(u) for u in users]
-
-        return GetUserListResponseDTO(
-            success=True,
-            code=200,
-            message="ok.",
-            data=user_dtos,
-        )
-
-    except Exception as e:
-        handle_exception(e, db)
+    return GetUserListResponseDTO(
+        success=True,
+        code=200,
+        message="ok.",
+        data=user_dtos,
+    )
 
 
+@service_exception_handler
 async def update_user_service(
     user_id: int, dto: UpdateUserRequestDTO, db: Session, bucket: Any
-) -> GetUserDetailResponseDTO | None:
-    try:
-        user = db.query(User).filter(User.user_id == user_id).first()
-        if user is None:
-            logger.warning(f"Missing: {user_id}")
-            raise CustomException(404, "User not found")
+) -> GetUserDetailResponseDTO:
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if user is None:
+        logger.warning(f"Missing: {user_id}")
+        raise HTTPException(status_code=404, detail="User not found")
 
-        old_discord_id = user.discord_id
-        discord_id_changed = False
+    old_discord_id = user.discord_id
+    discord_id_changed = False
 
-        for key, value in dto.model_dump(exclude_unset=True).items():
-            if key == "discord_id" and value != old_discord_id:
-                discord_id_changed = True
-            setattr(user, key, value)
+    for key, value in dto.model_dump(exclude_unset=True).items():
+        if key == "discord_id" and value != old_discord_id:
+            discord_id_changed = True
+        setattr(user, key, value)
 
-        db.commit()
-        logger.info(f"Updated: {user_id}")
+    db.commit()
+    logger.info(f"Updated: {user_id}")
 
-        if discord_id_changed and user.discord_id is not None:
-            await _sync_profile(bucket, user.user_id, user.discord_id)
+    if discord_id_changed and user.discord_id is not None:
+        await _sync_profile(bucket, user.user_id, user.discord_id)
 
-        return await get_user_detail_service(user.user_id, db)
-
-    except Exception as e:
-        handle_exception(e, db)
+    return await get_user_detail_service(user.user_id, db)
 
 
+@service_exception_handler
 async def update_profile_service(
     user_id: int, db: Session, bucket: Any
-) -> GetUserDetailResponseDTO | None:
-    try:
-        user = db.query(User).filter(User.user_id == user_id).first()
-        if user is None:
-            logger.warning(f"Missing: {user_id}")
-            raise CustomException(404, "User not found")
+) -> GetUserDetailResponseDTO:
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if user is None:
+        logger.warning(f"Missing: {user_id}")
+        raise HTTPException(status_code=404, detail="User not found")
 
-        if user.discord_id is not None:
-            await _sync_profile(bucket, user.user_id, user.discord_id)
+    if user.discord_id is not None:
+        await _sync_profile(bucket, user.user_id, user.discord_id)
 
-        logger.info(f"Profile updated: {user_id}")
-        return await get_user_detail_service(user.user_id, db)
-
-    except Exception as e:
-        handle_exception(e, db)
+    logger.info(f"Profile updated: {user_id}")
+    return await get_user_detail_service(user.user_id, db)
 
 
+@service_exception_handler
 async def delete_user_service(
     user_id: int, db: Session, bucket: Any
-) -> BaseResponseDTO[None] | None:
-    try:
-        user = db.query(User).filter(User.user_id == user_id).first()
-        if user is None:
-            logger.warning(f"Missing: {user_id}")
-            raise CustomException(404, "User not found")
+) -> BaseResponseDTO[None]:
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if user is None:
+        logger.warning(f"Missing: {user_id}")
+        raise HTTPException(status_code=404, detail="User not found")
 
-        db.delete(user)
-        db.commit()
+    db.delete(user)
+    db.commit()
 
-        await delete_profile(bucket, user_id)
+    await delete_profile(bucket, user_id)
 
-        logger.info(f"Deleted: {user_id}")
+    logger.info(f"Deleted: {user_id}")
 
-        return BaseResponseDTO(
-            success=True,
-            code=200,
-            message="ok.",
-            data=None,
-        )
-
-    except Exception as e:
-        handle_exception(e, db)
+    return BaseResponseDTO(
+        success=True,
+        code=200,
+        message="ok.",
+        data=None,
+    )
