@@ -21,7 +21,9 @@ export function TeamCard({
   clientUserId,
 }: TeamCardProps) {
   const leader = members.find((member) => member.isLeader);
-  const teamName = leader ? `${leader.user.alias} 팀` : `Team ${team.teamId}`;
+  const teamName = leader
+    ? `${leader.user.alias ?? "이름 없음"} 팀`
+    : `Team ${team.teamId}`;
   const isFull = members.length === 5;
   const variantColor = isFull ? "green" : "blue";
 

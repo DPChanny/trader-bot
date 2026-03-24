@@ -31,7 +31,7 @@ export function AddUserModal({
       <ModalForm onSubmit={onSubmit}>
         {error && <Error>유저 추가에 실패했습니다.</Error>}
         <LabelInput
-          label="이름"
+          label="이름 (선택 사항)"
           type="text"
           value={formData.alias}
           onChange={(value) => onFormChange("alias", value)}

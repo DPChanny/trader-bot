@@ -95,7 +95,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           variantLayout="row"
           variantIntent="secondary"
         >
-          <h3>{user.alias}</h3>
+          <h3>{user.alias || "이름 없음"}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -135,9 +135,9 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
             <UserCard
               user={{
                 userId: user.userId,
-                alias: alias,
-                riotId: riotId,
-                discordId: discordId,
+                alias: alias || null,
+                riotId: riotId || null,
+                discordId: discordId || null,
                 profileUrl: user.profileUrl,
               }}
             />
