@@ -34,13 +34,13 @@ async def add_preset_user_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info("Adding preset user")
+    logger.info("Add")
     return await add_preset_user_service(dto, db)
 
 
 @preset_user_router.get("", response_model=GetPresetUserListResponseDTO)
 def get_preset_user_list_route(db: Session = Depends(get_db)):
-    logger.info("Fetching list")
+    logger.info("Get list")
     return get_preset_user_list_service(db)
 
 
@@ -50,7 +50,7 @@ def get_preset_user_list_route(db: Session = Depends(get_db)):
 async def get_preset_user_detail_route(
     preset_user_id: int, db: Session = Depends(get_db)
 ):
-    logger.info(f"Fetching: {preset_user_id}")
+    logger.info(f"Get: {preset_user_id}")
     return await get_preset_user_detail_service(preset_user_id, db)
 
 
@@ -63,7 +63,7 @@ async def update_preset_user_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Updating: {preset_user_id}")
+    logger.info(f"Update: {preset_user_id}")
     return await update_preset_user_service(preset_user_id, dto, db)
 
 
@@ -75,5 +75,5 @@ def delete_preset_user_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Deleting: {preset_user_id}")
+    logger.info(f"Delete: {preset_user_id}")
     return delete_preset_user_service(preset_user_id, db)

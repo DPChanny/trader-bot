@@ -28,7 +28,7 @@ preset_user_position_router = APIRouter(
 def add_preset_user_position(
     dto: AddPresetUserPositionRequestDTO, db: Session = Depends(get_db)
 ):
-    logger.info(f"Adding: {dto.position_id} -> {dto.preset_user_id}")
+    logger.info(f"Add: {dto.position_id} -> {dto.preset_user_id}")
     return add_preset_user_position_service(dto, db)
 
 
@@ -36,5 +36,5 @@ def add_preset_user_position(
 def delete_preset_user_position(
     dto: DeletePresetUserPositionRequestDTO, db: Session = Depends(get_db)
 ):
-    logger.info(f"Deleting: {dto.preset_user_position_id}")
+    logger.info(f"Delete: {dto.preset_user_position_id}")
     return delete_preset_user_position_service(dto, db)

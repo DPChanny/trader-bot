@@ -34,19 +34,19 @@ def add_position_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Adding: {dto.name}")
+    logger.info(f"Add: {dto.name}")
     return add_position_service(dto, db)
 
 
 @position_router.get("", response_model=GetPositionListResponseDTO)
 def get_position_list_route(db: Session = Depends(get_db)):
-    logger.info("Fetching list")
+    logger.info("Get list")
     return get_position_list_service(db)
 
 
 @position_router.get("/{position_id}", response_model=GetPositionDetailResponseDTO)
 def get_position_detail_route(position_id: int, db: Session = Depends(get_db)):
-    logger.info(f"Fetching: {position_id}")
+    logger.info(f"Get: {position_id}")
     return get_position_detail_service(position_id, db)
 
 
@@ -57,7 +57,7 @@ def update_position_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Updating: {position_id}")
+    logger.info(f"Update: {position_id}")
     return update_position_service(position_id, dto, db)
 
 
@@ -67,5 +67,5 @@ def delete_position_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Deleting: {position_id}")
+    logger.info(f"Delete: {position_id}")
     return delete_position_service(position_id, db)

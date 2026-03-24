@@ -14,7 +14,7 @@ async def get_lol_stat(user_id: int, db: Session) -> GetLolResponseDTO | None:
         lol_stat = db.query(LolStat).filter(LolStat.user_id == user_id).first()
 
         if lol_stat is None:
-            logger.debug(f"No LOL data found for user {user_id}")
+            logger.debug(f"Missing: {user_id}")
             return None
 
         champions = [
@@ -37,9 +37,9 @@ async def get_lol_stat(user_id: int, db: Session) -> GetLolResponseDTO | None:
         return GetLolResponseDTO(
             success=True,
             code=200,
-            message="LOL info retrieved successfully.",
+            message="ok.",
             data=lol_stat_dto,
         )
     except Exception as e:
-        logger.error(f"Failed to get LOL data for user {user_id}: {e}")
+        logger.error(f"LOL failed: {e}")
         return None

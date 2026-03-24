@@ -34,19 +34,19 @@ def add_preset_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Adding: {dto.name}")
+    logger.info(f"Add: {dto.name}")
     return add_preset_service(dto, db)
 
 
 @preset_router.get("", response_model=GetPresetListResponseDTO)
 def get_preset_list_route(db: Session = Depends(get_db)):
-    logger.info("Fetching list")
+    logger.info("Get list")
     return get_preset_list_service(db)
 
 
 @preset_router.get("/{preset_id}", response_model=GetPresetDetailResponseDTO)
 async def get_preset_detail_route(preset_id: int, db: Session = Depends(get_db)):
-    logger.info(f"Fetching: {preset_id}")
+    logger.info(f"Get: {preset_id}")
     return await get_preset_detail_service(preset_id, db)
 
 
@@ -57,7 +57,7 @@ def update_preset_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Updating: {preset_id}")
+    logger.info(f"Update: {preset_id}")
     return update_preset_service(preset_id, dto, db)
 
 
@@ -67,5 +67,5 @@ def delete_preset_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"DELETE /api/preset/{preset_id} - Deleting preset")
+    logger.info(f"Delete: {preset_id}")
     return delete_preset_service(preset_id, db)

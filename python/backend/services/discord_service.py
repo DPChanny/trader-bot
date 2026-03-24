@@ -52,7 +52,7 @@ class DiscordBotService:
 
         @self.bot.event
         async def on_error(event, *args, **kwargs):
-            logger.error(f"Discord error in {event}")
+            logger.error(f"Error: {event}")
             import traceback
 
             logger.error(traceback.format_exc())
@@ -63,10 +63,10 @@ class DiscordBotService:
                     self.bot.start(self.token, reconnect=True)
                 )
             except discord.ConnectionClosed as e:
-                logger.warning(f"Connection closed: {e}")
+                logger.warning(f"Closed: {e}")
                 self._ready = False
                 if self._should_run:
-                    logger.info("Reconnecting in 5 seconds...")
+                    logger.info("Reconnecting...")
                     asyncio.run(asyncio.sleep(5))
                 else:
                     break
@@ -80,7 +80,7 @@ class DiscordBotService:
                 logger.error(traceback.format_exc())
                 self._ready = False
                 if self._should_run:
-                    logger.info("Reconnecting in 5 seconds...")
+                    logger.info("Reconnecting...")
                     asyncio.run(asyncio.sleep(5))
                 else:
                     break
@@ -120,15 +120,15 @@ class DiscordBotService:
                         future.result(timeout=5.0)
                         logger.info("Bot closed")
                     except Exception as e:
-                        logger.warning(f"Bot close timeout or error: {e}")
+                        logger.warning(f"Close failed: {e}")
 
                     self._loop.call_soon_threadsafe(self._loop.stop)
-                    logger.info("Loop stop signal sent")
+                    logger.info("Loop stopped")
 
                 if self._thread and self._thread.is_alive():
                     self._thread.join(timeout=5.0)
                     if self._thread.is_alive():
-                        logger.warning("Thread still alive after timeout")
+                        logger.warning("Thread alive: timeout")
                     else:
                         logger.info("Thread stopped")
 
@@ -166,7 +166,7 @@ class DiscordBotService:
                 user = await self.bot.fetch_user(user_id)
 
                 if not user:
-                    logger.error(f"User not found: {discord_id}")
+                    logger.error(f"Missing: {discord_id}")
                     return False
 
                 embed = discord.Embed(title="창식이 내전 경매")
@@ -176,7 +176,7 @@ class DiscordBotService:
                     inline=False,
                 )
 
-                logger.info(f"Sending URL to {discord_id}: {auction_url}")
+                logger.info(f"Sending: {discord_id}")
                 await user.send(embed=embed)
                 logger.info(f"Sent: {discord_id}")
                 return True
@@ -185,10 +185,10 @@ class DiscordBotService:
                 logger.debug(f"DM blocked: {discord_id}")
                 return False
             except ValueError:
-                logger.debug(f"Invalid discord_id format: {discord_id}")
+                logger.debug(f"Invalid: {discord_id}")
                 return False
             except Exception as e:
-                logger.debug(f"Invite error {discord_id}: {e}")
+                logger.debug(f"Invite failed: {discord_id}: {e}")
                 return False
 
         try:
@@ -211,10 +211,10 @@ class DiscordBotService:
                     result_dict[discord_id] = result
 
             success_count = sum(1 for r in result_dict.values() if r)
-            logger.info(f"Invites sent: {success_count}/{len(invites)}")
+            logger.info(f"Sent: {success_count}/{len(invites)}")
             return result_dict
         except Exception as e:
-            logger.error(f"Batch invite error: {e}")
+            logger.error(f"Invite error: {e}")
             return {discord_id: False for discord_id, _ in invites}
 
     async def fetch_profile_url(self, discord_id: str) -> str | None:
@@ -239,7 +239,7 @@ class DiscordBotService:
         try:
             return future.result(timeout=30.0)
         except Exception as e:
-            logger.error(f"Failed to fetch profile URL: {e}")
+            logger.error(f"Fetch failed: {e}")
             return None
 
     async def _fetch_profile_url(self, discord_id: str) -> str | None:
@@ -248,18 +248,18 @@ class DiscordBotService:
             user = await self.bot.fetch_user(user_id_int)
 
             if not user:
-                logger.error(f"User not found: {discord_id}")
+                logger.error(f"Missing: {discord_id}")
                 return None
 
             profile_url = user.display_avatar.url
-            logger.info(f"Profile URL fetched: {discord_id}")
+            logger.info(f"Fetched: {discord_id}")
             return profile_url
 
         except ValueError:
-            logger.error(f"Invalid discord_id format: {discord_id}")
+            logger.error(f"Invalid: {discord_id}")
             return None
         except Exception as e:
-            logger.error(f"Profile URL fetch error {discord_id}: {e}")
+            logger.error(f"Fetch failed: {discord_id}: {e}")
             import traceback
 
             logger.error(traceback.format_exc())

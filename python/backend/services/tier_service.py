@@ -22,17 +22,16 @@ def get_tier_detail_service(
     tier_id: int, db: Session
 ) -> GetTierDetailResponseDTO | None:
     try:
-        logger.info(f"Get: {tier_id}")
         tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()
 
         if tier is None:
-            logger.warning(f"Tier missing: {tier_id}")
+            logger.warning(f"Missing: {tier_id}")
             raise CustomException(404, "Tier not found.")
 
         return GetTierDetailResponseDTO(
             success=True,
             code=200,
-            message="Tier detail retrieved successfully.",
+            message="ok.",
             data=TierDTO.model_validate(tier),
         )
 
@@ -44,7 +43,6 @@ def add_tier_service(
     dto: AddTierRequestDTO, db: Session
 ) -> GetTierDetailResponseDTO | None:
     try:
-        logger.info(f"Add: {dto.name}")
         tier = Tier(preset_id=dto.preset_id, name=dto.name)
         db.add(tier)
         db.commit()
@@ -54,7 +52,7 @@ def add_tier_service(
         return GetTierDetailResponseDTO(
             success=True,
             code=200,
-            message="Tier added successfully.",
+            message="ok.",
             data=TierDTO.model_validate(tier),
         )
 
@@ -66,14 +64,13 @@ def get_tier_list_service(
     db: Session,
 ) -> GetTierListResponseDTO | None:
     try:
-        logger.info("List")
         tiers = db.query(Tier).all()
         tier_dtos = [TierDTO.model_validate(t) for t in tiers]
 
         return GetTierListResponseDTO(
             success=True,
             code=200,
-            message="Tier list retrieved successfully.",
+            message="ok.",
             data=tier_dtos,
         )
 
@@ -85,10 +82,9 @@ def update_tier_service(
     tier_id: int, dto: UpdateTierRequestDTO, db: Session
 ) -> GetTierDetailResponseDTO | None:
     try:
-        logger.info(f"Update: {tier_id}")
         tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()
         if tier is None:
-            logger.warning(f"Tier missing: {tier_id}")
+            logger.warning(f"Missing: {tier_id}")
             raise CustomException(404, "Tier not found")
 
         for key, value in dto.model_dump(exclude_unset=True).items():
@@ -96,11 +92,12 @@ def update_tier_service(
 
         db.commit()
         db.refresh(tier)
+        logger.info(f"Updated: {tier_id}")
 
         return GetTierDetailResponseDTO(
             success=True,
             code=200,
-            message="Tier updated successfully.",
+            message="ok.",
             data=TierDTO.model_validate(tier),
         )
 
@@ -110,19 +107,19 @@ def update_tier_service(
 
 def delete_tier_service(tier_id: int, db: Session) -> BaseResponseDTO[None] | None:
     try:
-        logger.info(f"Delete: {tier_id}")
         tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()
         if tier is None:
-            logger.warning(f"Tier missing: {tier_id}")
+            logger.warning(f"Missing: {tier_id}")
             raise CustomException(404, "Tier not found")
 
         db.delete(tier)
         db.commit()
+        logger.info(f"Deleted: {tier_id}")
 
         return BaseResponseDTO(
             success=True,
             code=200,
-            message="Tier deleted successfully.",
+            message="ok.",
             data=None,
         )
 

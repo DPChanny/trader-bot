@@ -22,8 +22,6 @@ def add_preset_user_position_service(
     dto: AddPresetUserPositionRequestDTO, db: Session
 ) -> GetPresetUserPositionResponseDTO | None:
     try:
-        logger.info(f"Add: {dto.position_id} -> {dto.preset_user_id}")
-
         existing = (
             db.query(PresetUserPosition)
             .filter(
@@ -57,7 +55,7 @@ def add_preset_user_position_service(
         return GetPresetUserPositionResponseDTO(
             success=True,
             code=200,
-            message="Position assigned to preset_user successfully.",
+            message="ok.",
             data=PresetUserPositionDTO.model_validate(preset_user_position),
         )
 
@@ -69,7 +67,6 @@ def delete_preset_user_position_service(
     dto: DeletePresetUserPositionRequestDTO, db: Session
 ) -> BaseResponseDTO | None:
     try:
-        logger.info(f"Delete: {dto.preset_user_position_id}")
         preset_user_position = (
             db.query(PresetUserPosition)
             .filter(
@@ -85,11 +82,12 @@ def delete_preset_user_position_service(
 
         db.delete(preset_user_position)
         db.commit()
+        logger.info(f"Deleted: {dto.preset_user_position_id}")
 
         return BaseResponseDTO(
             success=True,
             code=200,
-            message="Position removed from preset_user successfully.",
+            message="ok.",
             data=None,
         )
 

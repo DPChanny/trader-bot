@@ -39,9 +39,9 @@ async def _sync_profile(bucket: Any, user_id: int, discord_id: str):
                 await upload_profile(bucket, user_id, image_data)
                 logger.info(f"Profile synced: {user_id}")
             else:
-                logger.warning(f"Failed to download profile: {response.status}")
+                logger.warning(f"Download failed: {response.status}")
     except Exception as e:
-        logger.error(f"Failed to sync profile: {e}")
+        logger.error(f"Sync failed: {e}")
 
 
 async def get_user_detail_service(
@@ -51,7 +51,7 @@ async def get_user_detail_service(
         user = db.query(User).filter(User.user_id == user_id).first()
 
         if user is None:
-            logger.warning(f"User missing: {user_id}")
+            logger.warning(f"Missing: {user_id}")
             raise CustomException(404, "User not found.")
 
         user_dto = UserDTO.model_validate(user)
@@ -59,7 +59,7 @@ async def get_user_detail_service(
         return GetUserDetailResponseDTO(
             success=True,
             code=200,
-            message="User detail retrieved successfully.",
+            message="ok.",
             data=user_dto,
         )
 
@@ -99,7 +99,7 @@ async def get_user_list_service(db: Session) -> GetUserListResponseDTO | None:
         return GetUserListResponseDTO(
             success=True,
             code=200,
-            message="User list retrieved successfully.",
+            message="ok.",
             data=user_dtos,
         )
 
@@ -125,6 +125,7 @@ async def update_user_service(
             setattr(user, key, value)
 
         db.commit()
+        logger.info(f"Updated: {user_id}")
 
         if discord_id_changed and user.discord_id is not None:
             await _sync_profile(bucket, user.user_id, user.discord_id)
@@ -141,13 +142,13 @@ async def update_profile_service(
     try:
         user = db.query(User).filter(User.user_id == user_id).first()
         if user is None:
-            logger.warning(f"User missing: {user_id}")
+            logger.warning(f"Missing: {user_id}")
             raise CustomException(404, "User not found")
 
         if user.discord_id is not None:
             await _sync_profile(bucket, user.user_id, user.discord_id)
 
-        logger.info(f"Discord profile updated: {user_id}")
+        logger.info(f"Profile updated: {user_id}")
         return await get_user_detail_service(user.user_id, db)
 
     except Exception as e:
@@ -160,7 +161,7 @@ async def delete_user_service(
     try:
         user = db.query(User).filter(User.user_id == user_id).first()
         if user is None:
-            logger.warning(f"User missing: {user_id}")
+            logger.warning(f"Missing: {user_id}")
             raise CustomException(404, "User not found")
 
         db.delete(user)
@@ -173,7 +174,7 @@ async def delete_user_service(
         return BaseResponseDTO(
             success=True,
             code=200,
-            message="User deleted successfully.",
+            message="ok.",
             data=None,
         )
 

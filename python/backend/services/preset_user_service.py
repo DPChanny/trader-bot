@@ -23,7 +23,6 @@ async def get_preset_user_detail_service(
     preset_user_id: int, db: Session
 ) -> GetPresetUserDetailResponseDTO | None:
     try:
-        logger.info(f"Get: {preset_user_id}")
         preset_user = (
             db.query(PresetUser)
             .options(
@@ -44,7 +43,7 @@ async def get_preset_user_detail_service(
         return GetPresetUserDetailResponseDTO(
             success=True,
             code=200,
-            message="Preset user detail retrieved successfully.",
+            message="ok.",
             data=preset_user_dto,
         )
 
@@ -65,15 +64,9 @@ async def add_preset_user_service(
         db.add(preset_user)
         db.commit()
         db.refresh(preset_user)
+        logger.info(f"Added: {preset_user.preset_user_id}")
 
         preset_user = (
-            db.query(PresetUser)
-            .options(
-                joinedload(PresetUser.user),
-                joinedload(PresetUser.tier),
-                joinedload(PresetUser.preset_user_positions),
-            )
-            .filter(PresetUser.preset_user_id == preset_user.preset_user_id)
             .first()
         )
 
@@ -82,7 +75,7 @@ async def add_preset_user_service(
         return GetPresetUserDetailResponseDTO(
             success=True,
             code=200,
-            message="Preset user added successfully.",
+            message="ok.",
             data=preset_user_dto,
         )
 
@@ -100,7 +93,7 @@ def get_preset_user_list_service(
         return GetPresetUserListResponseDTO(
             success=True,
             code=200,
-            message="Preset user list retrieved successfully.",
+            message="ok.",
             data=preset_user_dtos,
         )
 
@@ -125,6 +118,7 @@ async def update_preset_user_service(
 
         db.commit()
         db.refresh(preset_user)
+        logger.info(f"Updated: {preset_user_id}")
 
         preset_user = (
             db.query(PresetUser)
@@ -142,7 +136,7 @@ async def update_preset_user_service(
         return GetPresetUserDetailResponseDTO(
             success=True,
             code=200,
-            message="Preset user updated successfully.",
+            message="ok.",
             data=preset_user_dto,
         )
 
@@ -164,11 +158,12 @@ def delete_preset_user_service(
 
         db.delete(preset_user)
         db.commit()
+        logger.info(f"Deleted: {preset_user_id}")
 
         return BaseResponseDTO(
             success=True,
             code=200,
-            message="Preset user deleted successfully.",
+            message="ok.",
             data=None,
         )
 

@@ -22,19 +22,18 @@ def get_position_detail_service(
     position_id: int, db: Session
 ) -> GetPositionDetailResponseDTO | None:
     try:
-        logger.info(f"Get: {position_id}")
         position = (
             db.query(Position).filter(Position.position_id == position_id).first()
         )
 
         if position is None:
-            logger.warning(f"Position missing: {position_id}")
+            logger.warning(f"Missing: {position_id}")
             raise CustomException(404, "Position not found.")
 
         return GetPositionDetailResponseDTO(
             success=True,
             code=200,
-            message="Position detail retrieved successfully.",
+            message="ok.",
             data=PositionDTO.model_validate(position),
         )
 
@@ -46,7 +45,6 @@ def add_position_service(
     dto: AddPositionRequestDTO, db: Session
 ) -> GetPositionDetailResponseDTO | None:
     try:
-        logger.info(f"Add: {dto.name}")
         position = Position(
             preset_id=dto.preset_id,
             name=dto.name,
@@ -60,7 +58,7 @@ def add_position_service(
         return GetPositionDetailResponseDTO(
             success=True,
             code=200,
-            message="Position added successfully.",
+            message="ok.",
             data=PositionDTO.model_validate(position),
         )
 
@@ -70,14 +68,13 @@ def add_position_service(
 
 def get_position_list_service(db: Session) -> GetPositionListResponseDTO | None:
     try:
-        logger.info("List")
         positions = db.query(Position).all()
         position_dtos = [PositionDTO.model_validate(p) for p in positions]
 
         return GetPositionListResponseDTO(
             success=True,
             code=200,
-            message="Position list retrieved successfully.",
+            message="ok.",
             data=position_dtos,
         )
 
@@ -89,12 +86,11 @@ def update_position_service(
     position_id: int, dto: UpdatePositionRequestDTO, db: Session
 ) -> GetPositionDetailResponseDTO | None:
     try:
-        logger.info(f"Update: {position_id}")
         position = (
             db.query(Position).filter(Position.position_id == position_id).first()
         )
         if position is None:
-            logger.warning(f"Position missing: {position_id}")
+            logger.warning(f"Missing: {position_id}")
             raise CustomException(404, "Position not found")
 
         for key, value in dto.model_dump(exclude_unset=True).items():
@@ -102,11 +98,12 @@ def update_position_service(
 
         db.commit()
         db.refresh(position)
+        logger.info(f"Updated: {position_id}")
 
         return GetPositionDetailResponseDTO(
             success=True,
             code=200,
-            message="Position updated successfully.",
+            message="ok.",
             data=PositionDTO.model_validate(position),
         )
 
@@ -118,21 +115,21 @@ def delete_position_service(
     position_id: int, db: Session
 ) -> BaseResponseDTO[None] | None:
     try:
-        logger.info(f"Delete: {position_id}")
         position = (
             db.query(Position).filter(Position.position_id == position_id).first()
         )
         if position is None:
-            logger.warning(f"Position missing: {position_id}")
+            logger.warning(f"Missing: {position_id}")
             raise CustomException(404, "Position not found")
 
         db.delete(position)
         db.commit()
+        logger.info(f"Deleted: {position_id}")
 
         return BaseResponseDTO(
             success=True,
             code=200,
-            message="Position deleted successfully.",
+            message="ok.",
             data=None,
         )
 

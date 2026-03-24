@@ -26,5 +26,5 @@ async def add_auction_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ) -> AddAuctionResponseDTO:
-    logger.info(f"Adding auction: {preset_id}")
+    logger.info(f"Add: {preset_id}")
     return add_auction_service(preset_id, db)

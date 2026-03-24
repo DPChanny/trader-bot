@@ -56,7 +56,7 @@ async def handle_websocket_message(
 
     if message_type == MessageType.PLACE_BID.value:
         if not is_leader:
-            logger.warning("Non-leader bid rejected")
+            logger.warning("Bid rejected: non-leader")
             await websocket.send_json(
                 {
                     "type": MessageType.ERROR,
@@ -69,7 +69,7 @@ async def handle_websocket_message(
         amount = bid_data.get("amount")
 
         if amount is None:
-            logger.warning("Bid without amount")
+            logger.warning("Bid missing: amount")
             await websocket.send_json(
                 {
                     "type": MessageType.ERROR,
@@ -103,5 +103,5 @@ async def handle_websocket_disconnect(
         auction.status == AuctionStatus.IN_PROGRESS
         and not auction.are_all_leaders_connected()
     ):
-        logger.warning("Leader disconnected, pausing to WAITING")
+        logger.warning("Paused: leader disconnected")
         await auction.set_status(AuctionStatus.WAITING)

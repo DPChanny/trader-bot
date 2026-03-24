@@ -16,7 +16,7 @@ lol_stat_router = APIRouter(prefix="/lol", tags=["lol"])
 
 @lol_stat_router.get("/{user_id}", response_model=GetLolResponseDTO)
 async def get_lol_stat_route(user_id: int, db: Session = Depends(get_db)):
-    logger.info(f"Fetching LOL: {user_id}")
+    logger.info(f"Get: {user_id}")
     result = await lol_stat_service.get_lol_stat(user_id, db)
 
     if result is None:

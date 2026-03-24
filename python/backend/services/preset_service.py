@@ -25,7 +25,6 @@ async def get_preset_detail_service(
     preset_id: int, db: Session
 ) -> GetPresetDetailResponseDTO | None:
     try:
-        logger.info(f"Get: {preset_id}")
         preset = (
             db.query(Preset)
             .options(
@@ -42,7 +41,7 @@ async def get_preset_detail_service(
         )
 
         if preset is None:
-            logger.warning(f"Preset missing: {preset_id}")
+            logger.warning(f"Missing: {preset_id}")
             raise CustomException(404, "Preset not found.")
 
         preset_dto = PresetDetailDTO.model_validate(preset)
@@ -50,7 +49,7 @@ async def get_preset_detail_service(
         return GetPresetDetailResponseDTO(
             success=True,
             code=200,
-            message="Preset detail retrieved successfully.",
+            message="ok.",
             data=preset_dto,
         )
 
@@ -62,7 +61,6 @@ def add_preset_service(
     dto: AddPresetRequestDTO, db: Session
 ) -> GetPresetDetailResponseDTO | None:
     try:
-        logger.info(f"Add: {dto.name}")
         preset = Preset(
             name=dto.name,
             points=dto.points,
@@ -93,7 +91,7 @@ def add_preset_service(
         return GetPresetDetailResponseDTO(
             success=True,
             code=200,
-            message="Preset added successfully.",
+            message="ok.",
             data=PresetDetailDTO.model_validate(preset),
         )
 
@@ -105,14 +103,13 @@ def get_preset_list_service(
     db: Session,
 ) -> GetPresetListResponseDTO | None:
     try:
-        logger.info("List")
         presets = db.query(Preset).all()
         preset_dtos = [PresetDTO.model_validate(p) for p in presets]
 
         return GetPresetListResponseDTO(
             success=True,
             code=200,
-            message="Preset list retrieved successfully.",
+            message="ok.",
             data=preset_dtos,
         )
 
@@ -124,10 +121,9 @@ def update_preset_service(
     preset_id: int, dto: UpdatePresetRequestDTO, db: Session
 ) -> GetPresetDetailResponseDTO | None:
     try:
-        logger.info(f"Update: {preset_id}")
         preset = db.query(Preset).filter(Preset.preset_id == preset_id).first()
         if preset is None:
-            logger.warning(f"Preset missing: {preset_id}")
+            logger.warning(f"Missing: {preset_id}")
             raise CustomException(404, "Preset not found")
 
         for key, value in dto.model_dump(exclude_unset=True).items():
@@ -135,26 +131,12 @@ def update_preset_service(
 
         db.commit()
         db.refresh(preset)
+        logger.info(f"Updated: {preset_id}")
 
         preset = (
-            db.query(Preset)
-            .options(
-                joinedload(Preset.preset_users).joinedload(PresetUser.user),
-                joinedload(Preset.preset_users).joinedload(PresetUser.tier),
-                joinedload(Preset.preset_users)
-                .joinedload(PresetUser.preset_user_positions)
-                .joinedload(PresetUserPosition.position),
-                joinedload(Preset.tiers),
-                joinedload(Preset.positions),
-            )
-            .filter(Preset.preset_id == preset_id)
-            .first()
-        )
-
-        return GetPresetDetailResponseDTO(
             success=True,
             code=200,
-            message="Preset updated successfully.",
+            message="ok.",
             data=PresetDetailDTO.model_validate(preset),
         )
 
@@ -164,19 +146,19 @@ def update_preset_service(
 
 def delete_preset_service(preset_id: int, db: Session) -> BaseResponseDTO[None] | None:
     try:
-        logger.info(f"Delete: {preset_id}")
         preset = db.query(Preset).filter(Preset.preset_id == preset_id).first()
         if preset is None:
-            logger.warning(f"Preset missing: {preset_id}")
+            logger.warning(f"Missing: {preset_id}")
             raise CustomException(404, "Preset not found")
 
         db.delete(preset)
         db.commit()
+        logger.info(f"Deleted: {preset_id}")
 
         return BaseResponseDTO(
             success=True,
             code=200,
-            message="Preset deleted successfully.",
+            message="ok.",
             data=None,
         )
 

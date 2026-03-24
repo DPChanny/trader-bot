@@ -101,7 +101,7 @@ def add_auction_service(preset_id: int, db: Session) -> AddAuctionResponseDTO | 
         return AddAuctionResponseDTO(
             success=True,
             code=200,
-            message="Auction added successfully.",
+            message="ok.",
             data=auction_dto,
         )
 

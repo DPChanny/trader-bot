@@ -16,7 +16,7 @@ val_stat_router = APIRouter(prefix="/val", tags=["val"])
 
 @val_stat_router.get("/{user_id}", response_model=GetValResponseDTO)
 async def get_val_stat_route(user_id: int, db: Session = Depends(get_db)):
-    logger.info(f"Fetching VAL: {user_id}")
+    logger.info(f"Get: {user_id}")
     result = await val_stat_service.get_val_stat(user_id, db)
 
     if result is None:

@@ -38,19 +38,19 @@ async def add_user_route(
     _: dict = Depends(verify_admin_token),
     bucket: Any = Depends(get_bucket),
 ):
-    logger.info(f"Adding: {dto.alias}")
+    logger.info(f"Add: {dto.alias}")
     return await add_user_service(dto, db, bucket)
 
 
 @user_router.get("", response_model=GetUserListResponseDTO)
 async def get_user_list_route(db: Session = Depends(get_db)):
-    logger.info("Fetching list")
+    logger.info("Get list")
     return await get_user_list_service(db)
 
 
 @user_router.get("/{user_id}", response_model=GetUserDetailResponseDTO)
 async def get_user_detail_route(user_id: int, db: Session = Depends(get_db)):
-    logger.info(f"Fetching: {user_id}")
+    logger.info(f"Get: {user_id}")
     return await get_user_detail_service(user_id, db)
 
 
@@ -62,7 +62,7 @@ async def update_user_route(
     _: dict = Depends(verify_admin_token),
     bucket: Any = Depends(get_bucket),
 ):
-    logger.info(f"Updating: {user_id}")
+    logger.info(f"Update: {user_id}")
     return await update_user_service(user_id, dto, db, bucket)
 
 
@@ -73,7 +73,7 @@ async def update_profile_route(
     _: dict = Depends(verify_admin_token),
     bucket: Any = Depends(get_bucket),
 ):
-    logger.info(f"Updating profile: {user_id}")
+    logger.info(f"Update profile: {user_id}")
     return await update_profile_service(user_id, db, bucket)
 
 
@@ -84,5 +84,5 @@ async def delete_user_route(
     _: dict = Depends(verify_admin_token),
     bucket: Any = Depends(get_bucket),
 ):
-    logger.info(f"Deleting: {user_id}")
+    logger.info(f"Delete: {user_id}")
     return await delete_user_service(user_id, db, bucket)

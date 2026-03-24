@@ -14,7 +14,7 @@ async def get_val_stat(user_id: int, db: Session) -> GetValResponseDTO | None:
         val_stat = db.query(ValStat).filter(ValStat.user_id == user_id).first()
 
         if val_stat is None:
-            logger.debug(f"No VAL data found for user {user_id}")
+            logger.debug(f"Missing: {user_id}")
             return None
 
         agents = [
@@ -34,9 +34,9 @@ async def get_val_stat(user_id: int, db: Session) -> GetValResponseDTO | None:
         return GetValResponseDTO(
             success=True,
             code=200,
-            message="VAL info retrieved successfully.",
+            message="ok.",
             data=val_stat_dto,
         )
     except Exception as e:
-        logger.error(f"Failed to get VAL data for user {user_id}: {e}")
+        logger.error(f"VAL failed: {e}")
         return None
