@@ -35,7 +35,7 @@ async def get_preset_user_detail_service(
             .first()
         )
 
-        if not preset_user:
+        if preset_user is None:
             logger.warning(f"Missing: {preset_user_id}")
             raise CustomException(404, "Preset user not found.")
 
@@ -117,7 +117,7 @@ async def update_preset_user_service(
             .filter(PresetUser.preset_user_id == preset_user_id)
             .first()
         )
-        if not preset_user:
+        if preset_user is None:
             raise CustomException(404, "Preset user not found")
 
         for key, value in dto.model_dump(exclude_unset=True).items():
@@ -159,7 +159,7 @@ def delete_preset_user_service(
             .filter(PresetUser.preset_user_id == preset_user_id)
             .first()
         )
-        if not preset_user:
+        if preset_user is None:
             raise CustomException(404, "Preset user not found")
 
         db.delete(preset_user)

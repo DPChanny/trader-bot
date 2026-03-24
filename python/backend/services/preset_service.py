@@ -41,7 +41,7 @@ async def get_preset_detail_service(
             .first()
         )
 
-        if not preset:
+        if preset is None:
             logger.warning(f"Preset missing: {preset_id}")
             raise CustomException(404, "Preset not found.")
 
@@ -126,7 +126,7 @@ def update_preset_service(
     try:
         logger.info(f"Update: {preset_id}")
         preset = db.query(Preset).filter(Preset.preset_id == preset_id).first()
-        if not preset:
+        if preset is None:
             logger.warning(f"Preset missing: {preset_id}")
             raise CustomException(404, "Preset not found")
 
@@ -166,7 +166,7 @@ def delete_preset_service(preset_id: int, db: Session) -> BaseResponseDTO[None] 
     try:
         logger.info(f"Delete: {preset_id}")
         preset = db.query(Preset).filter(Preset.preset_id == preset_id).first()
-        if not preset:
+        if preset is None:
             logger.warning(f"Preset missing: {preset_id}")
             raise CustomException(404, "Preset not found")
 

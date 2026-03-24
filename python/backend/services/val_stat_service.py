@@ -13,7 +13,7 @@ async def get_val_stat(user_id: int, db: Session) -> GetValResponseDTO | None:
     try:
         val_stat = db.query(ValStat).filter(ValStat.user_id == user_id).first()
 
-        if not val_stat:
+        if val_stat is None:
             logger.debug(f"No VAL data found for user {user_id}")
             return None
 

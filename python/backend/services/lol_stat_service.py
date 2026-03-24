@@ -13,7 +13,7 @@ async def get_lol_stat(user_id: int, db: Session) -> GetLolResponseDTO | None:
     try:
         lol_stat = db.query(LolStat).filter(LolStat.user_id == user_id).first()
 
-        if not lol_stat:
+        if lol_stat is None:
             logger.debug(f"No LOL data found for user {user_id}")
             return None
 

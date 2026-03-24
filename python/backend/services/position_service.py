@@ -27,7 +27,7 @@ def get_position_detail_service(
             db.query(Position).filter(Position.position_id == position_id).first()
         )
 
-        if not position:
+        if position is None:
             logger.warning(f"Position missing: {position_id}")
             raise CustomException(404, "Position not found.")
 
@@ -93,7 +93,7 @@ def update_position_service(
         position = (
             db.query(Position).filter(Position.position_id == position_id).first()
         )
-        if not position:
+        if position is None:
             logger.warning(f"Position missing: {position_id}")
             raise CustomException(404, "Position not found")
 
@@ -122,7 +122,7 @@ def delete_position_service(
         position = (
             db.query(Position).filter(Position.position_id == position_id).first()
         )
-        if not position:
+        if position is None:
             logger.warning(f"Position missing: {position_id}")
             raise CustomException(404, "Position not found")
 

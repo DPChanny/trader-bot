@@ -32,7 +32,7 @@ def add_auction_service(preset_id: int, db: Session) -> AddAuctionResponseDTO | 
             .first()
         )
 
-        if not preset:
+        if preset is None:
             logger.warning(f"Preset missing: {preset_id}")
             raise CustomException(404, "Preset not found.")
 
@@ -82,12 +82,13 @@ def add_auction_service(preset_id: int, db: Session) -> AddAuctionResponseDTO | 
                 token = user_tokens[user_id]
                 user = db.query(User).filter(User.user_id == user_id).first()
 
-                if not user:
+                if user is None:
                     logger.warning(f"User missing: {user_id}")
                     continue
 
                 auction_url = get_auction_url(token)
-                invites.append((user.discord_id, auction_url))
+                if user.discord_id is not None:
+                    invites.append((user.discord_id, auction_url))
 
         if invites:
             discord_service.send_auction_urls(invites)

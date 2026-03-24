@@ -25,7 +25,7 @@ def get_tier_detail_service(
         logger.info(f"Get: {tier_id}")
         tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()
 
-        if not tier:
+        if tier is None:
             logger.warning(f"Tier missing: {tier_id}")
             raise CustomException(404, "Tier not found.")
 
@@ -87,7 +87,7 @@ def update_tier_service(
     try:
         logger.info(f"Update: {tier_id}")
         tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()
-        if not tier:
+        if tier is None:
             logger.warning(f"Tier missing: {tier_id}")
             raise CustomException(404, "Tier not found")
 
@@ -112,7 +112,7 @@ def delete_tier_service(tier_id: int, db: Session) -> BaseResponseDTO[None] | No
     try:
         logger.info(f"Delete: {tier_id}")
         tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()
-        if not tier:
+        if tier is None:
             logger.warning(f"Tier missing: {tier_id}")
             raise CustomException(404, "Tier not found")
 

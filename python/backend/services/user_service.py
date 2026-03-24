@@ -50,7 +50,7 @@ async def get_user_detail_service(
     try:
         user = db.query(User).filter(User.user_id == user_id).first()
 
-        if not user:
+        if user is None:
             logger.warning(f"User missing: {user_id}")
             raise CustomException(404, "User not found.")
 
@@ -81,7 +81,7 @@ async def add_user_service(
 
         logger.info(f"Added: {user.user_id}")
 
-        if dto.discord_id:
+        if dto.discord_id is not None:
             await _sync_profile(bucket, user.user_id, dto.discord_id)
 
         return await get_user_detail_service(user.user_id, db)
@@ -112,7 +112,7 @@ async def update_user_service(
 ) -> GetUserDetailResponseDTO | None:
     try:
         user = db.query(User).filter(User.user_id == user_id).first()
-        if not user:
+        if user is None:
             logger.warning(f"Missing: {user_id}")
             raise CustomException(404, "User not found")
 
@@ -126,7 +126,7 @@ async def update_user_service(
 
         db.commit()
 
-        if discord_id_changed and user.discord_id:
+        if discord_id_changed and user.discord_id is not None:
             await _sync_profile(bucket, user.user_id, user.discord_id)
 
         return await get_user_detail_service(user.user_id, db)
@@ -140,11 +140,11 @@ async def update_profile_service(
 ) -> GetUserDetailResponseDTO | None:
     try:
         user = db.query(User).filter(User.user_id == user_id).first()
-        if not user:
+        if user is None:
             logger.warning(f"User missing: {user_id}")
             raise CustomException(404, "User not found")
 
-        if user.discord_id:
+        if user.discord_id is not None:
             await _sync_profile(bucket, user.user_id, user.discord_id)
 
         logger.info(f"Discord profile updated: {user_id}")
@@ -159,7 +159,7 @@ async def delete_user_service(
 ) -> BaseResponseDTO[None] | None:
     try:
         user = db.query(User).filter(User.user_id == user_id).first()
-        if not user:
+        if user is None:
             logger.warning(f"User missing: {user_id}")
             raise CustomException(404, "User not found")
 

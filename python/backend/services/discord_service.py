@@ -162,10 +162,6 @@ class DiscordBotService:
     ) -> dict[str, bool]:
         async def _send_auction_url(discord_id: str, auction_url: str):
             try:
-                if not discord_id or not discord_id.strip():
-                    logger.debug("Empty discord_id")
-                    return False
-
                 user_id = int(discord_id)
                 user = await self.bot.fetch_user(user_id)
 
@@ -222,9 +218,6 @@ class DiscordBotService:
             return {discord_id: False for discord_id, _ in invites}
 
     async def fetch_profile_url(self, discord_id: str) -> str | None:
-        if not discord_id or not discord_id.strip():
-            logger.warning("Empty discord_id")
-            return None
 
         with self._state_lock:
             is_ready = self._ready

@@ -79,7 +79,7 @@ def delete_preset_user_position_service(
             .first()
         )
 
-        if not preset_user_position:
+        if preset_user_position is None:
             logger.warning(f"Missing: {dto.preset_user_position_id}")
             raise CustomException(404, "PresetUserPosition not found.")
 
