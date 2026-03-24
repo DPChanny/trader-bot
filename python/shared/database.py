@@ -22,7 +22,7 @@ def init_engine():
 
     SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
-    import shared.entities  # noqa: F401
+    from . import entities  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
 
