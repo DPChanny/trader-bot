@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Header, HTTPException
+from loguru import logger
 
 from shared.dtos.admin_dto import (
     AdminLoginRequest,
@@ -19,7 +20,8 @@ admin_router = APIRouter(prefix="/admin", tags=["admin"])
 @admin_router.post("/login", response_model=AdminLoginResponse)
 async def admin_login(request: AdminLoginRequest):
     if not verify_admin_password(request.password):
-        raise HTTPException(status_code=401, detail="Invalid admin password")
+        logger.warning("Admin login failed: reason=invalid_password")
+        raise HTTPException(status_code=401, detail="Admin login failed")
 
     token = generate_admin_token()
     return AdminLoginResponse(token=token, message="Login successful")
@@ -28,10 +30,12 @@ async def admin_login(request: AdminLoginRequest):
 @admin_router.post("/refresh", response_model=TokenRefreshResponse)
 async def refresh_token(authorization: str = Header(None)):
     if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header missing")
+        logger.warning("Auth failed: reason=missing_header")
+        raise HTTPException(status_code=401, detail="Auth failed")
 
     if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Invalid authorization format")
+        logger.warning("Auth failed: reason=invalid_format")
+        raise HTTPException(status_code=401, detail="Auth failed")
 
     token = authorization.replace("Bearer ", "")
 
@@ -41,4 +45,5 @@ async def refresh_token(authorization: str = Header(None)):
             token=new_token, message="Token refreshed successfully"
         )
     except Exception as e:
-        raise HTTPException(status_code=401, detail=str(e)) from e
+        logger.warning(f"Token validation failed: type={type(e).__name__}")
+        raise HTTPException(status_code=401, detail="Token validation failed") from e

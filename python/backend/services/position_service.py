@@ -18,7 +18,7 @@ def get_position_detail_service(position_id: int, db: Session) -> PositionDTO:
 
     if position is None:
         logger.warning(f"Position not found: id={position_id}")
-        raise HTTPException(status_code=404, detail="Position not found.")
+        raise HTTPException(status_code=404, detail="Position not found")
 
     return PositionDTO.model_validate(position)
 

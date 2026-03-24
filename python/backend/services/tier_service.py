@@ -18,7 +18,7 @@ def get_tier_detail_service(tier_id: int, db: Session) -> TierDTO:
 
     if tier is None:
         logger.warning(f"Tier not found: id={tier_id}")
-        raise HTTPException(status_code=404, detail="Tier not found.")
+        raise HTTPException(status_code=404, detail="Tier not found")
 
     return TierDTO.model_validate(tier)
 

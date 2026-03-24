@@ -32,7 +32,7 @@ def add_preset_user_position_service(
         )
         raise HTTPException(
             status_code=400,
-            detail="This position is already assigned to the preset_user.",
+            detail="PresetUserPosition duplicate",
         )
 
     preset_user_position = PresetUserPosition(
@@ -44,9 +44,12 @@ def add_preset_user_position_service(
         db.commit()
     except IntegrityError as e:
         db.rollback()
+        logger.warning(
+            f"PresetUserPosition duplicate: preset_user_id={dto.preset_user_id}, position_id={dto.position_id}"
+        )
         raise HTTPException(
             status_code=400,
-            detail="This position is already assigned to the preset_user.",
+            detail="PresetUserPosition duplicate",
         ) from e
     db.refresh(preset_user_position)
 
@@ -72,7 +75,7 @@ def delete_preset_user_position_service(
         logger.warning(
             f"PresetUserPosition not found: id={dto.preset_user_position_id}"
         )
-        raise HTTPException(status_code=404, detail="PresetUserPosition not found.")
+        raise HTTPException(status_code=404, detail="PresetUserPosition not found")
 
     db.delete(preset_user_position)
     db.commit()

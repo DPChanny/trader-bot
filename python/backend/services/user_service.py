@@ -37,7 +37,7 @@ async def _sync_profile(bucket: Any, user_id: int, discord_id: str):
                 logger.warning(
                     f"Profile download failed: user_id={user_id}, status={response.status}"
                 )
-    except Exception as e:
+    except Exception:
         logger.exception(f"Profile sync error: user_id={user_id}")
 
 
@@ -47,7 +47,7 @@ async def get_user_detail_service(user_id: int, db: Session) -> UserDTO:
 
     if user is None:
         logger.warning(f"User not found: id={user_id}")
-        raise HTTPException(status_code=404, detail="User not found.")
+        raise HTTPException(status_code=404, detail="User not found")
 
     return UserDTO.model_validate(user)
 

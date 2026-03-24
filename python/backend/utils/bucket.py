@@ -35,10 +35,10 @@ async def upload_profile(bucket: Any, user_id: int, profile: bytes) -> bool:
         )
         logger.info(f"S3 upload success: key={key}")
         return True
-    except ClientError as e:
+    except ClientError:
         logger.exception(f"S3 upload failed: key={key}")
         return False
-    except Exception as e:
+    except Exception:
         logger.exception(f"S3 upload failed: key={key}")
         return False
 
@@ -49,9 +49,9 @@ async def delete_profile(bucket: Any, user_id: int) -> bool:
         await bucket.delete_object(Bucket=_bucket_name, Key=key)
         logger.info(f"S3 delete success: key={key}")
         return True
-    except ClientError as e:
+    except ClientError:
         logger.exception(f"S3 delete failed: key={key}")
         return False
-    except Exception as e:
+    except Exception:
         logger.exception(f"S3 delete failed: key={key}")
         return False

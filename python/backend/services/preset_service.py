@@ -38,7 +38,7 @@ async def get_preset_detail_service(preset_id: int, db: Session) -> PresetDetail
 
     if preset is None:
         logger.warning(f"Preset not found: id={preset_id}")
-        raise HTTPException(status_code=404, detail="Preset not found.")
+        raise HTTPException(status_code=404, detail="Preset not found")
 
     return PresetDetailDTO.model_validate(preset)
 

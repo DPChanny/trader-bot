@@ -14,14 +14,14 @@ async def handle_websocket_connect(
 
     if not auction:
         logger.warning("WebSocket connect failed: reason=auction_not_found")
-        await websocket.close(code=4004, reason="Auction not found")
+        await websocket.close(code=4004, reason="WebSocket connect failed")
         return None, None, False, None
 
     token_info = auction_manager.get_token(token)
 
     if not token_info:
         logger.warning("WebSocket connect failed: reason=invalid_token")
-        await websocket.close(code=4001, reason="Invalid token")
+        await websocket.close(code=4001, reason="WebSocket connect failed")
         return None, None, False, None
 
     user_id = token_info.user_id
@@ -56,7 +56,7 @@ async def handle_websocket_message(
             await websocket.send_json(
                 {
                     "type": MessageType.ERROR,
-                    "data": {"error": "Only leaders can place bids"},
+                    "data": {"error": "Bid rejected"},
                 }
             )
             return
@@ -69,7 +69,7 @@ async def handle_websocket_message(
             await websocket.send_json(
                 {
                     "type": MessageType.ERROR,
-                    "data": {"error": "Amount required"},
+                    "data": {"error": "Bid rejected"},
                 }
             )
             return

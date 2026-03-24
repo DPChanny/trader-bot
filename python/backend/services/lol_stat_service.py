@@ -16,7 +16,7 @@ async def get_lol_stat(user_id: int, db: Session) -> LolStatDto:
         logger.warning(f"LolStat not found: id={user_id}")
         raise HTTPException(
             status_code=404,
-            detail="LOL info not found. Please wait for crawler to update data.",
+            detail="LolStat not found",
         )
 
     champions = [

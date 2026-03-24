@@ -31,19 +31,19 @@ def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
         logger.warning(
             f"Auction create failed: reason=preset_not_found, preset_id={preset_id}"
         )
-        raise HTTPException(status_code=404, detail="Preset not found.")
+        raise HTTPException(status_code=404, detail="Auction create failed")
 
     preset_users = preset.preset_users
     if not preset_users:
         logger.warning(f"Auction create failed: reason=no_users, preset_id={preset_id}")
-        raise HTTPException(status_code=400, detail="No users found in preset.")
+        raise HTTPException(status_code=400, detail="Auction create failed")
 
     leaders = [pu for pu in preset_users if pu.is_leader]
     if not leaders:
         logger.warning(
             f"Auction create failed: reason=no_leaders, preset_id={preset_id}"
         )
-        raise HTTPException(status_code=400, detail="No leaders found in preset.")
+        raise HTTPException(status_code=400, detail="Auction create failed")
 
     if len(leaders) < 2:
         logger.warning(
@@ -51,7 +51,7 @@ def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
         )
         raise HTTPException(
             status_code=400,
-            detail="At least 2 leaders are required to start an auction.",
+            detail="Auction create failed",
         )
 
     teams = []

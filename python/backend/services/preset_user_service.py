@@ -34,7 +34,7 @@ async def get_preset_user_detail_service(
 
     if preset_user is None:
         logger.warning(f"PresetUser not found: id={preset_user_id}")
-        raise HTTPException(status_code=404, detail="Preset user not found.")
+        raise HTTPException(status_code=404, detail="PresetUser not found")
 
     return PresetUserDetailDTO.model_validate(preset_user)
 
@@ -73,7 +73,8 @@ async def update_preset_user_service(
         db.query(PresetUser).filter(PresetUser.preset_user_id == preset_user_id).first()
     )
     if preset_user is None:
-        raise HTTPException(status_code=404, detail="Preset user not found")
+        logger.warning(f"PresetUser not found: id={preset_user_id}")
+        raise HTTPException(status_code=404, detail="PresetUser not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(preset_user, key, value)
@@ -93,7 +94,8 @@ def delete_preset_user_service(preset_user_id: int, db: Session) -> None:
         db.query(PresetUser).filter(PresetUser.preset_user_id == preset_user_id).first()
     )
     if preset_user is None:
-        raise HTTPException(status_code=404, detail="Preset user not found")
+        logger.warning(f"PresetUser not found: id={preset_user_id}")
+        raise HTTPException(status_code=404, detail="PresetUser not found")
 
     db.delete(preset_user)
     db.commit()

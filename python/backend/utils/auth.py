@@ -9,19 +9,20 @@ async def verify_admin_token(
 ) -> dict:
     if not authorization:
         logger.warning("Auth failed: reason=missing_header")
-        raise HTTPException(status_code=401, detail="Authorization header missing")
+        raise HTTPException(status_code=401, detail="Auth failed")
 
     if not authorization.startswith("Bearer "):
         logger.warning("Auth failed: reason=invalid_format")
-        raise HTTPException(status_code=401, detail="Invalid authorization format")
+        raise HTTPException(status_code=401, detail="Auth failed")
 
     token = authorization.replace("Bearer ", "")
 
     try:
+        payload = decode_jwt_token(token)
         role = payload.get("role")
         if role != "admin":
             logger.warning(f"Auth failed: reason=non_admin, role={role}")
-            raise HTTPException(status_code=403, detail="Admin access required")
+            raise HTTPException(status_code=403, detail="Auth failed")
 
         if response and should_refresh_token(token):
             try:
@@ -32,4 +33,4 @@ async def verify_admin_token(
 
         return payload
     except Exception as e:
-        raise HTTPException(status_code=401, detail=str(e)) from e
+        raise HTTPException(status_code=401, detail="Auth failed") from e
