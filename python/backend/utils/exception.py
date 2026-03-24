@@ -13,6 +13,9 @@ def _handle(e: Exception, db=None) -> None:
     if db is not None:
         db.rollback()
 
+    if isinstance(e, HTTPException):
+        raise e
+
     error_trace = traceback.format_exc()
 
     logger.error("=" * 80)
@@ -21,8 +24,6 @@ def _handle(e: Exception, db=None) -> None:
     logger.error(error_trace)
     logger.error("=" * 80)
 
-    if isinstance(e, HTTPException):
-        raise e
     raise HTTPException(status_code=500, detail=str(e))
 
 
