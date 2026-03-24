@@ -28,11 +28,11 @@ def add_preset_user_position_service(
 
     if existing:
         logger.warning(
-            f"PresetUserPosition duplicate: preset_user_id={dto.preset_user_id}, position_id={dto.position_id}"
+            f"PresetUserPosition duplicated: preset_user_id={dto.preset_user_id}, position_id={dto.position_id}"
         )
         raise HTTPException(
             status_code=400,
-            detail="PresetUserPosition duplicate",
+            detail="PresetUserPosition duplicated",
         )
 
     preset_user_position = PresetUserPosition(
@@ -45,11 +45,11 @@ def add_preset_user_position_service(
     except IntegrityError as e:
         db.rollback()
         logger.warning(
-            f"PresetUserPosition duplicate: preset_user_id={dto.preset_user_id}, position_id={dto.position_id}"
+            f"PresetUserPosition duplicated: preset_user_id={dto.preset_user_id}, position_id={dto.position_id}"
         )
         raise HTTPException(
             status_code=400,
-            detail="PresetUserPosition duplicate",
+            detail="PresetUserPosition duplicated",
         ) from e
     db.refresh(preset_user_position)
 
