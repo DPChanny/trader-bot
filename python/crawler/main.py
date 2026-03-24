@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from loguru import logger
-from python.backend.utils.log import setup_logging
+from shared.log import setup_logging
 
 from shared.database import get_db, init_engine
 from shared.entities.user import User

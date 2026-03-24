@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import BaseModel, BeforeValidator
+from pydantic import BeforeValidator
 
 
 def _empty_str_to_none(v: object) -> object:

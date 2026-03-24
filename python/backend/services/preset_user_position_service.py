@@ -1,21 +1,20 @@
-from fastapi import HTTPException, Response
+from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from shared.dtos.preset_user_position_dto import (
-    AddPresetUserPositionRequestDTO,
-    DeletePresetUserPositionRequestDTO,
+    AddPresetUserPositionDTO,
+    DeletePresetUserPositionDTO,
     PresetUserPositionDTO,
 )
 from shared.entities.preset_user_position import PresetUserPosition
-
-from ..utils.exception import service_exception_handler
+from shared.exception import service_exception_handler
 
 
 @service_exception_handler
 def add_preset_user_position_service(
-    dto: AddPresetUserPositionRequestDTO, db: Session
+    dto: AddPresetUserPositionDTO, db: Session
 ) -> PresetUserPositionDTO:
     existing = (
         db.query(PresetUserPosition)
@@ -60,8 +59,8 @@ def add_preset_user_position_service(
 
 @service_exception_handler
 def delete_preset_user_position_service(
-    dto: DeletePresetUserPositionRequestDTO, db: Session
-) -> Response:
+    dto: DeletePresetUserPositionDTO, db: Session
+) -> None:
     preset_user_position = (
         db.query(PresetUserPosition)
         .filter(
@@ -79,4 +78,3 @@ def delete_preset_user_position_service(
     db.delete(preset_user_position)
     db.commit()
     logger.info(f"PresetUserPosition deleted: id={dto.preset_user_position_id}")
-    return Response(status_code=204)

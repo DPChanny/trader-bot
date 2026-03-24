@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 
 from shared.database import get_db
 from shared.dtos.preset_user_position_dto import (
-    AddPresetUserPositionRequestDTO,
-    DeletePresetUserPositionRequestDTO,
+    AddPresetUserPositionDTO,
+    DeletePresetUserPositionDTO,
     PresetUserPositionDTO,
 )
 
@@ -20,14 +20,14 @@ preset_user_position_router = APIRouter(
 
 
 @preset_user_position_router.post("", response_model=PresetUserPositionDTO)
-def add_preset_user_position(
-    dto: AddPresetUserPositionRequestDTO, db: Session = Depends(get_db)
+def add_preset_user_position_route(
+    dto: AddPresetUserPositionDTO, db: Session = Depends(get_db)
 ):
     return add_preset_user_position_service(dto, db)
 
 
 @preset_user_position_router.delete("", status_code=204)
-def delete_preset_user_position(
-    dto: DeletePresetUserPositionRequestDTO, db: Session = Depends(get_db)
+def delete_preset_user_position_route(
+    dto: DeletePresetUserPositionDTO, db: Session = Depends(get_db)
 ):
     return delete_preset_user_position_service(dto, db)

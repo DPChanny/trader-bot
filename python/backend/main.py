@@ -7,6 +7,7 @@ from loguru import logger
 
 from shared.database import init_engine
 from shared.env import get_log_format, get_log_level
+from shared.log import RequestContextMiddleware, setup_logging
 
 from .routers import (
     admin_router,
@@ -21,8 +22,6 @@ from .routers import (
     user_router,
     val_stat_router,
 )
-from .services.discord_service import discord_service
-from .utils.log import RequestContextMiddleware, setup_logging
 
 
 setup_logging(log_level=get_log_level(), log_format=get_log_format())
@@ -32,11 +31,7 @@ setup_logging(log_level=get_log_level(), log_format=get_log_format())
 async def lifespan(_):
     init_engine()
 
-    await discord_service.start()
-
     yield
-
-    await discord_service.stop()
 
 
 app = FastAPI(title="Trader Auction API", version="1.0.0", lifespan=lifespan)

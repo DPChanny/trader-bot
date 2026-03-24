@@ -24,7 +24,7 @@ class PresetDetailDTO(PresetDTO):
     positions: list[PositionDTO] = []
 
 
-class AddPresetRequestDTO(BaseModel):
+class AddPresetDTO(BaseModel):
     name: str
     points: int
     time: int
@@ -32,7 +32,7 @@ class AddPresetRequestDTO(BaseModel):
     statistics: Statistics = Statistics.NONE
 
 
-class UpdatePresetRequestDTO(BaseModel):
+class UpdatePresetDTO(BaseModel):
     name: NullableStr = None
     points: int | None = None
     time: int | None = None

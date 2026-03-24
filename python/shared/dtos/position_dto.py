@@ -12,12 +12,12 @@ class PositionDTO(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class AddPositionRequestDTO(BaseModel):
+class AddPositionDTO(BaseModel):
     preset_id: int
     name: str
     icon_url: NullableStr = None
 
 
-class UpdatePositionRequestDTO(BaseModel):
+class UpdatePositionDTO(BaseModel):
     name: NullableStr = None
     icon_url: NullableStr = None

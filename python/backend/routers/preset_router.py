@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 
 from shared.database import get_db
 from shared.dtos.preset_dto import (
-    AddPresetRequestDTO,
+    AddPresetDTO,
     PresetDetailDTO,
     PresetDTO,
-    UpdatePresetRequestDTO,
+    UpdatePresetDTO,
 )
 
 from ..services.preset_service import (
@@ -24,7 +24,7 @@ preset_router = APIRouter(prefix="/preset", tags=["preset"])
 
 @preset_router.post("", response_model=PresetDetailDTO)
 def add_preset_route(
-    dto: AddPresetRequestDTO,
+    dto: AddPresetDTO,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
@@ -44,7 +44,7 @@ async def get_preset_detail_route(preset_id: int, db: Session = Depends(get_db))
 @preset_router.patch("/{preset_id}", response_model=PresetDetailDTO)
 def update_preset_route(
     preset_id: int,
-    dto: UpdatePresetRequestDTO,
+    dto: UpdatePresetDTO,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):

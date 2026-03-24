@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 
 from shared.database import get_db
 from shared.dtos.position_dto import (
-    AddPositionRequestDTO,
+    AddPositionDTO,
     PositionDTO,
-    UpdatePositionRequestDTO,
+    UpdatePositionDTO,
 )
 
 from ..services.position_service import (
@@ -23,7 +23,7 @@ position_router = APIRouter(prefix="/position", tags=["position"])
 
 @position_router.post("", response_model=PositionDTO)
 def add_position_route(
-    dto: AddPositionRequestDTO,
+    dto: AddPositionDTO,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
@@ -43,7 +43,7 @@ def get_position_detail_route(position_id: int, db: Session = Depends(get_db)):
 @position_router.patch("/{position_id}", response_model=PositionDTO)
 def update_position_route(
     position_id: int,
-    dto: UpdatePositionRequestDTO,
+    dto: UpdatePositionDTO,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):

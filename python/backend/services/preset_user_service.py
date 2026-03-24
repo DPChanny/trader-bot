@@ -1,17 +1,16 @@
-from fastapi import HTTPException, Response
+from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.preset_user_dto import (
-    AddPresetUserRequestDTO,
+    AddPresetUserDTO,
     PresetUserDetailDTO,
     PresetUserDTO,
-    UpdatePresetUserRequestDTO,
+    UpdatePresetUserDTO,
 )
 from shared.entities.preset_user import PresetUser
 from shared.entities.preset_user_position import PresetUserPosition
-
-from ..utils.exception import service_exception_handler
+from shared.exception import service_exception_handler
 
 
 def _query_preset_user_detail(preset_user_id: int, db: Session) -> PresetUser | None:
@@ -44,7 +43,7 @@ async def get_preset_user_detail_service(
 
 @service_exception_handler
 async def add_preset_user_service(
-    dto: AddPresetUserRequestDTO, db: Session
+    dto: AddPresetUserDTO, db: Session
 ) -> PresetUserDetailDTO:
     preset_user = PresetUser(
         preset_id=dto.preset_id,
@@ -69,7 +68,7 @@ def get_preset_user_list_service(db: Session) -> list[PresetUserDTO]:
 
 @service_exception_handler
 async def update_preset_user_service(
-    preset_user_id: int, dto: UpdatePresetUserRequestDTO, db: Session
+    preset_user_id: int, dto: UpdatePresetUserDTO, db: Session
 ) -> PresetUserDetailDTO:
     preset_user = (
         db.query(PresetUser).filter(PresetUser.preset_user_id == preset_user_id).first()
@@ -90,7 +89,7 @@ async def update_preset_user_service(
 
 
 @service_exception_handler
-def delete_preset_user_service(preset_user_id: int, db: Session) -> Response:
+def delete_preset_user_service(preset_user_id: int, db: Session) -> None:
     preset_user = (
         db.query(PresetUser).filter(PresetUser.preset_user_id == preset_user_id).first()
     )
@@ -101,4 +100,3 @@ def delete_preset_user_service(preset_user_id: int, db: Session) -> Response:
     db.delete(preset_user)
     db.commit()
     logger.info(f"PresetUser deleted: id={preset_user_id}")
-    return Response(status_code=204)

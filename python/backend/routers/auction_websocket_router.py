@@ -71,7 +71,7 @@ async def auction_websocket(websocket: WebSocket, token: str):
     except WebSocketDisconnect:
         await handle_websocket_disconnect(auction, token, websocket)
 
-    except Exception as e:
+    except Exception:
         logger.exception(f"WebSocket error: user_id={user_id}")
         await handle_websocket_disconnect(auction, token, websocket)
         await websocket.close()

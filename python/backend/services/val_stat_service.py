@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.val_stat_dto import AgentDto, ValStatDto
 from shared.entities.val_stat import ValStat
-
-from ..utils.exception import service_exception_handler
+from shared.exception import service_exception_handler
 
 
 @service_exception_handler

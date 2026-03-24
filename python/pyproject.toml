@@ -12,6 +12,7 @@ dependencies = [
     "python-dotenv",
     "pyjwt",
     "discord.py",
+    "httpx",
     "aioboto3",
     "websockets",
     "asyncpg",

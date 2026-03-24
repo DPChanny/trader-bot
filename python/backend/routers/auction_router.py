@@ -1,7 +1,4 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-)
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from shared.database import get_db
@@ -20,4 +17,4 @@ async def add_auction_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ) -> AuctionDTO:
-    return add_auction_service(preset_id, db)
+    return await add_auction_service(preset_id, db)

@@ -11,10 +11,10 @@ class TierDTO(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class AddTierRequestDTO(BaseModel):
+class AddTierDTO(BaseModel):
     preset_id: int
     name: str
 
 
-class UpdateTierRequestDTO(BaseModel):
+class UpdateTierDTO(BaseModel):
     name: NullableStr = None

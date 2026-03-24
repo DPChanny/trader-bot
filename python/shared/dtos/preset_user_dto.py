@@ -21,13 +21,13 @@ class PresetUserDetailDTO(PresetUserDTO):
     preset_user_positions: list[PresetUserPositionDetailDTO] = []
 
 
-class AddPresetUserRequestDTO(BaseModel):
+class AddPresetUserDTO(BaseModel):
     preset_id: int
     user_id: int
     tier_id: int | None = None
     is_leader: bool = False
 
 
-class UpdatePresetUserRequestDTO(BaseModel):
+class UpdatePresetUserDTO(BaseModel):
     tier_id: int | None = None
     is_leader: bool | None = None

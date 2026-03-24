@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 from shared.database import get_db
 from shared.dtos.user_dto import (
-    AddUserRequestDTO,
-    UpdateUserRequestDTO,
+    AddUserDTO,
+    UpdateUserDTO,
     UserDTO,
 )
 
@@ -27,7 +27,7 @@ user_router = APIRouter(prefix="/user", tags=["user"])
 
 @user_router.post("", response_model=UserDTO)
 async def add_user_route(
-    dto: AddUserRequestDTO,
+    dto: AddUserDTO,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
     bucket: Any = Depends(get_bucket),
@@ -48,7 +48,7 @@ async def get_user_detail_route(user_id: int, db: Session = Depends(get_db)):
 @user_router.patch("/{user_id}", response_model=UserDTO)
 async def update_user_route(
     user_id: int,
-    dto: UpdateUserRequestDTO,
+    dto: UpdateUserDTO,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
     bucket: Any = Depends(get_bucket),

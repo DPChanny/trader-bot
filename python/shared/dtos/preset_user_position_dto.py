@@ -15,10 +15,10 @@ class PresetUserPositionDetailDTO(PresetUserPositionDTO):
     position: PositionDTO
 
 
-class AddPresetUserPositionRequestDTO(BaseModel):
+class AddPresetUserPositionDTO(BaseModel):
     preset_user_id: int
     position_id: int
 
 
-class DeletePresetUserPositionRequestDTO(BaseModel):
+class DeletePresetUserPositionDTO(BaseModel):
     preset_user_position_id: int

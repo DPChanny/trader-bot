@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
 from shared.entities.lol_stat import LolStat
-
-from ..utils.exception import service_exception_handler
+from shared.exception import service_exception_handler
 
 
 @service_exception_handler

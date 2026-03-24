@@ -56,6 +56,10 @@ def get_auction_url(token: str) -> str:
     return f"{get_app_origin()}/auction?token={token}"
 
 
+def get_bot_origin() -> str:
+    return os.getenv("BOT_ORIGIN", "http://localhost:8001")
+
+
 def get_admin_password() -> str:
     return os.getenv("ADMIN_PASSWORD", "")
 

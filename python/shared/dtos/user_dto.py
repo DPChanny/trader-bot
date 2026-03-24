@@ -21,13 +21,13 @@ class UserDTO(BaseModel):
         return get_profile_url(self.user_id)
 
 
-class AddUserRequestDTO(BaseModel):
+class AddUserDTO(BaseModel):
     alias: NullableStr = None
     riot_id: NullableStr = None
     discord_id: NullableStr = None
 
 
-class UpdateUserRequestDTO(BaseModel):
+class UpdateUserDTO(BaseModel):
     alias: NullableStr = None
     riot_id: NullableStr = None
     discord_id: NullableStr = None

@@ -1,4 +1,3 @@
-from loguru import logger
 
 from shared.env import get_admin_password
 

@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 
 from shared.database import get_db
 from shared.dtos.tier_dto import (
-    AddTierRequestDTO,
+    AddTierDTO,
     TierDTO,
-    UpdateTierRequestDTO,
+    UpdateTierDTO,
 )
 
 from ..services.tier_service import (
@@ -23,7 +23,7 @@ tier_router = APIRouter(prefix="/tier", tags=["tier"])
 
 @tier_router.post("", response_model=TierDTO)
 def add_tier_route(
-    dto: AddTierRequestDTO,
+    dto: AddTierDTO,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
@@ -43,7 +43,7 @@ def get_tier_detail_route(tier_id: int, db: Session = Depends(get_db)):
 @tier_router.patch("/{tier_id}", response_model=TierDTO)
 def update_tier_route(
     tier_id: int,
-    dto: UpdateTierRequestDTO,
+    dto: UpdateTierDTO,
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):

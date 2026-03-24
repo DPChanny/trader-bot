@@ -10,14 +10,14 @@ from shared.entities.preset import Preset
 from shared.entities.preset_user import PresetUser
 from shared.entities.user import User
 from shared.env import get_auction_url
+from shared.exception import service_exception_handler
 
 from ..auction.auction_manager import auction_manager
-from ..utils.exception import service_exception_handler
-from .discord_service import discord_service
+from ..utils.bot_client import send_auction_urls as bot_send_auction_urls
 
 
 @service_exception_handler
-def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
+async def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
     preset = (
         db.query(Preset)
         .options(
@@ -95,7 +95,7 @@ def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
                 invites.append((user.discord_id, auction_url))
 
     if invites:
-        discord_service.send_auction_urls(invites)
+        await bot_send_auction_urls(invites)
 
     return AuctionDTO(
         auction_id=auction_id,
