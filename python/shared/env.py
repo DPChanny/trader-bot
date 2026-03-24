@@ -40,6 +40,14 @@ def get_db_url() -> str:
     return f"postgresql://{user}:{password}@{host}:{port}/{name}"
 
 
+def get_log_level() -> str:
+    return os.getenv("LOG_LEVEL", "INFO")
+
+
+def get_log_format() -> str:
+    return os.getenv("LOG_FORMAT", "json")
+
+
 def get_discord_bot_token() -> str:
     return os.getenv("DISCORD_BOT_TOKEN", "")
 

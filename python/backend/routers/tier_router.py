@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
@@ -20,8 +18,6 @@ from ..services.tier_service import (
 from ..utils.auth import verify_admin_token
 
 
-logger = logging.getLogger(__name__)
-
 tier_router = APIRouter(prefix="/tier", tags=["tier"])
 
 
@@ -31,19 +27,16 @@ def add_tier_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Add: {dto.name}")
     return add_tier_service(dto, db)
 
 
 @tier_router.get("", response_model=list[TierDTO])
 def get_tier_list_route(db: Session = Depends(get_db)):
-    logger.info("Get list")
     return get_tier_list_service(db)
 
 
 @tier_router.get("/{tier_id}", response_model=TierDTO)
 def get_tier_detail_route(tier_id: int, db: Session = Depends(get_db)):
-    logger.info(f"Get: {tier_id}")
     return get_tier_detail_service(tier_id, db)
 
 
@@ -54,7 +47,6 @@ def update_tier_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Update: {tier_id}")
     return update_tier_service(tier_id, dto, db)
 
 
@@ -64,6 +56,5 @@ def delete_tier_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Delete: {tier_id}")
     delete_tier_service(tier_id, db)
     return Response(status_code=204)

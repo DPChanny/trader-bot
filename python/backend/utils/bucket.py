@@ -1,9 +1,9 @@
-import logging
 from collections.abc import AsyncGenerator
 from typing import Any
 
 import aioboto3
 from botocore.exceptions import ClientError
+from loguru import logger
 
 from shared.env import (
     get_aws_access_key,
@@ -13,8 +13,6 @@ from shared.env import (
     get_profile_key,
 )
 
-
-logger = logging.getLogger(__name__)
 
 _session = aioboto3.Session(
     aws_access_key_id=get_aws_access_key(),
@@ -35,13 +33,13 @@ async def upload_profile(bucket: Any, user_id: int, profile: bytes) -> bool:
         await bucket.put_object(
             Bucket=_bucket_name, Key=key, Body=profile, ContentType="image/png"
         )
-        logger.info(f"Uploaded: {key}")
+        logger.info(f"S3 upload success: key={key}")
         return True
     except ClientError as e:
-        logger.error(f"Upload failed {key}: {e}")
+        logger.exception(f"S3 upload failed: key={key}")
         return False
     except Exception as e:
-        logger.error(f"Upload error {key}: {e}")
+        logger.exception(f"S3 upload failed: key={key}")
         return False
 
 
@@ -49,11 +47,11 @@ async def delete_profile(bucket: Any, user_id: int) -> bool:
     key = get_profile_key(user_id)
     try:
         await bucket.delete_object(Bucket=_bucket_name, Key=key)
-        logger.info(f"Deleted: {key}")
+        logger.info(f"S3 delete success: key={key}")
         return True
     except ClientError as e:
-        logger.error(f"Delete failed {key}: {e}")
+        logger.exception(f"S3 delete failed: key={key}")
         return False
     except Exception as e:
-        logger.error(f"Delete error {key}: {e}")
+        logger.exception(f"S3 delete failed: key={key}")
         return False

@@ -1,6 +1,5 @@
-import logging
-
 from fastapi import HTTPException
+from loguru import logger
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -12,9 +11,6 @@ from shared.dtos.preset_user_position_dto import (
 from shared.entities.preset_user_position import PresetUserPosition
 
 from ..utils.exception import service_exception_handler
-
-
-logger = logging.getLogger(__name__)
 
 
 @service_exception_handler
@@ -31,7 +27,9 @@ def add_preset_user_position_service(
     )
 
     if existing:
-        logger.warning("Duplicate")
+        logger.warning(
+            f"PresetUserPosition duplicate: preset_user_id={dto.preset_user_id}, position_id={dto.position_id}"
+        )
         raise HTTPException(
             status_code=400,
             detail="This position is already assigned to the preset_user.",
@@ -52,7 +50,9 @@ def add_preset_user_position_service(
         ) from e
     db.refresh(preset_user_position)
 
-    logger.info(f"Added: {preset_user_position.preset_user_position_id}")
+    logger.info(
+        f"PresetUserPosition created: id={preset_user_position.preset_user_position_id}"
+    )
     return PresetUserPositionDTO.model_validate(preset_user_position)
 
 
@@ -69,9 +69,11 @@ def delete_preset_user_position_service(
     )
 
     if preset_user_position is None:
-        logger.warning(f"Missing: {dto.preset_user_position_id}")
+        logger.warning(
+            f"PresetUserPosition not found: id={dto.preset_user_position_id}"
+        )
         raise HTTPException(status_code=404, detail="PresetUserPosition not found.")
 
     db.delete(preset_user_position)
     db.commit()
-    logger.info(f"Deleted: {dto.preset_user_position_id}")
+    logger.info(f"PresetUserPosition deleted: id={dto.preset_user_position_id}")

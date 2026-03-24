@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 
 from shared.env import get_admin_password
 
@@ -7,9 +7,6 @@ from ..utils.jwt import (
     refresh_jwt_token,
     should_refresh_token,
 )
-
-
-logger = logging.getLogger(__name__)
 
 
 def verify_admin_password(password: str) -> bool:

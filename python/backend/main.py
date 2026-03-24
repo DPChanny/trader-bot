@@ -1,11 +1,12 @@
-import logging
-import traceback
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from loguru import logger
 
 from shared.database import init_engine
+from shared.env import get_log_format, get_log_level
 
 from .routers import (
     admin_router,
@@ -21,20 +22,10 @@ from .routers import (
     val_stat_router,
 )
 from .services.discord_service import discord_service
+from .utils.log import RequestContextMiddleware, setup_logging
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s - %(name)s - %(message)s",
-)
-
-logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
-logging.getLogger("discord").setLevel(logging.WARNING)
-logging.getLogger("discord.client").setLevel(logging.WARNING)
-logging.getLogger("discord.gateway").setLevel(logging.WARNING)
-logging.getLogger("discord.http").setLevel(logging.WARNING)
-
-logger = logging.getLogger(__name__)
+setup_logging(log_level=get_log_level(), log_format=get_log_format())
 
 
 @asynccontextmanager
@@ -53,22 +44,11 @@ app = FastAPI(title="Trader Auction API", version="1.0.0", lifespan=lifespan)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(_, exc):
-    error_msg = f"Global exception: {exc}"
-    error_trace = traceback.format_exc()
-
-    logger.error("=" * 80)
-    logger.error(f"ERROR: {error_msg}")
-    logger.error("-" * 80)
-    logger.error(error_trace)
-    logger.error("=" * 80)
-
-    from fastapi.responses import JSONResponse
-
-    return JSONResponse(
-        status_code=500, content={"detail": str(exc), "traceback": error_trace}
-    )
+    logger.exception(f"Unhandled exception: {exc}")
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
+app.add_middleware(RequestContextMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

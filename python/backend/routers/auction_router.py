@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import (
     APIRouter,
     Depends,
@@ -13,8 +11,6 @@ from ..services.auction_service import add_auction_service
 from ..utils.auth import verify_admin_token
 
 
-logger = logging.getLogger(__name__)
-
 auction_router = APIRouter(prefix="/auction", tags=["auction"])
 
 
@@ -24,5 +20,4 @@ async def add_auction_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ) -> AuctionDTO:
-    logger.info(f"Add: {preset_id}")
     return add_auction_service(preset_id, db)

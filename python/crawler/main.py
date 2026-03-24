@@ -1,20 +1,18 @@
-import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from loguru import logger
+from python.backend.utils.log import setup_logging
 
 from shared.database import get_db, init_engine
 from shared.entities.user import User
+from shared.env import get_log_format, get_log_level
 
 from .services.lol_stat_service import crawl_lol_stat, save_lol_stat_to_db
 from .services.val_stat_service import crawl_val_stat, save_val_stat_to_db
 from .utils.crawler import close_driver, create_driver
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s - %(name)s - %(message)s",
-)
-
-logger = logging.getLogger(__name__)
+setup_logging(log_level=get_log_level(), log_format=get_log_format())
 
 MAX_WORKERS = 4
 

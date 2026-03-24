@@ -1,12 +1,8 @@
 import functools
 import inspect
-import logging
-import traceback
 
 from fastapi import HTTPException
-
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 
 def _handle(e: Exception, db=None) -> None:
@@ -16,15 +12,9 @@ def _handle(e: Exception, db=None) -> None:
     if isinstance(e, HTTPException):
         raise e
 
-    error_trace = traceback.format_exc()
+    logger.exception(f"Unhandled exception: {e}")
 
-    logger.error("=" * 80)
-    logger.error(f"UNEXPECTED EXCEPTION: {e}")
-    logger.error("-" * 80)
-    logger.error(error_trace)
-    logger.error("=" * 80)
-
-    raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(status_code=500, detail="Internal server error")
 
 
 def service_exception_handler(func):

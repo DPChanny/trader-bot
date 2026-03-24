@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
@@ -20,8 +18,6 @@ from ..services.position_service import (
 from ..utils.auth import verify_admin_token
 
 
-logger = logging.getLogger(__name__)
-
 position_router = APIRouter(prefix="/position", tags=["position"])
 
 
@@ -31,19 +27,16 @@ def add_position_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Add: {dto.name}")
     return add_position_service(dto, db)
 
 
 @position_router.get("", response_model=list[PositionDTO])
 def get_position_list_route(db: Session = Depends(get_db)):
-    logger.info("Get list")
     return get_position_list_service(db)
 
 
 @position_router.get("/{position_id}", response_model=PositionDTO)
 def get_position_detail_route(position_id: int, db: Session = Depends(get_db)):
-    logger.info(f"Get: {position_id}")
     return get_position_detail_service(position_id, db)
 
 
@@ -54,7 +47,6 @@ def update_position_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Update: {position_id}")
     return update_position_service(position_id, dto, db)
 
 
@@ -64,6 +56,5 @@ def delete_position_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Delete: {position_id}")
     delete_position_service(position_id, db)
     return Response(status_code=204)

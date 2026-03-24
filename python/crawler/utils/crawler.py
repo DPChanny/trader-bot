@@ -1,12 +1,10 @@
-import logging
+from loguru import logger
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
-
-logger = logging.getLogger(__name__)
 
 PAGE_LOAD_TIMEOUT = 10
 SCRIPT_TIMEOUT = 10

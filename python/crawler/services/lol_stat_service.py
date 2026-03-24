@@ -1,6 +1,6 @@
-import logging
 import re
 
+from loguru import logger
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -11,8 +11,6 @@ from shared.database import get_db
 from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
 from shared.entities.lol_stat import Champion, LolStat
 
-
-logger = logging.getLogger(__name__)
 
 WEB_DRIVER_TIMEOUT = 20
 

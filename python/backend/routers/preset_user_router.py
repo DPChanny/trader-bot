@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
@@ -21,8 +19,6 @@ from ..services.preset_user_service import (
 from ..utils.auth import verify_admin_token
 
 
-logger = logging.getLogger(__name__)
-
 preset_user_router = APIRouter(prefix="/preset_user", tags=["preset_user"])
 
 
@@ -32,13 +28,11 @@ async def add_preset_user_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info("Add")
     return await add_preset_user_service(dto, db)
 
 
 @preset_user_router.get("", response_model=list[PresetUserDTO])
 def get_preset_user_list_route(db: Session = Depends(get_db)):
-    logger.info("Get list")
     return get_preset_user_list_service(db)
 
 
@@ -46,7 +40,6 @@ def get_preset_user_list_route(db: Session = Depends(get_db)):
 async def get_preset_user_detail_route(
     preset_user_id: int, db: Session = Depends(get_db)
 ):
-    logger.info(f"Get: {preset_user_id}")
     return await get_preset_user_detail_service(preset_user_id, db)
 
 
@@ -57,7 +50,6 @@ async def update_preset_user_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Update: {preset_user_id}")
     return await update_preset_user_service(preset_user_id, dto, db)
 
 
@@ -67,6 +59,5 @@ def delete_preset_user_route(
     db: Session = Depends(get_db),
     _: dict = Depends(verify_admin_token),
 ):
-    logger.info(f"Delete: {preset_user_id}")
     delete_preset_user_service(preset_user_id, db)
     return Response(status_code=204)

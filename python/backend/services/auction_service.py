@@ -1,6 +1,5 @@
-import logging
-
 from fastapi import HTTPException
+from loguru import logger
 from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.auction_dto import (
@@ -17,12 +16,8 @@ from ..utils.exception import service_exception_handler
 from .discord_service import discord_service
 
 
-logger = logging.getLogger(__name__)
-
-
 @service_exception_handler
 def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
-    logger.info(f"Adding: {preset_id}")
     preset = (
         db.query(Preset)
         .options(
@@ -33,21 +28,27 @@ def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
     )
 
     if preset is None:
-        logger.warning(f"Preset missing: {preset_id}")
+        logger.warning(
+            f"Auction create failed: reason=preset_not_found, preset_id={preset_id}"
+        )
         raise HTTPException(status_code=404, detail="Preset not found.")
 
     preset_users = preset.preset_users
     if not preset_users:
-        logger.warning(f"Users empty: {preset_id}")
+        logger.warning(f"Auction create failed: reason=no_users, preset_id={preset_id}")
         raise HTTPException(status_code=400, detail="No users found in preset.")
 
     leaders = [pu for pu in preset_users if pu.is_leader]
     if not leaders:
-        logger.warning(f"Leaders empty: {preset_id}")
+        logger.warning(
+            f"Auction create failed: reason=no_leaders, preset_id={preset_id}"
+        )
         raise HTTPException(status_code=400, detail="No leaders found in preset.")
 
     if len(leaders) < 2:
-        logger.warning(f"Leaders < 2: {len(leaders)}")
+        logger.warning(
+            f"Auction create failed: reason=insufficient_leaders, count={len(leaders)}, required=2"
+        )
         raise HTTPException(
             status_code=400,
             detail="At least 2 leaders are required to start an auction.",
@@ -75,7 +76,7 @@ def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
         time=preset.time,
     )
 
-    logger.info(f"Added: {auction_id}, users: {len(user_ids)}")
+    logger.info(f"Auction created: auction_id={auction_id}, user_count={len(user_ids)}")
 
     invites = []
     for user_id in user_ids:
@@ -84,7 +85,9 @@ def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
             user = db.query(User).filter(User.user_id == user_id).first()
 
             if user is None:
-                logger.warning(f"User missing: {user_id}")
+                logger.warning(
+                    f"Auction setup warning: reason=user_not_found, user_id={user_id}"
+                )
                 continue
 
             auction_url = get_auction_url(token)

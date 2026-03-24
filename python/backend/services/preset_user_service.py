@@ -1,6 +1,5 @@
-import logging
-
 from fastapi import HTTPException
+from loguru import logger
 from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.preset_user_dto import (
@@ -12,9 +11,6 @@ from shared.dtos.preset_user_dto import (
 from shared.entities.preset_user import PresetUser
 
 from ..utils.exception import service_exception_handler
-
-
-logger = logging.getLogger(__name__)
 
 
 def _load_preset_user(preset_user_id: int, db: Session) -> PresetUser | None:
@@ -37,7 +33,7 @@ async def get_preset_user_detail_service(
     preset_user = _load_preset_user(preset_user_id, db)
 
     if preset_user is None:
-        logger.warning(f"Missing: {preset_user_id}")
+        logger.warning(f"PresetUser not found: id={preset_user_id}")
         raise HTTPException(status_code=404, detail="Preset user not found.")
 
     return PresetUserDetailDTO.model_validate(preset_user)
@@ -56,7 +52,7 @@ async def add_preset_user_service(
     db.add(preset_user)
     db.commit()
     db.refresh(preset_user)
-    logger.info(f"Added: {preset_user.preset_user_id}")
+    logger.info(f"PresetUser created: id={preset_user.preset_user_id}")
 
     preset_user = _load_preset_user(preset_user.preset_user_id, db)
 
@@ -84,7 +80,7 @@ async def update_preset_user_service(
 
     db.commit()
     db.refresh(preset_user)
-    logger.info(f"Updated: {preset_user_id}")
+    logger.info(f"PresetUser updated: id={preset_user_id}")
 
     preset_user = _load_preset_user(preset_user_id, db)
 
@@ -101,4 +97,4 @@ def delete_preset_user_service(preset_user_id: int, db: Session) -> None:
 
     db.delete(preset_user)
     db.commit()
-    logger.info(f"Deleted: {preset_user_id}")
+    logger.info(f"PresetUser deleted: id={preset_user_id}")

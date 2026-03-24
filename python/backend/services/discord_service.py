@@ -1,14 +1,11 @@
 import asyncio
-import logging
 import threading
 
 import discord
 from discord.ext import commands
+from loguru import logger
 
 from shared.env import get_discord_bot_token
-
-
-logger = logging.getLogger(__name__)
 
 
 class DiscordBotService:
@@ -52,10 +49,7 @@ class DiscordBotService:
 
         @self.bot.event
         async def on_error(event, *args, **kwargs):
-            logger.error(f"Error: {event}")
-            import traceback
-
-            logger.error(traceback.format_exc())
+            logger.exception(f"Discord bot error: event={event}")
 
         while self._should_run:
             try:
@@ -74,10 +68,7 @@ class DiscordBotService:
                 logger.info("Keyboard interrupt")
                 break
             except Exception as e:
-                logger.error(f"Start failed: {e}")
-                import traceback
-
-                logger.error(traceback.format_exc())
+                logger.exception(f"Discord bot start failed: {e}")
                 self._ready = False
                 if self._should_run:
                     logger.info("Reconnecting...")
@@ -136,10 +127,7 @@ class DiscordBotService:
                     self._ready = False
                 logger.info("Stopped")
             except Exception as e:
-                logger.error(f"Stop error: {e}")
-                import traceback
-
-                logger.error(traceback.format_exc())
+                logger.exception(f"Discord bot stop error: {e}")
 
     def send_auction_urls(self, invites: list[tuple[str, str]]) -> None:
         with self._state_lock:
@@ -206,7 +194,7 @@ class DiscordBotService:
             ):
                 if isinstance(result, Exception) or not result:
                     result_dict[discord_id] = False
-                    logger.info(f"Invite failed: {discord_id} {auction_url}")
+                    logger.warning(f"Discord invite failed: discord_id={discord_id}")
                 else:
                     result_dict[discord_id] = result
 
@@ -214,7 +202,7 @@ class DiscordBotService:
             logger.info(f"Sent: {success_count}/{len(invites)}")
             return result_dict
         except Exception as e:
-            logger.error(f"Invite error: {e}")
+            logger.error(f"Discord invite error: {e}")
             return {discord_id: False for discord_id, _ in invites}
 
     async def fetch_profile_url(self, discord_id: str) -> str | None:
@@ -259,10 +247,7 @@ class DiscordBotService:
             logger.error(f"Invalid: {discord_id}")
             return None
         except Exception as e:
-            logger.error(f"Fetch failed: {discord_id}: {e}")
-            import traceback
-
-            logger.error(traceback.format_exc())
+            logger.exception(f"Discord fetch profile failed: discord_id={discord_id}")
             return None
 
 

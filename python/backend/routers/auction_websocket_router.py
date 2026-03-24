@@ -1,11 +1,11 @@
 import json
-import logging
 
 from fastapi import (
     APIRouter,
     WebSocket,
     WebSocketDisconnect,
 )
+from loguru import logger
 
 from shared.dtos.auction_dto import AuctionStatus, MessageType
 
@@ -16,15 +16,11 @@ from ..services.auction_websocket_service import (
 )
 
 
-logger = logging.getLogger(__name__)
-
 auction_websocket_router = APIRouter(prefix="/auction", tags=["auction_websocket"])
 
 
 @auction_websocket_router.websocket("/{token}")
 async def auction_websocket(websocket: WebSocket, token: str):
-    logger.info(f"Connection request: {token[:8]}...")
-
     auction, user_id, is_leader, team_id = await handle_websocket_connect(
         websocket, token
     )
@@ -48,7 +44,9 @@ async def auction_websocket(websocket: WebSocket, token: str):
         )
 
         if is_leader and auction.are_all_leaders_connected():
-            logger.info("All leaders connected. Starting auction...")
+            logger.info(
+                f"Auction starting: all_leaders_connected, count={len(auction.leader_user_ids)}"
+            )
             if auction.status == AuctionStatus.WAITING:
                 await auction.set_status(AuctionStatus.IN_PROGRESS)
         else:
@@ -59,7 +57,7 @@ async def auction_websocket(websocket: WebSocket, token: str):
                     if uid in auction.connected_tokens.values()
                 ]
                 logger.info(
-                    f"Leader connected but not all: {len(connected_leaders)}/{len(auction.leader_user_ids)}"
+                    f"WebSocket leader joined: connected={len(connected_leaders)}, total={len(auction.leader_user_ids)}"
                 )
 
         while True:
@@ -71,13 +69,9 @@ async def auction_websocket(websocket: WebSocket, token: str):
             )
 
     except WebSocketDisconnect:
-        logger.info(f"Disconnected normally: {user_id}")
         await handle_websocket_disconnect(auction, token, websocket)
 
     except Exception as e:
-        logger.error(f"Error: {user_id} - {e}")
-        import traceback
-
-        logger.error(traceback.format_exc())
+        logger.exception(f"WebSocket error: user_id={user_id}")
         await handle_websocket_disconnect(auction, token, websocket)
         await websocket.close()

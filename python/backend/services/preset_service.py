@@ -1,6 +1,5 @@
-import logging
-
 from fastapi import HTTPException
+from loguru import logger
 from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.preset_dto import (
@@ -14,9 +13,6 @@ from shared.entities.preset_user import PresetUser
 from shared.entities.preset_user_position import PresetUserPosition
 
 from ..utils.exception import service_exception_handler
-
-
-logger = logging.getLogger(__name__)
 
 
 def _load_preset(preset_id: int, db: Session) -> Preset | None:
@@ -41,7 +37,7 @@ async def get_preset_detail_service(preset_id: int, db: Session) -> PresetDetail
     preset = _load_preset(preset_id, db)
 
     if preset is None:
-        logger.warning(f"Missing: {preset_id}")
+        logger.warning(f"Preset not found: id={preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found.")
 
     return PresetDetailDTO.model_validate(preset)
@@ -62,7 +58,7 @@ def add_preset_service(dto: AddPresetRequestDTO, db: Session) -> PresetDetailDTO
 
     preset = _load_preset(preset.preset_id, db)
 
-    logger.info(f"Added: {preset.preset_id}")
+    logger.info(f"Preset created: id={preset.preset_id}, name={dto.name}")
     return PresetDetailDTO.model_validate(preset)
 
 
@@ -78,7 +74,7 @@ def update_preset_service(
 ) -> PresetDetailDTO:
     preset = db.query(Preset).filter(Preset.preset_id == preset_id).first()
     if preset is None:
-        logger.warning(f"Missing: {preset_id}")
+        logger.warning(f"Preset not found: id={preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
@@ -86,7 +82,7 @@ def update_preset_service(
 
     db.commit()
     db.refresh(preset)
-    logger.info(f"Updated: {preset_id}")
+    logger.info(f"Preset updated: id={preset_id}")
 
     preset = _load_preset(preset_id, db)
 
@@ -97,9 +93,9 @@ def update_preset_service(
 def delete_preset_service(preset_id: int, db: Session) -> None:
     preset = db.query(Preset).filter(Preset.preset_id == preset_id).first()
     if preset is None:
-        logger.warning(f"Missing: {preset_id}")
+        logger.warning(f"Preset not found: id={preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found")
 
     db.delete(preset)
     db.commit()
-    logger.info(f"Deleted: {preset_id}")
+    logger.info(f"Preset deleted: id={preset_id}")

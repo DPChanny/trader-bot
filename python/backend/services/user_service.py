@@ -1,8 +1,8 @@
-import logging
 from typing import Any
 
 import aiohttp
 from fastapi import HTTPException
+from loguru import logger
 from sqlalchemy.orm import Session
 
 from shared.dtos.user_dto import (
@@ -15,9 +15,6 @@ from shared.entities.user import User
 from ..utils.bucket import delete_profile, upload_profile
 from ..utils.exception import service_exception_handler
 from .discord_service import discord_service
-
-
-logger = logging.getLogger(__name__)
 
 
 async def _sync_profile(bucket: Any, user_id: int, discord_id: str):
@@ -35,11 +32,13 @@ async def _sync_profile(bucket: Any, user_id: int, discord_id: str):
             if response.status == 200:
                 image_data = await response.read()
                 await upload_profile(bucket, user_id, image_data)
-                logger.info(f"Profile synced: {user_id}")
+                logger.info(f"Profile synced: user_id={user_id}")
             else:
-                logger.warning(f"Download failed: {response.status}")
+                logger.warning(
+                    f"Profile download failed: user_id={user_id}, status={response.status}"
+                )
     except Exception as e:
-        logger.error(f"Sync failed: {e}")
+        logger.exception(f"Profile sync error: user_id={user_id}")
 
 
 @service_exception_handler
@@ -47,7 +46,7 @@ async def get_user_detail_service(user_id: int, db: Session) -> UserDTO:
     user = db.query(User).filter(User.user_id == user_id).first()
 
     if user is None:
-        logger.warning(f"Missing: {user_id}")
+        logger.warning(f"User not found: id={user_id}")
         raise HTTPException(status_code=404, detail="User not found.")
 
     return UserDTO.model_validate(user)
@@ -63,7 +62,7 @@ async def add_user_service(dto: AddUserRequestDTO, db: Session, bucket: Any) -> 
     db.add(user)
     db.commit()
 
-    logger.info(f"Added: {user.user_id}")
+    logger.info(f"User created: id={user.user_id}, alias={dto.alias}")
 
     if dto.discord_id is not None:
         await _sync_profile(bucket, user.user_id, dto.discord_id)
@@ -83,7 +82,7 @@ async def update_user_service(
 ) -> UserDTO:
     user = db.query(User).filter(User.user_id == user_id).first()
     if user is None:
-        logger.warning(f"Missing: {user_id}")
+        logger.warning(f"User not found: id={user_id}")
         raise HTTPException(status_code=404, detail="User not found")
 
     old_discord_id = user.discord_id
@@ -95,7 +94,7 @@ async def update_user_service(
         setattr(user, key, value)
 
     db.commit()
-    logger.info(f"Updated: {user_id}")
+    logger.info(f"User updated: id={user_id}")
 
     if discord_id_changed and user.discord_id is not None:
         await _sync_profile(bucket, user.user_id, user.discord_id)
@@ -107,13 +106,13 @@ async def update_user_service(
 async def update_profile_service(user_id: int, db: Session, bucket: Any) -> UserDTO:
     user = db.query(User).filter(User.user_id == user_id).first()
     if user is None:
-        logger.warning(f"Missing: {user_id}")
+        logger.warning(f"User not found: id={user_id}")
         raise HTTPException(status_code=404, detail="User not found")
 
     if user.discord_id is not None:
         await _sync_profile(bucket, user.user_id, user.discord_id)
 
-    logger.info(f"Profile updated: {user_id}")
+    logger.info(f"User profile updated: id={user_id}")
     return await get_user_detail_service(user.user_id, db)
 
 
@@ -121,7 +120,7 @@ async def update_profile_service(user_id: int, db: Session, bucket: Any) -> User
 async def delete_user_service(user_id: int, db: Session, bucket: Any) -> None:
     user = db.query(User).filter(User.user_id == user_id).first()
     if user is None:
-        logger.warning(f"Missing: {user_id}")
+        logger.warning(f"User not found: id={user_id}")
         raise HTTPException(status_code=404, detail="User not found")
 
     db.delete(user)
@@ -129,4 +128,4 @@ async def delete_user_service(user_id: int, db: Session, bucket: Any) -> None:
 
     await delete_profile(bucket, user_id)
 
-    logger.info(f"Deleted: {user_id}")
+    logger.info(f"User deleted: id={user_id}")

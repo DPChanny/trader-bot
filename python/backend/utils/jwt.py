@@ -1,12 +1,10 @@
-import logging
 from datetime import UTC, datetime, timedelta
 
 import jwt
+from loguru import logger
 
 from shared.env import get_jwt_algorithm, get_jwt_secret
 
-
-logger = logging.getLogger(__name__)
 
 JWT_EXPIRATION_HOURS = 24
 JWT_REFRESH_THRESHOLD_HOURS = 6
@@ -35,10 +33,12 @@ def decode_jwt_token(token: str) -> dict:
         )
         return payload
     except jwt.ExpiredSignatureError as e:
-        logger.warning(f"Token expired: {str(e)}")
+        logger.warning("Token validation failed: reason=expired")
         raise Exception("Token has expired") from e
     except jwt.InvalidTokenError as e:
-        logger.error(f"Invalid token: {type(e).__name__}: {str(e)}")
+        logger.error(
+            f"Token validation failed: reason=invalid, type={type(e).__name__}"
+        )
         raise Exception("Invalid token") from e
 
 
