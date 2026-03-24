@@ -1,7 +1,7 @@
 import { Modal, ModalForm, ModalFooter } from "@/components/modal";
 import { LabelInput } from "@/components/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/button";
-import { Error } from "@/components/error";
+import { Error as ErrorMessage } from "@/components/error";
 
 interface AddTierModalProps {
   isOpen: boolean;
@@ -25,7 +25,11 @@ export function AddTierModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="티어 추가">
       <ModalForm onSubmit={onSubmit}>
-        {error && <Error>티어 추가에 실패했습니다.</Error>}
+        {error && (
+          <ErrorMessage detail={error?.message}>
+            티어 추가에 실패했습니다.
+          </ErrorMessage>
+        )}
         <LabelInput
           label="티어 이름"
           type="text"

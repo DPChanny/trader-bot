@@ -1,7 +1,7 @@
 import { Modal, ModalFooter, ModalForm } from "@/components/modal";
 import { LabelInput } from "@/components/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/button";
-import { Error } from "@/components/error";
+import { Error as ErrorMessage } from "@/components/error";
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -29,7 +29,11 @@ export function AddUserModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="유저 추가">
       <ModalForm onSubmit={onSubmit}>
-        {error && <Error>유저 추가에 실패했습니다.</Error>}
+        {error && (
+          <ErrorMessage detail={error?.message}>
+            유저 추가에 실패했습니다.
+          </ErrorMessage>
+        )}
         <LabelInput
           label="이름 (선택 사항)"
           type="text"

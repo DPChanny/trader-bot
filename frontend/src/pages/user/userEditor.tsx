@@ -2,11 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import { UserCard } from "@/components/userCard";
 import { LolStat } from "@/components/lolStat";
 import { ValStat } from "@/components/valStat";
-import {
-  useDeleteUser,
-  useUpdateUser,
-  useUpdateDiscordProfile,
-} from "@/hooks/user";
+import { useDeleteUser, useUpdateUser, useUpdateProfile } from "@/hooks/user";
 import { useLolStat } from "@/hooks/lolStat";
 import { useValStat } from "@/hooks/valStat";
 import {
@@ -34,7 +30,7 @@ interface UserEditorProps {
 export function UserEditor({ user, onClose }: UserEditorProps) {
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
-  const updateDiscordProfile = useUpdateDiscordProfile();
+  const updateProfile = useUpdateProfile();
   const lolStat = useLolStat(user.userId);
   const valStat = useValStat(user.userId);
 
@@ -79,11 +75,11 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
     }
   };
 
-  const handleUpdateDiscordProfile = async () => {
+  const handleUpdateProfile = async () => {
     try {
-      await updateDiscordProfile.mutateAsync(user.userId);
+      await updateProfile.mutateAsync(user.userId);
     } catch (err) {
-      console.error("Failed to update discord profile:", err);
+      console.error("Failed to update profile:", err);
     }
   };
 
@@ -110,14 +106,22 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
         </Section>
         {(updateUser.isError ||
           deleteUser.isError ||
-          updateDiscordProfile.isError) && (
+          updateProfile.isError) && (
           <>
             {updateUser.isError && (
-              <Error>유저 정보 수정에 실패했습니다.</Error>
+              <Error detail={updateUser.error?.message}>
+                유저 정보 수정에 실패했습니다.
+              </Error>
             )}
-            {deleteUser.isError && <Error>유저 삭제에 실패했습니다.</Error>}
-            {updateDiscordProfile.isError && (
-              <Error>Discord 프로필 업데이트에 실패했습니다.</Error>
+            {deleteUser.isError && (
+              <Error detail={deleteUser.error?.message}>
+                유저 삭제에 실패했습니다.
+              </Error>
+            )}
+            {updateProfile.isError && (
+              <Error detail={updateProfile.error?.message}>
+                프로필 업데이트에 실패했습니다.
+              </Error>
             )}
           </>
         )}
@@ -152,12 +156,10 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           />
 
           <PrimaryButton
-            onClick={handleUpdateDiscordProfile}
-            disabled={updateDiscordProfile.isPending || !user.discordId}
+            onClick={handleUpdateProfile}
+            disabled={updateProfile.isPending || !user.discordId}
           >
-            {updateDiscordProfile.isPending
-              ? "업데이트 중..."
-              : "Discord 프로필 업데이트"}
+            {updateProfile.isPending ? "업데이트 중..." : "프로필 업데이트"}
           </PrimaryButton>
 
           <Label>League of Legends 통계</Label>
@@ -166,7 +168,9 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           ) : lolStat.data ? (
             <LolStat lolStatDto={lolStat.data} />
           ) : (
-            <Error>통계를 불러오지 못했습니다.</Error>
+            <Error detail={lolStat.error?.message}>
+              통계를 불러오지 못했습니다.
+            </Error>
           )}
 
           <Label>VALORANT 통계</Label>
@@ -175,7 +179,9 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           ) : valStat.data ? (
             <ValStat valStatDto={valStat.data} />
           ) : (
-            <Error>통계를 불러오지 못했습니다.</Error>
+            <Error detail={valStat.error?.message}>
+              통계를 불러오지 못했습니다.
+            </Error>
           )}
         </Section>
       </Section>

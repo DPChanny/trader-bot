@@ -108,18 +108,15 @@ export function useDeleteUser() {
   });
 }
 
-export function useUpdateDiscordProfile() {
+export function useUpdateProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (userId: number): Promise<User> => {
-      const response = await fetch(
-        `${USER_API_ENDPOINT}/${userId}/discord-profile`,
-        {
-          method: "POST",
-          headers: getAuthHeadersForMutation(),
-        },
-      );
+      const response = await fetch(`${USER_API_ENDPOINT}/${userId}/profile`, {
+        method: "POST",
+        headers: getAuthHeadersForMutation(),
+      });
       if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<User>(json);

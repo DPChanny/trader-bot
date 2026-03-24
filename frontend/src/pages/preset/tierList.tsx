@@ -82,7 +82,9 @@ export function TierList({
   return (
     <Section variantTone="ghost" variantIntent="secondary">
       {(updateTier.isError || deleteTier.isError) && (
-        <Error>티어 작업 중 오류가 발생했습니다.</Error>
+        <Error detail={(updateTier.error || deleteTier.error)?.message}>
+          티어 작업 중 오류가 발생했습니다.
+        </Error>
       )}
 
       <Section

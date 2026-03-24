@@ -208,7 +208,20 @@ export function PresetUserEditor({
             <CloseButton onClick={onClose} />
           </Section>
         </Section>
-        {hasError && <Error>프리셋 유저 정보 저장에 실패했습니다.</Error>}
+        {hasError && (
+          <Error
+            detail={
+              (
+                updatePresetUser.error ||
+                addPresetUserPosition.error ||
+                deletePresetUserPosition.error ||
+                removePresetUser.error
+              )?.message
+            }
+          >
+            프리셋 유저 정보 저장에 실패했습니다.
+          </Error>
+        )}
       </Section>
 
       <Bar />
@@ -279,7 +292,9 @@ export function PresetUserEditor({
               ) : lolStat.data ? (
                 <LolStat lolStatDto={lolStat.data} />
               ) : (
-                <Error>통계를 불러오지 못했습니다.</Error>
+                <Error detail={lolStat.error?.message}>
+                  통계를 불러오지 못했습니다.
+                </Error>
               )}
             </>
           )}
@@ -291,7 +306,9 @@ export function PresetUserEditor({
               ) : valStat.data ? (
                 <ValStat valStatDto={valStat.data} />
               ) : (
-                <Error>통계를 불러오지 못했습니다.</Error>
+                <Error detail={valStat.error?.message}>
+                  통계를 불러오지 못했습니다.
+                </Error>
               )}
             </>
           )}

@@ -103,7 +103,9 @@ export function PositionList({
   return (
     <Section variantTone="ghost" variantIntent="secondary">
       {(updatePosition.isError || deletePosition.isError) && (
-        <Error>포지션 작업 중 오류가 발생했습니다.</Error>
+        <Error detail={(updatePosition.error || deletePosition.error)?.message}>
+          포지션 작업 중 오류가 발생했습니다.
+        </Error>
       )}
 
       <Section

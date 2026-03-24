@@ -79,7 +79,11 @@ export function UserPage({}: UserPageProps) {
             <PrimaryButton onClick={handleOpenModal}>추가</PrimaryButton>
           </Section>
           <Bar />
-          {error && <Error>유저 목록을 불러오는데 실패했습니다.</Error>}
+          {error && (
+            <Error detail={error?.message}>
+              유저 목록을 수로오는데 실패했습니다.
+            </Error>
+          )}
           {isLoading && <Loading />}
           {!isLoading && !error && (
             <UserGrid

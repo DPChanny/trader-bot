@@ -207,7 +207,9 @@ export function PresetPage({}: PresetPageProps) {
           </Section>
           <Bar />
           {presetsError && (
-            <Error>프리셋 목록을 불러오는데 실패했습니다.</Error>
+            <Error detail={presetsError?.message}>
+              프리셋 목록을 불러오는데 실패했습니다.
+            </Error>
           )}
           {!presetsError && (
             <>
@@ -233,7 +235,9 @@ export function PresetPage({}: PresetPageProps) {
                 </PrimaryButton>
                 {presetValidMessage && <Error>{presetValidMessage}</Error>}
                 {addAuction.isError && (
-                  <Error>경매를 시작하는데 실패했습니다.</Error>
+                  <Error detail={addAuction.error?.message}>
+                    경매를 시작하는데 실패했습니다.
+                  </Error>
                 )}
               </Section>
             </>
@@ -242,13 +246,19 @@ export function PresetPage({}: PresetPageProps) {
 
         <Section variantIntent="primary" className={styles.presetDetailSection}>
           {addPresetUser.isError && (
-            <Error>유저를 프리셋에 추가하는데 실패했습니다.</Error>
+            <Error detail={addPresetUser.error?.message}>
+              유저를 프리셋에 추가하는데 실패했습니다.
+            </Error>
           )}
           {detailError && selectedPresetId && (
-            <Error>프리셋의 상세 정보를 불러오는데 실패했습니다.</Error>
+            <Error detail={detailError?.message}>
+              프리셋의 상세 정보를 불러오는데 실패했습니다.
+            </Error>
           )}
           {usersError && selectedPresetId && (
-            <Error>유저 목록을 불러오는데 실패했습니다.</Error>
+            <Error detail={usersError?.message}>
+              유저 목록을 불러오는데 실패했습니다.
+            </Error>
           )}
           {selectedPresetId &&
           !detailLoading &&

@@ -63,7 +63,7 @@ async def update_user_route(
     return await update_user_service(user_id, dto, db, bucket)
 
 
-@user_router.post("/{user_id}/discord-profile", response_model=UserDTO)
+@user_router.post("/{user_id}/profile", response_model=UserDTO)
 async def update_profile_route(
     user_id: int,
     db: Session = Depends(get_db),

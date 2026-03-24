@@ -1,7 +1,7 @@
 import { Modal, ModalForm, ModalFooter, ModalRow } from "@/components/modal";
 import { LabelInput } from "@/components/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/button";
-import { Error } from "@/components/error";
+import { Error as ErrorMessage } from "@/components/error";
 import { Toggle } from "@/components/toggle";
 import { Label } from "@/components/label";
 import { Section } from "@/components/section";
@@ -47,7 +47,11 @@ export function AddPresetModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="프리셋 추가">
       <ModalForm onSubmit={onSubmit}>
-        {error && <Error>프리셋 추가에 실패했습니다.</Error>}
+        {error && (
+          <ErrorMessage detail={error?.message}>
+            프리셋 추가에 실패했습니다.
+          </ErrorMessage>
+        )}
         <LabelInput
           label="프리셋 이름"
           type="text"

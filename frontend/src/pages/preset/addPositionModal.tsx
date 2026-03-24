@@ -1,7 +1,7 @@
 import { Modal, ModalFooter, ModalForm } from "@/components/modal";
 import { LabelInput } from "@/components/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/button";
-import { Error } from "@/components/error";
+import { Error as ErrorMessage } from "@/components/error";
 
 interface AddPositionModalProps {
   isOpen: boolean;
@@ -29,7 +29,11 @@ export function AddPositionModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="포지션 추가">
       <ModalForm onSubmit={onSubmit}>
-        {error && <Error>포지션 추가에 실패했습니다.</Error>}
+        {error && (
+          <ErrorMessage detail={error?.message}>
+            포지션 추가에 실패했습니다.
+          </ErrorMessage>
+        )}
         <LabelInput
           label="포지션 이름"
           type="text"
