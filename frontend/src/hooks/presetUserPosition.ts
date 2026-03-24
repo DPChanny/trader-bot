@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { PRESET_USER_POSITION_API_ENDPOINT } from "../env";
 import { toSnakeCase } from "@/utils/dto";
+import { throwHttpError } from "@/utils/fetch";
 
 interface AddPresetUserPositionData {
   presetUserId: number;
@@ -24,7 +25,7 @@ export function useAddPresetUserPosition() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toSnakeCase(payload)),
       });
-      if (!response.ok) throw new Error("Failed to add position to user");
+      if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
@@ -48,7 +49,7 @@ export function useDeletePresetUserPosition() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toSnakeCase(payload)),
       });
-      if (!response.ok) throw new Error("Failed to remove position from user");
+      if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {

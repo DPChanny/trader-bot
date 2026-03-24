@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { PRESET_USER_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
+import { throwHttpError } from "@/utils/fetch";
 
 interface AddPresetUserData {
   presetId: number;
@@ -24,7 +25,7 @@ export function useAddPresetUser() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) throw new Error("Failed to add preset user");
+      if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
@@ -55,7 +56,7 @@ export function useUpdatePresetUser() {
           body: JSON.stringify(toSnakeCase(data)),
         },
       );
-      if (!response.ok) throw new Error("Failed to update preset user");
+      if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
@@ -83,7 +84,7 @@ export function useRemovePresetUser() {
           headers: getAuthHeadersForMutation(),
         },
       );
-      if (!response.ok) throw new Error("Failed to remove preset user");
+      if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {

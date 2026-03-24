@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/preact-query";
 import { ADMIN_API_ENDPOINT } from "@/env";
 import { setAuthToken, getAuthToken } from "@/utils/auth";
+import { throwHttpError } from "@/utils/fetch";
 
 interface AdminLoginResponse {
   token: string;
@@ -21,10 +22,7 @@ async function adminLogin(password: string): Promise<AdminLoginResponse> {
     body: JSON.stringify({ password }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Login failed");
-  }
+  if (!response.ok) await throwHttpError(response);
 
   return response.json();
 }
@@ -43,10 +41,7 @@ async function refreshToken(): Promise<TokenRefreshResponse> {
     },
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Token refresh failed");
-  }
+  if (!response.ok) await throwHttpError(response);
 
   return response.json();
 }

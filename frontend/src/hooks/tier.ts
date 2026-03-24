@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { TIER_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
+import { throwHttpError } from "@/utils/fetch";
 
 interface AddTierData {
   presetId: number;
@@ -22,7 +23,7 @@ export function useAddTier() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) throw new Error("Failed to add tier");
+      if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
@@ -50,7 +51,7 @@ export function useUpdateTier() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) throw new Error("Failed to update tier");
+      if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
@@ -70,7 +71,7 @@ export function useDeleteTier() {
         method: "DELETE",
         headers: getAuthHeadersForMutation(),
       });
-      if (!response.ok) throw new Error("Failed to delete tier");
+      if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {

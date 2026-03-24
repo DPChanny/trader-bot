@@ -1,5 +1,6 @@
 import logging
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
@@ -12,12 +13,15 @@ logger = logging.getLogger(__name__)
 
 
 @service_exception_handler
-async def get_lol_stat(user_id: int, db: Session) -> LolStatDto | None:
+async def get_lol_stat(user_id: int, db: Session) -> LolStatDto:
     lol_stat = db.query(LolStat).filter(LolStat.user_id == user_id).first()
 
     if lol_stat is None:
-        logger.debug(f"Missing: {user_id}")
-        return None
+        logger.warning(f"Missing: {user_id}")
+        raise HTTPException(
+            status_code=404,
+            detail="LOL info not found. Please wait for crawler to update data.",
+        )
 
     champions = [
         ChampionDto(

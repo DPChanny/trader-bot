@@ -3,6 +3,7 @@ import type { User } from "@/dto";
 import { USER_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
+import { throwHttpError } from "@/utils/fetch";
 
 interface AddUserData {
   alias?: string | null;
@@ -21,7 +22,7 @@ export function useUsers() {
     queryKey: ["users"],
     queryFn: async (): Promise<User[]> => {
       const response = await fetch(`${USER_API_ENDPOINT}`);
-      if (!response.ok) throw new Error("Failed to fetch users");
+      if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<User[]>(json);
     },
@@ -33,7 +34,7 @@ export function useUser(userId: number) {
     queryKey: ["users", userId],
     queryFn: async (): Promise<User> => {
       const response = await fetch(`${USER_API_ENDPOINT}/${userId}`);
-      if (!response.ok) throw new Error("Failed to fetch user");
+      if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<User>(json);
     },
@@ -51,7 +52,7 @@ export function useAddUser() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) throw new Error("Failed to add user");
+      if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<User>(json);
     },
@@ -77,11 +78,7 @@ export function useUpdateUser() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Update user failed:", response.status, errorText);
-        throw new Error(`Failed to update user: ${response.status}`);
-      }
+      if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<User>(json);
     },
@@ -101,7 +98,7 @@ export function useDeleteUser() {
         method: "DELETE",
         headers: getAuthHeadersForMutation(),
       });
-      if (!response.ok) throw new Error("Failed to delete user");
+      if (!response.ok) await throwHttpError(response);
     },
     onSuccess: (_, userId) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -123,15 +120,7 @@ export function useUpdateDiscordProfile() {
           headers: getAuthHeadersForMutation(),
         },
       );
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(
-          "Update discord profile failed:",
-          response.status,
-          errorText,
-        );
-        throw new Error(`Failed to update discord profile: ${response.status}`);
-      }
+      if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<User>(json);
     },

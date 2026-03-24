@@ -3,6 +3,7 @@ import type { Preset, PresetDetail } from "@/dto";
 import { PRESET_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
+import { throwHttpError } from "@/utils/fetch";
 
 interface AddPresetData {
   name: string;
@@ -25,7 +26,7 @@ export function usePresets() {
     queryKey: ["presets"],
     queryFn: async (): Promise<Preset[]> => {
       const response = await fetch(`${PRESET_API_ENDPOINT}`);
-      if (!response.ok) throw new Error("Failed to fetch presets");
+      if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<Preset[]>(json);
     },
@@ -38,7 +39,7 @@ export function usePresetDetail(presetId: number | null) {
     queryFn: async (): Promise<PresetDetail | null> => {
       if (!presetId) return null;
       const response = await fetch(`${PRESET_API_ENDPOINT}/${presetId}`);
-      if (!response.ok) throw new Error("Failed to fetch preset detail");
+      if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<PresetDetail>(json);
     },
@@ -56,7 +57,7 @@ export function useAddPreset() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) throw new Error("Failed to add preset");
+      if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<Preset>(json);
     },
@@ -82,7 +83,7 @@ export function useUpdatePreset() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) throw new Error("Failed to update preset");
+      if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<Preset>(json);
     },
@@ -104,7 +105,7 @@ export function useDeletePreset() {
         method: "DELETE",
         headers: getAuthHeadersForMutation(),
       });
-      if (!response.ok) throw new Error("Failed to delete preset");
+      if (!response.ok) await throwHttpError(response);
     },
     onSuccess: (_, presetId) => {
       queryClient.invalidateQueries({ queryKey: ["presets"] });

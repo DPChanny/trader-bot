@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { POSITION_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
+import { throwHttpError } from "@/utils/fetch";
 
 interface AddPositionData {
   presetId: number;
@@ -24,7 +25,7 @@ export function useAddPosition() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) throw new Error("Failed to add position");
+      if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
@@ -52,7 +53,7 @@ export function useUpdatePosition() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) throw new Error("Failed to update position");
+      if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
@@ -77,7 +78,7 @@ export function useDeletePosition() {
         method: "DELETE",
         headers: getAuthHeadersForMutation(),
       });
-      if (!response.ok) throw new Error("Failed to delete position");
+      if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
