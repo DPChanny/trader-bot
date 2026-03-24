@@ -13,7 +13,7 @@ from shared.entities.preset_user import PresetUser
 from ..utils.exception import service_exception_handler
 
 
-def _load_preset_user(preset_user_id: int, db: Session) -> PresetUser | None:
+def _load_preset_user_detail(preset_user_id: int, db: Session) -> PresetUser | None:
     return (
         db.query(PresetUser)
         .options(
@@ -30,7 +30,7 @@ def _load_preset_user(preset_user_id: int, db: Session) -> PresetUser | None:
 async def get_preset_user_detail_service(
     preset_user_id: int, db: Session
 ) -> PresetUserDetailDTO:
-    preset_user = _load_preset_user(preset_user_id, db)
+    preset_user = _load_preset_user_detail(preset_user_id, db)
 
     if preset_user is None:
         logger.warning(f"PresetUser not found: id={preset_user_id}")
@@ -51,10 +51,9 @@ async def add_preset_user_service(
     )
     db.add(preset_user)
     db.commit()
-    db.refresh(preset_user)
     logger.info(f"PresetUser created: id={preset_user.preset_user_id}")
 
-    preset_user = _load_preset_user(preset_user.preset_user_id, db)
+    preset_user = _load_preset_user_detail(preset_user.preset_user_id, db)
 
     return PresetUserDetailDTO.model_validate(preset_user)
 
@@ -80,10 +79,9 @@ async def update_preset_user_service(
         setattr(preset_user, key, value)
 
     db.commit()
-    db.refresh(preset_user)
     logger.info(f"PresetUser updated: id={preset_user_id}")
 
-    preset_user = _load_preset_user(preset_user_id, db)
+    preset_user = _load_preset_user_detail(preset_user_id, db)
 
     return PresetUserDetailDTO.model_validate(preset_user)
 

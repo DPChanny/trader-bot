@@ -61,24 +61,24 @@ export function PresetUserEditor({
     presetUser.tierId || null,
   );
   const [selectedPositionIds, setSelectedPositionIds] = useState<number[]>(
-    presetUser.positions?.map((p) => p.position.positionId) || [],
+    presetUser.presetUserPositions?.map((p) => p.position.positionId) || [],
   );
 
   useEffect(() => {
     setIsLeader(presetUser.isLeader);
     setTierId(presetUser.tierId || null);
     setSelectedPositionIds(
-      presetUser.positions?.map((p) => p.position.positionId) || [],
+      presetUser.presetUserPositions?.map((p) => p.position.positionId) || [],
     );
   }, [
     presetUser.presetUserId,
     presetUser.isLeader,
     presetUser.tierId,
-    presetUser.positions,
+    presetUser.presetUserPositions,
   ]);
 
   const initialPositionIds =
-    presetUser.positions?.map((p) => p.position.positionId) || [];
+    presetUser.presetUserPositions?.map((p) => p.position.positionId) || [];
   const hasChanges =
     isLeader !== presetUser.isLeader ||
     tierId !== presetUser.tierId ||
@@ -103,7 +103,7 @@ export function PresetUserEditor({
       );
 
       for (const positionId of positionIdsToRemove) {
-        const position = presetUser.positions?.find(
+        const position = presetUser.presetUserPositions?.find(
           (p) => p.position.positionId === positionId,
         );
         if (position) {
@@ -168,8 +168,9 @@ export function PresetUserEditor({
       const position = positions.find((p) => p.positionId === id);
       if (!position) return null;
       const existingPositionId =
-        presetUser.positions?.find((p) => p.position.positionId === id)
-          ?.presetUserPositionId || 0;
+        presetUser.presetUserPositions?.find(
+          (p) => p.position.positionId === id,
+        )?.presetUserPositionId || 0;
       return {
         presetUserPositionId: existingPositionId,
         presetUserId: presetUser.presetUserId,

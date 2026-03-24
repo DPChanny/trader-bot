@@ -18,9 +18,9 @@ export function PresetUserCard({
   isConnected,
   isClientUser,
 }: PresetUserCardProps) {
-  const { user, tier, positions, isLeader } = presetUser;
+  const { user, tier, presetUserPositions, isLeader } = presetUser;
 
-  const positionNames = positions?.map((p) => p.position.name) || [];
+  const positionNames = presetUserPositions?.map((p) => p.position.name) || [];
 
   const statusClass = (() => {
     if (isClientUser) return styles.statusDotClient;
@@ -72,7 +72,7 @@ export function PresetUserCard({
               variantIntent="tertiary"
               className={styles.positions}
             >
-              {positions!.slice(0, 3).map((p) => (
+              {presetUserPositions!.slice(0, 3).map((p) => (
                 <Badge
                   key={p.position.positionId}
                   src={p.position.iconUrl || undefined}

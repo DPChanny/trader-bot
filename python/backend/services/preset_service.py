@@ -15,7 +15,7 @@ from shared.entities.preset_user_position import PresetUserPosition
 from ..utils.exception import service_exception_handler
 
 
-def _load_preset(preset_id: int, db: Session) -> Preset | None:
+def _load_preset_detail(preset_id: int, db: Session) -> Preset | None:
     return (
         db.query(Preset)
         .options(
@@ -34,7 +34,7 @@ def _load_preset(preset_id: int, db: Session) -> Preset | None:
 
 @service_exception_handler
 async def get_preset_detail_service(preset_id: int, db: Session) -> PresetDetailDTO:
-    preset = _load_preset(preset_id, db)
+    preset = _load_preset_detail(preset_id, db)
 
     if preset is None:
         logger.warning(f"Preset not found: id={preset_id}")
@@ -54,9 +54,8 @@ def add_preset_service(dto: AddPresetRequestDTO, db: Session) -> PresetDetailDTO
     )
     db.add(preset)
     db.commit()
-    db.refresh(preset)
 
-    preset = _load_preset(preset.preset_id, db)
+    preset = _load_preset_detail(preset.preset_id, db)
 
     logger.info(f"Preset created: id={preset.preset_id}, name={dto.name}")
     return PresetDetailDTO.model_validate(preset)
@@ -81,10 +80,9 @@ def update_preset_service(
         setattr(preset, key, value)
 
     db.commit()
-    db.refresh(preset)
     logger.info(f"Preset updated: id={preset_id}")
 
-    preset = _load_preset(preset_id, db)
+    preset = _load_preset_detail(preset_id, db)
 
     return PresetDetailDTO.model_validate(preset)
 

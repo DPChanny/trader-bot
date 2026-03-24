@@ -43,7 +43,6 @@ def add_preset_user_position_service(
     try:
         db.commit()
     except IntegrityError as e:
-        db.rollback()
         logger.warning(
             f"PresetUserPosition duplicated: preset_user_id={dto.preset_user_id}, position_id={dto.position_id}"
         )

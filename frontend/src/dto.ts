@@ -98,7 +98,7 @@ export interface PresetUser {
 export interface PresetUserDetail extends PresetUser {
   user: User;
   tier: Tier | null;
-  positions: PresetUserPosition[];
+  presetUserPositions: PresetUserPosition[];
 }
 
 export interface User {
