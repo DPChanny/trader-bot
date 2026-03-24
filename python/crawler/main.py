@@ -1,18 +1,17 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from loguru import logger
-from shared.log import setup_logging
 
-from shared.database import get_db, init_engine
+from shared.database import get_db, setup_engine
 from shared.entities.user import User
-from shared.env import get_log_format, get_log_level
+from shared.log import setup_logging
 
 from .services.lol_stat_service import crawl_lol_stat, save_lol_stat_to_db
 from .services.val_stat_service import crawl_val_stat, save_val_stat_to_db
 from .utils.crawler import close_driver, create_driver
 
 
-setup_logging(log_level=get_log_level(), log_format=get_log_format())
+setup_logging()
 
 MAX_WORKERS = 4
 
@@ -55,7 +54,7 @@ def crawl_user(user_id: int, game_name: str, tag_line: str):
 def main():
     logger.info("=== Crawler Starting ===")
 
-    init_engine()
+    setup_engine()
 
     logger.info("Fetching users from database...")
     db = next(get_db())

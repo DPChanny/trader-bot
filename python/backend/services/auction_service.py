@@ -13,7 +13,7 @@ from shared.env import get_auction_url
 from shared.exception import service_exception_handler
 
 from ..auction.auction_manager import auction_manager
-from ..utils.bot_client import send_auction_urls as bot_send_auction_urls
+from ..utils.bot import invite
 
 
 @service_exception_handler
@@ -95,7 +95,7 @@ async def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
                 invites.append((user.discord_id, auction_url))
 
     if invites:
-        await bot_send_auction_urls(invites)
+        await invite(invites)
 
     return AuctionDTO(
         auction_id=auction_id,

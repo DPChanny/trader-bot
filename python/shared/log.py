@@ -47,7 +47,11 @@ def _json_sink(message) -> None:
     print(json.dumps(data, ensure_ascii=False), flush=True)
 
 
-def setup_logging(log_level: str = "INFO", log_format: str = "json") -> None:
+def setup_logging() -> None:
+    from .env import get_log_format, get_log_level
+
+    log_level = get_log_level()
+    log_format = get_log_format()
     logger.remove()
 
     if log_format == "json":

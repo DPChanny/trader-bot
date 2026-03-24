@@ -12,17 +12,13 @@ from shared.dtos.user_dto import (
 from shared.entities.user import User
 from shared.exception import service_exception_handler
 
-from ..utils.bot_client import get_profile_bytes as bot_get_profile_bytes
+from ..utils.bot import get_profile
 from ..utils.bucket import delete_profile, upload_profile
 
 
 async def _upload_profile(bucket: Any, user_id: int, discord_id: str):
-    profile_bytes = await bot_get_profile_bytes(discord_id)
-    if not profile_bytes:
-        logger.warning(f"Profile not found: user_id={user_id}, discord_id={discord_id}")
-        raise HTTPException(status_code=502, detail="Profile not found")
-
-    await upload_profile(bucket, user_id, profile_bytes)
+    profile = await get_profile(discord_id)
+    await upload_profile(bucket, user_id, profile)
     logger.info(f"Profile uploaded: user_id={user_id}")
 
 

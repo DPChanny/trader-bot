@@ -6,29 +6,29 @@ from .entities.base import Base
 from .env import get_db_url
 
 
-engine: Engine | None = None
-SessionLocal: sessionmaker | None = None
+_engine: Engine | None = None
+_session: sessionmaker | None = None
 
 
-def init_engine():
-    global engine, SessionLocal
+def setup_engine():
+    global _engine, _session
 
-    engine = create_engine(
+    _engine = create_engine(
         get_db_url(),
         pool_pre_ping=True,
         pool_recycle=3600,
         echo=False,
     )
 
-    SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+    _session = sessionmaker(bind=_engine, autocommit=False, autoflush=False)
 
     from . import entities  # noqa: F401
 
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=_engine)
 
 
 def get_db():
-    db = SessionLocal()
+    db = _session()
     try:
         yield db
     finally:

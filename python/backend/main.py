@@ -5,8 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from shared.database import init_engine
-from shared.env import get_log_format, get_log_level
+from shared.database import setup_engine
 from shared.log import RequestContextMiddleware, setup_logging
 
 from .routers import (
@@ -24,17 +23,17 @@ from .routers import (
 )
 
 
-setup_logging(log_level=get_log_level(), log_format=get_log_format())
+setup_logging()
 
 
 @asynccontextmanager
 async def lifespan(_):
-    init_engine()
+    setup_engine()
 
     yield
 
 
-app = FastAPI(title="Trader Auction API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Trader API", version="1.0.0", lifespan=lifespan)
 
 
 @app.exception_handler(Exception)
@@ -64,13 +63,3 @@ app.include_router(lol_stat_router, prefix="/api")
 app.include_router(val_stat_router, prefix="/api")
 app.include_router(auction_router, prefix="/api")
 app.include_router(auction_websocket_router, prefix="/ws")
-
-
-@app.get("/")
-def read_root():
-    return {"message": "Trader Auction API"}
-
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
