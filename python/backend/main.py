@@ -59,11 +59,11 @@ app.include_router(preset_router, prefix="/api")
 app.include_router(tier_router, prefix="/api")
 app.include_router(preset_user_router, prefix="/api")
 app.include_router(preset_user_position_router, prefix="/api")
-app.include_router(auction_router, prefix="/api")
-app.include_router(auction_websocket_router, prefix="/ws")
 app.include_router(admin_router, prefix="/api")
 app.include_router(lol_stat_router, prefix="/api")
 app.include_router(val_stat_router, prefix="/api")
+app.include_router(auction_router, prefix="/api")
+app.include_router(auction_websocket_router, prefix="/ws")
 
 
 @app.get("/")

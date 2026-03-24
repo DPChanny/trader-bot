@@ -4,21 +4,21 @@ from loguru import logger
 
 from shared.dtos.discord_dto import GetProfileRequest, SendAuctionUrlsRequest
 
-from .service import bot_service
+from .service import get_profile_bytes, send_auction_urls
 
 
-bot_router = APIRouter(prefix="/bot", tags=["bot"])
+router = APIRouter(prefix="/bot", tags=["bot"])
 
 
-@bot_router.post("/profile")
+@router.post("/profile")
 async def get_profile_route(dto: GetProfileRequest):
-    profile_bytes = await bot_service.get_profile_bytes(dto.discord_id)
+    profile_bytes = await get_profile_bytes(dto.discord_id)
     if profile_bytes is None:
         logger.warning(f"Profile not found: discord_id={dto.discord_id}")
         return Response(status_code=404)
     return Response(content=profile_bytes, media_type="image/png")
 
 
-@bot_router.post("/send-auction-urls", status_code=204)
+@router.post("/send-auction-urls", status_code=204)
 async def send_auction_urls_route(dto: SendAuctionUrlsRequest):
-    await bot_service.send_auction_urls(dto.invites)
+    await send_auction_urls(dto.invites)
