@@ -17,28 +17,27 @@ from ..utils.exception import service_exception_handler
 from .discord_service import discord_service
 
 
-async def _sync_profile(bucket: Any, user_id: int, discord_id: str):
-    try:
-        await delete_profile(bucket, user_id)
+async def _upload_profile(bucket: Any, user_id: int, discord_id: str):
+    profile_url = await discord_service.fetch_profile_url(discord_id)
+    if not profile_url:
+        logger.warning(
+            f"Profile URL not found: user_id={user_id}, discord_id={discord_id}"
+        )
+        raise HTTPException(status_code=502, detail="Profile URL not found")
 
-        profile_url = await discord_service.fetch_profile_url(discord_id)
-        if not profile_url:
-            return
+    async with (
+        aiohttp.ClientSession() as session,
+        session.get(profile_url) as response,
+    ):
+        if response.status != 200:
+            logger.warning(
+                f"Profile download failed: user_id={user_id}, status={response.status}"
+            )
+            raise HTTPException(status_code=502, detail="Profile download failed")
+        image_data = await response.read()
 
-        async with (
-            aiohttp.ClientSession() as session,
-            session.get(profile_url) as response,
-        ):
-            if response.status == 200:
-                image_data = await response.read()
-                await upload_profile(bucket, user_id, image_data)
-                logger.info(f"Profile synced: user_id={user_id}")
-            else:
-                logger.warning(
-                    f"Profile download failed: user_id={user_id}, status={response.status}"
-                )
-    except Exception:
-        logger.exception(f"Profile sync error: user_id={user_id}")
+    await upload_profile(bucket, user_id, image_data)
+    logger.info(f"Profile uploaded: user_id={user_id}")
 
 
 @service_exception_handler
@@ -60,12 +59,13 @@ async def add_user_service(dto: AddUserRequestDTO, db: Session, bucket: Any) -> 
         discord_id=dto.discord_id,
     )
     db.add(user)
-    db.commit()
-
-    logger.info(f"User created: id={user.user_id}, alias={dto.alias}")
+    db.flush()
 
     if dto.discord_id is not None:
-        await _sync_profile(bucket, user.user_id, dto.discord_id)
+        await _upload_profile(bucket, user.user_id, dto.discord_id)
+
+    db.commit()
+    logger.info(f"User created: id={user.user_id}, alias={dto.alias}")
 
     return await get_user_detail_service(user.user_id, db)
 
@@ -93,11 +93,15 @@ async def update_user_service(
             discord_id_changed = True
         setattr(user, key, value)
 
+    db.flush()
+
+    if discord_id_changed:
+        await delete_profile(bucket, user.user_id)
+        if user.discord_id is not None:
+            await _upload_profile(bucket, user.user_id, user.discord_id)
+
     db.commit()
     logger.info(f"User updated: id={user_id}")
-
-    if discord_id_changed and user.discord_id is not None:
-        await _sync_profile(bucket, user.user_id, user.discord_id)
 
     return await get_user_detail_service(user.user_id, db)
 
@@ -109,8 +113,9 @@ async def update_profile_service(user_id: int, db: Session, bucket: Any) -> User
         logger.warning(f"User not found: id={user_id}")
         raise HTTPException(status_code=404, detail="User not found")
 
+    await delete_profile(bucket, user.user_id)
     if user.discord_id is not None:
-        await _sync_profile(bucket, user.user_id, user.discord_id)
+        await _upload_profile(bucket, user.user_id, user.discord_id)
 
     logger.info(f"User profile updated: id={user_id}")
     return await get_user_detail_service(user.user_id, db)
@@ -124,8 +129,9 @@ async def delete_user_service(user_id: int, db: Session, bucket: Any) -> None:
         raise HTTPException(status_code=404, detail="User not found")
 
     db.delete(user)
-    db.commit()
+    db.flush()
 
     await delete_profile(bucket, user_id)
 
+    db.commit()
     logger.info(f"User deleted: id={user_id}")
