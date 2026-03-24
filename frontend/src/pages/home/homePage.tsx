@@ -19,8 +19,7 @@ interface HomeProps {
 export function HomePage({}: HomeProps) {
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const loginMutation = useAdminLogin();
+  const login = useAdminLogin();
 
   const handleNavigate = (path: string) => {
     route(path);
@@ -47,14 +46,12 @@ export function HomePage({}: HomeProps) {
 
   const handleLogin = async (e: Event) => {
     e.preventDefault();
-    setLoginError(null);
     try {
-      await loginMutation.mutateAsync(password);
+      await login.mutateAsync(password);
       setIsLoggedIn(true);
       setPassword("");
-    } catch (err) {
-      const error = err as Error;
-      setLoginError(error.message || "로그인 실패");
+    } catch {
+      // error captured in login.error
     }
   };
 
@@ -69,22 +66,24 @@ export function HomePage({}: HomeProps) {
 
       <Modal isOpen={!isLoggedIn} onClose={() => {}} title="관리자 로그인">
         <ModalForm onSubmit={handleLogin}>
-          {loginError ? <Error message={loginError} /> : null}
+          {login.isError ? (
+            <Error detail={login.error?.message}>로그인에 실패했습니다.</Error>
+          ) : null}
           <LabelInput
             label="비밀번호"
             type="password"
             value={password}
             onChange={setPassword}
             placeholder="관리자 비밀번호"
-            disabled={loginMutation.isPending}
+            disabled={login.isPending}
             autoFocus
           />
           <ModalFooter>
             <PrimaryButton
               type="submit"
-              disabled={loginMutation.isPending || !password}
+              disabled={login.isPending || !password}
             >
-              {loginMutation.isPending ? "로그인 중" : "로그인"}
+              {login.isPending ? "로그인 중" : "로그인"}
             </PrimaryButton>
           </ModalFooter>
         </ModalForm>

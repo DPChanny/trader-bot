@@ -28,7 +28,7 @@ export function UserPage({}: UserPageProps) {
   });
 
   const { data: users, isLoading, error } = useUsers();
-  const addUserMutation = useAddUser();
+  const addUser = useAddUser();
 
   const selectedUser = useMemo(
     () =>
@@ -56,7 +56,7 @@ export function UserPage({}: UserPageProps) {
     e.preventDefault();
 
     try {
-      await addUserMutation.mutateAsync(formData);
+      await addUser.mutateAsync(formData);
       handleCloseModal();
     } catch (err) {
       console.error(err);
@@ -105,8 +105,8 @@ export function UserPage({}: UserPageProps) {
         onSubmit={handleSubmit}
         formData={formData}
         onFormChange={handleFormChange}
-        isPending={addUserMutation.isPending}
-        error={addUserMutation.error}
+        isPending={addUser.isPending}
+        error={addUser.error}
       />
     </PageLayout>
   );

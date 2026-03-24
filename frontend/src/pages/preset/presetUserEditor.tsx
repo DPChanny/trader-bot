@@ -283,7 +283,7 @@ export function PresetUserEditor({
             ))}
           </Section>
 
-          <Label>통계</Label>
+          {statistics !== "NONE" && <Label>통계</Label>}
 
           {statistics === "LOL" && (
             <>
