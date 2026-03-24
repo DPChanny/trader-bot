@@ -9,6 +9,7 @@ from shared.dtos.preset_user_dto import (
     UpdatePresetUserRequestDTO,
 )
 from shared.entities.preset_user import PresetUser
+from shared.entities.preset_user_position import PresetUserPosition
 
 from ..utils.exception import service_exception_handler
 
@@ -19,7 +20,9 @@ def _load_preset_user_detail(preset_user_id: int, db: Session) -> PresetUser | N
         .options(
             joinedload(PresetUser.user),
             joinedload(PresetUser.tier),
-            joinedload(PresetUser.preset_user_positions),
+            joinedload(PresetUser.preset_user_positions).joinedload(
+                PresetUserPosition.position
+            ),
         )
         .filter(PresetUser.preset_user_id == preset_user_id)
         .first()

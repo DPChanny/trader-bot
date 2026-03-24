@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
 from shared.entities.lol_stat import LolStat
@@ -10,7 +10,12 @@ from ..utils.exception import service_exception_handler
 
 @service_exception_handler
 async def get_lol_stat(user_id: int, db: Session) -> LolStatDto:
-    lol_stat = db.query(LolStat).filter(LolStat.user_id == user_id).first()
+    lol_stat = (
+        db.query(LolStat)
+        .options(joinedload(LolStat.champions))
+        .filter(LolStat.user_id == user_id)
+        .first()
+    )
 
     if lol_stat is None:
         logger.warning(f"LolStat not found: id={user_id}")
