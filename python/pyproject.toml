@@ -9,7 +9,6 @@ dependencies = [
     "sqlalchemy",
     "pydantic[email]",
     "pydantic-settings",
-    "aiohttp",
     "python-dotenv",
     "pyjwt",
     "discord.py",

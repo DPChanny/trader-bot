@@ -1,6 +1,5 @@
 from typing import Any
 
-import aiohttp
 from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy.orm import Session
@@ -18,25 +17,12 @@ from .discord_service import discord_service
 
 
 async def _upload_profile(bucket: Any, user_id: int, discord_id: str):
-    profile_url = await discord_service.fetch_profile_url(discord_id)
-    if not profile_url:
-        logger.warning(
-            f"Profile URL not found: user_id={user_id}, discord_id={discord_id}"
-        )
-        raise HTTPException(status_code=502, detail="Profile URL not found")
+    profile_bytes = await discord_service.get_profile_bytes(discord_id)
+    if not profile_bytes:
+        logger.warning(f"Profile not found: user_id={user_id}, discord_id={discord_id}")
+        raise HTTPException(status_code=502, detail="Profile not found")
 
-    async with (
-        aiohttp.ClientSession() as session,
-        session.get(profile_url) as response,
-    ):
-        if response.status != 200:
-            logger.warning(
-                f"Profile download failed: user_id={user_id}, status={response.status}"
-            )
-            raise HTTPException(status_code=502, detail="Profile download failed")
-        image_data = await response.read()
-
-    await upload_profile(bucket, user_id, image_data)
+    await upload_profile(bucket, user_id, profile_bytes)
     logger.info(f"Profile uploaded: user_id={user_id}")
 
 

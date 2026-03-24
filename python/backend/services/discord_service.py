@@ -194,7 +194,9 @@ class DiscordBotService:
             ):
                 if isinstance(result, Exception) or not result:
                     result_dict[discord_id] = False
-                    logger.warning(f"Discord invite failed: discord_id={discord_id}")
+                    logger.warning(
+                        f"Discord invite failed: discord_id={discord_id} auction_url={auction_url}"
+                    )
                 else:
                     result_dict[discord_id] = result
 
@@ -205,8 +207,7 @@ class DiscordBotService:
             logger.error(f"Discord invite error: {e}")
             return {discord_id: False for discord_id, _ in invites}
 
-    async def fetch_profile_url(self, discord_id: str) -> str | None:
-
+    async def get_profile_bytes(self, discord_id: str) -> bytes | None:
         with self._state_lock:
             is_ready = self._ready
             loop = self._loop
@@ -221,7 +222,7 @@ class DiscordBotService:
             return None
 
         future = asyncio.run_coroutine_threadsafe(
-            self._fetch_profile_url(discord_id), loop
+            self._get_profile_bytes(discord_id), loop
         )
 
         try:
@@ -230,24 +231,25 @@ class DiscordBotService:
             logger.error(f"Fetch failed: {e}")
             return None
 
-    async def _fetch_profile_url(self, discord_id: str) -> str | None:
+    async def _get_profile_bytes(self, discord_id: str) -> bytes | None:
         try:
-            user_id_int = int(discord_id)
-            user = await self.bot.fetch_user(user_id_int)
+            user = await self.bot.fetch_user(int(discord_id))
 
             if not user:
                 logger.error(f"Missing: {discord_id}")
                 return None
 
-            profile_url = user.display_avatar.url
-            logger.info(f"Fetched: {discord_id}")
-            return profile_url
+            profile_bytes = await user.display_avatar.read()
+            logger.info(f"Fetched profile bytes: {discord_id}")
+            return profile_bytes
 
         except ValueError:
             logger.error(f"Invalid: {discord_id}")
             return None
-        except Exception as e:
-            logger.exception(f"Discord fetch profile failed: discord_id={discord_id}")
+        except Exception:
+            logger.exception(
+                f"Discord get profile bytes failed: discord_id={discord_id}"
+            )
             return None
 
 

@@ -1353,7 +1353,6 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "aioboto3" },
-    { name = "aiohttp" },
     { name = "asyncpg" },
     { name = "discord-py" },
     { name = "fastapi" },
@@ -1379,7 +1378,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aioboto3" },
-    { name = "aiohttp" },
     { name = "asyncpg" },
     { name = "discord-py" },
     { name = "fastapi" },
