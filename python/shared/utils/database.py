@@ -10,7 +10,7 @@ _engine: Engine | None = None
 _session_maker: sessionmaker | None = None
 
 
-def start_db():
+def setup_db():
     global _engine, _session_maker
 
     _engine = create_engine(

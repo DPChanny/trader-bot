@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from shared.utils.log import RequestContextMiddleware, setup_logging
+from shared.utils.logging import RequestContextMiddleware, setup_logging
 
 from .router import router
 from .utils import start_bot, stop_bot

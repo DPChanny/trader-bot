@@ -1,6 +1,6 @@
 from pydantic import BaseModel, computed_field
 
-from shared.utils.types import NullableStr
+from ..utils.types import NullableStr
 
 
 class UserDTO(BaseModel):
@@ -14,7 +14,7 @@ class UserDTO(BaseModel):
     @computed_field
     @property
     def profile_url(self) -> str | None:
-        from ..env import get_profile_url
+        from ..utils.env import get_profile_url
 
         if not self.discord_id:
             return None

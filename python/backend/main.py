@@ -5,8 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from shared.utils.database import start_db
-from shared.utils.log import RequestContextMiddleware, setup_logging
+from shared.utils.database import setup_db
+from shared.utils.logging import RequestContextMiddleware, setup_logging
 
 from .routers import (
     admin_router,
@@ -28,7 +28,7 @@ setup_logging()
 
 @asynccontextmanager
 async def lifespan(_):
-    start_db()
+    setup_db()
 
     yield
 
