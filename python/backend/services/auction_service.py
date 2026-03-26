@@ -95,10 +95,7 @@ async def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
                 invites.append((user.discord_id, auction_url))
 
     if invites:
-        result = await invite(invites)
-        logger.info(
-            f"Invites sent: success={result.success_count}/{result.total_count}"
-        )
+        await invite(invites)
 
     return AuctionDTO(
         auction_id=auction_id,

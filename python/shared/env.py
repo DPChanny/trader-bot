@@ -60,6 +60,10 @@ def get_bot_origin() -> str:
     return os.getenv("BOT_ORIGIN", "http://localhost:8001")
 
 
+def get_bot_endpoint() -> str:
+    return f"{get_bot_origin()}/bot"
+
+
 def get_admin_password() -> str:
     return os.getenv("ADMIN_PASSWORD", "")
 
