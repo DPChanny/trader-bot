@@ -8,6 +8,7 @@ from shared.dtos.preset_member_position_dto import (
     PresetMemberPositionDTO,
 )
 from shared.entities.manager import Role
+from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
 from shared.entities.preset_member_position import PresetMemberPosition
 from shared.utils.exception import service_exception_handler
@@ -19,8 +20,6 @@ from ..utils.token import Payload
 @service_exception_handler
 def add_preset_member_position_service(
     guild_id: int,
-    preset_id: int,
-    preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
     db: Session,
     payload: Payload,
@@ -28,9 +27,10 @@ def add_preset_member_position_service(
     verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     preset_member = (
         db.query(PresetMember)
+        .join(Preset, PresetMember.preset_id == Preset.preset_id)
         .filter(
-            PresetMember.preset_member_id == preset_member_id,
-            PresetMember.preset_id == preset_id,
+            PresetMember.preset_member_id == dto.preset_member_id,
+            Preset.guild_id == guild_id,
         )
         .first()
     )
@@ -40,7 +40,7 @@ def add_preset_member_position_service(
     existing = (
         db.query(PresetMemberPosition)
         .filter(
-            PresetMemberPosition.preset_member_id == preset_member_id,
+            PresetMemberPosition.preset_member_id == dto.preset_member_id,
             PresetMemberPosition.position_id == dto.position_id,
         )
         .first()
@@ -48,7 +48,7 @@ def add_preset_member_position_service(
 
     if existing:
         logger.warning(
-            f"PresetMemberPosition duplicated: preset_member_id={preset_member_id}, position_id={dto.position_id}"
+            f"PresetMemberPosition duplicated: preset_member_id={dto.preset_member_id}, position_id={dto.position_id}"
         )
         raise HTTPException(
             status_code=400,
@@ -56,7 +56,7 @@ def add_preset_member_position_service(
         )
 
     preset_member_position = PresetMemberPosition(
-        preset_member_id=preset_member_id,
+        preset_member_id=dto.preset_member_id,
         position_id=dto.position_id,
     )
     db.add(preset_member_position)
@@ -64,7 +64,7 @@ def add_preset_member_position_service(
         db.commit()
     except IntegrityError as e:
         logger.warning(
-            f"PresetMemberPosition duplicated: preset_member_id={preset_member_id}, position_id={dto.position_id}"
+            f"PresetMemberPosition duplicated: preset_member_id={dto.preset_member_id}, position_id={dto.position_id}"
         )
         raise HTTPException(
             status_code=400,
@@ -81,8 +81,6 @@ def add_preset_member_position_service(
 @service_exception_handler
 def delete_preset_member_position_service(
     guild_id: int,
-    preset_id: int,
-    preset_member_id: int,
     preset_member_position_id: int,
     db: Session,
     payload: Payload,
@@ -94,10 +92,10 @@ def delete_preset_member_position_service(
             PresetMember,
             PresetMemberPosition.preset_member_id == PresetMember.preset_member_id,
         )
+        .join(Preset, PresetMember.preset_id == Preset.preset_id)
         .filter(
             PresetMemberPosition.preset_member_position_id == preset_member_position_id,
-            PresetMember.preset_member_id == preset_member_id,
-            PresetMember.preset_id == preset_id,
+            Preset.guild_id == guild_id,
         )
         .first()
     )

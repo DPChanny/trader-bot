@@ -8,6 +8,7 @@ from shared.dtos.tier_dto import (
     UpdateTierDTO,
 )
 from shared.entities.manager import Role
+from shared.entities.preset import Preset
 from shared.entities.tier import Tier
 from shared.utils.exception import service_exception_handler
 
@@ -17,21 +18,22 @@ from ..utils.token import Payload
 
 @service_exception_handler
 def get_tier_list_service(
-    guild_id: int, preset_id: int, db: Session, payload: Payload
+    guild_id: int, db: Session, payload: Payload
 ) -> list[TierDTO]:
     verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    tiers = db.query(Tier).filter(Tier.preset_id == preset_id).all()
+    tiers = db.query(Tier).join(Preset).filter(Preset.guild_id == guild_id).all()
     return [TierDTO.model_validate(t) for t in tiers]
 
 
 @service_exception_handler
 def get_tier_detail_service(
-    guild_id: int, preset_id: int, tier_id: int, db: Session, payload: Payload
+    guild_id: int, tier_id: int, db: Session, payload: Payload
 ) -> TierDTO:
     verify_role(guild_id, payload.user_id, Role.VIEWER, db)
     tier = (
         db.query(Tier)
-        .filter(Tier.tier_id == tier_id, Tier.preset_id == preset_id)
+        .join(Preset)
+        .filter(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
         .first()
     )
 
@@ -44,11 +46,18 @@ def get_tier_detail_service(
 
 @service_exception_handler
 def add_tier_service(
-    guild_id: int, preset_id: int, dto: AddTierDTO, db: Session, payload: Payload
+    guild_id: int, dto: AddTierDTO, db: Session, payload: Payload
 ) -> TierDTO:
     verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    preset = (
+        db.query(Preset)
+        .filter(Preset.preset_id == dto.preset_id, Preset.guild_id == guild_id)
+        .first()
+    )
+    if preset is None:
+        raise HTTPException(status_code=404, detail="Preset not found")
 
-    tier = Tier(preset_id=preset_id, name=dto.name)
+    tier = Tier(preset_id=dto.preset_id, name=dto.name)
     db.add(tier)
     db.commit()
     db.refresh(tier)
@@ -59,7 +68,6 @@ def add_tier_service(
 @service_exception_handler
 def update_tier_service(
     guild_id: int,
-    preset_id: int,
     tier_id: int,
     dto: UpdateTierDTO,
     db: Session,
@@ -68,7 +76,8 @@ def update_tier_service(
     verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     tier = (
         db.query(Tier)
-        .filter(Tier.tier_id == tier_id, Tier.preset_id == preset_id)
+        .join(Preset)
+        .filter(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
         .first()
     )
     if tier is None:
@@ -87,12 +96,13 @@ def update_tier_service(
 
 @service_exception_handler
 def delete_tier_service(
-    guild_id: int, preset_id: int, tier_id: int, db: Session, payload: Payload
+    guild_id: int, tier_id: int, db: Session, payload: Payload
 ) -> None:
     verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     tier = (
         db.query(Tier)
-        .filter(Tier.tier_id == tier_id, Tier.preset_id == preset_id)
+        .join(Preset)
+        .filter(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
         .first()
     )
     if tier is None:

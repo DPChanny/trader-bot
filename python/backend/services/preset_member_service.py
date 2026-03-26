@@ -10,6 +10,7 @@ from shared.dtos.preset_member_dto import (
 )
 from shared.entities.manager import Role
 from shared.entities.member import Member
+from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
 from shared.entities.preset_member_position import PresetMemberPosition
 from shared.utils.exception import service_exception_handler
@@ -37,14 +38,15 @@ def _query_preset_member_detail(
 
 @service_exception_handler
 async def get_preset_member_detail_service(
-    guild_id: int, preset_id: int, preset_member_id: int, db: Session, payload: Payload
+    guild_id: int, preset_member_id: int, db: Session, payload: Payload
 ) -> PresetMemberDetailDTO:
     verify_role(guild_id, payload.user_id, Role.VIEWER, db)
     ownership = (
         db.query(PresetMember)
+        .join(Preset)
         .filter(
             PresetMember.preset_member_id == preset_member_id,
-            PresetMember.preset_id == preset_id,
+            Preset.guild_id == guild_id,
         )
         .first()
     )
@@ -60,12 +62,19 @@ async def get_preset_member_detail_service(
 @service_exception_handler
 async def add_preset_member_service(
     guild_id: int,
-    preset_id: int,
     dto: AddPresetMemberDTO,
     db: Session,
     payload: Payload,
 ) -> PresetMemberDetailDTO:
     verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+
+    preset = (
+        db.query(Preset)
+        .filter(Preset.preset_id == dto.preset_id, Preset.guild_id == guild_id)
+        .first()
+    )
+    if preset is None:
+        raise HTTPException(status_code=404, detail="Preset not found")
 
     member = (
         db.query(Member)
@@ -76,7 +85,7 @@ async def add_preset_member_service(
         raise HTTPException(status_code=404, detail="Member not found")
 
     preset_member = PresetMember(
-        preset_id=preset_id,
+        preset_id=dto.preset_id,
         member_id=dto.member_id,
         tier_id=dto.tier_id,
         is_leader=dto.is_leader,
@@ -91,11 +100,11 @@ async def add_preset_member_service(
 
 @service_exception_handler
 def get_preset_member_list_service(
-    guild_id: int, preset_id: int, db: Session, payload: Payload
+    guild_id: int, db: Session, payload: Payload
 ) -> list[PresetMemberDTO]:
     verify_role(guild_id, payload.user_id, Role.VIEWER, db)
     preset_members = (
-        db.query(PresetMember).filter(PresetMember.preset_id == preset_id).all()
+        db.query(PresetMember).join(Preset).filter(Preset.guild_id == guild_id).all()
     )
     return [PresetMemberDTO.model_validate(pm) for pm in preset_members]
 
@@ -103,7 +112,6 @@ def get_preset_member_list_service(
 @service_exception_handler
 async def update_preset_member_service(
     guild_id: int,
-    preset_id: int,
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
     db: Session,
@@ -112,9 +120,10 @@ async def update_preset_member_service(
     verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     preset_member = (
         db.query(PresetMember)
+        .join(Preset)
         .filter(
             PresetMember.preset_member_id == preset_member_id,
-            PresetMember.preset_id == preset_id,
+            Preset.guild_id == guild_id,
         )
         .first()
     )
@@ -134,14 +143,15 @@ async def update_preset_member_service(
 
 @service_exception_handler
 def delete_preset_member_service(
-    guild_id: int, preset_id: int, preset_member_id: int, db: Session, payload: Payload
+    guild_id: int, preset_member_id: int, db: Session, payload: Payload
 ) -> None:
     verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     preset_member = (
         db.query(PresetMember)
+        .join(Preset)
         .filter(
             PresetMember.preset_member_id == preset_member_id,
-            PresetMember.preset_id == preset_id,
+            Preset.guild_id == guild_id,
         )
         .first()
     )

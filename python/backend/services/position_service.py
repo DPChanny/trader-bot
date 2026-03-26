@@ -9,6 +9,7 @@ from shared.dtos.position_dto import (
 )
 from shared.entities.manager import Role
 from shared.entities.position import Position
+from shared.entities.preset import Preset
 from shared.utils.exception import service_exception_handler
 
 from ..utils.role import verify_role
@@ -17,24 +18,24 @@ from ..utils.token import Payload
 
 @service_exception_handler
 def get_position_list_service(
-    guild_id: int, preset_id: int, db: Session, payload: Payload
+    guild_id: int, db: Session, payload: Payload
 ) -> list[PositionDTO]:
     verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    positions = db.query(Position).filter(Position.preset_id == preset_id).all()
+    positions = (
+        db.query(Position).join(Preset).filter(Preset.guild_id == guild_id).all()
+    )
     return [PositionDTO.model_validate(p) for p in positions]
 
 
 @service_exception_handler
 def get_position_detail_service(
-    guild_id: int, preset_id: int, position_id: int, db: Session, payload: Payload
+    guild_id: int, position_id: int, db: Session, payload: Payload
 ) -> PositionDTO:
     verify_role(guild_id, payload.user_id, Role.VIEWER, db)
     position = (
         db.query(Position)
-        .filter(
-            Position.position_id == position_id,
-            Position.preset_id == preset_id,
-        )
+        .join(Preset)
+        .filter(Position.position_id == position_id, Preset.guild_id == guild_id)
         .first()
     )
 
@@ -47,12 +48,19 @@ def get_position_detail_service(
 
 @service_exception_handler
 def add_position_service(
-    guild_id: int, preset_id: int, dto: AddPositionDTO, db: Session, payload: Payload
+    guild_id: int, dto: AddPositionDTO, db: Session, payload: Payload
 ) -> PositionDTO:
     verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    preset = (
+        db.query(Preset)
+        .filter(Preset.preset_id == dto.preset_id, Preset.guild_id == guild_id)
+        .first()
+    )
+    if preset is None:
+        raise HTTPException(status_code=404, detail="Preset not found")
 
     position = Position(
-        preset_id=preset_id,
+        preset_id=dto.preset_id,
         name=dto.name,
         icon_url=dto.icon_url,
     )
@@ -66,7 +74,6 @@ def add_position_service(
 @service_exception_handler
 def update_position_service(
     guild_id: int,
-    preset_id: int,
     position_id: int,
     dto: UpdatePositionDTO,
     db: Session,
@@ -75,10 +82,8 @@ def update_position_service(
     verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     position = (
         db.query(Position)
-        .filter(
-            Position.position_id == position_id,
-            Position.preset_id == preset_id,
-        )
+        .join(Preset)
+        .filter(Position.position_id == position_id, Preset.guild_id == guild_id)
         .first()
     )
     if position is None:
@@ -97,15 +102,13 @@ def update_position_service(
 
 @service_exception_handler
 def delete_position_service(
-    guild_id: int, preset_id: int, position_id: int, db: Session, payload: Payload
+    guild_id: int, position_id: int, db: Session, payload: Payload
 ) -> None:
     verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     position = (
         db.query(Position)
-        .filter(
-            Position.position_id == position_id,
-            Position.preset_id == preset_id,
-        )
+        .join(Preset)
+        .filter(Position.position_id == position_id, Preset.guild_id == guild_id)
         .first()
     )
     if position is None:

@@ -20,7 +20,7 @@ from ..utils.token import Payload, verify_token
 
 
 preset_member_router = APIRouter(
-    prefix="/guild/{guild_id}/preset/{preset_id}/preset_member",
+    prefix="/guild/{guild_id}/preset_member",
     tags=["preset_member"],
 )
 
@@ -28,59 +28,52 @@ preset_member_router = APIRouter(
 @preset_member_router.post("", response_model=PresetMemberDetailDTO)
 async def add_preset_member_route(
     guild_id: int,
-    preset_id: int,
     dto: AddPresetMemberDTO,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
-    return await add_preset_member_service(guild_id, preset_id, dto, db, payload)
+    return await add_preset_member_service(guild_id, dto, db, payload)
 
 
 @preset_member_router.get("", response_model=list[PresetMemberDTO])
 def get_preset_member_list_route(
     guild_id: int,
-    preset_id: int,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
-    return get_preset_member_list_service(guild_id, preset_id, db, payload)
+    return get_preset_member_list_service(guild_id, db, payload)
 
 
 @preset_member_router.get("/{preset_member_id}", response_model=PresetMemberDetailDTO)
 async def get_preset_member_detail_route(
     guild_id: int,
-    preset_id: int,
     preset_member_id: int,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
     return await get_preset_member_detail_service(
-        guild_id, preset_id, preset_member_id, db, payload
+        guild_id, preset_member_id, db, payload
     )
 
 
 @preset_member_router.patch("/{preset_member_id}", response_model=PresetMemberDetailDTO)
 async def update_preset_member_route(
     guild_id: int,
-    preset_id: int,
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
     return await update_preset_member_service(
-        guild_id, preset_id, preset_member_id, dto, db, payload
+        guild_id, preset_member_id, dto, db, payload
     )
 
 
 @preset_member_router.delete("/{preset_member_id}", status_code=204)
 def delete_preset_member_route(
     guild_id: int,
-    preset_id: int,
     preset_member_id: int,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
-    return delete_preset_member_service(
-        guild_id, preset_id, preset_member_id, db, payload
-    )
+    return delete_preset_member_service(guild_id, preset_member_id, db, payload)
