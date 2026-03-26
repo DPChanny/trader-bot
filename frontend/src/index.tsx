@@ -5,6 +5,7 @@ import { HomePage } from "@/pages/home/homePage";
 import { PresetPage } from "@/pages/preset/presetPage";
 import { UserPage } from "@/pages/user/userPage";
 import { AuctionPage } from "@/pages/auction/auctionPage";
+import { AuthCallback } from "@/pages/auth/authCallback";
 import { Header } from "@/components/header";
 import { queryClient } from "@/utils/queryClient";
 import { removeAuthToken } from "@/utils/auth";
@@ -16,6 +17,7 @@ function App() {
   return (
     <Router>
       <HomePage path="/" />
+      <AuthCallback path="/auth/callback" />
       <UserPageWrapper path="/user" />
       <PresetPageWrapper path="/preset" />
       <AuctionPage path="/auction" />

@@ -15,7 +15,7 @@ from ..services.position_service import (
     get_position_list_service,
     update_position_service,
 )
-from ..utils.auth import verify_admin_token
+from ..utils.auth import verify_token
 
 
 position_router = APIRouter(prefix="/position", tags=["position"])
@@ -25,7 +25,7 @@ position_router = APIRouter(prefix="/position", tags=["position"])
 def add_position_route(
     dto: AddPositionDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
 ):
     return add_position_service(dto, db)
 
@@ -45,7 +45,7 @@ def update_position_route(
     position_id: int,
     dto: UpdatePositionDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
 ):
     return update_position_service(position_id, dto, db)
 
@@ -54,6 +54,6 @@ def update_position_route(
 def delete_position_route(
     position_id: int,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
 ):
     return delete_position_service(position_id, db)

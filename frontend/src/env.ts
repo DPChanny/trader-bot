@@ -11,7 +11,7 @@ export const TIER_API_ENDPOINT = `${API_ENDPOINT}/tier`;
 export const POSITION_API_ENDPOINT = `${API_ENDPOINT}/position`;
 export const PRESET_USER_API_ENDPOINT = `${API_ENDPOINT}/preset_user`;
 export const PRESET_USER_POSITION_API_ENDPOINT = `${API_ENDPOINT}/preset_user_position`;
-export const ADMIN_API_ENDPOINT = `${API_ENDPOINT}/admin`;
+export const AUTH_API_ENDPOINT = `${API_ENDPOINT}/auth`;
 export const LOL_STAT_API_ENDPOINT = `${API_ENDPOINT}/lol`;
 export const VAL_STAT_API_ENDPOINT = `${API_ENDPOINT}/val`;
 

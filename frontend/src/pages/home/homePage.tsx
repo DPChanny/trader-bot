@@ -6,20 +6,16 @@ import {
   removeAuthToken,
   refreshAuthToken,
 } from "@/utils/auth";
-import { useAdminLogin } from "@/hooks/admin";
-import { Error } from "@/components/error";
+import { useDiscordLogin } from "@/hooks/auth";
 import { SecondaryButton, PrimaryButton } from "@/components/button";
-import { LabelInput } from "@/components/labelInput";
-import { Modal, ModalForm, ModalFooter } from "@/components/modal";
 
 interface HomeProps {
   path?: string;
 }
 
 export function HomePage({}: HomeProps) {
-  const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated());
-  const login = useAdminLogin();
+  const discordLogin = useDiscordLogin();
 
   const handleNavigate = (path: string) => {
     route(path);
@@ -44,17 +40,6 @@ export function HomePage({}: HomeProps) {
     return () => clearInterval(refreshInterval);
   }, []);
 
-  const handleLogin = async (e: Event) => {
-    e.preventDefault();
-    try {
-      await login.mutateAsync(password);
-      setIsLoggedIn(true);
-      setPassword("");
-    } catch {
-      // error captured in login.error
-    }
-  };
-
   const handleLogout = () => {
     removeAuthToken();
     setIsLoggedIn(false);
@@ -64,30 +49,11 @@ export function HomePage({}: HomeProps) {
     <div class={styles.homeContainer}>
       <h1 class={styles.homeTitle}>창식이 내전</h1>
 
-      <Modal isOpen={!isLoggedIn} onClose={() => {}} title="관리자 로그인">
-        <ModalForm onSubmit={handleLogin}>
-          {login.isError ? (
-            <Error detail={login.error?.message}>로그인에 실패했습니다.</Error>
-          ) : null}
-          <LabelInput
-            label="비밀번호"
-            type="password"
-            value={password}
-            onChange={setPassword}
-            placeholder="관리자 비밀번호"
-            disabled={login.isPending}
-            autoFocus
-          />
-          <ModalFooter>
-            <PrimaryButton
-              type="submit"
-              disabled={login.isPending || !password}
-            >
-              {login.isPending ? "로그인 중" : "로그인"}
-            </PrimaryButton>
-          </ModalFooter>
-        </ModalForm>
-      </Modal>
+      {!isLoggedIn && (
+        <div class={styles.loginContainer}>
+          <PrimaryButton onClick={discordLogin}>Discord로 로그인</PrimaryButton>
+        </div>
+      )}
 
       {isLoggedIn && (
         <>

@@ -4,7 +4,7 @@ from loguru import logger
 from .jwt import decode_jwt_token, refresh_jwt_token, should_refresh_token
 
 
-async def verify_admin_token(
+async def verify_token(
     authorization: str = Header(None), response: Response = None
 ) -> dict:
     if not authorization:
@@ -20,8 +20,8 @@ async def verify_admin_token(
     try:
         payload = decode_jwt_token(token)
         role = payload.get("role")
-        if role != "admin":
-            logger.warning(f"Auth failed: reason=non_admin, role={role}")
+        if role != "manager":
+            logger.warning(f"Auth failed: reason=non_manager, role={role}")
             raise HTTPException(status_code=403, detail="Auth failed")
 
         if response and should_refresh_token(token):
@@ -32,5 +32,7 @@ async def verify_admin_token(
                 pass
 
         return payload
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=401, detail="Auth failed") from e

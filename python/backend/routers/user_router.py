@@ -18,7 +18,7 @@ from ..services.user_service import (
     update_profile_service,
     update_user_service,
 )
-from ..utils.auth import verify_admin_token
+from ..utils.auth import verify_token
 from ..utils.bucket import get_bucket
 
 
@@ -29,7 +29,7 @@ user_router = APIRouter(prefix="/user", tags=["user"])
 async def add_user_route(
     dto: AddUserDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
     bucket: Any = Depends(get_bucket),
 ):
     return await add_user_service(dto, db, bucket)
@@ -50,7 +50,7 @@ async def update_user_route(
     user_id: int,
     dto: UpdateUserDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
     bucket: Any = Depends(get_bucket),
 ):
     return await update_user_service(user_id, dto, db, bucket)
@@ -60,7 +60,7 @@ async def update_user_route(
 async def update_profile_route(
     user_id: int,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
     bucket: Any = Depends(get_bucket),
 ):
     return await update_profile_service(user_id, db, bucket)
@@ -70,7 +70,7 @@ async def update_profile_route(
 async def delete_user_route(
     user_id: int,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
     bucket: Any = Depends(get_bucket),
 ):
     return await delete_user_service(user_id, db, bucket)

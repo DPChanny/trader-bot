@@ -1,4 +1,4 @@
-from .admin_router import admin_router as admin_router
+from .auth_router import auth_router as auth_router
 from .auction_router import auction_router as auction_router
 from .auction_websocket_router import (
     auction_websocket_router as auction_websocket_router,

@@ -1,4 +1,4 @@
-const TOKEN_COOKIE_NAME = "admin_token";
+const TOKEN_COOKIE_NAME = "auth_token";
 
 export function setAuthToken(token: string): void {
   console.log("[Auth] Setting token:", token.substring(0, 20) + "...");
@@ -52,7 +52,7 @@ export async function refreshAuthToken(): Promise<boolean> {
 
   try {
     const response = await fetch(
-      "http://localhost:8000/api/admin/token/refresh",
+      "http://localhost:8000/api/auth/token/refresh",
       {
         method: "POST",
         headers: {

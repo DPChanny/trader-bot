@@ -9,7 +9,7 @@ from shared.utils.database import setup_db
 from shared.utils.logging import LoggingMiddleware, setup_logging
 
 from .routers import (
-    admin_router,
+    auth_router,
     auction_router,
     auction_websocket_router,
     lol_stat_router,
@@ -58,7 +58,7 @@ app.include_router(preset_router, prefix="/api")
 app.include_router(tier_router, prefix="/api")
 app.include_router(preset_user_router, prefix="/api")
 app.include_router(preset_user_position_router, prefix="/api")
-app.include_router(admin_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 app.include_router(lol_stat_router, prefix="/api")
 app.include_router(val_stat_router, prefix="/api")
 app.include_router(auction_router, prefix="/api")

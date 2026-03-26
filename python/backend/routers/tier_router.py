@@ -15,7 +15,7 @@ from ..services.tier_service import (
     get_tier_list_service,
     update_tier_service,
 )
-from ..utils.auth import verify_admin_token
+from ..utils.auth import verify_token
 
 
 tier_router = APIRouter(prefix="/tier", tags=["tier"])
@@ -25,7 +25,7 @@ tier_router = APIRouter(prefix="/tier", tags=["tier"])
 def add_tier_route(
     dto: AddTierDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
 ):
     return add_tier_service(dto, db)
 
@@ -45,7 +45,7 @@ def update_tier_route(
     tier_id: int,
     dto: UpdateTierDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
 ):
     return update_tier_service(tier_id, dto, db)
 
@@ -54,6 +54,6 @@ def update_tier_route(
 def delete_tier_route(
     tier_id: int,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
 ):
     return delete_tier_service(tier_id, db)

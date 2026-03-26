@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 import jwt
 from loguru import logger
 
-from shared.utils.env import get_jwt_algorithm, get_jwt_secret_key
+from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 
 
 JWT_EXPIRATION_HOURS = 24
@@ -20,14 +20,14 @@ def create_jwt_token(
         "exp": int(expiration.timestamp()),
         "iat": int(now.timestamp()),
     }
-    return jwt.encode(token_data, get_jwt_secret_key(), algorithm=get_jwt_algorithm())
+    return jwt.encode(token_data, get_jwt_secret(), algorithm=get_jwt_algorithm())
 
 
 def decode_jwt_token(token: str) -> dict:
     try:
         payload = jwt.decode(
             token,
-            get_jwt_secret_key(),
+            get_jwt_secret(),
             algorithms=[get_jwt_algorithm()],
             options={"verify_iat": False},
         )
@@ -56,7 +56,7 @@ def should_refresh_token(token: str) -> bool:
     try:
         payload = jwt.decode(
             token,
-            get_jwt_secret_key(),
+            get_jwt_secret(),
             algorithms=[get_jwt_algorithm()],
             options={"verify_exp": False},
         )
@@ -76,7 +76,7 @@ def refresh_jwt_token(token: str) -> str:
     try:
         payload = jwt.decode(
             token,
-            get_jwt_secret_key(),
+            get_jwt_secret(),
             algorithms=[get_jwt_algorithm()],
             options={"verify_exp": False},
         )

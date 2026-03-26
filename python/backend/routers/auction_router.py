@@ -5,7 +5,7 @@ from shared.dtos.auction_dto import AuctionDTO
 from shared.utils.database import get_db
 
 from ..services.auction_service import add_auction_service
-from ..utils.auth import verify_admin_token
+from ..utils.auth import verify_token
 
 
 auction_router = APIRouter(prefix="/auction", tags=["auction"])
@@ -15,6 +15,6 @@ auction_router = APIRouter(prefix="/auction", tags=["auction"])
 async def add_auction_route(
     preset_id: int,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
 ) -> AuctionDTO:
     return await add_auction_service(preset_id, db)

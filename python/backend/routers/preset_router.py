@@ -16,7 +16,7 @@ from ..services.preset_service import (
     get_preset_list_service,
     update_preset_service,
 )
-from ..utils.auth import verify_admin_token
+from ..utils.auth import verify_token
 
 
 preset_router = APIRouter(prefix="/preset", tags=["preset"])
@@ -26,7 +26,7 @@ preset_router = APIRouter(prefix="/preset", tags=["preset"])
 def add_preset_route(
     dto: AddPresetDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
 ):
     return add_preset_service(dto, db)
 
@@ -46,7 +46,7 @@ def update_preset_route(
     preset_id: int,
     dto: UpdatePresetDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
 ):
     return update_preset_service(preset_id, dto, db)
 
@@ -55,6 +55,6 @@ def update_preset_route(
 def delete_preset_route(
     preset_id: int,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_admin_token),
+    _: dict = Depends(verify_token),
 ):
     return delete_preset_service(preset_id, db)

@@ -5,17 +5,17 @@ import aioboto3
 from loguru import logger
 
 from shared.utils.env import (
-    get_aws_access_key,
+    get_aws_access_id,
     get_aws_bucket_name,
     get_aws_region,
-    get_aws_secret_key,
+    get_aws_access_secret,
     get_profile_key,
 )
 
 
 _session = aioboto3.Session(
-    aws_access_key_id=get_aws_access_key(),
-    aws_secret_access_key=get_aws_secret_key(),
+    aws_access_key_id=get_aws_access_id(),
+    aws_secret_access_key=get_aws_access_secret(),
     region_name=get_aws_region(),
 )
 _bucket_name = get_aws_bucket_name()

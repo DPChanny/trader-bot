@@ -66,3 +66,9 @@
   top: var(--space-5);
   right: var(--space-6);
 }
+
+.loginContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-4);
+}
