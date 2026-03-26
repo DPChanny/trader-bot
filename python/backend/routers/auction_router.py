@@ -5,7 +5,7 @@ from shared.dtos.auction_dto import AuctionDTO
 from shared.utils.database import get_db
 
 from ..services.auction_service import add_auction_service
-from ..utils.auth import verify_token
+from ..utils.token import verify_token
 
 
 auction_router = APIRouter(prefix="/auction", tags=["auction"])

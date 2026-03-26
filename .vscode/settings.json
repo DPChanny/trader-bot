@@ -3,6 +3,7 @@
   "python-envs.defaultPackageManager": "ms-python.python:pip",
 
   "files.exclude": {
-    "**/*.css.d.ts": true
+    "**/*.css.d.ts": true,
+    "**/__pycache__": true
   }
 }

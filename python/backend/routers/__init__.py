@@ -1,8 +1,8 @@
-from .auth_router import auth_router as auth_router
 from .auction_router import auction_router as auction_router
 from .auction_websocket_router import (
     auction_websocket_router as auction_websocket_router,
 )
+from .auth_router import auth_router as auth_router
 from .lol_stat_router import lol_stat_router as lol_stat_router
 from .position_router import position_router as position_router
 from .preset_router import preset_router as preset_router

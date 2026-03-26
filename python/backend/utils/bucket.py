@@ -6,9 +6,9 @@ from loguru import logger
 
 from shared.utils.env import (
     get_aws_access_id,
+    get_aws_access_secret,
     get_aws_bucket_name,
     get_aws_region,
-    get_aws_access_secret,
     get_profile_key,
 )
 

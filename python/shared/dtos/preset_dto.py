@@ -1,6 +1,5 @@
-from . import BaseDto, NullableStr
-
 from ..entities.preset import Statistics
+from . import BaseDto, NullableStr
 from .position_dto import PositionDTO
 from .preset_user_dto import PresetUserDetailDTO
 from .tier_dto import TierDTO

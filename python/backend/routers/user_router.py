@@ -18,7 +18,7 @@ from ..services.user_service import (
     update_profile_service,
     update_user_service,
 )
-from ..utils.auth import verify_token
+from ..utils.token import verify_token
 from ..utils.bucket import get_bucket
 
 

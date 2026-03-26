@@ -15,7 +15,7 @@ from ..services.position_service import (
     get_position_list_service,
     update_position_service,
 )
-from ..utils.auth import verify_token
+from ..utils.token import verify_token
 
 
 position_router = APIRouter(prefix="/position", tags=["position"])

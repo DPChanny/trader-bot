@@ -15,7 +15,7 @@ from ..services.tier_service import (
     get_tier_list_service,
     update_tier_service,
 )
-from ..utils.auth import verify_token
+from ..utils.token import verify_token
 
 
 tier_router = APIRouter(prefix="/tier", tags=["tier"])

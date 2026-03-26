@@ -9,9 +9,9 @@ from shared.utils.database import setup_db
 from shared.utils.logging import LoggingMiddleware, setup_logging
 
 from .routers import (
-    auth_router,
     auction_router,
     auction_websocket_router,
+    auth_router,
     lol_stat_router,
     position_router,
     preset_router,

@@ -16,7 +16,7 @@ from ..services.preset_user_service import (
     get_preset_user_list_service,
     update_preset_user_service,
 )
-from ..utils.auth import verify_token
+from ..utils.token import verify_token
 
 
 preset_user_router = APIRouter(prefix="/preset_user", tags=["preset_user"])
