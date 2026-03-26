@@ -42,7 +42,6 @@ async def get_tier_detail_service(
     tier = result.scalar_one_or_none()
 
     if tier is None:
-        logger.warning(f"Tier not found: id={tier_id}")
         raise HTTPException(status_code=404, detail="Tier not found")
 
     return TierDTO.model_validate(tier)
@@ -85,7 +84,6 @@ async def update_tier_service(
     )
     tier = result.scalar_one_or_none()
     if tier is None:
-        logger.warning(f"Tier not found: id={tier_id}")
         raise HTTPException(status_code=404, detail="Tier not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
@@ -110,7 +108,6 @@ async def delete_tier_service(
     )
     tier = result.scalar_one_or_none()
     if tier is None:
-        logger.warning(f"Tier not found: id={tier_id}")
         raise HTTPException(status_code=404, detail="Tier not found")
 
     await db.delete(tier)

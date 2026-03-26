@@ -1,6 +1,5 @@
 import httpx
 from fastapi import HTTPException
-from loguru import logger
 
 from shared.utils.env import (
     get_app_origin,
@@ -33,9 +32,6 @@ async def exchange_code(code: str) -> str:
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
         if response.status_code != 200:
-            logger.error(
-                f"Discord token exchange failed: status={response.status_code}"
-            )
             raise HTTPException(status_code=401, detail="Discord token exchange failed")
         return response.json()["access_token"]
 
@@ -47,6 +43,5 @@ async def get_user(access_token: str) -> dict:
             headers={"Authorization": f"Bearer {access_token}"},
         )
         if response.status_code != 200:
-            logger.error(f"Discord user fetch failed: status={response.status_code}")
             raise HTTPException(status_code=401, detail="Failed to fetch Discord user")
         return response.json()

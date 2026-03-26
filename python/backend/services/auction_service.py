@@ -36,32 +36,24 @@ async def add_auction_service(
     preset = result.unique().scalar_one_or_none()
 
     if preset is None:
-        logger.warning(
-            f"Auction create failed: reason=preset_not_found, preset_id={preset_id}"
+        raise HTTPException(
+            status_code=404, detail="Auction create failed: preset not found"
         )
-        raise HTTPException(status_code=404, detail="Auction create failed")
 
     await verify_role(preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     preset_members = preset.preset_members
     if not preset_members:
-        logger.warning(f"Auction create failed: reason=no_users, preset_id={preset_id}")
-        raise HTTPException(status_code=400, detail="Auction create failed")
+        raise HTTPException(status_code=400, detail="Auction create failed: no members")
 
     leaders = [pm for pm in preset_members if pm.is_leader]
     if not leaders:
-        logger.warning(
-            f"Auction create failed: reason=no_leaders, preset_id={preset_id}"
-        )
-        raise HTTPException(status_code=400, detail="Auction create failed")
+        raise HTTPException(status_code=400, detail="Auction create failed: no leaders")
 
     if len(leaders) < 2:
-        logger.warning(
-            f"Auction create failed: reason=insufficient_leaders, count={len(leaders)}, required=2"
-        )
         raise HTTPException(
             status_code=400,
-            detail="Auction create failed",
+            detail="Auction create failed: at least 2 leaders required",
         )
 
     teams = []

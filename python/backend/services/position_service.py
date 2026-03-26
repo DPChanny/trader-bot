@@ -42,7 +42,6 @@ async def get_position_detail_service(
     position = result.scalar_one_or_none()
 
     if position is None:
-        logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
 
     return PositionDTO.model_validate(position)
@@ -89,7 +88,6 @@ async def update_position_service(
     )
     position = result.scalar_one_or_none()
     if position is None:
-        logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
@@ -114,7 +112,6 @@ async def delete_position_service(
     )
     position = result.scalar_one_or_none()
     if position is None:
-        logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
 
     await db.delete(position)

@@ -52,7 +52,6 @@ async def refresh_token_service(dto: RefreshDto, db: AsyncSession) -> TokenDto:
     )
     manager = result.scalar_one_or_none()
     if manager is None:
-        logger.warning("Token refresh failed: reason=invalid_refresh_token")
         raise HTTPException(status_code=401, detail="Auth failed")
 
     logger.info(f"Token refreshed: user_id={manager.user_id}")

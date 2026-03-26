@@ -50,7 +50,6 @@ async def get_preset_member_detail_service(
     preset_member = await _query_preset_member_detail(preset_member_id, db, guild_id)
 
     if preset_member is None:
-        logger.warning(f"PresetMember not found: id={preset_member_id}")
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
     return PresetMemberDetailDTO.model_validate(preset_member)
@@ -137,7 +136,6 @@ async def update_preset_member_service(
     )
     preset_member = result.scalar_one_or_none()
     if preset_member is None:
-        logger.warning(f"PresetMember not found: id={preset_member_id}")
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
@@ -173,7 +171,6 @@ async def delete_preset_member_service(
     )
     preset_member = result.scalar_one_or_none()
     if preset_member is None:
-        logger.warning(f"PresetMember not found: id={preset_member_id}")
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
     await db.delete(preset_member)

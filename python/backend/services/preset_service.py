@@ -46,7 +46,6 @@ async def get_preset_detail_service(
         select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
     )
     if result.scalar_one_or_none() is None:
-        logger.warning(f"Preset not found: id={preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found")
 
     preset = await _query_preset_detail(preset_id, db)
@@ -99,7 +98,6 @@ async def update_preset_service(
     )
     preset = result.scalar_one_or_none()
     if preset is None:
-        logger.warning(f"Preset not found: id={preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
@@ -122,7 +120,6 @@ async def delete_preset_service(
     )
     preset = result.scalar_one_or_none()
     if preset is None:
-        logger.warning(f"Preset not found: id={preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found")
 
     await db.delete(preset)

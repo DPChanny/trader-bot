@@ -37,7 +37,6 @@ async def get_member_detail_service(
     member = result.scalar_one_or_none()
 
     if member is None:
-        logger.warning(f"Member not found: id={member_id}")
         raise HTTPException(status_code=404, detail="Member not found")
 
     return MemberDTO.model_validate(member)
@@ -93,7 +92,6 @@ async def update_member_service(
     )
     member = result.scalar_one_or_none()
     if member is None:
-        logger.warning(f"Member not found: id={member_id}")
         raise HTTPException(status_code=404, detail="Member not found")
 
     old_discord_id = member.discord_id
@@ -128,7 +126,6 @@ async def update_profile_service(
     )
     member = result.scalar_one_or_none()
     if member is None:
-        logger.warning(f"Member not found: id={member_id}")
         raise HTTPException(status_code=404, detail="Member not found")
 
     await delete_profile(bucket, member.member_id)
@@ -150,7 +147,6 @@ async def delete_member_service(
     )
     member = result.scalar_one_or_none()
     if member is None:
-        logger.warning(f"Member not found: id={member_id}")
         raise HTTPException(status_code=404, detail="Member not found")
 
     await db.delete(member)

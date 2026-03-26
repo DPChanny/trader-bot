@@ -1,5 +1,4 @@
 from fastapi import HTTPException
-from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -27,7 +26,6 @@ async def get_lol_stat(
     lol_stat = result.unique().scalar_one_or_none()
 
     if lol_stat is None:
-        logger.warning(f"LolStat not found: id={member_id}")
         raise HTTPException(
             status_code=404,
             detail="LolStat not found",

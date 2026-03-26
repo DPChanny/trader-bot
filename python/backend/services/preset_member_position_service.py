@@ -44,9 +44,6 @@ async def add_preset_member_position_service(
         )
     )
     if existing_result.scalar_one_or_none() is not None:
-        logger.warning(
-            f"PresetMemberPosition duplicated: preset_member_id={dto.preset_member_id}, position_id={dto.position_id}"
-        )
         raise HTTPException(
             status_code=400,
             detail="PresetMemberPosition duplicated",
@@ -59,10 +56,7 @@ async def add_preset_member_position_service(
     db.add(preset_member_position)
     try:
         await db.commit()
-    except IntegrityError as e:
-        logger.warning(
-            f"PresetMemberPosition duplicated: preset_member_id={dto.preset_member_id}, position_id={dto.position_id}"
-        )
+    except IntegrityError:
         raise HTTPException(
             status_code=400,
             detail="PresetMemberPosition duplicated",
@@ -98,9 +92,6 @@ async def delete_preset_member_position_service(
     preset_member_position = result.scalar_one_or_none()
 
     if preset_member_position is None:
-        logger.warning(
-            f"PresetMemberPosition not found: id={preset_member_position_id}"
-        )
         raise HTTPException(status_code=404, detail="PresetMemberPosition not found")
 
     await db.delete(preset_member_position)
