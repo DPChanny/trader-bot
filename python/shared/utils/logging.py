@@ -10,7 +10,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 
-class InterceptHandler(logging.Handler):
+class LoguruHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
         try:
             level = logger.level(record.levelname).name
@@ -62,8 +62,7 @@ def setup_logging() -> None:
             colorize=True,
         )
 
-    intercept = InterceptHandler()
-    logging.root.handlers = [intercept]
+    logging.root.handlers = [LoguruHandler()]
     logging.root.setLevel(logging.NOTSET)
 
     for name in list(logging.root.manager.loggerDict.keys()):
@@ -71,13 +70,8 @@ def setup_logging() -> None:
         log.handlers = []
         log.propagate = True
 
-    # Suppress uvicorn.access — our middleware handles HTTP access logging
-    logging.getLogger("uvicorn.access").setLevel(logging.CRITICAL)
-    for name in ("discord", "discord.client", "discord.gateway", "discord.http"):
-        logging.getLogger(name).setLevel(logging.WARNING)
 
-
-class RequestContextMiddleware(BaseHTTPMiddleware):
+class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         request_id = str(uuid4())
         start = time.perf_counter()

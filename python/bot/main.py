@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from shared.utils.logging import RequestContextMiddleware, setup_logging
+from shared.utils.logging import LoggingMiddleware, setup_logging
 
 from .router import router
 from .utils import start_bot, stop_bot
@@ -31,6 +31,6 @@ async def global_exception_handler(_, exc):
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
-app.add_middleware(RequestContextMiddleware)
+app.add_middleware(LoggingMiddleware)
 
 app.include_router(router, prefix="/bot")
