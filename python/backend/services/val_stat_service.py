@@ -3,16 +3,20 @@ from loguru import logger
 from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.val_stat_dto import AgentDto, ValStatDto
+from shared.entities.user import User
 from shared.entities.val_stat import ValStat
 from shared.utils.exception import service_exception_handler
 
+from ..utils.token import Payload
+
 
 @service_exception_handler
-async def get_val_stat(user_id: int, db: Session) -> ValStatDto:
+async def get_val_stat(user_id: int, db: Session, payload: Payload) -> ValStatDto:
     val_stat = (
         db.query(ValStat)
+        .join(User, ValStat.user_id == User.user_id)
         .options(joinedload(ValStat.agents))
-        .filter(ValStat.user_id == user_id)
+        .filter(ValStat.user_id == user_id, User.manager_id == payload.manager_id)
         .first()
     )
 

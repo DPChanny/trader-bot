@@ -1,14 +1,14 @@
 from datetime import UTC, datetime, timedelta
-from typing import TypedDict, cast
 
 import jwt
 from fastapi import Header, HTTPException
 from loguru import logger
+from pydantic import BaseModel
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 
 
-class Payload(TypedDict):
+class Payload(BaseModel):
     manager_id: int
     discord_id: str
     exp: int
@@ -41,7 +41,7 @@ def decode_token(token: str) -> Payload:
             get_jwt_secret(),
             algorithms=[get_jwt_algorithm()],
         )
-        return cast(Payload, payload)
+        return Payload(**payload)
     except jwt.ExpiredSignatureError as e:
         logger.warning("Token validation failed: reason=expired")
         raise HTTPException(status_code=401, detail="Token expired") from e

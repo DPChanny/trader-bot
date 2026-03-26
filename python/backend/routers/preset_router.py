@@ -16,7 +16,7 @@ from ..services.preset_service import (
     get_preset_list_service,
     update_preset_service,
 )
-from ..utils.token import verify_token
+from ..utils.token import Payload, verify_token
 
 
 preset_router = APIRouter(prefix="/preset", tags=["preset"])
@@ -26,19 +26,26 @@ preset_router = APIRouter(prefix="/preset", tags=["preset"])
 def add_preset_route(
     dto: AddPresetDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_token),
+    payload: Payload = Depends(verify_token),
 ):
-    return add_preset_service(dto, db)
+    return add_preset_service(dto, db, payload)
 
 
 @preset_router.get("", response_model=list[PresetDTO])
-def get_preset_list_route(db: Session = Depends(get_db)):
-    return get_preset_list_service(db)
+def get_preset_list_route(
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return get_preset_list_service(db, payload)
 
 
 @preset_router.get("/{preset_id}", response_model=PresetDetailDTO)
-async def get_preset_detail_route(preset_id: int, db: Session = Depends(get_db)):
-    return await get_preset_detail_service(preset_id, db)
+async def get_preset_detail_route(
+    preset_id: int,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return await get_preset_detail_service(preset_id, db, payload)
 
 
 @preset_router.patch("/{preset_id}", response_model=PresetDetailDTO)
@@ -46,15 +53,15 @@ def update_preset_route(
     preset_id: int,
     dto: UpdatePresetDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_token),
+    payload: Payload = Depends(verify_token),
 ):
-    return update_preset_service(preset_id, dto, db)
+    return update_preset_service(preset_id, dto, db, payload)
 
 
 @preset_router.delete("/{preset_id}", status_code=204)
 def delete_preset_route(
     preset_id: int,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_token),
+    payload: Payload = Depends(verify_token),
 ):
-    return delete_preset_service(preset_id, db)
+    return delete_preset_service(preset_id, db, payload)

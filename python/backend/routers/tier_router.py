@@ -15,7 +15,7 @@ from ..services.tier_service import (
     get_tier_list_service,
     update_tier_service,
 )
-from ..utils.token import verify_token
+from ..utils.token import Payload, verify_token
 
 
 tier_router = APIRouter(prefix="/tier", tags=["tier"])
@@ -25,19 +25,26 @@ tier_router = APIRouter(prefix="/tier", tags=["tier"])
 def add_tier_route(
     dto: AddTierDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_token),
+    payload: Payload = Depends(verify_token),
 ):
-    return add_tier_service(dto, db)
+    return add_tier_service(dto, db, payload)
 
 
 @tier_router.get("", response_model=list[TierDTO])
-def get_tier_list_route(db: Session = Depends(get_db)):
-    return get_tier_list_service(db)
+def get_tier_list_route(
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return get_tier_list_service(db, payload)
 
 
 @tier_router.get("/{tier_id}", response_model=TierDTO)
-def get_tier_detail_route(tier_id: int, db: Session = Depends(get_db)):
-    return get_tier_detail_service(tier_id, db)
+def get_tier_detail_route(
+    tier_id: int,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return get_tier_detail_service(tier_id, db, payload)
 
 
 @tier_router.patch("/{tier_id}", response_model=TierDTO)
@@ -45,15 +52,15 @@ def update_tier_route(
     tier_id: int,
     dto: UpdateTierDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_token),
+    payload: Payload = Depends(verify_token),
 ):
-    return update_tier_service(tier_id, dto, db)
+    return update_tier_service(tier_id, dto, db, payload)
 
 
 @tier_router.delete("/{tier_id}", status_code=204)
 def delete_tier_route(
     tier_id: int,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_token),
+    payload: Payload = Depends(verify_token),
 ):
-    return delete_tier_service(tier_id, db)
+    return delete_tier_service(tier_id, db, payload)

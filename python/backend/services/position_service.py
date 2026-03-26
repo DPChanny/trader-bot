@@ -8,12 +8,36 @@ from shared.dtos.position_dto import (
     UpdatePositionDTO,
 )
 from shared.entities.position import Position
+from shared.entities.preset import Preset
 from shared.utils.exception import service_exception_handler
+
+from ..utils.token import Payload
 
 
 @service_exception_handler
-def get_position_detail_service(position_id: int, db: Session) -> PositionDTO:
-    position = db.query(Position).filter(Position.position_id == position_id).first()
+def get_position_list_service(db: Session, payload: Payload) -> list[PositionDTO]:
+    positions = (
+        db.query(Position)
+        .join(Preset)
+        .filter(Preset.manager_id == payload.manager_id)
+        .all()
+    )
+    return [PositionDTO.model_validate(p) for p in positions]
+
+
+@service_exception_handler
+def get_position_detail_service(
+    position_id: int, db: Session, payload: Payload
+) -> PositionDTO:
+    position = (
+        db.query(Position)
+        .join(Preset)
+        .filter(
+            Position.position_id == position_id,
+            Preset.manager_id == payload.manager_id,
+        )
+        .first()
+    )
 
     if position is None:
         logger.warning(f"Position not found: id={position_id}")
@@ -23,7 +47,20 @@ def get_position_detail_service(position_id: int, db: Session) -> PositionDTO:
 
 
 @service_exception_handler
-def add_position_service(dto: AddPositionDTO, db: Session) -> PositionDTO:
+def add_position_service(
+    dto: AddPositionDTO, db: Session, payload: Payload
+) -> PositionDTO:
+    preset = (
+        db.query(Preset)
+        .filter(
+            Preset.preset_id == dto.preset_id,
+            Preset.manager_id == payload.manager_id,
+        )
+        .first()
+    )
+    if preset is None:
+        raise HTTPException(status_code=404, detail="Preset not found")
+
     position = Position(
         preset_id=dto.preset_id,
         name=dto.name,
@@ -37,16 +74,18 @@ def add_position_service(dto: AddPositionDTO, db: Session) -> PositionDTO:
 
 
 @service_exception_handler
-def get_position_list_service(db: Session) -> list[PositionDTO]:
-    positions = db.query(Position).all()
-    return [PositionDTO.model_validate(p) for p in positions]
-
-
-@service_exception_handler
 def update_position_service(
-    position_id: int, dto: UpdatePositionDTO, db: Session
+    position_id: int, dto: UpdatePositionDTO, db: Session, payload: Payload
 ) -> PositionDTO:
-    position = db.query(Position).filter(Position.position_id == position_id).first()
+    position = (
+        db.query(Position)
+        .join(Preset)
+        .filter(
+            Position.position_id == position_id,
+            Preset.manager_id == payload.manager_id,
+        )
+        .first()
+    )
     if position is None:
         logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
@@ -62,8 +101,16 @@ def update_position_service(
 
 
 @service_exception_handler
-def delete_position_service(position_id: int, db: Session) -> None:
-    position = db.query(Position).filter(Position.position_id == position_id).first()
+def delete_position_service(position_id: int, db: Session, payload: Payload) -> None:
+    position = (
+        db.query(Position)
+        .join(Preset)
+        .filter(
+            Position.position_id == position_id,
+            Preset.manager_id == payload.manager_id,
+        )
+        .first()
+    )
     if position is None:
         logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")

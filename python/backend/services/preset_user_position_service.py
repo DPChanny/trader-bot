@@ -8,14 +8,30 @@ from shared.dtos.preset_user_position_dto import (
     DeletePresetUserPositionDTO,
     PresetUserPositionDTO,
 )
+from shared.entities.preset import Preset
+from shared.entities.preset_user import PresetUser
 from shared.entities.preset_user_position import PresetUserPosition
 from shared.utils.exception import service_exception_handler
+
+from ..utils.token import Payload
 
 
 @service_exception_handler
 def add_preset_user_position_service(
-    dto: AddPresetUserPositionDTO, db: Session
+    dto: AddPresetUserPositionDTO, db: Session, payload: Payload
 ) -> PresetUserPositionDTO:
+    preset_user = (
+        db.query(PresetUser)
+        .join(Preset)
+        .filter(
+            PresetUser.preset_user_id == dto.preset_user_id,
+            Preset.manager_id == payload.manager_id,
+        )
+        .first()
+    )
+    if preset_user is None:
+        raise HTTPException(status_code=404, detail="PresetUser not found")
+
     existing = (
         db.query(PresetUserPosition)
         .filter(
@@ -59,12 +75,17 @@ def add_preset_user_position_service(
 
 @service_exception_handler
 def delete_preset_user_position_service(
-    dto: DeletePresetUserPositionDTO, db: Session
+    dto: DeletePresetUserPositionDTO, db: Session, payload: Payload
 ) -> None:
     preset_user_position = (
         db.query(PresetUserPosition)
+        .join(
+            PresetUser, PresetUserPosition.preset_user_id == PresetUser.preset_user_id
+        )
+        .join(Preset, PresetUser.preset_id == Preset.preset_id)
         .filter(
-            PresetUserPosition.preset_user_position_id == dto.preset_user_position_id
+            PresetUserPosition.preset_user_position_id == dto.preset_user_position_id,
+            Preset.manager_id == payload.manager_id,
         )
         .first()
     )

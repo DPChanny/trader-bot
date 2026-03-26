@@ -13,6 +13,8 @@ from shared.entities.preset_user import PresetUser
 from shared.entities.preset_user_position import PresetUserPosition
 from shared.utils.exception import service_exception_handler
 
+from ..utils.token import Payload
+
 
 def _query_preset_detail(preset_id: int, db: Session) -> Preset | None:
     return (
@@ -32,10 +34,12 @@ def _query_preset_detail(preset_id: int, db: Session) -> Preset | None:
 
 
 @service_exception_handler
-async def get_preset_detail_service(preset_id: int, db: Session) -> PresetDetailDTO:
+async def get_preset_detail_service(
+    preset_id: int, db: Session, payload: Payload
+) -> PresetDetailDTO:
     preset = _query_preset_detail(preset_id, db)
 
-    if preset is None:
+    if preset is None or preset.manager_id != payload.manager_id:
         logger.warning(f"Preset not found: id={preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found")
 
@@ -43,8 +47,11 @@ async def get_preset_detail_service(preset_id: int, db: Session) -> PresetDetail
 
 
 @service_exception_handler
-def add_preset_service(dto: AddPresetDTO, db: Session) -> PresetDetailDTO:
+def add_preset_service(
+    dto: AddPresetDTO, db: Session, payload: Payload
+) -> PresetDetailDTO:
     preset = Preset(
+        manager_id=payload.manager_id,
         name=dto.name,
         points=dto.points,
         time=dto.time,
@@ -61,16 +68,22 @@ def add_preset_service(dto: AddPresetDTO, db: Session) -> PresetDetailDTO:
 
 
 @service_exception_handler
-def get_preset_list_service(db: Session) -> list[PresetDTO]:
-    presets = db.query(Preset).all()
+def get_preset_list_service(db: Session, payload: Payload) -> list[PresetDTO]:
+    presets = db.query(Preset).filter(Preset.manager_id == payload.manager_id).all()
     return [PresetDTO.model_validate(p) for p in presets]
 
 
 @service_exception_handler
 def update_preset_service(
-    preset_id: int, dto: UpdatePresetDTO, db: Session
+    preset_id: int, dto: UpdatePresetDTO, db: Session, payload: Payload
 ) -> PresetDetailDTO:
-    preset = db.query(Preset).filter(Preset.preset_id == preset_id).first()
+    preset = (
+        db.query(Preset)
+        .filter(
+            Preset.preset_id == preset_id, Preset.manager_id == payload.manager_id
+        )
+        .first()
+    )
     if preset is None:
         logger.warning(f"Preset not found: id={preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found")
@@ -87,8 +100,14 @@ def update_preset_service(
 
 
 @service_exception_handler
-def delete_preset_service(preset_id: int, db: Session) -> None:
-    preset = db.query(Preset).filter(Preset.preset_id == preset_id).first()
+def delete_preset_service(preset_id: int, db: Session, payload: Payload) -> None:
+    preset = (
+        db.query(Preset)
+        .filter(
+            Preset.preset_id == preset_id, Preset.manager_id == payload.manager_id
+        )
+        .first()
+    )
     if preset is None:
         logger.warning(f"Preset not found: id={preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found")

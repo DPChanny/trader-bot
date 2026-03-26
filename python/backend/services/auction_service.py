@@ -14,16 +14,21 @@ from shared.utils.exception import service_exception_handler
 
 from ..auction.auction_manager import auction_manager
 from ..utils.bot import invite
+from ..utils.token import Payload
 
 
 @service_exception_handler
-async def add_auction_service(preset_id: int, db: Session) -> AuctionDTO:
+async def add_auction_service(
+    preset_id: int, db: Session, payload: Payload
+) -> AuctionDTO:
     preset = (
         db.query(Preset)
         .options(
             joinedload(Preset.preset_users).joinedload(PresetUser.user),
         )
-        .filter(Preset.preset_id == preset_id)
+        .filter(
+            Preset.preset_id == preset_id, Preset.manager_id == payload.manager_id
+        )
         .first()
     )
 

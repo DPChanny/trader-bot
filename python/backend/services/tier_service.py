@@ -7,13 +7,32 @@ from shared.dtos.tier_dto import (
     TierDTO,
     UpdateTierDTO,
 )
+from shared.entities.preset import Preset
 from shared.entities.tier import Tier
 from shared.utils.exception import service_exception_handler
 
+from ..utils.token import Payload
+
 
 @service_exception_handler
-def get_tier_detail_service(tier_id: int, db: Session) -> TierDTO:
-    tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()
+def get_tier_list_service(db: Session, payload: Payload) -> list[TierDTO]:
+    tiers = (
+        db.query(Tier)
+        .join(Preset)
+        .filter(Preset.manager_id == payload.manager_id)
+        .all()
+    )
+    return [TierDTO.model_validate(t) for t in tiers]
+
+
+@service_exception_handler
+def get_tier_detail_service(tier_id: int, db: Session, payload: Payload) -> TierDTO:
+    tier = (
+        db.query(Tier)
+        .join(Preset)
+        .filter(Tier.tier_id == tier_id, Preset.manager_id == payload.manager_id)
+        .first()
+    )
 
     if tier is None:
         logger.warning(f"Tier not found: id={tier_id}")
@@ -23,7 +42,18 @@ def get_tier_detail_service(tier_id: int, db: Session) -> TierDTO:
 
 
 @service_exception_handler
-def add_tier_service(dto: AddTierDTO, db: Session) -> TierDTO:
+def add_tier_service(dto: AddTierDTO, db: Session, payload: Payload) -> TierDTO:
+    preset = (
+        db.query(Preset)
+        .filter(
+            Preset.preset_id == dto.preset_id,
+            Preset.manager_id == payload.manager_id,
+        )
+        .first()
+    )
+    if preset is None:
+        raise HTTPException(status_code=404, detail="Preset not found")
+
     tier = Tier(preset_id=dto.preset_id, name=dto.name)
     db.add(tier)
     db.commit()
@@ -33,14 +63,15 @@ def add_tier_service(dto: AddTierDTO, db: Session) -> TierDTO:
 
 
 @service_exception_handler
-def get_tier_list_service(db: Session) -> list[TierDTO]:
-    tiers = db.query(Tier).all()
-    return [TierDTO.model_validate(t) for t in tiers]
-
-
-@service_exception_handler
-def update_tier_service(tier_id: int, dto: UpdateTierDTO, db: Session) -> TierDTO:
-    tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()
+def update_tier_service(
+    tier_id: int, dto: UpdateTierDTO, db: Session, payload: Payload
+) -> TierDTO:
+    tier = (
+        db.query(Tier)
+        .join(Preset)
+        .filter(Tier.tier_id == tier_id, Preset.manager_id == payload.manager_id)
+        .first()
+    )
     if tier is None:
         logger.warning(f"Tier not found: id={tier_id}")
         raise HTTPException(status_code=404, detail="Tier not found")
@@ -56,8 +87,13 @@ def update_tier_service(tier_id: int, dto: UpdateTierDTO, db: Session) -> TierDT
 
 
 @service_exception_handler
-def delete_tier_service(tier_id: int, db: Session) -> None:
-    tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()
+def delete_tier_service(tier_id: int, db: Session, payload: Payload) -> None:
+    tier = (
+        db.query(Tier)
+        .join(Preset)
+        .filter(Tier.tier_id == tier_id, Preset.manager_id == payload.manager_id)
+        .first()
+    )
     if tier is None:
         logger.warning(f"Tier not found: id={tier_id}")
         raise HTTPException(status_code=404, detail="Tier not found")

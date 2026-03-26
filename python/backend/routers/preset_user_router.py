@@ -16,7 +16,7 @@ from ..services.preset_user_service import (
     get_preset_user_list_service,
     update_preset_user_service,
 )
-from ..utils.token import verify_token
+from ..utils.token import Payload, verify_token
 
 
 preset_user_router = APIRouter(prefix="/preset_user", tags=["preset_user"])
@@ -26,21 +26,26 @@ preset_user_router = APIRouter(prefix="/preset_user", tags=["preset_user"])
 async def add_preset_user_route(
     dto: AddPresetUserDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_token),
+    payload: Payload = Depends(verify_token),
 ):
-    return await add_preset_user_service(dto, db)
+    return await add_preset_user_service(dto, db, payload)
 
 
 @preset_user_router.get("", response_model=list[PresetUserDTO])
-def get_preset_user_list_route(db: Session = Depends(get_db)):
-    return get_preset_user_list_service(db)
+def get_preset_user_list_route(
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return get_preset_user_list_service(db, payload)
 
 
 @preset_user_router.get("/{preset_user_id}", response_model=PresetUserDetailDTO)
 async def get_preset_user_detail_route(
-    preset_user_id: int, db: Session = Depends(get_db)
+    preset_user_id: int,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
 ):
-    return await get_preset_user_detail_service(preset_user_id, db)
+    return await get_preset_user_detail_service(preset_user_id, db, payload)
 
 
 @preset_user_router.patch("/{preset_user_id}", response_model=PresetUserDetailDTO)
@@ -48,15 +53,15 @@ async def update_preset_user_route(
     preset_user_id: int,
     dto: UpdatePresetUserDTO,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_token),
+    payload: Payload = Depends(verify_token),
 ):
-    return await update_preset_user_service(preset_user_id, dto, db)
+    return await update_preset_user_service(preset_user_id, dto, db, payload)
 
 
 @preset_user_router.delete("/{preset_user_id}", status_code=204)
 def delete_preset_user_route(
     preset_user_id: int,
     db: Session = Depends(get_db),
-    _: dict = Depends(verify_token),
+    payload: Payload = Depends(verify_token),
 ):
-    return delete_preset_user_service(preset_user_id, db)
+    return delete_preset_user_service(preset_user_id, db, payload)

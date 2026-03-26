@@ -4,15 +4,19 @@ from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
 from shared.entities.lol_stat import LolStat
+from shared.entities.user import User
 from shared.utils.exception import service_exception_handler
+
+from ..utils.token import Payload
 
 
 @service_exception_handler
-async def get_lol_stat(user_id: int, db: Session) -> LolStatDto:
+async def get_lol_stat(user_id: int, db: Session, payload: Payload) -> LolStatDto:
     lol_stat = (
         db.query(LolStat)
+        .join(User, LolStat.user_id == User.user_id)
         .options(joinedload(LolStat.champions))
-        .filter(LolStat.user_id == user_id)
+        .filter(LolStat.user_id == user_id, User.manager_id == payload.manager_id)
         .first()
     )
 

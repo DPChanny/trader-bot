@@ -14,6 +14,7 @@ from shared.utils.exception import service_exception_handler
 
 from ..utils.bot import get_profile
 from ..utils.bucket import delete_profile, upload_profile
+from ..utils.token import Payload
 
 
 async def _upload_profile(bucket: Any, user_id: int, discord_id: str):
@@ -23,8 +24,14 @@ async def _upload_profile(bucket: Any, user_id: int, discord_id: str):
 
 
 @service_exception_handler
-async def get_user_detail_service(user_id: int, db: Session) -> UserDTO:
-    user = db.query(User).filter(User.user_id == user_id).first()
+async def get_user_detail_service(
+    user_id: int, db: Session, payload: Payload
+) -> UserDTO:
+    user = (
+        db.query(User)
+        .filter(User.user_id == user_id, User.manager_id == payload.manager_id)
+        .first()
+    )
 
     if user is None:
         logger.warning(f"User not found: id={user_id}")
@@ -34,8 +41,11 @@ async def get_user_detail_service(user_id: int, db: Session) -> UserDTO:
 
 
 @service_exception_handler
-async def add_user_service(dto: AddUserDTO, db: Session, bucket: Any) -> UserDTO:
+async def add_user_service(
+    dto: AddUserDTO, db: Session, bucket: Any, payload: Payload
+) -> UserDTO:
     user = User(
+        manager_id=payload.manager_id,
         alias=dto.alias,
         riot_id=dto.riot_id,
         discord_id=dto.discord_id,
@@ -54,16 +64,20 @@ async def add_user_service(dto: AddUserDTO, db: Session, bucket: Any) -> UserDTO
 
 
 @service_exception_handler
-async def get_user_list_service(db: Session) -> list[UserDTO]:
-    users = db.query(User).all()
+async def get_user_list_service(db: Session, payload: Payload) -> list[UserDTO]:
+    users = db.query(User).filter(User.manager_id == payload.manager_id).all()
     return [UserDTO.model_validate(u) for u in users]
 
 
 @service_exception_handler
 async def update_user_service(
-    user_id: int, dto: UpdateUserDTO, db: Session, bucket: Any
+    user_id: int, dto: UpdateUserDTO, db: Session, bucket: Any, payload: Payload
 ) -> UserDTO:
-    user = db.query(User).filter(User.user_id == user_id).first()
+    user = (
+        db.query(User)
+        .filter(User.user_id == user_id, User.manager_id == payload.manager_id)
+        .first()
+    )
     if user is None:
         logger.warning(f"User not found: id={user_id}")
         raise HTTPException(status_code=404, detail="User not found")
@@ -91,8 +105,14 @@ async def update_user_service(
 
 
 @service_exception_handler
-async def update_profile_service(user_id: int, db: Session, bucket: Any) -> UserDTO:
-    user = db.query(User).filter(User.user_id == user_id).first()
+async def update_profile_service(
+    user_id: int, db: Session, bucket: Any, payload: Payload
+) -> UserDTO:
+    user = (
+        db.query(User)
+        .filter(User.user_id == user_id, User.manager_id == payload.manager_id)
+        .first()
+    )
     if user is None:
         logger.warning(f"User not found: id={user_id}")
         raise HTTPException(status_code=404, detail="User not found")
@@ -107,8 +127,14 @@ async def update_profile_service(user_id: int, db: Session, bucket: Any) -> User
 
 
 @service_exception_handler
-async def delete_user_service(user_id: int, db: Session, bucket: Any) -> None:
-    user = db.query(User).filter(User.user_id == user_id).first()
+async def delete_user_service(
+    user_id: int, db: Session, bucket: Any, payload: Payload
+) -> None:
+    user = (
+        db.query(User)
+        .filter(User.user_id == user_id, User.manager_id == payload.manager_id)
+        .first()
+    )
     if user is None:
         logger.warning(f"User not found: id={user_id}")
         raise HTTPException(status_code=404, detail="User not found")
