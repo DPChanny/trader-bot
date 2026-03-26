@@ -23,7 +23,6 @@ class MemberDTO(BaseDto):
 
 
 class AddMemberDTO(BaseDto):
-    guild_id: int
     alias: NullableStr = None
     riot_id: NullableStr = None
     discord_id: NullableStr = None

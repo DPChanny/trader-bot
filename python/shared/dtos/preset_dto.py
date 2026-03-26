@@ -24,7 +24,6 @@ class PresetDetailDTO(PresetDTO):
 
 
 class AddPresetDTO(BaseDto):
-    guild_id: int
     name: str
     points: int
     time: int

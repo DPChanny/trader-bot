@@ -21,7 +21,6 @@ class PresetMemberDetailDTO(PresetMemberDTO):
 
 
 class AddPresetMemberDTO(BaseDto):
-    preset_id: int
     member_id: int
     tier_id: int | None = None
     is_leader: bool = False

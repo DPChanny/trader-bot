@@ -22,61 +22,68 @@ from ..utils.bucket import get_bucket
 from ..utils.token import Payload, verify_token
 
 
-member_router = APIRouter(prefix="/member", tags=["member"])
+member_router = APIRouter(prefix="/guild/{guild_id}/member", tags=["member"])
 
 
 @member_router.post("", response_model=MemberDTO)
 async def add_member_route(
+    guild_id: int,
     dto: AddMemberDTO,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
     bucket: Any = Depends(get_bucket),
 ):
-    return await add_member_service(dto, db, bucket, payload)
+    return await add_member_service(guild_id, dto, db, bucket, payload)
 
 
 @member_router.get("", response_model=list[MemberDTO])
 async def get_member_list_route(
+    guild_id: int,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
-    return await get_member_list_service(db, payload)
+    return await get_member_list_service(guild_id, db, payload)
 
 
 @member_router.get("/{member_id}", response_model=MemberDTO)
 async def get_member_detail_route(
+    guild_id: int,
     member_id: int,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
-    return await get_member_detail_service(member_id, db, payload)
+    return await get_member_detail_service(guild_id, member_id, db, payload)
 
 
 @member_router.patch("/{member_id}", response_model=MemberDTO)
 async def update_member_route(
+    guild_id: int,
     member_id: int,
     dto: UpdateMemberDTO,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
     bucket: Any = Depends(get_bucket),
 ):
-    return await update_member_service(member_id, dto, db, bucket, payload)
+    return await update_member_service(guild_id, member_id, dto, db, bucket, payload)
 
 
 @member_router.post("/{member_id}/profile", response_model=MemberDTO)
 async def update_profile_route(
+    guild_id: int,
     member_id: int,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
     bucket: Any = Depends(get_bucket),
 ):
-    return await update_profile_service(member_id, db, bucket, payload)
+    return await update_profile_service(guild_id, member_id, db, bucket, payload)
 
 
 @member_router.delete("/{member_id}", status_code=204)
 async def delete_member_route(
+    guild_id: int,
     member_id: int,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
+    bucket: Any = Depends(get_bucket),
 ):
-    return await delete_member_service(member_id, db, payload)
+    return await delete_member_service(guild_id, member_id, db, bucket, payload)

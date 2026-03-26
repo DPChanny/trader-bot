@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 
 from shared.dtos.preset_member_position_dto import (
     AddPresetMemberPositionDTO,
-    DeletePresetMemberPositionDTO,
     PresetMemberPositionDTO,
 )
 from shared.utils.database import get_db
@@ -16,23 +15,34 @@ from ..utils.token import Payload, verify_token
 
 
 preset_member_position_router = APIRouter(
-    prefix="/preset_member_position", tags=["preset_member_position"]
+    prefix="/guild/{guild_id}/preset/{preset_id}/preset_member/{preset_member_id}/position",
+    tags=["preset_member_position"],
 )
 
 
 @preset_member_position_router.post("", response_model=PresetMemberPositionDTO)
 def add_preset_member_position_route(
+    guild_id: int,
+    preset_id: int,
+    preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
-    return add_preset_member_position_service(dto, db, payload)
+    return add_preset_member_position_service(
+        guild_id, preset_id, preset_member_id, dto, db, payload
+    )
 
 
-@preset_member_position_router.delete("", status_code=204)
+@preset_member_position_router.delete("/{preset_member_position_id}", status_code=204)
 def delete_preset_member_position_route(
-    dto: DeletePresetMemberPositionDTO,
+    guild_id: int,
+    preset_id: int,
+    preset_member_id: int,
+    preset_member_position_id: int,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
-    return delete_preset_member_position_service(dto, db, payload)
+    return delete_preset_member_position_service(
+        guild_id, preset_id, preset_member_id, preset_member_position_id, db, payload
+    )

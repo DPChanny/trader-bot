@@ -62,7 +62,7 @@ def add_manager_service(
 @service_exception_handler
 def update_manager_service(
     guild_id: int,
-    target_user_id: int,
+    user_id: int,
     dto: UpdateManagerDTO,
     db: Session,
     payload: Payload,
@@ -73,7 +73,7 @@ def update_manager_service(
         db.query(Manager)
         .filter(
             Manager.guild_id == guild_id,
-            Manager.user_id == target_user_id,
+            Manager.user_id == user_id,
         )
         .first()
     )
@@ -85,15 +85,15 @@ def update_manager_service(
 
     db.commit()
     db.refresh(manager)
-    logger.info(f"Manager updated: guild_id={guild_id}, user_id={target_user_id}")
+    logger.info(f"Manager updated: guild_id={guild_id}, user_id={user_id}")
     return ManagerDTO.model_validate(manager)
 
 
 @service_exception_handler
 def remove_manager_service(
-    guild_id: int, target_user_id: int, db: Session, payload: Payload
+    guild_id: int, user_id: int, db: Session, payload: Payload
 ) -> None:
-    is_self = target_user_id == payload.user_id
+    is_self = user_id == payload.user_id
 
     if not is_self:
         caller_role = verify_role(guild_id, payload.user_id, Role.ADMIN, db)
@@ -102,7 +102,7 @@ def remove_manager_service(
         db.query(Manager)
         .filter(
             Manager.guild_id == guild_id,
-            Manager.user_id == target_user_id,
+            Manager.user_id == user_id,
         )
         .first()
     )
@@ -117,4 +117,4 @@ def remove_manager_service(
 
     db.delete(manager)
     db.commit()
-    logger.info(f"Manager removed: guild_id={guild_id}, user_id={target_user_id}")
+    logger.info(f"Manager removed: guild_id={guild_id}, user_id={user_id}")

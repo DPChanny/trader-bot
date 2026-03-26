@@ -8,28 +8,30 @@ from shared.dtos.tier_dto import (
     UpdateTierDTO,
 )
 from shared.entities.manager import Role
-from shared.entities.preset import Preset
 from shared.entities.tier import Tier
 from shared.utils.exception import service_exception_handler
 
-from ..utils.role import get_guild_ids, verify_role
+from ..utils.role import verify_role
 from ..utils.token import Payload
 
 
 @service_exception_handler
-def get_tier_list_service(db: Session, payload: Payload) -> list[TierDTO]:
-    guild_ids = get_guild_ids(payload.user_id, db)
-    tiers = db.query(Tier).join(Preset).filter(Preset.guild_id.in_(guild_ids)).all()
+def get_tier_list_service(
+    guild_id: int, preset_id: int, db: Session, payload: Payload
+) -> list[TierDTO]:
+    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    tiers = db.query(Tier).filter(Tier.preset_id == preset_id).all()
     return [TierDTO.model_validate(t) for t in tiers]
 
 
 @service_exception_handler
-def get_tier_detail_service(tier_id: int, db: Session, payload: Payload) -> TierDTO:
-    guild_ids = get_guild_ids(payload.user_id, db)
+def get_tier_detail_service(
+    guild_id: int, preset_id: int, tier_id: int, db: Session, payload: Payload
+) -> TierDTO:
+    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
     tier = (
         db.query(Tier)
-        .join(Preset)
-        .filter(Tier.tier_id == tier_id, Preset.guild_id.in_(guild_ids))
+        .filter(Tier.tier_id == tier_id, Tier.preset_id == preset_id)
         .first()
     )
 
@@ -41,22 +43,12 @@ def get_tier_detail_service(tier_id: int, db: Session, payload: Payload) -> Tier
 
 
 @service_exception_handler
-def add_tier_service(dto: AddTierDTO, db: Session, payload: Payload) -> TierDTO:
-    guild_ids = get_guild_ids(payload.user_id, db)
-    preset = (
-        db.query(Preset)
-        .filter(
-            Preset.preset_id == dto.preset_id,
-            Preset.guild_id.in_(guild_ids),
-        )
-        .first()
-    )
-    if preset is None:
-        raise HTTPException(status_code=404, detail="Preset not found")
+def add_tier_service(
+    guild_id: int, preset_id: int, dto: AddTierDTO, db: Session, payload: Payload
+) -> TierDTO:
+    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
 
-    verify_role(preset.guild_id, payload.user_id, Role.EDITOR, db)
-
-    tier = Tier(preset_id=dto.preset_id, name=dto.name)
+    tier = Tier(preset_id=preset_id, name=dto.name)
     db.add(tier)
     db.commit()
     db.refresh(tier)
@@ -66,20 +58,22 @@ def add_tier_service(dto: AddTierDTO, db: Session, payload: Payload) -> TierDTO:
 
 @service_exception_handler
 def update_tier_service(
-    tier_id: int, dto: UpdateTierDTO, db: Session, payload: Payload
+    guild_id: int,
+    preset_id: int,
+    tier_id: int,
+    dto: UpdateTierDTO,
+    db: Session,
+    payload: Payload,
 ) -> TierDTO:
-    guild_ids = get_guild_ids(payload.user_id, db)
+    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     tier = (
         db.query(Tier)
-        .join(Preset)
-        .filter(Tier.tier_id == tier_id, Preset.guild_id.in_(guild_ids))
+        .filter(Tier.tier_id == tier_id, Tier.preset_id == preset_id)
         .first()
     )
     if tier is None:
         logger.warning(f"Tier not found: id={tier_id}")
         raise HTTPException(status_code=404, detail="Tier not found")
-
-    verify_role(tier.preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(tier, key, value)
@@ -92,19 +86,18 @@ def update_tier_service(
 
 
 @service_exception_handler
-def delete_tier_service(tier_id: int, db: Session, payload: Payload) -> None:
-    guild_ids = get_guild_ids(payload.user_id, db)
+def delete_tier_service(
+    guild_id: int, preset_id: int, tier_id: int, db: Session, payload: Payload
+) -> None:
+    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     tier = (
         db.query(Tier)
-        .join(Preset)
-        .filter(Tier.tier_id == tier_id, Preset.guild_id.in_(guild_ids))
+        .filter(Tier.tier_id == tier_id, Tier.preset_id == preset_id)
         .first()
     )
     if tier is None:
         logger.warning(f"Tier not found: id={tier_id}")
         raise HTTPException(status_code=404, detail="Tier not found")
-
-    verify_role(tier.preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     db.delete(tier)
     db.commit()
