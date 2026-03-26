@@ -7,20 +7,20 @@ from shared.dtos.position_dto import (
     PositionDTO,
     UpdatePositionDTO,
 )
+from shared.entities.guild_manager import GuildRole
 from shared.entities.position import Position
 from shared.entities.preset import Preset
 from shared.utils.exception import service_exception_handler
 
+from ..utils.guild_permission import get_accessible_guild_ids, require_guild_role
 from ..utils.token import Payload
 
 
 @service_exception_handler
 def get_position_list_service(db: Session, payload: Payload) -> list[PositionDTO]:
+    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
     positions = (
-        db.query(Position)
-        .join(Preset)
-        .filter(Preset.manager_id == payload.manager_id)
-        .all()
+        db.query(Position).join(Preset).filter(Preset.guild_id.in_(guild_ids)).all()
     )
     return [PositionDTO.model_validate(p) for p in positions]
 
@@ -29,12 +29,13 @@ def get_position_list_service(db: Session, payload: Payload) -> list[PositionDTO
 def get_position_detail_service(
     position_id: int, db: Session, payload: Payload
 ) -> PositionDTO:
+    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
     position = (
         db.query(Position)
         .join(Preset)
         .filter(
             Position.position_id == position_id,
-            Preset.manager_id == payload.manager_id,
+            Preset.guild_id.in_(guild_ids),
         )
         .first()
     )
@@ -50,16 +51,19 @@ def get_position_detail_service(
 def add_position_service(
     dto: AddPositionDTO, db: Session, payload: Payload
 ) -> PositionDTO:
+    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
     preset = (
         db.query(Preset)
         .filter(
             Preset.preset_id == dto.preset_id,
-            Preset.manager_id == payload.manager_id,
+            Preset.guild_id.in_(guild_ids),
         )
         .first()
     )
     if preset is None:
         raise HTTPException(status_code=404, detail="Preset not found")
+
+    require_guild_role(preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
 
     position = Position(
         preset_id=dto.preset_id,
@@ -77,18 +81,23 @@ def add_position_service(
 def update_position_service(
     position_id: int, dto: UpdatePositionDTO, db: Session, payload: Payload
 ) -> PositionDTO:
+    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
     position = (
         db.query(Position)
         .join(Preset)
         .filter(
             Position.position_id == position_id,
-            Preset.manager_id == payload.manager_id,
+            Preset.guild_id.in_(guild_ids),
         )
         .first()
     )
     if position is None:
         logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
+
+    require_guild_role(
+        position.preset.guild_id, payload.manager_id, GuildRole.EDITOR, db
+    )
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(position, key, value)
@@ -102,18 +111,23 @@ def update_position_service(
 
 @service_exception_handler
 def delete_position_service(position_id: int, db: Session, payload: Payload) -> None:
+    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
     position = (
         db.query(Position)
         .join(Preset)
         .filter(
             Position.position_id == position_id,
-            Preset.manager_id == payload.manager_id,
+            Preset.guild_id.in_(guild_ids),
         )
         .first()
     )
     if position is None:
         logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
+
+    require_guild_role(
+        position.preset.guild_id, payload.manager_id, GuildRole.EDITOR, db
+    )
 
     db.delete(position)
     db.commit()

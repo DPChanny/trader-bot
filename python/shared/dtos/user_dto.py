@@ -5,6 +5,7 @@ from . import BaseDto, NullableStr
 
 class UserDTO(BaseDto):
     user_id: int
+    guild_id: int
     alias: str | None
     riot_id: str | None
     discord_id: str | None
@@ -22,6 +23,7 @@ class UserDTO(BaseDto):
 
 
 class AddUserDTO(BaseDto):
+    guild_id: int
     alias: NullableStr = None
     riot_id: NullableStr = None
     discord_id: NullableStr = None

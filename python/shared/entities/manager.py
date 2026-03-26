@@ -9,8 +9,7 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .preset import Preset
-    from .user import User
+    from .guild_manager import GuildManager
 
 
 class Manager(BaseEntity):
@@ -21,9 +20,6 @@ class Manager(BaseEntity):
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     refresh_token: Mapped[str | None] = mapped_column(String(512), nullable=True)
 
-    presets: Mapped[list[Preset]] = relationship(
-        "Preset", back_populates="manager", cascade="all, delete-orphan"
-    )
-    users: Mapped[list[User]] = relationship(
-        "User", back_populates="manager", cascade="all, delete-orphan"
+    guild_managers: Mapped[list[GuildManager]] = relationship(
+        "GuildManager", back_populates="manager", cascade="all, delete-orphan"
     )

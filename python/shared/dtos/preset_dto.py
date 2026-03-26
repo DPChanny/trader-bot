@@ -7,6 +7,7 @@ from .tier_dto import TierDTO
 
 class PresetDTO(BaseDto):
     preset_id: int
+    guild_id: int
     name: str
     points: int
     time: int
@@ -23,6 +24,7 @@ class PresetDetailDTO(PresetDTO):
 
 
 class AddPresetDTO(BaseDto):
+    guild_id: int
     name: str
     points: int
     time: int

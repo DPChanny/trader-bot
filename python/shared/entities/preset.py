@@ -10,7 +10,7 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .manager import Manager
+    from .guild import Guild
     from .position import Position
     from .preset_user import PresetUser
     from .tier import Tier
@@ -26,8 +26,8 @@ class Preset(BaseEntity):
     __tablename__ = "preset"
 
     preset_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    manager_id: Mapped[int] = mapped_column(
-        ForeignKey("manager.manager_id", ondelete="CASCADE"),
+    guild_id: Mapped[int] = mapped_column(
+        ForeignKey("guild.guild_id", ondelete="CASCADE"),
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(256), nullable=False)
@@ -38,7 +38,7 @@ class Preset(BaseEntity):
         Enum(Statistics), nullable=False, default=Statistics.NONE
     )
 
-    manager: Mapped[Manager] = relationship("Manager", back_populates="presets")
+    guild: Mapped[Guild] = relationship("Guild", back_populates="presets")
 
     tiers: Mapped[list[Tier]] = relationship(
         "Tier",

@@ -5,6 +5,8 @@ class BaseEntity(DeclarativeBase):
     pass
 
 
+from .guild import Guild
+from .guild_manager import GuildManager, GuildRole, guild_role_gte
 from .lol_stat import Champion, LolStat
 from .manager import Manager
 from .position import Position
@@ -20,6 +22,9 @@ __all__ = [
     "Agent",
     "BaseEntity",
     "Champion",
+    "Guild",
+    "GuildManager",
+    "GuildRole",
     "LolStat",
     "Manager",
     "Position",
@@ -30,4 +35,5 @@ __all__ = [
     "Tier",
     "User",
     "ValStat",
+    "guild_role_gte",
 ]

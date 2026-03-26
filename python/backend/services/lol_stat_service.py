@@ -7,17 +7,43 @@ from shared.entities.lol_stat import LolStat
 from shared.entities.user import User
 from shared.utils.exception import service_exception_handler
 
+from ..utils.guild_permission import get_accessible_guild_ids
 from ..utils.token import Payload
 
 
 @service_exception_handler
 async def get_lol_stat(user_id: int, db: Session, payload: Payload) -> LolStatDto:
+    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
     lol_stat = (
         db.query(LolStat)
         .join(User, LolStat.user_id == User.user_id)
         .options(joinedload(LolStat.champions))
-        .filter(LolStat.user_id == user_id, User.manager_id == payload.manager_id)
+        .filter(LolStat.user_id == user_id, User.guild_id.in_(guild_ids))
         .first()
+    )
+
+    if lol_stat is None:
+        logger.warning(f"LolStat not found: id={user_id}")
+        raise HTTPException(
+            status_code=404,
+            detail="LolStat not found",
+        )
+
+    champions = [
+        ChampionDto(
+            name=champ.name,
+            icon_url=champ.icon_url,
+            games=champ.games,
+            win_rate=champ.win_rate,
+        )
+        for champ in sorted(lol_stat.champions, key=lambda x: x.rank_order)
+    ]
+
+    return LolStatDto(
+        tier=lol_stat.tier,
+        rank=lol_stat.rank,
+        lp=lol_stat.lp,
+        top_champions=champions,
     )
 
     if lol_stat is None:
