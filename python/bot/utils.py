@@ -6,7 +6,7 @@ from discord.ext import commands
 from fastapi import HTTPException
 from loguru import logger
 
-from shared.env import get_bot_token
+from shared.utils.env import get_bot_token
 
 
 _bot: discord.Client | None = None

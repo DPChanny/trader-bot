@@ -8,7 +8,7 @@ from shared.dtos.position_dto import (
     UpdatePositionDTO,
 )
 from shared.entities.position import Position
-from shared.exception import service_exception_handler
+from shared.utils.exception import service_exception_handler
 
 
 @service_exception_handler

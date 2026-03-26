@@ -11,7 +11,7 @@ from shared.dtos.preset_dto import (
 from shared.entities.preset import Preset
 from shared.entities.preset_user import PresetUser
 from shared.entities.preset_user_position import PresetUserPosition
-from shared.exception import service_exception_handler
+from shared.utils.exception import service_exception_handler
 
 
 def _query_preset_detail(preset_id: int, db: Session) -> Preset | None:

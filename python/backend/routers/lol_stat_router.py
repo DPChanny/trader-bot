@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from shared.database import get_db
 from shared.dtos.lol_stat_dto import LolStatDto
+from shared.utils.database import get_db
 
 from ..services.lol_stat_service import get_lol_stat
 

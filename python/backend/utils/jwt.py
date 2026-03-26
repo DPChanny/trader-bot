@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 import jwt
 from loguru import logger
 
-from shared.env import get_jwt_algorithm, get_jwt_secret_key
+from shared.utils.env import get_jwt_algorithm, get_jwt_secret_key
 
 
 JWT_EXPIRATION_HOURS = 24

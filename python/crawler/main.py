@@ -2,13 +2,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from loguru import logger
 
-from shared.database import get_db, setup_engine
 from shared.entities.user import User
-from shared.log import setup_logging
+from shared.utils.database import get_db, start_db
+from shared.utils.log import setup_logging
 
-from .crawler import close_driver, create_driver
 from .services.lol_stat_service import crawl_lol_stat, save_lol_stat_to_db
 from .services.val_stat_service import crawl_val_stat, save_val_stat_to_db
+from .utils import close_driver, create_driver
 
 
 setup_logging()
@@ -54,7 +54,7 @@ def crawl_user(user_id: int, game_name: str, tag_line: str):
 def main():
     logger.info("=== Crawler Starting ===")
 
-    setup_engine()
+    start_db()
 
     logger.info("Fetching users from database...")
     db = next(get_db())

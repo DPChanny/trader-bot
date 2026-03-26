@@ -10,7 +10,7 @@ from shared.dtos.user_dto import (
     UserDTO,
 )
 from shared.entities.user import User
-from shared.exception import service_exception_handler
+from shared.utils.exception import service_exception_handler
 
 from ..utils.bot import get_profile
 from ..utils.bucket import delete_profile, upload_profile

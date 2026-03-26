@@ -4,7 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-load_dotenv(Path(__file__).parent.parent / ".env")
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 
 def get_app_origin() -> str:
@@ -99,4 +99,4 @@ def get_bot_origin() -> str:
 
 
 def get_bot_endpoint() -> str:
-    return f"{get_bot_origin()}/bot"
+    return os.getenv("BOT_ENDPOINT", get_bot_origin())

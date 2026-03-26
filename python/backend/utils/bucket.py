@@ -4,7 +4,7 @@ from typing import Any
 import aioboto3
 from loguru import logger
 
-from shared.env import (
+from shared.utils.env import (
     get_aws_access_key,
     get_aws_bucket_name,
     get_aws_region,

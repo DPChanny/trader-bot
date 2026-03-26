@@ -3,12 +3,12 @@ from typing import Any
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from shared.database import get_db
 from shared.dtos.user_dto import (
     AddUserDTO,
     UpdateUserDTO,
     UserDTO,
 )
+from shared.utils.database import get_db
 
 from ..services.user_service import (
     add_user_service,

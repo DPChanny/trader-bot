@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 
+from shared.utils.types import NullableStr
+
 from ..entities.preset import Statistics
-from .base_dto import NullableStr
 from .position_dto import PositionDTO
 from .preset_user_dto import PresetUserDetailDTO
 from .tier_dto import TierDTO

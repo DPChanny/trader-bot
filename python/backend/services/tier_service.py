@@ -8,7 +8,7 @@ from shared.dtos.tier_dto import (
     UpdateTierDTO,
 )
 from shared.entities.tier import Tier
-from shared.exception import service_exception_handler
+from shared.utils.exception import service_exception_handler
 
 
 @service_exception_handler
@@ -39,9 +39,7 @@ def get_tier_list_service(db: Session) -> list[TierDTO]:
 
 
 @service_exception_handler
-def update_tier_service(
-    tier_id: int, dto: UpdateTierDTO, db: Session
-) -> TierDTO:
+def update_tier_service(tier_id: int, dto: UpdateTierDTO, db: Session) -> TierDTO:
     tier = db.query(Tier).filter(Tier.tier_id == tier_id).first()
     if tier is None:
         logger.warning(f"Tier not found: id={tier_id}")

@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from shared.database import get_db
 from shared.dtos.preset_dto import (
     AddPresetDTO,
     PresetDetailDTO,
     PresetDTO,
     UpdatePresetDTO,
 )
+from shared.utils.database import get_db
 
 from ..services.preset_service import (
     add_preset_service,

@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from shared.database import get_db
 from shared.dtos.position_dto import (
     AddPositionDTO,
     PositionDTO,
     UpdatePositionDTO,
 )
+from shared.utils.database import get_db
 
 from ..services.position_service import (
     add_position_service,

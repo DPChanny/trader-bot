@@ -1,6 +1,6 @@
 from pydantic import BaseModel, computed_field
 
-from .base_dto import NullableStr
+from shared.utils.types import NullableStr
 
 
 class UserDTO(BaseModel):

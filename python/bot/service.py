@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 from loguru import logger
 
 from shared.dtos.bot_dto import InviteDTO
-from shared.exception import service_exception_handler
+from shared.utils.exception import service_exception_handler
 
 from .utils import get_bot
 

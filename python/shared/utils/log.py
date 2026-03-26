@@ -11,8 +11,6 @@ from starlette.responses import Response
 
 
 class InterceptHandler(logging.Handler):
-    """Redirect all stdlib logging calls to loguru."""
-
     def emit(self, record: logging.LogRecord) -> None:
         try:
             level = logger.level(record.levelname).name

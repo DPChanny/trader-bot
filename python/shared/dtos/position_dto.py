@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from .base_dto import NullableStr
+from shared.utils.types import NullableStr
 
 
 class PositionDTO(BaseModel):

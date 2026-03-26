@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from shared.database import get_db
 from shared.dtos.tier_dto import (
     AddTierDTO,
     TierDTO,
     UpdateTierDTO,
 )
+from shared.utils.database import get_db
 
 from ..services.tier_service import (
     add_tier_service,

@@ -9,7 +9,7 @@ from shared.dtos.preset_user_position_dto import (
     PresetUserPositionDTO,
 )
 from shared.entities.preset_user_position import PresetUserPosition
-from shared.exception import service_exception_handler
+from shared.utils.exception import service_exception_handler
 
 
 @service_exception_handler

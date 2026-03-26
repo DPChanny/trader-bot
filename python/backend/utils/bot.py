@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from loguru import logger
 
 from shared.dtos.bot_dto import InviteDTO
-from shared.env import get_bot_endpoint
+from shared.utils.env import get_bot_endpoint
 
 
 def _raise(e: httpx.HTTPStatusError | httpx.RequestError) -> None:

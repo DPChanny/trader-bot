@@ -10,7 +10,7 @@ from shared.dtos.preset_user_dto import (
 )
 from shared.entities.preset_user import PresetUser
 from shared.entities.preset_user_position import PresetUserPosition
-from shared.exception import service_exception_handler
+from shared.utils.exception import service_exception_handler
 
 
 def _query_preset_user_detail(preset_user_id: int, db: Session) -> PresetUser | None:
