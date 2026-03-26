@@ -21,9 +21,9 @@ from ..utils.token import Payload
 
 
 def _query_preset_member_detail(
-    preset_member_id: int, db: Session
+    preset_member_id: int, db: Session, guild_id: int | None = None
 ) -> PresetMember | None:
-    return (
+    q = (
         db.query(PresetMember)
         .options(
             joinedload(PresetMember.member),
@@ -33,8 +33,10 @@ def _query_preset_member_detail(
             ),
         )
         .filter(PresetMember.preset_member_id == preset_member_id)
-        .first()
     )
+    if guild_id is not None:
+        q = q.join(Preset).filter(Preset.guild_id == guild_id)
+    return q.first()
 
 
 @service_exception_handler
@@ -42,21 +44,12 @@ async def get_preset_member_detail_service(
     guild_id: int, preset_member_id: int, db: Session, payload: Payload
 ) -> PresetMemberDetailDTO:
     verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    ownership = (
-        db.query(PresetMember)
-        .join(Preset)
-        .filter(
-            PresetMember.preset_member_id == preset_member_id,
-            Preset.guild_id == guild_id,
-        )
-        .first()
-    )
+    preset_member = _query_preset_member_detail(preset_member_id, db, guild_id)
 
-    if ownership is None:
+    if preset_member is None:
         logger.warning(f"PresetMember not found: id={preset_member_id}")
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
-    preset_member = _query_preset_member_detail(preset_member_id, db)
     return PresetMemberDetailDTO.model_validate(preset_member)
 
 
