@@ -6,7 +6,7 @@ from shared.entities.manager import Manager
 from shared.utils.exception import service_exception_handler
 
 from ..utils.discord import exchange_code, get_user
-from ..utils.token import create_token, refresh_token
+from ..utils.token import create_token
 
 
 @service_exception_handler
@@ -38,5 +38,6 @@ async def get_token_service(dto: LoginDto, db: Session) -> TokenDto:
 
 
 @service_exception_handler
-def refresh_token_service(token: str) -> TokenDto:
-    return TokenDto(token=refresh_token(token))
+def refresh_token_service(payload: dict) -> TokenDto:
+    payload = {k: v for k, v in payload.items() if k not in ("exp", "iat")}
+    return TokenDto(token=create_token(payload))

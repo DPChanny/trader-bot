@@ -1,14 +1,13 @@
 from datetime import UTC, datetime, timedelta
 
 import jwt
-from fastapi import Header, HTTPException, Response
+from fastapi import Header, HTTPException
 from loguru import logger
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 
 
 JWT_EXPIRATION_HOURS = 24
-JWT_REFRESH_THRESHOLD_HOURS = 6
 
 
 def create_token(payload: dict, expiration_hours: int = JWT_EXPIRATION_HOURS) -> str:
@@ -51,46 +50,7 @@ def is_token_expired(token: str) -> bool:
         raise
 
 
-def should_refresh_token(token: str) -> bool:
-    try:
-        payload = jwt.decode(
-            token,
-            get_jwt_secret(),
-            algorithms=[get_jwt_algorithm()],
-            options={"verify_exp": False},
-        )
-        exp_timestamp = payload.get("exp")
-        if not exp_timestamp:
-            return True
-
-        exp_datetime = datetime.fromtimestamp(exp_timestamp, tz=UTC)
-        time_remaining = exp_datetime - datetime.now(UTC)
-
-        return time_remaining < timedelta(hours=JWT_REFRESH_THRESHOLD_HOURS)
-    except Exception:
-        return True
-
-
-def refresh_token(token: str) -> str:
-    try:
-        payload = jwt.decode(
-            token,
-            get_jwt_secret(),
-            algorithms=[get_jwt_algorithm()],
-            options={"verify_exp": False},
-        )
-
-        payload.pop("exp", None)
-        payload.pop("iat", None)
-
-        return create_token(payload)
-    except jwt.InvalidTokenError as e:
-        raise HTTPException(status_code=401, detail="Token refresh failed") from e
-
-
-async def verify_token(
-    authorization: str = Header(None), response: Response = None
-) -> dict:
+async def verify_token(authorization: str = Header(None)) -> dict:
     if not authorization:
         logger.warning("Auth failed: reason=missing_header")
         raise HTTPException(status_code=401, detail="Auth failed")
@@ -107,13 +67,6 @@ async def verify_token(
         if role != "manager":
             logger.warning(f"Auth failed: reason=non_manager, role={role}")
             raise HTTPException(status_code=403, detail="Auth failed")
-
-        if response and should_refresh_token(token):
-            try:
-                new_token = refresh_token(token)
-                response.headers["X-New-Token"] = new_token
-            except Exception:
-                pass
 
         return payload
     except HTTPException:
