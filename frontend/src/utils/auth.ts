@@ -51,13 +51,16 @@ export async function refreshAuthToken(): Promise<boolean> {
   }
 
   try {
-    const response = await fetch("http://localhost:8000/api/admin/refresh", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      "http://localhost:8000/api/admin/token/refresh",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
 
     if (response.ok) {
       const data = await response.json();

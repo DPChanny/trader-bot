@@ -3,18 +3,12 @@ import { ADMIN_API_ENDPOINT } from "@/env";
 import { setAuthToken, getAuthToken } from "@/utils/auth";
 import { throwHttpError } from "@/utils/fetch";
 
-interface AdminLoginResponse {
+interface TokenResponse {
   token: string;
-  message: string;
 }
 
-interface TokenRefreshResponse {
-  token: string;
-  message: string;
-}
-
-async function adminLogin(password: string): Promise<AdminLoginResponse> {
-  const response = await fetch(`${ADMIN_API_ENDPOINT}/login`, {
+async function adminLogin(password: string): Promise<TokenResponse> {
+  const response = await fetch(`${ADMIN_API_ENDPOINT}/token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -27,13 +21,13 @@ async function adminLogin(password: string): Promise<AdminLoginResponse> {
   return response.json();
 }
 
-async function refreshToken(): Promise<TokenRefreshResponse> {
+async function refreshToken(): Promise<TokenResponse> {
   const token = getAuthToken();
   if (!token) {
     throw new Error("No token available");
   }
 
-  const response = await fetch(`${ADMIN_API_ENDPOINT}/refresh`, {
+  const response = await fetch(`${ADMIN_API_ENDPOINT}/token/refresh`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -49,7 +43,7 @@ async function refreshToken(): Promise<TokenRefreshResponse> {
 export function useAdminLogin() {
   return useMutation({
     mutationFn: (password: string) => adminLogin(password),
-    onSuccess: (data: AdminLoginResponse) => {
+    onSuccess: (data: TokenResponse) => {
       setAuthToken(data.token);
     },
   });
@@ -58,7 +52,7 @@ export function useAdminLogin() {
 export function useTokenRefresh() {
   return useMutation({
     mutationFn: () => refreshToken(),
-    onSuccess: (data: TokenRefreshResponse) => {
+    onSuccess: (data: TokenResponse) => {
       setAuthToken(data.token);
     },
   });

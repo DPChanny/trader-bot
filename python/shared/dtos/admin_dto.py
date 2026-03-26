@@ -5,11 +5,5 @@ class AdminLoginRequest(BaseModel):
     password: str
 
 
-class AdminLoginResponse(BaseModel):
+class TokenResponse(BaseModel):
     token: str
-    message: str
-
-
-class TokenRefreshResponse(BaseModel):
-    token: str
-    message: str

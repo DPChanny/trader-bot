@@ -6,7 +6,7 @@ from discord.ext import commands
 from fastapi import HTTPException
 from loguru import logger
 
-from shared.env import get_discord_bot_token
+from shared.env import get_bot_token
 
 
 _bot: discord.Client | None = None
@@ -22,7 +22,7 @@ def get_bot() -> discord.Client:
 async def start_bot() -> None:
     global _bot, _task
 
-    token = get_discord_bot_token()
+    token = get_bot_token()
 
     intents = discord.Intents.default()
     intents.message_content = True
