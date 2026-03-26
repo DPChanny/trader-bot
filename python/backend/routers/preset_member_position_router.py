@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.preset_member_position_dto import (
     AddPresetMemberPositionDTO,
     PresetMemberPositionDTO,
 )
-from shared.utils.database import get_db
+from shared.utils.database import get_async_db
 
 from ..services.preset_member_position_service import (
     add_preset_member_position_service,
@@ -21,22 +21,22 @@ preset_member_position_router = APIRouter(
 
 
 @preset_member_position_router.post("", response_model=PresetMemberPositionDTO)
-def add_preset_member_position_route(
+async def add_preset_member_position_route(
     guild_id: int,
     dto: AddPresetMemberPositionDTO,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
-    return add_preset_member_position_service(guild_id, dto, db, payload)
+    return await add_preset_member_position_service(guild_id, dto, db, payload)
 
 
 @preset_member_position_router.delete("/{preset_member_position_id}", status_code=204)
-def delete_preset_member_position_route(
+async def delete_preset_member_position_route(
     guild_id: int,
     preset_member_position_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
-    return delete_preset_member_position_service(
+    return await delete_preset_member_position_service(
         guild_id, preset_member_position_id, db, payload
     )

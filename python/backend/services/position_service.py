@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.position_dto import (
     AddPositionDTO,
@@ -17,27 +18,28 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-def get_position_list_service(
-    guild_id: int, db: Session, payload: Payload
+async def get_position_list_service(
+    guild_id: int, db: AsyncSession, payload: Payload
 ) -> list[PositionDTO]:
-    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    positions = (
-        db.query(Position).join(Preset).filter(Preset.guild_id == guild_id).all()
+    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    result = await db.execute(
+        select(Position).join(Preset).where(Preset.guild_id == guild_id)
     )
+    positions = result.scalars().all()
     return [PositionDTO.model_validate(p) for p in positions]
 
 
 @service_exception_handler
-def get_position_detail_service(
-    guild_id: int, position_id: int, db: Session, payload: Payload
+async def get_position_detail_service(
+    guild_id: int, position_id: int, db: AsyncSession, payload: Payload
 ) -> PositionDTO:
-    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    position = (
-        db.query(Position)
+    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    result = await db.execute(
+        select(Position)
         .join(Preset)
-        .filter(Position.position_id == position_id, Preset.guild_id == guild_id)
-        .first()
+        .where(Position.position_id == position_id, Preset.guild_id == guild_id)
     )
+    position = result.scalar_one_or_none()
 
     if position is None:
         logger.warning(f"Position not found: id={position_id}")
@@ -47,16 +49,16 @@ def get_position_detail_service(
 
 
 @service_exception_handler
-def add_position_service(
-    guild_id: int, dto: AddPositionDTO, db: Session, payload: Payload
+async def add_position_service(
+    guild_id: int, dto: AddPositionDTO, db: AsyncSession, payload: Payload
 ) -> PositionDTO:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    preset = (
-        db.query(Preset)
-        .filter(Preset.preset_id == dto.preset_id, Preset.guild_id == guild_id)
-        .first()
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(Preset).where(
+            Preset.preset_id == dto.preset_id, Preset.guild_id == guild_id
+        )
     )
-    if preset is None:
+    if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
     position = Position(
@@ -65,27 +67,27 @@ def add_position_service(
         icon_url=dto.icon_url,
     )
     db.add(position)
-    db.commit()
-    db.refresh(position)
+    await db.commit()
+    await db.refresh(position)
     logger.info(f"Position created: id={position.position_id}, name={dto.name}")
     return PositionDTO.model_validate(position)
 
 
 @service_exception_handler
-def update_position_service(
+async def update_position_service(
     guild_id: int,
     position_id: int,
     dto: UpdatePositionDTO,
-    db: Session,
+    db: AsyncSession,
     payload: Payload,
 ) -> PositionDTO:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    position = (
-        db.query(Position)
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(Position)
         .join(Preset)
-        .filter(Position.position_id == position_id, Preset.guild_id == guild_id)
-        .first()
+        .where(Position.position_id == position_id, Preset.guild_id == guild_id)
     )
+    position = result.scalar_one_or_none()
     if position is None:
         logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
@@ -93,28 +95,28 @@ def update_position_service(
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(position, key, value)
 
-    db.commit()
-    db.refresh(position)
+    await db.commit()
+    await db.refresh(position)
     logger.info(f"Position updated: id={position_id}")
 
     return PositionDTO.model_validate(position)
 
 
 @service_exception_handler
-def delete_position_service(
-    guild_id: int, position_id: int, db: Session, payload: Payload
+async def delete_position_service(
+    guild_id: int, position_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    position = (
-        db.query(Position)
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(Position)
         .join(Preset)
-        .filter(Position.position_id == position_id, Preset.guild_id == guild_id)
-        .first()
+        .where(Position.position_id == position_id, Preset.guild_id == guild_id)
     )
+    position = result.scalar_one_or_none()
     if position is None:
         logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
 
-    db.delete(position)
-    db.commit()
+    await db.delete(position)
+    await db.commit()
     logger.info(f"Position deleted: id={position_id}")

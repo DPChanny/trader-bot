@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
-from shared.utils.database import get_db
+from shared.utils.database import get_sync_db
 
 
 PAGE_LOAD_TIMEOUT = 10
@@ -61,7 +61,7 @@ def get_chrome_options() -> Options:
 
 @contextmanager
 def session_context():
-    gen = get_db()
+    gen = get_sync_db()
     db = next(gen)
     try:
         yield db

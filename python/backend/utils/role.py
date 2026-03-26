@@ -1,5 +1,6 @@
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.entities.manager import Manager, Role
 
@@ -11,20 +12,23 @@ _ROLE_ORDER = {
 }
 
 
-def get_guild_ids(user_id: int, db: Session) -> list[int]:
-    managers = db.query(Manager).filter(Manager.user_id == user_id).all()
-    return [m.guild_id for m in managers]
+async def get_guild_ids(user_id: int, db: AsyncSession) -> list[int]:
+    result = await db.execute(
+        select(Manager.guild_id).where(Manager.user_id == user_id)
+    )
+    return list(result.scalars().all())
 
 
-def verify_role(guild_id: int, user_id: int, min_role: Role, db: Session) -> Role:
-    manager = (
-        db.query(Manager)
-        .filter(
+async def verify_role(
+    guild_id: int, user_id: int, min_role: Role, db: AsyncSession
+) -> Role:
+    result = await db.execute(
+        select(Manager).where(
             Manager.guild_id == guild_id,
             Manager.user_id == user_id,
         )
-        .first()
     )
+    manager = result.scalar_one_or_none()
     if manager is None:
         raise HTTPException(status_code=404, detail="Guild not found")
     if not _ROLE_ORDER[manager.role] >= _ROLE_ORDER[min_role]:

@@ -71,13 +71,21 @@ def get_db_name() -> str:
     return os.getenv("DB_NAME", "trader")
 
 
-def get_db_url() -> str:
+def get_db_url_netloc() -> str:
     user = get_db_user()
     password = get_db_password()
     host = get_db_host()
     port = get_db_port()
     name = get_db_name()
-    return f"postgresql://{user}:{password}@{host}:{port}/{name}"
+    return f"{user}:{password}@{host}:{port}/{name}"
+
+
+def get_sync_db_url() -> str:
+    return f"postgresql://{get_db_url_netloc()}"
+
+
+def get_async_db_url() -> str:
+    return f"postgresql+asyncpg://{get_db_url_netloc()}"
 
 
 def get_aws_access_id() -> str:

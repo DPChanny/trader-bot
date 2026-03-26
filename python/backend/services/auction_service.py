@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from shared.dtos.auction_dto import (
     AuctionDTO,
@@ -21,17 +23,17 @@ from ..utils.token import Payload
 
 @service_exception_handler
 async def add_auction_service(
-    preset_id: int, db: Session, payload: Payload
+    preset_id: int, db: AsyncSession, payload: Payload
 ) -> AuctionDTO:
-    guild_ids = get_guild_ids(payload.user_id, db)
-    preset = (
-        db.query(Preset)
+    guild_ids = await get_guild_ids(payload.user_id, db)
+    result = await db.execute(
+        select(Preset)
         .options(
             joinedload(Preset.preset_members).joinedload(PresetMember.member),
         )
-        .filter(Preset.preset_id == preset_id, Preset.guild_id.in_(guild_ids))
-        .first()
+        .where(Preset.preset_id == preset_id, Preset.guild_id.in_(guild_ids))
     )
+    preset = result.unique().scalar_one_or_none()
 
     if preset is None:
         logger.warning(
@@ -39,7 +41,7 @@ async def add_auction_service(
         )
         raise HTTPException(status_code=404, detail="Auction create failed")
 
-    verify_role(preset.guild_id, payload.user_id, Role.EDITOR, db)
+    await verify_role(preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     preset_members = preset.preset_members
     if not preset_members:
@@ -92,7 +94,10 @@ async def add_auction_service(
     for member_id in member_ids:
         if member_id in user_tokens:
             token = user_tokens[member_id]
-            member = db.query(Member).filter(Member.member_id == member_id).first()
+            member_result = await db.execute(
+                select(Member).where(Member.member_id == member_id)
+            )
+            member = member_result.scalar_one_or_none()
 
             if member is None:
                 logger.warning(

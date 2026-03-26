@@ -1,14 +1,14 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member_dto import (
     AddMemberDTO,
     MemberDTO,
     UpdateMemberDTO,
 )
-from shared.utils.database import get_db
+from shared.utils.database import get_async_db
 
 from ..services.member_service import (
     add_member_service,
@@ -29,7 +29,7 @@ member_router = APIRouter(prefix="/guild/{guild_id}/member", tags=["member"])
 async def add_member_route(
     guild_id: int,
     dto: AddMemberDTO,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
     bucket: Any = Depends(get_bucket),
 ):
@@ -39,7 +39,7 @@ async def add_member_route(
 @member_router.get("", response_model=list[MemberDTO])
 async def get_member_list_route(
     guild_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
     return await get_member_list_service(guild_id, db, payload)
@@ -49,7 +49,7 @@ async def get_member_list_route(
 async def get_member_detail_route(
     guild_id: int,
     member_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
     return await get_member_detail_service(guild_id, member_id, db, payload)
@@ -60,7 +60,7 @@ async def update_member_route(
     guild_id: int,
     member_id: int,
     dto: UpdateMemberDTO,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
     bucket: Any = Depends(get_bucket),
 ):
@@ -71,7 +71,7 @@ async def update_member_route(
 async def update_profile_route(
     guild_id: int,
     member_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
     bucket: Any = Depends(get_bucket),
 ):
@@ -82,7 +82,7 @@ async def update_profile_route(
 async def delete_member_route(
     guild_id: int,
     member_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
     bucket: Any = Depends(get_bucket),
 ):

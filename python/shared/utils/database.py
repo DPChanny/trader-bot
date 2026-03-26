@@ -1,33 +1,59 @@
+from collections.abc import AsyncGenerator, Generator
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from sqlalchemy.orm import Session, sessionmaker
 
 from ..entities import BaseEntity
-from .env import get_db_url
+from .env import get_async_db_url, get_sync_db_url
 
 
-_engine: Engine | None = None
-_session_maker: sessionmaker | None = None
+_sync_engine: Engine | None = None
+_async_engine: AsyncEngine | None = None
+_sync_session_maker: sessionmaker | None = None
+_async_session_maker: sessionmaker | None = None
 
 
 def setup_db():
-    global _engine, _session_maker
+    global _sync_engine, _async_engine, _sync_session_maker, _async_session_maker
 
-    _engine = create_engine(
-        get_db_url(),
+    _sync_engine = create_engine(
+        get_sync_db_url(),
         pool_pre_ping=True,
         pool_recycle=3600,
         echo=False,
     )
 
-    _session_maker = sessionmaker(bind=_engine, autocommit=False, autoflush=False)
+    _async_engine = create_async_engine(
+        get_async_db_url(),
+        pool_pre_ping=True,
+        pool_recycle=3600,
+        echo=False,
+    )
 
-    BaseEntity.metadata.create_all(bind=_engine)
+    _sync_session_maker = sessionmaker(
+        bind=_sync_engine, autocommit=False, autoflush=False
+    )
+    _async_session_maker = sessionmaker(
+        bind=_async_engine,
+        class_=AsyncSession,
+        autocommit=False,
+        autoflush=False,
+        expire_on_commit=False,
+    )
+
+    BaseEntity.metadata.create_all(bind=_sync_engine)
 
 
-def get_db():
-    db = _session_maker()
+def get_sync_db() -> Generator[Session, None, None]:
+    db = _sync_session_maker()
     try:
         yield db
     finally:
         db.close()
+
+
+async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
+    async with _async_session_maker() as db:
+        yield db

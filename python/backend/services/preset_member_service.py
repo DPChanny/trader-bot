@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from shared.dtos.preset_member_dto import (
     AddPresetMemberDTO,
@@ -20,11 +22,11 @@ from ..utils.role import verify_role
 from ..utils.token import Payload
 
 
-def _query_preset_member_detail(
-    preset_member_id: int, db: Session, guild_id: int | None = None
+async def _query_preset_member_detail(
+    preset_member_id: int, db: AsyncSession, guild_id: int | None = None
 ) -> PresetMember | None:
-    q = (
-        db.query(PresetMember)
+    stmt = (
+        select(PresetMember)
         .options(
             joinedload(PresetMember.member),
             joinedload(PresetMember.tier),
@@ -32,19 +34,20 @@ def _query_preset_member_detail(
                 PresetMemberPosition.position
             ),
         )
-        .filter(PresetMember.preset_member_id == preset_member_id)
+        .where(PresetMember.preset_member_id == preset_member_id)
     )
     if guild_id is not None:
-        q = q.join(Preset).filter(Preset.guild_id == guild_id)
-    return q.first()
+        stmt = stmt.join(Preset).where(Preset.guild_id == guild_id)
+    result = await db.execute(stmt)
+    return result.unique().scalar_one_or_none()
 
 
 @service_exception_handler
 async def get_preset_member_detail_service(
-    guild_id: int, preset_member_id: int, db: Session, payload: Payload
+    guild_id: int, preset_member_id: int, db: AsyncSession, payload: Payload
 ) -> PresetMemberDetailDTO:
-    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    preset_member = _query_preset_member_detail(preset_member_id, db, guild_id)
+    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    preset_member = await _query_preset_member_detail(preset_member_id, db, guild_id)
 
     if preset_member is None:
         logger.warning(f"PresetMember not found: id={preset_member_id}")
@@ -57,35 +60,34 @@ async def get_preset_member_detail_service(
 async def add_preset_member_service(
     guild_id: int,
     dto: AddPresetMemberDTO,
-    db: Session,
+    db: AsyncSession,
     payload: Payload,
 ) -> PresetMemberDetailDTO:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
 
-    preset = (
-        db.query(Preset)
-        .filter(Preset.preset_id == dto.preset_id, Preset.guild_id == guild_id)
-        .first()
+    result = await db.execute(
+        select(Preset).where(
+            Preset.preset_id == dto.preset_id, Preset.guild_id == guild_id
+        )
     )
-    if preset is None:
+    if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    member = (
-        db.query(Member)
-        .filter(Member.member_id == dto.member_id, Member.guild_id == guild_id)
-        .first()
+    result = await db.execute(
+        select(Member).where(
+            Member.member_id == dto.member_id, Member.guild_id == guild_id
+        )
     )
-    if member is None:
+    if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Member not found")
 
     if dto.tier_id is not None:
-        tier = (
-            db.query(Tier)
+        result = await db.execute(
+            select(Tier)
             .join(Preset, Tier.preset_id == Preset.preset_id)
-            .filter(Tier.tier_id == dto.tier_id, Preset.guild_id == guild_id)
-            .first()
+            .where(Tier.tier_id == dto.tier_id, Preset.guild_id == guild_id)
         )
-        if tier is None:
+        if result.scalar_one_or_none() is None:
             raise HTTPException(status_code=404, detail="Tier not found")
 
     preset_member = PresetMember(
@@ -95,21 +97,24 @@ async def add_preset_member_service(
         is_leader=dto.is_leader,
     )
     db.add(preset_member)
-    db.commit()
+    await db.commit()
     logger.info(f"PresetMember created: id={preset_member.preset_member_id}")
 
-    preset_member = _query_preset_member_detail(preset_member.preset_member_id, db)
+    preset_member = await _query_preset_member_detail(
+        preset_member.preset_member_id, db
+    )
     return PresetMemberDetailDTO.model_validate(preset_member)
 
 
 @service_exception_handler
-def get_preset_member_list_service(
-    guild_id: int, db: Session, payload: Payload
+async def get_preset_member_list_service(
+    guild_id: int, db: AsyncSession, payload: Payload
 ) -> list[PresetMemberDTO]:
-    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    preset_members = (
-        db.query(PresetMember).join(Preset).filter(Preset.guild_id == guild_id).all()
+    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    result = await db.execute(
+        select(PresetMember).join(Preset).where(Preset.guild_id == guild_id)
     )
+    preset_members = result.scalars().all()
     return [PresetMemberDTO.model_validate(pm) for pm in preset_members]
 
 
@@ -118,60 +123,59 @@ async def update_preset_member_service(
     guild_id: int,
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
-    db: Session,
+    db: AsyncSession,
     payload: Payload,
 ) -> PresetMemberDetailDTO:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    preset_member = (
-        db.query(PresetMember)
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(PresetMember)
         .join(Preset)
-        .filter(
+        .where(
             PresetMember.preset_member_id == preset_member_id,
             Preset.guild_id == guild_id,
         )
-        .first()
     )
+    preset_member = result.scalar_one_or_none()
     if preset_member is None:
         logger.warning(f"PresetMember not found: id={preset_member_id}")
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         if key == "tier_id" and value is not None:
-            tier = (
-                db.query(Tier)
+            tier_result = await db.execute(
+                select(Tier)
                 .join(Preset, Tier.preset_id == Preset.preset_id)
-                .filter(Tier.tier_id == value, Preset.guild_id == guild_id)
-                .first()
+                .where(Tier.tier_id == value, Preset.guild_id == guild_id)
             )
-            if tier is None:
+            if tier_result.scalar_one_or_none() is None:
                 raise HTTPException(status_code=404, detail="Tier not found")
         setattr(preset_member, key, value)
 
-    db.commit()
+    await db.commit()
     logger.info(f"PresetMember updated: id={preset_member_id}")
 
-    preset_member = _query_preset_member_detail(preset_member_id, db)
+    preset_member = await _query_preset_member_detail(preset_member_id, db)
     return PresetMemberDetailDTO.model_validate(preset_member)
 
 
 @service_exception_handler
-def delete_preset_member_service(
-    guild_id: int, preset_member_id: int, db: Session, payload: Payload
+async def delete_preset_member_service(
+    guild_id: int, preset_member_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    preset_member = (
-        db.query(PresetMember)
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(PresetMember)
         .join(Preset)
-        .filter(
+        .where(
             PresetMember.preset_member_id == preset_member_id,
             Preset.guild_id == guild_id,
         )
-        .first()
     )
+    preset_member = result.scalar_one_or_none()
     if preset_member is None:
         logger.warning(f"PresetMember not found: id={preset_member_id}")
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
-    db.delete(preset_member)
-    db.commit()
+    await db.delete(preset_member)
+    await db.commit()
     logger.info(f"PresetMember deleted: id={preset_member_id}")

@@ -1,7 +1,8 @@
 from fastapi import HTTPException
 from loguru import logger
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.preset_member_position_dto import (
     AddPresetMemberPositionDTO,
@@ -18,35 +19,31 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-def add_preset_member_position_service(
+async def add_preset_member_position_service(
     guild_id: int,
     dto: AddPresetMemberPositionDTO,
-    db: Session,
+    db: AsyncSession,
     payload: Payload,
 ) -> PresetMemberPositionDTO:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    preset_member = (
-        db.query(PresetMember)
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(PresetMember)
         .join(Preset, PresetMember.preset_id == Preset.preset_id)
-        .filter(
+        .where(
             PresetMember.preset_member_id == dto.preset_member_id,
             Preset.guild_id == guild_id,
         )
-        .first()
     )
-    if preset_member is None:
+    if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
-    existing = (
-        db.query(PresetMemberPosition)
-        .filter(
+    existing_result = await db.execute(
+        select(PresetMemberPosition).where(
             PresetMemberPosition.preset_member_id == dto.preset_member_id,
             PresetMemberPosition.position_id == dto.position_id,
         )
-        .first()
     )
-
-    if existing:
+    if existing_result.scalar_one_or_none() is not None:
         logger.warning(
             f"PresetMemberPosition duplicated: preset_member_id={dto.preset_member_id}, position_id={dto.position_id}"
         )
@@ -61,7 +58,7 @@ def add_preset_member_position_service(
     )
     db.add(preset_member_position)
     try:
-        db.commit()
+        await db.commit()
     except IntegrityError as e:
         logger.warning(
             f"PresetMemberPosition duplicated: preset_member_id={dto.preset_member_id}, position_id={dto.position_id}"
@@ -71,7 +68,7 @@ def add_preset_member_position_service(
             detail="PresetMemberPosition duplicated",
         ) from e
 
-    db.refresh(preset_member_position)
+    await db.refresh(preset_member_position)
     logger.info(
         f"PresetMemberPosition created: id={preset_member_position.preset_member_position_id}"
     )
@@ -79,26 +76,26 @@ def add_preset_member_position_service(
 
 
 @service_exception_handler
-def delete_preset_member_position_service(
+async def delete_preset_member_position_service(
     guild_id: int,
     preset_member_position_id: int,
-    db: Session,
+    db: AsyncSession,
     payload: Payload,
 ) -> None:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    preset_member_position = (
-        db.query(PresetMemberPosition)
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(PresetMemberPosition)
         .join(
             PresetMember,
             PresetMemberPosition.preset_member_id == PresetMember.preset_member_id,
         )
         .join(Preset, PresetMember.preset_id == Preset.preset_id)
-        .filter(
+        .where(
             PresetMemberPosition.preset_member_position_id == preset_member_position_id,
             Preset.guild_id == guild_id,
         )
-        .first()
     )
+    preset_member_position = result.scalar_one_or_none()
 
     if preset_member_position is None:
         logger.warning(
@@ -106,6 +103,6 @@ def delete_preset_member_position_service(
         )
         raise HTTPException(status_code=404, detail="PresetMemberPosition not found")
 
-    db.delete(preset_member_position)
-    db.commit()
+    await db.delete(preset_member_position)
+    await db.commit()
     logger.info(f"PresetMemberPosition deleted: id={preset_member_position_id}")

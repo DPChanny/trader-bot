@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.manager_dto import (
     AddManagerDTO,
@@ -7,7 +7,7 @@ from shared.dtos.manager_dto import (
     ManagerDTO,
     UpdateManagerDTO,
 )
-from shared.utils.database import get_db
+from shared.utils.database import get_async_db
 
 from ..services.manager_service import (
     add_manager_service,
@@ -22,40 +22,40 @@ manager_router = APIRouter(prefix="/guild/{guild_id}/manager", tags=["manager"])
 
 
 @manager_router.get("", response_model=list[ManagerDetailDTO])
-def get_manager_list_route(
+async def get_manager_list_route(
     guild_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
-    return get_manager_list_service(guild_id, db, payload)
+    return await get_manager_list_service(guild_id, db, payload)
 
 
 @manager_router.post("", response_model=ManagerDTO)
-def add_manager_route(
+async def add_manager_route(
     guild_id: int,
     dto: AddManagerDTO,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
-    return add_manager_service(guild_id, dto, db, payload)
+    return await add_manager_service(guild_id, dto, db, payload)
 
 
 @manager_router.patch("/{user_id}", response_model=ManagerDTO)
-def update_manager_route(
+async def update_manager_route(
     guild_id: int,
     user_id: int,
     dto: UpdateManagerDTO,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
-    return update_manager_service(guild_id, user_id, dto, db, payload)
+    return await update_manager_service(guild_id, user_id, dto, db, payload)
 
 
 @manager_router.delete("/{user_id}", status_code=204)
-def delete_manager_route(
+async def delete_manager_route(
     guild_id: int,
     user_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
-    return remove_manager_service(guild_id, user_id, db, payload)
+    return await remove_manager_service(guild_id, user_id, db, payload)

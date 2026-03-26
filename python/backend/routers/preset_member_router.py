@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.preset_member_dto import (
     AddPresetMemberDTO,
@@ -7,7 +7,7 @@ from shared.dtos.preset_member_dto import (
     PresetMemberDTO,
     UpdatePresetMemberDTO,
 )
-from shared.utils.database import get_db
+from shared.utils.database import get_async_db
 
 from ..services.preset_member_service import (
     add_preset_member_service,
@@ -29,26 +29,26 @@ preset_member_router = APIRouter(
 async def add_preset_member_route(
     guild_id: int,
     dto: AddPresetMemberDTO,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
     return await add_preset_member_service(guild_id, dto, db, payload)
 
 
 @preset_member_router.get("", response_model=list[PresetMemberDTO])
-def get_preset_member_list_route(
+async def get_preset_member_list_route(
     guild_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
-    return get_preset_member_list_service(guild_id, db, payload)
+    return await get_preset_member_list_service(guild_id, db, payload)
 
 
 @preset_member_router.get("/{preset_member_id}", response_model=PresetMemberDetailDTO)
 async def get_preset_member_detail_route(
     guild_id: int,
     preset_member_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
     return await get_preset_member_detail_service(
@@ -61,7 +61,7 @@ async def update_preset_member_route(
     guild_id: int,
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
     return await update_preset_member_service(
@@ -70,10 +70,10 @@ async def update_preset_member_route(
 
 
 @preset_member_router.delete("/{preset_member_id}", status_code=204)
-def delete_preset_member_route(
+async def delete_preset_member_route(
     guild_id: int,
     preset_member_id: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
-    return delete_preset_member_service(guild_id, preset_member_id, db, payload)
+    return await delete_preset_member_service(guild_id, preset_member_id, db, payload)

@@ -2,7 +2,8 @@ from typing import Any
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member_dto import (
     AddMemberDTO,
@@ -27,14 +28,13 @@ async def _upload_profile(bucket: Any, member_id: int, discord_id: str):
 
 @service_exception_handler
 async def get_member_detail_service(
-    guild_id: int, member_id: int, db: Session, payload: Payload
+    guild_id: int, member_id: int, db: AsyncSession, payload: Payload
 ) -> MemberDTO:
-    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    member = (
-        db.query(Member)
-        .filter(Member.member_id == member_id, Member.guild_id == guild_id)
-        .first()
+    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    result = await db.execute(
+        select(Member).where(Member.member_id == member_id, Member.guild_id == guild_id)
     )
+    member = result.scalar_one_or_none()
 
     if member is None:
         logger.warning(f"Member not found: id={member_id}")
@@ -45,9 +45,9 @@ async def get_member_detail_service(
 
 @service_exception_handler
 async def add_member_service(
-    guild_id: int, dto: AddMemberDTO, db: Session, bucket: Any, payload: Payload
+    guild_id: int, dto: AddMemberDTO, db: AsyncSession, bucket: Any, payload: Payload
 ) -> MemberDTO:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
 
     member = Member(
         guild_id=guild_id,
@@ -56,24 +56,25 @@ async def add_member_service(
         discord_id=dto.discord_id,
     )
     db.add(member)
-    db.flush()
+    await db.flush()
 
     if dto.discord_id is not None:
         await _upload_profile(bucket, member.member_id, dto.discord_id)
 
-    db.commit()
+    await db.commit()
     logger.info(f"Member created: id={member.member_id}, alias={dto.alias}")
 
-    db.refresh(member)
+    await db.refresh(member)
     return MemberDTO.model_validate(member)
 
 
 @service_exception_handler
 async def get_member_list_service(
-    guild_id: int, db: Session, payload: Payload
+    guild_id: int, db: AsyncSession, payload: Payload
 ) -> list[MemberDTO]:
-    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    members = db.query(Member).filter(Member.guild_id == guild_id).all()
+    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    result = await db.execute(select(Member).where(Member.guild_id == guild_id))
+    members = result.scalars().all()
     return [MemberDTO.model_validate(m) for m in members]
 
 
@@ -82,16 +83,15 @@ async def update_member_service(
     guild_id: int,
     member_id: int,
     dto: UpdateMemberDTO,
-    db: Session,
+    db: AsyncSession,
     bucket: Any,
     payload: Payload,
 ) -> MemberDTO:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    member = (
-        db.query(Member)
-        .filter(Member.member_id == member_id, Member.guild_id == guild_id)
-        .first()
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(Member).where(Member.member_id == member_id, Member.guild_id == guild_id)
     )
+    member = result.scalar_one_or_none()
     if member is None:
         logger.warning(f"Member not found: id={member_id}")
         raise HTTPException(status_code=404, detail="Member not found")
@@ -104,30 +104,29 @@ async def update_member_service(
             discord_id_changed = True
         setattr(member, key, value)
 
-    db.flush()
+    await db.flush()
 
     if discord_id_changed:
         await delete_profile(bucket, member.member_id)
         if member.discord_id is not None:
             await _upload_profile(bucket, member.member_id, member.discord_id)
 
-    db.commit()
+    await db.commit()
     logger.info(f"Member updated: id={member_id}")
 
-    db.refresh(member)
+    await db.refresh(member)
     return MemberDTO.model_validate(member)
 
 
 @service_exception_handler
 async def update_profile_service(
-    guild_id: int, member_id: int, db: Session, bucket: Any, payload: Payload
+    guild_id: int, member_id: int, db: AsyncSession, bucket: Any, payload: Payload
 ) -> MemberDTO:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    member = (
-        db.query(Member)
-        .filter(Member.member_id == member_id, Member.guild_id == guild_id)
-        .first()
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(Member).where(Member.member_id == member_id, Member.guild_id == guild_id)
     )
+    member = result.scalar_one_or_none()
     if member is None:
         logger.warning(f"Member not found: id={member_id}")
         raise HTTPException(status_code=404, detail="Member not found")
@@ -137,28 +136,27 @@ async def update_profile_service(
         await _upload_profile(bucket, member.member_id, member.discord_id)
 
     logger.info(f"Member profile updated: id={member_id}")
-    db.refresh(member)
+    await db.refresh(member)
     return MemberDTO.model_validate(member)
 
 
 @service_exception_handler
 async def delete_member_service(
-    guild_id: int, member_id: int, db: Session, bucket: Any, payload: Payload
+    guild_id: int, member_id: int, db: AsyncSession, bucket: Any, payload: Payload
 ) -> None:
-    verify_role(guild_id, payload.user_id, Role.ADMIN, db)
-    member = (
-        db.query(Member)
-        .filter(Member.member_id == member_id, Member.guild_id == guild_id)
-        .first()
+    await verify_role(guild_id, payload.user_id, Role.ADMIN, db)
+    result = await db.execute(
+        select(Member).where(Member.member_id == member_id, Member.guild_id == guild_id)
     )
+    member = result.scalar_one_or_none()
     if member is None:
         logger.warning(f"Member not found: id={member_id}")
         raise HTTPException(status_code=404, detail="Member not found")
 
-    db.delete(member)
-    db.flush()
+    await db.delete(member)
+    await db.flush()
 
     await delete_profile(bucket, member_id)
 
-    db.commit()
+    await db.commit()
     logger.info(f"Member deleted: id={member_id}")

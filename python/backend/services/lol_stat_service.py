@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
 from shared.entities.lol_stat import LolStat
@@ -12,15 +14,17 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-async def get_lol_stat(member_id: int, db: Session, payload: Payload) -> LolStatDto:
-    guild_ids = get_guild_ids(payload.user_id, db)
-    lol_stat = (
-        db.query(LolStat)
+async def get_lol_stat(
+    member_id: int, db: AsyncSession, payload: Payload
+) -> LolStatDto:
+    guild_ids = await get_guild_ids(payload.user_id, db)
+    result = await db.execute(
+        select(LolStat)
         .join(Member, LolStat.member_id == Member.member_id)
         .options(joinedload(LolStat.champions))
-        .filter(LolStat.member_id == member_id, Member.guild_id.in_(guild_ids))
-        .first()
+        .where(LolStat.member_id == member_id, Member.guild_id.in_(guild_ids))
     )
+    lol_stat = result.unique().scalar_one_or_none()
 
     if lol_stat is None:
         logger.warning(f"LolStat not found: id={member_id}")

@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.tier_dto import (
     AddTierDTO,
@@ -17,25 +18,28 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-def get_tier_list_service(
-    guild_id: int, db: Session, payload: Payload
+async def get_tier_list_service(
+    guild_id: int, db: AsyncSession, payload: Payload
 ) -> list[TierDTO]:
-    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    tiers = db.query(Tier).join(Preset).filter(Preset.guild_id == guild_id).all()
+    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    result = await db.execute(
+        select(Tier).join(Preset).where(Preset.guild_id == guild_id)
+    )
+    tiers = result.scalars().all()
     return [TierDTO.model_validate(t) for t in tiers]
 
 
 @service_exception_handler
-def get_tier_detail_service(
-    guild_id: int, tier_id: int, db: Session, payload: Payload
+async def get_tier_detail_service(
+    guild_id: int, tier_id: int, db: AsyncSession, payload: Payload
 ) -> TierDTO:
-    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    tier = (
-        db.query(Tier)
+    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    result = await db.execute(
+        select(Tier)
         .join(Preset)
-        .filter(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
-        .first()
+        .where(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
     )
+    tier = result.scalar_one_or_none()
 
     if tier is None:
         logger.warning(f"Tier not found: id={tier_id}")
@@ -45,41 +49,41 @@ def get_tier_detail_service(
 
 
 @service_exception_handler
-def add_tier_service(
-    guild_id: int, dto: AddTierDTO, db: Session, payload: Payload
+async def add_tier_service(
+    guild_id: int, dto: AddTierDTO, db: AsyncSession, payload: Payload
 ) -> TierDTO:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    preset = (
-        db.query(Preset)
-        .filter(Preset.preset_id == dto.preset_id, Preset.guild_id == guild_id)
-        .first()
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(Preset).where(
+            Preset.preset_id == dto.preset_id, Preset.guild_id == guild_id
+        )
     )
-    if preset is None:
+    if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
     tier = Tier(preset_id=dto.preset_id, name=dto.name)
     db.add(tier)
-    db.commit()
-    db.refresh(tier)
+    await db.commit()
+    await db.refresh(tier)
     logger.info(f"Tier created: id={tier.tier_id}, name={dto.name}")
     return TierDTO.model_validate(tier)
 
 
 @service_exception_handler
-def update_tier_service(
+async def update_tier_service(
     guild_id: int,
     tier_id: int,
     dto: UpdateTierDTO,
-    db: Session,
+    db: AsyncSession,
     payload: Payload,
 ) -> TierDTO:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    tier = (
-        db.query(Tier)
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(Tier)
         .join(Preset)
-        .filter(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
-        .first()
+        .where(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
     )
+    tier = result.scalar_one_or_none()
     if tier is None:
         logger.warning(f"Tier not found: id={tier_id}")
         raise HTTPException(status_code=404, detail="Tier not found")
@@ -87,28 +91,28 @@ def update_tier_service(
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(tier, key, value)
 
-    db.commit()
-    db.refresh(tier)
+    await db.commit()
+    await db.refresh(tier)
     logger.info(f"Tier updated: id={tier_id}")
 
     return TierDTO.model_validate(tier)
 
 
 @service_exception_handler
-def delete_tier_service(
-    guild_id: int, tier_id: int, db: Session, payload: Payload
+async def delete_tier_service(
+    guild_id: int, tier_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    verify_role(guild_id, payload.user_id, Role.EDITOR, db)
-    tier = (
-        db.query(Tier)
+    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    result = await db.execute(
+        select(Tier)
         .join(Preset)
-        .filter(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
-        .first()
+        .where(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
     )
+    tier = result.scalar_one_or_none()
     if tier is None:
         logger.warning(f"Tier not found: id={tier_id}")
         raise HTTPException(status_code=404, detail="Tier not found")
 
-    db.delete(tier)
-    db.commit()
+    await db.delete(tier)
+    await db.commit()
     logger.info(f"Tier deleted: id={tier_id}")

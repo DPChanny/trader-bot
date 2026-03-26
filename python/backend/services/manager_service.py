@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from shared.dtos.manager_dto import (
     AddManagerDTO,
@@ -16,35 +18,33 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-def get_manager_list_service(
-    guild_id: int, db: Session, payload: Payload
+async def get_manager_list_service(
+    guild_id: int, db: AsyncSession, payload: Payload
 ) -> list[ManagerDetailDTO]:
-    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
 
-    managers = (
-        db.query(Manager)
+    result = await db.execute(
+        select(Manager)
         .options(joinedload(Manager.user))
-        .filter(Manager.guild_id == guild_id)
-        .all()
+        .where(Manager.guild_id == guild_id)
     )
+    managers = result.unique().scalars().all()
     return [ManagerDetailDTO.model_validate(m) for m in managers]
 
 
 @service_exception_handler
-def add_manager_service(
-    guild_id: int, dto: AddManagerDTO, db: Session, payload: Payload
+async def add_manager_service(
+    guild_id: int, dto: AddManagerDTO, db: AsyncSession, payload: Payload
 ) -> ManagerDTO:
-    verify_role(guild_id, payload.user_id, Role.ADMIN, db)
+    await verify_role(guild_id, payload.user_id, Role.ADMIN, db)
 
-    existing = (
-        db.query(Manager)
-        .filter(
+    result = await db.execute(
+        select(Manager).where(
             Manager.guild_id == guild_id,
             Manager.user_id == dto.user_id,
         )
-        .first()
     )
-    if existing:
+    if result.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="User already in guild")
 
     manager = Manager(
@@ -53,59 +53,57 @@ def add_manager_service(
         role=dto.role,
     )
     db.add(manager)
-    db.commit()
-    db.refresh(manager)
+    await db.commit()
+    await db.refresh(manager)
     logger.info(f"Manager added: guild_id={guild_id}, user_id={dto.user_id}")
     return ManagerDTO.model_validate(manager)
 
 
 @service_exception_handler
-def update_manager_service(
+async def update_manager_service(
     guild_id: int,
     user_id: int,
     dto: UpdateManagerDTO,
-    db: Session,
+    db: AsyncSession,
     payload: Payload,
 ) -> ManagerDTO:
-    verify_role(guild_id, payload.user_id, Role.ADMIN, db)
+    await verify_role(guild_id, payload.user_id, Role.ADMIN, db)
 
-    manager = (
-        db.query(Manager)
-        .filter(
+    result = await db.execute(
+        select(Manager).where(
             Manager.guild_id == guild_id,
             Manager.user_id == user_id,
         )
-        .first()
     )
+    manager = result.scalar_one_or_none()
     if manager is None:
         raise HTTPException(status_code=404, detail="Manager not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(manager, key, value)
 
-    db.commit()
-    db.refresh(manager)
+    await db.commit()
+    await db.refresh(manager)
     logger.info(f"Manager updated: guild_id={guild_id}, user_id={user_id}")
     return ManagerDTO.model_validate(manager)
 
 
 @service_exception_handler
-def remove_manager_service(
-    guild_id: int, user_id: int, db: Session, payload: Payload
+async def remove_manager_service(
+    guild_id: int, user_id: int, db: AsyncSession, payload: Payload
 ) -> None:
     is_self = user_id == payload.user_id
 
     if not is_self:
-        caller_role = verify_role(guild_id, payload.user_id, Role.ADMIN, db)
+        caller_role = await verify_role(guild_id, payload.user_id, Role.ADMIN, db)
 
-    manager = (
-        db.query(Manager)
-        .filter(
+    result = await db.execute(
+        select(Manager).where(
             Manager.guild_id == guild_id,
             Manager.user_id == user_id,
         )
-        .first()
     )
+    manager = result.scalar_one_or_none()
     if manager is None:
         raise HTTPException(status_code=404, detail="Manager not found")
 
@@ -115,6 +113,6 @@ def remove_manager_service(
             detail="Cannot remove user with equal or higher role",
         )
 
-    db.delete(manager)
-    db.commit()
+    await db.delete(manager)
+    await db.commit()
     logger.info(f"Manager removed: guild_id={guild_id}, user_id={user_id}")
