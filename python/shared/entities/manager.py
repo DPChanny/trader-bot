@@ -14,28 +14,17 @@ if TYPE_CHECKING:
     from .user import User
 
 
-class GuildRole(enum.Enum):
+class Role(enum.Enum):
     ADMIN = "ADMIN"
     EDITOR = "EDITOR"
     VIEWER = "VIEWER"
 
 
-_ROLE_ORDER = {
-    GuildRole.VIEWER: 0,
-    GuildRole.EDITOR: 1,
-    GuildRole.ADMIN: 2,
-}
-
-
-def guild_role_gte(role: GuildRole, min_role: GuildRole) -> bool:
-    return _ROLE_ORDER[role] >= _ROLE_ORDER[min_role]
-
-
-class GuildManager(BaseEntity):
-    __tablename__ = "guild_manager"
+class Manager(BaseEntity):
+    __tablename__ = "manager"
     __table_args__ = (UniqueConstraint("guild_id", "user_id"),)
 
-    guild_manager_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    manager_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     guild_id: Mapped[int] = mapped_column(
         ForeignKey("guild.guild_id", ondelete="CASCADE"),
         nullable=False,
@@ -44,7 +33,7 @@ class GuildManager(BaseEntity):
         ForeignKey("user.user_id", ondelete="CASCADE"),
         nullable=False,
     )
-    role: Mapped[GuildRole] = mapped_column(Enum(GuildRole), nullable=False)
+    role: Mapped[Role] = mapped_column(Enum(Role), nullable=False)
 
-    guild: Mapped[Guild] = relationship("Guild", back_populates="guild_managers")
-    user: Mapped[User] = relationship("User", back_populates="guild_managers")
+    guild: Mapped[Guild] = relationship("Guild", back_populates="managers")
+    user: Mapped[User] = relationship("User", back_populates="managers")

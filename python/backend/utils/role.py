@@ -1,29 +1,32 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from shared.entities.guild_manager import GuildManager, GuildRole, guild_role_gte
+from shared.entities.manager import Manager, Role
+
+
+_ROLE_ORDER = {
+    Role.VIEWER: 0,
+    Role.EDITOR: 1,
+    Role.ADMIN: 2,
+}
 
 
 def get_guild_ids(user_id: int, db: Session) -> list[int]:
-    guild_managers = (
-        db.query(GuildManager).filter(GuildManager.user_id == user_id).all()
-    )
-    return [gm.guild_id for gm in guild_managers]
+    managers = db.query(Manager).filter(Manager.user_id == user_id).all()
+    return [m.guild_id for m in managers]
 
 
-def verify_role(
-    guild_id: int, user_id: int, min_role: GuildRole, db: Session
-) -> GuildRole:
-    gm = (
-        db.query(GuildManager)
+def verify_role(guild_id: int, user_id: int, min_role: Role, db: Session) -> Role:
+    manager = (
+        db.query(Manager)
         .filter(
-            GuildManager.guild_id == guild_id,
-            GuildManager.user_id == user_id,
+            Manager.guild_id == guild_id,
+            Manager.user_id == user_id,
         )
         .first()
     )
-    if gm is None:
+    if manager is None:
         raise HTTPException(status_code=404, detail="Guild not found")
-    if not guild_role_gte(gm.role, min_role):
+    if not _ROLE_ORDER[manager.role] >= _ROLE_ORDER[min_role]:
         raise HTTPException(status_code=403, detail="Insufficient guild permissions")
-    return gm.role
+    return manager.role

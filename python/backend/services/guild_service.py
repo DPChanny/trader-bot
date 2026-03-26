@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.guild_dto import AddGuildDTO, GuildDetailDTO, GuildDTO, UpdateGuildDTO
 from shared.entities.guild import Guild
-from shared.entities.guild_manager import GuildManager, GuildRole
+from shared.entities.manager import Manager, Role
 from shared.utils.exception import service_exception_handler
 
 from ..utils.role import verify_role
@@ -15,7 +15,7 @@ def _query_guild_detail(guild_id: int, db: Session) -> Guild | None:
     return (
         db.query(Guild)
         .options(
-            joinedload(Guild.guild_managers).joinedload(GuildManager.user),
+            joinedload(Guild.managers).joinedload(Manager.user),
         )
         .filter(Guild.guild_id == guild_id)
         .first()
@@ -34,10 +34,10 @@ def add_guild_service(
     db.add(guild)
     db.flush()
 
-    owner = GuildManager(
+    owner = Manager(
         guild_id=guild.guild_id,
         user_id=payload.user_id,
-        role=GuildRole.ADMIN,
+        role=Role.ADMIN,
     )
     db.add(owner)
     db.commit()
@@ -50,10 +50,7 @@ def add_guild_service(
 @service_exception_handler
 def get_guild_list_service(db: Session, payload: Payload) -> list[GuildDTO]:
     guilds = (
-        db.query(Guild)
-        .join(GuildManager)
-        .filter(GuildManager.user_id == payload.user_id)
-        .all()
+        db.query(Guild).join(Manager).filter(Manager.user_id == payload.user_id).all()
     )
     return [GuildDTO.model_validate(g) for g in guilds]
 
@@ -62,7 +59,7 @@ def get_guild_list_service(db: Session, payload: Payload) -> list[GuildDTO]:
 def get_guild_detail_service(
     guild_id: int, db: Session, payload: Payload
 ) -> GuildDetailDTO:
-    verify_role(guild_id, payload.user_id, GuildRole.VIEWER, db)
+    verify_role(guild_id, payload.user_id, Role.VIEWER, db)
 
     guild = _query_guild_detail(guild_id, db)
     if guild is None:
@@ -75,7 +72,7 @@ def get_guild_detail_service(
 def update_guild_service(
     guild_id: int, dto: UpdateGuildDTO, db: Session, payload: Payload
 ) -> GuildDetailDTO:
-    verify_role(guild_id, payload.user_id, GuildRole.ADMIN, db)
+    verify_role(guild_id, payload.user_id, Role.ADMIN, db)
 
     guild = db.query(Guild).filter(Guild.guild_id == guild_id).first()
     if guild is None:
@@ -93,7 +90,7 @@ def update_guild_service(
 
 @service_exception_handler
 def delete_guild_service(guild_id: int, db: Session, payload: Payload) -> None:
-    verify_role(guild_id, payload.user_id, GuildRole.ADMIN, db)
+    verify_role(guild_id, payload.user_id, Role.ADMIN, db)
 
     guild = db.query(Guild).filter(Guild.guild_id == guild_id).first()
     if guild is None:

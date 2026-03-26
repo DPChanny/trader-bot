@@ -1,5 +1,5 @@
 from . import BaseDto
-from .guild_manager_dto import GuildManagerDetailDTO
+from .manager_dto import ManagerDetailDTO
 
 
 class GuildDTO(BaseDto):
@@ -11,7 +11,7 @@ class GuildDTO(BaseDto):
 
 
 class GuildDetailDTO(GuildDTO):
-    guild_managers: list[GuildManagerDetailDTO] = []
+    managers: list[ManagerDetailDTO] = []
 
 
 class AddGuildDTO(BaseDto):

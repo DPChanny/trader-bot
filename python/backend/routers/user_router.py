@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from shared.dtos.guild_manager_dto import UserDTO
+from shared.dtos.user_dto import UserDTO
 from shared.utils.database import get_db
 
 from ..services.user_service import (
-    delete_user_service,
+    delete_me_service,
+    get_me_service,
     get_user_detail_service,
     get_user_list_service,
 )
@@ -23,6 +24,14 @@ def get_user_list_route(
     return get_user_list_service(db, payload)
 
 
+@user_router.get("/me", response_model=UserDTO)
+def get_me_route(
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return get_me_service(db, payload)
+
+
 @user_router.get("/{user_id}", response_model=UserDTO)
 def get_user_detail_route(
     user_id: int,
@@ -32,10 +41,9 @@ def get_user_detail_route(
     return get_user_detail_service(user_id, db, payload)
 
 
-@user_router.delete("/{user_id}", status_code=204)
-def delete_user_route(
-    user_id: int,
+@user_router.delete("/me", status_code=204)
+def delete_me_route(
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
-    return delete_user_service(user_id, db, payload)
+    return delete_me_service(db, payload)

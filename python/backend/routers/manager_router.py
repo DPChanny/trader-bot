@@ -1,0 +1,61 @@
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from shared.dtos.manager_dto import (
+    AddManagerDTO,
+    ManagerDetailDTO,
+    ManagerDTO,
+    UpdateManagerDTO,
+)
+from shared.utils.database import get_db
+
+from ..services.manager_service import (
+    add_manager_service,
+    get_manager_list_service,
+    remove_manager_service,
+    update_manager_service,
+)
+from ..utils.token import Payload, verify_token
+
+
+manager_router = APIRouter(prefix="/guild/{guild_id}/manager", tags=["manager"])
+
+
+@manager_router.get("", response_model=list[ManagerDetailDTO])
+def get_manager_list_route(
+    guild_id: int,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return get_manager_list_service(guild_id, db, payload)
+
+
+@manager_router.post("", response_model=ManagerDTO)
+def add_manager_route(
+    guild_id: int,
+    dto: AddManagerDTO,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return add_manager_service(guild_id, dto, db, payload)
+
+
+@manager_router.patch("/{user_id}", response_model=ManagerDTO)
+def update_manager_route(
+    guild_id: int,
+    user_id: int,
+    dto: UpdateManagerDTO,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return update_manager_service(guild_id, user_id, dto, db, payload)
+
+
+@manager_router.delete("/{user_id}", status_code=204)
+def delete_manager_route(
+    guild_id: int,
+    user_id: int,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return remove_manager_service(guild_id, user_id, db, payload)

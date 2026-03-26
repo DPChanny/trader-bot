@@ -9,7 +9,7 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .guild_manager import GuildManager
+    from .manager import Manager
     from .member import Member
     from .preset import Preset
 
@@ -21,8 +21,8 @@ class Guild(BaseEntity):
     discord_id: Mapped[str] = mapped_column(String(256), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(256), nullable=False)
 
-    guild_managers: Mapped[list[GuildManager]] = relationship(
-        "GuildManager",
+    managers: Mapped[list[Manager]] = relationship(
+        "Manager",
         back_populates="guild",
         cascade="all, delete-orphan",
     )

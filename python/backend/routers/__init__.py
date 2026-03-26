@@ -2,9 +2,9 @@ from .auction_router import auction_router as auction_router
 from .auction_websocket_router import (
     auction_websocket_router as auction_websocket_router,
 )
-from .guild_manager_router import guild_manager_router as guild_manager_router
 from .guild_router import guild_router as guild_router
 from .lol_stat_router import lol_stat_router as lol_stat_router
+from .manager_router import manager_router as manager_router
 from .member_router import member_router as member_router
 from .position_router import position_router as position_router
 from .preset_member_position_router import (

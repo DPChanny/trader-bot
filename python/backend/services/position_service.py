@@ -7,7 +7,7 @@ from shared.dtos.position_dto import (
     PositionDTO,
     UpdatePositionDTO,
 )
-from shared.entities.guild_manager import GuildRole
+from shared.entities.manager import Role
 from shared.entities.position import Position
 from shared.entities.preset import Preset
 from shared.utils.exception import service_exception_handler
@@ -63,7 +63,7 @@ def add_position_service(
     if preset is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    verify_role(preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     position = Position(
         preset_id=dto.preset_id,
@@ -95,7 +95,7 @@ def update_position_service(
         logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
 
-    verify_role(position.preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(position.preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(position, key, value)
@@ -123,7 +123,7 @@ def delete_position_service(position_id: int, db: Session, payload: Payload) -> 
         logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
 
-    verify_role(position.preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(position.preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     db.delete(position)
     db.commit()

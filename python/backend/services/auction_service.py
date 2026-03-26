@@ -6,7 +6,7 @@ from shared.dtos.auction_dto import (
     AuctionDTO,
     Team,
 )
-from shared.entities.guild_manager import GuildRole
+from shared.entities.manager import Role
 from shared.entities.member import Member
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
@@ -39,7 +39,7 @@ async def add_auction_service(
         )
         raise HTTPException(status_code=404, detail="Auction create failed")
 
-    verify_role(preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     preset_members = preset.preset_members
     if not preset_members:

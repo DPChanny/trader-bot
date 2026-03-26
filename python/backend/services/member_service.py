@@ -9,7 +9,7 @@ from shared.dtos.member_dto import (
     MemberDTO,
     UpdateMemberDTO,
 )
-from shared.entities.guild_manager import GuildRole
+from shared.entities.manager import Role
 from shared.entities.member import Member
 from shared.utils.exception import service_exception_handler
 
@@ -47,7 +47,7 @@ async def get_member_detail_service(
 async def add_member_service(
     dto: AddMemberDTO, db: Session, bucket: Any, payload: Payload
 ) -> MemberDTO:
-    verify_role(dto.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(dto.guild_id, payload.user_id, Role.EDITOR, db)
 
     member = Member(
         guild_id=dto.guild_id,
@@ -89,7 +89,7 @@ async def update_member_service(
         logger.warning(f"Member not found: id={member_id}")
         raise HTTPException(status_code=404, detail="Member not found")
 
-    verify_role(member.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(member.guild_id, payload.user_id, Role.EDITOR, db)
 
     old_discord_id = member.discord_id
     discord_id_changed = False
@@ -127,7 +127,7 @@ async def update_profile_service(
         logger.warning(f"Member not found: id={member_id}")
         raise HTTPException(status_code=404, detail="Member not found")
 
-    verify_role(member.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(member.guild_id, payload.user_id, Role.EDITOR, db)
 
     await delete_profile(bucket, member.member_id)
     if member.discord_id is not None:
@@ -152,7 +152,7 @@ async def delete_member_service(
         logger.warning(f"Member not found: id={member_id}")
         raise HTTPException(status_code=404, detail="Member not found")
 
-    verify_role(member.guild_id, payload.user_id, GuildRole.ADMIN, db)
+    verify_role(member.guild_id, payload.user_id, Role.ADMIN, db)
 
     db.delete(member)
     db.flush()

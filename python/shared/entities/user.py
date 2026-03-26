@@ -9,7 +9,7 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .guild_manager import GuildManager
+    from .manager import Manager
 
 
 class User(BaseEntity):
@@ -20,6 +20,6 @@ class User(BaseEntity):
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     refresh_token: Mapped[str | None] = mapped_column(String(512), nullable=True)
 
-    guild_managers: Mapped[list[GuildManager]] = relationship(
-        "GuildManager", back_populates="user", cascade="all, delete-orphan"
+    managers: Mapped[list[Manager]] = relationship(
+        "Manager", back_populates="user", cascade="all, delete-orphan"
     )

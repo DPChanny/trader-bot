@@ -8,7 +8,7 @@ from shared.dtos.preset_member_position_dto import (
     DeletePresetMemberPositionDTO,
     PresetMemberPositionDTO,
 )
-from shared.entities.guild_manager import GuildRole
+from shared.entities.manager import Role
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
 from shared.entities.preset_member_position import PresetMemberPosition
@@ -35,7 +35,7 @@ def add_preset_member_position_service(
     if preset_member is None:
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
-    verify_role(preset_member.preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(preset_member.preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     existing = (
         db.query(PresetMemberPosition)
@@ -107,7 +107,7 @@ def delete_preset_member_position_service(
     verify_role(
         preset_member_position.preset_member.preset.guild_id,
         payload.user_id,
-        GuildRole.EDITOR,
+        Role.EDITOR,
         db,
     )
 

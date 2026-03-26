@@ -8,7 +8,7 @@ from shared.dtos.preset_dto import (
     PresetDTO,
     UpdatePresetDTO,
 )
-from shared.entities.guild_manager import GuildRole
+from shared.entities.manager import Role
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
 from shared.entities.preset_member_position import PresetMemberPosition
@@ -58,7 +58,7 @@ async def get_preset_detail_service(
 def add_preset_service(
     dto: AddPresetDTO, db: Session, payload: Payload
 ) -> PresetDetailDTO:
-    verify_role(dto.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(dto.guild_id, payload.user_id, Role.EDITOR, db)
 
     preset = Preset(
         guild_id=dto.guild_id,
@@ -97,7 +97,7 @@ def update_preset_service(
         logger.warning(f"Preset not found: id={preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    verify_role(preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(preset, key, value)
@@ -121,7 +121,7 @@ def delete_preset_service(preset_id: int, db: Session, payload: Payload) -> None
         logger.warning(f"Preset not found: id={preset_id}")
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    verify_role(preset.guild_id, payload.user_id, GuildRole.ADMIN, db)
+    verify_role(preset.guild_id, payload.user_id, Role.ADMIN, db)
 
     db.delete(preset)
     db.commit()

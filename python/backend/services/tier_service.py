@@ -7,7 +7,7 @@ from shared.dtos.tier_dto import (
     TierDTO,
     UpdateTierDTO,
 )
-from shared.entities.guild_manager import GuildRole
+from shared.entities.manager import Role
 from shared.entities.preset import Preset
 from shared.entities.tier import Tier
 from shared.utils.exception import service_exception_handler
@@ -54,7 +54,7 @@ def add_tier_service(dto: AddTierDTO, db: Session, payload: Payload) -> TierDTO:
     if preset is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    verify_role(preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     tier = Tier(preset_id=dto.preset_id, name=dto.name)
     db.add(tier)
@@ -79,7 +79,7 @@ def update_tier_service(
         logger.warning(f"Tier not found: id={tier_id}")
         raise HTTPException(status_code=404, detail="Tier not found")
 
-    verify_role(tier.preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(tier.preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(tier, key, value)
@@ -104,7 +104,7 @@ def delete_tier_service(tier_id: int, db: Session, payload: Payload) -> None:
         logger.warning(f"Tier not found: id={tier_id}")
         raise HTTPException(status_code=404, detail="Tier not found")
 
-    verify_role(tier.preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
+    verify_role(tier.preset.guild_id, payload.user_id, Role.EDITOR, db)
 
     db.delete(tier)
     db.commit()
