@@ -11,8 +11,8 @@ from shared.utils.database import get_db
 
 from ..services.guild_manager_service import (
     add_guild_manager_service,
+    delete_guild_manager_service,
     get_guild_manager_list_service,
-    remove_guild_manager_service,
     update_guild_manager_service,
 )
 from ..utils.token import Payload, verify_token
@@ -42,22 +42,22 @@ def add_guild_manager_route(
     return add_guild_manager_service(guild_id, dto, db, payload)
 
 
-@guild_manager_router.patch("/{target_manager_id}", response_model=GuildManagerDTO)
+@guild_manager_router.patch("/{manager_id}", response_model=GuildManagerDTO)
 def update_guild_manager_route(
     guild_id: int,
-    target_manager_id: int,
+    manager_id: int,
     dto: UpdateGuildManagerDTO,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
-    return update_guild_manager_service(guild_id, target_manager_id, dto, db, payload)
+    return update_guild_manager_service(guild_id, manager_id, dto, db, payload)
 
 
-@guild_manager_router.delete("/{target_manager_id}", status_code=204)
-def remove_guild_manager_route(
+@guild_manager_router.delete("/{manager_id}", status_code=204)
+def delete_guild_manager_route(
     guild_id: int,
-    target_manager_id: int,
+    manager_id: int,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
-    return remove_guild_manager_service(guild_id, target_manager_id, db, payload)
+    return delete_guild_manager_service(guild_id, manager_id, db, payload)

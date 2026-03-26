@@ -65,7 +65,7 @@ def add_guild_manager_service(
 @service_exception_handler
 def update_guild_manager_service(
     guild_id: int,
-    target_manager_id: int,
+    manager_id: int,
     dto: UpdateGuildManagerDTO,
     db: Session,
     payload: Payload,
@@ -76,7 +76,7 @@ def update_guild_manager_service(
         db.query(GuildManager)
         .filter(
             GuildManager.guild_id == guild_id,
-            GuildManager.manager_id == target_manager_id,
+            GuildManager.manager_id == manager_id,
         )
         .first()
     )
@@ -94,14 +94,12 @@ def update_guild_manager_service(
 
     db.commit()
     db.refresh(guild_manager)
-    logger.info(
-        f"GuildManager updated: guild_id={guild_id}, manager_id={target_manager_id}"
-    )
+    logger.info(f"GuildManager updated: guild_id={guild_id}, manager_id={manager_id}")
     return GuildManagerDTO.model_validate(guild_manager)
 
 
 @service_exception_handler
-def remove_guild_manager_service(
+def delete_guild_manager_service(
     guild_id: int, target_manager_id: int, db: Session, payload: Payload
 ) -> None:
     is_self = target_manager_id == payload.manager_id
