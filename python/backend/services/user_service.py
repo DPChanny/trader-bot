@@ -15,7 +15,7 @@ from shared.utils.exception import service_exception_handler
 
 from ..utils.bot import get_profile
 from ..utils.bucket import delete_profile, upload_profile
-from ..utils.guild_permission import get_accessible_guild_ids, require_guild_role
+from ..utils.role import get_guild_ids, verify_role
 from ..utils.token import Payload
 
 
@@ -29,7 +29,7 @@ async def _upload_profile(bucket: Any, user_id: int, discord_id: str):
 async def get_user_detail_service(
     user_id: int, db: Session, payload: Payload
 ) -> UserDTO:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     user = (
         db.query(User)
         .filter(User.user_id == user_id, User.guild_id.in_(guild_ids))
@@ -47,7 +47,7 @@ async def get_user_detail_service(
 async def add_user_service(
     dto: AddUserDTO, db: Session, bucket: Any, payload: Payload
 ) -> UserDTO:
-    require_guild_role(dto.guild_id, payload.manager_id, GuildRole.EDITOR, db)
+    verify_role(dto.guild_id, payload.manager_id, GuildRole.EDITOR, db)
 
     user = User(
         guild_id=dto.guild_id,
@@ -70,7 +70,7 @@ async def add_user_service(
 
 @service_exception_handler
 async def get_user_list_service(db: Session, payload: Payload) -> list[UserDTO]:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     users = db.query(User).filter(User.guild_id.in_(guild_ids)).all()
     return [UserDTO.model_validate(u) for u in users]
 
@@ -79,7 +79,7 @@ async def get_user_list_service(db: Session, payload: Payload) -> list[UserDTO]:
 async def update_user_service(
     user_id: int, dto: UpdateUserDTO, db: Session, bucket: Any, payload: Payload
 ) -> UserDTO:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     user = (
         db.query(User)
         .filter(User.user_id == user_id, User.guild_id.in_(guild_ids))
@@ -89,7 +89,7 @@ async def update_user_service(
         logger.warning(f"User not found: id={user_id}")
         raise HTTPException(status_code=404, detail="User not found")
 
-    require_guild_role(user.guild_id, payload.manager_id, GuildRole.EDITOR, db)
+    verify_role(user.guild_id, payload.manager_id, GuildRole.EDITOR, db)
 
     old_discord_id = user.discord_id
     discord_id_changed = False
@@ -117,7 +117,7 @@ async def update_user_service(
 async def update_profile_service(
     user_id: int, db: Session, bucket: Any, payload: Payload
 ) -> UserDTO:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     user = (
         db.query(User)
         .filter(User.user_id == user_id, User.guild_id.in_(guild_ids))
@@ -127,7 +127,7 @@ async def update_profile_service(
         logger.warning(f"User not found: id={user_id}")
         raise HTTPException(status_code=404, detail="User not found")
 
-    require_guild_role(user.guild_id, payload.manager_id, GuildRole.EDITOR, db)
+    verify_role(user.guild_id, payload.manager_id, GuildRole.EDITOR, db)
 
     await delete_profile(bucket, user.user_id)
     if user.discord_id is not None:
@@ -142,7 +142,7 @@ async def update_profile_service(
 async def delete_user_service(
     user_id: int, db: Session, bucket: Any, payload: Payload
 ) -> None:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     user = (
         db.query(User)
         .filter(User.user_id == user_id, User.guild_id.in_(guild_ids))
@@ -152,7 +152,7 @@ async def delete_user_service(
         logger.warning(f"User not found: id={user_id}")
         raise HTTPException(status_code=404, detail="User not found")
 
-    require_guild_role(user.guild_id, payload.manager_id, GuildRole.ADMIN, db)
+    verify_role(user.guild_id, payload.manager_id, GuildRole.ADMIN, db)
 
     db.delete(user)
     db.flush()

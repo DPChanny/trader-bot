@@ -15,7 +15,7 @@ from shared.utils.exception import service_exception_handler
 
 from ..auction.auction_manager import auction_manager
 from ..utils.bot import invite
-from ..utils.guild_permission import get_accessible_guild_ids, require_guild_role
+from ..utils.role import get_guild_ids, verify_role
 from ..utils.token import Payload
 
 
@@ -23,7 +23,7 @@ from ..utils.token import Payload
 async def add_auction_service(
     preset_id: int, db: Session, payload: Payload
 ) -> AuctionDTO:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     preset = (
         db.query(Preset)
         .options(
@@ -39,7 +39,7 @@ async def add_auction_service(
         )
         raise HTTPException(status_code=404, detail="Auction create failed")
 
-    require_guild_role(preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
+    verify_role(preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
 
     preset_users = preset.preset_users
     if not preset_users:

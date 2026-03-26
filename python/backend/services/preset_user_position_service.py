@@ -14,7 +14,7 @@ from shared.entities.preset_user import PresetUser
 from shared.entities.preset_user_position import PresetUserPosition
 from shared.utils.exception import service_exception_handler
 
-from ..utils.guild_permission import get_accessible_guild_ids, require_guild_role
+from ..utils.role import get_guild_ids, verify_role
 from ..utils.token import Payload
 
 
@@ -22,7 +22,7 @@ from ..utils.token import Payload
 def add_preset_user_position_service(
     dto: AddPresetUserPositionDTO, db: Session, payload: Payload
 ) -> PresetUserPositionDTO:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     preset_user = (
         db.query(PresetUser)
         .join(Preset)
@@ -35,9 +35,7 @@ def add_preset_user_position_service(
     if preset_user is None:
         raise HTTPException(status_code=404, detail="PresetUser not found")
 
-    require_guild_role(
-        preset_user.preset.guild_id, payload.manager_id, GuildRole.EDITOR, db
-    )
+    verify_role(preset_user.preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
 
     existing = (
         db.query(PresetUserPosition)
@@ -84,7 +82,7 @@ def add_preset_user_position_service(
 def delete_preset_user_position_service(
     dto: DeletePresetUserPositionDTO, db: Session, payload: Payload
 ) -> None:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     preset_user_position = (
         db.query(PresetUserPosition)
         .join(
@@ -104,7 +102,7 @@ def delete_preset_user_position_service(
         )
         raise HTTPException(status_code=404, detail="PresetUserPosition not found")
 
-    require_guild_role(
+    verify_role(
         preset_user_position.preset_user.preset.guild_id,
         payload.manager_id,
         GuildRole.EDITOR,

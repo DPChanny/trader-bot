@@ -7,13 +7,13 @@ from shared.entities.lol_stat import LolStat
 from shared.entities.user import User
 from shared.utils.exception import service_exception_handler
 
-from ..utils.guild_permission import get_accessible_guild_ids
+from ..utils.role import get_guild_ids
 from ..utils.token import Payload
 
 
 @service_exception_handler
 async def get_lol_stat(user_id: int, db: Session, payload: Payload) -> LolStatDto:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     lol_stat = (
         db.query(LolStat)
         .join(User, LolStat.user_id == User.user_id)

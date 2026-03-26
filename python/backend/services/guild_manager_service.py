@@ -11,7 +11,7 @@ from shared.dtos.guild_manager_dto import (
 from shared.entities.guild_manager import GuildManager, GuildRole
 from shared.utils.exception import service_exception_handler
 
-from ..utils.guild_permission import get_manager_role, require_guild_role
+from ..utils.role import verify_role
 from ..utils.token import Payload
 
 
@@ -19,7 +19,7 @@ from ..utils.token import Payload
 def get_guild_manager_list_service(
     guild_id: int, db: Session, payload: Payload
 ) -> list[GuildManagerDetailDTO]:
-    require_guild_role(guild_id, payload.manager_id, GuildRole.VIEWER, db)
+    verify_role(guild_id, payload.manager_id, GuildRole.VIEWER, db)
 
     guild_managers = (
         db.query(GuildManager)
@@ -34,7 +34,7 @@ def get_guild_manager_list_service(
 def add_guild_manager_service(
     guild_id: int, dto: AddGuildManagerDTO, db: Session, payload: Payload
 ) -> GuildManagerDTO:
-    require_guild_role(guild_id, payload.manager_id, GuildRole.ADMIN, db)
+    verify_role(guild_id, payload.manager_id, GuildRole.ADMIN, db)
 
     if dto.role == GuildRole.OWNER:
         raise HTTPException(status_code=400, detail="Cannot assign OWNER role")
@@ -70,7 +70,7 @@ def update_guild_manager_service(
     db: Session,
     payload: Payload,
 ) -> GuildManagerDTO:
-    require_guild_role(guild_id, payload.manager_id, GuildRole.ADMIN, db)
+    verify_role(guild_id, payload.manager_id, GuildRole.ADMIN, db)
 
     guild_manager = (
         db.query(GuildManager)
@@ -107,7 +107,7 @@ def remove_guild_manager_service(
     is_self = target_manager_id == payload.manager_id
 
     if not is_self:
-        require_guild_role(guild_id, payload.manager_id, GuildRole.ADMIN, db)
+        caller_role = verify_role(guild_id, payload.manager_id, GuildRole.ADMIN, db)
 
     guild_manager = (
         db.query(GuildManager)
@@ -124,7 +124,6 @@ def remove_guild_manager_service(
         raise HTTPException(status_code=403, detail="Cannot remove OWNER")
 
     if not is_self:
-        caller_role = get_manager_role(guild_id, payload.manager_id, db)
         from shared.entities.guild_manager import _ROLE_ORDER
 
         if _ROLE_ORDER[caller_role] <= _ROLE_ORDER[guild_manager.role]:

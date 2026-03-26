@@ -7,7 +7,7 @@ from shared.entities.guild import Guild
 from shared.entities.guild_manager import GuildManager, GuildRole
 from shared.utils.exception import service_exception_handler
 
-from ..utils.guild_permission import require_guild_role
+from ..utils.role import verify_role
 from ..utils.token import Payload
 
 
@@ -62,7 +62,7 @@ def get_guild_list_service(db: Session, payload: Payload) -> list[GuildDTO]:
 def get_guild_detail_service(
     guild_id: int, db: Session, payload: Payload
 ) -> GuildDetailDTO:
-    require_guild_role(guild_id, payload.manager_id, GuildRole.VIEWER, db)
+    verify_role(guild_id, payload.manager_id, GuildRole.VIEWER, db)
 
     guild = _query_guild_detail(guild_id, db)
     if guild is None:
@@ -75,7 +75,7 @@ def get_guild_detail_service(
 def update_guild_service(
     guild_id: int, dto: UpdateGuildDTO, db: Session, payload: Payload
 ) -> GuildDetailDTO:
-    require_guild_role(guild_id, payload.manager_id, GuildRole.ADMIN, db)
+    verify_role(guild_id, payload.manager_id, GuildRole.ADMIN, db)
 
     guild = db.query(Guild).filter(Guild.guild_id == guild_id).first()
     if guild is None:
@@ -93,7 +93,7 @@ def update_guild_service(
 
 @service_exception_handler
 def delete_guild_service(guild_id: int, db: Session, payload: Payload) -> None:
-    require_guild_role(guild_id, payload.manager_id, GuildRole.OWNER, db)
+    verify_role(guild_id, payload.manager_id, GuildRole.OWNER, db)
 
     guild = db.query(Guild).filter(Guild.guild_id == guild_id).first()
     if guild is None:

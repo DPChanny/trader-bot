@@ -15,7 +15,7 @@ from shared.entities.preset_user_position import PresetUserPosition
 from shared.entities.user import User
 from shared.utils.exception import service_exception_handler
 
-from ..utils.guild_permission import get_accessible_guild_ids, require_guild_role
+from ..utils.role import get_guild_ids, verify_role
 from ..utils.token import Payload
 
 
@@ -38,7 +38,7 @@ def _query_preset_user_detail(preset_user_id: int, db: Session) -> PresetUser | 
 async def get_preset_user_detail_service(
     preset_user_id: int, db: Session, payload: Payload
 ) -> PresetUserDetailDTO:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     ownership = (
         db.query(PresetUser)
         .join(Preset)
@@ -61,7 +61,7 @@ async def get_preset_user_detail_service(
 async def add_preset_user_service(
     dto: AddPresetUserDTO, db: Session, payload: Payload
 ) -> PresetUserDetailDTO:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     preset = (
         db.query(Preset)
         .filter(
@@ -73,7 +73,7 @@ async def add_preset_user_service(
     if preset is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    require_guild_role(preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
+    verify_role(preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
 
     user = (
         db.query(User)
@@ -99,7 +99,7 @@ async def add_preset_user_service(
 
 @service_exception_handler
 def get_preset_user_list_service(db: Session, payload: Payload) -> list[PresetUserDTO]:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     preset_users = (
         db.query(PresetUser).join(Preset).filter(Preset.guild_id.in_(guild_ids)).all()
     )
@@ -110,7 +110,7 @@ def get_preset_user_list_service(db: Session, payload: Payload) -> list[PresetUs
 async def update_preset_user_service(
     preset_user_id: int, dto: UpdatePresetUserDTO, db: Session, payload: Payload
 ) -> PresetUserDetailDTO:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     preset_user = (
         db.query(PresetUser)
         .join(Preset)
@@ -124,9 +124,7 @@ async def update_preset_user_service(
         logger.warning(f"PresetUser not found: id={preset_user_id}")
         raise HTTPException(status_code=404, detail="PresetUser not found")
 
-    require_guild_role(
-        preset_user.preset.guild_id, payload.manager_id, GuildRole.EDITOR, db
-    )
+    verify_role(preset_user.preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(preset_user, key, value)
@@ -142,7 +140,7 @@ async def update_preset_user_service(
 def delete_preset_user_service(
     preset_user_id: int, db: Session, payload: Payload
 ) -> None:
-    guild_ids = get_accessible_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.manager_id, db)
     preset_user = (
         db.query(PresetUser)
         .join(Preset)
@@ -156,8 +154,6 @@ def delete_preset_user_service(
         logger.warning(f"PresetUser not found: id={preset_user_id}")
         raise HTTPException(status_code=404, detail="PresetUser not found")
 
-    require_guild_role(
-        preset_user.preset.guild_id, payload.manager_id, GuildRole.EDITOR, db
-    )
+    verify_role(preset_user.preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
 
     db.delete(preset_user)
