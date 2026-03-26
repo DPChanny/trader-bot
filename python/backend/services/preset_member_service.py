@@ -13,6 +13,7 @@ from shared.entities.member import Member
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
 from shared.entities.preset_member_position import PresetMemberPosition
+from shared.entities.tier import Tier
 from shared.utils.exception import service_exception_handler
 
 from ..utils.role import verify_role
@@ -84,6 +85,16 @@ async def add_preset_member_service(
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
 
+    if dto.tier_id is not None:
+        tier = (
+            db.query(Tier)
+            .join(Preset, Tier.preset_id == Preset.preset_id)
+            .filter(Tier.tier_id == dto.tier_id, Preset.guild_id == guild_id)
+            .first()
+        )
+        if tier is None:
+            raise HTTPException(status_code=404, detail="Tier not found")
+
     preset_member = PresetMember(
         preset_id=dto.preset_id,
         member_id=dto.member_id,
@@ -132,6 +143,15 @@ async def update_preset_member_service(
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
+        if key == "tier_id" and value is not None:
+            tier = (
+                db.query(Tier)
+                .join(Preset, Tier.preset_id == Preset.preset_id)
+                .filter(Tier.tier_id == value, Preset.guild_id == guild_id)
+                .first()
+            )
+            if tier is None:
+                raise HTTPException(status_code=404, detail="Tier not found")
         setattr(preset_member, key, value)
 
     db.commit()
