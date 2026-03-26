@@ -24,7 +24,9 @@ def save_lol_stat_to_db(member_id: int, lol_stat_dto: LolStatDto) -> None:
             lol_stat.tier = lol_stat_dto.tier
             lol_stat.rank = lol_stat_dto.rank
             lol_stat.lp = lol_stat_dto.lp
-            db.query(Champion).filter(Champion.lol_stat_id == lol_stat.id).delete()
+            db.query(Champion).filter(
+                Champion.lol_stat_id == lol_stat.lol_stat_id
+            ).delete()
         else:
             lol_stat = LolStat(
                 member_id=member_id,
@@ -37,7 +39,7 @@ def save_lol_stat_to_db(member_id: int, lol_stat_dto: LolStatDto) -> None:
 
         for idx, champ in enumerate(lol_stat_dto.top_champions, start=1):
             champion = Champion(
-                lol_stat_id=lol_stat.id,
+                lol_stat_id=lol_stat.lol_stat_id,
                 name=champ.name,
                 icon_url=champ.icon_url,
                 games=champ.games,

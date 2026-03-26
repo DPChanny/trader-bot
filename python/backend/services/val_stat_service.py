@@ -40,22 +40,3 @@ async def get_val_stat(member_id: int, db: Session, payload: Payload) -> ValStat
     ]
 
     return ValStatDto(tier=val_stat.tier, rank=val_stat.rank, top_agents=agents)
-
-    if val_stat is None:
-        logger.warning(f"ValStat not found: id={member_id}")
-        raise HTTPException(
-            status_code=404,
-            detail="ValStat not found",
-        )
-
-    agents = [
-        AgentDto(
-            name=agent.name,
-            icon_url=agent.icon_url,
-            games=agent.games,
-            win_rate=agent.win_rate,
-        )
-        for agent in sorted(val_stat.agents, key=lambda x: x.rank_order)
-    ]
-
-    return ValStatDto(tier=val_stat.tier, rank=val_stat.rank, top_agents=agents)

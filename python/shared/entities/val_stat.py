@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
@@ -14,22 +13,14 @@ if TYPE_CHECKING:
 
 
 class ValStat(BaseEntity):
-    """User's Valorant game data"""
-
     __tablename__ = "val_stat"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    val_stat_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     member_id: Mapped[int] = mapped_column(
         ForeignKey("member.member_id", ondelete="CASCADE"), unique=True, index=True
     )
     tier: Mapped[str] = mapped_column(String(50), nullable=False)
     rank: Mapped[str] = mapped_column(String(10), nullable=False, default="")
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
-    )
 
     member: Mapped[Member] = relationship("Member", back_populates="val_stat")
     agents: Mapped[list[Agent]] = relationship(
@@ -38,13 +29,11 @@ class ValStat(BaseEntity):
 
 
 class Agent(BaseEntity):
-    """Top agents for a user's Valorant data"""
-
     __tablename__ = "agent"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     val_stat_id: Mapped[int] = mapped_column(
-        ForeignKey("val_stat.id", ondelete="CASCADE"), index=True
+        ForeignKey("val_stat.val_stat_id", ondelete="CASCADE"), index=True
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     icon_url: Mapped[str] = mapped_column(String(500), nullable=False)

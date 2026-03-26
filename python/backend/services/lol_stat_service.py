@@ -45,27 +45,3 @@ async def get_lol_stat(member_id: int, db: Session, payload: Payload) -> LolStat
         lp=lol_stat.lp,
         top_champions=champions,
     )
-
-    if lol_stat is None:
-        logger.warning(f"LolStat not found: id={member_id}")
-        raise HTTPException(
-            status_code=404,
-            detail="LolStat not found",
-        )
-
-    champions = [
-        ChampionDto(
-            name=champ.name,
-            icon_url=champ.icon_url,
-            games=champ.games,
-            win_rate=champ.win_rate,
-        )
-        for champ in sorted(lol_stat.champions, key=lambda x: x.rank_order)
-    ]
-
-    return LolStatDto(
-        tier=lol_stat.tier,
-        rank=lol_stat.rank,
-        lp=lol_stat.lp,
-        top_champions=champions,
-    )

@@ -23,7 +23,7 @@ def save_val_stat_to_db(member_id: int, val_stat_dto: ValStatDto) -> None:
         if val_stat:
             val_stat.tier = val_stat_dto.tier
             val_stat.rank = val_stat_dto.rank
-            db.query(Agent).filter(Agent.val_stat_id == val_stat.id).delete()
+            db.query(Agent).filter(Agent.val_stat_id == val_stat.val_stat_id).delete()
         else:
             val_stat = ValStat(
                 member_id=member_id, tier=val_stat_dto.tier, rank=val_stat_dto.rank
@@ -33,7 +33,7 @@ def save_val_stat_to_db(member_id: int, val_stat_dto: ValStatDto) -> None:
 
         for idx, agent in enumerate(val_stat_dto.top_agents, start=1):
             agent_obj = Agent(
-                val_stat_id=val_stat.id,
+                val_stat_id=val_stat.val_stat_id,
                 name=agent.name,
                 icon_url=agent.icon_url,
                 games=agent.games,
