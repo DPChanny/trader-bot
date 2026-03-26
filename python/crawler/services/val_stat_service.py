@@ -9,15 +9,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from shared.dtos.val_stat_dto import AgentDto, ValStatDto
 from shared.entities.val_stat import Agent, ValStat
-from shared.utils.database import get_db
+
+from ..utils import session_context
 
 
 WEB_DRIVER_TIMEOUT = 20
 
 
-def save_val_stat_to_db(user_id: int, val_stat_dto: ValStatDto):
-    try:
-        db = next(get_db())
+def save_val_stat_to_db(user_id: int, val_stat_dto: ValStatDto) -> None:
+    with session_context() as db:
         val_stat = db.query(ValStat).filter(ValStat.user_id == user_id).first()
 
         if val_stat:
@@ -42,11 +42,7 @@ def save_val_stat_to_db(user_id: int, val_stat_dto: ValStatDto):
             )
             db.add(agent_obj)
 
-        db.commit()
-        db.close()
         logger.info(f"VAL stat data saved: {user_id}")
-    except Exception as e:
-        logger.error(f"Failed to save VAL stat data: {user_id} - {e}")
 
 
 def crawl_val_stat(

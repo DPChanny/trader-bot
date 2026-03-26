@@ -9,15 +9,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
 from shared.entities.lol_stat import Champion, LolStat
-from shared.utils.database import get_db
+
+from ..utils import session_context
 
 
 WEB_DRIVER_TIMEOUT = 20
 
 
-def save_lol_stat_to_db(user_id: int, lol_stat_dto: LolStatDto):
-    try:
-        db = next(get_db())
+def save_lol_stat_to_db(user_id: int, lol_stat_dto: LolStatDto) -> None:
+    with session_context() as db:
         lol_stat = db.query(LolStat).filter(LolStat.user_id == user_id).first()
 
         if lol_stat:
@@ -46,11 +46,7 @@ def save_lol_stat_to_db(user_id: int, lol_stat_dto: LolStatDto):
             )
             db.add(champion)
 
-        db.commit()
-        db.close()
         logger.info(f"LOL stat data saved: {user_id}")
-    except Exception as e:
-        logger.error(f"Failed to save LOL stat data: {user_id} - {e}")
 
 
 def crawl_lol_stat(

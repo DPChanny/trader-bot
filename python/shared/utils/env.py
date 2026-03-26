@@ -99,4 +99,4 @@ def get_bot_origin() -> str:
 
 
 def get_bot_endpoint() -> str:
-    return os.getenv("BOT_ENDPOINT", get_bot_origin())
+    return f"{get_bot_origin()}/bot"

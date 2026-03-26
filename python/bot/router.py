@@ -11,7 +11,13 @@ from .utils import get_bot
 router = APIRouter()
 
 
-@router.get("/profile/{discord_id}")
+@router.get(
+    "/profile/{discord_id}",
+    response_class=Response,
+    responses={
+        200: {"content": {"image/png": {}}, "description": "Discord profile image"}
+    },
+)
 async def get_profile_route(discord_id: str, bot: discord.Client = Depends(get_bot)):
     profile_bytes = await get_profile_service(discord_id, bot)
     return Response(content=profile_bytes, media_type="image/png")

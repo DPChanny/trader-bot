@@ -3,12 +3,12 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from loguru import logger
 
 from shared.entities.user import User
-from shared.utils.database import get_db, setup_db
+from shared.utils.database import setup_db
 from shared.utils.logging import setup_logging
 
 from .services.lol_stat_service import crawl_lol_stat, save_lol_stat_to_db
 from .services.val_stat_service import crawl_val_stat, save_val_stat_to_db
-from .utils import close_driver, create_driver
+from .utils import close_driver, create_driver, session_context
 
 
 setup_logging()
@@ -57,15 +57,14 @@ def main():
     setup_db()
 
     logger.info("Fetching users from database...")
-    db = next(get_db())
-    users = db.query(User).filter(User.riot_id.isnot(None)).all()
-    db.close()
-
-    crawl_tasks = []
-    for user in users:
-        if user.riot_id and "#" in user.riot_id:
-            game_name, tag_line = user.riot_id.split("#", 1)
-            crawl_tasks.append((user.user_id, game_name, tag_line))
+    with session_context() as db:
+        users = db.query(User).filter(User.riot_id.isnot(None)).all()
+        crawl_tasks = [
+            (user.user_id, game_name, tag_line)
+            for user in users
+            if user.riot_id and "#" in user.riot_id
+            for game_name, tag_line in [user.riot_id.split("#", 1)]
+        ]
 
     logger.info(f"Found {len(crawl_tasks)} users to crawl")
 
