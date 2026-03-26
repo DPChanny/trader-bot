@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
-from .entity import BaseEntity
+from ..entities import BaseEntity
 from .env import get_db_url
 
 
@@ -21,8 +21,6 @@ def setup_db():
     )
 
     _session_maker = sessionmaker(bind=_engine, autocommit=False, autoflush=False)
-
-    from .. import entities  # noqa: F401
 
     BaseEntity.metadata.create_all(bind=_engine)
 

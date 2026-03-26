@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..utils.entity import BaseEntity
+from . import BaseEntity
 
 
 if TYPE_CHECKING:

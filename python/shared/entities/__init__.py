@@ -1,3 +1,10 @@
+from sqlalchemy.orm import DeclarativeBase
+
+
+class BaseEntity(DeclarativeBase):
+    pass
+
+
 from .lol_stat import Champion, LolStat
 from .manager import Manager
 from .position import Position
@@ -11,6 +18,7 @@ from .val_stat import Agent, ValStat
 
 __all__ = [
     "Agent",
+    "BaseEntity",
     "Champion",
     "LolStat",
     "Manager",
