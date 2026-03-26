@@ -1,3 +1,4 @@
+import hashlib
 from datetime import UTC, datetime, timedelta
 
 import jwt
@@ -16,6 +17,10 @@ class Payload(BaseModel):
 
 
 JWT_EXPIRATION_MINUTES = 15
+
+
+def hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
 
 
 def create_token(

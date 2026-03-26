@@ -9,12 +9,12 @@ from shared.entities.user import User
 from shared.utils.exception import service_exception_handler
 
 from ..utils.discord import exchange_code, get_user
-from ..utils.token import create_token
+from ..utils.token import create_token, hash_token
 
 
 def _issue_tokens(user: User, db: Session) -> TokenDto:
     refresh_token = secrets.token_urlsafe(64)
-    user.refresh_token = refresh_token
+    user.refresh_token = hash_token(refresh_token)
     db.commit()
 
     return TokenDto(
@@ -45,7 +45,11 @@ async def get_token_service(dto: LoginDto, db: Session) -> TokenDto:
 
 @service_exception_handler
 def refresh_token_service(dto: RefreshDto, db: Session) -> TokenDto:
-    manager = db.query(User).filter(User.refresh_token == dto.refresh_token).first()
+    manager = (
+        db.query(User)
+        .filter(User.refresh_token == hash_token(dto.refresh_token))
+        .first()
+    )
     if manager is None:
         logger.warning("Token refresh failed: reason=invalid_refresh_token")
         raise HTTPException(status_code=401, detail="Auth failed")

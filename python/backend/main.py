@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from loguru import logger
 
 from shared.utils.database import setup_db
+from shared.utils.env import get_app_origin
 from shared.utils.logging import LoggingMiddleware, setup_logging
 
 from .routers import (
@@ -48,7 +49,7 @@ async def global_exception_handler(_, exc):
 app.add_middleware(LoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[get_app_origin()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
