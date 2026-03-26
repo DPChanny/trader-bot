@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from ..utils.dto import BaseDto
+from . import BaseDto
 
 
 class AuctionStatus(StrEnum):

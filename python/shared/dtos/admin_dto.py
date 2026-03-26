@@ -1,4 +1,4 @@
-from ..utils.dto import BaseDto
+from . import BaseDto
 
 
 class AdminLoginRequest(BaseDto):

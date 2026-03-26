@@ -1,4 +1,4 @@
-from ..utils.dto import BaseDto
+from . import BaseDto
 from .preset_user_position_dto import PresetUserPositionDetailDTO
 from .tier_dto import TierDTO
 from .user_dto import UserDTO

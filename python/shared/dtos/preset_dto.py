@@ -1,4 +1,4 @@
-from ..utils.dto import BaseDto, NullableStr
+from . import BaseDto, NullableStr
 
 from ..entities.preset import Statistics
 from .position_dto import PositionDTO

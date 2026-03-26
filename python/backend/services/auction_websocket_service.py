@@ -3,8 +3,7 @@ from loguru import logger
 
 from shared.dtos.auction_dto import AuctionStatus, MessageType
 
-from ..auction.auction import Auction
-from ..auction.auction_manager import auction_manager
+from ..auction import Auction, auction_manager
 
 
 async def handle_websocket_connect(

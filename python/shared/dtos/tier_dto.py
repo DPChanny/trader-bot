@@ -1,4 +1,4 @@
-from ..utils.dto import BaseDto, NullableStr
+from . import BaseDto, NullableStr
 
 
 class TierDTO(BaseDto):

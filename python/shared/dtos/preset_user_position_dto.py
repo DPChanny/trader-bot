@@ -1,4 +1,4 @@
-from ..utils.dto import BaseDto
+from . import BaseDto
 from .position_dto import PositionDTO
 
 
