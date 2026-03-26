@@ -15,7 +15,7 @@ def _query_guild_detail(guild_id: int, db: Session) -> Guild | None:
     return (
         db.query(Guild)
         .options(
-            joinedload(Guild.guild_managers).joinedload(GuildManager.manager),
+            joinedload(Guild.guild_managers).joinedload(GuildManager.user),
         )
         .filter(Guild.guild_id == guild_id)
         .first()
@@ -36,8 +36,8 @@ def add_guild_service(
 
     owner = GuildManager(
         guild_id=guild.guild_id,
-        manager_id=payload.manager_id,
-        role=GuildRole.OWNER,
+        user_id=payload.user_id,
+        role=GuildRole.ADMIN,
     )
     db.add(owner)
     db.commit()
@@ -52,7 +52,7 @@ def get_guild_list_service(db: Session, payload: Payload) -> list[GuildDTO]:
     guilds = (
         db.query(Guild)
         .join(GuildManager)
-        .filter(GuildManager.manager_id == payload.manager_id)
+        .filter(GuildManager.user_id == payload.user_id)
         .all()
     )
     return [GuildDTO.model_validate(g) for g in guilds]
@@ -62,7 +62,7 @@ def get_guild_list_service(db: Session, payload: Payload) -> list[GuildDTO]:
 def get_guild_detail_service(
     guild_id: int, db: Session, payload: Payload
 ) -> GuildDetailDTO:
-    verify_role(guild_id, payload.manager_id, GuildRole.VIEWER, db)
+    verify_role(guild_id, payload.user_id, GuildRole.VIEWER, db)
 
     guild = _query_guild_detail(guild_id, db)
     if guild is None:
@@ -75,7 +75,7 @@ def get_guild_detail_service(
 def update_guild_service(
     guild_id: int, dto: UpdateGuildDTO, db: Session, payload: Payload
 ) -> GuildDetailDTO:
-    verify_role(guild_id, payload.manager_id, GuildRole.ADMIN, db)
+    verify_role(guild_id, payload.user_id, GuildRole.ADMIN, db)
 
     guild = db.query(Guild).filter(Guild.guild_id == guild_id).first()
     if guild is None:
@@ -93,7 +93,7 @@ def update_guild_service(
 
 @service_exception_handler
 def delete_guild_service(guild_id: int, db: Session, payload: Payload) -> None:
-    verify_role(guild_id, payload.manager_id, GuildRole.OWNER, db)
+    verify_role(guild_id, payload.user_id, GuildRole.ADMIN, db)
 
     guild = db.query(Guild).filter(Guild.guild_id == guild_id).first()
     if guild is None:

@@ -9,7 +9,7 @@ from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 
 
 class Payload(BaseModel):
-    manager_id: int
+    user_id: int
     discord_id: str
     exp: int
     iat: int
@@ -19,14 +19,14 @@ JWT_EXPIRATION_MINUTES = 15
 
 
 def create_token(
-    manager_id: int,
+    user_id: int,
     discord_id: str,
     expiration_minutes: int = JWT_EXPIRATION_MINUTES,
 ) -> str:
     now = datetime.now(UTC)
     expiration = now + timedelta(minutes=expiration_minutes)
     token_data = {
-        "manager_id": manager_id,
+        "user_id": user_id,
         "discord_id": discord_id,
         "exp": int(expiration.timestamp()),
         "iat": int(now.timestamp()),

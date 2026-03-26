@@ -10,7 +10,7 @@ from . import BaseEntity
 
 if TYPE_CHECKING:
     from .preset import Preset
-    from .preset_user import PresetUser
+    from .preset_member import PresetMember
 
 
 class Tier(BaseEntity):
@@ -24,6 +24,6 @@ class Tier(BaseEntity):
     name: Mapped[str] = mapped_column(String(256), nullable=False)
 
     preset: Mapped[Preset] = relationship("Preset", back_populates="tiers")
-    preset_users: Mapped[list[PresetUser]] = relationship(
-        "PresetUser", back_populates="tier"
+    preset_members: Mapped[list[PresetMember]] = relationship(
+        "PresetMember", back_populates="tier"
     )

@@ -10,7 +10,7 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .user import User
+    from .member import Member
 
 
 class LolStat(BaseEntity):
@@ -19,8 +19,8 @@ class LolStat(BaseEntity):
     __tablename__ = "lol_stat"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("user.user_id", ondelete="CASCADE"), unique=True, index=True
+    member_id: Mapped[int] = mapped_column(
+        ForeignKey("member.member_id", ondelete="CASCADE"), unique=True, index=True
     )
     tier: Mapped[str] = mapped_column(String(50), nullable=False)
     rank: Mapped[str] = mapped_column(String(10), nullable=False, default="")
@@ -32,7 +32,7 @@ class LolStat(BaseEntity):
         onupdate=datetime.utcnow,
     )
 
-    user: Mapped[User] = relationship("User", back_populates="lol_stat")
+    member: Mapped[Member] = relationship("Member", back_populates="lol_stat")
     champions: Mapped[list[Champion]] = relationship(
         "Champion", back_populates="lol_stat", cascade="all, delete-orphan"
     )

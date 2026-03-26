@@ -16,9 +16,9 @@ from ..utils import session_context
 WEB_DRIVER_TIMEOUT = 20
 
 
-def save_val_stat_to_db(user_id: int, val_stat_dto: ValStatDto) -> None:
+def save_val_stat_to_db(member_id: int, val_stat_dto: ValStatDto) -> None:
     with session_context() as db:
-        val_stat = db.query(ValStat).filter(ValStat.user_id == user_id).first()
+        val_stat = db.query(ValStat).filter(ValStat.member_id == member_id).first()
 
         if val_stat:
             val_stat.tier = val_stat_dto.tier
@@ -26,7 +26,7 @@ def save_val_stat_to_db(user_id: int, val_stat_dto: ValStatDto) -> None:
             db.query(Agent).filter(Agent.val_stat_id == val_stat.id).delete()
         else:
             val_stat = ValStat(
-                user_id=user_id, tier=val_stat_dto.tier, rank=val_stat_dto.rank
+                member_id=member_id, tier=val_stat_dto.tier, rank=val_stat_dto.rank
             )
             db.add(val_stat)
             db.flush()
@@ -42,7 +42,7 @@ def save_val_stat_to_db(user_id: int, val_stat_dto: ValStatDto) -> None:
             )
             db.add(agent_obj)
 
-        logger.info(f"VAL stat data saved: {user_id}")
+        logger.info(f"VAL stat data saved: {member_id}")
 
 
 def crawl_val_stat(

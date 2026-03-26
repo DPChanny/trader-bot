@@ -16,9 +16,9 @@ from ..utils import session_context
 WEB_DRIVER_TIMEOUT = 20
 
 
-def save_lol_stat_to_db(user_id: int, lol_stat_dto: LolStatDto) -> None:
+def save_lol_stat_to_db(member_id: int, lol_stat_dto: LolStatDto) -> None:
     with session_context() as db:
-        lol_stat = db.query(LolStat).filter(LolStat.user_id == user_id).first()
+        lol_stat = db.query(LolStat).filter(LolStat.member_id == member_id).first()
 
         if lol_stat:
             lol_stat.tier = lol_stat_dto.tier
@@ -27,7 +27,7 @@ def save_lol_stat_to_db(user_id: int, lol_stat_dto: LolStatDto) -> None:
             db.query(Champion).filter(Champion.lol_stat_id == lol_stat.id).delete()
         else:
             lol_stat = LolStat(
-                user_id=user_id,
+                member_id=member_id,
                 tier=lol_stat_dto.tier,
                 rank=lol_stat_dto.rank,
                 lp=lol_stat_dto.lp,
@@ -46,7 +46,7 @@ def save_lol_stat_to_db(user_id: int, lol_stat_dto: LolStatDto) -> None:
             )
             db.add(champion)
 
-        logger.info(f"LOL stat data saved: {user_id}")
+        logger.info(f"LOL stat data saved: {member_id}")
 
 
 def crawl_lol_stat(

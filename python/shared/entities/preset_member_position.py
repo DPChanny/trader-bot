@@ -10,24 +10,24 @@ from . import BaseEntity
 
 if TYPE_CHECKING:
     from .position import Position
-    from .preset_user import PresetUser
+    from .preset_member import PresetMember
 
 
-class PresetUserPosition(BaseEntity):
-    __tablename__ = "preset_user_position"
+class PresetMemberPosition(BaseEntity):
+    __tablename__ = "preset_member_position"
     __table_args__ = (
         UniqueConstraint(
-            "preset_user_id",
+            "preset_member_id",
             "position_id",
-            name="uq_preset_user_position_user_pos",
+            name="uq_preset_member_position",
         ),
     )
 
-    preset_user_position_id: Mapped[int] = mapped_column(
+    preset_member_position_id: Mapped[int] = mapped_column(
         primary_key=True, autoincrement=True
     )
-    preset_user_id: Mapped[int] = mapped_column(
-        ForeignKey("preset_user.preset_user_id", ondelete="CASCADE"),
+    preset_member_id: Mapped[int] = mapped_column(
+        ForeignKey("preset_member.preset_member_id", ondelete="CASCADE"),
         nullable=False,
     )
     position_id: Mapped[int] = mapped_column(
@@ -35,9 +35,9 @@ class PresetUserPosition(BaseEntity):
         nullable=False,
     )
 
-    preset_user: Mapped[PresetUser] = relationship(
-        "PresetUser", back_populates="preset_user_positions"
+    preset_member: Mapped[PresetMember] = relationship(
+        "PresetMember", back_populates="preset_member_positions"
     )
     position: Mapped[Position] = relationship(
-        "Position", back_populates="preset_user_positions"
+        "Position", back_populates="preset_member_positions"
     )

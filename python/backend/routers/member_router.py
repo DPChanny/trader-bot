@@ -1,0 +1,82 @@
+from typing import Any
+
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from shared.dtos.member_dto import (
+    AddMemberDTO,
+    MemberDTO,
+    UpdateMemberDTO,
+)
+from shared.utils.database import get_db
+
+from ..services.member_service import (
+    add_member_service,
+    delete_member_service,
+    get_member_detail_service,
+    get_member_list_service,
+    update_member_service,
+    update_profile_service,
+)
+from ..utils.bucket import get_bucket
+from ..utils.token import Payload, verify_token
+
+
+member_router = APIRouter(prefix="/member", tags=["member"])
+
+
+@member_router.post("", response_model=MemberDTO)
+async def add_member_route(
+    dto: AddMemberDTO,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+    bucket: Any = Depends(get_bucket),
+):
+    return await add_member_service(dto, db, bucket, payload)
+
+
+@member_router.get("", response_model=list[MemberDTO])
+async def get_member_list_route(
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return await get_member_list_service(db, payload)
+
+
+@member_router.get("/{member_id}", response_model=MemberDTO)
+async def get_member_detail_route(
+    member_id: int,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return await get_member_detail_service(member_id, db, payload)
+
+
+@member_router.patch("/{member_id}", response_model=MemberDTO)
+async def update_member_route(
+    member_id: int,
+    dto: UpdateMemberDTO,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+    bucket: Any = Depends(get_bucket),
+):
+    return await update_member_service(member_id, dto, db, bucket, payload)
+
+
+@member_router.post("/{member_id}/profile", response_model=MemberDTO)
+async def update_profile_route(
+    member_id: int,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+    bucket: Any = Depends(get_bucket),
+):
+    return await update_profile_service(member_id, db, bucket, payload)
+
+
+@member_router.delete("/{member_id}", status_code=204)
+async def delete_member_route(
+    member_id: int,
+    db: Session = Depends(get_db),
+    payload: Payload = Depends(verify_token),
+):
+    return await delete_member_service(member_id, db, payload)

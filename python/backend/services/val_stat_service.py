@@ -3,7 +3,7 @@ from loguru import logger
 from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.val_stat_dto import AgentDto, ValStatDto
-from shared.entities.user import User
+from shared.entities.member import Member
 from shared.entities.val_stat import ValStat
 from shared.utils.exception import service_exception_handler
 
@@ -12,18 +12,18 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-async def get_val_stat(user_id: int, db: Session, payload: Payload) -> ValStatDto:
-    guild_ids = get_guild_ids(payload.manager_id, db)
+async def get_val_stat(member_id: int, db: Session, payload: Payload) -> ValStatDto:
+    guild_ids = get_guild_ids(payload.user_id, db)
     val_stat = (
         db.query(ValStat)
-        .join(User, ValStat.user_id == User.user_id)
+        .join(Member, ValStat.member_id == Member.member_id)
         .options(joinedload(ValStat.agents))
-        .filter(ValStat.user_id == user_id, User.guild_id.in_(guild_ids))
+        .filter(ValStat.member_id == member_id, Member.guild_id.in_(guild_ids))
         .first()
     )
 
     if val_stat is None:
-        logger.warning(f"ValStat not found: id={user_id}")
+        logger.warning(f"ValStat not found: id={member_id}")
         raise HTTPException(
             status_code=404,
             detail="ValStat not found",
@@ -42,7 +42,7 @@ async def get_val_stat(user_id: int, db: Session, payload: Payload) -> ValStatDt
     return ValStatDto(tier=val_stat.tier, rank=val_stat.rank, top_agents=agents)
 
     if val_stat is None:
-        logger.warning(f"ValStat not found: id={user_id}")
+        logger.warning(f"ValStat not found: id={member_id}")
         raise HTTPException(
             status_code=404,
             detail="ValStat not found",

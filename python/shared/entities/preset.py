@@ -12,7 +12,7 @@ from . import BaseEntity
 if TYPE_CHECKING:
     from .guild import Guild
     from .position import Position
-    from .preset_user import PresetUser
+    from .preset_member import PresetMember
     from .tier import Tier
 
 
@@ -50,8 +50,8 @@ class Preset(BaseEntity):
         back_populates="preset",
         cascade="all, delete-orphan",
     )
-    preset_users: Mapped[list[PresetUser]] = relationship(
-        "PresetUser",
+    preset_members: Mapped[list[PresetMember]] = relationship(
+        "PresetMember",
         back_populates="preset",
         cascade="all, delete-orphan",
     )

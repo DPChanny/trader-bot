@@ -5,12 +5,13 @@ from .auction_websocket_router import (
 from .guild_manager_router import guild_manager_router as guild_manager_router
 from .guild_router import guild_router as guild_router
 from .lol_stat_router import lol_stat_router as lol_stat_router
+from .member_router import member_router as member_router
 from .position_router import position_router as position_router
-from .preset_router import preset_router as preset_router
-from .preset_user_position_router import (
-    preset_user_position_router as preset_user_position_router,
+from .preset_member_position_router import (
+    preset_member_position_router as preset_member_position_router,
 )
-from .preset_user_router import preset_user_router as preset_user_router
+from .preset_member_router import preset_member_router as preset_member_router
+from .preset_router import preset_router as preset_router
 from .tier_router import tier_router as tier_router
 from .token_router import token_router as token_router
 from .user_router import user_router as user_router

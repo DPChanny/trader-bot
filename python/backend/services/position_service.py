@@ -18,7 +18,7 @@ from ..utils.token import Payload
 
 @service_exception_handler
 def get_position_list_service(db: Session, payload: Payload) -> list[PositionDTO]:
-    guild_ids = get_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.user_id, db)
     positions = (
         db.query(Position).join(Preset).filter(Preset.guild_id.in_(guild_ids)).all()
     )
@@ -29,7 +29,7 @@ def get_position_list_service(db: Session, payload: Payload) -> list[PositionDTO
 def get_position_detail_service(
     position_id: int, db: Session, payload: Payload
 ) -> PositionDTO:
-    guild_ids = get_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.user_id, db)
     position = (
         db.query(Position)
         .join(Preset)
@@ -51,7 +51,7 @@ def get_position_detail_service(
 def add_position_service(
     dto: AddPositionDTO, db: Session, payload: Payload
 ) -> PositionDTO:
-    guild_ids = get_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.user_id, db)
     preset = (
         db.query(Preset)
         .filter(
@@ -63,7 +63,7 @@ def add_position_service(
     if preset is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    verify_role(preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
+    verify_role(preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
 
     position = Position(
         preset_id=dto.preset_id,
@@ -81,7 +81,7 @@ def add_position_service(
 def update_position_service(
     position_id: int, dto: UpdatePositionDTO, db: Session, payload: Payload
 ) -> PositionDTO:
-    guild_ids = get_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.user_id, db)
     position = (
         db.query(Position)
         .join(Preset)
@@ -95,7 +95,7 @@ def update_position_service(
         logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
 
-    verify_role(position.preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
+    verify_role(position.preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(position, key, value)
@@ -109,7 +109,7 @@ def update_position_service(
 
 @service_exception_handler
 def delete_position_service(position_id: int, db: Session, payload: Payload) -> None:
-    guild_ids = get_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.user_id, db)
     position = (
         db.query(Position)
         .join(Preset)
@@ -123,7 +123,7 @@ def delete_position_service(position_id: int, db: Session, payload: Payload) -> 
         logger.warning(f"Position not found: id={position_id}")
         raise HTTPException(status_code=404, detail="Position not found")
 
-    verify_role(position.preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
+    verify_role(position.preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
 
     db.delete(position)
     db.commit()

@@ -13,9 +13,9 @@ class MessageType(StrEnum):
     TIMER = "timer"
     PLACE_BID = "place_bid"
     BID_PLACED = "bid_placed"
-    USER_SOLD = "user_sold"
-    USER_UNSOLD = "user_unsold"
-    NEXT_USER = "next_user"
+    MEMBER_SOLD = "member_sold"
+    MEMBER_UNSOLD = "member_unsold"
+    NEXT_MEMBER = "next_member"
     QUEUE_UPDATE = "queue_update"
     INIT = "init"
     STATUS = "status"
@@ -35,7 +35,7 @@ class AuctionStateDTO(BaseDto):
     auction_id: str
     preset_id: int
     status: AuctionStatus
-    current_user_id: int | None = None
+    current_member_id: int | None = None
     current_bid: int | None = None
     current_bidder: int | None = None
     timer: int
@@ -58,8 +58,8 @@ class StatusMessageData(BaseDto):
     status: str
 
 
-class NextUserMessageData(BaseDto):
-    user_id: int
+class NextMemberMessageData(BaseDto):
+    member_id: int
 
 
 class QueueUpdateMessageData(BaseDto):
@@ -67,7 +67,7 @@ class QueueUpdateMessageData(BaseDto):
     unsold_queue: list[int]
 
 
-class UserSoldMessageData(BaseDto):
+class MemberSoldMessageData(BaseDto):
     teams: list[Team]
 
 

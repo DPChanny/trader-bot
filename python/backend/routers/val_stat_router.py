@@ -11,10 +11,10 @@ from ..utils.token import Payload, verify_token
 val_stat_router = APIRouter(prefix="/val", tags=["val"])
 
 
-@val_stat_router.get("/{user_id}", response_model=ValStatDto)
+@val_stat_router.get("/{member_id}", response_model=ValStatDto)
 async def get_val_stat_route(
-    user_id: int,
+    member_id: int,
     db: Session = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
-    return await get_val_stat(user_id, db, payload)
+    return await get_val_stat(member_id, db, payload)

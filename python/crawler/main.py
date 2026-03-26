@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from loguru import logger
 
-from shared.entities.user import User
+from shared.entities.member import Member
 from shared.utils.database import setup_db
 from shared.utils.logging import setup_logging
 
@@ -16,19 +16,19 @@ setup_logging()
 MAX_WORKERS = 4
 
 
-def crawl_user(user_id: int, game_name: str, tag_line: str):
+def crawl_member(member_id: int, game_name: str, tag_line: str):
     lol_driver = None
     val_driver = None
     try:
-        logger.info(f"Starting crawl for user {user_id}: {game_name}#{tag_line}")
+        logger.info(f"Starting crawl for member {member_id}: {game_name}#{tag_line}")
 
         try:
             lol_driver = create_driver()
             lol_stat_dto = crawl_lol_stat(lol_driver, game_name, tag_line)
-            save_lol_stat_to_db(user_id, lol_stat_dto)
+            save_lol_stat_to_db(member_id, lol_stat_dto)
         except Exception as e:
             logger.error(
-                f"LOL stat crawl failed for {user_id}: {type(e).__name__}: {str(e)}"
+                f"LOL stat crawl failed for {member_id}: {type(e).__name__}: {str(e)}"
             )
         finally:
             close_driver(lol_driver)
@@ -36,19 +36,19 @@ def crawl_user(user_id: int, game_name: str, tag_line: str):
         try:
             val_driver = create_driver()
             val_stat_dto = crawl_val_stat(val_driver, game_name, tag_line)
-            save_val_stat_to_db(user_id, val_stat_dto)
+            save_val_stat_to_db(member_id, val_stat_dto)
         except Exception as e:
             logger.error(
-                f"VAL stat crawl failed for {user_id}: {type(e).__name__}: {str(e)}"
+                f"VAL stat crawl failed for {member_id}: {type(e).__name__}: {str(e)}"
             )
         finally:
             close_driver(val_driver)
 
-        logger.info(f"Finished crawl for user {user_id}")
-        return user_id, True
+        logger.info(f"Finished crawl for member {member_id}")
+        return member_id, True
     except Exception as e:
-        logger.error(f"Crawl failed for user {user_id}: {e}")
-        return user_id, False
+        logger.error(f"Crawl failed for member {member_id}: {e}")
+        return member_id, False
 
 
 def main():
@@ -58,18 +58,18 @@ def main():
 
     logger.info("Fetching users from database...")
     with session_context() as db:
-        users = db.query(User).filter(User.riot_id.isnot(None)).all()
+        members = db.query(Member).filter(Member.riot_id.isnot(None)).all()
         crawl_tasks = [
-            (user.user_id, game_name, tag_line)
-            for user in users
-            if user.riot_id and "#" in user.riot_id
-            for game_name, tag_line in [user.riot_id.split("#", 1)]
+            (member.member_id, game_name, tag_line)
+            for member in members
+            if member.riot_id and "#" in member.riot_id
+            for game_name, tag_line in [member.riot_id.split("#", 1)]
         ]
 
-    logger.info(f"Found {len(crawl_tasks)} users to crawl")
+    logger.info(f"Found {len(crawl_tasks)} members to crawl")
 
     if not crawl_tasks:
-        logger.info("No users to crawl. Exiting.")
+        logger.info("No members to crawl. Exiting.")
         return
 
     success_count = 0
@@ -77,12 +77,12 @@ def main():
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = {
-            executor.submit(crawl_user, user_id, game_name, tag_line): user_id
-            for user_id, game_name, tag_line in crawl_tasks
+            executor.submit(crawl_member, member_id, game_name, tag_line): member_id
+            for member_id, game_name, tag_line in crawl_tasks
         }
 
         for future in as_completed(futures):
-            user_id = futures[future]
+            member_id = futures[future]
             try:
                 _, success = future.result()
                 if success:
@@ -90,7 +90,7 @@ def main():
                 else:
                     fail_count += 1
             except Exception as e:
-                logger.error(f"Unexpected error for user {user_id}: {e}")
+                logger.error(f"Unexpected error for member {member_id}: {e}")
                 fail_count += 1
 
             logger.info(

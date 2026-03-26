@@ -8,13 +8,13 @@ from shared.dtos.auction_dto import (
     AuctionStateDTO,
     AuctionStatus,
     BidPlacedMessageData,
+    MemberSoldMessageData,
     MessageType,
-    NextUserMessageData,
+    NextMemberMessageData,
     QueueUpdateMessageData,
     StatusMessageData,
     Team,
     TimerMessageData,
-    UserSoldMessageData,
     WebSocketMessage,
 )
 
@@ -46,7 +46,7 @@ class Auction:
         self.auction_queue = shuffled_users
 
         self.unsold_queue: list[int] = []
-        self.current_user_id: int | None = None
+        self.current_member_id: int | None = None
         self.current_bid: int | None = None
         self.current_bidder: int | None = None
         self.timer_duration = timer_duration
@@ -165,7 +165,7 @@ class Auction:
             auction_id=self.auction_id,
             preset_id=self.preset_id,
             status=self.status,
-            current_user_id=self.current_user_id,
+            current_member_id=self.current_member_id,
             current_bid=self.current_bid,
             current_bidder=self.current_bidder,
             timer=self.timer,
@@ -209,7 +209,7 @@ class Auction:
                         next_user = True
 
             elif new_status == AuctionStatus.COMPLETED:
-                self.current_user_id = None
+                self.current_member_id = None
                 self.current_bid = None
                 self.current_bidder = None
                 self._stop_timer()
@@ -267,8 +267,8 @@ class Auction:
 
                 await self.broadcast(
                     WebSocketMessage(
-                        type=MessageType.USER_SOLD,
-                        data=UserSoldMessageData(
+                        type=MessageType.MEMBER_SOLD,
+                        data=MemberSoldMessageData(
                             teams=list(self.teams.values())
                         ).model_dump(),
                     )
@@ -296,7 +296,7 @@ class Auction:
                 self.unsold_queue = []
 
             if self.auction_queue:
-                self.current_user_id = self.auction_queue.pop(0)
+                self.current_member_id = self.auction_queue.pop(0)
             else:
                 completed = True
 
@@ -309,13 +309,13 @@ class Auction:
             self.current_bidder = None
             self.timer = self.timer_duration
 
-            current_user_id = self.current_user_id
+            current_member_id = self.current_member_id
 
             await self.broadcast(
                 WebSocketMessage(
-                    type=MessageType.NEXT_USER,
-                    data=NextUserMessageData(
-                        user_id=current_user_id,
+                    type=MessageType.NEXT_MEMBER,
+                    data=NextMemberMessageData(
+                        member_id=current_member_id,
                     ).model_dump(),
                 )
             )
@@ -353,21 +353,21 @@ class Auction:
     async def timer_expired(self):
         async with self._state_lock:
             if self.current_bid is None or self.current_bidder is None:
-                self.unsold_queue.append(self.current_user_id)
+                self.unsold_queue.append(self.current_member_id)
                 await self.broadcast(
                     WebSocketMessage(
-                        type=MessageType.USER_UNSOLD,
+                        type=MessageType.MEMBER_UNSOLD,
                         data={},
                     )
                 )
             else:
                 team = self.teams[self.current_bidder]
                 team.points -= self.current_bid
-                team.member_id_list.append(self.current_user_id)
+                team.member_id_list.append(self.current_member_id)
                 await self.broadcast(
                     WebSocketMessage(
-                        type=MessageType.USER_SOLD,
-                        data=UserSoldMessageData(
+                        type=MessageType.MEMBER_SOLD,
+                        data=MemberSoldMessageData(
                             teams=list(self.teams.values())
                         ).model_dump(),
                     )
@@ -400,8 +400,8 @@ class Auction:
         if self.status != AuctionStatus.IN_PROGRESS:
             return {"success": False, "error": "Auction not in progress"}
 
-        if self.current_user_id is None:
-            return {"success": False, "error": "No user being auctioned"}
+        if self.current_member_id is None:
+            return {"success": False, "error": "No member being auctioned"}
 
         if team_id not in self.teams:
             return {"success": False, "error": "Team not found"}

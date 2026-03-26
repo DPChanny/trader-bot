@@ -8,11 +8,11 @@ class BaseEntity(DeclarativeBase):
 from .guild import Guild
 from .guild_manager import GuildManager, GuildRole, guild_role_gte
 from .lol_stat import Champion, LolStat
-from .manager import Manager
+from .member import Member
 from .position import Position
 from .preset import Preset, Statistics
-from .preset_user import PresetUser
-from .preset_user_position import PresetUserPosition
+from .preset_member import PresetMember
+from .preset_member_position import PresetMemberPosition
 from .tier import Tier
 from .user import User
 from .val_stat import Agent, ValStat
@@ -26,11 +26,11 @@ __all__ = [
     "GuildManager",
     "GuildRole",
     "LolStat",
-    "Manager",
+    "Member",
     "Position",
     "Preset",
-    "PresetUser",
-    "PresetUserPosition",
+    "PresetMember",
+    "PresetMemberPosition",
     "Statistics",
     "Tier",
     "User",

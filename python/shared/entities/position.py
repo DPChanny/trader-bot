@@ -10,7 +10,7 @@ from . import BaseEntity
 
 if TYPE_CHECKING:
     from .preset import Preset
-    from .preset_user_position import PresetUserPosition
+    from .preset_member_position import PresetMemberPosition
 
 
 class Position(BaseEntity):
@@ -25,8 +25,8 @@ class Position(BaseEntity):
     icon_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
 
     preset: Mapped[Preset] = relationship("Preset", back_populates="positions")
-    preset_user_positions: Mapped[list[PresetUserPosition]] = relationship(
-        "PresetUserPosition",
+    preset_member_positions: Mapped[list[PresetMemberPosition]] = relationship(
+        "PresetMemberPosition",
         back_populates="position",
         cascade="all, delete-orphan",
     )

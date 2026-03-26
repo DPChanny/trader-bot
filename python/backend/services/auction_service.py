@@ -7,9 +7,9 @@ from shared.dtos.auction_dto import (
     Team,
 )
 from shared.entities.guild_manager import GuildRole
+from shared.entities.member import Member
 from shared.entities.preset import Preset
-from shared.entities.preset_user import PresetUser
-from shared.entities.user import User
+from shared.entities.preset_member import PresetMember
 from shared.utils.env import get_auction_url
 from shared.utils.exception import service_exception_handler
 
@@ -23,11 +23,11 @@ from ..utils.token import Payload
 async def add_auction_service(
     preset_id: int, db: Session, payload: Payload
 ) -> AuctionDTO:
-    guild_ids = get_guild_ids(payload.manager_id, db)
+    guild_ids = get_guild_ids(payload.user_id, db)
     preset = (
         db.query(Preset)
         .options(
-            joinedload(Preset.preset_users).joinedload(PresetUser.user),
+            joinedload(Preset.preset_members).joinedload(PresetMember.member),
         )
         .filter(Preset.preset_id == preset_id, Preset.guild_id.in_(guild_ids))
         .first()
@@ -39,14 +39,14 @@ async def add_auction_service(
         )
         raise HTTPException(status_code=404, detail="Auction create failed")
 
-    verify_role(preset.guild_id, payload.manager_id, GuildRole.EDITOR, db)
+    verify_role(preset.guild_id, payload.user_id, GuildRole.EDITOR, db)
 
-    preset_users = preset.preset_users
-    if not preset_users:
+    preset_members = preset.preset_members
+    if not preset_members:
         logger.warning(f"Auction create failed: reason=no_users, preset_id={preset_id}")
         raise HTTPException(status_code=400, detail="Auction create failed")
 
-    leaders = [pu for pu in preset_users if pu.is_leader]
+    leaders = [pm for pm in preset_members if pm.is_leader]
     if not leaders:
         logger.warning(
             f"Auction create failed: reason=no_leaders, preset_id={preset_id}"
@@ -63,44 +63,46 @@ async def add_auction_service(
         )
 
     teams = []
-    leader_user_ids = set()
+    leader_member_ids = set()
     for idx, leader in enumerate(leaders):
         team = Team(
             team_id=idx + 1,
-            leader_id=leader.user_id,
-            member_id_list=[leader.user_id],
+            leader_id=leader.member_id,
+            member_id_list=[leader.member_id],
             points=preset.points,
         )
         teams.append(team)
-        leader_user_ids.add(leader.user_id)
+        leader_member_ids.add(leader.member_id)
 
-    user_ids = [preset_user.user_id for preset_user in preset_users]
+    member_ids = [pm.member_id for pm in preset_members]
 
     auction_id, user_tokens = auction_manager.add_auction(
         preset_id=preset_id,
         teams=teams,
-        user_ids=user_ids,
-        leader_user_ids=leader_user_ids,
+        user_ids=member_ids,
+        leader_user_ids=leader_member_ids,
         time=preset.time,
     )
 
-    logger.info(f"Auction created: auction_id={auction_id}, user_count={len(user_ids)}")
+    logger.info(
+        f"Auction created: auction_id={auction_id}, member_count={len(member_ids)}"
+    )
 
     invites = []
-    for user_id in user_ids:
-        if user_id in user_tokens:
-            token = user_tokens[user_id]
-            user = db.query(User).filter(User.user_id == user_id).first()
+    for member_id in member_ids:
+        if member_id in user_tokens:
+            token = user_tokens[member_id]
+            member = db.query(Member).filter(Member.member_id == member_id).first()
 
-            if user is None:
+            if member is None:
                 logger.warning(
-                    f"Auction setup warning: reason=user_not_found, user_id={user_id}"
+                    f"Auction setup warning: reason=member_not_found, member_id={member_id}"
                 )
                 continue
 
             auction_url = get_auction_url(token)
-            if user.discord_id is not None:
-                invites.append((user.discord_id, auction_url))
+            if member.discord_id is not None:
+                invites.append((member.discord_id, auction_url))
 
     if invites:
         await invite(invites)

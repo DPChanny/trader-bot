@@ -14,10 +14,11 @@ from .routers import (
     guild_manager_router,
     guild_router,
     lol_stat_router,
+    member_router,
     position_router,
+    preset_member_position_router,
+    preset_member_router,
     preset_router,
-    preset_user_position_router,
-    preset_user_router,
     tier_router,
     token_router,
     user_router,
@@ -54,12 +55,13 @@ app.add_middleware(
 )
 
 
+app.include_router(member_router, prefix="/api")
 app.include_router(user_router, prefix="/api")
 app.include_router(position_router, prefix="/api")
 app.include_router(preset_router, prefix="/api")
 app.include_router(tier_router, prefix="/api")
-app.include_router(preset_user_router, prefix="/api")
-app.include_router(preset_user_position_router, prefix="/api")
+app.include_router(preset_member_router, prefix="/api")
+app.include_router(preset_member_position_router, prefix="/api")
 app.include_router(token_router, prefix="/api")
 app.include_router(lol_stat_router, prefix="/api")
 app.include_router(val_stat_router, prefix="/api")

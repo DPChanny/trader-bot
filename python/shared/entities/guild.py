@@ -10,8 +10,8 @@ from . import BaseEntity
 
 if TYPE_CHECKING:
     from .guild_manager import GuildManager
+    from .member import Member
     from .preset import Preset
-    from .user import User
 
 
 class Guild(BaseEntity):
@@ -31,8 +31,8 @@ class Guild(BaseEntity):
         back_populates="guild",
         cascade="all, delete-orphan",
     )
-    users: Mapped[list[User]] = relationship(
-        "User",
+    members: Mapped[list[Member]] = relationship(
+        "Member",
         back_populates="guild",
         cascade="all, delete-orphan",
     )

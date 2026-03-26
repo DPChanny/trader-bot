@@ -10,7 +10,7 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .user import User
+    from .member import Member
 
 
 class ValStat(BaseEntity):
@@ -19,8 +19,8 @@ class ValStat(BaseEntity):
     __tablename__ = "val_stat"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("user.user_id", ondelete="CASCADE"), unique=True, index=True
+    member_id: Mapped[int] = mapped_column(
+        ForeignKey("member.member_id", ondelete="CASCADE"), unique=True, index=True
     )
     tier: Mapped[str] = mapped_column(String(50), nullable=False)
     rank: Mapped[str] = mapped_column(String(10), nullable=False, default="")
@@ -31,7 +31,7 @@ class ValStat(BaseEntity):
         onupdate=datetime.utcnow,
     )
 
-    user: Mapped[User] = relationship("User", back_populates="val_stat")
+    member: Mapped[Member] = relationship("Member", back_populates="val_stat")
     agents: Mapped[list[Agent]] = relationship(
         "Agent", back_populates="val_stat", cascade="all, delete-orphan"
     )

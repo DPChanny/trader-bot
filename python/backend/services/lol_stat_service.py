@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
 from shared.entities.lol_stat import LolStat
-from shared.entities.user import User
+from shared.entities.member import Member
 from shared.utils.exception import service_exception_handler
 
 from ..utils.role import get_guild_ids
@@ -12,18 +12,18 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-async def get_lol_stat(user_id: int, db: Session, payload: Payload) -> LolStatDto:
-    guild_ids = get_guild_ids(payload.manager_id, db)
+async def get_lol_stat(member_id: int, db: Session, payload: Payload) -> LolStatDto:
+    guild_ids = get_guild_ids(payload.user_id, db)
     lol_stat = (
         db.query(LolStat)
-        .join(User, LolStat.user_id == User.user_id)
+        .join(Member, LolStat.member_id == Member.member_id)
         .options(joinedload(LolStat.champions))
-        .filter(LolStat.user_id == user_id, User.guild_id.in_(guild_ids))
+        .filter(LolStat.member_id == member_id, Member.guild_id.in_(guild_ids))
         .first()
     )
 
     if lol_stat is None:
-        logger.warning(f"LolStat not found: id={user_id}")
+        logger.warning(f"LolStat not found: id={member_id}")
         raise HTTPException(
             status_code=404,
             detail="LolStat not found",
@@ -47,7 +47,7 @@ async def get_lol_stat(user_id: int, db: Session, payload: Payload) -> LolStatDt
     )
 
     if lol_stat is None:
-        logger.warning(f"LolStat not found: id={user_id}")
+        logger.warning(f"LolStat not found: id={member_id}")
         raise HTTPException(
             status_code=404,
             detail="LolStat not found",

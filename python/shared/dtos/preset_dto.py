@@ -1,7 +1,7 @@
 from ..entities.preset import Statistics
 from . import BaseDto, NullableStr
 from .position_dto import PositionDTO
-from .preset_user_dto import PresetUserDetailDTO
+from .preset_member_dto import PresetMemberDetailDTO
 from .tier_dto import TierDTO
 
 
@@ -18,7 +18,7 @@ class PresetDTO(BaseDto):
 
 
 class PresetDetailDTO(PresetDTO):
-    preset_users: list[PresetUserDetailDTO] = []
+    preset_members: list[PresetMemberDetailDTO] = []
     tiers: list[TierDTO] = []
     positions: list[PositionDTO] = []
 
