@@ -66,7 +66,7 @@ async def add_preset_member_position_service(
         raise HTTPException(
             status_code=400,
             detail="PresetMemberPosition duplicated",
-        ) from e
+        ) from None
 
     await db.refresh(preset_member_position)
     logger.info(

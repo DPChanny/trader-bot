@@ -49,12 +49,12 @@ def decode_token(token: str) -> Payload:
         return Payload(**payload)
     except jwt.ExpiredSignatureError as e:
         logger.warning("Token validation failed: reason=expired")
-        raise HTTPException(status_code=401, detail="Token expired") from e
+        raise HTTPException(status_code=401, detail="Token expired") from None
     except jwt.InvalidTokenError as e:
         logger.error(
             f"Token validation failed: reason=invalid, type={type(e).__name__}"
         )
-        raise HTTPException(status_code=401, detail="Invalid token") from e
+        raise HTTPException(status_code=401, detail="Invalid token") from None
 
 
 async def verify_token(authorization: str = Header(None)) -> Payload:

@@ -23,6 +23,8 @@ def service_exception_handler(func):
             if isinstance(e, HTTPException):
                 raise e
             logger.exception(f"Unhandled exception: {e}")
-            raise HTTPException(status_code=500, detail="Internal server error") from e
+            raise HTTPException(
+                status_code=500, detail="Internal server error"
+            ) from None
 
     return wrapper

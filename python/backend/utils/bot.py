@@ -10,8 +10,8 @@ def _raise(e: httpx.HTTPStatusError | httpx.RequestError) -> None:
     if isinstance(e, httpx.HTTPStatusError):
         raise HTTPException(
             status_code=e.response.status_code, detail=f"Bot error: {e.response.text}"
-        ) from e
-    raise HTTPException(status_code=503, detail="Bot unreachable") from e
+        ) from None
+    raise HTTPException(status_code=503, detail="Bot unreachable") from None
 
 
 async def get_profile(discord_id: str) -> bytes:
