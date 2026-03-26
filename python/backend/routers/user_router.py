@@ -18,8 +18,8 @@ from ..services.user_service import (
     update_profile_service,
     update_user_service,
 )
-from ..utils.token import verify_token
 from ..utils.bucket import get_bucket
+from ..utils.token import verify_token
 
 
 user_router = APIRouter(prefix="/user", tags=["user"])

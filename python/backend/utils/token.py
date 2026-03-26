@@ -85,7 +85,7 @@ def refresh_token(token: str) -> str:
 
         return create_token(payload)
     except jwt.InvalidTokenError as e:
-        raise Exception("Invalid token for refresh") from e
+        raise HTTPException(status_code=401, detail="Token refresh failed") from e
 
 
 async def verify_token(

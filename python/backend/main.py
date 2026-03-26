@@ -11,13 +11,13 @@ from shared.utils.logging import LoggingMiddleware, setup_logging
 from .routers import (
     auction_router,
     auction_websocket_router,
-    auth_router,
     lol_stat_router,
     position_router,
     preset_router,
     preset_user_position_router,
     preset_user_router,
     tier_router,
+    token_router,
     user_router,
     val_stat_router,
 )
@@ -58,7 +58,7 @@ app.include_router(preset_router, prefix="/api")
 app.include_router(tier_router, prefix="/api")
 app.include_router(preset_user_router, prefix="/api")
 app.include_router(preset_user_position_router, prefix="/api")
-app.include_router(auth_router, prefix="/api")
+app.include_router(token_router, prefix="/api")
 app.include_router(lol_stat_router, prefix="/api")
 app.include_router(val_stat_router, prefix="/api")
 app.include_router(auction_router, prefix="/api")
