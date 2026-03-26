@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from shared.dtos.guild_manager_dto import (
     AddGuildManagerDTO,
@@ -22,7 +22,10 @@ def get_guild_manager_list_service(
     require_guild_role(guild_id, payload.manager_id, GuildRole.VIEWER, db)
 
     guild_managers = (
-        db.query(GuildManager).filter(GuildManager.guild_id == guild_id).all()
+        db.query(GuildManager)
+        .options(joinedload(GuildManager.manager))
+        .filter(GuildManager.guild_id == guild_id)
+        .all()
     )
     return [GuildManagerDetailDTO.model_validate(gm) for gm in guild_managers]
 
