@@ -1,14 +1,14 @@
-from pydantic import BaseModel
+from ..utils.dto import BaseDto
 
 
-class ChampionDto(BaseModel):
+class ChampionDto(BaseDto):
     name: str
     icon_url: str
     games: int
     win_rate: float
 
 
-class LolStatDto(BaseModel):
+class LolStatDto(BaseDto):
     tier: str
     rank: str
     lp: int

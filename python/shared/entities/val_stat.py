@@ -6,14 +6,14 @@ from typing import TYPE_CHECKING
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from ..utils.entity import BaseEntity
 
 
 if TYPE_CHECKING:
     from .user import User
 
 
-class ValStat(Base):
+class ValStat(BaseEntity):
     """User's Valorant game data"""
 
     __tablename__ = "val_stat"
@@ -37,7 +37,7 @@ class ValStat(Base):
     )
 
 
-class Agent(Base):
+class Agent(BaseEntity):
     """Top agents for a user's Valorant data"""
 
     __tablename__ = "agent"

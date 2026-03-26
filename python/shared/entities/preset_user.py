@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from ..utils.entity import BaseEntity
 
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from .user import User
 
 
-class PresetUser(Base):
+class PresetUser(BaseEntity):
     __tablename__ = "preset_user"
 
     preset_user_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

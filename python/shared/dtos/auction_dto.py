@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from pydantic import BaseModel
+from ..utils.dto import BaseDto
 
 
 class AuctionStatus(StrEnum):
@@ -24,14 +24,14 @@ class MessageType(StrEnum):
     USER_DISCONNECTED = "user_disconnected"
 
 
-class Team(BaseModel):
+class Team(BaseDto):
     team_id: int
     leader_id: int
     member_id_list: list[int] = []
     points: int
 
 
-class AuctionStateDTO(BaseModel):
+class AuctionStateDTO(BaseDto):
     auction_id: str
     preset_id: int
     status: AuctionStatus
@@ -45,42 +45,42 @@ class AuctionStateDTO(BaseModel):
     connected_users: list[int]
 
 
-class AuctionDTO(BaseModel):
+class AuctionDTO(BaseDto):
     auction_id: str
     preset_id: int
 
 
-class TimerMessageData(BaseModel):
+class TimerMessageData(BaseDto):
     timer: int
 
 
-class StatusMessageData(BaseModel):
+class StatusMessageData(BaseDto):
     status: str
 
 
-class NextUserMessageData(BaseModel):
+class NextUserMessageData(BaseDto):
     user_id: int
 
 
-class QueueUpdateMessageData(BaseModel):
+class QueueUpdateMessageData(BaseDto):
     auction_queue: list[int]
     unsold_queue: list[int]
 
 
-class UserSoldMessageData(BaseModel):
+class UserSoldMessageData(BaseDto):
     teams: list[Team]
 
 
-class BidPlacedMessageData(BaseModel):
+class BidPlacedMessageData(BaseDto):
     team_id: int
     leader_id: int
     amount: int
 
 
-class ErrorMessageData(BaseModel):
+class ErrorMessageData(BaseDto):
     error: str
 
 
-class WebSocketMessage(BaseModel):
+class WebSocketMessage(BaseDto):
     type: str
     data: dict

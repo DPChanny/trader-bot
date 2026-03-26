@@ -1,9 +1,9 @@
-from pydantic import BaseModel
+from ..utils.dto import BaseDto
 
 
-class AdminLoginRequest(BaseModel):
+class AdminLoginRequest(BaseDto):
     password: str
 
 
-class TokenResponse(BaseModel):
+class TokenResponse(BaseDto):
     token: str

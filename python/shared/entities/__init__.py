@@ -1,4 +1,5 @@
 from .lol_stat import Champion, LolStat
+from .manager import Manager
 from .position import Position
 from .preset import Preset, Statistics
 from .preset_user import PresetUser
@@ -12,6 +13,7 @@ __all__ = [
     "Agent",
     "Champion",
     "LolStat",
+    "Manager",
     "Position",
     "Preset",
     "PresetUser",

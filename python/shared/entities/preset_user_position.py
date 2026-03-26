@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from ..utils.entity import BaseEntity
 
 
 if TYPE_CHECKING:
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from .preset_user import PresetUser
 
 
-class PresetUserPosition(Base):
+class PresetUserPosition(BaseEntity):
     __tablename__ = "preset_user_position"
     __table_args__ = (
         UniqueConstraint(

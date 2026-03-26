@@ -1,9 +1,9 @@
-from pydantic import BaseModel, computed_field
+from pydantic import computed_field
 
-from ..utils.types import NullableStr
+from ..utils.dto import BaseDto, NullableStr
 
 
-class UserDTO(BaseModel):
+class UserDTO(BaseDto):
     user_id: int
     alias: str | None
     riot_id: str | None
@@ -21,13 +21,13 @@ class UserDTO(BaseModel):
         return get_profile_url(self.user_id)
 
 
-class AddUserDTO(BaseModel):
+class AddUserDTO(BaseDto):
     alias: NullableStr = None
     riot_id: NullableStr = None
     discord_id: NullableStr = None
 
 
-class UpdateUserDTO(BaseModel):
+class UpdateUserDTO(BaseDto):
     alias: NullableStr = None
     riot_id: NullableStr = None
     discord_id: NullableStr = None

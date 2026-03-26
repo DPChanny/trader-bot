@@ -1,9 +1,7 @@
-from pydantic import BaseModel
-
-from ..utils.types import NullableStr
+from ..utils.dto import BaseDto, NullableStr
 
 
-class PositionDTO(BaseModel):
+class PositionDTO(BaseDto):
     position_id: int
     preset_id: int
     name: str
@@ -12,12 +10,12 @@ class PositionDTO(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class AddPositionDTO(BaseModel):
+class AddPositionDTO(BaseDto):
     preset_id: int
     name: str
     icon_url: NullableStr = None
 
 
-class UpdatePositionDTO(BaseModel):
+class UpdatePositionDTO(BaseDto):
     name: NullableStr = None
     icon_url: NullableStr = None

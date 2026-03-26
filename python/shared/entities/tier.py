@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from ..utils.entity import BaseEntity
 
 
 if TYPE_CHECKING:
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from .preset_user import PresetUser
 
 
-class Tier(Base):
+class Tier(BaseEntity):
     __tablename__ = "tier"
 
     tier_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

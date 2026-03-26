@@ -1,9 +1,8 @@
-from pydantic import BaseModel
-
+from ..utils.dto import BaseDto
 from .position_dto import PositionDTO
 
 
-class PresetUserPositionDTO(BaseModel):
+class PresetUserPositionDTO(BaseDto):
     preset_user_position_id: int
     preset_user_id: int
     position_id: int
@@ -15,10 +14,10 @@ class PresetUserPositionDetailDTO(PresetUserPositionDTO):
     position: PositionDTO
 
 
-class AddPresetUserPositionDTO(BaseModel):
+class AddPresetUserPositionDTO(BaseDto):
     preset_user_id: int
     position_id: int
 
 
-class DeletePresetUserPositionDTO(BaseModel):
+class DeletePresetUserPositionDTO(BaseDto):
     preset_user_position_id: int

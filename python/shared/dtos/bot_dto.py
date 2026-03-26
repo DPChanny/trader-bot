@@ -1,5 +1,5 @@
-from pydantic import BaseModel
+from ..utils.dto import BaseDto
 
 
-class InviteDTO(BaseModel):
+class InviteDTO(BaseDto):
     invites: list[tuple[str, str]]

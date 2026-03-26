@@ -1,6 +1,4 @@
-from pydantic import BaseModel
-
-from ..utils.types import NullableStr
+from ..utils.dto import BaseDto, NullableStr
 
 from ..entities.preset import Statistics
 from .position_dto import PositionDTO
@@ -8,7 +6,7 @@ from .preset_user_dto import PresetUserDetailDTO
 from .tier_dto import TierDTO
 
 
-class PresetDTO(BaseModel):
+class PresetDTO(BaseDto):
     preset_id: int
     name: str
     points: int
@@ -25,7 +23,7 @@ class PresetDetailDTO(PresetDTO):
     positions: list[PositionDTO] = []
 
 
-class AddPresetDTO(BaseModel):
+class AddPresetDTO(BaseDto):
     name: str
     points: int
     time: int
@@ -33,7 +31,7 @@ class AddPresetDTO(BaseModel):
     statistics: Statistics = Statistics.NONE
 
 
-class UpdatePresetDTO(BaseModel):
+class UpdatePresetDTO(BaseDto):
     name: NullableStr = None
     points: int | None = None
     time: int | None = None

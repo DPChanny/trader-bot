@@ -1,9 +1,7 @@
-from pydantic import BaseModel
-
-from ..utils.types import NullableStr
+from ..utils.dto import BaseDto, NullableStr
 
 
-class TierDTO(BaseModel):
+class TierDTO(BaseDto):
     tier_id: int
     preset_id: int
     name: str
@@ -11,10 +9,10 @@ class TierDTO(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class AddTierDTO(BaseModel):
+class AddTierDTO(BaseDto):
     preset_id: int
     name: str
 
 
-class UpdateTierDTO(BaseModel):
+class UpdateTierDTO(BaseDto):
     name: NullableStr = None

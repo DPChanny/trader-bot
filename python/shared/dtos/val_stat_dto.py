@@ -1,14 +1,14 @@
-from pydantic import BaseModel
+from ..utils.dto import BaseDto
 
 
-class AgentDto(BaseModel):
+class AgentDto(BaseDto):
     name: str
     icon_url: str
     games: int
     win_rate: float
 
 
-class ValStatDto(BaseModel):
+class ValStatDto(BaseDto):
     tier: str
     rank: str
     top_agents: list[AgentDto]
