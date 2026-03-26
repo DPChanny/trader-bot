@@ -10,14 +10,10 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-def get_user_list_service(db: Session, payload: Payload) -> list[UserDTO]:
-    users = db.query(User).all()
-    return [UserDTO.model_validate(u) for u in users]
-
-
-@service_exception_handler
-def get_user_detail_service(user_id: int, db: Session, payload: Payload) -> UserDTO:
-    user = db.query(User).filter(User.user_id == user_id).first()
+def get_user_by_discord_id_service(
+    discord_id: str, db: Session, payload: Payload
+) -> UserDTO:
+    user = db.query(User).filter(User.discord_id == discord_id).first()
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return UserDTO.model_validate(user)
