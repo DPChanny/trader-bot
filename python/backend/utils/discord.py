@@ -1,3 +1,6 @@
+import urllib.parse
+
+import discord
 import httpx
 from fastapi import HTTPException
 
@@ -16,22 +19,43 @@ DISCORD_GUILDS_URL = "https://discord.com/api/guilds"
 DISCORD_CHANNELS_URL = "https://discord.com/api/channels"
 
 
-def get_auth_callback_url() -> str:
+def get_login_callback_url() -> str:
     return f"{get_api_endpoint()}/auth/callback"
 
 
 def get_add_guild_callback_url() -> str:
-    return f"{get_api_endpoint()}/guild/bot-invite-callback"
+    return f"{get_api_endpoint()}/guild/callback"
 
 
 def get_login_url() -> str:
-    return (
-        f"{DISCORD_OAUTH_URL}"
-        f"?client_id={get_discord_client_id()}"
-        f"&scope=identify"
-        f"&response_type=code"
-        f"&redirect_uri={get_auth_callback_url()}"
+    params = urllib.parse.urlencode(
+        {
+            "client_id": get_discord_client_id(),
+            "scope": "identify",
+            "response_type": "code",
+            "redirect_uri": get_login_callback_url(),
+        }
     )
+    return f"{DISCORD_OAUTH_URL}?{params}"
+
+
+def get_add_guild_url(state: str) -> str:
+    params = urllib.parse.urlencode(
+        {
+            "client_id": get_discord_client_id(),
+            "scope": "bot",
+            "permissions": discord.Permissions(
+                view_channel=True,
+                send_messages=True,
+                embed_links=True,
+                attach_files=True,
+                read_message_history=True,
+            ).value,
+            "redirect_uri": get_add_guild_callback_url(),
+            "state": state,
+        }
+    )
+    return f"{DISCORD_OAUTH_URL}?{params}"
 
 
 async def get_me(code: str) -> dict:
@@ -40,7 +64,7 @@ async def get_me(code: str) -> dict:
         "client_secret": get_discord_client_secret(),
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": get_auth_callback_url(),
+        "redirect_uri": get_login_callback_url(),
     }
     async with httpx.AsyncClient() as client:
         token_response = await client.post(

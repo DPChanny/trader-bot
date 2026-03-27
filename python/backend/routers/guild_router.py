@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild_dto import (
-    BotInviteUrlDTO,
+    InviteUrlDTO,
     GuildDetailDTO,
     GuildDTO,
     UpdateGuildDTO,
@@ -60,14 +60,14 @@ async def delete_guild_route(
     return await delete_guild_service(guild_id, db, payload)
 
 
-@guild_router.get("/bot-invite", response_model=BotInviteUrlDTO)
+@guild_router.post("", response_model=InviteUrlDTO)
 async def add_guild_route(
     payload: Payload = Depends(verify_token),
 ):
     return await add_guild_service(payload)
 
 
-@guild_router.get("/bot-invite-callback")
+@guild_router.get("/callback")
 async def add_guild_callback_route(
     guild_id: str = Query(),
     state: str = Query(),

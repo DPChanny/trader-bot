@@ -12,7 +12,7 @@ def _empty_str_to_none(v: object) -> object:
 NullableStr = Annotated[str | None, BeforeValidator(_empty_str_to_none)]
 
 
-class BaseDto(BaseModel):
+class BaseDTO(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def strip_strings(cls, data: object) -> object:
@@ -21,4 +21,4 @@ class BaseDto(BaseModel):
         return data
 
 
-__all__ = ["BaseDto", "NullableStr"]
+__all__ = ["BaseDTO", "NullableStr"]

@@ -1,6 +1,3 @@
-import urllib.parse
-
-import discord
 from fastapi import HTTPException
 from fastapi.responses import RedirectResponse
 from loguru import logger
@@ -9,19 +6,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from shared.dtos.guild_dto import (
-    BotInviteUrlDTO,
+    InviteUrlDTO,
     GuildDetailDTO,
     GuildDTO,
     UpdateGuildDTO,
 )
 from shared.entities.guild import Guild
 from shared.entities.manager import Manager, Role
-from shared.utils.env import get_app_origin, get_discord_client_id
+from shared.utils.env import get_app_origin
 from shared.utils.exception import service_exception_handler
 
 from ..utils.discord import (
-    DISCORD_OAUTH_URL,
-    get_add_guild_callback_url,
+    get_add_guild_url,
     get_guild,
 )
 from ..utils.role import verify_role
@@ -97,25 +93,9 @@ async def delete_guild_service(
 
 
 @service_exception_handler
-async def add_guild_service(payload: Payload) -> BotInviteUrlDTO:
+async def add_guild_service(payload: Payload) -> InviteUrlDTO:
     state = create_token(payload.user_id, payload.discord_id, expiration_minutes=10)
-    params = urllib.parse.urlencode(
-        {
-            "client_id": get_discord_client_id(),
-            "scope": "bot",
-            "permissions": discord.Permissions(
-                view_channel=True,
-                send_messages=True,
-                embed_links=True,
-                attach_files=True,
-                read_message_history=True,
-            ).value,
-            "redirect_uri": get_add_guild_callback_url(),
-            "state": state,
-        }
-    )
-    url = f"{DISCORD_OAUTH_URL}?{params}"
-    return BotInviteUrlDTO(url=url)
+    return InviteUrlDTO(url=get_add_guild_url(state))
 
 
 @service_exception_handler

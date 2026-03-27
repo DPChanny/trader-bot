@@ -14,14 +14,9 @@ class GuildDetailDTO(GuildDTO):
     managers: list[ManagerDetailDTO] = []
 
 
-class AddGuildDTO(BaseDto):
-    discord_id: str
-    name: str
-
-
 class UpdateGuildDTO(BaseDto):
     name: str | None = None
 
 
-class BotInviteUrlDTO(BaseDto):
+class InviteUrlDTO(BaseDto):
     url: str
