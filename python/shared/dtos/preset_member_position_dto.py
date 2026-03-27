@@ -15,5 +15,4 @@ class PresetMemberPositionDetailDTO(PresetMemberPositionDTO):
 
 
 class AddPresetMemberPositionDTO(BaseDTO):
-    preset_member_id: int
     position_id: int

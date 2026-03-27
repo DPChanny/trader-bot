@@ -18,50 +18,22 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-async def get_position_list_service(
-    guild_id: int, db: AsyncSession, payload: Payload
-) -> list[PositionDTO]:
-    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    result = await db.execute(
-        select(Position).join(Preset).where(Preset.guild_id == guild_id)
-    )
-    positions = result.scalars().all()
-    return [PositionDTO.model_validate(p) for p in positions]
-
-
-@service_exception_handler
-async def get_position_detail_service(
-    guild_id: int, position_id: int, db: AsyncSession, payload: Payload
-) -> PositionDTO:
-    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    result = await db.execute(
-        select(Position)
-        .join(Preset)
-        .where(Position.position_id == position_id, Preset.guild_id == guild_id)
-    )
-    position = result.scalar_one_or_none()
-
-    if position is None:
-        raise HTTPException(status_code=404, detail="Position not found")
-
-    return PositionDTO.model_validate(position)
-
-
-@service_exception_handler
 async def add_position_service(
-    guild_id: int, dto: AddPositionDTO, db: AsyncSession, payload: Payload
+    guild_id: int,
+    preset_id: int,
+    dto: AddPositionDTO,
+    db: AsyncSession,
+    payload: Payload,
 ) -> PositionDTO:
     await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     result = await db.execute(
-        select(Preset).where(
-            Preset.preset_id == dto.preset_id, Preset.guild_id == guild_id
-        )
+        select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
     )
     if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
     position = Position(
-        preset_id=dto.preset_id,
+        preset_id=preset_id,
         name=dto.name,
         icon_url=dto.icon_url,
     )
@@ -75,6 +47,7 @@ async def add_position_service(
 @service_exception_handler
 async def update_position_service(
     guild_id: int,
+    preset_id: int,
     position_id: int,
     dto: UpdatePositionDTO,
     db: AsyncSession,
@@ -84,7 +57,11 @@ async def update_position_service(
     result = await db.execute(
         select(Position)
         .join(Preset)
-        .where(Position.position_id == position_id, Preset.guild_id == guild_id)
+        .where(
+            Position.position_id == position_id,
+            Position.preset_id == preset_id,
+            Preset.guild_id == guild_id,
+        )
     )
     position = result.scalar_one_or_none()
     if position is None:
@@ -102,13 +79,17 @@ async def update_position_service(
 
 @service_exception_handler
 async def delete_position_service(
-    guild_id: int, position_id: int, db: AsyncSession, payload: Payload
+    guild_id: int, preset_id: int, position_id: int, db: AsyncSession, payload: Payload
 ) -> None:
     await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     result = await db.execute(
         select(Position)
         .join(Preset)
-        .where(Position.position_id == position_id, Preset.guild_id == guild_id)
+        .where(
+            Position.position_id == position_id,
+            Position.preset_id == preset_id,
+            Preset.guild_id == guild_id,
+        )
     )
     position = result.scalar_one_or_none()
     if position is None:

@@ -11,7 +11,6 @@ class PositionDTO(BaseDTO):
 
 
 class AddPositionDTO(BaseDTO):
-    preset_id: int
     name: str
     icon_url: NullableStr = None
 

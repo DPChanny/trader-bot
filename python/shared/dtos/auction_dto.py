@@ -77,10 +77,6 @@ class BidPlacedMessageData(BaseDTO):
     amount: int
 
 
-class ErrorMessageData(BaseDTO):
-    error: str
-
-
 class WebSocketMessage(BaseDTO):
     type: str
     data: dict

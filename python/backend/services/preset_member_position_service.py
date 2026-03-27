@@ -21,6 +21,7 @@ from ..utils.token import Payload
 @service_exception_handler
 async def add_preset_member_position_service(
     guild_id: int,
+    preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
     db: AsyncSession,
     payload: Payload,
@@ -30,7 +31,7 @@ async def add_preset_member_position_service(
         select(PresetMember)
         .join(Preset, PresetMember.preset_id == Preset.preset_id)
         .where(
-            PresetMember.preset_member_id == dto.preset_member_id,
+            PresetMember.preset_member_id == preset_member_id,
             Preset.guild_id == guild_id,
         )
     )
@@ -39,7 +40,7 @@ async def add_preset_member_position_service(
 
     existing_result = await db.execute(
         select(PresetMemberPosition).where(
-            PresetMemberPosition.preset_member_id == dto.preset_member_id,
+            PresetMemberPosition.preset_member_id == preset_member_id,
             PresetMemberPosition.position_id == dto.position_id,
         )
     )
@@ -50,7 +51,7 @@ async def add_preset_member_position_service(
         )
 
     preset_member_position = PresetMemberPosition(
-        preset_member_id=dto.preset_member_id,
+        preset_member_id=preset_member_id,
         position_id=dto.position_id,
     )
     db.add(preset_member_position)
@@ -72,6 +73,7 @@ async def add_preset_member_position_service(
 @service_exception_handler
 async def delete_preset_member_position_service(
     guild_id: int,
+    preset_member_id: int,
     preset_member_position_id: int,
     db: AsyncSession,
     payload: Payload,
@@ -86,6 +88,7 @@ async def delete_preset_member_position_service(
         .join(Preset, PresetMember.preset_id == Preset.preset_id)
         .where(
             PresetMemberPosition.preset_member_position_id == preset_member_position_id,
+            PresetMemberPosition.preset_member_id == preset_member_id,
             Preset.guild_id == guild_id,
         )
     )

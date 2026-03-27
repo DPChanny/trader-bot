@@ -18,49 +18,17 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-async def get_tier_list_service(
-    guild_id: int, db: AsyncSession, payload: Payload
-) -> list[TierDTO]:
-    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    result = await db.execute(
-        select(Tier).join(Preset).where(Preset.guild_id == guild_id)
-    )
-    tiers = result.scalars().all()
-    return [TierDTO.model_validate(t) for t in tiers]
-
-
-@service_exception_handler
-async def get_tier_detail_service(
-    guild_id: int, tier_id: int, db: AsyncSession, payload: Payload
-) -> TierDTO:
-    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
-    result = await db.execute(
-        select(Tier)
-        .join(Preset)
-        .where(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
-    )
-    tier = result.scalar_one_or_none()
-
-    if tier is None:
-        raise HTTPException(status_code=404, detail="Tier not found")
-
-    return TierDTO.model_validate(tier)
-
-
-@service_exception_handler
 async def add_tier_service(
-    guild_id: int, dto: AddTierDTO, db: AsyncSession, payload: Payload
+    guild_id: int, preset_id: int, dto: AddTierDTO, db: AsyncSession, payload: Payload
 ) -> TierDTO:
     await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     result = await db.execute(
-        select(Preset).where(
-            Preset.preset_id == dto.preset_id, Preset.guild_id == guild_id
-        )
+        select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
     )
     if result.scalar_one_or_none() is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    tier = Tier(preset_id=dto.preset_id, name=dto.name)
+    tier = Tier(preset_id=preset_id, name=dto.name)
     db.add(tier)
     await db.commit()
     await db.refresh(tier)
@@ -71,6 +39,7 @@ async def add_tier_service(
 @service_exception_handler
 async def update_tier_service(
     guild_id: int,
+    preset_id: int,
     tier_id: int,
     dto: UpdateTierDTO,
     db: AsyncSession,
@@ -80,7 +49,11 @@ async def update_tier_service(
     result = await db.execute(
         select(Tier)
         .join(Preset)
-        .where(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
+        .where(
+            Tier.tier_id == tier_id,
+            Tier.preset_id == preset_id,
+            Preset.guild_id == guild_id,
+        )
     )
     tier = result.scalar_one_or_none()
     if tier is None:
@@ -98,13 +71,17 @@ async def update_tier_service(
 
 @service_exception_handler
 async def delete_tier_service(
-    guild_id: int, tier_id: int, db: AsyncSession, payload: Payload
+    guild_id: int, preset_id: int, tier_id: int, db: AsyncSession, payload: Payload
 ) -> None:
     await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
     result = await db.execute(
         select(Tier)
         .join(Preset)
-        .where(Tier.tier_id == tier_id, Preset.guild_id == guild_id)
+        .where(
+            Tier.tier_id == tier_id,
+            Tier.preset_id == preset_id,
+            Preset.guild_id == guild_id,
+        )
     )
     tier = result.scalar_one_or_none()
     if tier is None:

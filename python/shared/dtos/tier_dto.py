@@ -10,7 +10,6 @@ class TierDTO(BaseDTO):
 
 
 class AddTierDTO(BaseDTO):
-    preset_id: int
     name: str
 
 
