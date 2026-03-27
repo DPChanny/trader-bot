@@ -105,7 +105,7 @@ def get_aws_bucket_name() -> str:
 
 
 def get_profile_key(user_id: int) -> str:
-    return f"profiles/{user_id}.png"
+    return f"profiles/{user_id}"
 
 
 def get_profile_url(user_id: int) -> str:

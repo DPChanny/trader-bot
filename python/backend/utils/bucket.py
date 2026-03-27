@@ -26,10 +26,12 @@ async def get_bucket() -> AsyncGenerator[Any, None]:
         yield bucket
 
 
-async def upload_profile(bucket: Any, user_id: int, profile: bytes) -> None:
+async def upload_profile(
+    bucket: Any, user_id: int, profile: bytes, content_type: str
+) -> None:
     key = get_profile_key(user_id)
     await bucket.put_object(
-        Bucket=_bucket_name, Key=key, Body=profile, ContentType="image/png"
+        Bucket=_bucket_name, Key=key, Body=profile, ContentType=content_type
     )
     logger.info(f"Profile uploaded: key={key}")
 

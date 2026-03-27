@@ -87,21 +87,24 @@ async def get_user(discord_id: str) -> dict:
         return response.json()
 
 
-async def get_profile_bytes(discord_id: str) -> bytes:
+async def get_profile(discord_id: str) -> tuple[bytes, str]:
+    """Returns (image_bytes, content_type)."""
     user = await get_user(discord_id)
     avatar_hash = user.get("avatar")
     if avatar_hash:
         ext = "gif" if avatar_hash.startswith("a_") else "png"
         url = f"https://cdn.discordapp.com/avatars/{discord_id}/{avatar_hash}.{ext}?size=256"
+        content_type = f"image/{ext}"
     else:
         default_index = (int(discord_id) >> 22) % 6
         url = f"https://cdn.discordapp.com/embed/avatars/{default_index}.png"
+        content_type = "image/png"
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.get(url)
         if response.status_code != 200:
             raise HTTPException(status_code=400, detail="Failed to fetch profile")
-        return response.content
+        return response.content, content_type
 
 
 async def send_message(discord_id: str, embeds: list[dict]) -> bool:

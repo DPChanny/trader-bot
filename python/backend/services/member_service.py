@@ -14,15 +14,15 @@ from shared.entities.manager import Role
 from shared.entities.member import Member
 from shared.utils.exception import service_exception_handler
 
-from ..utils.discord import get_profile_bytes
 from ..utils.bucket import delete_profile, upload_profile
+from ..utils.discord import get_profile
 from ..utils.role import verify_role
 from ..utils.token import Payload
 
 
 async def _upload_profile(bucket: Any, member_id: int, discord_id: str):
-    profile = await get_profile_bytes(discord_id)
-    await upload_profile(bucket, member_id, profile)
+    profile, content_type = await get_profile(discord_id)
+    await upload_profile(bucket, member_id, profile, content_type)
     logger.info(f"Profile uploaded: member_id={member_id}")
 
 
