@@ -1,5 +1,6 @@
 import urllib.parse
 
+import discord
 from fastapi import HTTPException
 from fastapi.responses import RedirectResponse
 from loguru import logger
@@ -8,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from shared.dtos.guild_dto import (
-    AddGuildDTO,
     BotInviteUrlDTO,
     GuildDetailDTO,
     GuildDTO,
@@ -19,7 +19,11 @@ from shared.entities.manager import Manager, Role
 from shared.utils.env import get_app_origin, get_discord_client_id
 from shared.utils.exception import service_exception_handler
 
-from ..utils.discord import DISCORD_OAUTH_URL, get_bot_invite_callback_uri, get_guild
+from ..utils.discord import (
+    DISCORD_OAUTH_URL,
+    get_add_guild_callback_url,
+    get_guild,
+)
 from ..utils.role import verify_role
 from ..utils.token import Payload, create_token, decode_token
 
@@ -31,32 +35,6 @@ async def _query_guild_detail(guild_id: int, db: AsyncSession) -> Guild | None:
         .where(Guild.guild_id == guild_id)
     )
     return result.unique().scalar_one_or_none()
-
-
-@service_exception_handler
-async def add_guild_service(
-    dto: AddGuildDTO, db: AsyncSession, payload: Payload
-) -> GuildDetailDTO:
-    result = await db.execute(select(Guild).where(Guild.discord_id == dto.discord_id))
-    existing = result.scalar_one_or_none()
-    if existing:
-        raise HTTPException(status_code=409, detail="Guild already exists")
-
-    guild = Guild(discord_id=dto.discord_id, name=dto.name)
-    db.add(guild)
-    await db.flush()
-
-    owner = Manager(
-        guild_id=guild.guild_id,
-        user_id=payload.user_id,
-        role=Role.ADMIN,
-    )
-    db.add(owner)
-    await db.commit()
-
-    guild = await _query_guild_detail(guild.guild_id, db)
-    logger.info(f"Guild created: id={guild.guild_id}, name={dto.name}")
-    return GuildDetailDTO.model_validate(guild)
 
 
 @service_exception_handler
@@ -118,19 +96,21 @@ async def delete_guild_service(
     logger.info(f"Guild deleted: id={guild_id}")
 
 
-# Bot invite permissions: Read Messages + Send Messages + Embed Links + Attach Files
-_BOT_PERMISSIONS = 52224
-
-
 @service_exception_handler
-async def get_bot_invite_url_service(payload: Payload) -> BotInviteUrlDTO:
+async def add_guild_service(payload: Payload) -> BotInviteUrlDTO:
     state = create_token(payload.user_id, payload.discord_id, expiration_minutes=10)
     params = urllib.parse.urlencode(
         {
             "client_id": get_discord_client_id(),
             "scope": "bot",
-            "permissions": _BOT_PERMISSIONS,
-            "redirect_uri": get_bot_invite_callback_uri(),
+            "permissions": discord.Permissions(
+                view_channel=True,
+                send_messages=True,
+                embed_links=True,
+                attach_files=True,
+                read_message_history=True,
+            ).value,
+            "redirect_uri": get_add_guild_callback_url(),
             "state": state,
         }
     )
@@ -139,7 +119,7 @@ async def get_bot_invite_url_service(payload: Payload) -> BotInviteUrlDTO:
 
 
 @service_exception_handler
-async def bot_invite_callback_service(
+async def add_guild_callback_service(
     guild_id: str, state: str, db: AsyncSession
 ) -> RedirectResponse:
     error_redirect = f"{get_app_origin()}/?error=bot_invite_failed"

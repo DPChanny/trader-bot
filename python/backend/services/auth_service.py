@@ -7,7 +7,7 @@ from shared.entities.user import User
 from shared.utils.env import get_app_origin
 from shared.utils.exception import service_exception_handler
 
-from ..utils.discord import exchange_code, get_login_url, get_me
+from ..utils.discord import get_login_url, get_me
 from ..utils.token import Payload, create_token
 
 
@@ -18,8 +18,7 @@ async def login_service() -> RedirectResponse:
 
 @service_exception_handler
 async def callback_service(code: str, db: AsyncSession) -> RedirectResponse:
-    access_token = await exchange_code(code)
-    user_data = await get_me(access_token)
+    user_data = await get_me(code)
 
     discord_id = str(user_data["id"])
     username = user_data.get("global_name") or user_data.get("username", "")
