@@ -12,6 +12,7 @@ from shared.utils.logging import LoggingMiddleware, setup_logging
 from .routers import (
     auction_router,
     auction_websocket_router,
+    auth_router,
     guild_router,
     lol_stat_router,
     manager_router,
@@ -21,7 +22,6 @@ from .routers import (
     preset_member_router,
     preset_router,
     tier_router,
-    token_router,
     user_router,
     val_stat_router,
 )
@@ -56,6 +56,7 @@ app.add_middleware(
 )
 
 
+app.include_router(auth_router, prefix="/api")
 app.include_router(member_router, prefix="/api")
 app.include_router(user_router, prefix="/api")
 app.include_router(position_router, prefix="/api")
@@ -63,7 +64,6 @@ app.include_router(preset_router, prefix="/api")
 app.include_router(tier_router, prefix="/api")
 app.include_router(preset_member_router, prefix="/api")
 app.include_router(preset_member_position_router, prefix="/api")
-app.include_router(token_router, prefix="/api")
 app.include_router(lol_stat_router, prefix="/api")
 app.include_router(val_stat_router, prefix="/api")
 app.include_router(auction_router, prefix="/api")

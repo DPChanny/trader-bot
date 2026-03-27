@@ -21,3 +21,7 @@ class AddGuildDTO(BaseDto):
 
 class UpdateGuildDTO(BaseDto):
     name: str | None = None
+
+
+class BotInviteUrlDTO(BaseDto):
+    url: str

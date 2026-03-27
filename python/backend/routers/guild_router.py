@@ -1,12 +1,21 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.guild_dto import AddGuildDTO, GuildDetailDTO, GuildDTO, UpdateGuildDTO
+from shared.dtos.guild_dto import (
+    AddGuildDTO,
+    BotInviteUrlDTO,
+    GuildDetailDTO,
+    GuildDTO,
+    UpdateGuildDTO,
+)
 from shared.utils.database import get_async_db
 
 from ..services.guild_service import (
     add_guild_service,
+    bot_invite_callback_service,
     delete_guild_service,
+    get_bot_invite_url_service,
     get_guild_detail_service,
     get_guild_list_service,
     update_guild_service,
@@ -60,3 +69,19 @@ async def delete_guild_route(
     payload: Payload = Depends(verify_token),
 ):
     return await delete_guild_service(guild_id, db, payload)
+
+
+@guild_router.get("/bot-invite", response_model=BotInviteUrlDTO)
+async def get_bot_invite_url_route(
+    payload: Payload = Depends(verify_token),
+):
+    return await get_bot_invite_url_service(payload)
+
+
+@guild_router.get("/bot-invite-callback")
+async def bot_invite_callback_route(
+    guild_id: str = Query(),
+    state: str = Query(),
+    db: AsyncSession = Depends(get_async_db),
+) -> RedirectResponse:
+    return await bot_invite_callback_service(guild_id, state, db)

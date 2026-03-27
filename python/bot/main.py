@@ -1,36 +1,28 @@
-from contextlib import asynccontextmanager
+import asyncio
 
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from discord.ext import commands
 from loguru import logger
 
-from shared.utils.logging import LoggingMiddleware, setup_logging
+from shared.utils.env import get_bot_token
+from shared.utils.logging import setup_logging
 
-from .router import router
-from .utils import start_bot, stop_bot
+from .utils import setup_intents
 
 
 setup_logging()
 
 
-@asynccontextmanager
-async def lifespan(_):
-    await start_bot()
+async def main() -> None:
+    intents = setup_intents()
+    bot = commands.Bot(command_prefix="!", intents=intents)
 
-    yield
+    @bot.event
+    async def on_ready():
+        logger.info(f"Ready: {bot.user}")
+        await bot.tree.sync()
 
-    await stop_bot()
-
-
-app = FastAPI(title="Trader Bot API", version="1.0.0", lifespan=lifespan)
-
-
-@app.exception_handler(Exception)
-async def global_exception_handler(_, exc):
-    logger.exception(f"Unhandled exception: {exc}")
-    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+    await bot.start(get_bot_token(), reconnect=True)
 
 
-app.add_middleware(LoggingMiddleware)
-
-app.include_router(router, prefix="/bot")
+if __name__ == "__main__":
+    asyncio.run(main())

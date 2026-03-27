@@ -1,3 +1,5 @@
+import asyncio
+
 from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy import select
@@ -16,7 +18,7 @@ from shared.utils.env import get_auction_url
 from shared.utils.exception import service_exception_handler
 
 from ..auction.auction_manager import auction_manager
-from ..utils.bot import invite
+from ..utils.discord import send_message
 from ..utils.role import get_guild_ids, verify_role
 from ..utils.token import Payload
 
@@ -102,7 +104,19 @@ async def add_auction_service(
                 invites.append((member.discord_id, auction_url))
 
     if invites:
-        await invite(invites)
+
+        def embed(url):
+            return [
+                {
+                    "title": "Trader 경매",
+                    "fields": [{"name": "참가 링크", "value": url, "inline": False}],
+                }
+            ]
+
+        await asyncio.gather(
+            *[send_message(discord_id, embed(url)) for discord_id, url in invites],
+            return_exceptions=True,
+        )
 
     return AuctionDTO(
         auction_id=auction_id,
