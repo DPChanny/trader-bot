@@ -1,11 +1,11 @@
 import { Card } from "@/components/card";
 import { Section } from "@/components/section";
 import { Toggle } from "@/components/toggle";
-import type { AgentDto, ValStatDto } from "@/dto";
+import type { AgentDTO, ValStatDTO } from "@/dto";
 import styles from "@/styles/components/valStat.module.css";
 
 interface ValStatCardProps {
-  agent: AgentDto;
+  agent: AgentDTO;
 }
 
 export function ValStatCard({ agent }: ValStatCardProps) {
@@ -32,23 +32,23 @@ export function ValStatCard({ agent }: ValStatCardProps) {
 }
 
 interface ValStatProps {
-  valStatDto: ValStatDto;
+  valStatDTO: ValStatDTO;
 }
 
-export function ValStat({ valStatDto }: ValStatProps) {
+export function ValStat({ valStatDTO }: ValStatProps) {
   return (
     <Section variantIntent="secondary">
       <Section variantTone="ghost" variantLayout="row">
         <h4 className={styles.gameTitle}>VALORANT</h4>
         <Toggle variantColor="blue" isActive={true} onClick={() => {}}>
-          {valStatDto.tier !== "Unranked"
-            ? `${valStatDto.tier} ${valStatDto.rank}`.trim()
+          {valStatDTO.tier !== "Unranked"
+            ? `${valStatDTO.tier} ${valStatDTO.rank}`.trim()
             : "Unranked"}
         </Toggle>
       </Section>
-      {valStatDto.topAgents?.length > 0 && (
+      {valStatDTO.topAgents?.length > 0 && (
         <Section variantTone="ghost">
-          {valStatDto.topAgents.map((agent) => (
+          {valStatDTO.topAgents.map((agent) => (
             <ValStatCard key={agent.name} agent={agent} />
           ))}
         </Section>

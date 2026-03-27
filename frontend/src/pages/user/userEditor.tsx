@@ -166,7 +166,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           {lolStat.isLoading ? (
             <Loading />
           ) : lolStat.data ? (
-            <LolStat lolStatDto={lolStat.data} />
+            <LolStat lolStatDTO={lolStat.data} />
           ) : (
             <Error detail={lolStat.error?.message}>
               통계를 불러오지 못했습니다.
@@ -177,7 +177,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           {valStat.isLoading ? (
             <Loading />
           ) : valStat.data ? (
-            <ValStat valStatDto={valStat.data} />
+            <ValStat valStatDTO={valStat.data} />
           ) : (
             <Error detail={valStat.error?.message}>
               통계를 불러오지 못했습니다.

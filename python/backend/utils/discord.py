@@ -20,7 +20,7 @@ DISCORD_CHANNELS_URL = "https://discord.com/api/channels"
 
 
 def get_login_callback_url() -> str:
-    return f"{get_api_endpoint()}/auth/callback"
+    return f"{get_api_endpoint()}/auth/login/callback"
 
 
 def get_add_guild_callback_url() -> str:

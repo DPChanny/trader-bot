@@ -1,7 +1,7 @@
-from . import BaseDto, NullableStr
+from . import BaseDTO, NullableStr
 
 
-class TierDTO(BaseDto):
+class TierDTO(BaseDTO):
     tier_id: int
     preset_id: int
     name: str
@@ -9,10 +9,10 @@ class TierDTO(BaseDto):
     model_config = {"from_attributes": True}
 
 
-class AddTierDTO(BaseDto):
+class AddTierDTO(BaseDTO):
     preset_id: int
     name: str
 
 
-class UpdateTierDTO(BaseDto):
+class UpdateTierDTO(BaseDTO):
     name: NullableStr = None

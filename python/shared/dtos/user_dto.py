@@ -1,7 +1,7 @@
-from . import BaseDto
+from . import BaseDTO
 
 
-class UserDTO(BaseDto):
+class UserDTO(BaseDTO):
     user_id: int
     discord_id: str
     name: str

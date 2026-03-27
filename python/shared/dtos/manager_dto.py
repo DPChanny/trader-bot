@@ -1,10 +1,10 @@
 from shared.entities.manager import Role
 
-from . import BaseDto
+from . import BaseDTO
 from .user_dto import UserDTO
 
 
-class ManagerDTO(BaseDto):
+class ManagerDTO(BaseDTO):
     manager_id: int
     guild_id: int
     user_id: int
@@ -16,22 +16,11 @@ class ManagerDTO(BaseDto):
 class ManagerDetailDTO(ManagerDTO):
     user: UserDTO
 
-    @classmethod
-    def model_validate(cls, obj, **kwargs):  # type: ignore[override]
-        data = {
-            "manager_id": obj.manager_id,
-            "guild_id": obj.guild_id,
-            "user_id": obj.user_id,
-            "role": obj.role,
-            "user": UserDTO.model_validate(obj.user),
-        }
-        return cls(**data)
 
-
-class AddManagerDTO(BaseDto):
+class AddManagerDTO(BaseDTO):
     user_id: int
     role: Role
 
 
-class UpdateManagerDTO(BaseDto):
+class UpdateManagerDTO(BaseDTO):
     role: Role | None = None

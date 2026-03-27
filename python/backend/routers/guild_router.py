@@ -3,9 +3,9 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild_dto import (
-    InviteUrlDTO,
     GuildDetailDTO,
     GuildDTO,
+    InviteUrlDTO,
     UpdateGuildDTO,
 )
 from shared.utils.database import get_async_db

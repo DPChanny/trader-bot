@@ -1,14 +1,14 @@
-from . import BaseDto
+from . import BaseDTO
 
 
-class LoginDto(BaseDto):
+class LoginDTO(BaseDTO):
     code: str
 
 
-class RefreshDto(BaseDto):
+class RefreshDTO(BaseDTO):
     refresh_token: str
 
 
-class TokenDto(BaseDto):
+class TokenDTO(BaseDTO):
     token: str
     refresh_token: str

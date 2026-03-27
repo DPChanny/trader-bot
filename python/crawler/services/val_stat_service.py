@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-from shared.dtos.val_stat_dto import AgentDto, ValStatDto
+from shared.dtos.val_stat_dto import AgentDTO, ValStatDTO
 from shared.entities.val_stat import Agent, ValStat
 
 from ..utils import session_context
@@ -16,7 +16,7 @@ from ..utils import session_context
 WEB_DRIVER_TIMEOUT = 20
 
 
-def save_val_stat_to_db(member_id: int, val_stat_dto: ValStatDto) -> None:
+def save_val_stat_to_db(member_id: int, val_stat_dto: ValStatDTO) -> None:
     with session_context() as db:
         val_stat = db.query(ValStat).filter(ValStat.member_id == member_id).first()
 
@@ -47,7 +47,7 @@ def save_val_stat_to_db(member_id: int, val_stat_dto: ValStatDto) -> None:
 
 def crawl_val_stat(
     driver: webdriver.Chrome, game_name: str, tag_line: str
-) -> ValStatDto:
+) -> ValStatDTO:
     encoded_name = game_name.replace(" ", "%20")
     url = f"https://op.gg/ko/valorant/profile/{encoded_name}-{tag_line}?statQueueId=competitive"
 
@@ -61,14 +61,14 @@ def crawl_val_stat(
         logger.info(f"Page loaded: {url}")
     except TimeoutException:
         logger.warning(f"Page load timeout: {url}")
-        return ValStatDto(
+        return ValStatDTO(
             tier=tier,
             rank=rank,
             top_agents=top_agents,
         )
     except Exception as e:
         logger.warning(f"Page load error: {url} - {type(e).__name__}")
-        return ValStatDto(
+        return ValStatDTO(
             tier=tier,
             rank=rank,
             top_agents=top_agents,
@@ -186,7 +186,7 @@ def crawl_val_stat(
 
                 if name != "Unknown" and (games > 0 or win_rate > 0):
                     top_agents.append(
-                        AgentDto(
+                        AgentDTO(
                             name=name,
                             icon_url=icon_url,
                             games=games,
@@ -200,7 +200,7 @@ def crawl_val_stat(
     except Exception as e:
         logger.warning(f"Agent list error: {url} - {type(e).__name__}")
 
-    return ValStatDto(
+    return ValStatDTO(
         tier=tier,
         rank=rank,
         top_agents=top_agents,

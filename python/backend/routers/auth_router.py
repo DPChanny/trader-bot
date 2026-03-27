@@ -20,7 +20,7 @@ async def login_route() -> RedirectResponse:
     return await login_service()
 
 
-@auth_router.get("/callback")
+@auth_router.get("/login/callback")
 async def callback_route(
     code: str = Query(),
     db: AsyncSession = Depends(get_async_db),

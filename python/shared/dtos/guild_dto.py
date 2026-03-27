@@ -1,8 +1,8 @@
-from . import BaseDto
+from . import BaseDTO
 from .manager_dto import ManagerDetailDTO
 
 
-class GuildDTO(BaseDto):
+class GuildDTO(BaseDTO):
     guild_id: int
     discord_id: str
     name: str
@@ -14,9 +14,9 @@ class GuildDetailDTO(GuildDTO):
     managers: list[ManagerDetailDTO] = []
 
 
-class UpdateGuildDTO(BaseDto):
+class UpdateGuildDTO(BaseDTO):
     name: str | None = None
 
 
-class InviteUrlDTO(BaseDto):
+class InviteUrlDTO(BaseDTO):
     url: str

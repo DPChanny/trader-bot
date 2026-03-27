@@ -6,9 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from shared.dtos.guild_dto import (
-    InviteUrlDTO,
     GuildDetailDTO,
     GuildDTO,
+    InviteUrlDTO,
     UpdateGuildDTO,
 )
 from shared.entities.guild import Guild

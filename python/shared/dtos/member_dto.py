@@ -1,9 +1,9 @@
 from pydantic import computed_field
 
-from . import BaseDto, NullableStr
+from . import BaseDTO, NullableStr
 
 
-class MemberDTO(BaseDto):
+class MemberDTO(BaseDTO):
     member_id: int
     guild_id: int
     alias: str | None
@@ -22,13 +22,13 @@ class MemberDTO(BaseDto):
         return get_profile_url(self.member_id)
 
 
-class AddMemberDTO(BaseDto):
+class AddMemberDTO(BaseDTO):
     alias: NullableStr = None
     riot_id: NullableStr = None
     discord_id: NullableStr = None
 
 
-class UpdateMemberDTO(BaseDto):
+class UpdateMemberDTO(BaseDTO):
     alias: NullableStr = None
     riot_id: NullableStr = None
     discord_id: NullableStr = None

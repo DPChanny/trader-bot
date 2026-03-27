@@ -1,7 +1,7 @@
-from . import BaseDto, NullableStr
+from . import BaseDTO, NullableStr
 
 
-class PositionDTO(BaseDto):
+class PositionDTO(BaseDTO):
     position_id: int
     preset_id: int
     name: str
@@ -10,12 +10,12 @@ class PositionDTO(BaseDto):
     model_config = {"from_attributes": True}
 
 
-class AddPositionDTO(BaseDto):
+class AddPositionDTO(BaseDTO):
     preset_id: int
     name: str
     icon_url: NullableStr = None
 
 
-class UpdatePositionDTO(BaseDto):
+class UpdatePositionDTO(BaseDTO):
     name: NullableStr = None
     icon_url: NullableStr = None

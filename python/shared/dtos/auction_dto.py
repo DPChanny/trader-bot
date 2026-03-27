@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from . import BaseDto
+from . import BaseDTO
 
 
 class AuctionStatus(StrEnum):
@@ -24,14 +24,14 @@ class MessageType(StrEnum):
     USER_DISCONNECTED = "user_disconnected"
 
 
-class Team(BaseDto):
+class Team(BaseDTO):
     team_id: int
     leader_id: int
     member_id_list: list[int] = []
     points: int
 
 
-class AuctionStateDTO(BaseDto):
+class AuctionStateDTO(BaseDTO):
     auction_id: str
     preset_id: int
     status: AuctionStatus
@@ -45,42 +45,42 @@ class AuctionStateDTO(BaseDto):
     connected_users: list[int]
 
 
-class AuctionDTO(BaseDto):
+class AuctionDTO(BaseDTO):
     auction_id: str
     preset_id: int
 
 
-class TimerMessageData(BaseDto):
+class TimerMessageData(BaseDTO):
     timer: int
 
 
-class StatusMessageData(BaseDto):
+class StatusMessageData(BaseDTO):
     status: str
 
 
-class NextMemberMessageData(BaseDto):
+class NextMemberMessageData(BaseDTO):
     member_id: int
 
 
-class QueueUpdateMessageData(BaseDto):
+class QueueUpdateMessageData(BaseDTO):
     auction_queue: list[int]
     unsold_queue: list[int]
 
 
-class MemberSoldMessageData(BaseDto):
+class MemberSoldMessageData(BaseDTO):
     teams: list[Team]
 
 
-class BidPlacedMessageData(BaseDto):
+class BidPlacedMessageData(BaseDTO):
     team_id: int
     leader_id: int
     amount: int
 
 
-class ErrorMessageData(BaseDto):
+class ErrorMessageData(BaseDTO):
     error: str
 
 
-class WebSocketMessage(BaseDto):
+class WebSocketMessage(BaseDTO):
     type: str
     data: dict

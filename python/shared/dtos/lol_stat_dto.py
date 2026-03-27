@@ -1,15 +1,15 @@
-from . import BaseDto
+from . import BaseDTO
 
 
-class ChampionDto(BaseDto):
+class ChampionDTO(BaseDTO):
     name: str
     icon_url: str
     games: int
     win_rate: float
 
 
-class LolStatDto(BaseDto):
+class LolStatDTO(BaseDTO):
     tier: str
     rank: str
     lp: int
-    top_champions: list[ChampionDto]
+    top_champions: list[ChampionDTO]

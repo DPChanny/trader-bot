@@ -1,14 +1,14 @@
-from . import BaseDto
+from . import BaseDTO
 
 
-class AgentDto(BaseDto):
+class AgentDTO(BaseDTO):
     name: str
     icon_url: str
     games: int
     win_rate: float
 
 
-class ValStatDto(BaseDto):
+class ValStatDTO(BaseDTO):
     tier: str
     rank: str
-    top_agents: list[AgentDto]
+    top_agents: list[AgentDTO]

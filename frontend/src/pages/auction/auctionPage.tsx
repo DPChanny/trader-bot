@@ -196,10 +196,10 @@ export function AuctionPage({}: AuctionPageProps) {
               )}
               {state.status !== "completed" &&
                 presetDetail?.statistics === "LOL" &&
-                lolStat && <LolStat lolStatDto={lolStat} />}
+                lolStat && <LolStat lolStatDTO={lolStat} />}
               {state.status !== "completed" &&
                 presetDetail?.statistics === "VAL" &&
-                valStat && <ValStat valStatDto={valStat} />}
+                valStat && <ValStat valStatDTO={valStat} />}
             </Section>
 
             <Section

@@ -1,11 +1,11 @@
 from ..entities.preset import Statistics
-from . import BaseDto, NullableStr
+from . import BaseDTO, NullableStr
 from .position_dto import PositionDTO
 from .preset_member_dto import PresetMemberDetailDTO
 from .tier_dto import TierDTO
 
 
-class PresetDTO(BaseDto):
+class PresetDTO(BaseDTO):
     preset_id: int
     guild_id: int
     name: str
@@ -23,7 +23,7 @@ class PresetDetailDTO(PresetDTO):
     positions: list[PositionDTO] = []
 
 
-class AddPresetDTO(BaseDto):
+class AddPresetDTO(BaseDTO):
     name: str
     points: int
     time: int
@@ -31,7 +31,7 @@ class AddPresetDTO(BaseDto):
     statistics: Statistics = Statistics.NONE
 
 
-class UpdatePresetDTO(BaseDto):
+class UpdatePresetDTO(BaseDTO):
     name: NullableStr = None
     points: int | None = None
     time: int | None = None

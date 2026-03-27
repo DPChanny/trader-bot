@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
+from shared.dtos.lol_stat_dto import ChampionDTO, LolStatDTO
 from shared.entities.lol_stat import LolStat
 from shared.entities.member import Member
 from shared.utils.exception import service_exception_handler
@@ -15,7 +15,7 @@ from ..utils.token import Payload
 @service_exception_handler
 async def get_lol_stat(
     member_id: int, db: AsyncSession, payload: Payload
-) -> LolStatDto:
+) -> LolStatDTO:
     guild_ids = await get_guild_ids(payload.user_id, db)
     result = await db.execute(
         select(LolStat)
@@ -32,7 +32,7 @@ async def get_lol_stat(
         )
 
     champions = [
-        ChampionDto(
+        ChampionDTO(
             name=champ.name,
             icon_url=champ.icon_url,
             games=champ.games,
@@ -41,7 +41,7 @@ async def get_lol_stat(
         for champ in sorted(lol_stat.champions, key=lambda x: x.rank_order)
     ]
 
-    return LolStatDto(
+    return LolStatDTO(
         tier=lol_stat.tier,
         rank=lol_stat.rank,
         lp=lol_stat.lp,

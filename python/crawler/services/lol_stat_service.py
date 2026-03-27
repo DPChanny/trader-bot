@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-from shared.dtos.lol_stat_dto import ChampionDto, LolStatDto
+from shared.dtos.lol_stat_dto import ChampionDTO, LolStatDTO
 from shared.entities.lol_stat import Champion, LolStat
 
 from ..utils import session_context
@@ -16,7 +16,7 @@ from ..utils import session_context
 WEB_DRIVER_TIMEOUT = 20
 
 
-def save_lol_stat_to_db(member_id: int, lol_stat_dto: LolStatDto) -> None:
+def save_lol_stat_to_db(member_id: int, lol_stat_dto: LolStatDTO) -> None:
     with session_context() as db:
         lol_stat = db.query(LolStat).filter(LolStat.member_id == member_id).first()
 
@@ -53,7 +53,7 @@ def save_lol_stat_to_db(member_id: int, lol_stat_dto: LolStatDto) -> None:
 
 def crawl_lol_stat(
     driver: webdriver.Chrome, game_name: str, tag_line: str
-) -> LolStatDto:
+) -> LolStatDTO:
     encoded_name = game_name.replace(" ", "%20")
     url = f"https://op.gg/ko/lol/summoners/kr/{encoded_name}-{tag_line}?queue_type=SOLORANKED"
 
@@ -68,7 +68,7 @@ def crawl_lol_stat(
         logger.info(f"Page loaded: {url}")
     except TimeoutException:
         logger.warning(f"Page load timeout: {url}")
-        return LolStatDto(
+        return LolStatDTO(
             tier=tier,
             rank=rank,
             lp=lp,
@@ -76,7 +76,7 @@ def crawl_lol_stat(
         )
     except Exception as e:
         logger.warning(f"Page load error: {url} - {type(e).__name__}")
-        return LolStatDto(
+        return LolStatDTO(
             tier=tier,
             rank=rank,
             lp=lp,
@@ -182,7 +182,7 @@ def crawl_lol_stat(
 
                 if name != "Unknown" and games > 0:
                     top_champions.append(
-                        ChampionDto(
+                        ChampionDTO(
                             name=name,
                             icon_url=icon_url,
                             games=games,
@@ -197,7 +197,7 @@ def crawl_lol_stat(
     except Exception as e:
         logger.warning(f"Champion list error: {url} - {type(e).__name__}")
 
-    return LolStatDto(
+    return LolStatDTO(
         tier=tier,
         rank=rank,
         lp=lp,

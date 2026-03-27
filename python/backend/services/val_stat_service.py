@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from shared.dtos.val_stat_dto import AgentDto, ValStatDto
+from shared.dtos.val_stat_dto import AgentDTO, ValStatDTO
 from shared.entities.member import Member
 from shared.entities.val_stat import ValStat
 from shared.utils.exception import service_exception_handler
@@ -15,7 +15,7 @@ from ..utils.token import Payload
 @service_exception_handler
 async def get_val_stat(
     member_id: int, db: AsyncSession, payload: Payload
-) -> ValStatDto:
+) -> ValStatDTO:
     guild_ids = await get_guild_ids(payload.user_id, db)
     result = await db.execute(
         select(ValStat)
@@ -32,7 +32,7 @@ async def get_val_stat(
         )
 
     agents = [
-        AgentDto(
+        AgentDTO(
             name=agent.name,
             icon_url=agent.icon_url,
             games=agent.games,
@@ -41,4 +41,4 @@ async def get_val_stat(
         for agent in sorted(val_stat.agents, key=lambda x: x.rank_order)
     ]
 
-    return ValStatDto(tier=val_stat.tier, rank=val_stat.rank, top_agents=agents)
+    return ValStatDTO(tier=val_stat.tier, rank=val_stat.rank, top_agents=agents)
