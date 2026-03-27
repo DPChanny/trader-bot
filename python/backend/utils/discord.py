@@ -96,10 +96,10 @@ async def get_guild(guild_id: str) -> dict:
         return response.json()
 
 
-async def get_user(discord_id: str) -> dict:
+async def get_user(user_id: str) -> dict:
     async with httpx.AsyncClient() as client:
         response = await client.get(
-            f"{DISCORD_USERS_URL}/{discord_id}",
+            f"{DISCORD_USERS_URL}/{user_id}",
             headers={"Authorization": f"Bot {get_bot_token()}"},
         )
         if response.status_code != 200:
@@ -107,15 +107,33 @@ async def get_user(discord_id: str) -> dict:
         return response.json()
 
 
-async def get_profile(discord_id: str) -> tuple[bytes, str]:
-    user = await get_user(discord_id)
+async def verify_member(guild_id: str, user_id: str) -> None:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{DISCORD_GUILDS_URL}/{guild_id}/members/{user_id}",
+            headers={"Authorization": f"Bot {get_bot_token()}"},
+        )
+        if response.status_code == 404:
+            raise HTTPException(
+                status_code=400, detail="Discord user is not a member of this guild"
+            )
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=400, detail="Failed to verify Discord guild membership"
+            )
+
+
+async def get_profile(user_id: str) -> tuple[bytes, str]:
+    user = await get_user(user_id)
     avatar_hash = user.get("avatar")
     if avatar_hash:
         ext = "gif" if avatar_hash.startswith("a_") else "png"
-        url = f"https://cdn.discordapp.com/avatars/{discord_id}/{avatar_hash}.{ext}?size=256"
+        url = (
+            f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.{ext}?size=256"
+        )
         content_type = f"image/{ext}"
     else:
-        default_index = (int(discord_id) >> 22) % 6
+        default_index = (int(user_id) >> 22) % 6
         url = f"https://cdn.discordapp.com/embed/avatars/{default_index}.png"
         content_type = "image/png"
 
@@ -126,7 +144,7 @@ async def get_profile(discord_id: str) -> tuple[bytes, str]:
         return response.content, content_type
 
 
-async def send_message(discord_id: str, embeds: list[dict]) -> bool:
+async def send_message(user_id: str, embeds: list[dict]) -> bool:
     headers = {
         "Authorization": f"Bot {get_bot_token()}",
         "Content-Type": "application/json",
@@ -136,7 +154,7 @@ async def send_message(discord_id: str, embeds: list[dict]) -> bool:
         ch_response = await client.post(
             f"{DISCORD_USERS_URL}/@me/channels",
             headers=headers,
-            json={"recipient_id": discord_id},
+            json={"recipient_id": user_id},
         )
         if ch_response.status_code != 200:
             return False

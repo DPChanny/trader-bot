@@ -10,12 +10,13 @@ from shared.dtos.member_dto import (
     MemberDTO,
     UpdateMemberDTO,
 )
+from shared.entities.guild import Guild
 from shared.entities.manager import Role
 from shared.entities.member import Member
 from shared.utils.exception import service_exception_handler
 
 from ..utils.bucket import delete_profile, upload_profile
-from ..utils.discord import get_profile
+from ..utils.discord import get_profile, verify_member
 from ..utils.role import verify_role
 from ..utils.token import Payload
 
@@ -47,6 +48,13 @@ async def add_member_service(
     guild_id: int, dto: AddMemberDTO, db: AsyncSession, bucket: Any, payload: Payload
 ) -> MemberDTO:
     await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+
+    if dto.discord_id is not None:
+        guild_result = await db.execute(select(Guild).where(Guild.guild_id == guild_id))
+        guild = guild_result.scalar_one_or_none()
+        if guild is None:
+            raise HTTPException(status_code=404, detail="Guild not found")
+        await verify_member(guild.discord_id, dto.discord_id)
 
     member = Member(
         guild_id=guild_id,
@@ -96,6 +104,16 @@ async def update_member_service(
 
     old_discord_id = member.discord_id
     discord_id_changed = False
+    new_discord_id = dto.model_dump(exclude_unset=True).get(
+        "discord_id", old_discord_id
+    )
+
+    if new_discord_id is not None and new_discord_id != old_discord_id:
+        guild_result = await db.execute(select(Guild).where(Guild.guild_id == guild_id))
+        guild = guild_result.scalar_one_or_none()
+        if guild is None:
+            raise HTTPException(status_code=404, detail="Guild not found")
+        await verify_member(guild.discord_id, new_discord_id)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         if key == "discord_id" and value != old_discord_id:

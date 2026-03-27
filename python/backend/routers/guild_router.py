@@ -24,6 +24,15 @@ from ..utils.token import Payload, verify_token
 guild_router = APIRouter(prefix="/guild", tags=["guild"])
 
 
+@guild_router.get("/callback")
+async def add_guild_callback_route(
+    guild_id: str = Query(),
+    state: str = Query(),
+    db: AsyncSession = Depends(get_async_db),
+) -> RedirectResponse:
+    return await add_guild_callback_service(guild_id, state, db)
+
+
 @guild_router.get("", response_model=list[GuildDTO])
 async def get_guild_list_route(
     db: AsyncSession = Depends(get_async_db),
@@ -65,12 +74,3 @@ async def add_guild_route(
     payload: Payload = Depends(verify_token),
 ):
     return await add_guild_service(payload)
-
-
-@guild_router.get("/callback")
-async def add_guild_callback_route(
-    guild_id: str = Query(),
-    state: str = Query(),
-    db: AsyncSession = Depends(get_async_db),
-) -> RedirectResponse:
-    return await add_guild_callback_service(guild_id, state, db)
