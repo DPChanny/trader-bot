@@ -19,11 +19,11 @@ DISCORD_GUILDS_URL = "https://discord.com/api/guilds"
 DISCORD_CHANNELS_URL = "https://discord.com/api/channels"
 
 
-def get_login_callback_url() -> str:
+def _get_login_callback_url() -> str:
     return f"{get_api_endpoint()}/auth/login/callback"
 
 
-def get_add_guild_callback_url() -> str:
+def _get_add_guild_callback_url() -> str:
     return f"{get_api_endpoint()}/guild/callback"
 
 
@@ -33,7 +33,7 @@ def get_login_url() -> str:
             "client_id": get_discord_client_id(),
             "scope": "identify",
             "response_type": "code",
-            "redirect_uri": get_login_callback_url(),
+            "redirect_uri": _get_login_callback_url(),
         }
     )
     return f"{DISCORD_OAUTH_URL}?{params}"
@@ -51,7 +51,7 @@ def get_add_guild_url(state: str) -> str:
                 attach_files=True,
                 read_message_history=True,
             ).value,
-            "redirect_uri": get_add_guild_callback_url(),
+            "redirect_uri": _get_add_guild_callback_url(),
             "state": state,
         }
     )
@@ -64,7 +64,7 @@ async def get_me(code: str) -> dict:
         "client_secret": get_discord_client_secret(),
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": get_login_callback_url(),
+        "redirect_uri": _get_login_callback_url(),
     }
     async with httpx.AsyncClient() as client:
         token_response = await client.post(

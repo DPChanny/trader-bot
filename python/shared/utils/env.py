@@ -11,14 +11,6 @@ def get_bot_token() -> str:
     return os.getenv("BOT_TOKEN", "")
 
 
-def get_bot_origin() -> str:
-    return os.getenv("BOT_ORIGIN", "http://localhost:8001")
-
-
-def get_bot_endpoint() -> str:
-    return f"{get_bot_origin()}/bot"
-
-
 def get_discord_client_id() -> str:
     return os.getenv("DISCORD_CLIENT_ID", "")
 
@@ -29,10 +21,6 @@ def get_discord_client_secret() -> str:
 
 def get_app_origin() -> str:
     return os.getenv("APP_ORIGIN", "http://localhost:5173")
-
-
-def get_auction_url(token: str) -> str:
-    return f"{get_app_origin()}/auction?token={token}"
 
 
 def get_api_origin() -> str:
@@ -69,23 +57,6 @@ def get_db_password() -> str:
 
 def get_db_name() -> str:
     return os.getenv("DB_NAME", "trader")
-
-
-def get_db_url_netloc() -> str:
-    user = get_db_user()
-    password = get_db_password()
-    host = get_db_host()
-    port = get_db_port()
-    name = get_db_name()
-    return f"{user}:{password}@{host}:{port}/{name}"
-
-
-def get_sync_db_url() -> str:
-    return f"postgresql://{get_db_url_netloc()}"
-
-
-def get_async_db_url() -> str:
-    return f"postgresql+asyncpg://{get_db_url_netloc()}"
 
 
 def get_aws_access_id() -> str:

@@ -14,7 +14,7 @@ from shared.entities.manager import Role
 from shared.entities.member import Member
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
-from shared.utils.env import get_auction_url
+from shared.utils.env import get_app_origin
 from shared.utils.exception import service_exception_handler
 
 from ..auction.auction_manager import auction_manager
@@ -99,7 +99,7 @@ async def add_auction_service(
                 )
                 continue
 
-            auction_url = get_auction_url(token)
+            auction_url = f"{get_app_origin()}/auction?token={token}"
             if member.discord_id is not None:
                 invites.append((member.discord_id, auction_url))
 
