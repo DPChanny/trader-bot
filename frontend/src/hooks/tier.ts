@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { TIER_API_ENDPOINT } from "@/env";
+import { GUILD_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
 import { throwHttpError } from "@/utils/fetch";
 
 interface AddTierData {
-  presetId: number;
   name: string;
 }
 
@@ -13,12 +12,24 @@ interface UpdateTierData {
   name: string;
 }
 
+function tierEndpoint(guildId: number, presetId: number) {
+  return `${GUILD_API_ENDPOINT}/${guildId}/preset/${presetId}/tier`;
+}
+
 export function useAddTier() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: AddTierData) => {
-      const response = await fetch(`${TIER_API_ENDPOINT}`, {
+    mutationFn: async ({
+      guildId,
+      presetId,
+      data,
+    }: {
+      guildId: number;
+      presetId: number;
+      data: AddTierData;
+    }) => {
+      const response = await fetch(tierEndpoint(guildId, presetId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
@@ -28,7 +39,7 @@ export function useAddTier() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.presetId],
+        queryKey: ["preset", variables.guildId, variables.presetId],
       });
     },
   });
@@ -39,24 +50,30 @@ export function useUpdateTier() {
 
   return useMutation({
     mutationFn: async ({
+      guildId,
+      presetId,
       tierId,
       data,
     }: {
-      tierId: number;
+      guildId: number;
       presetId: number;
+      tierId: number;
       data: UpdateTierData;
     }) => {
-      const response = await fetch(`${TIER_API_ENDPOINT}/${tierId}`, {
-        method: "PATCH",
-        headers: getAuthHeadersForMutation(),
-        body: JSON.stringify(toSnakeCase(data)),
-      });
+      const response = await fetch(
+        `${tierEndpoint(guildId, presetId)}/${tierId}`,
+        {
+          method: "PATCH",
+          headers: getAuthHeadersForMutation(),
+          body: JSON.stringify(toSnakeCase(data)),
+        },
+      );
       if (!response.ok) await throwHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.presetId],
+        queryKey: ["preset", variables.guildId, variables.presetId],
       });
     },
   });
@@ -66,17 +83,27 @@ export function useDeleteTier() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ tierId }: { tierId: number; presetId: number }) => {
-      const response = await fetch(`${TIER_API_ENDPOINT}/${tierId}`, {
-        method: "DELETE",
-        headers: getAuthHeadersForMutation(),
-      });
+    mutationFn: async ({
+      guildId,
+      presetId,
+      tierId,
+    }: {
+      guildId: number;
+      presetId: number;
+      tierId: number;
+    }) => {
+      const response = await fetch(
+        `${tierEndpoint(guildId, presetId)}/${tierId}`,
+        {
+          method: "DELETE",
+          headers: getAuthHeadersForMutation(),
+        },
+      );
       if (!response.ok) await throwHttpError(response);
-      return response.json();
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.presetId],
+        queryKey: ["preset", variables.guildId, variables.presetId],
       });
     },
   });

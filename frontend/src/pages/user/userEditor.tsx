@@ -2,7 +2,11 @@ import { useEffect, useState } from "preact/hooks";
 import { UserCard } from "@/components/userCard";
 import { LolStat } from "@/components/lolStat";
 import { ValStat } from "@/components/valStat";
-import { useDeleteUser, useUpdateUser, useUpdateProfile } from "@/hooks/user";
+import {
+  useDeleteMember,
+  useUpdateMember,
+  useUpdateMemberProfile,
+} from "@/hooks/member";
 import { useLolStat } from "@/hooks/lolStat";
 import { useValStat } from "@/hooks/valStat";
 import {
@@ -17,67 +21,65 @@ import { Bar } from "@/components/bar";
 import { Section } from "@/components/section";
 import { ConfirmModal } from "@/components/modal";
 import { Loading } from "@/components/loading";
-import type { User } from "@/dto";
+import type { Member } from "@/dto";
 
 import styles from "@/styles/components/userEditor.module.css";
 import { Label } from "@/components/label";
 
 interface UserEditorProps {
-  user: User;
+  member: Member;
+  guildId: number;
   onClose: () => void;
 }
 
-export function UserEditor({ user, onClose }: UserEditorProps) {
-  const updateUser = useUpdateUser();
-  const deleteUser = useDeleteUser();
-  const updateProfile = useUpdateProfile();
-  const lolStat = useLolStat(user.userId);
-  const valStat = useValStat(user.userId);
+export function UserEditor({ member, guildId, onClose }: UserEditorProps) {
+  const updateMember = useUpdateMember();
+  const deleteMember = useDeleteMember();
+  const updateProfile = useUpdateMemberProfile();
+  const lolStat = useLolStat(member.memberId);
+  const valStat = useValStat(member.memberId);
 
-  const [alias, setAlias] = useState(user.alias ?? "");
-  const [riotId, setRiotId] = useState(user.riotId ?? "");
-  const [discordId, setDiscordId] = useState(user.discordId ?? "");
+  const [alias, setAlias] = useState(member.alias ?? "");
+  const [riotId, setRiotId] = useState(member.riotId ?? "");
+  const [discordId, setDiscordId] = useState(member.discordId ?? "");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    setAlias(user.alias ?? "");
-    setRiotId(user.riotId ?? "");
-    setDiscordId(user.discordId ?? "");
-  }, [user.userId, user.alias, user.riotId, user.discordId]);
+    setAlias(member.alias ?? "");
+    setRiotId(member.riotId ?? "");
+    setDiscordId(member.discordId ?? "");
+  }, [member.memberId, member.alias, member.riotId, member.discordId]);
 
   const hasChanges =
-    alias !== (user.alias ?? "") ||
-    riotId !== (user.riotId ?? "") ||
-    discordId !== (user.discordId ?? "");
+    alias !== (member.alias ?? "") ||
+    riotId !== (member.riotId ?? "") ||
+    discordId !== (member.discordId ?? "");
 
   const handleSave = async () => {
     try {
-      await updateUser.mutateAsync({
-        userId: user.userId,
-        data: {
-          alias,
-          riotId,
-          discordId,
-        },
+      await updateMember.mutateAsync({
+        guildId,
+        memberId: member.memberId,
+        data: { alias, riotId, discordId },
       });
     } catch (err) {
-      console.error("Failed to update user:", err);
+      console.error("Failed to update member:", err);
     }
   };
 
-  const handleDeleteUser = async () => {
+  const handleDeleteMember = async () => {
     try {
-      await deleteUser.mutateAsync(user.userId);
+      await deleteMember.mutateAsync({ guildId, memberId: member.memberId });
       onClose();
     } catch (err) {
-      console.error("Failed to delete user:", err);
+      console.error("Failed to delete member:", err);
       setShowDeleteConfirm(false);
     }
   };
 
   const handleUpdateProfile = async () => {
     try {
-      await updateProfile.mutateAsync(user.userId);
+      await updateProfile.mutateAsync({ guildId, memberId: member.memberId });
     } catch (err) {
       console.error("Failed to update profile:", err);
     }
@@ -91,7 +93,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           variantLayout="row"
           variantIntent="secondary"
         >
-          <h3>{user.alias || "이름 없음"}</h3>
+          <h3>{member.alias || "이름 없음"}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -99,23 +101,23 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
           >
             <SaveButton
               onClick={handleSave}
-              disabled={updateUser.isPending || !hasChanges}
+              disabled={updateMember.isPending || !hasChanges}
             />
             <CloseButton onClick={onClose} />
           </Section>
         </Section>
-        {(updateUser.isError ||
-          deleteUser.isError ||
+        {(updateMember.isError ||
+          deleteMember.isError ||
           updateProfile.isError) && (
           <>
-            {updateUser.isError && (
-              <Error detail={updateUser.error?.message}>
-                유저 정보 수정에 실패했습니다.
+            {updateMember.isError && (
+              <Error detail={updateMember.error?.message}>
+                멤버 정보 수정에 실패했습니다.
               </Error>
             )}
-            {deleteUser.isError && (
-              <Error detail={deleteUser.error?.message}>
-                유저 삭제에 실패했습니다.
+            {deleteMember.isError && (
+              <Error detail={deleteMember.error?.message}>
+                멤버 삭제에 실패했습니다.
               </Error>
             )}
             {updateProfile.isError && (
@@ -137,12 +139,13 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
         <Section variantTone="ghost">
           <Section variantTone="ghost" className={styles.cardSection}>
             <UserCard
-              user={{
-                userId: user.userId,
+              member={{
+                memberId: member.memberId,
+                guildId: member.guildId,
                 alias: alias || null,
                 riotId: riotId || null,
                 discordId: discordId || null,
-                profileUrl: user.profileUrl,
+                profileUrl: member.profileUrl,
               }}
             />
           </Section>
@@ -157,7 +160,7 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
 
           <PrimaryButton
             onClick={handleUpdateProfile}
-            disabled={updateProfile.isPending || !user.discordId}
+            disabled={updateProfile.isPending || !member.discordId}
           >
             {updateProfile.isPending ? "업데이트 중..." : "프로필 업데이트"}
           </PrimaryButton>
@@ -192,20 +195,20 @@ export function UserEditor({ user, onClose }: UserEditorProps) {
         <DangerButton
           variantSize="large"
           onClick={() => setShowDeleteConfirm(true)}
-          disabled={deleteUser.isPending}
+          disabled={deleteMember.isPending}
         >
-          유저 삭제
+          멤버 삭제
         </DangerButton>
       </Section>
 
       <ConfirmModal
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={handleDeleteUser}
-        title="유저 삭제"
-        message="정말 이 유저를 삭제하시겠습니까?"
+        onConfirm={handleDeleteMember}
+        title="멤버 삭제"
+        message="정말 이 멤버를 삭제하시겠습니까?"
         confirmText="삭제"
-        isPending={deleteUser.isPending}
+        isPending={deleteMember.isPending}
       />
     </Section>
   );

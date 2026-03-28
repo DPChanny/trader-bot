@@ -4,21 +4,22 @@ import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
 import { throwHttpError } from "@/utils/fetch";
 
-interface AddPositionData {
-  name: string;
-  iconUrl?: string;
+interface AddPresetMemberData {
+  memberId: number;
+  tierId?: number | null;
+  isLeader?: boolean;
 }
 
-interface UpdatePositionData {
-  name?: string;
-  iconUrl?: string | null;
+interface UpdatePresetMemberData {
+  tierId?: number | null;
+  isLeader?: boolean;
 }
 
-function positionEndpoint(guildId: number, presetId: number) {
-  return `${GUILD_API_ENDPOINT}/${guildId}/preset/${presetId}/position`;
+function presetMemberEndpoint(guildId: number, presetId: number) {
+  return `${GUILD_API_ENDPOINT}/${guildId}/preset/${presetId}/member`;
 }
 
-export function useAddPosition() {
+export function useAddPresetMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -29,9 +30,9 @@ export function useAddPosition() {
     }: {
       guildId: number;
       presetId: number;
-      data: AddPositionData;
+      data: AddPresetMemberData;
     }) => {
-      const response = await fetch(positionEndpoint(guildId, presetId), {
+      const response = await fetch(presetMemberEndpoint(guildId, presetId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
@@ -47,23 +48,23 @@ export function useAddPosition() {
   });
 }
 
-export function useUpdatePosition() {
+export function useUpdatePresetMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
       guildId,
       presetId,
-      positionId,
+      presetMemberId,
       data,
     }: {
       guildId: number;
       presetId: number;
-      positionId: number;
-      data: UpdatePositionData;
+      presetMemberId: number;
+      data: UpdatePresetMemberData;
     }) => {
       const response = await fetch(
-        `${positionEndpoint(guildId, presetId)}/${positionId}`,
+        `${presetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
         {
           method: "PATCH",
           headers: getAuthHeadersForMutation(),
@@ -81,21 +82,21 @@ export function useUpdatePosition() {
   });
 }
 
-export function useDeletePosition() {
+export function useRemovePresetMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
       guildId,
       presetId,
-      positionId,
+      presetMemberId,
     }: {
       guildId: number;
       presetId: number;
-      positionId: number;
+      presetMemberId: number;
     }) => {
       const response = await fetch(
-        `${positionEndpoint(guildId, presetId)}/${positionId}`,
+        `${presetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
         {
           method: "DELETE",
           headers: getAuthHeadersForMutation(),

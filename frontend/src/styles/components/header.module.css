@@ -41,6 +41,19 @@
   letter-spacing: var(--letter-spacing-tight);
 }
 
+.headerGuild {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: var(--font-weight-normal);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  padding-left: var(--gap-md);
+  margin-left: var(--gap-xs);
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .headerNav {
   display: flex;
   gap: var(--gap-xs);

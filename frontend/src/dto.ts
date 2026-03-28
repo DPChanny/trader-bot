@@ -65,6 +65,27 @@ export interface TimerData {
   timer: number;
 }
 
+export interface Guild {
+  guildId: number;
+  discordId: string;
+  name: string;
+}
+
+export interface User {
+  userId: number;
+  discordId: string;
+  name: string;
+}
+
+export interface Member {
+  memberId: number;
+  guildId: number;
+  alias: string | null;
+  riotId: string | null;
+  discordId: string | null;
+  profileUrl: string | null;
+}
+
 export type Statistics = "NONE" | "LOL" | "VAL";
 export const StatisticsDisplay: { [key in Statistics]: string } = {
   NONE: "",
@@ -74,6 +95,7 @@ export const StatisticsDisplay: { [key in Statistics]: string } = {
 
 export interface Preset {
   presetId: number;
+  guildId: number;
   name: string;
   points: number;
   time: number;
@@ -82,31 +104,23 @@ export interface Preset {
 }
 
 export interface PresetDetail extends Preset {
-  presetUsers: PresetUserDetail[];
+  presetMembers: PresetMemberDetail[];
   tiers: Tier[];
   positions: Position[];
 }
 
-export interface PresetUser {
-  presetUserId: number;
+export interface PresetMember {
+  presetMemberId: number;
   presetId: number;
-  userId: number;
+  memberId: number;
   tierId: number | null;
   isLeader: boolean;
 }
 
-export interface PresetUserDetail extends PresetUser {
-  user: User;
+export interface PresetMemberDetail extends PresetMember {
+  member: Member | null;
   tier: Tier | null;
-  presetUserPositions: PresetUserPosition[];
-}
-
-export interface User {
-  userId: number;
-  alias: string | null;
-  riotId: string | null;
-  discordId: string | null;
-  profileUrl: string | null;
+  presetMemberPositions: PresetMemberPosition[];
 }
 
 export interface Tier {
@@ -122,9 +136,9 @@ export interface Position {
   iconUrl?: string | null;
 }
 
-export interface PresetUserPosition {
-  presetUserPositionId: number;
-  presetUserId: number;
+export interface PresetMemberPosition {
+  presetMemberPositionId: number;
+  presetMemberId: number;
   positionId: number;
   position: Position;
 }

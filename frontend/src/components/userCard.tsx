@@ -1,14 +1,14 @@
 import styles from "@/styles/components/userCard.module.css";
 import { Card } from "./card";
 import { Section } from "./section";
-import type { User } from "@/dto";
+import type { Member } from "@/dto";
 
 export interface UserCardProps {
-  user: User;
+  member: Member;
   isActive?: boolean;
 }
 
-export function UserCard({ user, isActive }: UserCardProps) {
+export function UserCard({ member, isActive }: UserCardProps) {
   return (
     <Card
       variantColor="gray"
@@ -17,8 +17,8 @@ export function UserCard({ user, isActive }: UserCardProps) {
     >
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
-          {user.profileUrl ? (
-            <img src={user.profileUrl} alt={user.alias || "이름 없음"} />
+          {member.profileUrl ? (
+            <img src={member.profileUrl} alt={member.alias || "이름 없음"} />
           ) : (
             <svg
               class={styles.profileIcon}
@@ -37,7 +37,7 @@ export function UserCard({ user, isActive }: UserCardProps) {
         </div>
 
         <Section variantTone="ghost" variantIntent="tertiary">
-          <h3 class={styles.name}>{user.alias || "이름 없음"}</h3>
+          <h3 class={styles.name}>{member.alias || "이름 없음"}</h3>
         </Section>
       </Section>
     </Card>

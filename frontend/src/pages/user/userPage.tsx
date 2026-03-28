@@ -1,5 +1,7 @@
-import { useState, useMemo } from "preact/hooks";
-import { useUsers, useAddUser } from "@/hooks/user";
+import { useState, useMemo, useEffect } from "preact/hooks";
+import { route } from "preact-router";
+import { useMembers, useAddMember } from "@/hooks/member";
+import { getSelectedGuild } from "@/utils/guild";
 import { PrimaryButton } from "@/components/button";
 import { UserGrid } from "@/components/userGrid";
 import { Section } from "@/components/section";
@@ -8,7 +10,7 @@ import { Loading } from "@/components/loading";
 import { Error } from "@/components/error";
 import { UserEditor } from "./userEditor";
 import { AddUserModal } from "./addUserModal";
-import type { User } from "@/dto";
+import type { Member } from "@/dto";
 
 import styles from "@/styles/pages/user/userPage.module.css";
 import { Bar } from "@/components/bar";
@@ -19,7 +21,7 @@ interface UserPageProps {
 
 export function UserPage({}: UserPageProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
 
   const [formData, setFormData] = useState({
     alias: "",
@@ -27,19 +29,28 @@ export function UserPage({}: UserPageProps) {
     discordId: "",
   });
 
-  const { data: users, isLoading, error } = useUsers();
-  const addUser = useAddUser();
+  const selectedGuild = getSelectedGuild();
+  const guildId = selectedGuild?.guildId ?? null;
 
-  const selectedUser = useMemo(
+  useEffect(() => {
+    if (!selectedGuild) {
+      route("/guild", true);
+    }
+  }, []);
+
+  const { data: members, isLoading, error } = useMembers(guildId ?? 0);
+  const addMember = useAddMember();
+
+  const selectedMember = useMemo(
     () =>
-      selectedUserId && users
-        ? users.find((user: User) => user.userId === selectedUserId)
+      selectedMemberId && members
+        ? members.find((m: Member) => m.memberId === selectedMemberId)
         : null,
-    [selectedUserId, users],
+    [selectedMemberId, members],
   );
 
   const handleCloseEditor = () => {
-    setSelectedUserId(null);
+    setSelectedMemberId(null);
   };
 
   const handleOpenModal = () => {
@@ -54,9 +65,9 @@ export function UserPage({}: UserPageProps) {
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-
+    if (!guildId) return;
     try {
-      await addUser.mutateAsync(formData);
+      await addMember.mutateAsync({ guildId, data: formData });
       handleCloseModal();
     } catch (err) {
       console.error(err);
@@ -70,32 +81,38 @@ export function UserPage({}: UserPageProps) {
     });
   };
 
+  if (!selectedGuild) return null;
+
   return (
     <PageLayout>
       <PageContainer>
         <Section variantIntent="primary" className={styles.mainSection}>
           <Section variantTone="ghost" variantLayout="row">
-            <h3>유저 목록</h3>
+            <h3>멤버 목록</h3>
             <PrimaryButton onClick={handleOpenModal}>추가</PrimaryButton>
           </Section>
           <Bar />
           {error && (
             <Error detail={error?.message}>
-              유저 목록을 수로오는데 실패했습니다.
+              멤버 목록을 불러오는데 실패했습니다.
             </Error>
           )}
           {isLoading && <Loading />}
           {!isLoading && !error && (
             <UserGrid
-              users={users || []}
-              selectedUserId={selectedUserId}
-              onUserClick={(id) => setSelectedUserId(id as number)}
+              members={members || []}
+              selectedMemberId={selectedMemberId}
+              onMemberClick={(id) => setSelectedMemberId(id as number)}
             />
           )}
         </Section>
 
-        {selectedUser && (
-          <UserEditor user={selectedUser} onClose={handleCloseEditor} />
+        {selectedMember && (
+          <UserEditor
+            member={selectedMember}
+            guildId={guildId!}
+            onClose={handleCloseEditor}
+          />
         )}
       </PageContainer>
 
@@ -105,8 +122,8 @@ export function UserPage({}: UserPageProps) {
         onSubmit={handleSubmit}
         formData={formData}
         onFormChange={handleFormChange}
-        isPending={addUser.isPending}
-        error={addUser.error}
+        isPending={addMember.isPending}
+        error={addMember.error}
       />
     </PageLayout>
   );

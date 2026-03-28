@@ -3,24 +3,22 @@ import styles from "@/styles/components/userCard.module.css";
 import { Card } from "./card";
 import { Badge } from "./badge";
 import { Section } from "./section";
-import type { PresetUserDetail } from "@/dto";
+import type { PresetMemberDetail } from "@/dto";
 
 export interface PresetUserCardProps {
-  presetUser: PresetUserDetail;
+  presetMember: PresetMemberDetail;
   isActive?: boolean;
   isConnected?: boolean;
   isClientUser?: boolean;
 }
 
 export function PresetUserCard({
-  presetUser,
+  presetMember,
   isActive,
   isConnected,
   isClientUser,
 }: PresetUserCardProps) {
-  const { user, tier, presetUserPositions, isLeader } = presetUser;
-
-  const positionNames = presetUserPositions?.map((p) => p.position.name) || [];
+  const { member, tier, presetMemberPositions, isLeader } = presetMember;
 
   const statusClass = (() => {
     if (isClientUser) return styles.statusDotClient;
@@ -44,8 +42,8 @@ export function PresetUserCard({
 
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
-          {user.profileUrl ? (
-            <img src={user.profileUrl} alt={user.alias || "이름 없음"} />
+          {member?.profileUrl ? (
+            <img src={member.profileUrl} alt={member?.alias || "이름 없음"} />
           ) : (
             <svg
               class={styles.profileIcon}
@@ -64,15 +62,15 @@ export function PresetUserCard({
         </div>
 
         <Section variantTone="ghost" variantIntent="tertiary">
-          <h3 class={styles.name}>{user.alias || "이름 없음"}</h3>
-          {positionNames?.length > 0 && (
+          <h3 class={styles.name}>{member?.alias || "이름 없음"}</h3>
+          {presetMemberPositions?.length > 0 && (
             <Section
               variantTone="ghost"
               variantLayout="row"
               variantIntent="tertiary"
               className={styles.positions}
             >
-              {presetUserPositions!.slice(0, 3).map((p) => (
+              {presetMemberPositions!.slice(0, 3).map((p) => (
                 <Badge
                   key={p.position.positionId}
                   src={p.position.iconUrl || undefined}

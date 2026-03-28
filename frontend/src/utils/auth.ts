@@ -1,3 +1,5 @@
+import { AUTH_API_ENDPOINT } from "@/env";
+
 const TOKEN_COOKIE_NAME = "auth_token";
 
 export function setAuthToken(token: string): void {
@@ -26,6 +28,14 @@ export function isAuthenticated(): boolean {
   return getAuthToken() !== null;
 }
 
+export function getAuthHeaders(): HeadersInit {
+  const token = getAuthToken();
+  if (token) {
+    return { Authorization: `Bearer ${token}` };
+  }
+  return {};
+}
+
 export function getAuthHeadersForMutation(): HeadersInit {
   const token = getAuthToken();
   console.log(
@@ -51,16 +61,13 @@ export async function refreshAuthToken(): Promise<boolean> {
   }
 
   try {
-    const response = await fetch(
-      "http://localhost:8000/api/auth/token/refresh",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+    const response = await fetch(`${AUTH_API_ENDPOINT}/token/refresh`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-    );
+    });
 
     if (response.ok) {
       const data = await response.json();

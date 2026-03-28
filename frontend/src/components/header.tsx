@@ -1,8 +1,9 @@
 import { route } from "preact-router";
 import styles from "@/styles/components/header.module.css";
 import { Button, DangerButton } from "@/components/button";
+import { getSelectedGuild } from "@/utils/guild";
 
-type PageView = "home" | "user" | "preset";
+type PageView = "home" | "guild" | "user" | "preset";
 
 interface HeaderProps {
   currentPage: PageView;
@@ -15,29 +16,37 @@ export function Header({ currentPage, showNav = true, onLogout }: HeaderProps) {
     route(path);
   };
 
+  const selectedGuild = getSelectedGuild();
+
   return (
     <header className={styles.header}>
       <div className={styles.headerContent}>
-        <div className={styles.headerLogo} onClick={() => handleNavigate("/")}>
+        <div
+          className={styles.headerLogo}
+          onClick={() => handleNavigate("/guild")}
+        >
           <span className={styles.headerIcon}>🎮</span>
           <span className={styles.headerText}>Trader</span>
+          {selectedGuild && (
+            <span className={styles.headerGuild}>{selectedGuild.name}</span>
+          )}
         </div>
 
         {showNav && (
           <nav className={styles.headerNav}>
             <Button
-              variantIntent={currentPage === "home" ? "primary" : "secondary"}
+              variantIntent={currentPage === "guild" ? "primary" : "secondary"}
               variantSize="small"
-              onClick={() => handleNavigate("/")}
+              onClick={() => handleNavigate("/guild")}
             >
-              홈
+              길드
             </Button>
             <Button
               variantIntent={currentPage === "user" ? "primary" : "secondary"}
               variantSize="small"
               onClick={() => handleNavigate("/user")}
             >
-              유저 관리
+              멤버 관리
             </Button>
             <Button
               variantIntent={currentPage === "preset" ? "primary" : "secondary"}

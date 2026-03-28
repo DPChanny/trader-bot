@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type { Preset, PresetDetail } from "@/dto";
-import { PRESET_API_ENDPOINT } from "@/env";
-import { getAuthHeadersForMutation } from "@/utils/auth";
+import { GUILD_API_ENDPOINT } from "@/env";
+import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { throwHttpError } from "@/utils/fetch";
 
@@ -21,29 +21,41 @@ interface UpdatePresetData {
   statistics?: string;
 }
 
-export function usePresets() {
+function presetEndpoint(guildId: number) {
+  return `${GUILD_API_ENDPOINT}/${guildId}/preset`;
+}
+
+export function usePresets(guildId: number | null) {
   return useQuery({
-    queryKey: ["presets"],
+    queryKey: ["presets", guildId],
     queryFn: async (): Promise<Preset[]> => {
-      const response = await fetch(`${PRESET_API_ENDPOINT}`);
+      const response = await fetch(presetEndpoint(guildId!), {
+        headers: getAuthHeaders(),
+      });
       if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<Preset[]>(json);
     },
+    enabled: !!guildId,
   });
 }
 
-export function usePresetDetail(presetId: number | null) {
+export function usePresetDetail(
+  guildId: number | null,
+  presetId: number | null,
+) {
   return useQuery({
-    queryKey: ["preset", presetId],
+    queryKey: ["preset", guildId, presetId],
     queryFn: async (): Promise<PresetDetail | null> => {
-      if (!presetId) return null;
-      const response = await fetch(`${PRESET_API_ENDPOINT}/${presetId}`);
+      if (!guildId || !presetId) return null;
+      const response = await fetch(`${presetEndpoint(guildId)}/${presetId}`, {
+        headers: getAuthHeaders(),
+      });
       if (!response.ok) await throwHttpError(response);
       const json = await response.json();
       return toCamelCase<PresetDetail>(json);
     },
-    enabled: !!presetId,
+    enabled: !!guildId && !!presetId,
   });
 }
 
@@ -51,8 +63,14 @@ export function useAddPreset() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: AddPresetData): Promise<Preset> => {
-      const response = await fetch(`${PRESET_API_ENDPOINT}`, {
+    mutationFn: async ({
+      guildId,
+      data,
+    }: {
+      guildId: number;
+      data: AddPresetData;
+    }): Promise<Preset> => {
+      const response = await fetch(presetEndpoint(guildId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
@@ -61,8 +79,10 @@ export function useAddPreset() {
       const json = await response.json();
       return toCamelCase<Preset>(json);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["presets"] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["presets", variables.guildId],
+      });
     },
   });
 }
@@ -72,13 +92,15 @@ export function useUpdatePreset() {
 
   return useMutation({
     mutationFn: async ({
+      guildId,
       presetId,
       data,
     }: {
+      guildId: number;
       presetId: number;
       data: UpdatePresetData;
     }): Promise<Preset> => {
-      const response = await fetch(`${PRESET_API_ENDPOINT}/${presetId}`, {
+      const response = await fetch(`${presetEndpoint(guildId)}/${presetId}`, {
         method: "PATCH",
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
@@ -88,9 +110,11 @@ export function useUpdatePreset() {
       return toCamelCase<Preset>(json);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["presets"] });
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.presetId],
+        queryKey: ["presets", variables.guildId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["preset", variables.guildId, variables.presetId],
       });
     },
   });
@@ -100,16 +124,26 @@ export function useDeletePreset() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (presetId: number): Promise<void> => {
-      const response = await fetch(`${PRESET_API_ENDPOINT}/${presetId}`, {
+    mutationFn: async ({
+      guildId,
+      presetId,
+    }: {
+      guildId: number;
+      presetId: number;
+    }): Promise<void> => {
+      const response = await fetch(`${presetEndpoint(guildId)}/${presetId}`, {
         method: "DELETE",
         headers: getAuthHeadersForMutation(),
       });
       if (!response.ok) await throwHttpError(response);
     },
-    onSuccess: (_, presetId) => {
-      queryClient.invalidateQueries({ queryKey: ["presets"] });
-      queryClient.removeQueries({ queryKey: ["preset", presetId] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["presets", variables.guildId],
+      });
+      queryClient.removeQueries({
+        queryKey: ["preset", variables.guildId, variables.presetId],
+      });
     },
   });
 }

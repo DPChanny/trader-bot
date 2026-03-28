@@ -13,6 +13,7 @@ import { PositionCard } from "./positionCard";
 import styles from "@/styles/pages/preset/positionList.module.css";
 
 interface PositionListProps {
+  guildId: number;
   presetId: number;
   positions: any[];
   showPositionForm: boolean;
@@ -24,6 +25,7 @@ interface PositionListProps {
 }
 
 export function PositionList({
+  guildId,
   presetId,
   positions,
   showPositionForm,
@@ -49,9 +51,12 @@ export function PositionList({
     if (!newPositionName.trim()) return;
     try {
       await addPosition.mutateAsync({
+        guildId,
         presetId: presetId,
-        name: newPositionName.trim(),
-        iconUrl: newPositionIconUrl.trim() || undefined,
+        data: {
+          name: newPositionName.trim(),
+          iconUrl: newPositionIconUrl.trim() || undefined,
+        },
       });
       onNewPositionNameChange("");
       onNewPositionIconUrlChange("");
@@ -65,8 +70,9 @@ export function PositionList({
     if (!editingName.trim()) return;
     try {
       await updatePosition.mutateAsync({
-        positionId,
+        guildId,
         presetId,
+        positionId,
         data: {
           name: editingName.trim(),
           iconUrl: editingIconUrl.trim() === "" ? null : editingIconUrl.trim(),
@@ -84,8 +90,9 @@ export function PositionList({
     if (deleteTargetId === null) return;
     try {
       await deletePosition.mutateAsync({
-        positionId: deleteTargetId,
+        guildId,
         presetId: presetId,
+        positionId: deleteTargetId,
       });
       setShowDeleteConfirm(false);
       setDeleteTargetId(null);

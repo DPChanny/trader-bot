@@ -27,11 +27,11 @@ export function AddUserModal({
   error,
 }: AddUserModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="유저 추가">
+    <Modal isOpen={isOpen} onClose={onClose} title="멤버 추가">
       <ModalForm onSubmit={onSubmit}>
         {error && (
           <ErrorMessage detail={error?.message}>
-            유저 추가에 실패했습니다.
+            멤버 추가에 실패했습니다.
           </ErrorMessage>
         )}
         <LabelInput

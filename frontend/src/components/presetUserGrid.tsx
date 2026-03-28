@@ -4,25 +4,25 @@ import { clsx } from "clsx";
 import styles from "@/styles/components/userGrid.module.css";
 
 interface PresetUserGridProps {
-  presetUsers: PresetUserCardProps["presetUser"][];
-  selectedUserId?: number | null;
-  onUserClick: (userId: number) => void;
+  presetMembers: PresetUserCardProps["presetMember"][];
+  selectedMemberId?: number | null;
+  onMemberClick: (presetMemberId: number) => void;
   className?: string;
   connectedUsers?: number[];
-  clientUserId?: number;
+  clientMemberId?: number;
 }
 
 export function PresetUserGrid({
-  presetUsers,
-  selectedUserId,
-  onUserClick,
+  presetMembers,
+  selectedMemberId,
+  onMemberClick,
   className,
   connectedUsers,
-  clientUserId,
+  clientMemberId,
 }: PresetUserGridProps) {
-  const leaders = presetUsers.filter((pu) => pu.isLeader);
-  const nonLeaders = presetUsers.filter((pu) => !pu.isLeader);
-  const sortedUsers = [...leaders, ...nonLeaders];
+  const leaders = presetMembers.filter((pm) => pm.isLeader);
+  const nonLeaders = presetMembers.filter((pm) => !pm.isLeader);
+  const sorted = [...leaders, ...nonLeaders];
 
   return (
     <Section
@@ -30,22 +30,24 @@ export function PresetUserGrid({
       variantLayout="grid"
       className={clsx(styles.grid, className)}
     >
-      {sortedUsers.map((presetUser) => (
+      {sorted.map((presetMember) => (
         <div
-          key={presetUser.presetUserId}
+          key={presetMember.presetMemberId}
           className={styles.gridItem}
-          onClick={() => onUserClick(presetUser.presetUserId)}
+          onClick={() => onMemberClick(presetMember.presetMemberId)}
         >
           <PresetUserCard
-            presetUser={presetUser}
-            isActive={selectedUserId === presetUser.presetUserId}
+            presetMember={presetMember}
+            isActive={selectedMemberId === presetMember.presetMemberId}
             isConnected={
               connectedUsers
-                ? connectedUsers.includes(presetUser.userId)
+                ? connectedUsers.includes(presetMember.memberId)
                 : undefined
             }
             isClientUser={
-              clientUserId ? clientUserId === presetUser.userId : undefined
+              clientMemberId
+                ? clientMemberId === presetMember.memberId
+                : undefined
             }
           />
         </div>

@@ -3,16 +3,19 @@ import { PresetUserCard } from "@/components/presetUserCard";
 import { LolStat } from "@/components/lolStat";
 import { ValStat } from "@/components/valStat";
 import { Toggle } from "@/components/toggle";
-import { useRemovePresetUser, useUpdatePresetUser } from "@/hooks/presetUser";
 import {
-  useAddPresetUserPosition,
-  useDeletePresetUserPosition,
-} from "@/hooks/presetUserPosition";
+  useRemovePresetMember,
+  useUpdatePresetMember,
+} from "@/hooks/presetMember";
+import {
+  useAddPresetMemberPosition,
+  useDeletePresetMemberPosition,
+} from "@/hooks/presetMemberPosition";
 import { useLolStat } from "@/hooks/lolStat";
 import { useValStat } from "@/hooks/valStat";
 import {
   type Position,
-  type PresetUserDetail,
+  type PresetMemberDetail,
   type Statistics,
   type Tier,
 } from "@/dto";
@@ -25,18 +28,20 @@ import { Loading } from "@/components/loading";
 import styles from "@/styles/components/userEditor.module.css";
 
 interface PresetUserEditorProps {
-  presetUser: PresetUserDetail;
+  presetMember: PresetMemberDetail;
+  guildId: number;
   presetId: number;
   statistics: Statistics;
   tiers: Tier[];
   positions: Position[];
   onClose: () => void;
-  onRemoveStart?: (userId: number) => void;
-  onRemoveError?: (userId: number) => void;
+  onRemoveStart?: (memberId: number) => void;
+  onRemoveError?: (memberId: number) => void;
 }
 
 export function PresetUserEditor({
-  presetUser,
+  presetMember,
+  guildId,
   presetId,
   statistics,
   tiers,
@@ -45,52 +50,57 @@ export function PresetUserEditor({
   onRemoveStart,
   onRemoveError,
 }: PresetUserEditorProps) {
-  const updatePresetUser = useUpdatePresetUser();
-  const removePresetUser = useRemovePresetUser();
-  const addPresetUserPosition = useAddPresetUserPosition();
-  const deletePresetUserPosition = useDeletePresetUserPosition();
+  const updatePresetMember = useUpdatePresetMember();
+  const removePresetMember = useRemovePresetMember();
+  const addPresetMemberPosition = useAddPresetMemberPosition();
+  const deletePresetMemberPosition = useDeletePresetMemberPosition();
   const lolStat = useLolStat(
-    statistics === "LOL" ? presetUser.user.userId : null,
+    statistics === "LOL" ? (presetMember.member?.memberId ?? null) : null,
   );
   const valStat = useValStat(
-    statistics === "VAL" ? presetUser.user.userId : null,
+    statistics === "VAL" ? (presetMember.member?.memberId ?? null) : null,
   );
 
-  const [isLeader, setIsLeader] = useState(presetUser.isLeader);
+  const [isLeader, setIsLeader] = useState(presetMember.isLeader);
   const [tierId, setTierId] = useState<number | null>(
-    presetUser.tierId || null,
+    presetMember.tierId || null,
   );
   const [selectedPositionIds, setSelectedPositionIds] = useState<number[]>(
-    presetUser.presetUserPositions?.map((p) => p.position.positionId) || [],
+    presetMember.presetMemberPositions?.map((p) => p.position.positionId) || [],
   );
 
   useEffect(() => {
-    setIsLeader(presetUser.isLeader);
-    setTierId(presetUser.tierId || null);
+    setIsLeader(presetMember.isLeader);
+    setTierId(presetMember.tierId || null);
     setSelectedPositionIds(
-      presetUser.presetUserPositions?.map((p) => p.position.positionId) || [],
+      presetMember.presetMemberPositions?.map((p) => p.position.positionId) ||
+        [],
     );
   }, [
-    presetUser.presetUserId,
-    presetUser.isLeader,
-    presetUser.tierId,
-    presetUser.presetUserPositions,
+    presetMember.presetMemberId,
+    presetMember.isLeader,
+    presetMember.tierId,
+    presetMember.presetMemberPositions,
   ]);
 
   const initialPositionIds =
-    presetUser.presetUserPositions?.map((p) => p.position.positionId) || [];
+    presetMember.presetMemberPositions?.map((p) => p.position.positionId) || [];
   const hasChanges =
-    isLeader !== presetUser.isLeader ||
-    tierId !== presetUser.tierId ||
+    isLeader !== presetMember.isLeader ||
+    tierId !== presetMember.tierId ||
     selectedPositionIds.length !== initialPositionIds.length ||
     selectedPositionIds.some((id) => !initialPositionIds.includes(id));
 
   const handleSave = async () => {
     try {
-      if (isLeader !== presetUser.isLeader || tierId !== presetUser.tierId) {
-        await updatePresetUser.mutateAsync({
-          presetUserId: presetUser.presetUserId,
+      if (
+        isLeader !== presetMember.isLeader ||
+        tierId !== presetMember.tierId
+      ) {
+        await updatePresetMember.mutateAsync({
+          guildId,
           presetId,
+          presetMemberId: presetMember.presetMemberId,
           data: { tierId, isLeader },
         });
       }
@@ -103,26 +113,29 @@ export function PresetUserEditor({
       );
 
       for (const positionId of positionIdsToRemove) {
-        const position = presetUser.presetUserPositions?.find(
+        const entry = presetMember.presetMemberPositions?.find(
           (p) => p.position.positionId === positionId,
         );
-        if (position) {
-          await deletePresetUserPosition.mutateAsync({
-            presetUserPositionId: position.presetUserPositionId,
+        if (entry) {
+          await deletePresetMemberPosition.mutateAsync({
+            guildId,
             presetId,
-          } as any);
+            presetMemberId: presetMember.presetMemberId,
+            presetMemberPositionId: entry.presetMemberPositionId,
+          });
         }
       }
 
       for (const positionId of positionIdsToAdd) {
-        await addPresetUserPosition.mutateAsync({
-          presetUserId: presetUser.presetUserId,
-          positionId,
+        await addPresetMemberPosition.mutateAsync({
+          guildId,
           presetId,
-        } as any);
+          presetMemberId: presetMember.presetMemberId,
+          positionId,
+        });
       }
     } catch (err) {
-      console.error("Failed to save preset user:", err);
+      console.error("Failed to save preset member:", err);
     }
   };
 
@@ -140,25 +153,26 @@ export function PresetUserEditor({
     setTierId((prev) => (prev === id ? null : id));
   };
 
-  const handleRemoveUser = async () => {
+  const handleRemoveMember = async () => {
     try {
-      onRemoveStart?.(presetUser.user.userId);
-      await removePresetUser.mutateAsync({
-        presetUserId: presetUser.presetUserId,
+      onRemoveStart?.(presetMember.memberId);
+      await removePresetMember.mutateAsync({
+        guildId,
         presetId,
+        presetMemberId: presetMember.presetMemberId,
       });
       onClose();
     } catch (err) {
-      console.error("Failed to remove preset user:", err);
-      onRemoveError?.(presetUser.user.userId);
+      console.error("Failed to remove preset member:", err);
+      onRemoveError?.(presetMember.memberId);
     }
   };
 
   const hasError =
-    updatePresetUser.isError ||
-    addPresetUserPosition.isError ||
-    deletePresetUserPosition.isError ||
-    removePresetUser.isError;
+    updatePresetMember.isError ||
+    addPresetMemberPosition.isError ||
+    deletePresetMemberPosition.isError ||
+    removePresetMember.isError;
 
   const previewTier = tierId
     ? tiers?.find((t) => t.tierId === tierId) || null
@@ -167,25 +181,24 @@ export function PresetUserEditor({
     .map((id) => {
       const position = positions.find((p) => p.positionId === id);
       if (!position) return null;
-      const existingPositionId =
-        presetUser.presetUserPositions?.find(
-          (p) => p.position.positionId === id,
-        )?.presetUserPositionId || 0;
+      const existingEntry = presetMember.presetMemberPositions?.find(
+        (p) => p.position.positionId === id,
+      );
       return {
-        presetUserPositionId: existingPositionId,
-        presetUserId: presetUser.presetUserId,
+        presetMemberPositionId: existingEntry?.presetMemberPositionId || 0,
+        presetMemberId: presetMember.presetMemberId,
         positionId: id,
         position: position,
       };
     })
     .filter((p) => p !== null) as any[];
 
-  const previewPresetUser = {
-    ...presetUser,
+  const previewPresetMember = {
+    ...presetMember,
     tierId: tierId,
     tier: previewTier,
     isLeader: isLeader,
-    positions: previewPositions,
+    presetMemberPositions: previewPositions,
   };
 
   return (
@@ -196,7 +209,7 @@ export function PresetUserEditor({
           variantLayout="row"
           variantIntent="secondary"
         >
-          <h3>{presetUser.user.alias || "이름 없음"}</h3>
+          <h3>{presetMember.member?.alias || "이름 없음"}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -204,7 +217,7 @@ export function PresetUserEditor({
           >
             <SaveButton
               onClick={handleSave}
-              disabled={updatePresetUser.isPending || !hasChanges}
+              disabled={updatePresetMember.isPending || !hasChanges}
             />
             <CloseButton onClick={onClose} />
           </Section>
@@ -213,14 +226,14 @@ export function PresetUserEditor({
           <Error
             detail={
               (
-                updatePresetUser.error ||
-                addPresetUserPosition.error ||
-                deletePresetUserPosition.error ||
-                removePresetUser.error
+                updatePresetMember.error ||
+                addPresetMemberPosition.error ||
+                deletePresetMemberPosition.error ||
+                removePresetMember.error
               )?.message
             }
           >
-            프리셋 유저 정보 저장에 실패했습니다.
+            프리셋 멤버 정보 저장에 실패했습니다.
           </Error>
         )}
       </Section>
@@ -234,7 +247,7 @@ export function PresetUserEditor({
       >
         <Section variantTone="ghost">
           <Section variantTone="ghost" className={styles.cardSection}>
-            <PresetUserCard presetUser={previewPresetUser} />
+            <PresetUserCard presetMember={previewPresetMember} />
           </Section>
 
           <Label>팀장</Label>
@@ -320,10 +333,10 @@ export function PresetUserEditor({
       <Section variantTone="ghost" variantIntent="secondary">
         <DangerButton
           variantSize="large"
-          onClick={handleRemoveUser}
-          disabled={removePresetUser.isPending}
+          onClick={handleRemoveMember}
+          disabled={removePresetMember.isPending}
         >
-          유저 제거
+          멤버 제거
         </DangerButton>
       </Section>
     </Section>

@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo } from "preact/hooks";
-import { useUsers } from "@/hooks/user";
+import { route } from "preact-router";
+import { useMembers } from "@/hooks/member";
 import { useAddPreset, usePresetDetail, usePresets } from "@/hooks/preset";
-import { useAddPresetUser } from "@/hooks/presetUser";
+import { useAddPresetMember } from "@/hooks/presetMember";
 import { useAddAuction } from "@/hooks/auction";
+import { getSelectedGuild } from "@/utils/guild";
 import { PresetList } from "./presetList";
 import { TierList } from "./tierList";
 import { PositionList } from "./positionList";
@@ -25,11 +27,13 @@ interface PresetPageProps {
 
 export function PresetPage({}: PresetPageProps) {
   const [selectedPresetId, setSelectedPresetId] = useState<number | null>(null);
-  const [selectedPresetUserId, setSelectedPresetUserId] = useState<
+  const [selectedPresetMemberId, setSelectedPresetMemberId] = useState<
     number | null
   >(null);
-  const [addingUserIds, setAddingUserIds] = useState<Set<number>>(new Set());
-  const [removingUserIds, setRemovingUserIds] = useState<Set<number>>(
+  const [addingMemberIds, setAddingMemberIds] = useState<Set<number>>(
+    new Set(),
+  );
+  const [removingMemberIds, setRemovingMemberIds] = useState<Set<number>>(
     new Set(),
   );
   const [isCreating, setIsCreating] = useState(false);
@@ -45,35 +49,44 @@ export function PresetPage({}: PresetPageProps) {
   const [newPositionName, setNewPositionName] = useState("");
   const [newPositionIconUrl, setNewPositionIconUrl] = useState("");
 
+  const selectedGuild = getSelectedGuild();
+  const guildId = selectedGuild?.guildId ?? null;
+
   const {
     data: presets,
     isLoading: presetsLoading,
     error: presetsError,
-  } = usePresets();
-  const { data: users, error: usersError } = useUsers();
+  } = usePresets(guildId ?? 0);
+  const { data: members, error: membersError } = useMembers(guildId ?? 0);
   const {
     data: presetDetail,
     isLoading: detailLoading,
     error: detailError,
-  } = usePresetDetail(selectedPresetId);
+  } = usePresetDetail(guildId ?? 0, selectedPresetId);
 
-  const addPresetUser = useAddPresetUser();
+  const addPresetMember = useAddPresetMember();
   const addPreset = useAddPreset();
   const addAuction = useAddAuction();
 
   useEffect(() => {
+    if (!selectedGuild) {
+      route("/guild", true);
+    }
+  }, []);
+
+  useEffect(() => {
     if (presetDetail) {
-      const presetUserIds = new Set(
-        presetDetail.presetUsers.map((pu) => pu.userId),
+      const presetMemberIds = new Set(
+        presetDetail.presetMembers.map((pm) => pm.memberId),
       );
 
-      if (addingUserIds.size > 0) {
-        setAddingUserIds((prev) => {
+      if (addingMemberIds.size > 0) {
+        setAddingMemberIds((prev) => {
           const next = new Set(prev);
           let changed = false;
-          prev.forEach((userId) => {
-            if (presetUserIds.has(userId)) {
-              next.delete(userId);
+          prev.forEach((memberId) => {
+            if (presetMemberIds.has(memberId)) {
+              next.delete(memberId);
               changed = true;
             }
           });
@@ -81,13 +94,13 @@ export function PresetPage({}: PresetPageProps) {
         });
       }
 
-      if (removingUserIds.size > 0) {
-        setRemovingUserIds((prev) => {
+      if (removingMemberIds.size > 0) {
+        setRemovingMemberIds((prev) => {
           const next = new Set(prev);
           let changed = false;
-          prev.forEach((userId) => {
-            if (!presetUserIds.has(userId)) {
-              next.delete(userId);
+          prev.forEach((memberId) => {
+            if (!presetMemberIds.has(memberId)) {
+              next.delete(memberId);
               changed = true;
             }
           });
@@ -99,9 +112,9 @@ export function PresetPage({}: PresetPageProps) {
 
   const handleSelectPreset = (presetId: number) => {
     setSelectedPresetId(presetId);
-    setSelectedPresetUserId(null);
-    setAddingUserIds(new Set());
-    setRemovingUserIds(new Set());
+    setSelectedPresetMemberId(null);
+    setAddingMemberIds(new Set());
+    setRemovingMemberIds(new Set());
   };
 
   const isDivisible = inputPoints % pointScale === 0;
@@ -112,11 +125,14 @@ export function PresetPage({}: PresetPageProps) {
     const actualPoints = inputPoints / pointScale;
     try {
       await addPreset.mutateAsync({
-        name: newPresetName.trim(),
-        points: actualPoints,
-        time,
-        pointScale,
-        statistics,
+        guildId: guildId!,
+        data: {
+          name: newPresetName.trim(),
+          points: actualPoints,
+          time,
+          pointScale,
+          statistics,
+        },
       });
       setNewPresetName("");
       setInputPoints(1000);
@@ -133,7 +149,7 @@ export function PresetPage({}: PresetPageProps) {
     if (!selectedPresetId || !presetDetail) return;
 
     const leaderCount =
-      presetDetail.presetUsers?.filter((pu) => pu.isLeader).length || 0;
+      presetDetail.presetMembers?.filter((pm) => pm.isLeader).length || 0;
 
     if (leaderCount < 2) {
       return;
@@ -146,8 +162,8 @@ export function PresetPage({}: PresetPageProps) {
     }
   };
 
-  const handleClosePresetUserEditor = () => {
-    setSelectedPresetUserId(null);
+  const handleClosePresetMemberEditor = () => {
+    setSelectedPresetMemberId(null);
   };
 
   const onPresetDeleted = (deletedId: number) => {
@@ -156,40 +172,42 @@ export function PresetPage({}: PresetPageProps) {
     }
   };
 
-  const presetUserIds = presetDetail
-    ? new Set(presetDetail.presetUsers.map((pu) => pu.userId))
+  const presetMemberIds = presetDetail
+    ? new Set(presetDetail.presetMembers.map((pm) => pm.memberId))
     : new Set<number>();
 
-  const userGridUsers =
-    users?.filter(
-      (user) =>
-        !presetUserIds.has(user.userId) && !addingUserIds.has(user.userId),
+  const memberGridMembers =
+    members?.filter(
+      (m) =>
+        !presetMemberIds.has(m.memberId) && !addingMemberIds.has(m.memberId),
     ) || [];
 
-  const selectedPresetUser = useMemo(
+  const selectedPresetMember = useMemo(
     () =>
-      selectedPresetUserId && presetDetail
-        ? presetDetail.presetUsers.find(
-            (pu) => pu.presetUserId === selectedPresetUserId,
+      selectedPresetMemberId && presetDetail
+        ? presetDetail.presetMembers.find(
+            (pm) => pm.presetMemberId === selectedPresetMemberId,
           )
         : null,
-    [selectedPresetUserId, presetDetail],
+    [selectedPresetMemberId, presetDetail],
   );
 
   const leaderCount =
-    presetDetail?.presetUsers?.filter((pu) => pu.isLeader).length || 0;
-  const userCount = presetDetail?.presetUsers?.length || 0;
-  const requiredUsers = leaderCount * 5;
+    presetDetail?.presetMembers?.filter((pm) => pm.isLeader).length || 0;
+  const memberCount = presetDetail?.presetMembers?.length || 0;
+  const requiredMembers = leaderCount * 5;
   const canStartAuction = leaderCount >= 2;
 
   let presetValidMessage = "";
   if (selectedPresetId && presetDetail) {
     if (leaderCount < 2) {
       presetValidMessage = `현재 팀장 인원(${leaderCount}명)이 최소 인원(2명)보다 적습니다.`;
-    } else if (userCount < requiredUsers) {
-      presetValidMessage = `현재 인원(${userCount}명)이 권장 인원(${requiredUsers}명)보다 적습니다.`;
+    } else if (memberCount < requiredMembers) {
+      presetValidMessage = `현재 인원(${memberCount}명)이 권장 인원(${requiredMembers}명)보다 적습니다.`;
     }
   }
+
+  if (!selectedGuild) return null;
 
   return (
     <PageLayout>
@@ -214,6 +232,7 @@ export function PresetPage({}: PresetPageProps) {
           {!presetsError && (
             <>
               <PresetList
+                guildId={guildId!}
                 presets={presets || []}
                 selectedPresetId={selectedPresetId}
                 onSelectPreset={handleSelectPreset}
@@ -245,9 +264,9 @@ export function PresetPage({}: PresetPageProps) {
         </Section>
 
         <Section variantIntent="primary" className={styles.presetDetailSection}>
-          {addPresetUser.isError && (
-            <Error detail={addPresetUser.error?.message}>
-              유저를 프리셋에 추가하는데 실패했습니다.
+          {addPresetMember.isError && (
+            <Error detail={addPresetMember.error?.message}>
+              멤버를 프리셋에 추가하는데 실패했습니다.
             </Error>
           )}
           {detailError && selectedPresetId && (
@@ -255,16 +274,16 @@ export function PresetPage({}: PresetPageProps) {
               프리셋의 상세 정보를 불러오는데 실패했습니다.
             </Error>
           )}
-          {usersError && selectedPresetId && (
-            <Error detail={usersError?.message}>
-              유저 목록을 불러오는데 실패했습니다.
+          {membersError && selectedPresetId && (
+            <Error detail={membersError?.message}>
+              멤버 목록을 불러오는데 실패했습니다.
             </Error>
           )}
           {selectedPresetId &&
           !detailLoading &&
           presetDetail &&
           !detailError &&
-          !usersError ? (
+          !membersError ? (
             <>
               <Section variantTone="ghost" variantLayout="row">
                 <Section
@@ -279,6 +298,7 @@ export function PresetPage({}: PresetPageProps) {
                   </Section>
                   <Bar />
                   <TierList
+                    guildId={guildId!}
                     presetId={presetDetail.presetId}
                     tiers={presetDetail.tiers || []}
                     showTierForm={showTierForm}
@@ -299,6 +319,7 @@ export function PresetPage({}: PresetPageProps) {
                   </Section>
                   <Bar />
                   <PositionList
+                    guildId={guildId!}
                     presetId={presetDetail.presetId}
                     positions={presetDetail.positions || []}
                     showPositionForm={showPositionForm}
@@ -315,11 +336,13 @@ export function PresetPage({}: PresetPageProps) {
                 className={styles.userGridSection}
               >
                 <PresetUserGrid
-                  presetUsers={presetDetail.presetUsers.filter(
-                    (pu) => !removingUserIds.has(pu.userId),
+                  presetMembers={presetDetail.presetMembers.filter(
+                    (pm) => !removingMemberIds.has(pm.memberId),
                   )}
-                  selectedUserId={selectedPresetUserId}
-                  onUserClick={(id) => setSelectedPresetUserId(id as number)}
+                  selectedMemberId={selectedPresetMemberId}
+                  onMemberClick={(id) =>
+                    setSelectedPresetMemberId(id as number)
+                  }
                 />
               </Section>
               <Section
@@ -327,22 +350,22 @@ export function PresetPage({}: PresetPageProps) {
                 className={styles.userGridSection}
               >
                 <UserGrid
-                  users={userGridUsers}
-                  onUserClick={async (id) => {
-                    if (!selectedPresetId) return;
-                    const userId = id as number;
-                    setAddingUserIds((prev) => new Set(prev).add(userId));
+                  members={memberGridMembers}
+                  onMemberClick={async (id) => {
+                    if (!selectedPresetId || !guildId) return;
+                    const memberId = id as number;
+                    setAddingMemberIds((prev) => new Set(prev).add(memberId));
                     try {
-                      await addPresetUser.mutateAsync({
+                      await addPresetMember.mutateAsync({
+                        guildId,
                         presetId: selectedPresetId,
-                        userId: userId,
-                        tierId: null,
+                        data: { memberId },
                       });
                     } catch (err) {
-                      console.error("Failed to add user:", err);
-                      setAddingUserIds((prev) => {
+                      console.error("Failed to add member:", err);
+                      setAddingMemberIds((prev) => {
                         const next = new Set(prev);
-                        next.delete(userId);
+                        next.delete(memberId);
                         return next;
                       });
                     }
@@ -357,22 +380,23 @@ export function PresetPage({}: PresetPageProps) {
           )}
         </Section>
 
-        {selectedPresetUser && presetDetail && (
+        {selectedPresetMember && presetDetail && (
           <PresetUserEditor
-            key={selectedPresetUser.presetUserId}
-            presetUser={selectedPresetUser}
+            key={selectedPresetMember.presetMemberId}
+            presetMember={selectedPresetMember}
+            guildId={guildId!}
             presetId={presetDetail.presetId}
             statistics={presetDetail.statistics}
             tiers={presetDetail.tiers || []}
             positions={presetDetail.positions || []}
-            onClose={handleClosePresetUserEditor}
-            onRemoveStart={(userId: number) => {
-              setRemovingUserIds((prev) => new Set(prev).add(userId));
+            onClose={handleClosePresetMemberEditor}
+            onRemoveStart={(memberId: number) => {
+              setRemovingMemberIds((prev) => new Set(prev).add(memberId));
             }}
-            onRemoveError={(userId: number) => {
-              setRemovingUserIds((prev) => {
+            onRemoveError={(memberId: number) => {
+              setRemovingMemberIds((prev) => {
                 const next = new Set(prev);
-                next.delete(userId);
+                next.delete(memberId);
                 return next;
               });
             }}

@@ -8,6 +8,7 @@ import styles from "@/styles/pages/preset/tierList.module.css";
 import { Section } from "@/components/section";
 
 interface TierListProps {
+  guildId: number;
   presetId: number;
   tiers: any[];
   showTierForm: boolean;
@@ -17,6 +18,7 @@ interface TierListProps {
 }
 
 export function TierList({
+  guildId,
   presetId,
   tiers,
   showTierForm,
@@ -37,8 +39,9 @@ export function TierList({
     if (!newTierName.trim()) return;
     try {
       await addTier.mutateAsync({
+        guildId,
         presetId,
-        name: newTierName.trim(),
+        data: { name: newTierName.trim() },
       });
       onNewTierNameChange("");
       onShowTierFormChange(false);
@@ -51,8 +54,9 @@ export function TierList({
     if (!editingTierName.trim()) return;
     try {
       await updateTier.mutateAsync({
-        tierId,
+        guildId,
         presetId,
+        tierId,
         data: { name: editingTierName.trim() },
       });
       setEditingTierId(null);
@@ -65,7 +69,11 @@ export function TierList({
   const handleDeleteTier = async () => {
     if (deleteTargetId === null) return;
     try {
-      await deleteTier.mutateAsync({ tierId: deleteTargetId, presetId });
+      await deleteTier.mutateAsync({
+        guildId,
+        presetId,
+        tierId: deleteTargetId,
+      });
       setShowDeleteConfirm(false);
       setDeleteTargetId(null);
     } catch (err) {

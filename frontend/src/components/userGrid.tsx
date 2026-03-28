@@ -2,19 +2,19 @@ import { UserCard } from "./userCard";
 import { Section } from "./section";
 import { clsx } from "clsx";
 import styles from "@/styles/components/userGrid.module.css";
-import type { User } from "@/dto";
+import type { Member } from "@/dto";
 
 interface UserGridProps {
-  users: User[];
-  selectedUserId?: number | null;
-  onUserClick: (userId: number) => void;
+  members: Member[];
+  selectedMemberId?: number | null;
+  onMemberClick: (memberId: number) => void;
   className?: string;
 }
 
 export function UserGrid({
-  users,
-  selectedUserId,
-  onUserClick,
+  members,
+  selectedMemberId,
+  onMemberClick,
   className,
 }: UserGridProps) {
   return (
@@ -23,13 +23,16 @@ export function UserGrid({
       variantLayout="grid"
       className={clsx(styles.grid, className)}
     >
-      {users.map((user) => (
+      {members.map((member) => (
         <div
-          key={user.userId}
+          key={member.memberId}
           className={styles.gridItem}
-          onClick={() => onUserClick(user.userId)}
+          onClick={() => onMemberClick(member.memberId)}
         >
-          <UserCard user={user} isActive={selectedUserId === user.userId} />
+          <UserCard
+            member={member}
+            isActive={selectedMemberId === member.memberId}
+          />
         </div>
       ))}
     </Section>

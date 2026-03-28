@@ -9,6 +9,7 @@ import { ConfirmModal } from "@/components/modal";
 import { EditPresetModal } from "./editPresetModal";
 
 interface PresetListProps {
+  guildId: number;
   presets: Preset[];
   selectedPresetId: number | null;
   onSelectPreset: (presetId: number) => void;
@@ -17,6 +18,7 @@ interface PresetListProps {
 }
 
 export function PresetList({
+  guildId,
   presets,
   selectedPresetId,
   onSelectPreset,
@@ -46,6 +48,7 @@ export function PresetList({
     if (!editingPresetId || !name.trim()) return;
     try {
       await updatePreset.mutateAsync({
+        guildId,
         presetId: editingPresetId,
         data: { name: name.trim(), points, time, pointScale, statistics },
       });
@@ -64,7 +67,7 @@ export function PresetList({
   const handleDelete = async () => {
     if (!deletingPresetId) return;
     try {
-      await deletePreset.mutateAsync(deletingPresetId);
+      await deletePreset.mutateAsync({ guildId, presetId: deletingPresetId });
       setShowDeleteConfirm(false);
       onPresetDeleted?.(deletingPresetId);
       setDeletingPresetId(null);

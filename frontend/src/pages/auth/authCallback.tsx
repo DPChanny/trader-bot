@@ -13,7 +13,7 @@ export function AuthCallback({}: AuthCallbackProps) {
     if (token) {
       setAuthToken(token);
     }
-    route("/", true);
+    route("/guild", true);
   }, []);
 
   return <div>인증 처리 중...</div>;

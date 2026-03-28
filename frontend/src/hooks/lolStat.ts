@@ -1,16 +1,19 @@
 import { useQuery } from "@tanstack/preact-query";
 import type { LolStatDTO } from "@/dto";
 import { LOL_STAT_API_ENDPOINT } from "@/env";
+import { getAuthHeaders } from "@/utils/auth";
 import { toCamelCase } from "@/utils/dto";
 import { throwHttpError } from "@/utils/fetch";
 
-export function useLolStat(userId: number | null) {
+export function useLolStat(memberId: number | null) {
   return useQuery({
-    queryKey: ["lol", userId],
+    queryKey: ["lol", memberId],
     queryFn: async (): Promise<LolStatDTO | null> => {
-      if (!userId) return null;
+      if (!memberId) return null;
       try {
-        const response = await fetch(`${LOL_STAT_API_ENDPOINT}/${userId}`);
+        const response = await fetch(`${LOL_STAT_API_ENDPOINT}/${memberId}`, {
+          headers: getAuthHeaders(),
+        });
         if (!response.ok) {
           if (response.status === 404) return null;
           await throwHttpError(response);
@@ -23,7 +26,7 @@ export function useLolStat(userId: number | null) {
         return null;
       }
     },
-    enabled: !!userId,
+    enabled: !!memberId,
     retry: false,
     staleTime: 0,
     gcTime: 0,
