@@ -18,7 +18,7 @@ import { PageContainer, PageLayout } from "@/components/page";
 import { Loading } from "@/components/loading";
 import { Error } from "@/components/error";
 import { Bar } from "@/components/bar";
-import type { Statistics } from "@/dto";
+import type { Statistics } from "@/dtos";
 import styles from "@/styles/pages/preset/presetPage.module.css";
 
 interface PresetPageProps {

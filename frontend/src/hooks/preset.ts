@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
-import type { Preset, PresetDetail } from "@/dto";
+import type { PresetDTO, PresetDetailDTO } from "@/dtos";
 import { GUILD_API_ENDPOINT } from "@/env";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
@@ -28,13 +28,13 @@ function presetEndpoint(guildId: number) {
 export function usePresets(guildId: number | null) {
   return useQuery({
     queryKey: ["presets", guildId],
-    queryFn: async (): Promise<Preset[]> => {
+    queryFn: async (): Promise<PresetDTO[]> => {
       const response = await fetch(presetEndpoint(guildId!), {
         headers: getAuthHeaders(),
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
-      return toCamelCase<Preset[]>(json);
+      return toCamelCase<PresetDTO[]>(json);
     },
     enabled: !!guildId,
   });
@@ -46,14 +46,14 @@ export function usePresetDetail(
 ) {
   return useQuery({
     queryKey: ["preset", guildId, presetId],
-    queryFn: async (): Promise<PresetDetail | null> => {
+    queryFn: async (): Promise<PresetDetailDTO | null> => {
       if (!guildId || !presetId) return null;
       const response = await fetch(`${presetEndpoint(guildId)}/${presetId}`, {
         headers: getAuthHeaders(),
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
-      return toCamelCase<PresetDetail>(json);
+      return toCamelCase<PresetDetailDTO>(json);
     },
     enabled: !!guildId && !!presetId,
   });
@@ -69,7 +69,7 @@ export function useAddPreset() {
     }: {
       guildId: number;
       data: AddPresetData;
-    }): Promise<Preset> => {
+    }): Promise<PresetDTO> => {
       const response = await fetch(presetEndpoint(guildId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
@@ -77,7 +77,7 @@ export function useAddPreset() {
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
-      return toCamelCase<Preset>(json);
+      return toCamelCase<PresetDTO>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -99,7 +99,7 @@ export function useUpdatePreset() {
       guildId: number;
       presetId: number;
       data: UpdatePresetData;
-    }): Promise<Preset> => {
+    }): Promise<PresetDTO> => {
       const response = await fetch(`${presetEndpoint(guildId)}/${presetId}`, {
         method: "PATCH",
         headers: getAuthHeadersForMutation(),
@@ -107,7 +107,7 @@ export function useUpdatePreset() {
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
-      return toCamelCase<Preset>(json);
+      return toCamelCase<PresetDTO>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

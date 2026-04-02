@@ -16,7 +16,7 @@ import { PresetUserGrid } from "@/components/presetUserGrid";
 import { PresetUserCard } from "@/components/presetUserCard";
 import { Input } from "@/components/input";
 import { Bar } from "@/components/bar";
-import type { PresetUserDetail } from "@/dto";
+import type { PresetMemberDetailDTO } from "@/dtos";
 
 import styles from "@/styles/pages/auction/auctionPage.module.css";
 
@@ -48,21 +48,21 @@ export function AuctionPage({}: AuctionPageProps) {
     data: presetDetail,
     isLoading: isPresetLoading,
     isFetching: isPresetFetching,
-  } = usePresetDetail(state?.presetId || null);
+  } = usePresetDetail(null, state?.presetId || null);
 
-  const currentUserId = state?.currentUserId || null;
+  const currentMemberId = state?.currentMemberId || null;
   const hasStatistics =
     presetDetail?.statistics && presetDetail.statistics !== "NONE";
 
   const { data: lolStat } = useLolStat(
-    hasStatistics && presetDetail?.statistics === "LOL" && currentUserId
-      ? currentUserId
+    hasStatistics && presetDetail?.statistics === "LOL" && currentMemberId
+      ? currentMemberId
       : null,
   );
 
   const { data: valStat } = useValStat(
-    hasStatistics && presetDetail?.statistics === "VAL" && currentUserId
-      ? currentUserId
+    hasStatistics && presetDetail?.statistics === "VAL" && currentMemberId
+      ? currentMemberId
       : null,
   );
 
@@ -114,19 +114,21 @@ export function AuctionPage({}: AuctionPageProps) {
     );
   }
 
-  const presetUserMap = new Map<number, PresetUserDetail>(
-    presetDetail?.presetUsers.map((pu) => [pu.userId, pu]) ?? [],
+  const presetUserMap = new Map<number, PresetMemberDetailDTO>(
+    presetDetail?.presetMembers.map((pu) => [pu.memberId, pu]) ?? [],
   );
 
   const auctionQueueUsers = state!.auctionQueue
-    .map((userId) => presetUserMap.get(userId))
-    .filter((user): user is PresetUserDetail => user !== undefined);
+    .map((memberId) => presetUserMap.get(memberId))
+    .filter((user): user is PresetMemberDetailDTO => user !== undefined);
 
   const unsoldQueueUsers = state!.unsoldQueue
-    .map((userId) => presetUserMap.get(userId))
-    .filter((user): user is PresetUserDetail => user !== undefined);
+    .map((memberId) => presetUserMap.get(memberId))
+    .filter((user): user is PresetMemberDetailDTO => user !== undefined);
 
-  const presetUsers: PresetUserDetail[] = Array.from(presetUserMap.values());
+  const presetUsers: PresetMemberDetailDTO[] = Array.from(
+    presetUserMap.values(),
+  );
 
   const currentTeam = teamId
     ? state.teams.find((t) => t.teamId === teamId)
@@ -143,8 +145,8 @@ export function AuctionPage({}: AuctionPageProps) {
     return status;
   };
 
-  const currentUser = state.currentUserId
-    ? presetUserMap.get(state.currentUserId)
+  const currentUser = state.currentMemberId
+    ? presetUserMap.get(state.currentMemberId)
     : null;
 
   const bidderTeam = state.currentBidder
@@ -192,7 +194,7 @@ export function AuctionPage({}: AuctionPageProps) {
               className={styles.auctionInfoTopSection}
             >
               {state.status !== "completed" && currentUser && (
-                <PresetUserCard presetUser={currentUser} />
+                <PresetUserCard presetMember={currentUser} />
               )}
               {state.status !== "completed" &&
                 presetDetail?.statistics === "LOL" &&
@@ -224,7 +226,7 @@ export function AuctionPage({}: AuctionPageProps) {
               </Section>
               <InfoCard label="입찰 팀장" value="">
                 {state.status !== "completed" && bidderLeader && (
-                  <PresetUserCard presetUser={bidderLeader} />
+                  <PresetUserCard presetMember={bidderLeader} />
                 )}
               </InfoCard>
             </Section>
@@ -264,9 +266,9 @@ export function AuctionPage({}: AuctionPageProps) {
             <Bar />
             <Section variantTone="ghost" className={styles.queueGrid}>
               <PresetUserGrid
-                presetUsers={auctionQueueUsers}
-                onUserClick={() => {}}
-                clientUserId={userId ?? undefined}
+                presetMembers={auctionQueueUsers}
+                onMemberClick={() => {}}
+                clientMemberId={userId ?? undefined}
                 connectedUsers={connectedUsers}
               />
             </Section>
@@ -277,10 +279,10 @@ export function AuctionPage({}: AuctionPageProps) {
             <Bar />
             <Section variantTone="ghost" className={styles.queueGrid}>
               <PresetUserGrid
-                presetUsers={unsoldQueueUsers}
-                onUserClick={() => {}}
+                presetMembers={unsoldQueueUsers}
+                onMemberClick={() => {}}
                 connectedUsers={connectedUsers}
-                clientUserId={userId ?? undefined}
+                clientMemberId={userId ?? undefined}
               />
             </Section>
           </Section>

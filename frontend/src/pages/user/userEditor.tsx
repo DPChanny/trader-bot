@@ -21,13 +21,13 @@ import { Bar } from "@/components/bar";
 import { Section } from "@/components/section";
 import { ConfirmModal } from "@/components/modal";
 import { Loading } from "@/components/loading";
-import type { Member } from "@/dto";
+import type { MemberDTO } from "@/dtos";
 
 import styles from "@/styles/components/userEditor.module.css";
 import { Label } from "@/components/label";
 
 interface UserEditorProps {
-  member: Member;
+  member: MemberDTO;
   guildId: number;
   onClose: () => void;
 }

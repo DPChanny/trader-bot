@@ -1,11 +1,11 @@
 import { TeamCard } from "./teamCard";
-import type { PresetUserDetail, Team } from "@/dto";
+import type { PresetMemberDetailDTO, Team } from "@/dtos";
 import { Section } from "@/components/section";
 import styles from "@/styles/pages/auction/teamList.module.css";
 
 interface TeamListProps {
   teams: Team[];
-  presetUsers: PresetUserDetail[];
+  presetUsers: PresetMemberDetailDTO[];
   pointScale: number;
   connectedUsers?: number[];
   clientUserId?: number;

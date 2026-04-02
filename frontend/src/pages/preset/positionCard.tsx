@@ -8,11 +8,11 @@ import { Badge } from "@/components/badge";
 import { Input } from "@/components/input";
 import { Card } from "@/components/card";
 import { Section } from "@/components/section";
-import type { Position } from "@/dto";
+import type { PositionDTO } from "@/dtos";
 import styles from "@/styles/pages/preset/positionCard.module.css";
 
 interface PositionCardProps {
-  position: Position;
+  position: PositionDTO;
   isEditing: boolean;
   editingName: string;
   editingIconUrl: string;

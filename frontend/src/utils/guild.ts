@@ -1,16 +1,16 @@
 const GUILD_KEY = "guild";
 
-import type { Guild } from "@/dto";
+import type { GuildDTO } from "@/dtos";
 
-export function setGuild(guild: Guild): void {
+export function setGuild(guild: GuildDTO): void {
   sessionStorage.setItem(GUILD_KEY, JSON.stringify(guild));
 }
 
-export function getGuild(): Guild | null {
+export function getGuild(): GuildDTO | null {
   try {
     const stored = sessionStorage.getItem(GUILD_KEY);
     if (!stored) return null;
-    return JSON.parse(stored) as Guild;
+    return JSON.parse(stored) as GuildDTO;
   } catch {
     return null;
   }

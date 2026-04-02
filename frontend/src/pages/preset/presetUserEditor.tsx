@@ -14,11 +14,11 @@ import {
 import { useLolStat } from "@/hooks/lolStat";
 import { useValStat } from "@/hooks/valStat";
 import {
-  type Position,
-  type PresetMemberDetail,
+  type PositionDTO,
+  type PresetMemberDetailDTO,
   type Statistics,
-  type Tier,
-} from "@/dto";
+  type TierDTO,
+} from "@/dtos";
 import { CloseButton, DangerButton, SaveButton } from "@/components/button";
 import { Label } from "@/components/label";
 import { Error } from "@/components/error";
@@ -28,12 +28,12 @@ import { Loading } from "@/components/loading";
 import styles from "@/styles/components/userEditor.module.css";
 
 interface PresetUserEditorProps {
-  presetMember: PresetMemberDetail;
+  presetMember: PresetMemberDetailDTO;
   guildId: number;
   presetId: number;
   statistics: Statistics;
-  tiers: Tier[];
-  positions: Position[];
+  tiers: TierDTO[];
+  positions: PositionDTO[];
   onClose: () => void;
   onRemoveStart?: (memberId: number) => void;
   onRemoveError?: (memberId: number) => void;

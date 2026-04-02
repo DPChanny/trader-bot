@@ -5,7 +5,7 @@ import { Error as ErrorMessage } from "@/components/error";
 import { Toggle } from "@/components/toggle";
 import { Label } from "@/components/label";
 import { Section } from "@/components/section";
-import type { Statistics } from "@/dto";
+import type { Statistics } from "@/dtos";
 
 interface AddPresetModalProps {
   isOpen: boolean;

@@ -1,11 +1,11 @@
 import { DeleteButton, EditButton } from "@/components/button";
-import type { Preset } from "@/dto";
+import type { PresetDTO } from "@/dtos";
 import { Card } from "@/components/card";
 import { Section } from "@/components/section";
 import styles from "@/styles/pages/preset/presetCard.module.css";
 
 interface PresetCardProps {
-  preset: Preset;
+  preset: PresetDTO;
   isActive: boolean;
   onSelect: (presetId: number) => void;
   onEdit: (presetId: number) => void;

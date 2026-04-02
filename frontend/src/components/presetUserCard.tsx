@@ -3,10 +3,10 @@ import styles from "@/styles/components/userCard.module.css";
 import { Card } from "./card";
 import { Badge } from "./badge";
 import { Section } from "./section";
-import type { PresetMemberDetail } from "@/dto";
+import type { PresetMemberDetailDTO } from "@/dtos";
 
 export interface PresetUserCardProps {
-  presetMember: PresetMemberDetail;
+  presetMember: PresetMemberDetailDTO;
   isActive?: boolean;
   isConnected?: boolean;
   isClientUser?: boolean;

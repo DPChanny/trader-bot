@@ -6,7 +6,7 @@ import { Error } from "@/components/error";
 import { Toggle } from "@/components/toggle";
 import { Label } from "@/components/label";
 import { Section } from "@/components/section";
-import type { Statistics } from "@/dto";
+import type { Statistics } from "@/dtos";
 import modalStyles from "@/styles/components/modal.module.css";
 
 interface EditPresetModalProps {

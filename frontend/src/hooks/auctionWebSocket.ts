@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import type {
-  AuctionInitData,
-  BidResponseData,
-  NextUserData,
-  QueueUpdateData,
-  TimerData,
-  UserSoldData,
+  AuctionInitDTO,
+  BidPlacedMessageData,
+  NextMemberMessageData,
+  QueueUpdateMessageData,
+  TimerMessageData,
+  MemberSoldMessageData,
   WebSocketMessage,
-} from "@/dto";
+} from "@/dtos";
 import { AUCTION_WS_ENDPOINT } from "@/env";
 import { toCamelCase } from "@/utils/dto";
 
@@ -17,7 +17,7 @@ interface AuctionWebSocketHook {
   connect: (token: string) => void;
   disconnect: () => void;
   placeBid: (amount: number) => void;
-  state: AuctionInitData | null;
+  state: AuctionInitDTO | null;
   isLeader: boolean;
   userId: number | null;
   teamId: number | null;
@@ -28,7 +28,7 @@ interface AuctionWebSocketHook {
 export function useAuctionWebSocket(): AuctionWebSocketHook {
   const [isConnected, setIsConnected] = useState(false);
   const [wasConnected, setWasConnected] = useState(false);
-  const [state, setState] = useState<AuctionInitData | null>(null);
+  const [state, setState] = useState<AuctionInitDTO | null>(null);
   const [isLeader, setIsLeader] = useState(false);
   const [userId, setUserId] = useState<number | null>(null);
   const [teamId, setTeamId] = useState<number | null>(null);
@@ -43,7 +43,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     switch (message.type) {
       case "init": {
         const rawData = message.data;
-        const data = toCamelCase<AuctionInitData>(rawData);
+        const data = toCamelCase<AuctionInitDTO>(rawData);
         setIsLeader(data.isLeader);
         setUserId(data.userId);
         setTeamId(data.teamId);
@@ -66,13 +66,13 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
 
-      case "next_user": {
-        const data = toCamelCase<NextUserData>(message.data);
+      case "next_member": {
+        const data = toCamelCase<NextMemberMessageData>(message.data);
         setState((prev) =>
           prev
             ? {
                 ...prev,
-                currentUserId: data.userId,
+                currentMemberId: data.memberId,
                 currentBid: null,
                 currentBidder: null,
               }
@@ -82,7 +82,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       }
 
       case "queue_update": {
-        const data = toCamelCase<QueueUpdateData>(message.data);
+        const data = toCamelCase<QueueUpdateMessageData>(message.data);
         setState((prev) =>
           prev
             ? {
@@ -96,13 +96,13 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       }
 
       case "timer": {
-        const data = toCamelCase<TimerData>(message.data);
+        const data = toCamelCase<TimerMessageData>(message.data);
         setState((prev) => (prev ? { ...prev, timer: data.timer } : null));
         break;
       }
 
       case "bid_placed": {
-        const data = toCamelCase<BidResponseData>(message.data);
+        const data = toCamelCase<BidPlacedMessageData>(message.data);
         setState((prev) =>
           prev
             ? {
@@ -115,8 +115,8 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
 
-      case "user_sold": {
-        const data = toCamelCase<UserSoldData>(message.data);
+      case "member_sold": {
+        const data = toCamelCase<MemberSoldMessageData>(message.data);
         setState((prev) =>
           prev
             ? {
@@ -128,7 +128,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
 
-      case "user_unsold": {
+      case "member_unsold": {
         break;
       }
 

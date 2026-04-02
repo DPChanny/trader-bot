@@ -1,5 +1,5 @@
 import { PresetUserGrid } from "@/components/presetUserGrid";
-import type { PresetUserDetail, Team } from "@/dto";
+import type { PresetMemberDetailDTO, Team } from "@/dtos";
 import { Card } from "@/components/card";
 import { Section } from "@/components/section";
 import { Bar } from "@/components/bar";
@@ -7,7 +7,7 @@ import styles from "@/styles/pages/auction/teamCard.module.css";
 
 interface TeamCardProps {
   team: Team;
-  members: PresetUserDetail[];
+  members: PresetMemberDetailDTO[];
   pointScale: number;
   connectedUsers?: number[];
   clientUserId?: number;

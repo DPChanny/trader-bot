@@ -10,7 +10,7 @@ import { Loading } from "@/components/loading";
 import { Error } from "@/components/error";
 import { UserEditor } from "./userEditor";
 import { AddUserModal } from "./addUserModal";
-import type { Member } from "@/dto";
+import type { MemberDTO } from "@/dtos";
 
 import styles from "@/styles/pages/user/userPage.module.css";
 import { Bar } from "@/components/bar";

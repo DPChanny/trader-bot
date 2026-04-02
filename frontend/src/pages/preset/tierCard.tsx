@@ -8,11 +8,11 @@ import { Badge } from "@/components/badge";
 import { Input } from "@/components/input";
 import { Card } from "@/components/card";
 import { Section } from "@/components/section";
-import type { Tier } from "@/dto";
+import type { TierDTO } from "@/dtos";
 import styles from "@/styles/pages/preset/tierCard.module.css";
 
 interface TierCardProps {
-  tier: Tier;
+  tier: TierDTO;
   isEditing: boolean;
   editingName: string;
   onEditingNameChange: (name: string) => void;

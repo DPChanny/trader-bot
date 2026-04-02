@@ -1,10 +1,10 @@
 import styles from "@/styles/components/userCard.module.css";
 import { Card } from "./card";
 import { Section } from "./section";
-import type { Member } from "@/dto";
+import type { MemberDTO } from "@/dtos";
 
 export interface UserCardProps {
-  member: Member;
+  member: MemberDTO;
   isActive?: boolean;
 }
 

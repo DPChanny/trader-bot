@@ -2,10 +2,10 @@ import { UserCard } from "./userCard";
 import { Section } from "./section";
 import { clsx } from "clsx";
 import styles from "@/styles/components/userGrid.module.css";
-import type { Member } from "@/dto";
+import type { MemberDTO } from "@/dtos";
 
 interface UserGridProps {
-  members: Member[];
+  members: MemberDTO[];
   selectedMemberId?: number | null;
   onMemberClick: (memberId: number) => void;
   className?: string;

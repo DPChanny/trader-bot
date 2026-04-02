@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import { Loading } from "@/components/loading";
 import { PresetCard } from "./presetCard";
-import type { Preset, Statistics } from "@/dto";
+import type { PresetDTO, Statistics } from "@/dtos";
 import styles from "@/styles/pages/preset/presetList.module.css";
 import { Section } from "@/components/section";
 import { useDeletePreset, useUpdatePreset } from "@/hooks/preset";
@@ -10,7 +10,7 @@ import { EditPresetModal } from "./editPresetModal";
 
 interface PresetListProps {
   guildId: number;
-  presets: Preset[];
+  presets: PresetDTO[];
   selectedPresetId: number | null;
   onSelectPreset: (presetId: number) => void;
   isLoading: boolean;

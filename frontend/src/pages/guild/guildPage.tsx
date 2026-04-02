@@ -10,7 +10,6 @@ import { Error } from "@/components/error";
 import { Bar } from "@/components/bar";
 import { setGuild } from "@/utils/guild";
 import { isAuthenticated } from "@/utils/auth";
-import type { Guild } from "@/dto";
 import styles from "@/styles/pages/guild/guildPage.module.css";
 
 interface GuildPageProps {
@@ -28,9 +27,13 @@ export function GuildPage({}: GuildPageProps) {
   }, []);
 
   const handleSelectGuild = (guildId: number) => {
-    const guild = guilds?.find((g: Guild) => g.guildId === guildId);
+    const guild = guilds?.find((g) => g.guildId === guildId);
     if (guild) {
-      setGuild({ guildId: guild.guildId, name: guild.name });
+      setGuild({
+        guildId: guild.guildId,
+        discordId: guild.discordId,
+        name: guild.name,
+      });
       route("/preset");
     }
   };
@@ -71,7 +74,7 @@ export function GuildPage({}: GuildPageProps) {
           {isLoading && <Loading />}
           {!isLoading && !error && (
             <Section variantTone="ghost" variantIntent="secondary">
-              {guilds?.map((guild: Guild) => (
+              {guilds?.map((guild) => (
                 <GuildCard
                   key={guild.guildId}
                   guild={guild}

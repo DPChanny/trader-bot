@@ -1,9 +1,9 @@
 import { Card } from "@/components/card";
 import { Section } from "@/components/section";
-import type { Guild } from "@/dto";
+import type { GuildDTO } from "@/dtos";
 
 interface GuildCardProps {
-  guild: Guild;
+  guild: GuildDTO;
   isActive?: boolean;
   onClick: (guildId: number) => void;
 }
