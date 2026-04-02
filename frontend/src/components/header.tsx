@@ -1,7 +1,7 @@
 import { route } from "preact-router";
 import styles from "@/styles/components/header.module.css";
 import { Button, DangerButton } from "@/components/button";
-import { getSelectedGuild } from "@/utils/guild";
+import { getGuild } from "@/utils/guild";
 
 type PageView = "home" | "guild" | "user" | "preset";
 
@@ -16,7 +16,7 @@ export function Header({ currentPage, showNav = true, onLogout }: HeaderProps) {
     route(path);
   };
 
-  const selectedGuild = getSelectedGuild();
+  const selectedGuild = getGuild();
 
   return (
     <header className={styles.header}>

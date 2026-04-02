@@ -36,7 +36,7 @@ async def callback_service(code: str, db: AsyncSession) -> RedirectResponse:
     token = create_token(user.user_id, user.discord_id)
     await db.commit()
 
-    redirect_url = f"{get_app_origin()}/auth/callback?token={token}"
+    redirect_url = f"{get_app_origin()}/?token={token}"
     return RedirectResponse(url=redirect_url)
 
 

@@ -1,9 +1,6 @@
-import { AUTH_API_ENDPOINT } from "@/env";
-
-const TOKEN_COOKIE_NAME = "auth_token";
+const TOKEN_COOKIE_NAME = "refreshToken";
 
 export function setAuthToken(token: string): void {
-  console.log("[Auth] Setting token:", token.substring(0, 20) + "...");
   const expires = new Date();
   expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000);
   document.cookie = `${TOKEN_COOKIE_NAME}=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
@@ -25,7 +22,18 @@ export function removeAuthToken(): void {
 }
 
 export function isAuthenticated(): boolean {
-  return getAuthToken() !== null;
+  const token = getAuthToken();
+  if (!token) return false;
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return false;
+    const payload = JSON.parse(
+      atob(parts[1]!.replace(/-/g, "+").replace(/_/g, "/")),
+    );
+    return typeof payload.exp === "number" && payload.exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
 }
 
 export function getAuthHeaders(): HeadersInit {
@@ -38,50 +46,13 @@ export function getAuthHeaders(): HeadersInit {
 
 export function getAuthHeadersForMutation(): HeadersInit {
   const token = getAuthToken();
-  console.log(
-    "[Auth] Getting token for mutation:",
-    token ? `${token.substring(0, 20)}...` : "null",
-  );
   if (token) {
     return {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     };
   }
-  console.warn("[Auth] No token found for mutation");
   return {
     "Content-Type": "application/json",
   };
-}
-
-export async function refreshAuthToken(): Promise<boolean> {
-  const token = getAuthToken();
-  if (!token) {
-    return false;
-  }
-
-  try {
-    const response = await fetch(`${AUTH_API_ENDPOINT}/token/refresh`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.token) {
-        setAuthToken(data.token);
-        return true;
-      }
-      console.error("Token refresh response missing token");
-      return false;
-    }
-    console.error("Token refresh failed with status:", response.status);
-    return false;
-  } catch (error) {
-    console.error("Token refresh failed:", error);
-    return false;
-  }
 }

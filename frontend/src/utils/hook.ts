@@ -1,4 +1,10 @@
-export async function throwHttpError(response: Response): Promise<never> {
+import { removeAuthToken } from "@/utils/auth";
+
+export async function handleHttpError(response: Response): Promise<never> {
+  if (response.status === 401) {
+    removeAuthToken();
+    window.location.href = "/auth/login";
+  }
   let message: string;
   try {
     const body = await response.json();

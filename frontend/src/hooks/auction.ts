@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/preact-query";
 import type { Auction } from "@/dto";
 import { AUCTION_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
-import { throwHttpError } from "@/utils/fetch";
+import { handleHttpError } from "@/utils/hook";
 
 export function useAddAuction() {
   return useMutation({
@@ -11,7 +11,7 @@ export function useAddAuction() {
         method: "POST",
         headers: getAuthHeadersForMutation(),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       return response.json();
     },
   });

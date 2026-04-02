@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { GUILD_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
-import { throwHttpError } from "@/utils/fetch";
+import { handleHttpError } from "@/utils/hook";
 
 interface AddTierData {
   name: string;
@@ -34,7 +34,7 @@ export function useAddTier() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
@@ -68,7 +68,7 @@ export function useUpdateTier() {
           body: JSON.stringify(toSnakeCase(data)),
         },
       );
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
@@ -99,7 +99,7 @@ export function useDeleteTier() {
           headers: getAuthHeadersForMutation(),
         },
       );
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

@@ -3,7 +3,7 @@ import type { Member } from "@/dto";
 import { GUILD_API_ENDPOINT } from "@/env";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
-import { throwHttpError } from "@/utils/fetch";
+import { handleHttpError } from "@/utils/hook";
 
 interface AddMemberData {
   alias?: string | null;
@@ -28,7 +28,7 @@ export function useMembers(guildId: number | null) {
       const response = await fetch(memberEndpoint(guildId!), {
         headers: getAuthHeaders(),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<Member[]>(json);
     },
@@ -43,7 +43,7 @@ export function useMember(guildId: number | null, memberId: number | null) {
       const response = await fetch(`${memberEndpoint(guildId!)}/${memberId}`, {
         headers: getAuthHeaders(),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<Member>(json);
     },
@@ -67,7 +67,7 @@ export function useAddMember() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<Member>(json);
     },
@@ -97,7 +97,7 @@ export function useUpdateMember() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<Member>(json);
     },
@@ -127,7 +127,7 @@ export function useDeleteMember() {
         method: "DELETE",
         headers: getAuthHeadersForMutation(),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -159,7 +159,7 @@ export function useUpdateMemberProfile() {
           headers: getAuthHeadersForMutation(),
         },
       );
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<Member>(json);
     },

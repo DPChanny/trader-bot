@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "preact/hooks";
 import { route } from "preact-router";
 import { useMembers, useAddMember } from "@/hooks/member";
-import { getSelectedGuild } from "@/utils/guild";
+import { getGuild } from "@/utils/guild";
 import { PrimaryButton } from "@/components/button";
 import { UserGrid } from "@/components/userGrid";
 import { Section } from "@/components/section";
@@ -29,7 +29,7 @@ export function UserPage({}: UserPageProps) {
     discordId: "",
   });
 
-  const selectedGuild = getSelectedGuild();
+  const selectedGuild = getGuild();
   const guildId = selectedGuild?.guildId ?? null;
 
   useEffect(() => {

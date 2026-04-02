@@ -3,7 +3,7 @@ import type { User } from "@/dto";
 import { USER_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
-import { throwHttpError } from "@/utils/fetch";
+import { handleHttpError } from "@/utils/hook";
 
 interface AddUserData {
   alias?: string | null;
@@ -22,7 +22,7 @@ export function useUsers() {
     queryKey: ["users"],
     queryFn: async (): Promise<User[]> => {
       const response = await fetch(`${USER_API_ENDPOINT}`);
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<User[]>(json);
     },
@@ -34,7 +34,7 @@ export function useUser(userId: number) {
     queryKey: ["users", userId],
     queryFn: async (): Promise<User> => {
       const response = await fetch(`${USER_API_ENDPOINT}/${userId}`);
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<User>(json);
     },
@@ -52,7 +52,7 @@ export function useAddUser() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<User>(json);
     },
@@ -78,7 +78,7 @@ export function useUpdateUser() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<User>(json);
     },
@@ -98,7 +98,7 @@ export function useDeleteUser() {
         method: "DELETE",
         headers: getAuthHeadersForMutation(),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
     },
     onSuccess: (_, userId) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -117,7 +117,7 @@ export function useUpdateProfile() {
         method: "POST",
         headers: getAuthHeadersForMutation(),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<User>(json);
     },

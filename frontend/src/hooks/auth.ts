@@ -1,19 +1,19 @@
-import { useMutation } from "@tanstack/preact-query";
+import { useEffect } from "preact/hooks";
 import { AUTH_API_ENDPOINT } from "@/env";
-import { setAuthToken, getAuthToken } from "@/utils/auth";
-import { throwHttpError } from "@/utils/fetch";
+import { setAuthToken, getAuthToken, isAuthenticated } from "@/utils/auth";
+import { handleHttpError } from "@/utils/hook";
 
 interface TokenResponse {
   token: string;
 }
 
-export function useDiscordLogin() {
+export function useLogin() {
   return () => {
-    window.location.href = `${AUTH_API_ENDPOINT}/login`;
+    window.location.href = `${window.location.origin}/api/auth/login`;
   };
 }
 
-async function refreshToken(): Promise<TokenResponse> {
+async function useRefreshToken(): Promise<TokenResponse> {
   const token = getAuthToken();
   if (!token) throw new Error("No token available");
   const response = await fetch(`${AUTH_API_ENDPOINT}/token/refresh`, {
@@ -23,15 +23,31 @@ async function refreshToken(): Promise<TokenResponse> {
       "Content-Type": "application/json",
     },
   });
-  if (!response.ok) await throwHttpError(response);
+  if (!response.ok) await handleHttpError(response);
   return response.json();
 }
 
-export function useTokenRefresh() {
-  return useMutation({
-    mutationFn: () => refreshToken(),
-    onSuccess: (data: TokenResponse) => {
-      setAuthToken(data.token);
-    },
-  });
+export function useAutoRefreshToken() {
+  useEffect(() => {
+    async function tryRefresh() {
+      const token = getAuthToken();
+      if (!token) return;
+      try {
+        const parts = token.split(".");
+        if (parts.length !== 3) return;
+        const payload = JSON.parse(
+          atob(parts[1]!.replace(/-/g, "+").replace(/_/g, "/")),
+        );
+        const expiresIn = payload.exp - Date.now() / 1000;
+        if (expiresIn < 5 * 60 && isAuthenticated()) {
+          const data = await useRefreshToken();
+          setAuthToken(data.token);
+        }
+      } catch {}
+    }
+
+    tryRefresh();
+    const interval = setInterval(tryRefresh, 60 * 1000); // check every minute
+    return () => clearInterval(interval);
+  }, []);
 }

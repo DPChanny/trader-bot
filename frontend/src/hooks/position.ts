@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { GUILD_API_ENDPOINT } from "@/env";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
-import { throwHttpError } from "@/utils/fetch";
+import { handleHttpError } from "@/utils/hook";
 
 interface AddPositionData {
   name: string;
@@ -36,7 +36,7 @@ export function useAddPosition() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
@@ -70,7 +70,7 @@ export function useUpdatePosition() {
           body: JSON.stringify(toSnakeCase(data)),
         },
       );
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       return response.json();
     },
     onSuccess: (_, variables) => {
@@ -101,7 +101,7 @@ export function useDeletePosition() {
           headers: getAuthHeadersForMutation(),
         },
       );
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

@@ -3,7 +3,7 @@ import type { Preset, PresetDetail } from "@/dto";
 import { GUILD_API_ENDPOINT } from "@/env";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
-import { throwHttpError } from "@/utils/fetch";
+import { handleHttpError } from "@/utils/hook";
 
 interface AddPresetData {
   name: string;
@@ -32,7 +32,7 @@ export function usePresets(guildId: number | null) {
       const response = await fetch(presetEndpoint(guildId!), {
         headers: getAuthHeaders(),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<Preset[]>(json);
     },
@@ -51,7 +51,7 @@ export function usePresetDetail(
       const response = await fetch(`${presetEndpoint(guildId)}/${presetId}`, {
         headers: getAuthHeaders(),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<PresetDetail>(json);
     },
@@ -75,7 +75,7 @@ export function useAddPreset() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<Preset>(json);
     },
@@ -105,7 +105,7 @@ export function useUpdatePreset() {
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(data)),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<Preset>(json);
     },
@@ -135,7 +135,7 @@ export function useDeletePreset() {
         method: "DELETE",
         headers: getAuthHeadersForMutation(),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

@@ -8,7 +8,7 @@ import { PageContainer, PageLayout } from "@/components/page";
 import { Loading } from "@/components/loading";
 import { Error } from "@/components/error";
 import { Bar } from "@/components/bar";
-import { setSelectedGuild } from "@/utils/guild";
+import { setGuild } from "@/utils/guild";
 import { isAuthenticated } from "@/utils/auth";
 import type { Guild } from "@/dto";
 import styles from "@/styles/pages/guild/guildPage.module.css";
@@ -30,7 +30,7 @@ export function GuildPage({}: GuildPageProps) {
   const handleSelectGuild = (guildId: number) => {
     const guild = guilds?.find((g: Guild) => g.guildId === guildId);
     if (guild) {
-      setSelectedGuild({ guildId: guild.guildId, name: guild.name });
+      setGuild({ guildId: guild.guildId, name: guild.name });
       route("/preset");
     }
   };

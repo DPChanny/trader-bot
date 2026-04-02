@@ -3,7 +3,7 @@ import type { Guild } from "@/dto";
 import { GUILD_API_ENDPOINT } from "@/env";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase } from "@/utils/dto";
-import { throwHttpError } from "@/utils/fetch";
+import { handleHttpError } from "@/utils/hook";
 
 export function useGuilds() {
   return useQuery({
@@ -12,7 +12,7 @@ export function useGuilds() {
       const response = await fetch(GUILD_API_ENDPOINT, {
         headers: getAuthHeaders(),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<Guild[]>(json);
     },
@@ -26,7 +26,7 @@ export function useGuildInviteUrl() {
         method: "POST",
         headers: getAuthHeadersForMutation(),
       });
-      if (!response.ok) await throwHttpError(response);
+      if (!response.ok) await handleHttpError(response);
       return response.json();
     },
   });

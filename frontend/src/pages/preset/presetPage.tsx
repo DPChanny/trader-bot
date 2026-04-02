@@ -4,7 +4,7 @@ import { useMembers } from "@/hooks/member";
 import { useAddPreset, usePresetDetail, usePresets } from "@/hooks/preset";
 import { useAddPresetMember } from "@/hooks/presetMember";
 import { useAddAuction } from "@/hooks/auction";
-import { getSelectedGuild } from "@/utils/guild";
+import { getGuild } from "@/utils/guild";
 import { PresetList } from "./presetList";
 import { TierList } from "./tierList";
 import { PositionList } from "./positionList";
@@ -49,7 +49,7 @@ export function PresetPage({}: PresetPageProps) {
   const [newPositionName, setNewPositionName] = useState("");
   const [newPositionIconUrl, setNewPositionIconUrl] = useState("");
 
-  const selectedGuild = getSelectedGuild();
+  const selectedGuild = getGuild();
   const guildId = selectedGuild?.guildId ?? null;
 
   const {

@@ -3,7 +3,7 @@ import type { ValStatDTO } from "@/dto";
 import { VAL_STAT_API_ENDPOINT } from "@/env";
 import { getAuthHeaders } from "@/utils/auth";
 import { toCamelCase } from "@/utils/dto";
-import { throwHttpError } from "@/utils/fetch";
+import { handleHttpError } from "@/utils/hook";
 
 export function useValStat(memberId: number | null) {
   return useQuery({
@@ -16,7 +16,7 @@ export function useValStat(memberId: number | null) {
         });
         if (!response.ok) {
           if (response.status === 404) return null;
-          await throwHttpError(response);
+          await handleHttpError(response);
         }
         const json = await response.json();
         return toCamelCase<ValStatDTO>(json) ?? null;

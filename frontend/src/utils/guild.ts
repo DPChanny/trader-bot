@@ -1,24 +1,21 @@
-const GUILD_KEY = "selected_guild";
+const GUILD_KEY = "guild";
 
-export interface SelectedGuild {
-  guildId: number;
-  name: string;
-}
+import type { Guild } from "@/dto";
 
-export function setSelectedGuild(guild: SelectedGuild): void {
+export function setGuild(guild: Guild): void {
   sessionStorage.setItem(GUILD_KEY, JSON.stringify(guild));
 }
 
-export function getSelectedGuild(): SelectedGuild | null {
+export function getGuild(): Guild | null {
   try {
     const stored = sessionStorage.getItem(GUILD_KEY);
     if (!stored) return null;
-    return JSON.parse(stored) as SelectedGuild;
+    return JSON.parse(stored) as Guild;
   } catch {
     return null;
   }
 }
 
-export function clearSelectedGuild(): void {
+export function clearGuild(): void {
   sessionStorage.removeItem(GUILD_KEY);
 }

@@ -1,7 +1,7 @@
 import { useEffect } from "preact/hooks";
 import { route } from "preact-router";
 import { isAuthenticated } from "@/utils/auth";
-import { useDiscordLogin } from "@/hooks/auth";
+import { useLogin } from "@/hooks/auth";
 import { PrimaryButton } from "@/components/button";
 import styles from "@/styles/pages/auth/loginPage.module.css";
 
@@ -10,7 +10,7 @@ interface LoginPageProps {
 }
 
 export function LoginPage({}: LoginPageProps) {
-  const discordLogin = useDiscordLogin();
+  const discordLogin = useLogin();
 
   useEffect(() => {
     if (isAuthenticated()) {
