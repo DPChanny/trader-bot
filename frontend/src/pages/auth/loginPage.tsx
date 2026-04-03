@@ -2,7 +2,7 @@ import { useEffect } from "preact/hooks";
 import { route } from "preact-router";
 import { isAuthenticated } from "@/utils/auth";
 import { useLogin } from "@/hooks/auth";
-import { PrimaryButton } from "@/components/button";
+import { PrimaryButton } from "@/components/commons/button";
 import styles from "@/styles/pages/auth/loginPage.module.css";
 
 interface LoginPageProps {

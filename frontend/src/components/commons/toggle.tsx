@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
-import styles from "@/styles/components/toggle.module.css";
+import styles from "@/styles/components/commons/toggle.module.css";
 
 const toggleVariants = cva(styles.toggle, {
   variants: {

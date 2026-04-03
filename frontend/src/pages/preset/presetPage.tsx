@@ -10,15 +10,15 @@ import { TierList } from "./tierList";
 import { PositionList } from "./positionList";
 import { PresetUserEditor } from "./presetUserEditor";
 import { AddPresetModal } from "./addPresetModal";
-import { PrimaryButton } from "@/components/button";
+import { PrimaryButton } from "@/components/commons/button";
 import { UserGrid } from "@/components/userGrid";
 import { PresetUserGrid } from "@/components/presetUserGrid";
-import { Section } from "@/components/section";
-import { PageContainer, PageLayout } from "@/components/page";
-import { Loading } from "@/components/loading";
-import { Error } from "@/components/error";
-import { Bar } from "@/components/bar";
-import type { Statistics } from "@/dtos";
+import { Section } from "@/components/commons/section";
+import { PageContainer, PageLayout } from "@/components/commons/page";
+import { Loading } from "@/components/commons/loading";
+import { Error } from "@/components/commons/error";
+import { Bar } from "@/components/commons/bar";
+import type { Statistics } from "@/dtos/presetDto";
 import styles from "@/styles/pages/preset/presetPage.module.css";
 
 interface PresetPageProps {

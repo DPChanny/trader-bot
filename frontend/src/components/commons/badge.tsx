@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import styles from "@/styles/components/badge.module.css";
+import styles from "@/styles/components/commons/badge.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const badgeVariants = cva(styles.badge, {

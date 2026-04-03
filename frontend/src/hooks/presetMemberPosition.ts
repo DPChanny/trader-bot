@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import type { AddPresetMemberPositionDTO } from "@/dtos";
+import type { AddPresetMemberPositionDTO } from "@/dtos/presetMemberPositionDto";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
 import { getPresetMemberPositionEndpoint } from "@/utils/endpoint";

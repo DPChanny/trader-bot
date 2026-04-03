@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
-import styles from "@/styles/components/section.module.css";
+import styles from "@/styles/components/commons/section.module.css";
 import type { HTMLAttributes } from "preact";
 
 const sectionVariants = cva(styles.section, {

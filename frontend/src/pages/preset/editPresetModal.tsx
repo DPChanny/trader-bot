@@ -1,12 +1,17 @@
 import { useEffect, useState } from "preact/hooks";
-import { Modal, ModalFooter, ModalForm, ModalRow } from "@/components/modal";
-import { LabelInput } from "@/components/labelInput";
-import { PrimaryButton, SecondaryButton } from "@/components/button";
-import { Error } from "@/components/error";
-import { Toggle } from "@/components/toggle";
-import { Label } from "@/components/label";
-import { Section } from "@/components/section";
-import type { Statistics } from "@/dtos";
+import {
+  Modal,
+  ModalFooter,
+  ModalForm,
+  ModalRow,
+} from "@/components/commons/modal";
+import { LabelInput } from "@/components/commons/labelInput";
+import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
+import { Error } from "@/components/commons/error";
+import { Toggle } from "@/components/commons/toggle";
+import { Label } from "@/components/commons/label";
+import { Section } from "@/components/commons/section";
+import type { Statistics } from "@/dtos/presetDto";
 import modalStyles from "@/styles/components/modal.module.css";
 
 interface EditPresetModalProps {

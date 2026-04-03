@@ -1,4 +1,4 @@
-import { Section } from "@/components/section";
+import { Section } from "@/components/commons/section";
 import styles from "@/styles/pages/auction/infoCard.module.css";
 
 interface InfoCardProps {

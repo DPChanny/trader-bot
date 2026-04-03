@@ -1,9 +1,9 @@
 import { clsx } from "clsx";
 import styles from "@/styles/components/userCard.module.css";
-import { Card } from "./card";
-import { Badge } from "./badge";
-import { Section } from "./section";
-import type { PresetMemberDetailDTO } from "@/dtos";
+import { Card } from "./commons/card";
+import { Badge } from "./commons/badge";
+import { Section } from "./commons/section";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 
 export interface PresetUserCardProps {
   presetMember: PresetMemberDetailDTO;

@@ -1,5 +1,5 @@
-import { Input, type InputProps } from "@/components/input";
-import { Label } from "@/components/label";
+import { Input, type InputProps } from "@/components/commons/input";
+import { Label } from "@/components/commons/label";
 import { Section } from "./section";
 
 type LabelInputProps = InputProps & {

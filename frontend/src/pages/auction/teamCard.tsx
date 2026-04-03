@@ -1,8 +1,9 @@
 import { PresetUserGrid } from "@/components/presetUserGrid";
-import type { PresetMemberDetailDTO, Team } from "@/dtos";
-import { Card } from "@/components/card";
-import { Section } from "@/components/section";
-import { Bar } from "@/components/bar";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
+import type { Team } from "@/dtos/auctionDto";
+import { Card } from "@/components/commons/card";
+import { Section } from "@/components/commons/section";
+import { Bar } from "@/components/commons/bar";
 import styles from "@/styles/pages/auction/teamCard.module.css";
 
 interface TeamCardProps {

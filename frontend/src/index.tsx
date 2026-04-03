@@ -7,7 +7,7 @@ import { GuildPage } from "@/pages/guild/guildPage";
 import { PresetPage } from "@/pages/preset/presetPage";
 import { UserPage } from "@/pages/user/userPage";
 import { AuctionPage } from "@/pages/auction/auctionPage";
-import { Header } from "@/components/header";
+import { Header } from "@/components/commons/header";
 import { queryClient } from "@/utils/query";
 import { removeAuthToken, isAuthenticated, setAuthToken } from "@/utils/auth";
 import { clearGuild } from "@/utils/guild";

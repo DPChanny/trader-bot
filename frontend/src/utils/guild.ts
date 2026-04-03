@@ -1,6 +1,6 @@
 const GUILD_KEY = "guild";
 
-import type { GuildDTO } from "@/dtos";
+import type { GuildDTO } from "@/dtos/guildDto";
 
 export function setGuild(guild: GuildDTO): void {
   sessionStorage.setItem(GUILD_KEY, JSON.stringify(guild));

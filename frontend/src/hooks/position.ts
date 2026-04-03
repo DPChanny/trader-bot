@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import type { AddPositionDTO, UpdatePositionDTO } from "@/dtos";
+import type { AddPositionDTO, UpdatePositionDTO } from "@/dtos/positionDto";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
 import { getPositionEndpoint } from "@/utils/endpoint";

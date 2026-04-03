@@ -1,11 +1,11 @@
 import { useState } from "preact/hooks";
-import { Loading } from "@/components/loading";
+import { Loading } from "@/components/commons/loading";
 import { PresetCard } from "./presetCard";
-import type { PresetDTO, Statistics } from "@/dtos";
+import type { PresetDTO, Statistics } from "@/dtos/presetDto";
 import styles from "@/styles/pages/preset/presetList.module.css";
-import { Section } from "@/components/section";
+import { Section } from "@/components/commons/section";
 import { useDeletePreset, useUpdatePreset } from "@/hooks/preset";
-import { ConfirmModal } from "@/components/modal";
+import { ConfirmModal } from "@/components/commons/modal";
 import { EditPresetModal } from "./editPresetModal";
 
 interface PresetListProps {

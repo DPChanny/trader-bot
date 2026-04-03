@@ -1,7 +1,7 @@
-import { Modal, ModalForm, ModalFooter } from "@/components/modal";
-import { LabelInput } from "@/components/labelInput";
-import { PrimaryButton, SecondaryButton } from "@/components/button";
-import { Error as ErrorMessage } from "@/components/error";
+import { Modal, ModalForm, ModalFooter } from "@/components/commons/modal";
+import { LabelInput } from "@/components/commons/labelInput";
+import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
+import { Error as ErrorMessage } from "@/components/commons/error";
 
 interface AddTierModalProps {
   isOpen: boolean;

@@ -7,16 +7,16 @@ import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import { LolStat } from "@/components/lolStat";
 import { ValStat } from "@/components/valStat";
-import { Section } from "@/components/section";
-import { PageContainer, PageLayout } from "@/components/page";
-import { Loading } from "@/components/loading";
-import { Error } from "@/components/error";
-import { PrimaryButton } from "@/components/button";
+import { Section } from "@/components/commons/section";
+import { PageContainer, PageLayout } from "@/components/commons/page";
+import { Loading } from "@/components/commons/loading";
+import { Error } from "@/components/commons/error";
+import { PrimaryButton } from "@/components/commons/button";
 import { PresetUserGrid } from "@/components/presetUserGrid";
 import { PresetUserCard } from "@/components/presetUserCard";
-import { Input } from "@/components/input";
-import { Bar } from "@/components/bar";
-import type { PresetMemberDetailDTO } from "@/dtos";
+import { Input } from "@/components/commons/input";
+import { Bar } from "@/components/commons/bar";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 
 import styles from "@/styles/pages/auction/auctionPage.module.css";
 

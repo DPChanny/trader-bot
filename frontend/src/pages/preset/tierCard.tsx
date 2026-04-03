@@ -3,12 +3,12 @@ import {
   DeleteButton,
   EditButton,
   SaveButton,
-} from "@/components/button";
-import { Badge } from "@/components/badge";
-import { Input } from "@/components/input";
-import { Card } from "@/components/card";
-import { Section } from "@/components/section";
-import type { TierDTO } from "@/dtos";
+} from "@/components/commons/button";
+import { Badge } from "@/components/commons/badge";
+import { Input } from "@/components/commons/input";
+import { Card } from "@/components/commons/card";
+import { Section } from "@/components/commons/section";
+import type { TierDTO } from "@/dtos/tierDto";
 import styles from "@/styles/pages/preset/tierCard.module.css";
 
 interface TierCardProps {

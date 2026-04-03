@@ -1,4 +1,4 @@
-import styles from "@/styles/components/loading.module.css";
+import styles from "@/styles/components/commons/loading.module.css";
 
 interface LoadingProps {
   message?: string;

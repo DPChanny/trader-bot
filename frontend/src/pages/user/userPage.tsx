@@ -2,18 +2,18 @@ import { useState, useMemo, useEffect } from "preact/hooks";
 import { route } from "preact-router";
 import { useMembers, useAddMember } from "@/hooks/member";
 import { getGuild } from "@/utils/guild";
-import { PrimaryButton } from "@/components/button";
+import { PrimaryButton } from "@/components/commons/button";
 import { UserGrid } from "@/components/userGrid";
-import { Section } from "@/components/section";
-import { PageLayout, PageContainer } from "@/components/page";
-import { Loading } from "@/components/loading";
-import { Error } from "@/components/error";
+import { Section } from "@/components/commons/section";
+import { PageLayout, PageContainer } from "@/components/commons/page";
+import { Loading } from "@/components/commons/loading";
+import { Error } from "@/components/commons/error";
 import { UserEditor } from "./userEditor";
 import { AddUserModal } from "./addUserModal";
-import type { MemberDTO } from "@/dtos";
+import type { MemberDTO } from "@/dtos/memberDto";
 
 import styles from "@/styles/pages/user/userPage.module.css";
-import { Bar } from "@/components/bar";
+import { Bar } from "@/components/commons/bar";
 
 interface UserPageProps {
   path?: string;

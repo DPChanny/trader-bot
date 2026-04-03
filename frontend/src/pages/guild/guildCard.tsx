@@ -1,6 +1,6 @@
-import { Card } from "@/components/card";
-import { Section } from "@/components/section";
-import type { GuildDTO } from "@/dtos";
+import { Card } from "@/components/commons/card";
+import { Section } from "@/components/commons/section";
+import type { GuildDTO } from "@/dtos/guildDto";
 
 interface GuildCardProps {
   guild: GuildDTO;

@@ -1,9 +1,9 @@
 import { createPortal } from "preact/compat";
 import { clsx } from "clsx";
-import { Bar } from "@/components/bar";
-import { Section } from "@/components/section";
-import { PrimaryButton, SecondaryButton } from "@/components/button";
-import styles from "@/styles/components/modal.module.css";
+import { Bar } from "@/components/commons/bar";
+import { Section } from "@/components/commons/section";
+import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
+import styles from "@/styles/components/commons/modal.module.css";
 import type { JSX } from "preact";
 
 export type ModalProps = {

@@ -4,9 +4,9 @@ import {
   useDeletePosition,
   useUpdatePosition,
 } from "@/hooks/position";
-import { Error } from "@/components/error";
-import { ConfirmModal } from "@/components/modal";
-import { Section } from "@/components/section";
+import { Error } from "@/components/commons/error";
+import { ConfirmModal } from "@/components/commons/modal";
+import { Section } from "@/components/commons/section";
 import { AddPositionModal } from "./addPositionModal";
 import { PositionCard } from "./positionCard";
 

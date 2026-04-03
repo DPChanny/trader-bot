@@ -1,5 +1,5 @@
 import { PresetUserCard, type PresetUserCardProps } from "./presetUserCard";
-import { Section } from "./section";
+import { Section } from "./commons/section";
 import { clsx } from "clsx";
 import styles from "@/styles/components/userGrid.module.css";
 

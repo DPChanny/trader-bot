@@ -7,7 +7,7 @@ import type {
   TimerMessageData,
   MemberSoldMessageData,
   WebSocketMessage,
-} from "@/dtos";
+} from "@/dtos/auctionDto";
 import { toCamelCase } from "@/utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@/utils/endpoint";
 

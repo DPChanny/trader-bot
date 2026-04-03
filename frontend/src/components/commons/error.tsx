@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import styles from "@/styles/components/error.module.css";
+import styles from "@/styles/components/commons/error.module.css";
 import { clsx } from "clsx";
 
 interface ErrorProps {

@@ -1,7 +1,7 @@
-import { DeleteButton, EditButton } from "@/components/button";
-import type { PresetDTO } from "@/dtos";
-import { Card } from "@/components/card";
-import { Section } from "@/components/section";
+import { DeleteButton, EditButton } from "@/components/commons/button";
+import type { PresetDTO } from "@/dtos/presetDto";
+import { Card } from "@/components/commons/card";
+import { Section } from "@/components/commons/section";
 import styles from "@/styles/pages/preset/presetCard.module.css";
 
 interface PresetCardProps {

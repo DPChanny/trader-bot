@@ -1,11 +1,11 @@
 import { useState } from "preact/hooks";
 import { useAddTier, useDeleteTier, useUpdateTier } from "@/hooks/tier";
-import { Error } from "@/components/error";
+import { Error } from "@/components/commons/error";
 import { AddTierModal } from "./addTierModal";
-import { ConfirmModal } from "@/components/modal";
+import { ConfirmModal } from "@/components/commons/modal";
 import { TierCard } from "./tierCard";
 import styles from "@/styles/pages/preset/tierList.module.css";
-import { Section } from "@/components/section";
+import { Section } from "@/components/commons/section";
 
 interface TierListProps {
   guildId: number;

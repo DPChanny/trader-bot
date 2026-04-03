@@ -1,7 +1,7 @@
-import { Card } from "@/components/card";
-import { Section } from "@/components/section";
-import { Toggle } from "@/components/toggle";
-import type { AgentDTO, ValStatDTO } from "@/dtos";
+import { Card } from "@/components/commons/card";
+import { Section } from "@/components/commons/section";
+import { Toggle } from "@/components/commons/toggle";
+import type { AgentDTO, ValStatDTO } from "@/dtos/valStatDto";
 import styles from "@/styles/components/valStat.module.css";
 
 interface ValStatCardProps {

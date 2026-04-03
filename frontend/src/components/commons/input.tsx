@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import styles from "@/styles/components/input.module.css";
+import styles from "@/styles/components/commons/input.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const inputVariants = cva(styles.input, {

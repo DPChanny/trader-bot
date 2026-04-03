@@ -14,17 +14,17 @@ import {
   DangerButton,
   PrimaryButton,
   SaveButton,
-} from "@/components/button";
-import { LabelInput } from "@/components/labelInput";
-import { Error } from "@/components/error";
-import { Bar } from "@/components/bar";
-import { Section } from "@/components/section";
-import { ConfirmModal } from "@/components/modal";
-import { Loading } from "@/components/loading";
-import type { MemberDTO } from "@/dtos";
+} from "@/components/commons/button";
+import { LabelInput } from "@/components/commons/labelInput";
+import { Error } from "@/components/commons/error";
+import { Bar } from "@/components/commons/bar";
+import { Section } from "@/components/commons/section";
+import { ConfirmModal } from "@/components/commons/modal";
+import { Loading } from "@/components/commons/loading";
+import type { MemberDTO } from "@/dtos/memberDto";
 
 import styles from "@/styles/components/userEditor.module.css";
-import { Label } from "@/components/label";
+import { Label } from "@/components/commons/label";
 
 interface UserEditorProps {
   member: MemberDTO;

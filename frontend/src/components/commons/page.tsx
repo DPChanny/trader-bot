@@ -1,5 +1,5 @@
 import type { ComponentChildren } from "preact";
-import styles from "@/styles/components/page.module.css";
+import styles from "@/styles/components/commons/page.module.css";
 
 interface PageLayoutProps {
   children: ComponentChildren;

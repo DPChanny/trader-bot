@@ -1,4 +1,4 @@
-import styles from "@/styles/components/label.module.css";
+import styles from "@/styles/components/commons/label.module.css";
 
 interface LabelProps {
   children: any;

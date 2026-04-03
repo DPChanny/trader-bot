@@ -1,8 +1,8 @@
 import { UserCard } from "./userCard";
-import { Section } from "./section";
+import { Section } from "./commons/section";
 import { clsx } from "clsx";
 import styles from "@/styles/components/userGrid.module.css";
-import type { MemberDTO } from "@/dtos";
+import type { MemberDTO } from "@/dtos/memberDto";
 
 interface UserGridProps {
   members: MemberDTO[];

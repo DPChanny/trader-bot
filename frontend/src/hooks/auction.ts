@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/preact-query";
-import type { AuctionDTO } from "@/dtos";
+import type { AuctionDTO } from "@/dtos/auctionDto";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { AUCTION_API_ENDPOINT } from "@/utils/endpoint";
 import { handleHttpError } from "@/utils/hook";

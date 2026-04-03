@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
-import styles from "@/styles/components/card.module.css";
+import styles from "@/styles/components/commons/card.module.css";
 import { Section, type SectionProps } from "./section";
 
 const cardVariants = cva(styles.card, {

@@ -4,7 +4,7 @@ import type {
   PresetDTO,
   PresetDetailDTO,
   UpdatePresetDTO,
-} from "@/dtos";
+} from "@/dtos/presetDto";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetEndpoint } from "@/utils/endpoint";

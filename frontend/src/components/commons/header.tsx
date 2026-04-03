@@ -1,6 +1,6 @@
 import { route } from "preact-router";
-import styles from "@/styles/components/header.module.css";
-import { Button, DangerButton } from "@/components/button";
+import styles from "@/styles/components/commons/header.module.css";
+import { Button, DangerButton } from "@/components/commons/button";
 import { getGuild } from "@/utils/guild";
 
 type PageView = "home" | "guild" | "user" | "preset";

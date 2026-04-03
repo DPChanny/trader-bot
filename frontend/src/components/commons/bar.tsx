@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import styles from "@/styles/components/bar.module.css";
+import styles from "@/styles/components/commons/bar.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const barVariants = cva(styles.bar, {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import { PresetUserCard } from "@/components/presetUserCard";
 import { LolStat } from "@/components/lolStat";
 import { ValStat } from "@/components/valStat";
-import { Toggle } from "@/components/toggle";
+import { Toggle } from "@/components/commons/toggle";
 import {
   useRemovePresetMember,
   useUpdatePresetMember,
@@ -13,18 +13,20 @@ import {
 } from "@/hooks/presetMemberPosition";
 import { useLolStat } from "@/hooks/lolStat";
 import { useValStat } from "@/hooks/valStat";
+import type { PositionDTO } from "@/dtos/positionDto";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
+import type { Statistics } from "@/dtos/presetDto";
+import type { TierDTO } from "@/dtos/tierDto";
 import {
-  type PositionDTO,
-  type PresetMemberDetailDTO,
-  type Statistics,
-  type TierDTO,
-} from "@/dtos";
-import { CloseButton, DangerButton, SaveButton } from "@/components/button";
-import { Label } from "@/components/label";
-import { Error } from "@/components/error";
-import { Bar } from "@/components/bar";
-import { Section } from "@/components/section";
-import { Loading } from "@/components/loading";
+  CloseButton,
+  DangerButton,
+  SaveButton,
+} from "@/components/commons/button";
+import { Label } from "@/components/commons/label";
+import { Error } from "@/components/commons/error";
+import { Bar } from "@/components/commons/bar";
+import { Section } from "@/components/commons/section";
+import { Loading } from "@/components/commons/loading";
 import styles from "@/styles/components/userEditor.module.css";
 
 interface PresetUserEditorProps {

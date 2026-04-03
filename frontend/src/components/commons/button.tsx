@@ -1,6 +1,6 @@
 import type { JSX } from "preact";
 import { clsx } from "clsx";
-import styles from "@/styles/components/button.module.css";
+import styles from "@/styles/components/commons/button.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 import { type HTMLAttributes, type TargetedMouseEvent } from "preact";
 
