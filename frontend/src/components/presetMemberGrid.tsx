@@ -2,7 +2,7 @@ import {
   PresetMemberCard,
   type PresetMemberCardProps,
 } from "./presetMemberCard";
-import { Section } from "./commons/section";
+import { Section } from "@/components/commons/section";
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberGrid.module.css";
 

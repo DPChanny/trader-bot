@@ -10,8 +10,8 @@ import { AuctionPage } from "@/pages/auction/auctionPage";
 import { Header } from "@/components/commons/header";
 import { queryClient } from "@/utils/query";
 import { removeAuthToken, isAuthenticated, setAuthToken } from "@/utils/auth";
-import { clearGuild } from "@/utils/guild";
 import { useAutoRefreshToken } from "@/hooks/auth";
+import { GuildProvider } from "@/contexts/guildContext";
 import { route } from "preact-router";
 import "@/styles/app.css";
 
@@ -46,7 +46,8 @@ interface PageWrapperProps {
 
 function handleLogout() {
   removeAuthToken();
-  clearGuild();
+  // GuildProvider clears sessionStorage on mount; guild state resets on reload
+  sessionStorage.removeItem("guild");
   route("/");
 }
 
@@ -82,7 +83,9 @@ function PresetPageWrapper({}: PageWrapperProps) {
 
 render(
   <QueryClientProvider client={queryClient}>
-    <App />
+    <GuildProvider>
+      <App />
+    </GuildProvider>
   </QueryClientProvider>,
   document.getElementById("app")!,
 );

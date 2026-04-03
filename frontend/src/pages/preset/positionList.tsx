@@ -1,10 +1,10 @@
 import { useState } from "preact/hooks";
-import {
-  useAddPosition,
-  useDeletePosition,
-  useUpdatePosition,
-} from "@/hooks/position";
+import { useDeletePosition, useUpdatePosition } from "@/hooks/position";
+import { useGuildContext } from "@/contexts/guildContext";
+import { usePresetPageContext } from "./presetContext";
 import { Error } from "@/components/commons/error";
+import { PrimaryButton } from "@/components/commons/button";
+import { Bar } from "@/components/commons/bar";
 import { ConfirmModal } from "@/components/commons/modal";
 import { Section } from "@/components/commons/section";
 import { AddPositionModal } from "./addPositionModal";
@@ -13,28 +13,14 @@ import { PositionCard } from "./positionCard";
 import styles from "@/styles/pages/preset/positionList.module.css";
 
 interface PositionListProps {
-  guildId: number;
-  presetId: number;
   positions: any[];
-  showPositionForm: boolean;
-  newPositionName: string;
-  newPositionIconUrl: string;
-  onShowPositionFormChange: (show: boolean) => void;
-  onNewPositionNameChange: (name: string) => void;
-  onNewPositionIconUrlChange: (url: string) => void;
 }
 
-export function PositionList({
-  guildId,
-  presetId,
-  positions,
-  showPositionForm,
-  newPositionName,
-  newPositionIconUrl,
-  onShowPositionFormChange,
-  onNewPositionNameChange,
-  onNewPositionIconUrlChange,
-}: PositionListProps) {
+export function PositionList({ positions }: PositionListProps) {
+  const { guildId } = useGuildContext();
+  const { selectedPresetId: presetId } = usePresetPageContext();
+
+  const [showPositionForm, setShowPositionForm] = useState(false);
   const [editingPositionId, setEditingPositionId] = useState<number | null>(
     null,
   );
@@ -43,31 +29,11 @@ export function PositionList({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
-  const addPosition = useAddPosition();
   const updatePosition = useUpdatePosition();
   const deletePosition = useDeletePosition();
 
-  const handleAddPosition = async () => {
-    if (!newPositionName.trim()) return;
-    try {
-      await addPosition.mutateAsync({
-        guildId,
-        presetId: presetId,
-        dto: {
-          name: newPositionName.trim(),
-          iconUrl: newPositionIconUrl.trim() || undefined,
-        },
-      });
-      onNewPositionNameChange("");
-      onNewPositionIconUrlChange("");
-      onShowPositionFormChange(false);
-    } catch (err) {
-      console.error("Failed to add position:", err);
-    }
-  };
-
   const handleUpdatePosition = async (positionId: number) => {
-    if (!editingName.trim()) return;
+    if (!editingName.trim() || !guildId || !presetId) return;
     try {
       await updatePosition.mutateAsync({
         guildId,
@@ -87,11 +53,11 @@ export function PositionList({
   };
 
   const handleDeletePosition = async () => {
-    if (deleteTargetId === null) return;
+    if (deleteTargetId === null || !guildId || !presetId) return;
     try {
       await deletePosition.mutateAsync({
         guildId,
-        presetId: presetId,
+        presetId,
         positionId: deleteTargetId,
       });
       setShowDeleteConfirm(false);
@@ -102,13 +68,15 @@ export function PositionList({
     }
   };
 
-  const handleSubmit = async (e: Event) => {
-    e.preventDefault();
-    await handleAddPosition();
-  };
-
   return (
     <Section variantTone="ghost" variantIntent="secondary">
+      <Section variantTone="ghost" variantLayout="row">
+        <h3>포지션 목록</h3>
+        <PrimaryButton onClick={() => setShowPositionForm(true)}>
+          추가
+        </PrimaryButton>
+      </Section>
+      <Bar />
       {(updatePosition.isError || deletePosition.isError) && (
         <Error detail={(updatePosition.error || deletePosition.error)?.message}>
           포지션 작업 중 오류가 발생했습니다.
@@ -153,14 +121,7 @@ export function PositionList({
 
       <AddPositionModal
         isOpen={showPositionForm}
-        onClose={() => onShowPositionFormChange(false)}
-        onSubmit={handleSubmit}
-        positionName={newPositionName}
-        positionIconUrl={newPositionIconUrl}
-        onNameChange={onNewPositionNameChange}
-        onIconUrlChange={onNewPositionIconUrlChange}
-        isPending={addPosition.isPending}
-        error={addPosition.error}
+        onClose={() => setShowPositionForm(false)}
       />
 
       <ConfirmModal

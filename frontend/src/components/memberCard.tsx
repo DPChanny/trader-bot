@@ -1,6 +1,6 @@
 import styles from "@/styles/components/memberCard.module.css";
-import { Card } from "./commons/card";
-import { Section } from "./commons/section";
+import { Card } from "@/components/commons/card";
+import { Section } from "@/components/commons/section";
 import type { MemberDTO } from "@/dtos/memberDto";
 
 export interface MemberCardProps {

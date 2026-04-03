@@ -1,6 +1,10 @@
 import { useState } from "preact/hooks";
-import { useAddTier, useDeleteTier, useUpdateTier } from "@/hooks/tier";
+import { useDeleteTier, useUpdateTier } from "@/hooks/tier";
+import { useGuildContext } from "@/contexts/guildContext";
+import { usePresetPageContext } from "./presetContext";
 import { Error } from "@/components/commons/error";
+import { PrimaryButton } from "@/components/commons/button";
+import { Bar } from "@/components/commons/bar";
 import { AddTierModal } from "./addTierModal";
 import { ConfirmModal } from "@/components/commons/modal";
 import { TierCard } from "./tierCard";
@@ -8,50 +12,24 @@ import styles from "@/styles/pages/preset/tierList.module.css";
 import { Section } from "@/components/commons/section";
 
 interface TierListProps {
-  guildId: number;
-  presetId: number;
   tiers: any[];
-  showTierForm: boolean;
-  newTierName: string;
-  onShowTierFormChange: (show: boolean) => void;
-  onNewTierNameChange: (name: string) => void;
 }
 
-export function TierList({
-  guildId,
-  presetId,
-  tiers,
-  showTierForm,
-  newTierName,
-  onShowTierFormChange,
-  onNewTierNameChange,
-}: TierListProps) {
+export function TierList({ tiers }: TierListProps) {
+  const { guildId } = useGuildContext();
+  const { selectedPresetId: presetId } = usePresetPageContext();
+
+  const [showTierForm, setShowTierForm] = useState(false);
   const [editingTierId, setEditingTierId] = useState<number | null>(null);
   const [editingTierName, setEditingTierName] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
-  const addTier = useAddTier();
   const updateTier = useUpdateTier();
   const deleteTier = useDeleteTier();
 
-  const handleAddTier = async () => {
-    if (!newTierName.trim()) return;
-    try {
-      await addTier.mutateAsync({
-        guildId,
-        presetId,
-        dto: { name: newTierName.trim() },
-      });
-      onNewTierNameChange("");
-      onShowTierFormChange(false);
-    } catch (err) {
-      console.error("Failed to add tier:", err);
-    }
-  };
-
   const handleUpdateTierName = async (tierId: number) => {
-    if (!editingTierName.trim()) return;
+    if (!editingTierName.trim() || !guildId || !presetId) return;
     try {
       await updateTier.mutateAsync({
         guildId,
@@ -67,7 +45,7 @@ export function TierList({
   };
 
   const handleDeleteTier = async () => {
-    if (deleteTargetId === null) return;
+    if (deleteTargetId === null || !guildId || !presetId) return;
     try {
       await deleteTier.mutateAsync({
         guildId,
@@ -82,13 +60,15 @@ export function TierList({
     }
   };
 
-  const handleSubmit = async (e: Event) => {
-    e.preventDefault();
-    await handleAddTier();
-  };
-
   return (
     <Section variantTone="ghost" variantIntent="secondary">
+      <Section variantTone="ghost" variantLayout="row">
+        <h3>티어 목록</h3>
+        <PrimaryButton onClick={() => setShowTierForm(true)}>
+          추가
+        </PrimaryButton>
+      </Section>
+      <Bar />
       {(updateTier.isError || deleteTier.isError) && (
         <Error detail={(updateTier.error || deleteTier.error)?.message}>
           티어 작업 중 오류가 발생했습니다.
@@ -129,12 +109,7 @@ export function TierList({
 
       <AddTierModal
         isOpen={showTierForm}
-        onClose={() => onShowTierFormChange(false)}
-        onSubmit={handleSubmit}
-        tierName={newTierName}
-        onNameChange={onNewTierNameChange}
-        isPending={addTier.isPending}
-        error={addTier.error}
+        onClose={() => setShowTierForm(false)}
       />
       <ConfirmModal
         isOpen={showDeleteConfirm}

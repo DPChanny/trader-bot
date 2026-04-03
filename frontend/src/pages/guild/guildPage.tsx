@@ -8,7 +8,7 @@ import { PageContainer, PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
-import { setGuild } from "@/utils/guild";
+import { useGuildContext } from "@/contexts/guildContext";
 import { isAuthenticated } from "@/utils/auth";
 import styles from "@/styles/pages/guild/guildPage.module.css";
 
@@ -19,6 +19,7 @@ interface GuildPageProps {
 export function GuildPage({}: GuildPageProps) {
   const { data: guilds, isLoading, error } = useGuilds();
   const guildInvite = useGuildInviteUrl();
+  const { setGuild } = useGuildContext();
 
   useEffect(() => {
     if (!isAuthenticated()) {

@@ -13,10 +13,8 @@ import {
 } from "@/hooks/presetMemberPosition";
 import { useLolStat } from "@/hooks/lolStat";
 import { useValStat } from "@/hooks/valStat";
-import type { PositionDTO } from "@/dtos/positionDto";
+import { usePresetDetail } from "@/hooks/preset";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
-import type { Statistics } from "@/dtos/presetDto";
-import type { TierDTO } from "@/dtos/tierDto";
 import {
   CloseButton,
   DangerButton,
@@ -28,30 +26,26 @@ import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
 import { Loading } from "@/components/commons/loading";
 import styles from "@/styles/components/memberEditor.module.css";
+import { useGuildContext } from "@/contexts/guildContext";
+import { usePresetPageContext } from "./presetContext";
 
 interface PresetMemberEditorProps {
   presetMember: PresetMemberDetailDTO;
-  guildId: number;
-  presetId: number;
-  statistics: Statistics;
-  tiers: TierDTO[];
-  positions: PositionDTO[];
-  onClose: () => void;
-  onRemoveStart?: (memberId: number) => void;
-  onRemoveError?: (memberId: number) => void;
 }
 
-export function PresetMemberEditor({
-  presetMember,
-  guildId,
-  presetId,
-  statistics,
-  tiers,
-  positions,
-  onClose,
-  onRemoveStart,
-  onRemoveError,
-}: PresetMemberEditorProps) {
+export function PresetMemberEditor({ presetMember }: PresetMemberEditorProps) {
+  const { guildId } = useGuildContext();
+  const {
+    selectedPresetId: presetId,
+    setSelectedPresetMemberId,
+    addMemberIdToRemoving,
+    removeMemberIdFromRemoving,
+  } = usePresetPageContext();
+
+  const { data: presetDetail } = usePresetDetail(guildId, presetId);
+  const tiers = presetDetail?.tiers || [];
+  const positions = presetDetail?.positions || [];
+  const statistics = presetDetail?.statistics ?? "NONE";
   const updatePresetMember = useUpdatePresetMember();
   const removePresetMember = useRemovePresetMember();
   const addPresetMemberPosition = useAddPresetMemberPosition();
@@ -94,6 +88,7 @@ export function PresetMemberEditor({
     selectedPositionIds.some((id) => !initialPositionIds.includes(id));
 
   const handleSave = async () => {
+    if (!guildId || !presetId) return;
     try {
       if (
         isLeader !== presetMember.isLeader ||
@@ -157,16 +152,17 @@ export function PresetMemberEditor({
 
   const handleRemoveMember = async () => {
     try {
-      onRemoveStart?.(presetMember.memberId);
+      if (presetMember.memberId) addMemberIdToRemoving(presetMember.memberId);
       await removePresetMember.mutateAsync({
-        guildId,
-        presetId,
+        guildId: guildId!,
+        presetId: presetId!,
         presetMemberId: presetMember.presetMemberId,
       });
-      onClose();
+      setSelectedPresetMemberId(null);
     } catch (err) {
       console.error("Failed to remove preset member:", err);
-      onRemoveError?.(presetMember.memberId);
+      if (presetMember.memberId)
+        removeMemberIdFromRemoving(presetMember.memberId);
     }
   };
 
@@ -221,7 +217,7 @@ export function PresetMemberEditor({
               onClick={handleSave}
               disabled={updatePresetMember.isPending || !hasChanges}
             />
-            <CloseButton onClick={onClose} />
+            <CloseButton onClick={() => setSelectedPresetMemberId(null)} />
           </Section>
         </Section>
         {hasError && (

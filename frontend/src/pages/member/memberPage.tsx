@@ -1,7 +1,8 @@
-import { useState, useMemo, useEffect } from "preact/hooks";
+import { useMemo, useEffect } from "preact/hooks";
 import { route } from "preact-router";
-import { useMembers, useAddMember } from "@/hooks/member";
-import { getGuild } from "@/utils/guild";
+import { useMembers } from "@/hooks/member";
+import { useGuildContext } from "@/contexts/guildContext";
+import { useMemberPageContext, MemberPageProvider } from "./memberContext";
 import { PrimaryButton } from "@/components/commons/button";
 import { MemberGrid } from "@/components/memberGrid";
 import { Section } from "@/components/commons/section";
@@ -19,27 +20,12 @@ interface MemberPageProps {
   path?: string;
 }
 
-export function MemberPage({}: MemberPageProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
+function MemberPageContent() {
+  const { guildId, guild } = useGuildContext();
+  const { selectedMemberId, setSelectedMemberId, openModal } =
+    useMemberPageContext();
 
-  const [formData, setFormData] = useState({
-    alias: "",
-    riotId: "",
-    discordId: "",
-  });
-
-  const selectedGuild = getGuild();
-  const guildId = selectedGuild?.guildId ?? null;
-
-  useEffect(() => {
-    if (!selectedGuild) {
-      route("/guild", true);
-    }
-  }, []);
-
-  const { data: members, isLoading, error } = useMembers(guildId ?? 0);
-  const addMember = useAddMember();
+  const { data: members, isLoading, error } = useMembers(guildId);
 
   const selectedMember = useMemo(
     () =>
@@ -49,39 +35,13 @@ export function MemberPage({}: MemberPageProps) {
     [selectedMemberId, members],
   );
 
-  const handleCloseEditor = () => {
-    setSelectedMemberId(null);
-  };
-
-  const handleOpenModal = () => {
-    setFormData({ alias: "", riotId: "", discordId: "" });
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setFormData({ alias: "", riotId: "", discordId: "" });
-  };
-
-  const handleSubmit = async (e: Event) => {
-    e.preventDefault();
-    if (!guildId) return;
-    try {
-      await addMember.mutateAsync({ guildId, dto: formData });
-      handleCloseModal();
-    } catch (err) {
-      console.error(err);
+  useEffect(() => {
+    if (!guild) {
+      route("/guild", true);
     }
-  };
+  }, []);
 
-  const handleFormChange = (field: string, value: string) => {
-    setFormData({
-      ...formData,
-      [field]: value,
-    });
-  };
-
-  if (!selectedGuild) return null;
+  if (!guild) return null;
 
   return (
     <PageLayout>
@@ -89,7 +49,7 @@ export function MemberPage({}: MemberPageProps) {
         <Section variantIntent="primary" className={styles.mainSection}>
           <Section variantTone="ghost" variantLayout="row">
             <h3>멤버 목록</h3>
-            <PrimaryButton onClick={handleOpenModal}>추가</PrimaryButton>
+            <PrimaryButton onClick={openModal}>추가</PrimaryButton>
           </Section>
           <Bar />
           {error && (
@@ -98,33 +58,27 @@ export function MemberPage({}: MemberPageProps) {
             </Error>
           )}
           {isLoading && <Loading />}
-          {!isLoading && !error && (
-            <MemberGrid
-              members={members || []}
-              selectedMemberId={selectedMemberId}
-              onMemberClick={(id) => setSelectedMemberId(id as number)}
-            />
-          )}
+          {!isLoading && !error && <MemberGrid />}
         </Section>
 
         {selectedMember && (
           <MemberEditor
             member={selectedMember}
             guildId={guildId!}
-            onClose={handleCloseEditor}
+            onClose={() => setSelectedMemberId(null)}
           />
         )}
       </PageContainer>
 
-      <AddMemberModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSubmit={handleSubmit}
-        formData={formData}
-        onFormChange={handleFormChange}
-        isPending={addMember.isPending}
-        error={addMember.error}
-      />
+      <AddMemberModal />
     </PageLayout>
+  );
+}
+
+export function MemberPage({}: MemberPageProps) {
+  return (
+    <MemberPageProvider>
+      <MemberPageContent />
+    </MemberPageProvider>
   );
 }

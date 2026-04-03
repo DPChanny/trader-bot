@@ -1,30 +1,28 @@
 import { useState } from "preact/hooks";
 import { Loading } from "@/components/commons/loading";
 import { PresetCard } from "./presetCard";
-import type { PresetDTO, Statistics } from "@/dtos/presetDto";
 import styles from "@/styles/pages/preset/presetList.module.css";
 import { Section } from "@/components/commons/section";
-import { useDeletePreset, useUpdatePreset } from "@/hooks/preset";
+import { useDeletePreset, usePresets, useUpdatePreset } from "@/hooks/preset";
+import { useAddAuction } from "@/hooks/auction";
 import { ConfirmModal } from "@/components/commons/modal";
 import { EditPresetModal } from "./editPresetModal";
+import { PrimaryButton } from "@/components/commons/button";
+import { Bar } from "@/components/commons/bar";
+import { Error } from "@/components/commons/error";
+import { useGuildContext } from "@/contexts/guildContext";
+import { usePresetPageContext } from "./presetContext";
+import type { Statistics } from "@/dtos/presetDto";
+import { usePresetDetail } from "@/hooks/preset";
 
-interface PresetListProps {
-  guildId: number;
-  presets: PresetDTO[];
-  selectedPresetId: number | null;
-  onSelectPreset: (presetId: number) => void;
-  isLoading: boolean;
-  onPresetDeleted?: (presetId: number) => void;
-}
+export function PresetList() {
+  const { guildId } = useGuildContext();
+  const { selectedPresetId, setSelectedPresetId, openCreatePreset } =
+    usePresetPageContext();
 
-export function PresetList({
-  guildId,
-  presets,
-  selectedPresetId,
-  onSelectPreset,
-  isLoading,
-  onPresetDeleted,
-}: PresetListProps) {
+  const { data: presets, isLoading } = usePresets(guildId);
+  const { data: presetDetail } = usePresetDetail(guildId, selectedPresetId);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editingPresetId, setEditingPresetId] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -32,6 +30,7 @@ export function PresetList({
 
   const updatePreset = useUpdatePreset();
   const deletePreset = useDeletePreset();
+  const addAuction = useAddAuction();
 
   const handleEdit = (presetId: number) => {
     setEditingPresetId(presetId);
@@ -45,7 +44,7 @@ export function PresetList({
     pointScale: number,
     statistics: Statistics,
   ) => {
-    if (!editingPresetId || !name.trim()) return;
+    if (!editingPresetId || !name.trim() || !guildId) return;
     try {
       await updatePreset.mutateAsync({
         guildId,
@@ -65,11 +64,13 @@ export function PresetList({
   };
 
   const handleDelete = async () => {
-    if (!deletingPresetId) return;
+    if (!deletingPresetId || !guildId) return;
     try {
       await deletePreset.mutateAsync({ guildId, presetId: deletingPresetId });
       setShowDeleteConfirm(false);
-      onPresetDeleted?.(deletingPresetId);
+      if (selectedPresetId === deletingPresetId) {
+        setSelectedPresetId(null);
+      }
       setDeletingPresetId(null);
     } catch (err) {
       console.error("Failed to delete preset:", err);
@@ -77,8 +78,45 @@ export function PresetList({
     }
   };
 
+  const handleStartAuction = async () => {
+    if (!selectedPresetId || !presetDetail) return;
+    const leaderCount =
+      presetDetail.presetMembers?.filter((pm) => pm.isLeader).length || 0;
+    if (leaderCount < 2) return;
+    try {
+      await addAuction.mutateAsync(selectedPresetId);
+    } catch (err) {
+      console.error("Failed to start auction:", err);
+    }
+  };
+
+  const leaderCount =
+    presetDetail?.presetMembers?.filter((pm) => pm.isLeader).length || 0;
+  const memberCount = presetDetail?.presetMembers?.length || 0;
+  const requiredMembers = leaderCount * 5;
+  const canStartAuction = leaderCount >= 2;
+
+  let presetValidMessage = "";
+  if (selectedPresetId && presetDetail) {
+    if (leaderCount < 2) {
+      presetValidMessage = `현재 팀장 인원(${leaderCount}명)이 최소 인원(2명)보다 적습니다.`;
+    } else if (memberCount < requiredMembers) {
+      presetValidMessage = `현재 인원(${memberCount}명)이 권장 인원(${requiredMembers}명)보다 적습니다.`;
+    }
+  }
+
   return (
     <Section variantTone="ghost" className={styles.contentSection}>
+      <Section
+        variantTone="ghost"
+        variantLayout="row"
+        variantIntent="secondary"
+      >
+        <h3>프리셋 목록</h3>
+        <PrimaryButton onClick={openCreatePreset}>추가</PrimaryButton>
+      </Section>
+      <Bar />
+
       {isLoading ? (
         <Loading />
       ) : (
@@ -88,13 +126,34 @@ export function PresetList({
               key={preset.presetId}
               preset={preset}
               isActive={selectedPresetId === preset.presetId}
-              onSelect={onSelectPreset}
+              onSelect={setSelectedPresetId}
               onEdit={handleEdit}
               onDelete={handleDeleteClick}
             />
           ))}
         </Section>
       )}
+
+      <Bar />
+      <Section variantTone="ghost" variantIntent="secondary">
+        <PrimaryButton
+          onClick={handleStartAuction}
+          disabled={
+            addAuction.isPending ||
+            !canStartAuction ||
+            !selectedPresetId ||
+            !presetDetail
+          }
+        >
+          {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
+        </PrimaryButton>
+        {presetValidMessage && <Error>{presetValidMessage}</Error>}
+        {addAuction.isError && (
+          <Error detail={addAuction.error?.message}>
+            경매를 시작하는데 실패했습니다.
+          </Error>
+        )}
+      </Section>
 
       <EditPresetModal
         isOpen={isEditing}
@@ -104,16 +163,16 @@ export function PresetList({
         }}
         onSubmit={handleUpdate}
         presetId={editingPresetId}
-        name={presets.find((p) => p.presetId === editingPresetId)?.name || ""}
+        name={presets?.find((p) => p.presetId === editingPresetId)?.name || ""}
         points={
-          presets.find((p) => p.presetId === editingPresetId)?.points || 1000
+          presets?.find((p) => p.presetId === editingPresetId)?.points || 1000
         }
-        time={presets.find((p) => p.presetId === editingPresetId)?.time || 30}
+        time={presets?.find((p) => p.presetId === editingPresetId)?.time || 30}
         pointScale={
-          presets.find((p) => p.presetId === editingPresetId)?.pointScale || 1
+          presets?.find((p) => p.presetId === editingPresetId)?.pointScale || 1
         }
         statistics={
-          presets.find((p) => p.presetId === editingPresetId)?.statistics ||
+          presets?.find((p) => p.presetId === editingPresetId)?.statistics ||
           "NONE"
         }
         isPending={updatePreset.isPending}
