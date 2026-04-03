@@ -5,14 +5,12 @@ import { setGuild as persistGuild, getGuild, clearGuild } from "@/utils/guild";
 
 interface GuildContextValue {
   guild: GuildDTO | null;
-  guildId: number | null;
   setGuild: (guild: GuildDTO) => void;
   clearGuild: () => void;
 }
 
 const GuildContext = createContext<GuildContextValue>({
   guild: null,
-  guildId: null,
   setGuild: () => {},
   clearGuild: () => {},
 });
@@ -34,7 +32,6 @@ export function GuildProvider({ children }: { children: any }) {
     <GuildContext.Provider
       value={{
         guild,
-        guildId: guild?.guildId ?? null,
         setGuild: handleSetGuild,
         clearGuild: handleClearGuild,
       }}

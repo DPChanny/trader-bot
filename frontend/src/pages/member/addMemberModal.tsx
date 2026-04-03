@@ -10,7 +10,8 @@ import { useMemberPageContext } from "./memberContext";
 const INITIAL_STATE = { alias: "", riotId: "", discordId: "" };
 
 export function AddMemberModal() {
-  const { guildId } = useGuildContext();
+  const { guild } = useGuildContext();
+  const guildId = guild?.guildId ?? null;
   const { isModalOpen, closeModal } = useMemberPageContext();
   const [alias, setAlias] = useState(INITIAL_STATE.alias);
   const [riotId, setRiotId] = useState(INITIAL_STATE.riotId);
@@ -34,9 +35,7 @@ export function AddMemberModal() {
         dto: { alias, riotId, discordId },
       });
       handleClose();
-    } catch {
-      // error displayed in modal
-    }
+    } catch {}
   };
 
   return (

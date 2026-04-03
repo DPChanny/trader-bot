@@ -7,7 +7,7 @@ import type {
 } from "@/dtos/presetDto";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
-import { getPresetEndpoint } from "@/utils/endpoint";
+import { getPresetEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
 export function usePresets(guildId: number | null) {

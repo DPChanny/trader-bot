@@ -6,7 +6,7 @@ import type {
 } from "@/dtos/memberDto";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
-import { getMemberEndpoint } from "@/utils/endpoint";
+import { getMemberEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
 export function useMembers(guildId: number | null) {

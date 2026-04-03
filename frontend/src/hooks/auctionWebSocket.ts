@@ -9,7 +9,7 @@ import type {
   WebSocketMessage,
 } from "@/dtos/auctionDto";
 import { toCamelCase } from "@/utils/dto";
-import { AUCTION_WS_ENDPOINT } from "@/utils/endpoint";
+import { AUCTION_WS_ENDPOINT } from "@/utils/env";
 
 interface AuctionWebSocketHook {
   isConnected: boolean;

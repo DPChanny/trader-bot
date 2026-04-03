@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import type { AddTierDTO, UpdateTierDTO } from "@/dtos/tierDto";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
-import { getTierEndpoint } from "@/utils/endpoint";
+import { getTierEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
 export function useAddTier() {

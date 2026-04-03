@@ -5,7 +5,7 @@ import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
 import { useAddTier } from "@/hooks/tier";
 import { useGuildContext } from "@/contexts/guildContext";
-import { usePresetPageContext } from "./presetContext";
+import { usePresetPageContext } from "../presetContext";
 
 const INITIAL_STATE = { tierName: "" };
 
@@ -15,7 +15,8 @@ interface AddTierModalProps {
 }
 
 export function AddTierModal({ isOpen, onClose }: AddTierModalProps) {
-  const { guildId } = useGuildContext();
+  const { guild } = useGuildContext();
+  const guildId = guild?.guildId ?? null;
   const { selectedPresetId: presetId } = usePresetPageContext();
   const [tierName, setTierName] = useState(INITIAL_STATE.tierName);
   const addTier = useAddTier();

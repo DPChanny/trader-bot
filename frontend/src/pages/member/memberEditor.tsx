@@ -7,6 +7,7 @@ import {
   useUpdateMember,
   useUpdateMemberProfile,
 } from "@/hooks/member";
+import { useGuildContext } from "@/contexts/guildContext";
 import { useLolStat } from "@/hooks/lolStat";
 import { useValStat } from "@/hooks/valStat";
 import {
@@ -28,11 +29,12 @@ import { Label } from "@/components/commons/label";
 
 interface MemberEditorProps {
   member: MemberDTO;
-  guildId: number;
   onClose: () => void;
 }
 
-export function MemberEditor({ member, guildId, onClose }: MemberEditorProps) {
+export function MemberEditor({ member, onClose }: MemberEditorProps) {
+  const { guild } = useGuildContext();
+  const guildId = guild?.guildId ?? null;
   const updateMember = useUpdateMember();
   const deleteMember = useDeleteMember();
   const updateProfile = useUpdateMemberProfile();
@@ -56,6 +58,7 @@ export function MemberEditor({ member, guildId, onClose }: MemberEditorProps) {
     discordId !== (member.discordId ?? "");
 
   const handleSave = async () => {
+    if (!guildId) return;
     try {
       await updateMember.mutateAsync({
         guildId,
@@ -68,6 +71,7 @@ export function MemberEditor({ member, guildId, onClose }: MemberEditorProps) {
   };
 
   const handleDeleteMember = async () => {
+    if (!guildId) return;
     try {
       await deleteMember.mutateAsync({ guildId, memberId: member.memberId });
       onClose();
@@ -78,6 +82,7 @@ export function MemberEditor({ member, guildId, onClose }: MemberEditorProps) {
   };
 
   const handleUpdateProfile = async () => {
+    if (!guildId) return;
     try {
       await updateProfile.mutateAsync({ guildId, memberId: member.memberId });
     } catch (err) {

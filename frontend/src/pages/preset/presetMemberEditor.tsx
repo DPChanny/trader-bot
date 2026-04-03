@@ -13,8 +13,10 @@ import {
 } from "@/hooks/presetMemberPosition";
 import { useLolStat } from "@/hooks/lolStat";
 import { useValStat } from "@/hooks/valStat";
-import { usePresetDetail } from "@/hooks/preset";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
+import type { TierDTO } from "@/dtos/tierDto";
+import type { PositionDTO } from "@/dtos/positionDto";
+import type { Statistics } from "@/dtos/presetDto";
 import {
   CloseButton,
   DangerButton,
@@ -31,10 +33,19 @@ import { usePresetPageContext } from "./presetContext";
 
 interface PresetMemberEditorProps {
   presetMember: PresetMemberDetailDTO;
+  tiers: TierDTO[];
+  positions: PositionDTO[];
+  statistics: Statistics;
 }
 
-export function PresetMemberEditor({ presetMember }: PresetMemberEditorProps) {
-  const { guildId } = useGuildContext();
+export function PresetMemberEditor({
+  presetMember,
+  tiers,
+  positions,
+  statistics,
+}: PresetMemberEditorProps) {
+  const { guild } = useGuildContext();
+  const guildId = guild?.guildId ?? null;
   const {
     selectedPresetId: presetId,
     setSelectedPresetMemberId,
@@ -42,10 +53,6 @@ export function PresetMemberEditor({ presetMember }: PresetMemberEditorProps) {
     removeMemberIdFromRemoving,
   } = usePresetPageContext();
 
-  const { data: presetDetail } = usePresetDetail(guildId, presetId);
-  const tiers = presetDetail?.tiers || [];
-  const positions = presetDetail?.positions || [];
-  const statistics = presetDetail?.statistics ?? "NONE";
   const updatePresetMember = useUpdatePresetMember();
   const removePresetMember = useRemovePresetMember();
   const addPresetMemberPosition = useAddPresetMemberPosition();

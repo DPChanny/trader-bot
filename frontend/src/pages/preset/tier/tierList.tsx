@@ -1,14 +1,14 @@
 import { useState } from "preact/hooks";
 import { useDeleteTier, useUpdateTier } from "@/hooks/tier";
 import { useGuildContext } from "@/contexts/guildContext";
-import { usePresetPageContext } from "./presetContext";
+import { usePresetPageContext } from "../presetContext";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
 import { AddTierModal } from "./addTierModal";
 import { ConfirmModal } from "@/components/commons/modal";
 import { TierCard } from "./tierCard";
-import styles from "@/styles/pages/preset/tierList.module.css";
+import styles from "@/styles/pages/preset/tier/tierList.module.css";
 import { Section } from "@/components/commons/section";
 
 interface TierListProps {
@@ -16,7 +16,8 @@ interface TierListProps {
 }
 
 export function TierList({ tiers }: TierListProps) {
-  const { guildId } = useGuildContext();
+  const { guild } = useGuildContext();
+  const guildId = guild?.guildId ?? null;
   const { selectedPresetId: presetId } = usePresetPageContext();
 
   const [showTierForm, setShowTierForm] = useState(false);

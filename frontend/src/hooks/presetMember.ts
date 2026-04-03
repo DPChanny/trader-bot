@@ -5,7 +5,7 @@ import type {
 } from "@/dtos/presetMemberDto";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
-import { getPresetMemberEndpoint } from "@/utils/endpoint";
+import { getPresetMemberEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
 export function useAddPresetMember() {

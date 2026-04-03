@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/preact-query";
 import type { LolStatDTO } from "@/dtos/lolStatDto";
 import { getAuthHeaders } from "@/utils/auth";
-import { LOL_STAT_API_ENDPOINT } from "@/utils/endpoint";
+import { LOL_STAT_API_ENDPOINT } from "@/utils/env";
 import { toCamelCase } from "@/utils/dto";
 import { handleHttpError } from "@/utils/hook";
 

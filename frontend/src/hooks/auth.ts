@@ -1,6 +1,6 @@
 import { useEffect } from "preact/hooks";
 import { setAuthToken, getAuthToken, isAuthenticated } from "@/utils/auth";
-import { AUTH_API_ENDPOINT } from "@/utils/endpoint";
+import { AUTH_API_ENDPOINT } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
 interface TokenResponse {

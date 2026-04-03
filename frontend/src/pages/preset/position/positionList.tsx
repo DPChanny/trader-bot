@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import { useDeletePosition, useUpdatePosition } from "@/hooks/position";
 import { useGuildContext } from "@/contexts/guildContext";
-import { usePresetPageContext } from "./presetContext";
+import { usePresetPageContext } from "../presetContext";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
@@ -10,14 +10,15 @@ import { Section } from "@/components/commons/section";
 import { AddPositionModal } from "./addPositionModal";
 import { PositionCard } from "./positionCard";
 
-import styles from "@/styles/pages/preset/positionList.module.css";
+import styles from "@/styles/pages/preset/position/positionList.module.css";
 
 interface PositionListProps {
   positions: any[];
 }
 
 export function PositionList({ positions }: PositionListProps) {
-  const { guildId } = useGuildContext();
+  const { guild } = useGuildContext();
+  const guildId = guild?.guildId ?? null;
   const { selectedPresetId: presetId } = usePresetPageContext();
 
   const [showPositionForm, setShowPositionForm] = useState(false);

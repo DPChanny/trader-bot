@@ -5,7 +5,7 @@ import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
 import { useAddPosition } from "@/hooks/position";
 import { useGuildContext } from "@/contexts/guildContext";
-import { usePresetPageContext } from "./presetContext";
+import { usePresetPageContext } from "../presetContext";
 
 const INITIAL_STATE = { positionName: "", positionIconUrl: "" };
 
@@ -15,7 +15,8 @@ interface AddPositionModalProps {
 }
 
 export function AddPositionModal({ isOpen, onClose }: AddPositionModalProps) {
-  const { guildId } = useGuildContext();
+  const { guild } = useGuildContext();
+  const guildId = guild?.guildId ?? null;
   const { selectedPresetId: presetId } = usePresetPageContext();
   const [positionName, setPositionName] = useState(INITIAL_STATE.positionName);
   const [positionIconUrl, setPositionIconUrl] = useState(

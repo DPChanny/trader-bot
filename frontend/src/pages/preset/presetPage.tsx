@@ -1,11 +1,12 @@
 import { useMemo, useEffect } from "preact/hooks";
 import { route } from "preact-router";
-import { usePresetDetail } from "@/hooks/preset";
+import { usePresetDetail, usePresets } from "@/hooks/preset";
+import { useMembers } from "@/hooks/member";
 import { useGuildContext } from "@/contexts/guildContext";
 import { PresetPageProvider, usePresetPageContext } from "./presetContext";
 import { PresetList } from "./presetList";
-import { TierList } from "./tierList";
-import { PositionList } from "./positionList";
+import { TierList } from "./tier/tierList";
+import { PositionList } from "./position/positionList";
 import { PresetMemberEditor } from "./presetMemberEditor";
 import { AddPresetModal } from "./addPresetModal";
 import { MemberCandidateGrid } from "./memberCandidateGrid";
@@ -21,7 +22,8 @@ interface PresetPageProps {
 }
 
 function PresetPageContent() {
-  const { guild, guildId } = useGuildContext();
+  const { guild } = useGuildContext();
+  const guildId = guild?.guildId ?? null;
   const {
     selectedPresetId,
     selectedPresetMemberId,
@@ -35,18 +37,34 @@ function PresetPageContent() {
     error: detailError,
   } = usePresetDetail(guildId, selectedPresetId);
 
+  const { data: presets, isLoading: presetsLoading } = usePresets(guildId);
+  const { data: members } = useMembers(guildId);
+
   useEffect(() => {
     if (!guild) {
       route("/guild", true);
     }
   }, []);
 
-  // Sync addingMemberIds / removingMemberIds when presetDetail refreshes
   const {
     addingMemberIds,
     removeMemberIdFromAdding,
     removeMemberIdFromRemoving,
   } = usePresetPageContext();
+
+  const presetMemberIds = useMemo(
+    () => new Set(presetDetail?.presetMembers.map((pm) => pm.memberId) ?? []),
+    [presetDetail],
+  );
+
+  const candidateMembers = useMemo(
+    () =>
+      members?.filter(
+        (m) =>
+          !presetMemberIds.has(m.memberId) && !addingMemberIds.has(m.memberId),
+      ) ?? [],
+    [members, presetMemberIds, addingMemberIds],
+  );
 
   useEffect(() => {
     if (!presetDetail) return;
@@ -83,7 +101,11 @@ function PresetPageContent() {
               프리셋의 상세 정보를 불러오는데 실패했습니다.
             </Error>
           )}
-          <PresetList />
+          <PresetList
+            presets={presets ?? []}
+            presetMembers={presetDetail?.presetMembers}
+            isLoading={presetsLoading}
+          />
         </Section>
 
         <Section variantIntent="primary" className={styles.presetDetailSection}>
@@ -122,7 +144,7 @@ function PresetPageContent() {
                 variantIntent="secondary"
                 className={styles.memberGridSection}
               >
-                <MemberCandidateGrid />
+                <MemberCandidateGrid members={candidateMembers} />
               </Section>
             </>
           ) : selectedPresetId && detailLoading ? (
@@ -136,6 +158,9 @@ function PresetPageContent() {
           <PresetMemberEditor
             key={selectedPresetMember.presetMemberId}
             presetMember={selectedPresetMember}
+            tiers={presetDetail.tiers || []}
+            positions={presetDetail.positions || []}
+            statistics={presetDetail.statistics ?? "NONE"}
           />
         )}
       </PageContainer>

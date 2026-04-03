@@ -46,7 +46,6 @@ interface PageWrapperProps {
 
 function handleLogout() {
   removeAuthToken();
-  // GuildProvider clears sessionStorage on mount; guild state resets on reload
   sessionStorage.removeItem("guild");
   route("/");
 }

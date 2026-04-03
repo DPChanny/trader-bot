@@ -8,14 +8,16 @@ import { Badge } from "@/components/commons/badge";
 import { Input } from "@/components/commons/input";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
-import type { TierDTO } from "@/dtos/tierDto";
-import styles from "@/styles/pages/preset/tierCard.module.css";
+import type { PositionDTO } from "@/dtos/positionDto";
+import styles from "@/styles/pages/preset/position/positionCard.module.css";
 
-interface TierCardProps {
-  tier: TierDTO;
+interface PositionCardProps {
+  position: PositionDTO;
   isEditing: boolean;
   editingName: string;
+  editingIconUrl: string;
   onEditingNameChange: (name: string) => void;
+  onEditingIconUrlChange: (iconUrl: string) => void;
   onEdit: () => void;
   onSave: () => void;
   onCancelEdit: () => void;
@@ -24,18 +26,24 @@ interface TierCardProps {
   isDeletePending: boolean;
 }
 
-export function TierCard({
-  tier,
+export function PositionCard({
+  position,
   isEditing,
   editingName,
+  editingIconUrl,
   onEditingNameChange,
+  onEditingIconUrlChange,
   onEdit,
   onSave,
   onCancelEdit,
   onDelete,
   isUpdatePending,
   isDeletePending,
-}: TierCardProps) {
+}: PositionCardProps) {
+  const hasChanges =
+    editingName !== position.name ||
+    editingIconUrl !== (position.iconUrl || "");
+
   return (
     <Card variantLayout="row" className={styles.card} variantIntent="secondary">
       {isEditing ? (
@@ -46,6 +54,11 @@ export function TierCard({
             onKeyPress={(e) => e.key === "Enter" && onSave()}
             variantSize="small"
           />
+          <Input
+            value={editingIconUrl}
+            onChange={onEditingIconUrlChange}
+            variantSize="small"
+          />
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -54,19 +67,20 @@ export function TierCard({
             <SaveButton
               variantSize="small"
               onClick={onSave}
-              disabled={
-                isUpdatePending ||
-                editingName.trim() === tier.name ||
-                !editingName.trim()
-              }
+              disabled={isUpdatePending || !hasChanges || !editingName.trim()}
             />
             <CloseButton variantSize="small" onClick={onCancelEdit} />
           </Section>
         </>
       ) : (
         <>
-          <Badge variantColor="red" variantSize="large">
-            {tier.name.charAt(0)}
+          <Badge
+            src={position.iconUrl || undefined}
+            alt={position.name}
+            variantColor="blue"
+            variantSize="large"
+          >
+            {position.name.charAt(0)}
           </Badge>
 
           <Section

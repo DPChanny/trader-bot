@@ -21,7 +21,8 @@ interface MemberPageProps {
 }
 
 function MemberPageContent() {
-  const { guildId, guild } = useGuildContext();
+  const { guild } = useGuildContext();
+  const guildId = guild?.guildId ?? null;
   const { selectedMemberId, setSelectedMemberId, openModal } =
     useMemberPageContext();
 
@@ -58,13 +59,18 @@ function MemberPageContent() {
             </Error>
           )}
           {isLoading && <Loading />}
-          {!isLoading && !error && <MemberGrid />}
+          {!isLoading && !error && (
+            <MemberGrid
+              members={members ?? []}
+              selectedMemberId={selectedMemberId}
+              onMemberClick={setSelectedMemberId}
+            />
+          )}
         </Section>
 
         {selectedMember && (
           <MemberEditor
             member={selectedMember}
-            guildId={guildId!}
             onClose={() => setSelectedMemberId(null)}
           />
         )}

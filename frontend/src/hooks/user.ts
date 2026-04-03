@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type { AddUserDTO, UpdateUserDTO, UserDTO } from "@/dtos/userDto";
 import { getAuthHeadersForMutation } from "@/utils/auth";
-import { USER_API_ENDPOINT } from "@/utils/endpoint";
+import { USER_API_ENDPOINT } from "@/utils/env";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { handleHttpError } from "@/utils/hook";
 

@@ -3,7 +3,7 @@ import { Loading } from "@/components/commons/loading";
 import { PresetCard } from "./presetCard";
 import styles from "@/styles/pages/preset/presetList.module.css";
 import { Section } from "@/components/commons/section";
-import { useDeletePreset, usePresets, useUpdatePreset } from "@/hooks/preset";
+import { useDeletePreset, useUpdatePreset } from "@/hooks/preset";
 import { useAddAuction } from "@/hooks/auction";
 import { ConfirmModal } from "@/components/commons/modal";
 import { EditPresetModal } from "./editPresetModal";
@@ -13,15 +13,24 @@ import { Error } from "@/components/commons/error";
 import { useGuildContext } from "@/contexts/guildContext";
 import { usePresetPageContext } from "./presetContext";
 import type { Statistics } from "@/dtos/presetDto";
-import { usePresetDetail } from "@/hooks/preset";
+import type { PresetDTO } from "@/dtos/presetDto";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 
-export function PresetList() {
-  const { guildId } = useGuildContext();
+interface PresetListProps {
+  presets: PresetDTO[];
+  presetMembers: PresetMemberDetailDTO[] | undefined;
+  isLoading: boolean;
+}
+
+export function PresetList({
+  presets,
+  presetMembers,
+  isLoading,
+}: PresetListProps) {
+  const { guild } = useGuildContext();
+  const guildId = guild?.guildId ?? null;
   const { selectedPresetId, setSelectedPresetId, openCreatePreset } =
     usePresetPageContext();
-
-  const { data: presets, isLoading } = usePresets(guildId);
-  const { data: presetDetail } = usePresetDetail(guildId, selectedPresetId);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingPresetId, setEditingPresetId] = useState<number | null>(null);
@@ -79,9 +88,8 @@ export function PresetList() {
   };
 
   const handleStartAuction = async () => {
-    if (!selectedPresetId || !presetDetail) return;
-    const leaderCount =
-      presetDetail.presetMembers?.filter((pm) => pm.isLeader).length || 0;
+    if (!selectedPresetId || !presetMembers) return;
+    const leaderCount = presetMembers.filter((pm) => pm.isLeader).length || 0;
     if (leaderCount < 2) return;
     try {
       await addAuction.mutateAsync(selectedPresetId);
@@ -90,14 +98,13 @@ export function PresetList() {
     }
   };
 
-  const leaderCount =
-    presetDetail?.presetMembers?.filter((pm) => pm.isLeader).length || 0;
-  const memberCount = presetDetail?.presetMembers?.length || 0;
+  const leaderCount = presetMembers?.filter((pm) => pm.isLeader).length || 0;
+  const memberCount = presetMembers?.length || 0;
   const requiredMembers = leaderCount * 5;
   const canStartAuction = leaderCount >= 2;
 
   let presetValidMessage = "";
-  if (selectedPresetId && presetDetail) {
+  if (selectedPresetId && presetMembers) {
     if (leaderCount < 2) {
       presetValidMessage = `현재 팀장 인원(${leaderCount}명)이 최소 인원(2명)보다 적습니다.`;
     } else if (memberCount < requiredMembers) {
@@ -142,7 +149,7 @@ export function PresetList() {
             addAuction.isPending ||
             !canStartAuction ||
             !selectedPresetId ||
-            !presetDetail
+            !presetMembers
           }
         >
           {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
