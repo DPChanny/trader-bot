@@ -41,7 +41,7 @@ export interface AuctionInitDTO {
   auctionQueue: number[];
   unsoldQueue: number[];
   teamId: number | null;
-  userId: number;
+  memberId: number;
   isLeader: boolean;
   connectedUsers: number[];
 }

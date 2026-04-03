@@ -3,7 +3,7 @@ import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
 
-interface AddUserModalProps {
+interface AddMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (e: Event) => void;
@@ -17,7 +17,7 @@ interface AddUserModalProps {
   error?: Error | null;
 }
 
-export function AddUserModal({
+export function AddMemberModal({
   isOpen,
   onClose,
   onSubmit,
@@ -25,7 +25,7 @@ export function AddUserModal({
   onFormChange,
   isPending,
   error,
-}: AddUserModalProps) {
+}: AddMemberModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="멤버 추가">
       <ModalForm onSubmit={onSubmit}>

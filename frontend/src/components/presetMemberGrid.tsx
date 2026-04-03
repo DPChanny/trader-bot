@@ -1,10 +1,13 @@
-import { PresetUserCard, type PresetUserCardProps } from "./presetUserCard";
+import {
+  PresetMemberCard,
+  type PresetMemberCardProps,
+} from "./presetMemberCard";
 import { Section } from "./commons/section";
 import { clsx } from "clsx";
-import styles from "@/styles/components/userGrid.module.css";
+import styles from "@/styles/components/memberGrid.module.css";
 
-interface PresetUserGridProps {
-  presetMembers: PresetUserCardProps["presetMember"][];
+interface PresetMemberGridProps {
+  presetMembers: PresetMemberCardProps["presetMember"][];
   selectedMemberId?: number | null;
   onMemberClick: (presetMemberId: number) => void;
   className?: string;
@@ -12,14 +15,14 @@ interface PresetUserGridProps {
   clientMemberId?: number;
 }
 
-export function PresetUserGrid({
+export function PresetMemberGrid({
   presetMembers,
   selectedMemberId,
   onMemberClick,
   className,
   connectedUsers,
   clientMemberId,
-}: PresetUserGridProps) {
+}: PresetMemberGridProps) {
   const leaders = presetMembers.filter((pm) => pm.isLeader);
   const nonLeaders = presetMembers.filter((pm) => !pm.isLeader);
   const sorted = [...leaders, ...nonLeaders];
@@ -36,7 +39,7 @@ export function PresetUserGrid({
           className={styles.gridItem}
           onClick={() => onMemberClick(presetMember.presetMemberId)}
         >
-          <PresetUserCard
+          <PresetMemberCard
             presetMember={presetMember}
             isActive={selectedMemberId === presetMember.presetMemberId}
             isConnected={
@@ -44,7 +47,7 @@ export function PresetUserGrid({
                 ? connectedUsers.includes(presetMember.memberId)
                 : undefined
             }
-            isClientUser={
+            isClientMember={
               clientMemberId
                 ? clientMemberId === presetMember.memberId
                 : undefined

@@ -3,7 +3,7 @@ import styles from "@/styles/components/commons/header.module.css";
 import { Button, DangerButton } from "@/components/commons/button";
 import { getGuild } from "@/utils/guild";
 
-type PageView = "home" | "guild" | "user" | "preset";
+type PageView = "home" | "guild" | "member" | "preset";
 
 interface HeaderProps {
   currentPage: PageView;
@@ -42,9 +42,9 @@ export function Header({ currentPage, showNav = true, onLogout }: HeaderProps) {
               길드
             </Button>
             <Button
-              variantIntent={currentPage === "user" ? "primary" : "secondary"}
+              variantIntent={currentPage === "member" ? "primary" : "secondary"}
               variantSize="small"
-              onClick={() => handleNavigate("/user")}
+              onClick={() => handleNavigate("/member")}
             >
               멤버 관리
             </Button>

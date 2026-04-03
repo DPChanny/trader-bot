@@ -8,11 +8,11 @@ import { getGuild } from "@/utils/guild";
 import { PresetList } from "./presetList";
 import { TierList } from "./tierList";
 import { PositionList } from "./positionList";
-import { PresetUserEditor } from "./presetUserEditor";
+import { PresetMemberEditor } from "./presetMemberEditor";
 import { AddPresetModal } from "./addPresetModal";
 import { PrimaryButton } from "@/components/commons/button";
-import { UserGrid } from "@/components/userGrid";
-import { PresetUserGrid } from "@/components/presetUserGrid";
+import { MemberGrid } from "@/components/memberGrid";
+import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import { Section } from "@/components/commons/section";
 import { PageContainer, PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
@@ -333,27 +333,25 @@ export function PresetPage({}: PresetPageProps) {
               </Section>
               <Section
                 variantIntent="secondary"
-                className={styles.userGridSection}
+                className={styles.memberGridSection}
               >
-                <PresetUserGrid
+                <PresetMemberGrid
                   presetMembers={presetDetail.presetMembers.filter(
                     (pm) => !removingMemberIds.has(pm.memberId),
                   )}
                   selectedMemberId={selectedPresetMemberId}
-                  onMemberClick={(id) =>
-                    setSelectedPresetMemberId(id as number)
-                  }
+                  onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
                 />
               </Section>
               <Section
                 variantIntent="secondary"
-                className={styles.userGridSection}
+                className={styles.memberGridSection}
               >
-                <UserGrid
+                <MemberGrid
                   members={memberGridMembers}
-                  onMemberClick={async (id) => {
+                  onMemberClick={async (id: number) => {
                     if (!selectedPresetId || !guildId) return;
-                    const memberId = id as number;
+                    const memberId = id;
                     setAddingMemberIds((prev) => new Set(prev).add(memberId));
                     try {
                       await addPresetMember.mutateAsync({
@@ -381,7 +379,7 @@ export function PresetPage({}: PresetPageProps) {
         </Section>
 
         {selectedPresetMember && presetDetail && (
-          <PresetUserEditor
+          <PresetMemberEditor
             key={selectedPresetMember.presetMemberId}
             presetMember={selectedPresetMember}
             guildId={guildId!}

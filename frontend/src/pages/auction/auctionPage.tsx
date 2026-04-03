@@ -12,8 +12,8 @@ import { PageContainer, PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
-import { PresetUserGrid } from "@/components/presetUserGrid";
-import { PresetUserCard } from "@/components/presetUserCard";
+import { PresetMemberGrid } from "@/components/presetMemberGrid";
+import { PresetMemberCard } from "@/components/presetMemberCard";
 import { Input } from "@/components/commons/input";
 import { Bar } from "@/components/commons/bar";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
@@ -40,7 +40,7 @@ export function AuctionPage({}: AuctionPageProps) {
     isLeader,
     teamId,
     connectedUsers,
-    userId,
+    memberId,
     closeReason,
   } = useAuctionWebSocket();
 
@@ -114,20 +114,20 @@ export function AuctionPage({}: AuctionPageProps) {
     );
   }
 
-  const presetUserMap = new Map<number, PresetMemberDetailDTO>(
+  const presetMemberMap = new Map<number, PresetMemberDetailDTO>(
     presetDetail?.presetMembers.map((pu) => [pu.memberId, pu]) ?? [],
   );
 
-  const auctionQueueUsers = state!.auctionQueue
-    .map((memberId) => presetUserMap.get(memberId))
-    .filter((user): user is PresetMemberDetailDTO => user !== undefined);
+  const auctionQueueMembers = state!.auctionQueue
+    .map((memberId) => presetMemberMap.get(memberId))
+    .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
-  const unsoldQueueUsers = state!.unsoldQueue
-    .map((memberId) => presetUserMap.get(memberId))
-    .filter((user): user is PresetMemberDetailDTO => user !== undefined);
+  const unsoldQueueMembers = state!.unsoldQueue
+    .map((memberId) => presetMemberMap.get(memberId))
+    .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
-  const presetUsers: PresetMemberDetailDTO[] = Array.from(
-    presetUserMap.values(),
+  const presetMembers: PresetMemberDetailDTO[] = Array.from(
+    presetMemberMap.values(),
   );
 
   const currentTeam = teamId
@@ -145,15 +145,17 @@ export function AuctionPage({}: AuctionPageProps) {
     return status;
   };
 
-  const currentUser = state.currentMemberId
-    ? presetUserMap.get(state.currentMemberId)
+  const currentMember = state.currentMemberId
+    ? presetMemberMap.get(state.currentMemberId)
     : null;
 
   const bidderTeam = state.currentBidder
     ? state.teams.find((t) => t.teamId === state.currentBidder)
     : null;
-  const leaderUserId = bidderTeam?.leaderId;
-  const bidderLeader = leaderUserId ? presetUserMap.get(leaderUserId) : null;
+  const leaderMemberId = bidderTeam?.leaderId;
+  const bidderLeader = leaderMemberId
+    ? presetMemberMap.get(leaderMemberId)
+    : null;
 
   const handlePlaceBid = () => {
     const displayAmount = parseInt(bidAmount);
@@ -172,9 +174,9 @@ export function AuctionPage({}: AuctionPageProps) {
           <Bar />
           <TeamList
             teams={state.teams}
-            presetUsers={presetUsers}
+            presetMembers={presetMembers}
             pointScale={pointScale}
-            clientUserId={userId ?? undefined}
+            clientMemberId={memberId ?? undefined}
             connectedUsers={connectedUsers}
           />
         </Section>
@@ -193,8 +195,8 @@ export function AuctionPage({}: AuctionPageProps) {
               variantIntent="secondary"
               className={styles.auctionInfoTopSection}
             >
-              {state.status !== "completed" && currentUser && (
-                <PresetUserCard presetMember={currentUser} />
+              {state.status !== "completed" && currentMember && (
+                <PresetMemberCard presetMember={currentMember} />
               )}
               {state.status !== "completed" &&
                 presetDetail?.statistics === "LOL" &&
@@ -212,7 +214,6 @@ export function AuctionPage({}: AuctionPageProps) {
                 <InfoCard
                   label="남은 시간"
                   value={state.status === "completed" ? 0 : state.timer}
-                  variant="time"
                 />
                 <InfoCard
                   label="입찰 포인트"
@@ -221,12 +222,11 @@ export function AuctionPage({}: AuctionPageProps) {
                       ? 0
                       : (state.currentBid || 0) * pointScale
                   }
-                  variant="bid"
                 />
               </Section>
               <InfoCard label="입찰 팀장" value="">
                 {state.status !== "completed" && bidderLeader && (
-                  <PresetUserCard presetMember={bidderLeader} />
+                  <PresetMemberCard presetMember={bidderLeader} />
                 )}
               </InfoCard>
             </Section>
@@ -265,10 +265,10 @@ export function AuctionPage({}: AuctionPageProps) {
             <h3>경매 순서</h3>
             <Bar />
             <Section variantTone="ghost" className={styles.queueGrid}>
-              <PresetUserGrid
-                presetMembers={auctionQueueUsers}
+              <PresetMemberGrid
+                presetMembers={auctionQueueMembers}
                 onMemberClick={() => {}}
-                clientMemberId={userId ?? undefined}
+                clientMemberId={memberId ?? undefined}
                 connectedUsers={connectedUsers}
               />
             </Section>
@@ -278,11 +278,11 @@ export function AuctionPage({}: AuctionPageProps) {
             <h3>유찰 목록</h3>
             <Bar />
             <Section variantTone="ghost" className={styles.queueGrid}>
-              <PresetUserGrid
-                presetMembers={unsoldQueueUsers}
+              <PresetMemberGrid
+                presetMembers={unsoldQueueMembers}
                 onMemberClick={() => {}}
                 connectedUsers={connectedUsers}
-                clientMemberId={userId ?? undefined}
+                clientMemberId={memberId ?? undefined}
               />
             </Section>
           </Section>

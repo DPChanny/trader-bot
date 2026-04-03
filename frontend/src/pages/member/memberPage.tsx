@@ -3,23 +3,23 @@ import { route } from "preact-router";
 import { useMembers, useAddMember } from "@/hooks/member";
 import { getGuild } from "@/utils/guild";
 import { PrimaryButton } from "@/components/commons/button";
-import { UserGrid } from "@/components/userGrid";
+import { MemberGrid } from "@/components/memberGrid";
 import { Section } from "@/components/commons/section";
 import { PageLayout, PageContainer } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
-import { UserEditor } from "./userEditor";
-import { AddUserModal } from "./addUserModal";
+import { MemberEditor } from "./memberEditor";
+import { AddMemberModal } from "./addMemberModal";
 import type { MemberDTO } from "@/dtos/memberDto";
 
-import styles from "@/styles/pages/user/userPage.module.css";
+import styles from "@/styles/pages/member/memberPage.module.css";
 import { Bar } from "@/components/commons/bar";
 
-interface UserPageProps {
+interface MemberPageProps {
   path?: string;
 }
 
-export function UserPage({}: UserPageProps) {
+export function MemberPage({}: MemberPageProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
 
@@ -44,7 +44,7 @@ export function UserPage({}: UserPageProps) {
   const selectedMember = useMemo(
     () =>
       selectedMemberId && members
-        ? members.find((m: Member) => m.memberId === selectedMemberId)
+        ? members.find((m: MemberDTO) => m.memberId === selectedMemberId)
         : null,
     [selectedMemberId, members],
   );
@@ -99,7 +99,7 @@ export function UserPage({}: UserPageProps) {
           )}
           {isLoading && <Loading />}
           {!isLoading && !error && (
-            <UserGrid
+            <MemberGrid
               members={members || []}
               selectedMemberId={selectedMemberId}
               onMemberClick={(id) => setSelectedMemberId(id as number)}
@@ -108,7 +108,7 @@ export function UserPage({}: UserPageProps) {
         </Section>
 
         {selectedMember && (
-          <UserEditor
+          <MemberEditor
             member={selectedMember}
             guildId={guildId!}
             onClose={handleCloseEditor}
@@ -116,7 +116,7 @@ export function UserPage({}: UserPageProps) {
         )}
       </PageContainer>
 
-      <AddUserModal
+      <AddMemberModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleSubmit}

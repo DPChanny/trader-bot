@@ -19,7 +19,7 @@ interface AuctionWebSocketHook {
   placeBid: (amount: number) => void;
   state: AuctionInitDTO | null;
   isLeader: boolean;
-  userId: number | null;
+  memberId: number | null;
   teamId: number | null;
   connectedUsers: number[];
   closeReason: string | null;
@@ -30,7 +30,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
   const [wasConnected, setWasConnected] = useState(false);
   const [state, setState] = useState<AuctionInitDTO | null>(null);
   const [isLeader, setIsLeader] = useState(false);
-  const [userId, setUserId] = useState<number | null>(null);
+  const [memberId, setMemberId] = useState<number | null>(null);
   const [teamId, setTeamId] = useState<number | null>(null);
   const [connectedUsers, setConnectedUsers] = useState<number[]>([]);
   const [closeReason, setCloseReason] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         const rawData = message.data;
         const data = toCamelCase<AuctionInitDTO>(rawData);
         setIsLeader(data.isLeader);
-        setUserId(data.userId);
+        setMemberId(data.memberId);
         setTeamId(data.teamId);
         setConnectedUsers(data.connectedUsers);
 
@@ -53,16 +53,18 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
       case "user_connected": {
-        const userId = message.data.user_id;
+        const connectedMemberId = message.data.user_id;
         setConnectedUsers((prev) => {
-          if (prev.includes(userId)) return prev;
-          return [...prev, userId];
+          if (prev.includes(connectedMemberId)) return prev;
+          return [...prev, connectedMemberId];
         });
         break;
       }
       case "user_disconnected": {
-        const userId = message.data.user_id;
-        setConnectedUsers((prev) => prev.filter((id) => id !== userId));
+        const connectedMemberId = message.data.user_id;
+        setConnectedUsers((prev) =>
+          prev.filter((id) => id !== connectedMemberId),
+        );
         break;
       }
 
@@ -246,7 +248,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     placeBid,
     state,
     isLeader,
-    userId,
+    memberId,
     teamId,
     closeReason,
     connectedUsers,

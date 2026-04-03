@@ -5,7 +5,7 @@ import { QueryClientProvider } from "@tanstack/preact-query";
 import { LoginPage } from "@/pages/auth/loginPage";
 import { GuildPage } from "@/pages/guild/guildPage";
 import { PresetPage } from "@/pages/preset/presetPage";
-import { UserPage } from "@/pages/user/userPage";
+import { MemberPage } from "@/pages/member/memberPage";
 import { AuctionPage } from "@/pages/auction/auctionPage";
 import { Header } from "@/components/commons/header";
 import { queryClient } from "@/utils/query";
@@ -33,7 +33,7 @@ function App() {
       <Root path="/" />
       <LoginPage path="/auth/login" />
       <GuildPageWrapper path="/guild" />
-      <UserPageWrapper path="/user" />
+      <MemberPageWrapper path="/member" />
       <PresetPageWrapper path="/preset" />
       <AuctionPage path="/auction" />
     </Router>
@@ -60,12 +60,12 @@ function GuildPageWrapper({}: PageWrapperProps) {
   );
 }
 
-function UserPageWrapper({}: PageWrapperProps) {
+function MemberPageWrapper({}: PageWrapperProps) {
   useAutoRefreshToken();
   return (
     <div className="app-container">
-      <Header currentPage="user" onLogout={handleLogout} />
-      <UserPage />
+      <Header currentPage="member" onLogout={handleLogout} />
+      <MemberPage />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import { PresetUserCard } from "@/components/presetUserCard";
+import { PresetMemberCard } from "@/components/presetMemberCard";
 import { LolStat } from "@/components/lolStat";
 import { ValStat } from "@/components/valStat";
 import { Toggle } from "@/components/commons/toggle";
@@ -27,9 +27,9 @@ import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
 import { Loading } from "@/components/commons/loading";
-import styles from "@/styles/components/userEditor.module.css";
+import styles from "@/styles/components/memberEditor.module.css";
 
-interface PresetUserEditorProps {
+interface PresetMemberEditorProps {
   presetMember: PresetMemberDetailDTO;
   guildId: number;
   presetId: number;
@@ -41,7 +41,7 @@ interface PresetUserEditorProps {
   onRemoveError?: (memberId: number) => void;
 }
 
-export function PresetUserEditor({
+export function PresetMemberEditor({
   presetMember,
   guildId,
   presetId,
@@ -51,7 +51,7 @@ export function PresetUserEditor({
   onClose,
   onRemoveStart,
   onRemoveError,
-}: PresetUserEditorProps) {
+}: PresetMemberEditorProps) {
   const updatePresetMember = useUpdatePresetMember();
   const removePresetMember = useRemovePresetMember();
   const addPresetMemberPosition = useAddPresetMemberPosition();
@@ -249,7 +249,7 @@ export function PresetUserEditor({
       >
         <Section variantTone="ghost">
           <Section variantTone="ghost" className={styles.cardSection}>
-            <PresetUserCard presetMember={previewPresetMember} />
+            <PresetMemberCard presetMember={previewPresetMember} />
           </Section>
 
           <Label>팀장</Label>

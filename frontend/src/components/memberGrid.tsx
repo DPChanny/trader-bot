@@ -1,22 +1,22 @@
-import { UserCard } from "./userCard";
+import { MemberCard } from "./memberCard";
 import { Section } from "./commons/section";
 import { clsx } from "clsx";
-import styles from "@/styles/components/userGrid.module.css";
+import styles from "@/styles/components/memberGrid.module.css";
 import type { MemberDTO } from "@/dtos/memberDto";
 
-interface UserGridProps {
+interface MemberGridProps {
   members: MemberDTO[];
   selectedMemberId?: number | null;
   onMemberClick: (memberId: number) => void;
   className?: string;
 }
 
-export function UserGrid({
+export function MemberGrid({
   members,
   selectedMemberId,
   onMemberClick,
   className,
-}: UserGridProps) {
+}: MemberGridProps) {
   return (
     <Section
       variantTone="ghost"
@@ -29,7 +29,7 @@ export function UserGrid({
           className={styles.gridItem}
           onClick={() => onMemberClick(member.memberId)}
         >
-          <UserCard
+          <MemberCard
             member={member}
             isActive={selectedMemberId === member.memberId}
           />

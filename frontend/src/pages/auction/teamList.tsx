@@ -6,18 +6,18 @@ import styles from "@/styles/pages/auction/teamList.module.css";
 
 interface TeamListProps {
   teams: Team[];
-  presetUsers: PresetMemberDetailDTO[];
+  presetMembers: PresetMemberDetailDTO[];
   pointScale: number;
   connectedUsers?: number[];
-  clientUserId?: number;
+  clientMemberId?: number;
 }
 
 export function TeamList({
   teams,
-  presetUsers,
+  presetMembers,
   pointScale,
   connectedUsers,
-  clientUserId,
+  clientMemberId,
 }: TeamListProps) {
   return (
     <Section
@@ -26,8 +26,8 @@ export function TeamList({
       variantLayout="column"
     >
       {teams.map((team) => {
-        const members = presetUsers.filter((pu) =>
-          team.memberIdList.includes(pu.userId),
+        const members = presetMembers.filter((pm) =>
+          team.memberIdList.includes(pm.memberId),
         );
 
         return (
@@ -37,7 +37,7 @@ export function TeamList({
             members={members}
             pointScale={pointScale}
             connectedUsers={connectedUsers}
-            clientUserId={clientUserId}
+            clientMemberId={clientMemberId}
           />
         );
       })}

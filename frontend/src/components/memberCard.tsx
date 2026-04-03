@@ -1,19 +1,19 @@
-import styles from "@/styles/components/userCard.module.css";
+import styles from "@/styles/components/memberCard.module.css";
 import { Card } from "./commons/card";
 import { Section } from "./commons/section";
 import type { MemberDTO } from "@/dtos/memberDto";
 
-export interface UserCardProps {
+export interface MemberCardProps {
   member: MemberDTO;
   isActive?: boolean;
 }
 
-export function UserCard({ member, isActive }: UserCardProps) {
+export function MemberCard({ member, isActive }: MemberCardProps) {
   return (
     <Card
       variantColor="gray"
       variantActive={isActive}
-      className={styles.userCard}
+      className={styles.memberCard}
     >
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>

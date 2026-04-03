@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import { UserCard } from "@/components/userCard";
+import { MemberCard } from "@/components/memberCard";
 import { LolStat } from "@/components/lolStat";
 import { ValStat } from "@/components/valStat";
 import {
@@ -23,16 +23,16 @@ import { ConfirmModal } from "@/components/commons/modal";
 import { Loading } from "@/components/commons/loading";
 import type { MemberDTO } from "@/dtos/memberDto";
 
-import styles from "@/styles/components/userEditor.module.css";
+import styles from "@/styles/components/memberEditor.module.css";
 import { Label } from "@/components/commons/label";
 
-interface UserEditorProps {
+interface MemberEditorProps {
   member: MemberDTO;
   guildId: number;
   onClose: () => void;
 }
 
-export function UserEditor({ member, guildId, onClose }: UserEditorProps) {
+export function MemberEditor({ member, guildId, onClose }: MemberEditorProps) {
   const updateMember = useUpdateMember();
   const deleteMember = useDeleteMember();
   const updateProfile = useUpdateMemberProfile();
@@ -138,7 +138,7 @@ export function UserEditor({ member, guildId, onClose }: UserEditorProps) {
       >
         <Section variantTone="ghost">
           <Section variantTone="ghost" className={styles.cardSection}>
-            <UserCard
+            <MemberCard
               member={{
                 memberId: member.memberId,
                 guildId: member.guildId,

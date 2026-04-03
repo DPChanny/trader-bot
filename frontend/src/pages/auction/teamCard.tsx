@@ -1,4 +1,4 @@
-import { PresetUserGrid } from "@/components/presetUserGrid";
+import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 import type { Team } from "@/dtos/auctionDto";
 import { Card } from "@/components/commons/card";
@@ -11,7 +11,7 @@ interface TeamCardProps {
   members: PresetMemberDetailDTO[];
   pointScale: number;
   connectedUsers?: number[];
-  clientUserId?: number;
+  clientMemberId?: number;
 }
 
 export function TeamCard({
@@ -19,11 +19,11 @@ export function TeamCard({
   members,
   pointScale,
   connectedUsers,
-  clientUserId,
+  clientMemberId,
 }: TeamCardProps) {
   const leader = members.find((member) => member.isLeader);
   const teamName = leader
-    ? `${leader.user.alias ?? "이름 없음"} 팀`
+    ? `${leader.member?.alias ?? "이름 없음"} 팀`
     : `Team ${team.teamId}`;
   const isFull = members.length === 5;
   const variantColor = isFull ? "green" : "blue";
@@ -35,12 +35,12 @@ export function TeamCard({
         <span className={styles.points}>{team.points * pointScale} 포인트</span>
       </Section>
       <Bar variantColor={variantColor} />
-      <PresetUserGrid
+      <PresetMemberGrid
         className={styles.membersGrid}
-        presetUsers={members}
-        onUserClick={() => {}}
+        presetMembers={members}
+        onMemberClick={() => {}}
         connectedUsers={connectedUsers}
-        clientUserId={clientUserId}
+        clientMemberId={clientMemberId}
       />
     </Card>
   );
