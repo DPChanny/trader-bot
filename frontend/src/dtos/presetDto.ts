@@ -24,3 +24,19 @@ export interface PresetDetailDTO extends PresetDTO {
   tiers: TierDTO[];
   positions: PositionDTO[];
 }
+
+export interface AddPresetDTO {
+  name: string;
+  points: number;
+  time: number;
+  pointScale?: number;
+  statistics?: Statistics;
+}
+
+export interface UpdatePresetDTO {
+  name?: string;
+  points?: number;
+  time?: number;
+  pointScale?: number;
+  statistics?: Statistics;
+}

@@ -8,8 +8,8 @@ import type {
   MemberSoldMessageData,
   WebSocketMessage,
 } from "@/dtos";
-import { AUCTION_WS_ENDPOINT } from "@/env";
 import { toCamelCase } from "@/utils/dto";
+import { AUCTION_WS_ENDPOINT } from "@/utils/endpoint";
 
 interface AuctionWebSocketHook {
   isConnected: boolean;

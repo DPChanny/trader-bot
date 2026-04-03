@@ -41,7 +41,7 @@ export function TierList({
       await addTier.mutateAsync({
         guildId,
         presetId,
-        data: { name: newTierName.trim() },
+        dto: { name: newTierName.trim() },
       });
       onNewTierNameChange("");
       onShowTierFormChange(false);
@@ -57,7 +57,7 @@ export function TierList({
         guildId,
         presetId,
         tierId,
-        data: { name: editingTierName.trim() },
+        dto: { name: editingTierName.trim() },
       });
       setEditingTierId(null);
       setEditingTierName("");

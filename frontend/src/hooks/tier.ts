@@ -1,20 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { GUILD_API_ENDPOINT } from "@/env";
+import type { AddTierDTO, UpdateTierDTO } from "@/dtos";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
+import { getTierEndpoint } from "@/utils/endpoint";
 import { handleHttpError } from "@/utils/hook";
-
-interface AddTierData {
-  name: string;
-}
-
-interface UpdateTierData {
-  name: string;
-}
-
-function tierEndpoint(guildId: number, presetId: number) {
-  return `${GUILD_API_ENDPOINT}/${guildId}/preset/${presetId}/tier`;
-}
 
 export function useAddTier() {
   const queryClient = useQueryClient();
@@ -23,16 +12,16 @@ export function useAddTier() {
     mutationFn: async ({
       guildId,
       presetId,
-      data,
+      dto,
     }: {
       guildId: number;
       presetId: number;
-      data: AddTierData;
+      dto: AddTierDTO;
     }) => {
-      const response = await fetch(tierEndpoint(guildId, presetId), {
+      const response = await fetch(getTierEndpoint(guildId, presetId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
-        body: JSON.stringify(toSnakeCase(data)),
+        body: JSON.stringify(toSnakeCase(dto)),
       });
       if (!response.ok) await handleHttpError(response);
       return response.json();
@@ -53,19 +42,19 @@ export function useUpdateTier() {
       guildId,
       presetId,
       tierId,
-      data,
+      dto,
     }: {
       guildId: number;
       presetId: number;
       tierId: number;
-      data: UpdateTierData;
+      dto: UpdateTierDTO;
     }) => {
       const response = await fetch(
-        `${tierEndpoint(guildId, presetId)}/${tierId}`,
+        `${getTierEndpoint(guildId, presetId)}/${tierId}`,
         {
           method: "PATCH",
           headers: getAuthHeadersForMutation(),
-          body: JSON.stringify(toSnakeCase(data)),
+          body: JSON.stringify(toSnakeCase(dto)),
         },
       );
       if (!response.ok) await handleHttpError(response);
@@ -93,7 +82,7 @@ export function useDeleteTier() {
       tierId: number;
     }) => {
       const response = await fetch(
-        `${tierEndpoint(guildId, presetId)}/${tierId}`,
+        `${getTierEndpoint(guildId, presetId)}/${tierId}`,
         {
           method: "DELETE",
           headers: getAuthHeadersForMutation(),

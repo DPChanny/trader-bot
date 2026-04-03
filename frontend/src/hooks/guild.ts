@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/preact-query";
 import type { GuildDTO } from "@/dtos";
-import { GUILD_API_ENDPOINT } from "@/env";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
+import { GUILD_API_ENDPOINT } from "@/utils/endpoint";
 import { toCamelCase } from "@/utils/dto";
 import { handleHttpError } from "@/utils/hook";
 

@@ -1,23 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { GUILD_API_ENDPOINT } from "@/env";
+import type { AddPresetMemberDTO, UpdatePresetMemberDTO } from "@/dtos";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
+import { getPresetMemberEndpoint } from "@/utils/endpoint";
 import { handleHttpError } from "@/utils/hook";
-
-interface AddPresetMemberData {
-  memberId: number;
-  tierId?: number | null;
-  isLeader?: boolean;
-}
-
-interface UpdatePresetMemberData {
-  tierId?: number | null;
-  isLeader?: boolean;
-}
-
-function presetMemberEndpoint(guildId: number, presetId: number) {
-  return `${GUILD_API_ENDPOINT}/${guildId}/preset/${presetId}/member`;
-}
 
 export function useAddPresetMember() {
   const queryClient = useQueryClient();
@@ -26,16 +12,16 @@ export function useAddPresetMember() {
     mutationFn: async ({
       guildId,
       presetId,
-      data,
+      dto,
     }: {
       guildId: number;
       presetId: number;
-      data: AddPresetMemberData;
+      dto: AddPresetMemberDTO;
     }) => {
-      const response = await fetch(presetMemberEndpoint(guildId, presetId), {
+      const response = await fetch(getPresetMemberEndpoint(guildId, presetId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
-        body: JSON.stringify(toSnakeCase(data)),
+        body: JSON.stringify(toSnakeCase(dto)),
       });
       if (!response.ok) await handleHttpError(response);
       return response.json();
@@ -56,19 +42,19 @@ export function useUpdatePresetMember() {
       guildId,
       presetId,
       presetMemberId,
-      data,
+      dto,
     }: {
       guildId: number;
       presetId: number;
       presetMemberId: number;
-      data: UpdatePresetMemberData;
+      dto: UpdatePresetMemberDTO;
     }) => {
       const response = await fetch(
-        `${presetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
+        `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
         {
           method: "PATCH",
           headers: getAuthHeadersForMutation(),
-          body: JSON.stringify(toSnakeCase(data)),
+          body: JSON.stringify(toSnakeCase(dto)),
         },
       );
       if (!response.ok) await handleHttpError(response);
@@ -96,7 +82,7 @@ export function useRemovePresetMember() {
       presetMemberId: number;
     }) => {
       const response = await fetch(
-        `${presetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
+        `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
         {
           method: "DELETE",
           headers: getAuthHeadersForMutation(),

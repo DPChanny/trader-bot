@@ -12,16 +12,32 @@ export type {
 } from "./auctionDto";
 
 export type { GuildDTO } from "./guildDto";
-export type { UserDTO } from "./userDto";
-export type { MemberDTO } from "./memberDto";
-export type { Statistics, PresetDTO, PresetDetailDTO } from "./presetDto";
+export type { UserDTO, AddUserDTO, UpdateUserDTO } from "./userDto";
+export type { MemberDTO, AddMemberDTO, UpdateMemberDTO } from "./memberDto";
+export type {
+  Statistics,
+  PresetDTO,
+  PresetDetailDTO,
+  AddPresetDTO,
+  UpdatePresetDTO,
+} from "./presetDto";
 export { StatisticsDisplay } from "./presetDto";
-export type { TierDTO } from "./tierDto";
-export type { PositionDTO } from "./positionDto";
-export type { PresetMemberDTO, PresetMemberDetailDTO } from "./presetMemberDto";
+export type { TierDTO, AddTierDTO, UpdateTierDTO } from "./tierDto";
+export type {
+  PositionDTO,
+  AddPositionDTO,
+  UpdatePositionDTO,
+} from "./positionDto";
+export type {
+  PresetMemberDTO,
+  PresetMemberDetailDTO,
+  AddPresetMemberDTO,
+  UpdatePresetMemberDTO,
+} from "./presetMemberDto";
 export type {
   PresetMemberPositionDTO,
   PresetMemberPositionDetailDTO,
+  AddPresetMemberPositionDTO,
 } from "./presetMemberPositionDto";
 export type { ChampionDTO, LolStatDTO } from "./lolStatDto";
 export type { AgentDTO, ValStatDTO } from "./valStatDto";

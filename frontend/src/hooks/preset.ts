@@ -1,35 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
-import type { PresetDTO, PresetDetailDTO } from "@/dtos";
-import { GUILD_API_ENDPOINT } from "@/env";
+import type {
+  AddPresetDTO,
+  PresetDTO,
+  PresetDetailDTO,
+  UpdatePresetDTO,
+} from "@/dtos";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
+import { getPresetEndpoint } from "@/utils/endpoint";
 import { handleHttpError } from "@/utils/hook";
-
-interface AddPresetData {
-  name: string;
-  points: number;
-  time: number;
-  pointScale?: number;
-  statistics?: string;
-}
-
-interface UpdatePresetData {
-  name?: string;
-  points?: number;
-  time?: number;
-  pointScale?: number;
-  statistics?: string;
-}
-
-function presetEndpoint(guildId: number) {
-  return `${GUILD_API_ENDPOINT}/${guildId}/preset`;
-}
 
 export function usePresets(guildId: number | null) {
   return useQuery({
     queryKey: ["presets", guildId],
     queryFn: async (): Promise<PresetDTO[]> => {
-      const response = await fetch(presetEndpoint(guildId!), {
+      const response = await fetch(getPresetEndpoint(guildId!), {
         headers: getAuthHeaders(),
       });
       if (!response.ok) await handleHttpError(response);
@@ -48,9 +33,12 @@ export function usePresetDetail(
     queryKey: ["preset", guildId, presetId],
     queryFn: async (): Promise<PresetDetailDTO | null> => {
       if (!guildId || !presetId) return null;
-      const response = await fetch(`${presetEndpoint(guildId)}/${presetId}`, {
-        headers: getAuthHeaders(),
-      });
+      const response = await fetch(
+        `${getPresetEndpoint(guildId)}/${presetId}`,
+        {
+          headers: getAuthHeaders(),
+        },
+      );
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<PresetDetailDTO>(json);
@@ -65,15 +53,15 @@ export function useAddPreset() {
   return useMutation({
     mutationFn: async ({
       guildId,
-      data,
+      dto,
     }: {
       guildId: number;
-      data: AddPresetData;
+      dto: AddPresetDTO;
     }): Promise<PresetDTO> => {
-      const response = await fetch(presetEndpoint(guildId), {
+      const response = await fetch(getPresetEndpoint(guildId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
-        body: JSON.stringify(toSnakeCase(data)),
+        body: JSON.stringify(toSnakeCase(dto)),
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
@@ -94,17 +82,20 @@ export function useUpdatePreset() {
     mutationFn: async ({
       guildId,
       presetId,
-      data,
+      dto,
     }: {
       guildId: number;
       presetId: number;
-      data: UpdatePresetData;
+      dto: UpdatePresetDTO;
     }): Promise<PresetDTO> => {
-      const response = await fetch(`${presetEndpoint(guildId)}/${presetId}`, {
-        method: "PATCH",
-        headers: getAuthHeadersForMutation(),
-        body: JSON.stringify(toSnakeCase(data)),
-      });
+      const response = await fetch(
+        `${getPresetEndpoint(guildId)}/${presetId}`,
+        {
+          method: "PATCH",
+          headers: getAuthHeadersForMutation(),
+          body: JSON.stringify(toSnakeCase(dto)),
+        },
+      );
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<PresetDTO>(json);
@@ -131,10 +122,13 @@ export function useDeletePreset() {
       guildId: number;
       presetId: number;
     }): Promise<void> => {
-      const response = await fetch(`${presetEndpoint(guildId)}/${presetId}`, {
-        method: "DELETE",
-        headers: getAuthHeadersForMutation(),
-      });
+      const response = await fetch(
+        `${getPresetEndpoint(guildId)}/${presetId}`,
+        {
+          method: "DELETE",
+          headers: getAuthHeadersForMutation(),
+        },
+      );
       if (!response.ok) await handleHttpError(response);
     },
     onSuccess: (_, variables) => {

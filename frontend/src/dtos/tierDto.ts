@@ -3,3 +3,11 @@ export interface TierDTO {
   presetId: number;
   name: string;
 }
+
+export interface AddTierDTO {
+  name: string;
+}
+
+export interface UpdateTierDTO {
+  name: string;
+}

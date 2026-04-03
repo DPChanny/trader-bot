@@ -4,3 +4,13 @@ export interface PositionDTO {
   name: string;
   iconUrl?: string | null;
 }
+
+export interface AddPositionDTO {
+  name: string;
+  iconUrl?: string;
+}
+
+export interface UpdatePositionDTO {
+  name?: string;
+  iconUrl?: string | null;
+}

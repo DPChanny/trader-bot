@@ -126,7 +126,7 @@ export function PresetPage({}: PresetPageProps) {
     try {
       await addPreset.mutateAsync({
         guildId: guildId!,
-        data: {
+        dto: {
           name: newPresetName.trim(),
           points: actualPoints,
           time,
@@ -359,7 +359,7 @@ export function PresetPage({}: PresetPageProps) {
                       await addPresetMember.mutateAsync({
                         guildId,
                         presetId: selectedPresetId,
-                        data: { memberId },
+                        dto: { memberId },
                       });
                     } catch (err) {
                       console.error("Failed to add member:", err);

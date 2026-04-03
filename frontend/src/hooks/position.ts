@@ -1,22 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { GUILD_API_ENDPOINT } from "@/env";
+import type { AddPositionDTO, UpdatePositionDTO } from "@/dtos";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
+import { getPositionEndpoint } from "@/utils/endpoint";
 import { handleHttpError } from "@/utils/hook";
-
-interface AddPositionData {
-  name: string;
-  iconUrl?: string;
-}
-
-interface UpdatePositionData {
-  name?: string;
-  iconUrl?: string | null;
-}
-
-function positionEndpoint(guildId: number, presetId: number) {
-  return `${GUILD_API_ENDPOINT}/${guildId}/preset/${presetId}/position`;
-}
 
 export function useAddPosition() {
   const queryClient = useQueryClient();
@@ -25,16 +12,16 @@ export function useAddPosition() {
     mutationFn: async ({
       guildId,
       presetId,
-      data,
+      dto,
     }: {
       guildId: number;
       presetId: number;
-      data: AddPositionData;
+      dto: AddPositionDTO;
     }) => {
-      const response = await fetch(positionEndpoint(guildId, presetId), {
+      const response = await fetch(getPositionEndpoint(guildId, presetId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
-        body: JSON.stringify(toSnakeCase(data)),
+        body: JSON.stringify(toSnakeCase(dto)),
       });
       if (!response.ok) await handleHttpError(response);
       return response.json();
@@ -55,19 +42,19 @@ export function useUpdatePosition() {
       guildId,
       presetId,
       positionId,
-      data,
+      dto,
     }: {
       guildId: number;
       presetId: number;
       positionId: number;
-      data: UpdatePositionData;
+      dto: UpdatePositionDTO;
     }) => {
       const response = await fetch(
-        `${positionEndpoint(guildId, presetId)}/${positionId}`,
+        `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
         {
           method: "PATCH",
           headers: getAuthHeadersForMutation(),
-          body: JSON.stringify(toSnakeCase(data)),
+          body: JSON.stringify(toSnakeCase(dto)),
         },
       );
       if (!response.ok) await handleHttpError(response);
@@ -95,7 +82,7 @@ export function useDeletePosition() {
       positionId: number;
     }) => {
       const response = await fetch(
-        `${positionEndpoint(guildId, presetId)}/${positionId}`,
+        `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
         {
           method: "DELETE",
           headers: getAuthHeadersForMutation(),

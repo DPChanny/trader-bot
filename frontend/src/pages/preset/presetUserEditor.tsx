@@ -101,7 +101,7 @@ export function PresetUserEditor({
           guildId,
           presetId,
           presetMemberId: presetMember.presetMemberId,
-          data: { tierId, isLeader },
+          dto: { tierId, isLeader },
         });
       }
 
@@ -131,7 +131,7 @@ export function PresetUserEditor({
           guildId,
           presetId,
           presetMemberId: presetMember.presetMemberId,
-          positionId,
+          dto: { positionId },
         });
       }
     } catch (err) {

@@ -53,7 +53,7 @@ export function PositionList({
       await addPosition.mutateAsync({
         guildId,
         presetId: presetId,
-        data: {
+        dto: {
           name: newPositionName.trim(),
           iconUrl: newPositionIconUrl.trim() || undefined,
         },
@@ -73,7 +73,7 @@ export function PositionList({
         guildId,
         presetId,
         positionId,
-        data: {
+        dto: {
           name: editingName.trim(),
           iconUrl: editingIconUrl.trim() === "" ? null : editingIconUrl.trim(),
         },

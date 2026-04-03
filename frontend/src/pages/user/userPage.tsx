@@ -67,7 +67,7 @@ export function UserPage({}: UserPageProps) {
     e.preventDefault();
     if (!guildId) return;
     try {
-      await addMember.mutateAsync({ guildId, data: formData });
+      await addMember.mutateAsync({ guildId, dto: formData });
       handleCloseModal();
     } catch (err) {
       console.error(err);

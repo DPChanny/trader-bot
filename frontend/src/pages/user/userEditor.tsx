@@ -60,7 +60,7 @@ export function UserEditor({ member, guildId, onClose }: UserEditorProps) {
       await updateMember.mutateAsync({
         guildId,
         memberId: member.memberId,
-        data: { alias, riotId, discordId },
+        dto: { alias, riotId, discordId },
       });
     } catch (err) {
       console.error("Failed to update member:", err);

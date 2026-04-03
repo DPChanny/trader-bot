@@ -15,3 +15,14 @@ export interface PresetMemberDetailDTO extends PresetMemberDTO {
   tier: TierDTO | null;
   presetMemberPositions: PresetMemberPositionDetailDTO[];
 }
+
+export interface AddPresetMemberDTO {
+  memberId: number;
+  tierId?: number | null;
+  isLeader?: boolean;
+}
+
+export interface UpdatePresetMemberDTO {
+  tierId?: number | null;
+  isLeader?: boolean;
+}

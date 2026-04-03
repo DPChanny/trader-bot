@@ -50,7 +50,7 @@ export function PresetList({
       await updatePreset.mutateAsync({
         guildId,
         presetId: editingPresetId,
-        data: { name: name.trim(), points, time, pointScale, statistics },
+        dto: { name: name.trim(), points, time, pointScale, statistics },
       });
       setIsEditing(false);
       setEditingPresetId(null);

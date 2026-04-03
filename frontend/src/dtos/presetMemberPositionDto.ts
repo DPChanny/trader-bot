@@ -9,3 +9,7 @@ export interface PresetMemberPositionDTO {
 export interface PresetMemberPositionDetailDTO extends PresetMemberPositionDTO {
   position: PositionDTO;
 }
+
+export interface AddPresetMemberPositionDTO {
+  positionId: number;
+}

@@ -1,16 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { GUILD_API_ENDPOINT } from "@/env";
+import type { AddPresetMemberPositionDTO } from "@/dtos";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toSnakeCase } from "@/utils/dto";
+import { getPresetMemberPositionEndpoint } from "@/utils/endpoint";
 import { handleHttpError } from "@/utils/hook";
-
-function presetMemberPositionEndpoint(
-  guildId: number,
-  presetId: number,
-  presetMemberId: number,
-) {
-  return `${GUILD_API_ENDPOINT}/${guildId}/preset/${presetId}/member/${presetMemberId}/position`;
-}
 
 export function useAddPresetMemberPosition() {
   const queryClient = useQueryClient();
@@ -20,19 +13,19 @@ export function useAddPresetMemberPosition() {
       guildId,
       presetId,
       presetMemberId,
-      positionId,
+      dto,
     }: {
       guildId: number;
       presetId: number;
       presetMemberId: number;
-      positionId: number;
+      dto: AddPresetMemberPositionDTO;
     }) => {
       const response = await fetch(
-        presetMemberPositionEndpoint(guildId, presetId, presetMemberId),
+        getPresetMemberPositionEndpoint(guildId, presetId, presetMemberId),
         {
           method: "POST",
           headers: getAuthHeadersForMutation(),
-          body: JSON.stringify(toSnakeCase({ positionId })),
+          body: JSON.stringify(toSnakeCase(dto)),
         },
       );
       if (!response.ok) await handleHttpError(response);
@@ -62,7 +55,7 @@ export function useDeletePresetMemberPosition() {
       presetMemberPositionId: number;
     }) => {
       const response = await fetch(
-        `${presetMemberPositionEndpoint(guildId, presetId, presetMemberId)}/${presetMemberPositionId}`,
+        `${getPresetMemberPositionEndpoint(guildId, presetId, presetMemberId)}/${presetMemberPositionId}`,
         {
           method: "DELETE",
           headers: getAuthHeadersForMutation(),

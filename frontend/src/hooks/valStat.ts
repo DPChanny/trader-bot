@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/preact-query";
 import type { ValStatDTO } from "@/dtos";
-import { VAL_STAT_API_ENDPOINT } from "@/env";
 import { getAuthHeaders } from "@/utils/auth";
+import { VAL_STAT_API_ENDPOINT } from "@/utils/endpoint";
 import { toCamelCase } from "@/utils/dto";
 import { handleHttpError } from "@/utils/hook";
 

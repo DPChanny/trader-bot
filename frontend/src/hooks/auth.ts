@@ -1,6 +1,6 @@
 import { useEffect } from "preact/hooks";
-import { AUTH_API_ENDPOINT } from "@/env";
 import { setAuthToken, getAuthToken, isAuthenticated } from "@/utils/auth";
+import { AUTH_API_ENDPOINT } from "@/utils/endpoint";
 import { handleHttpError } from "@/utils/hook";
 
 interface TokenResponse {
@@ -47,7 +47,7 @@ export function useAutoRefreshToken() {
     }
 
     tryRefresh();
-    const interval = setInterval(tryRefresh, 60 * 1000); // check every minute
+    const interval = setInterval(tryRefresh, 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 }

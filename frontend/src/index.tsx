@@ -8,7 +8,7 @@ import { PresetPage } from "@/pages/preset/presetPage";
 import { UserPage } from "@/pages/user/userPage";
 import { AuctionPage } from "@/pages/auction/auctionPage";
 import { Header } from "@/components/header";
-import { queryClient } from "@/utils/queryClient";
+import { queryClient } from "@/utils/query";
 import { removeAuthToken, isAuthenticated, setAuthToken } from "@/utils/auth";
 import { clearGuild } from "@/utils/guild";
 import { useAutoRefreshToken } from "@/hooks/auth";
