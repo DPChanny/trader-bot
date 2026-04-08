@@ -17,6 +17,7 @@ import { PresetMemberCard } from "@/components/presetMemberCard";
 import { Input } from "@/components/commons/input";
 import { Bar } from "@/components/commons/bar";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
+import { Statistics } from "@/dtos/presetDto";
 
 import styles from "@/styles/pages/auction/auctionPage.module.css";
 
@@ -51,17 +52,20 @@ export function AuctionPage({}: AuctionPageProps) {
   } = usePresetDetail(null, state?.presetId || null);
 
   const currentMemberId = state?.currentMemberId || null;
-  const hasStatistics =
-    presetDetail?.statistics && presetDetail.statistics !== "NONE";
+  const hasStatistics = !!presetDetail?.statistics;
 
   const { data: lolStat } = useLolStat(
-    hasStatistics && presetDetail?.statistics === "LOL" && currentMemberId
+    hasStatistics &&
+      presetDetail?.statistics === Statistics.LOL &&
+      currentMemberId
       ? currentMemberId
       : null,
   );
 
   const { data: valStat } = useValStat(
-    hasStatistics && presetDetail?.statistics === "VAL" && currentMemberId
+    hasStatistics &&
+      presetDetail?.statistics === Statistics.VAL &&
+      currentMemberId
       ? currentMemberId
       : null,
   );
@@ -199,10 +203,10 @@ export function AuctionPage({}: AuctionPageProps) {
                 <PresetMemberCard presetMember={currentMember} />
               )}
               {state.status !== "completed" &&
-                presetDetail?.statistics === "LOL" &&
+                presetDetail?.statistics === Statistics.LOL &&
                 lolStat && <LolStat lolStatDTO={lolStat} />}
               {state.status !== "completed" &&
-                presetDetail?.statistics === "VAL" &&
+                presetDetail?.statistics === Statistics.VAL &&
                 valStat && <ValStat valStatDTO={valStat} />}
             </Section>
 

@@ -14,14 +14,14 @@ import { Section } from "@/components/commons/section";
 import { useAddPreset } from "@/hooks/preset";
 import { useGuildContext } from "@/contexts/guildContext";
 import { usePresetPageContext } from "./presetContext";
-import type { Statistics } from "@/dtos/presetDto";
+import { Statistics } from "@/dtos/presetDto";
 
 const INITIAL_STATE = {
   presetName: "",
   inputPoints: 1000,
   pointScale: 1,
   time: 30,
-  statistics: "NONE" as Statistics,
+  statistics: Statistics.NONE as Statistics,
 };
 
 export function AddPresetModal() {
@@ -114,22 +114,22 @@ export function AddPresetModal() {
           <Section variantLayout="row" variantIntent="tertiary">
             <Toggle
               type="button"
-              isActive={statistics === "NONE"}
-              onClick={() => setStatistics("NONE")}
+              isActive={statistics === Statistics.NONE}
+              onClick={() => setStatistics(Statistics.NONE)}
             >
               없음
             </Toggle>
             <Toggle
               type="button"
-              isActive={statistics === "LOL"}
-              onClick={() => setStatistics("LOL")}
+              isActive={statistics === Statistics.LOL}
+              onClick={() => setStatistics(Statistics.LOL)}
             >
               LoL
             </Toggle>
             <Toggle
               type="button"
-              isActive={statistics === "VAL"}
-              onClick={() => setStatistics("VAL")}
+              isActive={statistics === Statistics.VAL}
+              onClick={() => setStatistics(Statistics.VAL)}
             >
               VALORANT
             </Toggle>

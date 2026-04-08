@@ -16,7 +16,7 @@ import { useValStat } from "@/hooks/valStat";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 import type { TierDTO } from "@/dtos/tierDto";
 import type { PositionDTO } from "@/dtos/positionDto";
-import type { Statistics } from "@/dtos/presetDto";
+import { Statistics } from "@/dtos/presetDto";
 import {
   CloseButton,
   DangerButton,
@@ -58,10 +58,14 @@ export function PresetMemberEditor({
   const addPresetMemberPosition = useAddPresetMemberPosition();
   const deletePresetMemberPosition = useDeletePresetMemberPosition();
   const lolStat = useLolStat(
-    statistics === "LOL" ? (presetMember.member?.memberId ?? null) : null,
+    statistics === Statistics.LOL
+      ? (presetMember.member?.memberId ?? null)
+      : null,
   );
   const valStat = useValStat(
-    statistics === "VAL" ? (presetMember.member?.memberId ?? null) : null,
+    statistics === Statistics.VAL
+      ? (presetMember.member?.memberId ?? null)
+      : null,
   );
 
   const [isLeader, setIsLeader] = useState(presetMember.isLeader);
@@ -302,9 +306,9 @@ export function PresetMemberEditor({
             ))}
           </Section>
 
-          {statistics !== "NONE" && <Label>통계</Label>}
+          {statistics !== Statistics.NONE && <Label>통계</Label>}
 
-          {statistics === "LOL" && (
+          {statistics === Statistics.LOL && (
             <>
               {lolStat.isLoading ? (
                 <Loading />
@@ -318,7 +322,7 @@ export function PresetMemberEditor({
             </>
           )}
 
-          {statistics === "VAL" && (
+          {statistics === Statistics.VAL && (
             <>
               {valStat.isLoading ? (
                 <Loading />

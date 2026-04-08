@@ -2,11 +2,15 @@ import type { PresetMemberDetailDTO } from "./presetMemberDto";
 import type { TierDTO } from "./tierDto";
 import type { PositionDTO } from "./positionDto";
 
-export type Statistics = "NONE" | "LOL" | "VAL";
+export enum Statistics {
+  NONE = 0,
+  LOL = 1,
+  VAL = 2,
+}
 export const StatisticsDisplay: { [key in Statistics]: string } = {
-  NONE: "",
-  LOL: "LoL",
-  VAL: "Valorant",
+  [Statistics.NONE]: "",
+  [Statistics.LOL]: "League of Legends",
+  [Statistics.VAL]: "VALORANT",
 };
 
 export interface PresetDTO {

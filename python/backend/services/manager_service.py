@@ -10,7 +10,7 @@ from shared.dtos.manager_dto import (
     ManagerDTO,
     UpdateManagerDTO,
 )
-from shared.entities.manager import _ROLE_ORDER, Manager, Role
+from shared.entities.manager import Manager, Role
 from shared.utils.exception import service_exception_handler
 
 from ..utils.role import verify_role
@@ -96,6 +96,12 @@ async def remove_manager_service(
 
     if not is_self:
         caller_role = await verify_role(guild_id, payload.user_id, Role.ADMIN, db)
+        target_role = await verify_role(guild_id, user_id, Role.VIEWER, db)
+        if caller_role <= target_role:
+            raise HTTPException(
+                status_code=403,
+                detail="Cannot remove user with equal or higher role",
+            )
 
     result = await db.execute(
         select(Manager).where(
@@ -106,12 +112,6 @@ async def remove_manager_service(
     manager = result.scalar_one_or_none()
     if manager is None:
         raise HTTPException(status_code=404, detail="Manager not found")
-
-    if not is_self and _ROLE_ORDER[caller_role] <= _ROLE_ORDER[manager.role]:
-        raise HTTPException(
-            status_code=403,
-            detail="Cannot remove user with equal or higher role",
-        )
 
     await db.delete(manager)
     await db.commit()

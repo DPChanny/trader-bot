@@ -11,7 +11,7 @@ import { Error } from "@/components/commons/error";
 import { Toggle } from "@/components/commons/toggle";
 import { Label } from "@/components/commons/label";
 import { Section } from "@/components/commons/section";
-import type { Statistics } from "@/dtos/presetDto";
+import { Statistics } from "@/dtos/presetDto";
 
 interface EditPresetModalProps {
   isOpen: boolean;
@@ -123,22 +123,22 @@ export function EditPresetModal({
           <Section variantLayout="row" variantIntent="tertiary">
             <Toggle
               type="button"
-              isActive={statistics === "NONE"}
-              onClick={() => setStatistics("NONE")}
+              isActive={statistics === Statistics.NONE}
+              onClick={() => setStatistics(Statistics.NONE)}
             >
               없음
             </Toggle>
             <Toggle
               type="button"
-              isActive={statistics === "LOL"}
-              onClick={() => setStatistics("LOL")}
+              isActive={statistics === Statistics.LOL}
+              onClick={() => setStatistics(Statistics.LOL)}
             >
               LoL
             </Toggle>
             <Toggle
               type="button"
-              isActive={statistics === "VAL"}
-              onClick={() => setStatistics("VAL")}
+              isActive={statistics === Statistics.VAL}
+              onClick={() => setStatistics(Statistics.VAL)}
             >
               VALORANT
             </Toggle>

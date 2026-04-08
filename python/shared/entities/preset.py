@@ -3,7 +3,7 @@ from __future__ import annotations
 import enum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Enum, ForeignKey, String
+from sqlalchemy import ForeignKey, SmallInteger, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
@@ -16,10 +16,10 @@ if TYPE_CHECKING:
     from .tier import Tier
 
 
-class Statistics(enum.Enum):
-    NONE = "NONE"
-    LOL = "LOL"
-    VAL = "VAL"
+class Statistics(enum.IntEnum):
+    NONE = 0
+    LOL = 1
+    VAL = 2
 
 
 class Preset(BaseEntity):
@@ -34,8 +34,8 @@ class Preset(BaseEntity):
     points: Mapped[int] = mapped_column(nullable=False)
     time: Mapped[int] = mapped_column(nullable=False)
     point_scale: Mapped[int] = mapped_column(nullable=False)
-    statistics: Mapped[Statistics] = mapped_column(
-        Enum(Statistics), nullable=False, default=Statistics.NONE
+    statistics: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=Statistics.NONE
     )
 
     guild: Mapped[Guild] = relationship("Guild", back_populates="presets")
