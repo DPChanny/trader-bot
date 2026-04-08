@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type {
   AddMemberDTO,
-  MemberDTO,
+  MemberDetailDTO,
   UpdateMemberDTO,
 } from "@/dtos/memberDto";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
@@ -12,13 +12,13 @@ import { handleHttpError } from "@/utils/hook";
 export function useMembers(guildId: number | null) {
   return useQuery({
     queryKey: ["members", guildId],
-    queryFn: async (): Promise<MemberDTO[]> => {
+    queryFn: async (): Promise<MemberDetailDTO[]> => {
       const response = await fetch(getMemberEndpoint(guildId!), {
         headers: getAuthHeaders(),
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
-      return toCamelCase<MemberDTO[]>(json);
+      return toCamelCase<MemberDetailDTO[]>(json);
     },
     enabled: !!guildId,
   });
@@ -27,7 +27,7 @@ export function useMembers(guildId: number | null) {
 export function useMember(guildId: number | null, memberId: number | null) {
   return useQuery({
     queryKey: ["members", guildId, memberId],
-    queryFn: async (): Promise<MemberDTO> => {
+    queryFn: async (): Promise<MemberDetailDTO> => {
       const response = await fetch(
         `${getMemberEndpoint(guildId!)}/${memberId}`,
         {
@@ -36,7 +36,7 @@ export function useMember(guildId: number | null, memberId: number | null) {
       );
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
-      return toCamelCase<MemberDTO>(json);
+      return toCamelCase<MemberDetailDTO>(json);
     },
     enabled: !!guildId && !!memberId,
   });
@@ -52,7 +52,7 @@ export function useAddMember() {
     }: {
       guildId: number;
       dto: AddMemberDTO;
-    }): Promise<MemberDTO> => {
+    }): Promise<MemberDetailDTO> => {
       const response = await fetch(getMemberEndpoint(guildId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
@@ -60,7 +60,7 @@ export function useAddMember() {
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
-      return toCamelCase<MemberDTO>(json);
+      return toCamelCase<MemberDetailDTO>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -82,7 +82,7 @@ export function useUpdateMember() {
       guildId: number;
       memberId: number;
       dto: UpdateMemberDTO;
-    }): Promise<MemberDTO> => {
+    }): Promise<MemberDetailDTO> => {
       const response = await fetch(
         `${getMemberEndpoint(guildId)}/${memberId}`,
         {
@@ -93,7 +93,7 @@ export function useUpdateMember() {
       );
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
-      return toCamelCase<MemberDTO>(json);
+      return toCamelCase<MemberDetailDTO>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

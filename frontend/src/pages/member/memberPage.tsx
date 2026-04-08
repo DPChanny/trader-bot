@@ -11,7 +11,7 @@ import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { MemberEditor } from "./memberEditor";
 import { AddMemberModal } from "./addMemberModal";
-import type { MemberDTO } from "@/dtos/memberDto";
+import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 import styles from "@/styles/pages/member/memberPage.module.css";
 import { Bar } from "@/components/commons/bar";
@@ -31,7 +31,7 @@ function MemberPageContent() {
   const selectedMember = useMemo(
     () =>
       selectedMemberId && members
-        ? members.find((m: MemberDTO) => m.memberId === selectedMemberId)
+        ? members.find((m: MemberDetailDTO) => m.memberId === selectedMemberId)
         : null,
     [selectedMemberId, members],
   );

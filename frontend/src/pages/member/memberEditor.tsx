@@ -17,13 +17,13 @@ import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
 import { ConfirmModal } from "@/components/commons/modal";
 import { Loading } from "@/components/commons/loading";
-import type { MemberDTO } from "@/dtos/memberDto";
+import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 import styles from "@/styles/components/memberEditor.module.css";
 import { Label } from "@/components/commons/label";
 
 interface MemberEditorProps {
-  member: MemberDTO;
+  member: MemberDetailDTO;
   onClose: () => void;
 }
 
@@ -124,7 +124,6 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
                 riotId: riotId || null,
                 discordId: discordId || null,
                 discord: member.discord,
-                profileUrl: member.profileUrl,
               }}
             />
           </Section>

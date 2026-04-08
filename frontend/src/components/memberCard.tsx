@@ -1,10 +1,10 @@
 import styles from "@/styles/components/memberCard.module.css";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
-import type { MemberDTO } from "@/dtos/memberDto";
+import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 export interface MemberCardProps {
-  member: MemberDTO;
+  member: MemberDetailDTO;
   isActive?: boolean;
 }
 
@@ -17,9 +17,9 @@ export function MemberCard({ member, isActive }: MemberCardProps) {
     >
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
-          {member.profileUrl ? (
+          {member.discord?.avatarUrl ? (
             <img
-              src={member.profileUrl}
+              src={member.discord.avatarUrl}
               alt={member.discord?.name || member.riotId || "이름 없음"}
             />
           ) : (

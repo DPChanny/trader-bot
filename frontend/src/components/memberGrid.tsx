@@ -2,10 +2,10 @@ import { MemberCard } from "./memberCard";
 import { Section } from "@/components/commons/section";
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberGrid.module.css";
-import type { MemberDTO } from "@/dtos/memberDto";
+import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 interface MemberGridProps {
-  members: MemberDTO[];
+  members: MemberDetailDTO[];
   onMemberClick?: (memberId: number) => void;
   selectedMemberId?: number | null;
   className?: string;

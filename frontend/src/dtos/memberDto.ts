@@ -10,8 +10,10 @@ export interface MemberDTO {
   guildId: number;
   riotId: string | null;
   discordId: string | null;
+}
+
+export interface MemberDetailDTO extends MemberDTO {
   discord: DiscordDTO | null;
-  profileUrl: string | null;
 }
 
 export interface AddMemberDTO {

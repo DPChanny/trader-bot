@@ -42,9 +42,9 @@ export function PresetMemberCard({
 
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
-          {member?.profileUrl ? (
+          {member?.discord?.avatarUrl ? (
             <img
-              src={member.profileUrl}
+              src={member.discord.avatarUrl}
               alt={member?.discord?.name || member?.riotId || "이름 없음"}
             />
           ) : (

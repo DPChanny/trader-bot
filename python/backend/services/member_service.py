@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 
 from shared.dtos.member_dto import (
     AddMemberDTO,
-    MemberDTO,
+    MemberDetailDTO,
     UpdateMemberDTO,
 )
 from shared.entities.guild import Guild
@@ -22,7 +22,7 @@ from ..utils.token import Payload
 @service_exception_handler
 async def get_member_detail_service(
     guild_id: int, member_id: int, db: AsyncSession, payload: Payload
-) -> MemberDTO:
+) -> MemberDetailDTO:
     await verify_role(guild_id, payload.discord_id, Role.VIEWER, db)
     result = await db.execute(
         select(Member)
@@ -34,13 +34,13 @@ async def get_member_detail_service(
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
 
-    return MemberDTO.model_validate(member)
+    return MemberDetailDTO.model_validate(member)
 
 
 @service_exception_handler
 async def add_member_service(
     guild_id: int, dto: AddMemberDTO, db: AsyncSession, payload: Payload
-) -> MemberDTO:
+) -> MemberDetailDTO:
     await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
 
     if dto.discord_id is not None:
@@ -66,13 +66,13 @@ async def add_member_service(
         .where(Member.member_id == member.member_id)
     )
     member = result.scalar_one()
-    return MemberDTO.model_validate(member)
+    return MemberDetailDTO.model_validate(member)
 
 
 @service_exception_handler
 async def get_member_list_service(
     guild_id: int, db: AsyncSession, payload: Payload
-) -> list[MemberDTO]:
+) -> list[MemberDetailDTO]:
     await verify_role(guild_id, payload.discord_id, Role.VIEWER, db)
     result = await db.execute(
         select(Member)
@@ -80,7 +80,7 @@ async def get_member_list_service(
         .where(Member.guild_id == guild_id)
     )
     members = result.unique().scalars().all()
-    return [MemberDTO.model_validate(m) for m in members]
+    return [MemberDetailDTO.model_validate(m) for m in members]
 
 
 @service_exception_handler
@@ -90,7 +90,7 @@ async def update_member_service(
     dto: UpdateMemberDTO,
     db: AsyncSession,
     payload: Payload,
-) -> MemberDTO:
+) -> MemberDetailDTO:
     await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
     result = await db.execute(
         select(Member).where(Member.member_id == member_id, Member.guild_id == guild_id)
@@ -123,7 +123,7 @@ async def update_member_service(
         .where(Member.member_id == member_id)
     )
     member = result.scalar_one()
-    return MemberDTO.model_validate(member)
+    return MemberDetailDTO.model_validate(member)
 
 
 @service_exception_handler
