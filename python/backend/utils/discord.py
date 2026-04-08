@@ -43,15 +43,13 @@ def get_add_guild_url(state: str) -> str:
     params = urllib.parse.urlencode(
         {
             "client_id": get_discord_client_id(),
-            "scope": "bot",
+            "scope": "bot applications.commands",
             "permissions": discord.Permissions(
-                view_channel=True,
                 send_messages=True,
                 embed_links=True,
-                attach_files=True,
-                read_message_history=True,
             ).value,
             "redirect_uri": _get_add_guild_callback_url(),
+            "response_type": "code",
             "state": state,
         }
     )
