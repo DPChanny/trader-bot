@@ -136,6 +136,8 @@ function PresetPageContent() {
                   presetMembers={presetDetail.presetMembers.filter(
                     (pm) => !removingMemberIds.has(pm.memberId),
                   )}
+                  tiers={presetDetail.tiers}
+                  positions={presetDetail.positions}
                   selectedMemberId={selectedPresetMemberId}
                   onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
                 />

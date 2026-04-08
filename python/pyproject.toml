@@ -13,7 +13,6 @@ dependencies = [
     "pyjwt",
     "discord.py",
     "httpx",
-    "aioboto3",
     "websockets",
     "asyncpg",
     "psycopg2-binary",

@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.user_dto import UserDTO
 from shared.entities.user import User
-from shared.utils.exception import service_exception_handler
+from ..utils.exception import service_exception_handler
 
 from ..utils.token import Payload
 

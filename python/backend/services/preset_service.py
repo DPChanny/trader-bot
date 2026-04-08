@@ -11,10 +11,10 @@ from shared.dtos.preset_dto import (
     UpdatePresetDTO,
 )
 from shared.entities.manager import Role
+from shared.entities.member import Member
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
-from shared.entities.preset_member_position import PresetMemberPosition
-from shared.utils.exception import service_exception_handler
+from ..utils.exception import service_exception_handler
 
 from ..utils.role import verify_role
 from ..utils.token import Payload
@@ -24,11 +24,12 @@ async def _query_preset_detail(preset_id: int, db: AsyncSession) -> Preset | Non
     result = await db.execute(
         select(Preset)
         .options(
-            joinedload(Preset.preset_members).joinedload(PresetMember.member),
-            joinedload(Preset.preset_members).joinedload(PresetMember.tier),
             joinedload(Preset.preset_members)
-            .joinedload(PresetMember.preset_member_positions)
-            .joinedload(PresetMemberPosition.position),
+            .joinedload(PresetMember.member)
+            .joinedload(Member.discord),
+            joinedload(Preset.preset_members).joinedload(
+                PresetMember.preset_member_positions
+            ),
             joinedload(Preset.tiers),
             joinedload(Preset.positions),
         )

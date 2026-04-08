@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 from shared.dtos.val_stat_dto import AgentDTO, ValStatDTO
 from shared.entities.member import Member
 from shared.entities.val_stat import ValStat
-from shared.utils.exception import service_exception_handler
+from ..utils.exception import service_exception_handler
 
 from ..utils.role import get_guild_ids
 from ..utils.token import Payload

@@ -1,6 +1,8 @@
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 import type { Team } from "@/dtos/auctionDto";
+import type { TierDTO } from "@/dtos/tierDto";
+import type { PositionDTO } from "@/dtos/positionDto";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
@@ -9,6 +11,8 @@ import styles from "@/styles/pages/auction/teamCard.module.css";
 interface TeamCardProps {
   team: Team;
   members: PresetMemberDetailDTO[];
+  tiers: TierDTO[];
+  positions: PositionDTO[];
   pointScale: number;
   connectedUsers?: number[];
   clientMemberId?: number;
@@ -17,13 +21,15 @@ interface TeamCardProps {
 export function TeamCard({
   team,
   members,
+  tiers,
+  positions,
   pointScale,
   connectedUsers,
   clientMemberId,
 }: TeamCardProps) {
   const leader = members.find((member) => member.isLeader);
   const teamName = leader
-    ? `${leader.member?.alias ?? "이름 없음"} 팀`
+    ? `${leader.member?.discord?.name ?? leader.member?.riotId ?? "이름 없음"} 팀`
     : `Team ${team.teamId}`;
   const isFull = members.length === 5;
   const variantColor = isFull ? "green" : "blue";
@@ -38,6 +44,8 @@ export function TeamCard({
       <PresetMemberGrid
         className={styles.membersGrid}
         presetMembers={members}
+        tiers={tiers}
+        positions={positions}
         onMemberClick={() => {}}
         connectedUsers={connectedUsers}
         clientMemberId={clientMemberId}

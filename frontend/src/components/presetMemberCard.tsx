@@ -4,9 +4,13 @@ import { Card } from "@/components/commons/card";
 import { Badge } from "@/components/commons/badge";
 import { Section } from "@/components/commons/section";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
+import type { TierDTO } from "@/dtos/tierDto";
+import type { PositionDTO } from "@/dtos/positionDto";
 
 export interface PresetMemberCardProps {
   presetMember: PresetMemberDetailDTO;
+  tiers: TierDTO[];
+  positions: PositionDTO[];
   isActive?: boolean;
   isConnected?: boolean;
   isClientMember?: boolean;
@@ -14,11 +18,17 @@ export interface PresetMemberCardProps {
 
 export function PresetMemberCard({
   presetMember,
+  tiers,
+  positions,
   isActive,
   isConnected,
   isClientMember,
 }: PresetMemberCardProps) {
-  const { member, tier, presetMemberPositions, isLeader } = presetMember;
+  const { member, presetMemberPositions, isLeader } = presetMember;
+  const tier = tiers.find((t) => t.tierId === presetMember.tierId) ?? null;
+  const resolvedPositions = presetMemberPositions.map(
+    (pmp) => positions.find((p) => p.positionId === pmp.positionId)!,
+  );
 
   const statusClass = (() => {
     if (isClientMember) return styles.statusDotClient;
@@ -75,15 +85,15 @@ export function PresetMemberCard({
               variantIntent="tertiary"
               className={styles.positions}
             >
-              {presetMemberPositions!.slice(0, 3).map((p) => (
+              {resolvedPositions.slice(0, 3).map((p) => (
                 <Badge
-                  key={p.position.positionId}
-                  src={p.position.iconUrl || undefined}
-                  alt={p.position.name}
+                  key={p.positionId}
+                  src={p.iconUrl || undefined}
+                  alt={p.name}
                   variantSize="medium"
                   variantColor="blue"
                 >
-                  {p.position.name.charAt(0)}
+                  {p.name.charAt(0)}
                 </Badge>
               ))}
             </Section>

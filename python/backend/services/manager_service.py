@@ -11,8 +11,8 @@ from shared.dtos.manager_dto import (
     UpdateManagerDTO,
 )
 from shared.entities.manager import Manager, Role
-from shared.utils.exception import service_exception_handler
 
+from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
 from ..utils.token import Payload
 

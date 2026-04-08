@@ -27,10 +27,6 @@ def get_api_origin() -> str:
     return os.getenv("API_ORIGIN", "http://localhost:8000")
 
 
-def get_api_endpoint() -> str:
-    return f"{get_api_origin()}/api"
-
-
 def get_jwt_secret() -> str:
     return os.getenv("JWT_SECRET", "")
 
@@ -57,32 +53,6 @@ def get_db_password() -> str:
 
 def get_db_name() -> str:
     return os.getenv("DB_NAME", "trader")
-
-
-def get_aws_access_id() -> str:
-    return os.getenv("AWS_ACCESS_ID", "")
-
-
-def get_aws_access_secret() -> str:
-    return os.getenv("AWS_ACCESS_SECRET", "")
-
-
-def get_aws_region() -> str:
-    return os.getenv("AWS_REGION", "ap-northeast-2")
-
-
-def get_aws_bucket_name() -> str:
-    return os.getenv("AWS_BUCKET_NAME", "trader-dev-bucket")
-
-
-def get_profile_key(user_id: int) -> str:
-    return f"profiles/{user_id}"
-
-
-def get_profile_url(user_id: int) -> str:
-    bucket = get_aws_bucket_name()
-    region = get_aws_region()
-    return f"https://{bucket}.s3.{region}.amazonaws.com/{get_profile_key(user_id)}"
 
 
 def get_log_level() -> str:

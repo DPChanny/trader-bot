@@ -1,6 +1,5 @@
 import type { MemberDetailDTO } from "./memberDto";
-import type { TierDTO } from "./tierDto";
-import type { PresetMemberPositionDetailDTO } from "./presetMemberPositionDto";
+import type { PresetMemberPositionDTO } from "./presetMemberPositionDto";
 
 export interface PresetMemberDTO {
   presetMemberId: number;
@@ -12,8 +11,7 @@ export interface PresetMemberDTO {
 
 export interface PresetMemberDetailDTO extends PresetMemberDTO {
   member: MemberDetailDTO | null;
-  tier: TierDTO | null;
-  presetMemberPositions: PresetMemberPositionDetailDTO[];
+  presetMemberPositions: PresetMemberPositionDTO[];
 }
 
 export interface AddPresetMemberDTO {

@@ -12,7 +12,7 @@ from shared.dtos.member_dto import (
 from shared.entities.guild import Guild
 from shared.entities.manager import Role
 from shared.entities.member import Member
-from shared.utils.exception import service_exception_handler
+from ..utils.exception import service_exception_handler
 
 from ..utils.discord import verify_member
 from ..utils.role import verify_role

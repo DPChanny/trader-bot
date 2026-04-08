@@ -11,7 +11,7 @@ from shared.dtos.tier_dto import (
 from shared.entities.manager import Role
 from shared.entities.preset import Preset
 from shared.entities.tier import Tier
-from shared.utils.exception import service_exception_handler
+from ..utils.exception import service_exception_handler
 
 from ..utils.role import verify_role
 from ..utils.token import Payload

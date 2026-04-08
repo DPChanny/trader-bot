@@ -1,7 +1,6 @@
 from . import BaseDTO
 from .member_dto import MemberDetailDTO
-from .preset_member_position_dto import PresetMemberPositionDetailDTO
-from .tier_dto import TierDTO
+from .preset_member_position_dto import PresetMemberPositionDTO
 
 
 class PresetMemberDTO(BaseDTO):
@@ -16,8 +15,7 @@ class PresetMemberDTO(BaseDTO):
 
 class PresetMemberDetailDTO(PresetMemberDTO):
     member: MemberDetailDTO | None = None
-    tier: TierDTO | None = None
-    preset_member_positions: list[PresetMemberPositionDetailDTO] = []
+    preset_member_positions: list[PresetMemberPositionDTO] = []
 
 
 class AddPresetMemberDTO(BaseDTO):

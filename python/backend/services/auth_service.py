@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.entities.discord import Discord
 from shared.entities.user import User
 from shared.utils.env import get_app_origin
-from shared.utils.exception import service_exception_handler
+from ..utils.exception import service_exception_handler
 
 from ..utils.discord import get_login_url, get_me
 from ..utils.token import Payload, create_token

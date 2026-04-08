@@ -14,7 +14,7 @@ from shared.dtos.guild_dto import (
 from shared.entities.guild import Guild
 from shared.entities.manager import Manager, Role
 from shared.utils.env import get_app_origin
-from shared.utils.exception import service_exception_handler
+from ..utils.exception import service_exception_handler
 
 from ..utils.discord import (
     get_add_guild_url,

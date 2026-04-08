@@ -1,13 +1,15 @@
-import {
-  PresetMemberCard,
-  type PresetMemberCardProps,
-} from "./presetMemberCard";
+import { PresetMemberCard } from "./presetMemberCard";
 import { Section } from "@/components/commons/section";
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberGrid.module.css";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
+import type { TierDTO } from "@/dtos/tierDto";
+import type { PositionDTO } from "@/dtos/positionDto";
 
 interface PresetMemberGridProps {
-  presetMembers: PresetMemberCardProps["presetMember"][];
+  presetMembers: PresetMemberDetailDTO[];
+  tiers: TierDTO[];
+  positions: PositionDTO[];
   selectedMemberId?: number | null;
   onMemberClick: (presetMemberId: number) => void;
   className?: string;
@@ -17,6 +19,8 @@ interface PresetMemberGridProps {
 
 export function PresetMemberGrid({
   presetMembers,
+  tiers,
+  positions,
   selectedMemberId,
   onMemberClick,
   className,
@@ -41,6 +45,8 @@ export function PresetMemberGrid({
         >
           <PresetMemberCard
             presetMember={presetMember}
+            tiers={tiers}
+            positions={positions}
             isActive={selectedMemberId === presetMember.presetMemberId}
             isConnected={
               connectedUsers

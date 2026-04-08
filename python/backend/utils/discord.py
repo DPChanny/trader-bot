@@ -5,7 +5,7 @@ import httpx
 from fastapi import HTTPException
 
 from shared.utils.env import (
-    get_api_endpoint,
+    get_api_origin,
     get_bot_token,
     get_discord_client_id,
     get_discord_client_secret,
@@ -19,12 +19,16 @@ DISCORD_GUILDS_URL = "https://discord.com/api/guilds"
 DISCORD_CHANNELS_URL = "https://discord.com/api/channels"
 
 
+def _get_api_endpoint() -> str:
+    return f"{get_api_origin()}/api"
+
+
 def _get_login_callback_url() -> str:
-    return f"{get_api_endpoint()}/auth/login/callback"
+    return f"{_get_api_endpoint()}/auth/login/callback"
 
 
 def _get_add_guild_callback_url() -> str:
-    return f"{get_api_endpoint()}/guild/callback"
+    return f"{_get_api_endpoint()}/guild/callback"
 
 
 def get_login_url() -> str:

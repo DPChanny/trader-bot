@@ -179,6 +179,8 @@ export function AuctionPage({}: AuctionPageProps) {
           <TeamList
             teams={state.teams}
             presetMembers={presetMembers}
+            tiers={presetDetail!.tiers}
+            positions={presetDetail!.positions}
             pointScale={pointScale}
             clientMemberId={memberId ?? undefined}
             connectedUsers={connectedUsers}
@@ -200,7 +202,11 @@ export function AuctionPage({}: AuctionPageProps) {
               className={styles.auctionInfoTopSection}
             >
               {state.status !== "completed" && currentMember && (
-                <PresetMemberCard presetMember={currentMember} />
+                <PresetMemberCard
+                  presetMember={currentMember}
+                  tiers={presetDetail!.tiers}
+                  positions={presetDetail!.positions}
+                />
               )}
               {state.status !== "completed" &&
                 presetDetail?.statistics === Statistics.LOL &&
@@ -230,7 +236,11 @@ export function AuctionPage({}: AuctionPageProps) {
               </Section>
               <InfoCard label="입찰 팀장" value="">
                 {state.status !== "completed" && bidderLeader && (
-                  <PresetMemberCard presetMember={bidderLeader} />
+                  <PresetMemberCard
+                    presetMember={bidderLeader}
+                    tiers={presetDetail!.tiers}
+                    positions={presetDetail!.positions}
+                  />
                 )}
               </InfoCard>
             </Section>
@@ -271,6 +281,8 @@ export function AuctionPage({}: AuctionPageProps) {
             <Section variantTone="ghost" className={styles.queueGrid}>
               <PresetMemberGrid
                 presetMembers={auctionQueueMembers}
+                tiers={presetDetail!.tiers}
+                positions={presetDetail!.positions}
                 onMemberClick={() => {}}
                 clientMemberId={memberId ?? undefined}
                 connectedUsers={connectedUsers}
@@ -284,6 +296,8 @@ export function AuctionPage({}: AuctionPageProps) {
             <Section variantTone="ghost" className={styles.queueGrid}>
               <PresetMemberGrid
                 presetMembers={unsoldQueueMembers}
+                tiers={presetDetail!.tiers}
+                positions={presetDetail!.positions}
                 onMemberClick={() => {}}
                 connectedUsers={connectedUsers}
                 clientMemberId={memberId ?? undefined}

@@ -73,15 +73,14 @@ export function PresetMemberEditor({
     presetMember.tierId || null,
   );
   const [selectedPositionIds, setSelectedPositionIds] = useState<number[]>(
-    presetMember.presetMemberPositions?.map((p) => p.position.positionId) || [],
+    presetMember.presetMemberPositions?.map((p) => p.positionId) || [],
   );
 
   useEffect(() => {
     setIsLeader(presetMember.isLeader);
     setTierId(presetMember.tierId || null);
     setSelectedPositionIds(
-      presetMember.presetMemberPositions?.map((p) => p.position.positionId) ||
-        [],
+      presetMember.presetMemberPositions?.map((p) => p.positionId) || [],
     );
   }, [
     presetMember.presetMemberId,
@@ -91,7 +90,7 @@ export function PresetMemberEditor({
   ]);
 
   const initialPositionIds =
-    presetMember.presetMemberPositions?.map((p) => p.position.positionId) || [];
+    presetMember.presetMemberPositions?.map((p) => p.positionId) || [];
   const hasChanges =
     isLeader !== presetMember.isLeader ||
     tierId !== presetMember.tierId ||
@@ -122,7 +121,7 @@ export function PresetMemberEditor({
 
       for (const positionId of positionIdsToRemove) {
         const entry = presetMember.presetMemberPositions?.find(
-          (p) => p.position.positionId === positionId,
+          (p) => p.positionId === positionId,
         );
         if (entry) {
           await deletePresetMemberPosition.mutateAsync({
@@ -183,29 +182,20 @@ export function PresetMemberEditor({
     deletePresetMemberPosition.isError ||
     removePresetMember.isError;
 
-  const previewTier = tierId
-    ? tiers?.find((t) => t.tierId === tierId) || null
-    : null;
-  const previewPositions = selectedPositionIds
-    .map((id) => {
-      const position = positions.find((p) => p.positionId === id);
-      if (!position) return null;
-      const existingEntry = presetMember.presetMemberPositions?.find(
-        (p) => p.position.positionId === id,
-      );
-      return {
-        presetMemberPositionId: existingEntry?.presetMemberPositionId || 0,
-        presetMemberId: presetMember.presetMemberId,
-        positionId: id,
-        position: position,
-      };
-    })
-    .filter((p) => p !== null) as any[];
+  const previewPositions = selectedPositionIds.map((id) => {
+    const existingEntry = presetMember.presetMemberPositions?.find(
+      (p) => p.positionId === id,
+    );
+    return {
+      presetMemberPositionId: existingEntry?.presetMemberPositionId || 0,
+      presetMemberId: presetMember.presetMemberId,
+      positionId: id,
+    };
+  });
 
   const previewPresetMember = {
     ...presetMember,
     tierId: tierId,
-    tier: previewTier,
     isLeader: isLeader,
     presetMemberPositions: previewPositions,
   };
@@ -218,7 +208,11 @@ export function PresetMemberEditor({
           variantLayout="row"
           variantIntent="secondary"
         >
-          <h3>{presetMember.member?.alias || "이름 없음"}</h3>
+          <h3>
+            {presetMember.member?.discord?.name ||
+              presetMember.member?.riotId ||
+              "이름 없음"}
+          </h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -256,7 +250,11 @@ export function PresetMemberEditor({
       >
         <Section variantTone="ghost">
           <Section variantTone="ghost" className={styles.cardSection}>
-            <PresetMemberCard presetMember={previewPresetMember} />
+            <PresetMemberCard
+              presetMember={previewPresetMember}
+              tiers={tiers}
+              positions={positions}
+            />
           </Section>
 
           <Label>팀장</Label>

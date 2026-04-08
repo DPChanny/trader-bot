@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 class Member(BaseEntity):
     __tablename__ = "member"
+    __table_args__ = (UniqueConstraint("guild_id", "discord_id"),)
 
     member_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     guild_id: Mapped[int] = mapped_column(

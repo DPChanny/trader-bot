@@ -13,9 +13,8 @@ from shared.entities.manager import Role
 from shared.entities.member import Member
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
-from shared.entities.preset_member_position import PresetMemberPosition
 from shared.entities.tier import Tier
-from shared.utils.exception import service_exception_handler
+from ..utils.exception import service_exception_handler
 
 from ..utils.role import verify_role
 from ..utils.token import Payload
@@ -28,11 +27,8 @@ async def _query_preset_member_detail(
     stmt = (
         select(PresetMember)
         .options(
-            joinedload(PresetMember.member),
-            joinedload(PresetMember.tier),
-            joinedload(PresetMember.preset_member_positions).joinedload(
-                PresetMemberPosition.position
-            ),
+            joinedload(PresetMember.member).joinedload(Member.discord),
+            joinedload(PresetMember.preset_member_positions),
         )
         .where(PresetMember.preset_member_id == preset_member_id)
     )
