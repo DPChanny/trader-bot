@@ -25,7 +25,7 @@ async def add_position_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PositionDTO:
-    await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
     result = await db.execute(
         select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
     )
@@ -53,7 +53,7 @@ async def update_position_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PositionDTO:
-    await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
     result = await db.execute(
         select(Position)
         .join(Preset)
@@ -81,7 +81,7 @@ async def update_position_service(
 async def delete_position_service(
     guild_id: int, preset_id: int, position_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
     result = await db.execute(
         select(Position)
         .join(Preset)

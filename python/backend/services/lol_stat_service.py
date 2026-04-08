@@ -5,23 +5,16 @@ from sqlalchemy.orm import joinedload
 
 from shared.dtos.lol_stat_dto import ChampionDTO, LolStatDTO
 from shared.entities.lol_stat import LolStat
-from shared.entities.member import Member
 
 from ..utils.exception import service_exception_handler
-from ..utils.role import get_guild_ids
-from ..utils.token import Payload
 
 
 @service_exception_handler
-async def get_lol_stat(
-    member_id: int, db: AsyncSession, payload: Payload
-) -> LolStatDTO:
-    guild_ids = await get_guild_ids(payload.discord_id, db)
+async def get_lol_stat(member_id: int, db: AsyncSession) -> LolStatDTO:
     result = await db.execute(
         select(LolStat)
-        .join(Member, LolStat.member_id == Member.member_id)
         .options(joinedload(LolStat.champions))
-        .where(LolStat.member_id == member_id, Member.guild_id.in_(guild_ids))
+        .where(LolStat.member_id == member_id)
     )
     lol_stat = result.unique().scalar_one_or_none()
 

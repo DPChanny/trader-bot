@@ -18,7 +18,7 @@ from shared.utils.env import get_app_origin
 from ..auction.auction_manager import auction_manager
 from ..utils.discord import send_message
 from ..utils.exception import service_exception_handler
-from ..utils.role import get_guild_ids, verify_role
+from ..utils.role import verify_role
 from ..utils.token import Payload
 
 
@@ -26,13 +26,12 @@ from ..utils.token import Payload
 async def add_auction_service(
     preset_id: int, db: AsyncSession, payload: Payload
 ) -> AuctionDTO:
-    guild_ids = await get_guild_ids(payload.discord_id, db)
     result = await db.execute(
         select(Preset)
         .options(
             joinedload(Preset.preset_members).joinedload(PresetMember.member),
         )
-        .where(Preset.preset_id == preset_id, Preset.guild_id.in_(guild_ids))
+        .where(Preset.preset_id == preset_id)
     )
     preset = result.unique().scalar_one_or_none()
 
@@ -41,7 +40,7 @@ async def add_auction_service(
             status_code=404, detail="Auction create failed: preset not found"
         )
 
-    await verify_role(preset.guild_id, payload.discord_id, Role.EDITOR, db)
+    await verify_role(preset.guild_id, payload.discord_id, db, Role.EDITOR)
 
     preset_members = preset.preset_members
     if not preset_members:

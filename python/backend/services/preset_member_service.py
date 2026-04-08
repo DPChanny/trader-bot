@@ -43,7 +43,7 @@ async def add_preset_member_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PresetMemberDetailDTO:
-    await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     result = await db.execute(
         select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
@@ -93,7 +93,7 @@ async def update_preset_member_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PresetMemberDetailDTO:
-    await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
     result = await db.execute(
         select(PresetMember)
         .join(Preset)
@@ -133,7 +133,7 @@ async def delete_preset_member_service(
     db: AsyncSession,
     payload: Payload,
 ) -> None:
-    await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
     result = await db.execute(
         select(PresetMember)
         .join(Preset)

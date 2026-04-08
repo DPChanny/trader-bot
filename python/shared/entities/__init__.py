@@ -8,9 +8,8 @@ class BaseEntity(DeclarativeBase):
 from .discord import Discord
 from .guild import Guild
 from .lol_stat import Champion, LolStat
-from .manager import Manager as Manager
-from .manager import Role as Role
 from .member import Member
+from .member import Role as Role
 from .position import Position
 from .preset import Preset, Statistics
 from .preset_member import PresetMember
@@ -26,7 +25,6 @@ __all__ = [
     "Champion",
     "Discord",
     "Guild",
-    "Manager",
     "Role",
     "LolStat",
     "Member",

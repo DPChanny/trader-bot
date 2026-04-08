@@ -5,7 +5,6 @@ class GuildDTO(BaseDTO):
     guild_id: int
     discord_id: str
     name: str
-    owner_discord_id: str
 
     model_config = {"from_attributes": True}
 

@@ -21,7 +21,7 @@ from ..utils.token import Payload
 async def add_tier_service(
     guild_id: int, preset_id: int, dto: AddTierDTO, db: AsyncSession, payload: Payload
 ) -> TierDTO:
-    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
     result = await db.execute(
         select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
     )
@@ -45,7 +45,7 @@ async def update_tier_service(
     db: AsyncSession,
     payload: Payload,
 ) -> TierDTO:
-    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
     result = await db.execute(
         select(Tier)
         .join(Preset)
@@ -73,7 +73,7 @@ async def update_tier_service(
 async def delete_tier_service(
     guild_id: int, preset_id: int, tier_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
     result = await db.execute(
         select(Tier)
         .join(Preset)

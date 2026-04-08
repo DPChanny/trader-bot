@@ -41,7 +41,7 @@ async def _query_preset_detail(preset_id: int, db: AsyncSession) -> Preset | Non
 async def get_preset_detail_service(
     guild_id: int, preset_id: int, db: AsyncSession, payload: Payload
 ) -> PresetDetailDTO:
-    await verify_role(guild_id, payload.discord_id, Role.VIEWER, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.VIEWER)
     result = await db.execute(
         select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
     )
@@ -56,7 +56,7 @@ async def get_preset_detail_service(
 async def add_preset_service(
     guild_id: int, dto: AddPresetDTO, db: AsyncSession, payload: Payload
 ) -> PresetDetailDTO:
-    await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     preset = Preset(
         guild_id=guild_id,
@@ -78,7 +78,7 @@ async def add_preset_service(
 async def get_preset_list_service(
     guild_id: int, db: AsyncSession, payload: Payload
 ) -> list[PresetDTO]:
-    await verify_role(guild_id, payload.discord_id, Role.VIEWER, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.VIEWER)
     result = await db.execute(select(Preset).where(Preset.guild_id == guild_id))
     presets = result.scalars().all()
     return [PresetDTO.model_validate(p) for p in presets]
@@ -92,7 +92,7 @@ async def update_preset_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PresetDetailDTO:
-    await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
     result = await db.execute(
         select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
     )
@@ -114,7 +114,7 @@ async def update_preset_service(
 async def delete_preset_service(
     guild_id: int, preset_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    await verify_role(guild_id, payload.discord_id, Role.ADMIN, db)
+    await verify_role(guild_id, payload.discord_id, db, Role.ADMIN)
     result = await db.execute(
         select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
     )

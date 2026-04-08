@@ -39,7 +39,7 @@ async def main() -> None:
                         continue
                     await upsert_discord(member, db)
                     await upsert_member(guild_entity.guild_id, str(member.id), db)
-                await set_role(guild_entity.guild_id, owner_discord_id, Role.ADMIN, db)
+                await set_role(guild_entity.guild_id, owner_discord_id, Role.OWNER, db)
                 await db.commit()
                 logger.info(
                     f"Guild synced: {guild.name}, owner={owner_discord_id}, members={guild.member_count}"
@@ -64,6 +64,23 @@ async def main() -> None:
             except Exception as e:
                 await db.rollback()
                 logger.exception(f"on_member_join error: {e}")
+
+    @bot.event
+    async def on_guild_update(before, after):
+        if before.owner_id == after.owner_id:
+            return
+        old_owner = str(before.owner_id)
+        new_owner = str(after.owner_id)
+        logger.info(f"Guild owner changed: {before.name} ({old_owner} → {new_owner})")
+        async for db in get_async_db():
+            try:
+                guild_entity = await upsert_guild(after, db)
+                await set_role(guild_entity.guild_id, old_owner, Role.ADMIN, db)
+                await set_role(guild_entity.guild_id, new_owner, Role.OWNER, db)
+                await db.commit()
+            except Exception as e:
+                await db.rollback()
+                logger.exception(f"on_guild_update error: {e}")
 
     @bot.event
     async def on_member_remove(member):
