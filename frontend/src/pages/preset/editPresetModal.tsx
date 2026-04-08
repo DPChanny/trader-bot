@@ -12,7 +12,6 @@ import { Toggle } from "@/components/commons/toggle";
 import { Label } from "@/components/commons/label";
 import { Section } from "@/components/commons/section";
 import type { Statistics } from "@/dtos/presetDto";
-import modalStyles from "@/styles/components/modal.module.css";
 
 interface EditPresetModalProps {
   isOpen: boolean;
