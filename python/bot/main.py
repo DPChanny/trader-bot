@@ -10,7 +10,7 @@ from shared.utils.logging import setup_logging
 
 from .utils import setup_intents
 from .utils.discord import upsert_discord
-from .utils.guild import upsert_guild
+from .utils.guild import delete_guild, upsert_guild
 from .utils.member import delete_member, set_role, upsert_member
 
 
@@ -81,6 +81,17 @@ async def main() -> None:
             except Exception as e:
                 await db.rollback()
                 logger.exception(f"on_guild_update error: {e}")
+
+    @bot.event
+    async def on_guild_remove(guild):
+        logger.info(f"Left guild: {guild.name} ({guild.id})")
+        async for db in get_async_db():
+            try:
+                await delete_guild(str(guild.id), db)
+                await db.commit()
+            except Exception as e:
+                await db.rollback()
+                logger.exception(f"on_guild_remove error: {e}")
 
     @bot.event
     async def on_member_remove(member):

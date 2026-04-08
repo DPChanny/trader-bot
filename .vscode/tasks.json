@@ -16,6 +16,13 @@
       "presentation": { "panel": "dedicated" }
     },
     {
+      "label": "Run Bot",
+      "type": "shell",
+      "command": "uv run python -m bot.main",
+      "options": { "cwd": "${workspaceFolder}/python" },
+      "presentation": { "panel": "dedicated" }
+    },
+    {
       "label": "CSS: Watch",
       "type": "shell",
       "command": "npm run css:dts",
@@ -25,7 +32,7 @@
     },
     {
       "label": "Run All",
-      "dependsOn": ["Run Frontend", "Run Backend"],
+      "dependsOn": ["Run Frontend", "Run Backend", "Run Bot"],
       "dependsOrder": "parallel",
       "group": { "kind": "build", "isDefault": true }
     }

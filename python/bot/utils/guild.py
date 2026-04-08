@@ -20,3 +20,11 @@ async def upsert_guild(guild: discord.Guild, db: AsyncSession) -> Guild:
         entity.name = guild.name
         await db.flush()
     return entity
+
+
+async def delete_guild(discord_guild_id: str, db: AsyncSession) -> None:
+    result = await db.execute(select(Guild).where(Guild.discord_id == discord_guild_id))
+    entity = result.scalar_one_or_none()
+    if entity is not None:
+        await db.delete(entity)
+        await db.flush()
