@@ -15,10 +15,10 @@ from shared.entities.member import Member
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
 from shared.utils.env import get_app_origin
-from ..utils.exception import service_exception_handler
 
 from ..auction.auction_manager import auction_manager
 from ..utils.discord import send_message
+from ..utils.exception import service_exception_handler
 from ..utils.role import get_guild_ids, verify_role
 from ..utils.token import Payload
 

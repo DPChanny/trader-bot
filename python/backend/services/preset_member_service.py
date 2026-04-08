@@ -14,8 +14,8 @@ from shared.entities.member import Member
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
 from shared.entities.tier import Tier
-from ..utils.exception import service_exception_handler
 
+from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
 from ..utils.token import Payload
 

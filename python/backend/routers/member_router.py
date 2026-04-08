@@ -69,14 +69,3 @@ async def delete_member_route(
     payload: Payload = Depends(verify_token),
 ):
     return await delete_member_service(guild_id, member_id, db, payload)
-
-
-@member_router.delete("/{member_id}", status_code=204)
-async def delete_member_route(
-    guild_id: int,
-    member_id: int,
-    db: AsyncSession = Depends(get_async_db),
-    payload: Payload = Depends(verify_token),
-    bucket: Any = Depends(get_bucket),
-):
-    return await delete_member_service(guild_id, member_id, db, bucket, payload)

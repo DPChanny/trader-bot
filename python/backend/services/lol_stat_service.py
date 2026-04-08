@@ -6,8 +6,8 @@ from sqlalchemy.orm import joinedload
 from shared.dtos.lol_stat_dto import ChampionDTO, LolStatDTO
 from shared.entities.lol_stat import LolStat
 from shared.entities.member import Member
-from ..utils.exception import service_exception_handler
 
+from ..utils.exception import service_exception_handler
 from ..utils.role import get_guild_ids
 from ..utils.token import Payload
 

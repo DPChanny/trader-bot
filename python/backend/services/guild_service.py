@@ -14,12 +14,12 @@ from shared.dtos.guild_dto import (
 from shared.entities.guild import Guild
 from shared.entities.manager import Manager, Role
 from shared.utils.env import get_app_origin
-from ..utils.exception import service_exception_handler
 
 from ..utils.discord import (
     get_add_guild_url,
     get_guild,
 )
+from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
 from ..utils.token import Payload, create_token, decode_token
 
