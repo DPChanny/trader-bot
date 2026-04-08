@@ -11,7 +11,7 @@ import { Error } from "@/components/commons/error";
 import { Toggle } from "@/components/commons/toggle";
 import { Label } from "@/components/commons/label";
 import { Section } from "@/components/commons/section";
-import { Statistics } from "@/dtos/presetDto";
+import { Statistics, StatisticsDisplay } from "@/dtos/presetDto";
 
 interface EditPresetModalProps {
   isOpen: boolean;
@@ -133,14 +133,14 @@ export function EditPresetModal({
               isActive={statistics === Statistics.LOL}
               onClick={() => setStatistics(Statistics.LOL)}
             >
-              LoL
+              {StatisticsDisplay[Statistics.LOL]}
             </Toggle>
             <Toggle
               type="button"
               isActive={statistics === Statistics.VAL}
               onClick={() => setStatistics(Statistics.VAL)}
             >
-              VALORANT
+              {StatisticsDisplay[Statistics.VAL]}
             </Toggle>
           </Section>
         </Section>

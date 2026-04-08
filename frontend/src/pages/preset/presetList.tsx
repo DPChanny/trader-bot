@@ -127,7 +127,11 @@ export function PresetList({
       {isLoading ? (
         <Loading />
       ) : (
-        <Section variantTone="ghost" variantIntent="secondary">
+        <Section
+          variantTone="ghost"
+          variantIntent="secondary"
+          className={styles.cardList}
+        >
           {presets?.map((preset) => (
             <PresetCard
               key={preset.presetId}

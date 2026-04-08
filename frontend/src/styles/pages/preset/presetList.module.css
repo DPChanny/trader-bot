@@ -4,3 +4,9 @@
   overflow-x: hidden;
   min-height: 0;
 }
+
+.cardList {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
