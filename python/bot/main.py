@@ -25,7 +25,28 @@ async def main() -> None:
     @bot.event
     async def on_ready():
         logger.info(f"Ready: {bot.user}")
-        await bot.tree.sync()
+        async for db in get_async_db():
+            try:
+                for guild in bot.guilds:
+                    owner_discord_id = str(guild.owner_id)
+                    guild_entity = await upsert_guild(guild, db)
+                    async for member in guild.fetch_members():
+                        if member.bot:
+                            continue
+                        await upsert_discord(member, db)
+                        await upsert_member(guild_entity.guild_id, str(member.id), db)
+                    owner_member = await upsert_member(
+                        guild_entity.guild_id, owner_discord_id, db
+                    )
+                    if owner_member.role is None:
+                        await set_role(
+                            guild_entity.guild_id, owner_discord_id, Role.OWNER, db
+                        )
+                await db.commit()
+                logger.info(f"Synced {len(bot.guilds)} guild(s) on ready")
+            except Exception as e:
+                await db.rollback()
+                logger.exception(f"on_ready sync error: {e}")
 
     @bot.event
     async def on_guild_join(guild):
