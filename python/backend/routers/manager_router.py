@@ -40,22 +40,22 @@ async def add_manager_route(
     return await add_manager_service(guild_id, dto, db, payload)
 
 
-@manager_router.patch("/{user_id}", response_model=ManagerDTO)
+@manager_router.patch("/{discord_id}", response_model=ManagerDTO)
 async def update_manager_route(
     guild_id: int,
-    user_id: int,
+    discord_id: str,
     dto: UpdateManagerDTO,
     db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
-    return await update_manager_service(guild_id, user_id, dto, db, payload)
+    return await update_manager_service(guild_id, discord_id, dto, db, payload)
 
 
-@manager_router.delete("/{user_id}", status_code=204)
+@manager_router.delete("/{discord_id}", status_code=204)
 async def delete_manager_route(
     guild_id: int,
-    user_id: int,
+    discord_id: str,
     db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
-    return await remove_manager_service(guild_id, user_id, db, payload)
+    return await remove_manager_service(guild_id, discord_id, db, payload)

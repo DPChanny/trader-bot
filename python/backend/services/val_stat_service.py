@@ -16,7 +16,7 @@ from ..utils.token import Payload
 async def get_val_stat(
     member_id: int, db: AsyncSession, payload: Payload
 ) -> ValStatDTO:
-    guild_ids = await get_guild_ids(payload.user_id, db)
+    guild_ids = await get_guild_ids(payload.discord_id, db)
     result = await db.execute(
         select(ValStat)
         .join(Member, ValStat.member_id == Member.member_id)

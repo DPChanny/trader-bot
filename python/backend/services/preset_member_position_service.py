@@ -26,7 +26,7 @@ async def add_preset_member_position_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PresetMemberPositionDTO:
-    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
     result = await db.execute(
         select(PresetMember)
         .join(Preset, PresetMember.preset_id == Preset.preset_id)
@@ -78,7 +78,7 @@ async def delete_preset_member_position_service(
     db: AsyncSession,
     payload: Payload,
 ) -> None:
-    await verify_role(guild_id, payload.user_id, Role.EDITOR, db)
+    await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
     result = await db.execute(
         select(PresetMemberPosition)
         .join(

@@ -43,7 +43,10 @@ export function PresetMemberCard({
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
           {member?.profileUrl ? (
-            <img src={member.profileUrl} alt={member?.alias || "이름 없음"} />
+            <img
+              src={member.profileUrl}
+              alt={member?.discord?.name || member?.riotId || "이름 없음"}
+            />
           ) : (
             <svg
               class={styles.profileIcon}
@@ -62,7 +65,9 @@ export function PresetMemberCard({
         </div>
 
         <Section variantTone="ghost" variantIntent="tertiary">
-          <h3 class={styles.name}>{member?.alias || "이름 없음"}</h3>
+          <h3 class={styles.name}>
+            {member?.discord?.name || member?.riotId || "이름 없음"}
+          </h3>
           {presetMemberPositions?.length > 0 && (
             <Section
               variantTone="ghost"

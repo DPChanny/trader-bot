@@ -21,11 +21,11 @@ from ..utils.token import Payload
 async def get_manager_list_service(
     guild_id: int, db: AsyncSession, payload: Payload
 ) -> list[ManagerDetailDTO]:
-    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    await verify_role(guild_id, payload.discord_id, Role.VIEWER, db)
 
     result = await db.execute(
         select(Manager)
-        .options(joinedload(Manager.user))
+        .options(joinedload(Manager.discord))
         .where(Manager.guild_id == guild_id)
     )
     managers = result.unique().scalars().all()
@@ -36,12 +36,12 @@ async def get_manager_list_service(
 async def add_manager_service(
     guild_id: int, dto: AddManagerDTO, db: AsyncSession, payload: Payload
 ) -> ManagerDTO:
-    await verify_role(guild_id, payload.user_id, Role.ADMIN, db)
+    await verify_role(guild_id, payload.discord_id, Role.ADMIN, db)
 
     result = await db.execute(
         select(Manager).where(
             Manager.guild_id == guild_id,
-            Manager.user_id == dto.user_id,
+            Manager.discord_id == dto.discord_id,
         )
     )
     if result.scalar_one_or_none():
@@ -49,30 +49,30 @@ async def add_manager_service(
 
     manager = Manager(
         guild_id=guild_id,
-        user_id=dto.user_id,
-        role=dto.role,
+        discord_id=dto.discord_id,
+        role=Role.VIEWER,
     )
     db.add(manager)
     await db.commit()
     await db.refresh(manager)
-    logger.info(f"Manager added: guild_id={guild_id}, user_id={dto.user_id}")
+    logger.info(f"Manager added: guild_id={guild_id}, discord_id={dto.discord_id}")
     return ManagerDTO.model_validate(manager)
 
 
 @service_exception_handler
 async def update_manager_service(
     guild_id: int,
-    user_id: int,
+    discord_id: str,
     dto: UpdateManagerDTO,
     db: AsyncSession,
     payload: Payload,
 ) -> ManagerDTO:
-    await verify_role(guild_id, payload.user_id, Role.ADMIN, db)
+    await verify_role(guild_id, payload.discord_id, Role.ADMIN, db)
 
     result = await db.execute(
         select(Manager).where(
             Manager.guild_id == guild_id,
-            Manager.user_id == user_id,
+            Manager.discord_id == discord_id,
         )
     )
     manager = result.scalar_one_or_none()
@@ -84,19 +84,19 @@ async def update_manager_service(
 
     await db.commit()
     await db.refresh(manager)
-    logger.info(f"Manager updated: guild_id={guild_id}, user_id={user_id}")
+    logger.info(f"Manager updated: guild_id={guild_id}, discord_id={discord_id}")
     return ManagerDTO.model_validate(manager)
 
 
 @service_exception_handler
 async def remove_manager_service(
-    guild_id: int, user_id: int, db: AsyncSession, payload: Payload
+    guild_id: int, discord_id: str, db: AsyncSession, payload: Payload
 ) -> None:
-    is_self = user_id == payload.user_id
+    is_self = discord_id == payload.discord_id
 
     if not is_self:
-        caller_role = await verify_role(guild_id, payload.user_id, Role.ADMIN, db)
-        target_role = await verify_role(guild_id, user_id, Role.VIEWER, db)
+        caller_role = await verify_role(guild_id, payload.discord_id, Role.ADMIN, db)
+        target_role = await verify_role(guild_id, discord_id, Role.VIEWER, db)
         if caller_role <= target_role:
             raise HTTPException(
                 status_code=403,
@@ -106,7 +106,7 @@ async def remove_manager_service(
     result = await db.execute(
         select(Manager).where(
             Manager.guild_id == guild_id,
-            Manager.user_id == user_id,
+            Manager.discord_id == discord_id,
         )
     )
     manager = result.scalar_one_or_none()
@@ -115,4 +115,4 @@ async def remove_manager_service(
 
     await db.delete(manager)
     await db.commit()
-    logger.info(f"Manager removed: guild_id={guild_id}, user_id={user_id}")
+    logger.info(f"Manager removed: guild_id={guild_id}, discord_id={discord_id}")

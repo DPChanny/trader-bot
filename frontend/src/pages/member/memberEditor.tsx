@@ -2,18 +2,13 @@ import { useEffect, useState } from "preact/hooks";
 import { MemberCard } from "@/components/memberCard";
 import { LolStat } from "@/components/lolStat";
 import { ValStat } from "@/components/valStat";
-import {
-  useDeleteMember,
-  useUpdateMember,
-  useUpdateMemberProfile,
-} from "@/hooks/member";
+import { useDeleteMember, useUpdateMember } from "@/hooks/member";
 import { useGuildContext } from "@/contexts/guildContext";
 import { useLolStat } from "@/hooks/lolStat";
 import { useValStat } from "@/hooks/valStat";
 import {
   CloseButton,
   DangerButton,
-  PrimaryButton,
   SaveButton,
 } from "@/components/commons/button";
 import { LabelInput } from "@/components/commons/labelInput";
@@ -37,25 +32,20 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
   const guildId = guild?.guildId ?? null;
   const updateMember = useUpdateMember();
   const deleteMember = useDeleteMember();
-  const updateProfile = useUpdateMemberProfile();
   const lolStat = useLolStat(member.memberId);
   const valStat = useValStat(member.memberId);
 
-  const [alias, setAlias] = useState(member.alias ?? "");
   const [riotId, setRiotId] = useState(member.riotId ?? "");
   const [discordId, setDiscordId] = useState(member.discordId ?? "");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    setAlias(member.alias ?? "");
     setRiotId(member.riotId ?? "");
     setDiscordId(member.discordId ?? "");
-  }, [member.memberId, member.alias, member.riotId, member.discordId]);
+  }, [member.memberId, member.riotId, member.discordId]);
 
   const hasChanges =
-    alias !== (member.alias ?? "") ||
-    riotId !== (member.riotId ?? "") ||
-    discordId !== (member.discordId ?? "");
+    riotId !== (member.riotId ?? "") || discordId !== (member.discordId ?? "");
 
   const handleSave = async () => {
     if (!guildId) return;
@@ -63,7 +53,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
       await updateMember.mutateAsync({
         guildId,
         memberId: member.memberId,
-        dto: { alias, riotId, discordId },
+        dto: { riotId, discordId },
       });
     } catch (err) {
       console.error("Failed to update member:", err);
@@ -81,15 +71,6 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
     }
   };
 
-  const handleUpdateProfile = async () => {
-    if (!guildId) return;
-    try {
-      await updateProfile.mutateAsync({ guildId, memberId: member.memberId });
-    } catch (err) {
-      console.error("Failed to update profile:", err);
-    }
-  };
-
   return (
     <Section variantIntent="primary" className={styles.panelSection}>
       <Section variantTone="ghost" variantIntent="secondary">
@@ -98,7 +79,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
           variantLayout="row"
           variantIntent="secondary"
         >
-          <h3>{member.alias || "이름 없음"}</h3>
+          <h3>{member.discord?.name || member.riotId || "이름 없음"}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -111,9 +92,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
             <CloseButton onClick={onClose} />
           </Section>
         </Section>
-        {(updateMember.isError ||
-          deleteMember.isError ||
-          updateProfile.isError) && (
+        {(updateMember.isError || deleteMember.isError) && (
           <>
             {updateMember.isError && (
               <Error detail={updateMember.error?.message}>
@@ -123,11 +102,6 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
             {deleteMember.isError && (
               <Error detail={deleteMember.error?.message}>
                 멤버 삭제에 실패했습니다.
-              </Error>
-            )}
-            {updateProfile.isError && (
-              <Error detail={updateProfile.error?.message}>
-                프로필 업데이트에 실패했습니다.
               </Error>
             )}
           </>
@@ -147,28 +121,20 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
               member={{
                 memberId: member.memberId,
                 guildId: member.guildId,
-                alias: alias || null,
                 riotId: riotId || null,
                 discordId: discordId || null,
+                discord: member.discord,
                 profileUrl: member.profileUrl,
               }}
             />
           </Section>
 
-          <LabelInput label="이름" value={alias} onChange={setAlias} />
           <LabelInput label="Riot ID" value={riotId} onChange={setRiotId} />
           <LabelInput
             label="Discord ID"
             value={discordId}
             onChange={setDiscordId}
           />
-
-          <PrimaryButton
-            onClick={handleUpdateProfile}
-            disabled={updateProfile.isPending || !member.discordId}
-          >
-            {updateProfile.isPending ? "업데이트 중..." : "프로필 업데이트"}
-          </PrimaryButton>
 
           <Label>League of Legends 통계</Label>
           {lolStat.isLoading ? (

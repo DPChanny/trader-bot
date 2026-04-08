@@ -9,6 +9,7 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
+    from .discord import Discord
     from .guild import Guild
     from .lol_stat import LolStat
     from .preset_member import PresetMember
@@ -23,11 +24,15 @@ class Member(BaseEntity):
         ForeignKey("guild.guild_id", ondelete="CASCADE"),
         nullable=False,
     )
-    alias: Mapped[str | None] = mapped_column(String(256), nullable=True)
     riot_id: Mapped[str | None] = mapped_column(String(256), nullable=True)
-    discord_id: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    discord_id: Mapped[str | None] = mapped_column(
+        String(256),
+        ForeignKey("discord.discord_id", ondelete="SET NULL"),
+        nullable=True,
+    )
 
     guild: Mapped[Guild] = relationship("Guild", back_populates="members")
+    discord: Mapped[Discord | None] = relationship("Discord", back_populates="members")
 
     preset_members: Mapped[list[PresetMember]] = relationship(
         "PresetMember", back_populates="member", cascade="all, delete-orphan"

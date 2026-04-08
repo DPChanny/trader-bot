@@ -7,19 +7,17 @@ import { useAddMember } from "@/hooks/member";
 import { useGuildContext } from "@/contexts/guildContext";
 import { useMemberPageContext } from "./memberContext";
 
-const INITIAL_STATE = { alias: "", riotId: "", discordId: "" };
+const INITIAL_STATE = { riotId: "", discordId: "" };
 
 export function AddMemberModal() {
   const { guild } = useGuildContext();
   const guildId = guild?.guildId ?? null;
   const { isModalOpen, closeModal } = useMemberPageContext();
-  const [alias, setAlias] = useState(INITIAL_STATE.alias);
   const [riotId, setRiotId] = useState(INITIAL_STATE.riotId);
   const [discordId, setDiscordId] = useState(INITIAL_STATE.discordId);
   const addMember = useAddMember();
 
   const handleClose = () => {
-    setAlias(INITIAL_STATE.alias);
     setRiotId(INITIAL_STATE.riotId);
     setDiscordId(INITIAL_STATE.discordId);
     addMember.reset();
@@ -32,7 +30,7 @@ export function AddMemberModal() {
     try {
       await addMember.mutateAsync({
         guildId,
-        dto: { alias, riotId, discordId },
+        dto: { riotId, discordId },
       });
       handleClose();
     } catch {}
@@ -46,12 +44,6 @@ export function AddMemberModal() {
             멤버 추가에 실패했습니다.
           </ErrorMessage>
         ) : null}
-        <LabelInput
-          label="이름 (선택 사항)"
-          type="text"
-          value={alias}
-          onChange={setAlias}
-        />
         <LabelInput
           label="Riot ID (선택 사항)"
           type="text"

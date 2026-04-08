@@ -5,20 +5,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.entities.manager import Manager, Role
 
 
-async def get_guild_ids(user_id: int, db: AsyncSession) -> list[int]:
+async def get_guild_ids(discord_id: str, db: AsyncSession) -> list[int]:
     result = await db.execute(
-        select(Manager.guild_id).where(Manager.user_id == user_id)
+        select(Manager.guild_id).where(Manager.discord_id == discord_id)
     )
     return list(result.scalars().all())
 
 
 async def verify_role(
-    guild_id: int, user_id: int, min_role: Role, db: AsyncSession
+    guild_id: int, discord_id: str, min_role: Role, db: AsyncSession
 ) -> Role:
     result = await db.execute(
         select(Manager).where(
             Manager.guild_id == guild_id,
-            Manager.user_id == user_id,
+            Manager.discord_id == discord_id,
         )
     )
     manager = result.scalar_one_or_none()

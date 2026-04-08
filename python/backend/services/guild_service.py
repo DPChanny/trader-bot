@@ -27,7 +27,7 @@ from ..utils.token import Payload, create_token, decode_token
 async def _query_guild_detail(guild_id: int, db: AsyncSession) -> Guild | None:
     result = await db.execute(
         select(Guild)
-        .options(joinedload(Guild.managers).joinedload(Manager.user))
+        .options(joinedload(Guild.managers).joinedload(Manager.discord))
         .where(Guild.guild_id == guild_id)
     )
     return result.unique().scalar_one_or_none()
@@ -36,7 +36,7 @@ async def _query_guild_detail(guild_id: int, db: AsyncSession) -> Guild | None:
 @service_exception_handler
 async def get_guild_list_service(db: AsyncSession, payload: Payload) -> list[GuildDTO]:
     result = await db.execute(
-        select(Guild).join(Manager).where(Manager.user_id == payload.user_id)
+        select(Guild).join(Manager).where(Manager.discord_id == payload.discord_id)
     )
     guilds = result.unique().scalars().all()
     return [GuildDTO.model_validate(g) for g in guilds]
@@ -46,7 +46,7 @@ async def get_guild_list_service(db: AsyncSession, payload: Payload) -> list[Gui
 async def get_guild_detail_service(
     guild_id: int, db: AsyncSession, payload: Payload
 ) -> GuildDetailDTO:
-    await verify_role(guild_id, payload.user_id, Role.VIEWER, db)
+    await verify_role(guild_id, payload.discord_id, Role.VIEWER, db)
 
     guild = await _query_guild_detail(guild_id, db)
     if guild is None:
@@ -59,7 +59,7 @@ async def get_guild_detail_service(
 async def update_guild_service(
     guild_id: int, dto: UpdateGuildDTO, db: AsyncSession, payload: Payload
 ) -> GuildDetailDTO:
-    await verify_role(guild_id, payload.user_id, Role.ADMIN, db)
+    await verify_role(guild_id, payload.discord_id, Role.ADMIN, db)
 
     result = await db.execute(select(Guild).where(Guild.guild_id == guild_id))
     guild = result.scalar_one_or_none()
@@ -80,7 +80,7 @@ async def update_guild_service(
 async def delete_guild_service(
     guild_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    await verify_role(guild_id, payload.user_id, Role.ADMIN, db)
+    await verify_role(guild_id, payload.discord_id, Role.ADMIN, db)
 
     result = await db.execute(select(Guild).where(Guild.guild_id == guild_id))
     guild = result.scalar_one_or_none()

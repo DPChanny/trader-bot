@@ -1,5 +1,3 @@
-from typing import Any
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,9 +14,7 @@ from ..services.member_service import (
     get_member_detail_service,
     get_member_list_service,
     update_member_service,
-    update_profile_service,
 )
-from ..utils.bucket import get_bucket
 from ..utils.token import Payload, verify_token
 
 
@@ -31,9 +27,8 @@ async def add_member_route(
     dto: AddMemberDTO,
     db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
-    bucket: Any = Depends(get_bucket),
 ):
-    return await add_member_service(guild_id, dto, db, bucket, payload)
+    return await add_member_service(guild_id, dto, db, payload)
 
 
 @member_router.get("", response_model=list[MemberDTO])
@@ -62,20 +57,18 @@ async def update_member_route(
     dto: UpdateMemberDTO,
     db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
-    bucket: Any = Depends(get_bucket),
 ):
-    return await update_member_service(guild_id, member_id, dto, db, bucket, payload)
+    return await update_member_service(guild_id, member_id, dto, db, payload)
 
 
-@member_router.post("/{member_id}/profile", response_model=MemberDTO)
-async def update_profile_route(
+@member_router.delete("/{member_id}", status_code=204)
+async def delete_member_route(
     guild_id: int,
     member_id: int,
     db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
-    bucket: Any = Depends(get_bucket),
 ):
-    return await update_profile_service(guild_id, member_id, db, bucket, payload)
+    return await delete_member_service(guild_id, member_id, db, payload)
 
 
 @member_router.delete("/{member_id}", status_code=204)

@@ -2,24 +2,26 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .manager import Manager
+    from .discord import Discord
 
 
 class User(BaseEntity):
     __tablename__ = "user"
 
     user_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    discord_id: Mapped[str] = mapped_column(String(256), unique=True, nullable=False)
-    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    discord_id: Mapped[str] = mapped_column(
+        String(256),
+        ForeignKey("discord.discord_id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
+    )
     refresh_token: Mapped[str | None] = mapped_column(String(512), nullable=True)
 
-    managers: Mapped[list[Manager]] = relationship(
-        "Manager", back_populates="user", cascade="all, delete-orphan"
-    )
+    discord: Mapped[Discord] = relationship("Discord", back_populates="users")

@@ -142,39 +142,3 @@ export function useDeleteMember() {
     },
   });
 }
-
-export function useUpdateMemberProfile() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      guildId,
-      memberId,
-    }: {
-      guildId: number;
-      memberId: number;
-    }): Promise<MemberDTO> => {
-      const response = await fetch(
-        `${getMemberEndpoint(guildId)}/${memberId}/profile`,
-        {
-          method: "POST",
-          headers: getAuthHeadersForMutation(),
-        },
-      );
-      if (!response.ok) await handleHttpError(response);
-      const json = await response.json();
-      return toCamelCase<MemberDTO>(json);
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["members", variables.guildId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["members", variables.guildId, variables.memberId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId],
-      });
-    },
-  });
-}

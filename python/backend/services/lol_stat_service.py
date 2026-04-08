@@ -16,7 +16,7 @@ from ..utils.token import Payload
 async def get_lol_stat(
     member_id: int, db: AsyncSession, payload: Payload
 ) -> LolStatDTO:
-    guild_ids = await get_guild_ids(payload.user_id, db)
+    guild_ids = await get_guild_ids(payload.discord_id, db)
     result = await db.execute(
         select(LolStat)
         .join(Member, LolStat.member_id == Member.member_id)

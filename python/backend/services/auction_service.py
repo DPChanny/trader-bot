@@ -27,7 +27,7 @@ from ..utils.token import Payload
 async def add_auction_service(
     preset_id: int, db: AsyncSession, payload: Payload
 ) -> AuctionDTO:
-    guild_ids = await get_guild_ids(payload.user_id, db)
+    guild_ids = await get_guild_ids(payload.discord_id, db)
     result = await db.execute(
         select(Preset)
         .options(
@@ -42,7 +42,7 @@ async def add_auction_service(
             status_code=404, detail="Auction create failed: preset not found"
         )
 
-    await verify_role(preset.guild_id, payload.user_id, Role.EDITOR, db)
+    await verify_role(preset.guild_id, payload.discord_id, Role.EDITOR, db)
 
     preset_members = preset.preset_members
     if not preset_members:
