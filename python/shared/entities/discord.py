@@ -9,7 +9,6 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .manager import Manager
     from .member import Member
     from .user import User
 
@@ -22,5 +21,4 @@ class Discord(BaseEntity):
     avatar_hash: Mapped[str | None] = mapped_column(String(256), nullable=True)
 
     users: Mapped[list[User]] = relationship("User", back_populates="discord")
-    managers: Mapped[list[Manager]] = relationship("Manager", back_populates="discord")
     members: Mapped[list[Member]] = relationship("Member", back_populates="discord")

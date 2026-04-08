@@ -9,7 +9,6 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .manager import Manager
     from .member import Member
     from .preset import Preset
 
@@ -20,12 +19,8 @@ class Guild(BaseEntity):
     guild_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     discord_id: Mapped[str] = mapped_column(String(256), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(256), nullable=False)
+    owner_discord_id: Mapped[str] = mapped_column(String(256), nullable=False)
 
-    managers: Mapped[list[Manager]] = relationship(
-        "Manager",
-        back_populates="guild",
-        cascade="all, delete-orphan",
-    )
     presets: Mapped[list[Preset]] = relationship(
         "Preset",
         back_populates="guild",

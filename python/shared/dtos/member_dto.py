@@ -1,3 +1,5 @@
+from shared.entities.member import Role
+
 from . import BaseDTO, NullableStr
 from .discord_dto import DiscordDTO
 
@@ -7,6 +9,7 @@ class MemberDTO(BaseDTO):
     guild_id: int
     riot_id: str | None
     discord_id: str
+    role: Role | None
 
     model_config = {"from_attributes": True}
 
@@ -22,3 +25,4 @@ class AddMemberDTO(BaseDTO):
 
 class UpdateMemberDTO(BaseDTO):
     riot_id: NullableStr = None
+    role: Role | None = None

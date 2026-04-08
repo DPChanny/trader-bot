@@ -8,7 +8,7 @@ from shared.dtos.position_dto import (
     PositionDTO,
     UpdatePositionDTO,
 )
-from shared.entities.manager import Role
+from shared.entities.member import Role
 from shared.entities.position import Position
 from shared.entities.preset import Preset
 

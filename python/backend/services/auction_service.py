@@ -10,8 +10,7 @@ from shared.dtos.auction_dto import (
     AuctionDTO,
     Team,
 )
-from shared.entities.manager import Role
-from shared.entities.member import Member
+from shared.entities.member import Member, Role
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
 from shared.utils.env import get_app_origin

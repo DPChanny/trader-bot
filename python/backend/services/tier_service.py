@@ -8,7 +8,7 @@ from shared.dtos.tier_dto import (
     TierDTO,
     UpdateTierDTO,
 )
-from shared.entities.manager import Role
+from shared.entities.member import Role
 from shared.entities.preset import Preset
 from shared.entities.tier import Tier
 

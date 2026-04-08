@@ -1,6 +1,5 @@
 import urllib.parse
 
-import discord
 import httpx
 from fastapi import HTTPException
 from sqlalchemy import select
@@ -30,10 +29,6 @@ def _get_login_callback_url() -> str:
     return f"{_get_api_endpoint()}/auth/login/callback"
 
 
-def _get_add_guild_callback_url() -> str:
-    return f"{_get_api_endpoint()}/guild/callback"
-
-
 def get_login_url() -> str:
     params = urllib.parse.urlencode(
         {
@@ -41,23 +36,6 @@ def get_login_url() -> str:
             "scope": "identify",
             "response_type": "code",
             "redirect_uri": _get_login_callback_url(),
-        }
-    )
-    return f"{DISCORD_OAUTH_URL}?{params}"
-
-
-def get_add_guild_url(state: str) -> str:
-    params = urllib.parse.urlencode(
-        {
-            "client_id": get_discord_client_id(),
-            "scope": "bot applications.commands",
-            "permissions": discord.Permissions(
-                send_messages=True,
-                embed_links=True,
-            ).value,
-            "redirect_uri": _get_add_guild_callback_url(),
-            "response_type": "code",
-            "state": state,
         }
     )
     return f"{DISCORD_OAUTH_URL}?{params}"
