@@ -1,10 +1,17 @@
 import { useEffect } from "preact/hooks";
-import { setAuthToken, getAuthToken, isAuthenticated } from "@/utils/auth";
+import {
+  setAuthToken,
+  getAuthToken,
+  isAuthenticated,
+  getRefreshToken,
+  setRefreshToken,
+} from "@/utils/auth";
 import { AUTH_API_ENDPOINT } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
 interface TokenResponse {
   token: string;
+  refresh_token: string;
 }
 
 export function useLogin() {
@@ -14,14 +21,14 @@ export function useLogin() {
 }
 
 async function useRefreshToken(): Promise<TokenResponse> {
-  const token = getAuthToken();
-  if (!token) throw new Error("No token available");
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) throw new Error("No refresh token available");
   const response = await fetch(`${AUTH_API_ENDPOINT}/token/refresh`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
+    body: JSON.stringify({ refresh_token: refreshToken }),
   });
   if (!response.ok) await handleHttpError(response);
   return response.json();
@@ -42,6 +49,7 @@ export function useAutoRefreshToken() {
         if (expiresIn < 5 * 60 && isAuthenticated()) {
           const data = await useRefreshToken();
           setAuthToken(data.token);
+          setRefreshToken(data.refresh_token);
         }
       } catch {}
     }

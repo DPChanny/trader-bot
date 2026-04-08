@@ -9,7 +9,7 @@ export interface MemberDTO {
   memberId: number;
   guildId: number;
   riotId: string | null;
-  discordId: string | null;
+  discordId: string;
 }
 
 export interface MemberDetailDTO extends MemberDTO {
@@ -17,11 +17,10 @@ export interface MemberDetailDTO extends MemberDTO {
 }
 
 export interface AddMemberDTO {
+  discordId: string;
   riotId?: string | null;
-  discordId?: string | null;
 }
 
 export interface UpdateMemberDTO {
   riotId?: string | null;
-  discordId?: string | null;
 }

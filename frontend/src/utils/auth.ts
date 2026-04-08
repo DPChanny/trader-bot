@@ -1,16 +1,17 @@
-const TOKEN_COOKIE_NAME = "refreshToken";
+const ACCESS_TOKEN_COOKIE_NAME = "accessToken";
+const REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
 
 export function setAuthToken(token: string): void {
   const expires = new Date();
-  expires.setTime(expires.getTime() + 24 * 60 * 60 * 1000);
-  document.cookie = `${TOKEN_COOKIE_NAME}=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+  expires.setTime(expires.getTime() + 60 * 60 * 1000); // 1 hour (access token은 15분이지만 여유분)
+  document.cookie = `${ACCESS_TOKEN_COOKIE_NAME}=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
 }
 
 export function getAuthToken(): string | null {
   const cookies = document.cookie.split(";");
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split("=");
-    if (name === TOKEN_COOKIE_NAME) {
+    if (name === ACCESS_TOKEN_COOKIE_NAME) {
       return value ?? null;
     }
   }
@@ -18,11 +19,32 @@ export function getAuthToken(): string | null {
 }
 
 export function removeAuthToken(): void {
-  document.cookie = `${TOKEN_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+  document.cookie = `${ACCESS_TOKEN_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}
+
+export function setRefreshToken(token: string): void {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  document.cookie = `${REFRESH_TOKEN_COOKIE_NAME}=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+}
+
+export function getRefreshToken(): string | null {
+  const cookies = document.cookie.split(";");
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split("=");
+    if (name === REFRESH_TOKEN_COOKIE_NAME) {
+      return value ?? null;
+    }
+  }
+  return null;
+}
+
+export function removeRefreshToken(): void {
+  document.cookie = `${REFRESH_TOKEN_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 }
 
 export function isAuthenticated(): boolean {
-  const token = getAuthToken();
+  const token = getRefreshToken();
   if (!token) return false;
   try {
     const parts = token.split(".");

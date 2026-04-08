@@ -16,20 +16,16 @@ class Payload(BaseModel):
     iat: int
 
 
-JWT_EXPIRATION_MINUTES = 15
-
-
-def hash_token(token: str) -> str:
-    return hashlib.sha256(token.encode()).hexdigest()
+ACCESS_TOKEN_EXPIRATION_MINUTES = 15
+REFRESH_TOKEN_EXPIRATION_DAYS = 30
 
 
 def create_token(
     user_id: int,
     discord_id: str,
-    expiration_minutes: int = JWT_EXPIRATION_MINUTES,
 ) -> str:
     now = datetime.now(UTC)
-    expiration = now + timedelta(minutes=expiration_minutes)
+    expiration = now + timedelta(minutes=ACCESS_TOKEN_EXPIRATION_MINUTES)
     token_data = {
         "user_id": user_id,
         "discord_id": discord_id,
@@ -37,6 +33,23 @@ def create_token(
         "iat": int(now.timestamp()),
     }
     return jwt.encode(token_data, get_jwt_secret(), algorithm=get_jwt_algorithm())
+
+
+def create_refresh_token(user_id: int, discord_id: str) -> str:
+    now = datetime.now(UTC)
+    expiration = now + timedelta(days=REFRESH_TOKEN_EXPIRATION_DAYS)
+    token_data = {
+        "user_id": user_id,
+        "discord_id": discord_id,
+        "exp": int(expiration.timestamp()),
+        "iat": int(now.timestamp()),
+        "type": "refresh",
+    }
+    return jwt.encode(token_data, get_jwt_secret(), algorithm=get_jwt_algorithm())
+
+
+def hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
 
 
 def decode_token(token: str) -> Payload:

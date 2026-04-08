@@ -3,7 +3,10 @@ import urllib.parse
 import discord
 import httpx
 from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.entities.discord import Discord
 from shared.utils.env import (
     get_api_origin,
     get_bot_token,
@@ -125,25 +128,20 @@ async def verify_member(guild_id: str, user_id: str) -> None:
             )
 
 
-async def get_profile(user_id: str) -> tuple[bytes, str]:
-    user = await get_user(user_id)
-    avatar_hash = user.get("avatar")
-    if avatar_hash:
-        ext = "gif" if avatar_hash.startswith("a_") else "png"
-        url = (
-            f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.{ext}?size=256"
-        )
-        content_type = f"image/{ext}"
-    else:
-        default_index = (int(user_id) >> 22) % 6
-        url = f"https://cdn.discordapp.com/embed/avatars/{default_index}.png"
-        content_type = "image/png"
+async def upsert_discord_from_api(discord_id: str, db: AsyncSession) -> Discord:
+    result = await db.execute(select(Discord).where(Discord.discord_id == discord_id))
+    existing = result.scalar_one_or_none()
+    if existing is not None:
+        return existing
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        response = await client.get(url)
-        if response.status_code != 200:
-            raise HTTPException(status_code=400, detail="Failed to fetch profile")
-        return response.content, content_type
+    user_data = await get_user(discord_id)
+    name = user_data.get("global_name") or user_data.get("username", "")
+    avatar_hash = user_data.get("avatar")
+
+    discord_entity = Discord(discord_id=discord_id, name=name, avatar_hash=avatar_hash)
+    db.add(discord_entity)
+    await db.flush()
+    return discord_entity
 
 
 async def send_message(user_id: str, embeds: list[dict]) -> bool:

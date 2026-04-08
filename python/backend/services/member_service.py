@@ -13,7 +13,7 @@ from shared.entities.guild import Guild
 from shared.entities.manager import Role
 from shared.entities.member import Member
 
-from ..utils.discord import verify_member
+from ..utils.discord import upsert_discord_from_api, verify_member
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
 from ..utils.token import Payload
@@ -43,12 +43,13 @@ async def add_member_service(
 ) -> MemberDetailDTO:
     await verify_role(guild_id, payload.discord_id, Role.EDITOR, db)
 
-    if dto.discord_id is not None:
-        guild_result = await db.execute(select(Guild).where(Guild.guild_id == guild_id))
-        guild = guild_result.scalar_one_or_none()
-        if guild is None:
-            raise HTTPException(status_code=404, detail="Guild not found")
-        await verify_member(guild.discord_id, dto.discord_id)
+    guild_result = await db.execute(select(Guild).where(Guild.guild_id == guild_id))
+    guild = guild_result.scalar_one_or_none()
+    if guild is None:
+        raise HTTPException(status_code=404, detail="Guild not found")
+    await verify_member(guild.discord_id, dto.discord_id)
+
+    await upsert_discord_from_api(dto.discord_id, db)
 
     member = Member(
         guild_id=guild_id,
@@ -98,18 +99,6 @@ async def update_member_service(
     member = result.scalar_one_or_none()
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
-
-    old_discord_id = member.discord_id
-    new_discord_id = dto.model_dump(exclude_unset=True).get(
-        "discord_id", old_discord_id
-    )
-
-    if new_discord_id is not None and new_discord_id != old_discord_id:
-        guild_result = await db.execute(select(Guild).where(Guild.guild_id == guild_id))
-        guild = guild_result.scalar_one_or_none()
-        if guild is None:
-            raise HTTPException(status_code=404, detail="Guild not found")
-        await verify_member(guild.discord_id, new_discord_id)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(member, key, value)

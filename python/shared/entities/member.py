@@ -26,14 +26,14 @@ class Member(BaseEntity):
         nullable=False,
     )
     riot_id: Mapped[str | None] = mapped_column(String(256), nullable=True)
-    discord_id: Mapped[str | None] = mapped_column(
+    discord_id: Mapped[str] = mapped_column(
         String(256),
-        ForeignKey("discord.discord_id", ondelete="SET NULL"),
-        nullable=True,
+        ForeignKey("discord.discord_id", ondelete="CASCADE"),
+        nullable=False,
     )
 
     guild: Mapped[Guild] = relationship("Guild", back_populates="members")
-    discord: Mapped[Discord | None] = relationship("Discord", back_populates="members")
+    discord: Mapped[Discord] = relationship("Discord", back_populates="members")
 
     preset_members: Mapped[list[PresetMember]] = relationship(
         "PresetMember", back_populates="member", cascade="all, delete-orphan"

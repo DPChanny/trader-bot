@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.dtos.token_dto import RefreshDTO
 from shared.utils.database import get_async_db
 
 from ..services.auth_service import (
@@ -9,7 +10,6 @@ from ..services.auth_service import (
     login_service,
     refresh_token_service,
 )
-from ..utils.token import Payload, verify_token
 
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
@@ -30,6 +30,7 @@ async def callback_route(
 
 @auth_router.post("/token/refresh")
 async def refresh_token_route(
-    payload: Payload = Depends(verify_token),
+    dto: RefreshDTO,
+    db: AsyncSession = Depends(get_async_db),
 ) -> dict:
-    return await refresh_token_service(payload)
+    return await refresh_token_service(dto, db)

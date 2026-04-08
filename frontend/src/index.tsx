@@ -9,7 +9,13 @@ import { MemberPage } from "@/pages/member/memberPage";
 import { AuctionPage } from "@/pages/auction/auctionPage";
 import { Header } from "@/components/commons/header";
 import { queryClient } from "@/utils/query";
-import { removeAuthToken, isAuthenticated, setAuthToken } from "@/utils/auth";
+import {
+  removeAuthToken,
+  removeRefreshToken,
+  isAuthenticated,
+  setAuthToken,
+  setRefreshToken,
+} from "@/utils/auth";
 import { useAutoRefreshToken } from "@/hooks/auth";
 import { GuildProvider } from "@/contexts/guildContext";
 import { route } from "preact-router";
@@ -19,8 +25,12 @@ function Root({}: { path?: string }) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
+    const refreshToken = params.get("refresh_token");
     if (token) {
       setAuthToken(token);
+    }
+    if (refreshToken) {
+      setRefreshToken(refreshToken);
     }
     route(isAuthenticated() ? "/guild" : "/auth/login", true);
   }, []);
@@ -46,6 +56,7 @@ interface PageWrapperProps {
 
 function handleLogout() {
   removeAuthToken();
+  removeRefreshToken();
   sessionStorage.removeItem("guild");
   route("/");
 }
