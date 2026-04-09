@@ -4,11 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.entities.member import Member, Role
 
 
-def get_avatar_url(guild_id: str, user_id: str, avatar_hash: str) -> str:
-    ext = "gif" if avatar_hash.startswith("a_") else "png"
-    return f"https://cdn.discordapp.com/guilds/{guild_id}/users/{user_id}/avatars/{avatar_hash}.{ext}?size=256"
-
-
 async def upsert_member(
     guild_id: int,
     discord_id: str,
@@ -17,11 +12,6 @@ async def upsert_member(
     name: str | None = None,
     avatar_hash: str | None = None,
 ) -> Member:
-    avatar_url = (
-        get_avatar_url(guild_discord_id, discord_id, avatar_hash)
-        if (guild_discord_id and avatar_hash)
-        else None
-    )
     result = await db.execute(
         select(Member).where(
             Member.guild_id == guild_id,
@@ -35,13 +25,13 @@ async def upsert_member(
             discord_id=discord_id,
             role=Role.VIEWER,
             name=name,
-            avatar_url=avatar_url,
+            avatar_hash=avatar_hash,
         )
         db.add(entity)
         await db.flush()
     else:
         entity.name = name
-        entity.avatar_url = avatar_url
+        entity.avatar_hash = avatar_hash
         await db.flush()
     return entity
 
@@ -72,11 +62,6 @@ async def update_member(
     avatar_hash: str | None = None,
     db: AsyncSession = None,
 ) -> None:
-    avatar_url = (
-        get_avatar_url(guild_discord_id, discord_id, avatar_hash)
-        if (guild_discord_id and avatar_hash)
-        else None
-    )
     result = await db.execute(
         select(Member).where(
             Member.guild_id == guild_id,
@@ -86,7 +71,7 @@ async def update_member(
     entity = result.scalar_one_or_none()
     if entity is not None:
         entity.name = name
-        entity.avatar_url = avatar_url
+        entity.avatar_hash = avatar_hash
         await db.flush()
 
 

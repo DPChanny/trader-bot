@@ -19,7 +19,7 @@ class Guild(BaseEntity):
     guild_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     discord_id: Mapped[str] = mapped_column(String(256), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(256), nullable=False)
-    icon_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    icon_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
     presets: Mapped[list[Preset]] = relationship(
         "Preset",

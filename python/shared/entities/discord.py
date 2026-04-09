@@ -18,7 +18,7 @@ class Discord(BaseEntity):
 
     discord_id: Mapped[str] = mapped_column(String(256), primary_key=True)
     name: Mapped[str] = mapped_column(String(256), nullable=False)
-    avatar_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    avatar_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
     users: Mapped[list[User]] = relationship("User", back_populates="discord")
     members: Mapped[list[Member]] = relationship("Member", back_populates="discord")

@@ -18,7 +18,7 @@ async def get_member_detail_service(
     await verify_role(guild_id, payload.discord_id, db)
     result = await db.execute(
         select(Member)
-        .options(selectinload(Member.discord))
+        .options(selectinload(Member.discord), selectinload(Member.guild))
         .where(Member.member_id == member_id, Member.guild_id == guild_id)
     )
     member = result.scalar_one_or_none()
@@ -34,7 +34,7 @@ async def get_member_list_service(
     await verify_role(guild_id, payload.discord_id, db)
     result = await db.execute(
         select(Member)
-        .options(selectinload(Member.discord))
+        .options(selectinload(Member.discord), selectinload(Member.guild))
         .where(Member.guild_id == guild_id)
     )
     members = result.scalars().all()
@@ -65,7 +65,7 @@ async def update_member_service(
 
     result = await db.execute(
         select(Member)
-        .options(selectinload(Member.discord))
+        .options(selectinload(Member.discord), selectinload(Member.guild))
         .where(Member.member_id == member_id)
     )
     member = result.scalar_one()

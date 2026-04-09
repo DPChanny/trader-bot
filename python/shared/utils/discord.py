@@ -20,13 +20,6 @@ DISCORD_USERS_URL = "https://discord.com/api/users"
 DISCORD_CHANNELS_URL = "https://discord.com/api/channels"
 
 
-def get_avatar_url(discord_id: str, avatar_hash: str) -> str:
-    ext = "gif" if avatar_hash.startswith("a_") else "png"
-    return (
-        f"https://cdn.discordapp.com/avatars/{discord_id}/{avatar_hash}.{ext}?size=256"
-    )
-
-
 def _get_api_endpoint() -> str:
     return f"{get_api_origin()}/api"
 
@@ -104,12 +97,11 @@ async def upsert_discord(
     avatar_hash: str | None,
     db: AsyncSession,
 ) -> None:
-    avatar_url = get_avatar_url(discord_id, avatar_hash) if avatar_hash else None
     result = await db.execute(select(Discord).where(Discord.discord_id == discord_id))
     entity = result.scalar_one_or_none()
     if entity is None:
-        db.add(Discord(discord_id=discord_id, name=name, avatar_url=avatar_url))
+        db.add(Discord(discord_id=discord_id, name=name, avatar_hash=avatar_hash))
     else:
         entity.name = name
-        entity.avatar_url = avatar_url
+        entity.avatar_hash = avatar_hash
     await db.flush()
