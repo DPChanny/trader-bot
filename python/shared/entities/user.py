@@ -2,25 +2,28 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import BigInteger, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .discord import Discord
+    from .discord import DiscordUser
 
 
 class User(BaseEntity):
     __tablename__ = "user"
 
-    user_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    discord_id: Mapped[str] = mapped_column(
-        ForeignKey("discord.discord_id"),
-        unique=True,
-        nullable=False,
+    discord_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("discord_user.discord_id"),
+        primary_key=True,
     )
     refresh_token: Mapped[str | None] = mapped_column(String(512), nullable=True)
 
-    discord: Mapped[Discord] = relationship("Discord", back_populates="users")
+    discord_user: Mapped[DiscordUser] = relationship(
+        "DiscordUser",
+        foreign_keys=[discord_id],
+        viewonly=True,
+    )

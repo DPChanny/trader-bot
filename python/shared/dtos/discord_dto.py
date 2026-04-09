@@ -1,17 +1,17 @@
 from pydantic import computed_field
 
-from . import BaseDTO
+from . import BaseDTO, DiscordId
 
 
-class DiscordDTO(BaseDTO):
-    discord_id: str
+class DiscordUserDTO(BaseDTO):
+    discord_id: DiscordId
     name: str
     avatar_hash: str | None
 
     model_config = {"from_attributes": True}
 
 
-class DiscordDetailDTO(DiscordDTO):
+class DiscordUserDetailDTO(DiscordUserDTO):
     @computed_field
     @property
     def avatar_url(self) -> str | None:
@@ -19,3 +19,8 @@ class DiscordDetailDTO(DiscordDTO):
             return None
         ext = "gif" if self.avatar_hash.startswith("a_") else "png"
         return f"https://cdn.discordapp.com/avatars/{self.discord_id}/{self.avatar_hash}.{ext}?size=256"
+
+
+# Backwards-compatible aliases
+DiscordDTO = DiscordUserDTO
+DiscordDetailDTO = DiscordUserDetailDTO

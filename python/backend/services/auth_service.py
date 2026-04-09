@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.token_dto import RefreshDTO
 from shared.entities.user import User
-from shared.utils.discord import get_login_url, get_me, upsert_discord
+from shared.utils.discord import get_login_url, get_me, upsert_discord_user
 from shared.utils.env import get_app_origin
 
 from ..utils.exception import service_exception_handler
@@ -21,11 +21,11 @@ async def login_service() -> RedirectResponse:
 async def callback_service(code: str, db: AsyncSession) -> RedirectResponse:
     user_data = await get_me(code)
 
-    discord_id = str(user_data["id"])
+    discord_id = int(user_data["id"])
     name = user_data.get("global_name") or user_data.get("username", "")
     avatar_hash = user_data.get("avatar")
 
-    await upsert_discord(discord_id, name, avatar_hash, db)
+    await upsert_discord_user(discord_id, name, avatar_hash, db)
 
     result = await db.execute(select(User).where(User.discord_id == discord_id))
     user = result.scalar_one_or_none()
@@ -35,10 +35,10 @@ async def callback_service(code: str, db: AsyncSession) -> RedirectResponse:
         db.add(user)
         await db.flush()
     else:
-        logger.info(f"User login: user_id={user.user_id}, discord_id={discord_id}")
+        logger.info(f"User login: discord_id={discord_id}")
 
-    access_token = create_token(user.user_id, user.discord_id)
-    refresh_token = create_refresh_token(user.user_id, user.discord_id)
+    access_token = create_token(user.discord_id)
+    refresh_token = create_refresh_token(user.discord_id)
     user.refresh_token = hash_token(refresh_token)
     await db.commit()
 
@@ -54,15 +54,15 @@ async def refresh_token_service(dto: RefreshDTO, db: AsyncSession) -> dict:
 
     payload = decode_token(dto.refresh_token)
 
-    result = await db.execute(select(User).where(User.user_id == payload.user_id))
+    result = await db.execute(select(User).where(User.discord_id == payload.discord_id))
     user = result.scalar_one_or_none()
     if user is None or user.refresh_token != hash_token(dto.refresh_token):
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
-    access_token = create_token(user.user_id, user.discord_id)
-    new_refresh_token = create_refresh_token(user.user_id, user.discord_id)
+    access_token = create_token(user.discord_id)
+    new_refresh_token = create_refresh_token(user.discord_id)
     user.refresh_token = hash_token(new_refresh_token)
     await db.commit()
 
-    logger.info(f"Token refreshed: user_id={user.user_id}")
+    logger.info(f"Token refreshed: discord_id={user.discord_id}")
     return {"token": access_token, "refresh_token": new_refresh_token}

@@ -11,7 +11,7 @@ interface MemberCandidateGridProps {
 
 export function MemberCandidateGrid({ members }: MemberCandidateGridProps) {
   const { guild } = useGuildContext();
-  const guildId = guild?.guildId ?? null;
+  const guildId = guild?.discordId ?? null;
   const { selectedPresetId, addMemberIdToAdding, removeMemberIdFromAdding } =
     usePresetPageContext();
   const addPresetMember = useAddPresetMember();

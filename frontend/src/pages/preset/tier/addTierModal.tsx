@@ -16,7 +16,7 @@ interface AddTierModalProps {
 
 export function AddTierModal({ isOpen, onClose }: AddTierModalProps) {
   const { guild } = useGuildContext();
-  const guildId = guild?.guildId ?? null;
+  const guildId = guild?.discordId ?? null;
   const { selectedPresetId: presetId } = usePresetPageContext();
   const [tierName, setTierName] = useState(INITIAL_STATE.tierName);
   const addTier = useAddTier();

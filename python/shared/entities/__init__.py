@@ -5,7 +5,7 @@ class BaseEntity(DeclarativeBase):
     pass
 
 
-from .discord import Discord
+from .discord import DiscordUser
 from .guild import Guild
 from .lol_stat import Champion, LolStat
 from .member import Member
@@ -23,7 +23,7 @@ __all__ = [
     "Agent",
     "BaseEntity",
     "Champion",
-    "Discord",
+    "DiscordUser",
     "Guild",
     "Role",
     "LolStat",

@@ -97,8 +97,7 @@ async def add_auction_service(
                 continue
 
             auction_url = f"{get_app_origin()}/auction?token={token}"
-            if member.discord_id is not None:
-                invites.append((member.discord_id, auction_url))
+            invites.append((member.user_id, auction_url))
 
     if invites:
 
@@ -111,7 +110,7 @@ async def add_auction_service(
             ]
 
         await asyncio.gather(
-            *[send_message(discord_id, embed(url)) for discord_id, url in invites],
+            *[send_message(user_id, embed(url)) for user_id, url in invites],
             return_exceptions=True,
         )
 

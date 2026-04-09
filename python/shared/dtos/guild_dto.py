@@ -1,11 +1,10 @@
 from pydantic import computed_field
 
-from . import BaseDTO
+from . import BaseDTO, DiscordId
 
 
 class GuildDTO(BaseDTO):
-    guild_id: int
-    discord_id: str
+    discord_id: DiscordId
     name: str
     icon_hash: str | None = None
 

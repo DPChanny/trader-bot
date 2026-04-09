@@ -2,15 +2,15 @@ from pydantic import computed_field
 
 from shared.entities.member import Role
 
-from . import BaseDTO, NullableStr
-from .discord_dto import DiscordDetailDTO
+from . import BaseDTO, DiscordId, NullableStr
+from .discord_dto import DiscordUserDetailDTO
 from .guild_dto import GuildDTO
 
 
 class MemberDTO(BaseDTO):
     member_id: int
-    guild_id: int
-    discord_id: str
+    guild_id: DiscordId
+    user_id: DiscordId
     role: Role
     riot_id: str | None
     name: str | None
@@ -21,7 +21,7 @@ class MemberDTO(BaseDTO):
 
 
 class MemberDetailDTO(MemberDTO):
-    discord: DiscordDetailDTO
+    discord_user: DiscordUserDetailDTO
     guild: GuildDTO
 
     @computed_field
@@ -30,7 +30,7 @@ class MemberDetailDTO(MemberDTO):
         if not self.avatar_hash:
             return None
         ext = "gif" if self.avatar_hash.startswith("a_") else "png"
-        return f"https://cdn.discordapp.com/guilds/{self.guild.discord_id}/users/{self.discord_id}/avatars/{self.avatar_hash}.{ext}?size=256"
+        return f"https://cdn.discordapp.com/guilds/{self.guild.discord_id}/users/{self.user_id}/avatars/{self.avatar_hash}.{ext}?size=256"
 
 
 class UpdateMemberDTO(BaseDTO):

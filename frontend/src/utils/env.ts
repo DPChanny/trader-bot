@@ -12,28 +12,28 @@ export const LOL_STAT_API_ENDPOINT = `${API_ENDPOINT}/lol`;
 export const VAL_STAT_API_ENDPOINT = `${API_ENDPOINT}/val`;
 export const AUCTION_WS_ENDPOINT = `${WS_ENDPOINT}/auction`;
 
-export function getMemberEndpoint(guildId: number) {
+export function getMemberEndpoint(guildId: string) {
   return `${GUILD_API_ENDPOINT}/${guildId}/member`;
 }
 
-export function getPresetEndpoint(guildId: number) {
+export function getPresetEndpoint(guildId: string) {
   return `${GUILD_API_ENDPOINT}/${guildId}/preset`;
 }
 
-export function getPresetMemberEndpoint(guildId: number, presetId: number) {
+export function getPresetMemberEndpoint(guildId: string, presetId: number) {
   return `${getPresetEndpoint(guildId)}/${presetId}/member`;
 }
 
-export function getPositionEndpoint(guildId: number, presetId: number) {
+export function getPositionEndpoint(guildId: string, presetId: number) {
   return `${getPresetEndpoint(guildId)}/${presetId}/position`;
 }
 
-export function getTierEndpoint(guildId: number, presetId: number) {
+export function getTierEndpoint(guildId: string, presetId: number) {
   return `${getPresetEndpoint(guildId)}/${presetId}/tier`;
 }
 
 export function getPresetMemberPositionEndpoint(
-  guildId: number,
+  guildId: string,
   presetId: number,
   presetMemberId: number,
 ) {

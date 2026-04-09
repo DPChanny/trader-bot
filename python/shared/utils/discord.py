@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..entities.discord import Discord
+from ..entities.discord import DiscordUser
 from .env import (
     get_api_origin,
     get_bot_token,
@@ -67,7 +67,7 @@ async def get_me(code: str) -> dict:
         return me_response.json()
 
 
-async def send_message(user_id: str, embeds: list[dict]) -> bool:
+async def send_message(user_id: int, embeds: list[dict]) -> bool:
     headers = {
         "Authorization": f"Bot {get_bot_token()}",
         "Content-Type": "application/json",
@@ -77,7 +77,7 @@ async def send_message(user_id: str, embeds: list[dict]) -> bool:
         ch_response = await client.post(
             f"{DISCORD_USERS_URL}/@me/channels",
             headers=headers,
-            json={"recipient_id": user_id},
+            json={"recipient_id": str(user_id)},
         )
         if ch_response.status_code != 200:
             return False
@@ -91,16 +91,18 @@ async def send_message(user_id: str, embeds: list[dict]) -> bool:
         return msg_response.status_code == 200
 
 
-async def upsert_discord(
-    discord_id: str,
+async def upsert_discord_user(
+    discord_id: int,
     name: str,
     avatar_hash: str | None,
     db: AsyncSession,
 ) -> None:
-    result = await db.execute(select(Discord).where(Discord.discord_id == discord_id))
+    result = await db.execute(
+        select(DiscordUser).where(DiscordUser.discord_id == discord_id)
+    )
     entity = result.scalar_one_or_none()
     if entity is None:
-        db.add(Discord(discord_id=discord_id, name=name, avatar_hash=avatar_hash))
+        db.add(DiscordUser(discord_id=discord_id, name=name, avatar_hash=avatar_hash))
     else:
         entity.name = name
         entity.avatar_hash = avatar_hash

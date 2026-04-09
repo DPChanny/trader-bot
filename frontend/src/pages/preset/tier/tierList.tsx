@@ -17,7 +17,7 @@ interface TierListProps {
 
 export function TierList({ tiers }: TierListProps) {
   const { guild } = useGuildContext();
-  const guildId = guild?.guildId ?? null;
+  const guildId = guild?.discordId ?? null;
   const { selectedPresetId: presetId } = usePresetPageContext();
 
   const [showTierForm, setShowTierForm] = useState(false);

@@ -5,7 +5,7 @@ import styles from "@/styles/pages/guild/guildCard.module.css";
 interface GuildCardProps {
   guild: GuildDTO;
   isActive?: boolean;
-  onClick: (guildId: number) => void;
+  onClick: (guildId: string) => void;
 }
 
 export function GuildCard({ guild, isActive, onClick }: GuildCardProps) {
@@ -14,7 +14,7 @@ export function GuildCard({ guild, isActive, onClick }: GuildCardProps) {
       variantColor="blue"
       variantActive={isActive}
       className={styles.guildCard}
-      onClick={() => onClick(guild.guildId)}
+      onClick={() => onClick(guild.discordId)}
     >
       <div class={styles.inner}>
         <div class={styles.icon}>

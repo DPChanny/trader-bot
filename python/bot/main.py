@@ -1,11 +1,12 @@
 import asyncio
 
+from discord import Guild, Member, User
 from discord.ext import commands
 from loguru import logger
 
 from shared.entities.member import Role
 from shared.utils.database import get_async_db, setup_db
-from shared.utils.discord import upsert_discord
+from shared.utils.discord import upsert_discord_user
 from shared.utils.env import get_bot_token
 from shared.utils.logging import setup_logging
 
@@ -33,9 +34,9 @@ async def main() -> None:
         async for db in get_async_db():
             try:
                 for guild in bot.guilds:
-                    owner_discord_id = str(guild.owner_id)
+                    owner_discord_id = guild.owner_id
                     guild_entity = await upsert_guild(
-                        str(guild.id),
+                        guild.id,
                         guild.name,
                         guild.icon.key if guild.icon else None,
                         db,
@@ -43,28 +44,30 @@ async def main() -> None:
                     async for member in guild.fetch_members():
                         if member.bot:
                             continue
-                        await upsert_discord(
-                            str(member.id),
+                        await upsert_discord_user(
+                            member.id,
                             member.global_name or member.name,
                             member.avatar.key if member.avatar else None,
                             db,
                         )
                         await upsert_member(
-                            guild_entity.guild_id,
-                            str(member.id),
+                            guild_entity.discord_id,
+                            member.id,
                             db,
-                            guild_discord_id=str(member.guild.id),
                             name=member.nick,
                             avatar_hash=member.guild_avatar.key
                             if member.guild_avatar
                             else None,
                         )
                     owner_member = await upsert_member(
-                        guild_entity.guild_id, owner_discord_id, db
+                        guild_entity.discord_id, owner_discord_id, db
                     )
                     if Role(owner_member.role) < Role.OWNER:
                         await set_role(
-                            guild_entity.guild_id, owner_discord_id, Role.OWNER, db
+                            guild_entity.discord_id,
+                            owner_discord_id,
+                            Role.OWNER,
+                            db,
                         )
                 await db.commit()
                 logger.info(f"Synced {len(bot.guilds)} guild(s) on ready")
@@ -73,13 +76,13 @@ async def main() -> None:
                 logger.exception(f"on_ready sync error: {e}")
 
     @bot.event
-    async def on_guild_join(guild):
+    async def on_guild_join(guild: Guild):
         logger.info(f"Joined guild: {guild.name} ({guild.id})")
-        owner_discord_id = str(guild.owner_id)
+        owner_discord_id = guild.owner_id
         async for db in get_async_db():
             try:
                 guild_entity = await upsert_guild(
-                    str(guild.id),
+                    guild.id,
                     guild.name,
                     guild.icon.key if guild.icon else None,
                     db,
@@ -88,23 +91,24 @@ async def main() -> None:
                     if member.bot:
                         continue
 
-                    await upsert_discord(
-                        str(member.id),
+                    await upsert_discord_user(
+                        member.id,
                         member.global_name or member.name,
                         member.avatar.key if member.avatar else None,
                         db,
                     )
                     await upsert_member(
-                        guild_entity.guild_id,
-                        str(member.id),
+                        guild_entity.discord_id,
+                        member.id,
                         db,
-                        guild_discord_id=str(member.guild.id),
                         name=member.nick,
                         avatar_hash=member.guild_avatar.key
                         if member.guild_avatar
                         else None,
                     )
-                await set_role(guild_entity.guild_id, owner_discord_id, Role.OWNER, db)
+                await set_role(
+                    guild_entity.discord_id, owner_discord_id, Role.OWNER, db
+                )
                 await db.commit()
                 logger.info(
                     f"Guild synced: {guild.name}, owner={owner_discord_id}, members={guild.member_count}"
@@ -114,7 +118,7 @@ async def main() -> None:
                 logger.exception(f"on_guild_join error: {e}")
 
     @bot.event
-    async def on_member_join(member):
+    async def on_member_join(member: Member):
         if member.bot:
             return
         logger.info(
@@ -123,22 +127,21 @@ async def main() -> None:
         async for db in get_async_db():
             try:
                 guild_entity = await upsert_guild(
-                    str(member.guild.id),
+                    member.guild.id,
                     member.guild.name,
                     member.guild.icon.key if member.guild.icon else None,
                     db,
                 )
-                await upsert_discord(
-                    str(member.id),
+                await upsert_discord_user(
+                    member.id,
                     member.global_name or member.name,
                     member.avatar.key if member.avatar else None,
                     db,
                 )
                 await upsert_member(
-                    guild_entity.guild_id,
-                    str(member.id),
+                    guild_entity.discord_id,
+                    member.id,
                     db,
-                    guild_discord_id=str(member.guild.id),
                     name=member.nick,
                     avatar_hash=member.guild_avatar.key
                     if member.guild_avatar
@@ -150,7 +153,7 @@ async def main() -> None:
                 logger.exception(f"on_member_join error: {e}")
 
     @bot.event
-    async def on_member_update(before, after):
+    async def on_member_update(before: Member, after: Member):
         if after.bot:
             return
         if before.nick == after.nick and before.guild_avatar == after.guild_avatar:
@@ -161,21 +164,20 @@ async def main() -> None:
         async for db in get_async_db():
             try:
                 guild_entity = await upsert_guild(
-                    str(after.guild.id),
+                    after.guild.id,
                     after.guild.name,
                     after.guild.icon.key if after.guild.icon else None,
                     db,
                 )
-                await upsert_discord(
-                    str(after.id),
+                await upsert_discord_user(
+                    after.id,
                     after.global_name or after.name,
                     after.avatar.key if after.avatar else None,
                     db,
                 )
                 await update_member(
-                    guild_entity.guild_id,
-                    str(after.id),
-                    guild_discord_id=str(after.guild.id),
+                    guild_entity.discord_id,
+                    after.id,
                     name=after.nick,
                     avatar_hash=after.guild_avatar.key if after.guild_avatar else None,
                     db=db,
@@ -186,7 +188,7 @@ async def main() -> None:
                 logger.exception(f"on_member_update error: {e}")
 
     @bot.event
-    async def on_user_update(before, after):
+    async def on_user_update(before: User, after: User):
         if (before.global_name or before.name) == (
             after.global_name or after.name
         ) and before.avatar == after.avatar:
@@ -194,8 +196,8 @@ async def main() -> None:
         logger.info(f"User global profile updated: {after.name} ({after.id})")
         async for db in get_async_db():
             try:
-                await upsert_discord(
-                    str(after.id),
+                await upsert_discord_user(
+                    after.id,
                     after.global_name or after.name,
                     after.avatar.key if after.avatar else None,
                     db,
@@ -206,52 +208,54 @@ async def main() -> None:
                 logger.exception(f"on_user_update error: {e}")
 
     @bot.event
-    async def on_guild_update(before, after):
+    async def on_guild_update(before: Guild, after: Guild):
         if before.owner_id == after.owner_id:
             return
-        old_owner = str(before.owner_id)
-        new_owner = str(after.owner_id)
-        logger.info(f"Guild owner changed: {before.name} ({old_owner} → {new_owner})")
+        old_owner = before.owner_id
+        new_owner = after.owner_id
+        logger.info(
+            f"Guild owner changed: {before.name} ({old_owner} \u2192 {new_owner})"
+        )
         async for db in get_async_db():
             try:
                 guild_entity = await upsert_guild(
-                    str(after.id),
+                    after.id,
                     after.name,
                     after.icon.key if after.icon else None,
                     db,
                 )
-                await set_role(guild_entity.guild_id, old_owner, Role.ADMIN, db)
-                await set_role(guild_entity.guild_id, new_owner, Role.OWNER, db)
+                await set_role(guild_entity.discord_id, old_owner, Role.ADMIN, db)
+                await set_role(guild_entity.discord_id, new_owner, Role.OWNER, db)
                 await db.commit()
             except Exception as e:
                 await db.rollback()
                 logger.exception(f"on_guild_update error: {e}")
 
     @bot.event
-    async def on_guild_remove(guild):
+    async def on_guild_remove(guild: Guild):
         logger.info(f"Left guild: {guild.name} ({guild.id})")
         async for db in get_async_db():
             try:
-                await delete_guild(str(guild.id), db)
+                await delete_guild(guild.id, db)
                 await db.commit()
             except Exception as e:
                 await db.rollback()
                 logger.exception(f"on_guild_remove error: {e}")
 
     @bot.event
-    async def on_member_remove(member):
+    async def on_member_remove(member: Member):
         if member.bot:
             return
         logger.info(f"Member left: {member.name} ({member.id}) in {member.guild.name}")
         async for db in get_async_db():
             try:
                 guild_entity = await upsert_guild(
-                    str(member.guild.id),
+                    member.guild.id,
                     member.guild.name,
                     member.guild.icon.key if member.guild.icon else None,
                     db,
                 )
-                await delete_member(guild_entity.guild_id, str(member.id), db)
+                await delete_member(guild_entity.discord_id, member.id, db)
                 await db.commit()
             except Exception as e:
                 await db.rollback()

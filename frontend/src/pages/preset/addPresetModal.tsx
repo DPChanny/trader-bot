@@ -26,7 +26,7 @@ const INITIAL_STATE = {
 
 export function AddPresetModal() {
   const { guild } = useGuildContext();
-  const guildId = guild?.guildId ?? null;
+  const guildId = guild?.discordId ?? null;
   const { isCreatingPreset, closeCreatePreset } = usePresetPageContext();
 
   const [presetName, setPresetName] = useState(INITIAL_STATE.presetName);

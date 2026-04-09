@@ -15,7 +15,7 @@ export function useAddPresetMemberPosition() {
       presetMemberId,
       dto,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       presetMemberId: number;
       dto: AddPresetMemberPositionDTO;
@@ -49,7 +49,7 @@ export function useDeletePresetMemberPosition() {
       presetMemberId,
       presetMemberPositionId,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       presetMemberId: number;
       presetMemberPositionId: number;

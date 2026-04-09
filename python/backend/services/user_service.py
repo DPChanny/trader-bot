@@ -15,8 +15,8 @@ from ..utils.token import Payload
 async def get_me_service(db: AsyncSession, payload: Payload) -> UserDetailDTO:
     result = await db.execute(
         select(User)
-        .options(selectinload(User.discord))
-        .where(User.user_id == payload.user_id)
+        .options(selectinload(User.discord_user))
+        .where(User.discord_id == payload.discord_id)
     )
     user = result.scalar_one_or_none()
     if user is None:
@@ -26,10 +26,10 @@ async def get_me_service(db: AsyncSession, payload: Payload) -> UserDetailDTO:
 
 @service_exception_handler
 async def delete_me_service(db: AsyncSession, payload: Payload) -> None:
-    result = await db.execute(select(User).where(User.user_id == payload.user_id))
+    result = await db.execute(select(User).where(User.discord_id == payload.discord_id))
     user = result.scalar_one_or_none()
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     await db.delete(user)
     await db.commit()
-    logger.info(f"User deleted: user_id={payload.user_id}")
+    logger.info(f"User deleted: discord_id={payload.discord_id}")

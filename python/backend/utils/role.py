@@ -7,14 +7,14 @@ from shared.entities.member import Member, Role
 
 async def verify_role(
     guild_id: int,
-    discord_id: str,
+    user_id: int,
     db: AsyncSession,
     min_role: Role = Role.VIEWER,
 ) -> Role:
     result = await db.execute(
         select(Member).where(
             Member.guild_id == guild_id,
-            Member.discord_id == discord_id,
+            Member.user_id == user_id,
         )
     )
     member = result.scalar_one_or_none()

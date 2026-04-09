@@ -20,7 +20,7 @@ interface MemberPageProps {
 
 function MemberPageContent() {
   const { guild } = useGuildContext();
-  const guildId = guild?.guildId ?? null;
+  const guildId = guild?.discordId ?? null;
   const { selectedMemberId, setSelectedMemberId } = useMemberPageContext();
 
   const { data: members, isLoading, error } = useMembers(guildId);

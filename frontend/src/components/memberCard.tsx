@@ -9,8 +9,8 @@ export interface MemberCardProps {
 }
 
 export function MemberCard({ member, isActive }: MemberCardProps) {
-  const displayName = member.alias || member.name || member.discord.name;
-  const avatarUrl = member.avatarUrl || member.discord.avatarUrl;
+  const displayName = member.alias || member.name || member.discordUser.name;
+  const avatarUrl = member.avatarUrl || member.discordUser.avatarUrl;
   return (
     <Card
       variantColor="gray"

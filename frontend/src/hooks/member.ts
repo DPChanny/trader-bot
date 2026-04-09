@@ -5,7 +5,7 @@ import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getMemberEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
-export function useMembers(guildId: number | null) {
+export function useMembers(guildId: string | null) {
   return useQuery({
     queryKey: ["members", guildId],
     queryFn: async (): Promise<MemberDetailDTO[]> => {
@@ -20,7 +20,7 @@ export function useMembers(guildId: number | null) {
   });
 }
 
-export function useMember(guildId: number | null, memberId: number | null) {
+export function useMember(guildId: string | null, memberId: number | null) {
   return useQuery({
     queryKey: ["members", guildId, memberId],
     queryFn: async (): Promise<MemberDetailDTO> => {
@@ -47,7 +47,7 @@ export function useUpdateMember() {
       memberId,
       dto,
     }: {
-      guildId: number;
+      guildId: string;
       memberId: number;
       dto: UpdateMemberDTO;
     }): Promise<MemberDetailDTO> => {
@@ -85,7 +85,7 @@ export function useDeleteMember() {
       guildId,
       memberId,
     }: {
-      guildId: number;
+      guildId: string;
       memberId: number;
     }): Promise<void> => {
       const response = await fetch(

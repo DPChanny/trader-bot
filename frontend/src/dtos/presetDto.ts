@@ -15,7 +15,7 @@ export const StatisticsDisplay: { [key in Statistics]: string } = {
 
 export interface PresetDTO {
   presetId: number;
-  guildId: number;
+  guildId: string;
   name: string;
   points: number;
   time: number;

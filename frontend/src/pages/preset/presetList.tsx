@@ -28,7 +28,7 @@ export function PresetList({
   isLoading,
 }: PresetListProps) {
   const { guild } = useGuildContext();
-  const guildId = guild?.guildId ?? null;
+  const guildId = guild?.discordId ?? null;
   const { selectedPresetId, setSelectedPresetId, openCreatePreset } =
     usePresetPageContext();
 

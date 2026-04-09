@@ -18,7 +18,7 @@ interface PositionListProps {
 
 export function PositionList({ positions }: PositionListProps) {
   const { guild } = useGuildContext();
-  const guildId = guild?.guildId ?? null;
+  const guildId = guild?.discordId ?? null;
   const { selectedPresetId: presetId } = usePresetPageContext();
 
   const [showPositionForm, setShowPositionForm] = useState(false);

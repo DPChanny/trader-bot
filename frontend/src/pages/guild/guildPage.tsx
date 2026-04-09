@@ -27,15 +27,10 @@ export function GuildPage({}: GuildPageProps) {
     }
   }, []);
 
-  const handleSelectGuild = (guildId: number) => {
-    const guild = guilds?.find((g) => g.guildId === guildId);
+  const handleSelectGuild = (guildId: string) => {
+    const guild = guilds?.find((g) => g.discordId === guildId);
     if (guild) {
-      setGuild({
-        guildId: guild.guildId,
-        discordId: guild.discordId,
-        name: guild.name,
-        iconUrl: guild.iconUrl,
-      });
+      setGuild(guild);
       route("/preset");
     }
   };
@@ -78,7 +73,7 @@ export function GuildPage({}: GuildPageProps) {
             <div class={styles.guildList}>
               {guilds?.map((guild) => (
                 <GuildCard
-                  key={guild.guildId}
+                  key={guild.discordId}
                   guild={guild}
                   onClick={handleSelectGuild}
                 />

@@ -14,7 +14,7 @@ export function useAddTier() {
       presetId,
       dto,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       dto: AddTierDTO;
     }) => {
@@ -44,7 +44,7 @@ export function useUpdateTier() {
       tierId,
       dto,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       tierId: number;
       dto: UpdateTierDTO;
@@ -77,7 +77,7 @@ export function useDeleteTier() {
       presetId,
       tierId,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       tierId: number;
     }) => {

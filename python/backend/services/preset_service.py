@@ -27,7 +27,7 @@ async def _query_preset_detail(
         .options(
             selectinload(Preset.preset_members)
             .joinedload(PresetMember.member)
-            .joinedload(Member.discord),
+            .joinedload(Member.discord_user),
             selectinload(Preset.preset_members)
             .joinedload(PresetMember.member)
             .joinedload(Member.guild),

@@ -14,7 +14,7 @@ export function useAddPosition() {
       presetId,
       dto,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       dto: AddPositionDTO;
     }) => {
@@ -44,7 +44,7 @@ export function useUpdatePosition() {
       positionId,
       dto,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       positionId: number;
       dto: UpdatePositionDTO;
@@ -77,7 +77,7 @@ export function useDeletePosition() {
       presetId,
       positionId,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       positionId: number;
     }) => {

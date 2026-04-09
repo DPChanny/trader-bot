@@ -17,7 +17,7 @@ export function useAddPresetMember() {
       presetId,
       dto,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       dto: AddPresetMemberDTO;
     }) => {
@@ -47,7 +47,7 @@ export function useUpdatePresetMember() {
       presetMemberId,
       dto,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       presetMemberId: number;
       dto: UpdatePresetMemberDTO;
@@ -80,7 +80,7 @@ export function useRemovePresetMember() {
       presetId,
       presetMemberId,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       presetMemberId: number;
     }) => {

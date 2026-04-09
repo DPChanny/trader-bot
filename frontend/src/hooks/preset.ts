@@ -10,7 +10,7 @@ import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
-export function usePresets(guildId: number | null) {
+export function usePresets(guildId: string | null) {
   return useQuery({
     queryKey: ["presets", guildId],
     queryFn: async (): Promise<PresetDTO[]> => {
@@ -26,7 +26,7 @@ export function usePresets(guildId: number | null) {
 }
 
 export function usePresetDetail(
-  guildId: number | null,
+  guildId: string | null,
   presetId: number | null,
 ) {
   return useQuery({
@@ -55,7 +55,7 @@ export function useAddPreset() {
       guildId,
       dto,
     }: {
-      guildId: number;
+      guildId: string;
       dto: AddPresetDTO;
     }): Promise<PresetDTO> => {
       const response = await fetch(getPresetEndpoint(guildId), {
@@ -84,7 +84,7 @@ export function useUpdatePreset() {
       presetId,
       dto,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
       dto: UpdatePresetDTO;
     }): Promise<PresetDTO> => {
@@ -119,7 +119,7 @@ export function useDeletePreset() {
       guildId,
       presetId,
     }: {
-      guildId: number;
+      guildId: string;
       presetId: number;
     }): Promise<void> => {
       const response = await fetch(

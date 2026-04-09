@@ -3,13 +3,14 @@ from typing import Annotated
 from pydantic import BaseModel, BeforeValidator, model_validator
 
 
-def _empty_str_to_none(v: object) -> object:
+def _nullable_str(v: object) -> object:
     if isinstance(v, str) and not v:
         return None
     return v
 
 
-NullableStr = Annotated[str | None, BeforeValidator(_empty_str_to_none)]
+NullableStr = Annotated[str | None, BeforeValidator(_nullable_str)]
+DiscordId = Annotated[str, BeforeValidator(str)]
 
 
 class BaseDTO(BaseModel):
@@ -21,4 +22,4 @@ class BaseDTO(BaseModel):
         return data
 
 
-__all__ = ["BaseDTO", "NullableStr"]
+__all__ = ["BaseDTO", "DiscordId", "NullableStr"]

@@ -5,7 +5,7 @@ from shared.entities.guild import Guild
 
 
 async def upsert_guild(
-    guild_id: str, name: str, icon_hash: str | None, db: AsyncSession
+    guild_id: int, name: str, icon_hash: str | None, db: AsyncSession
 ) -> Guild:
     result = await db.execute(select(Guild).where(Guild.discord_id == guild_id))
     entity = result.scalar_one_or_none()
@@ -24,7 +24,7 @@ async def upsert_guild(
     return entity
 
 
-async def delete_guild(discord_guild_id: str, db: AsyncSession) -> None:
+async def delete_guild(discord_guild_id: int, db: AsyncSession) -> None:
     result = await db.execute(select(Guild).where(Guild.discord_id == discord_guild_id))
     entity = result.scalar_one_or_none()
     if entity is not None:

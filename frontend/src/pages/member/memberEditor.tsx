@@ -29,7 +29,7 @@ interface MemberEditorProps {
 
 export function MemberEditor({ member, onClose }: MemberEditorProps) {
   const { guild } = useGuildContext();
-  const guildId = guild?.guildId ?? null;
+  const guildId = guild?.discordId ?? null;
   const updateMember = useUpdateMember();
   const deleteMember = useDeleteMember();
   const lolStat = useLolStat(member.memberId);
@@ -119,15 +119,9 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
           <Section variantTone="ghost" className={styles.cardSection}>
             <MemberCard
               member={{
-                memberId: member.memberId,
-                guildId: member.guildId,
-                discordId: member.discordId,
-                role: member.role,
+                ...member,
                 riotId: riotId || null,
-                name: member.name,
                 alias: alias || null,
-                discord: member.discord,
-                avatarUrl: member.avatarUrl,
               }}
             />
           </Section>
@@ -136,7 +130,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
             label="별칭 (Alias)"
             value={alias}
             onChange={setAlias}
-            placeholder={member.alias || member.name || member.discord.name}
+            placeholder={member.alias || member.name || member.discordUser.name}
           />
           <LabelInput label="Riot ID" value={riotId} onChange={setRiotId} />
 

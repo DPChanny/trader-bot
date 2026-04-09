@@ -16,7 +16,7 @@ interface AddPositionModalProps {
 
 export function AddPositionModal({ isOpen, onClose }: AddPositionModalProps) {
   const { guild } = useGuildContext();
-  const guildId = guild?.guildId ?? null;
+  const guildId = guild?.discordId ?? null;
   const { selectedPresetId: presetId } = usePresetPageContext();
   const [positionName, setPositionName] = useState(INITIAL_STATE.positionName);
   const [positionIconUrl, setPositionIconUrl] = useState(

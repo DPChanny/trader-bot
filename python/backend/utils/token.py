@@ -10,8 +10,7 @@ from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 
 
 class Payload(BaseModel):
-    user_id: int
-    discord_id: str
+    discord_id: int
     exp: int
     iat: int
 
@@ -21,13 +20,11 @@ REFRESH_TOKEN_EXPIRATION_DAYS = 30
 
 
 def create_token(
-    user_id: int,
-    discord_id: str,
+    discord_id: int,
 ) -> str:
     now = datetime.now(UTC)
     expiration = now + timedelta(minutes=ACCESS_TOKEN_EXPIRATION_MINUTES)
     token_data = {
-        "user_id": user_id,
         "discord_id": discord_id,
         "exp": int(expiration.timestamp()),
         "iat": int(now.timestamp()),
@@ -35,11 +32,10 @@ def create_token(
     return jwt.encode(token_data, get_jwt_secret(), algorithm=get_jwt_algorithm())
 
 
-def create_refresh_token(user_id: int, discord_id: str) -> str:
+def create_refresh_token(discord_id: int) -> str:
     now = datetime.now(UTC)
     expiration = now + timedelta(days=REFRESH_TOKEN_EXPIRATION_DAYS)
     token_data = {
-        "user_id": user_id,
         "discord_id": discord_id,
         "exp": int(expiration.timestamp()),
         "iat": int(now.timestamp()),

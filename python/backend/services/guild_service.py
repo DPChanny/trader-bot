@@ -12,7 +12,7 @@ from ..utils.token import Payload
 
 
 async def _query_guild_detail(guild_id: int, db: AsyncSession) -> Guild | None:
-    result = await db.execute(select(Guild).where(Guild.guild_id == guild_id))
+    result = await db.execute(select(Guild).where(Guild.discord_id == guild_id))
     return result.scalar_one_or_none()
 
 
@@ -22,9 +22,9 @@ async def get_guild_list_service(
 ) -> list[GuildDetailDTO]:
     result = await db.execute(
         select(Guild)
-        .join(Member, Member.guild_id == Guild.guild_id)
+        .join(Member, Member.guild_id == Guild.discord_id)
         .where(
-            Member.discord_id == payload.discord_id,
+            Member.user_id == payload.discord_id,
         )
     )
     guilds = result.unique().scalars().all()
