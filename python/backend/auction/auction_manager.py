@@ -24,6 +24,7 @@ class AuctionManager:
     def add_auction(
         self,
         preset_id: int,
+        guild_id: int,
         teams: list[Team],
         user_ids: list[int],
         leader_user_ids: set[int],
@@ -51,6 +52,7 @@ class AuctionManager:
         auction = Auction(
             auction_id,
             preset_id,
+            guild_id,
             teams,
             user_ids,
             user_tokens,

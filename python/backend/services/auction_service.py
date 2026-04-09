@@ -72,6 +72,7 @@ async def add_auction_service(
 
     auction_id, user_tokens = auction_manager.add_auction(
         preset_id=preset_id,
+        guild_id=preset.guild_id,
         teams=teams,
         user_ids=member_ids,
         leader_user_ids=leader_member_ids,

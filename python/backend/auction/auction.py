@@ -24,6 +24,7 @@ class Auction:
         self,
         auction_id: str,
         preset_id: int,
+        guild_id: int,
         teams: list[Team],
         user_ids: list[int],
         user_tokens: dict[int, str],
@@ -31,6 +32,7 @@ class Auction:
     ):
         self.auction_id = auction_id
         self.preset_id = preset_id
+        self.guild_id = guild_id
         self.status: AuctionStatus = AuctionStatus.WAITING
         self.teams = {team.team_id: team for team in teams}
         self.user_tokens = user_tokens
@@ -164,6 +166,7 @@ class Auction:
         return AuctionStateDTO(
             auction_id=self.auction_id,
             preset_id=self.preset_id,
+            guild_id=self.guild_id,
             status=self.status,
             current_member_id=self.current_member_id,
             current_bid=self.current_bid,

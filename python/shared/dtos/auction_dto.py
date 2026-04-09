@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from . import BaseDTO
+from . import BaseDTO, DiscordId
 
 
 class AuctionStatus(StrEnum):
@@ -34,6 +34,7 @@ class Team(BaseDTO):
 class AuctionStateDTO(BaseDTO):
     auction_id: str
     preset_id: int
+    guild_id: DiscordId
     status: AuctionStatus
     current_member_id: int | None = None
     current_bid: int | None = None
