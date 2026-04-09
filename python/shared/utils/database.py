@@ -1,6 +1,6 @@
 from collections.abc import AsyncGenerator, Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -60,7 +60,19 @@ def setup_db():
         expire_on_commit=False,
     )
 
-    BaseEntity.metadata.create_all(bind=_sync_engine)
+    with _sync_engine.connect() as conn:
+        for table in BaseEntity.metadata.sorted_tables:
+            table_exists = conn.execute(
+                text(
+                    "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = :name)"
+                ),
+                {"name": table.name},
+            ).scalar()
+            if not table_exists:
+                conn.execute(text(f'DROP TYPE IF EXISTS "{table.name}"'))
+        conn.commit()
+
+    BaseEntity.metadata.create_all(bind=_sync_engine, checkfirst=True)
 
 
 def get_sync_db() -> Generator[Session, None, None]:
