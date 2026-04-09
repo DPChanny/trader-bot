@@ -11,17 +11,6 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-async def get_user_by_discord_id_service(
-    discord_id: str, db: AsyncSession, payload: Payload
-) -> UserDTO:
-    result = await db.execute(select(User).where(User.discord_id == discord_id))
-    user = result.scalar_one_or_none()
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return UserDTO.model_validate(user)
-
-
-@service_exception_handler
 async def get_me_service(db: AsyncSession, payload: Payload) -> UserDTO:
     result = await db.execute(select(User).where(User.user_id == payload.user_id))
     user = result.scalar_one_or_none()
