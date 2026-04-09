@@ -97,7 +97,7 @@ async def add_auction_service(
                 continue
 
             auction_url = f"{get_app_origin()}/auction?token={token}"
-            invites.append((member.user_id, auction_url))
+            invites.append((member.discord_user_id, auction_url))
 
     if invites:
 

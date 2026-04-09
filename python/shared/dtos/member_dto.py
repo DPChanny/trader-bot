@@ -10,7 +10,7 @@ from .guild_dto import GuildDTO
 class MemberDTO(BaseDTO):
     member_id: int
     guild_id: DiscordId
-    user_id: DiscordId
+    discord_user_id: DiscordId
     role: Role
     riot_id: str | None
     name: str | None
@@ -30,7 +30,7 @@ class MemberDetailDTO(MemberDTO):
         if not self.avatar_hash:
             return None
         ext = "gif" if self.avatar_hash.startswith("a_") else "png"
-        return f"https://cdn.discordapp.com/guilds/{self.guild.discord_id}/users/{self.user_id}/avatars/{self.avatar_hash}.{ext}?size=256"
+        return f"https://cdn.discordapp.com/guilds/{self.guild.discord_id}/users/{self.discord_user_id}/avatars/{self.avatar_hash}.{ext}?size=256"
 
 
 class UpdateMemberDTO(BaseDTO):

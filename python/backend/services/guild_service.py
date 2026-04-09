@@ -24,7 +24,7 @@ async def get_guild_list_service(
         select(Guild)
         .join(Member, Member.guild_id == Guild.discord_id)
         .where(
-            Member.user_id == payload.discord_id,
+            Member.discord_user_id == payload.discord_id,
         )
     )
     guilds = result.unique().scalars().all()

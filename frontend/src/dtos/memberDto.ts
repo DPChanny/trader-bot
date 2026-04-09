@@ -4,7 +4,7 @@ import type { GuildDTO } from "./guildDto";
 export interface MemberDTO {
   memberId: number;
   guildId: string;
-  userId: string;
+  discordUserId: string;
   role: number;
   riotId: string | null;
   name: string | null;

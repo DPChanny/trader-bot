@@ -26,7 +26,7 @@ class Role(enum.IntEnum):
 
 class Member(BaseEntity):
     __tablename__ = "member"
-    __table_args__ = (UniqueConstraint("guild_id", "user_id"),)
+    __table_args__ = (UniqueConstraint("guild_id", "discord_user_id"),)
 
     member_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     guild_id: Mapped[int] = mapped_column(
@@ -34,7 +34,7 @@ class Member(BaseEntity):
         ForeignKey("guild.discord_id", ondelete="CASCADE"),
         nullable=False,
     )
-    user_id: Mapped[int] = mapped_column(
+    discord_user_id: Mapped[int] = mapped_column(
         BigInteger,
         ForeignKey("discord_user.discord_id"),
         nullable=False,

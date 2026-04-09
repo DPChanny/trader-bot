@@ -6,7 +6,7 @@ from shared.entities.member import Member, Role
 
 async def upsert_member(
     guild_id: int,
-    user_id: int,
+    discord_user_id: int,
     db: AsyncSession,
     name: str | None = None,
     avatar_hash: str | None = None,
@@ -14,14 +14,14 @@ async def upsert_member(
     result = await db.execute(
         select(Member).where(
             Member.guild_id == guild_id,
-            Member.user_id == user_id,
+            Member.discord_user_id == discord_user_id,
         )
     )
     entity = result.scalar_one_or_none()
     if entity is None:
         entity = Member(
             guild_id=guild_id,
-            user_id=user_id,
+            discord_user_id=discord_user_id,
             role=Role.VIEWER,
             name=name,
             avatar_hash=avatar_hash,
@@ -37,14 +37,14 @@ async def upsert_member(
 
 async def set_role(
     guild_id: int,
-    user_id: int,
+    discord_user_id: int,
     role: Role,
     db: AsyncSession,
 ) -> None:
     result = await db.execute(
         select(Member).where(
             Member.guild_id == guild_id,
-            Member.user_id == user_id,
+            Member.discord_user_id == discord_user_id,
         )
     )
     entity = result.scalar_one_or_none()
@@ -55,7 +55,7 @@ async def set_role(
 
 async def update_member(
     guild_id: int,
-    user_id: int,
+    discord_user_id: int,
     name: str | None = None,
     avatar_hash: str | None = None,
     db: AsyncSession = None,
@@ -63,7 +63,7 @@ async def update_member(
     result = await db.execute(
         select(Member).where(
             Member.guild_id == guild_id,
-            Member.user_id == user_id,
+            Member.discord_user_id == discord_user_id,
         )
     )
     entity = result.scalar_one_or_none()
@@ -75,13 +75,13 @@ async def update_member(
 
 async def delete_member(
     guild_id: int,
-    user_id: int,
+    discord_user_id: int,
     db: AsyncSession,
 ) -> None:
     result = await db.execute(
         select(Member).where(
             Member.guild_id == guild_id,
-            Member.user_id == user_id,
+            Member.discord_user_id == discord_user_id,
         )
     )
     entity = result.scalar_one_or_none()
