@@ -23,7 +23,6 @@ async def get_guild_list_service(db: AsyncSession, payload: Payload) -> list[Gui
         .join(Member, Member.guild_id == Guild.guild_id)
         .where(
             Member.discord_id == payload.discord_id,
-            Member.role.isnot(None),
         )
     )
     guilds = result.unique().scalars().all()

@@ -15,7 +15,6 @@ async def verify_role(
         select(Member).where(
             Member.guild_id == guild_id,
             Member.discord_id == discord_id,
-            Member.role.isnot(None),
         )
     )
     member = result.scalar_one_or_none()

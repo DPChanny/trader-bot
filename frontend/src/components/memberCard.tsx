@@ -17,10 +17,10 @@ export function MemberCard({ member, isActive }: MemberCardProps) {
     >
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
-          {member.discord?.avatarUrl ? (
+          {member.discord.avatarUrl ? (
             <img
               src={member.discord.avatarUrl}
-              alt={member.discord?.name || member.riotId || "이름 없음"}
+              alt={member.discord.name || member.riotId || "이름 없음"}
             />
           ) : (
             <svg
@@ -41,7 +41,7 @@ export function MemberCard({ member, isActive }: MemberCardProps) {
 
         <Section variantTone="ghost" variantIntent="tertiary">
           <h3 class={styles.name}>
-            {member.discord?.name || member.riotId || "이름 없음"}
+            {member.discord.name || member.riotId || "이름 없음"}
           </h3>
         </Section>
       </Section>

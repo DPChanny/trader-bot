@@ -38,7 +38,7 @@ async def main() -> None:
                     owner_member = await upsert_member(
                         guild_entity.guild_id, owner_discord_id, db
                     )
-                    if owner_member.role is None:
+                    if Role(owner_member.role) < Role.OWNER:
                         await set_role(
                             guild_entity.guild_id, owner_discord_id, Role.OWNER, db
                         )

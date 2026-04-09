@@ -9,13 +9,13 @@ class MemberDTO(BaseDTO):
     guild_id: int
     riot_id: str | None
     discord_id: str
-    role: Role | None
+    role: Role
 
     model_config = {"from_attributes": True}
 
 
 class MemberDetailDTO(MemberDTO):
-    discord: DiscordDTO | None = None
+    discord: DiscordDTO
 
 
 class AddMemberDTO(BaseDTO):

@@ -36,16 +36,13 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
   const valStat = useValStat(member.memberId);
 
   const [riotId, setRiotId] = useState(member.riotId ?? "");
-  const [discordId, setDiscordId] = useState(member.discordId ?? "");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     setRiotId(member.riotId ?? "");
-    setDiscordId(member.discordId ?? "");
-  }, [member.memberId, member.riotId, member.discordId]);
+  }, [member.memberId, member.riotId]);
 
-  const hasChanges =
-    riotId !== (member.riotId ?? "") || discordId !== (member.discordId ?? "");
+  const hasChanges = riotId !== (member.riotId ?? "");
 
   const handleSave = async () => {
     if (!guildId) return;
@@ -53,7 +50,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
       await updateMember.mutateAsync({
         guildId,
         memberId: member.memberId,
-        dto: { riotId, discordId },
+        dto: { riotId },
       });
     } catch (err) {
       console.error("Failed to update member:", err);
@@ -79,7 +76,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
           variantLayout="row"
           variantIntent="secondary"
         >
-          <h3>{member.discord?.name || member.riotId || "이름 없음"}</h3>
+          <h3>{member.discord.name || member.riotId || "이름 없음"}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -122,18 +119,14 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
                 memberId: member.memberId,
                 guildId: member.guildId,
                 riotId: riotId || null,
-                discordId: discordId || null,
+                discordId: member.discordId,
+                role: member.role,
                 discord: member.discord,
               }}
             />
           </Section>
 
           <LabelInput label="Riot ID" value={riotId} onChange={setRiotId} />
-          <LabelInput
-            label="Discord ID"
-            value={discordId}
-            onChange={setDiscordId}
-          />
 
           <Label>League of Legends 통계</Label>
           {lolStat.isLoading ? (

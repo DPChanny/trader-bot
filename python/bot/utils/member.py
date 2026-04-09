@@ -17,7 +17,7 @@ async def upsert_member(
     )
     entity = result.scalar_one_or_none()
     if entity is None:
-        entity = Member(guild_id=guild_id, discord_id=discord_id)
+        entity = Member(guild_id=guild_id, discord_id=discord_id, role=Role.VIEWER)
         db.add(entity)
         await db.flush()
     return entity

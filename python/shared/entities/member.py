@@ -3,7 +3,7 @@ from __future__ import annotations
 import enum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, SmallInteger, String, UniqueConstraint
+from sqlalchemy import ForeignKey, SmallInteger, String, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
@@ -39,7 +39,9 @@ class Member(BaseEntity):
         ForeignKey("discord.discord_id", ondelete="CASCADE"),
         nullable=False,
     )
-    role: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    role: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, server_default=text("0")
+    )
 
     guild: Mapped[Guild] = relationship("Guild", back_populates="members")
     discord: Mapped[Discord] = relationship("Discord", back_populates="members")

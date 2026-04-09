@@ -3,10 +3,10 @@ import { usePresetPageContext } from "./presetContext";
 import { useAddPresetMember } from "@/hooks/presetMember";
 import { MemberGrid } from "@/components/memberGrid";
 import { Error } from "@/components/commons/error";
-import type { MemberDTO } from "@/dtos/memberDto";
+import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 interface MemberCandidateGridProps {
-  members: MemberDTO[];
+  members: MemberDetailDTO[];
 }
 
 export function MemberCandidateGrid({ members }: MemberCandidateGridProps) {
