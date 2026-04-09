@@ -61,18 +61,22 @@ def setup_db():
     )
 
     with _sync_engine.connect() as conn:
-        for table in BaseEntity.metadata.sorted_tables:
-            table_exists = conn.execute(
-                text(
-                    "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = :name)"
-                ),
-                {"name": table.name},
-            ).scalar()
-            if not table_exists:
-                conn.execute(text(f'DROP TYPE IF EXISTS "{table.name}"'))
-        conn.commit()
-
-    BaseEntity.metadata.create_all(bind=_sync_engine, checkfirst=True)
+        conn.execute(text("SELECT pg_advisory_lock(8675309)"))
+        try:
+            for table in BaseEntity.metadata.sorted_tables:
+                table_exists = conn.execute(
+                    text(
+                        "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = :name)"
+                    ),
+                    {"name": table.name},
+                ).scalar()
+                if not table_exists:
+                    conn.execute(text(f'DROP TYPE IF EXISTS "{table.name}"'))
+            conn.commit()
+            BaseEntity.metadata.create_all(bind=conn, checkfirst=True)
+        finally:
+            conn.execute(text("SELECT pg_advisory_unlock(8675309)"))
+            conn.commit()
 
 
 def get_sync_db() -> Generator[Session, None, None]:

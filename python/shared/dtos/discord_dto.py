@@ -19,8 +19,3 @@ class DiscordUserDetailDTO(DiscordUserDTO):
             return None
         ext = "gif" if self.avatar_hash.startswith("a_") else "png"
         return f"https://cdn.discordapp.com/avatars/{self.discord_id}/{self.avatar_hash}.{ext}?size=256"
-
-
-# Backwards-compatible aliases
-DiscordDTO = DiscordUserDTO
-DiscordDetailDTO = DiscordUserDetailDTO
