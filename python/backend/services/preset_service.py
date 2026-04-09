@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from shared.dtos.preset_dto import (
     AddPresetDTO,
@@ -19,21 +19,29 @@ from ..utils.role import verify_role
 from ..utils.token import Payload
 
 
-async def _query_preset_detail(preset_id: int, db: AsyncSession) -> Preset | None:
-    result = await db.execute(
+async def _query_preset_detail(
+    preset_id: int, db: AsyncSession, guild_id: int | None = None
+) -> Preset | None:
+    stmt = (
         select(Preset)
         .options(
-            joinedload(Preset.preset_members)
+            selectinload(Preset.preset_members)
             .joinedload(PresetMember.member)
             .joinedload(Member.discord),
-            joinedload(Preset.preset_members).joinedload(
+            selectinload(Preset.preset_members)
+            .joinedload(PresetMember.member)
+            .joinedload(Member.guild),
+            selectinload(Preset.preset_members).selectinload(
                 PresetMember.preset_member_positions
             ),
-            joinedload(Preset.tiers),
-            joinedload(Preset.positions),
+            selectinload(Preset.tiers),
+            selectinload(Preset.positions),
         )
         .where(Preset.preset_id == preset_id)
     )
+    if guild_id is not None:
+        stmt = stmt.where(Preset.guild_id == guild_id)
+    result = await db.execute(stmt)
     return result.unique().scalar_one_or_none()
 
 
@@ -42,13 +50,9 @@ async def get_preset_detail_service(
     guild_id: int, preset_id: int, db: AsyncSession, payload: Payload
 ) -> PresetDetailDTO:
     await verify_role(guild_id, payload.discord_id, db, Role.VIEWER)
-    result = await db.execute(
-        select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
-    )
-    if result.scalar_one_or_none() is None:
+    preset = await _query_preset_detail(preset_id, db, guild_id=guild_id)
+    if preset is None:
         raise HTTPException(status_code=404, detail="Preset not found")
-
-    preset = await _query_preset_detail(preset_id, db)
     return PresetDetailDTO.model_validate(preset)
 
 

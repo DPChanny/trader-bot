@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from shared.dtos.preset_member_dto import (
     AddPresetMemberDTO,
@@ -27,7 +27,8 @@ async def _query_preset_member_detail(
         select(PresetMember)
         .options(
             joinedload(PresetMember.member).joinedload(Member.discord),
-            joinedload(PresetMember.preset_member_positions),
+            joinedload(PresetMember.member).joinedload(Member.guild),
+            selectinload(PresetMember.preset_member_positions),
         )
         .where(PresetMember.preset_member_id == preset_member_id)
     )

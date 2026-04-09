@@ -10,7 +10,7 @@ from shared.dtos.auction_dto import (
     AuctionDTO,
     Team,
 )
-from shared.entities.member import Member, Role
+from shared.entities.member import Role
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
 from shared.utils.discord import send_message
@@ -82,14 +82,13 @@ async def add_auction_service(
         f"Auction created: auction_id={auction_id}, member_count={len(member_ids)}"
     )
 
+    member_map = {pm.member_id: pm.member for pm in preset_members}
+
     invites = []
     for member_id in member_ids:
         if member_id in user_tokens:
             token = user_tokens[member_id]
-            member_result = await db.execute(
-                select(Member).where(Member.member_id == member_id)
-            )
-            member = member_result.scalar_one_or_none()
+            member = member_map.get(member_id)
 
             if member is None:
                 logger.warning(
