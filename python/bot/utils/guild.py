@@ -5,16 +5,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.entities.guild import Guild
 
 
-def _guild_icon_url(guild_discord_id: str, icon_hash: str | None) -> str | None:
-    if not icon_hash:
+def _icon_url(guild: discord.Guild) -> str | None:
+    if not guild.icon:
         return None
-    ext = "gif" if icon_hash.startswith("a_") else "png"
-    return f"https://cdn.discordapp.com/icons/{guild_discord_id}/{icon_hash}.{ext}?size=256"
+    h = guild.icon.key
+    ext = "gif" if h.startswith("a_") else "png"
+    return f"https://cdn.discordapp.com/icons/{guild.id}/{h}.{ext}?size=256"
+
+
+def get_icon_url(guild: discord.Guild) -> str | None:
+    return _icon_url(guild)
 
 
 async def upsert_guild(guild: discord.Guild, db: AsyncSession) -> Guild:
     discord_guild_id = str(guild.id)
-    icon_url = _guild_icon_url(discord_guild_id, guild.icon.key if guild.icon else None)
+    icon_url = _icon_url(guild)
     result = await db.execute(select(Guild).where(Guild.discord_id == discord_guild_id))
     entity = result.scalar_one_or_none()
     if entity is None:

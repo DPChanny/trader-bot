@@ -11,9 +11,9 @@ from shared.utils.logging import setup_logging
 from .utils import setup_intents
 from .utils.guild import delete_guild, upsert_guild
 from .utils.member import (
-    _discord_avatar_url,
-    _member_avatar_url,
     delete_member,
+    get_global_avatar_url,
+    get_guild_avatar_url,
     set_role,
     update_discord_global,
     update_member,
@@ -40,23 +40,14 @@ async def main() -> None:
                     async for member in guild.fetch_members():
                         if member.bot:
                             continue
-                        guild_avatar_url = _member_avatar_url(
-                            guild_entity.discord_id,
-                            str(member.id),
-                            member.guild_avatar.key if member.guild_avatar else None,
-                        )
-                        discord_avatar_url = _discord_avatar_url(
-                            str(member.id),
-                            member.avatar.key if member.avatar else None,
-                        )
                         await upsert_member(
                             guild_entity.guild_id,
                             str(member.id),
                             db,
                             discord_name=member.global_name or member.name,
-                            discord_avatar_url=discord_avatar_url,
+                            discord_avatar_url=get_global_avatar_url(member),
                             guild_nick=member.nick,
-                            guild_avatar_url=guild_avatar_url,
+                            guild_avatar_url=get_guild_avatar_url(member),
                         )
                     owner_member = await upsert_member(
                         guild_entity.guild_id, owner_discord_id, db
@@ -82,23 +73,14 @@ async def main() -> None:
                     if member.bot:
                         continue
 
-                    guild_avatar_url = _member_avatar_url(
-                        guild_entity.discord_id,
-                        str(member.id),
-                        member.guild_avatar.key if member.guild_avatar else None,
-                    )
-                    discord_avatar_url = _discord_avatar_url(
-                        str(member.id),
-                        member.avatar.key if member.avatar else None,
-                    )
                     await upsert_member(
                         guild_entity.guild_id,
                         str(member.id),
                         db,
                         discord_name=member.global_name or member.name,
-                        discord_avatar_url=discord_avatar_url,
+                        discord_avatar_url=get_global_avatar_url(member),
                         guild_nick=member.nick,
-                        guild_avatar_url=guild_avatar_url,
+                        guild_avatar_url=get_guild_avatar_url(member),
                     )
                 await set_role(guild_entity.guild_id, owner_discord_id, Role.OWNER, db)
                 await db.commit()
@@ -119,23 +101,14 @@ async def main() -> None:
         async for db in get_async_db():
             try:
                 guild_entity = await upsert_guild(member.guild, db)
-                guild_avatar_url = _member_avatar_url(
-                    guild_entity.discord_id,
-                    str(member.id),
-                    member.guild_avatar.key if member.guild_avatar else None,
-                )
-                discord_avatar_url = _discord_avatar_url(
-                    str(member.id),
-                    member.avatar.key if member.avatar else None,
-                )
                 await upsert_member(
                     guild_entity.guild_id,
                     str(member.id),
                     db,
                     discord_name=member.global_name or member.name,
-                    discord_avatar_url=discord_avatar_url,
+                    discord_avatar_url=get_global_avatar_url(member),
                     guild_nick=member.nick,
-                    guild_avatar_url=guild_avatar_url,
+                    guild_avatar_url=get_guild_avatar_url(member),
                 )
                 await db.commit()
             except Exception as e:
@@ -146,9 +119,7 @@ async def main() -> None:
     async def on_member_update(before, after):
         if after.bot:
             return
-        guild_avatar_before = before.guild_avatar.key if before.guild_avatar else None
-        guild_avatar_after = after.guild_avatar.key if after.guild_avatar else None
-        if before.nick == after.nick and guild_avatar_before == guild_avatar_after:
+        if before.nick == after.nick and before.guild_avatar == after.guild_avatar:
             return
         logger.info(
             f"Member profile updated: {after.name} ({after.id}) in {after.guild.name}"
@@ -156,22 +127,13 @@ async def main() -> None:
         async for db in get_async_db():
             try:
                 guild_entity = await upsert_guild(after.guild, db)
-                discord_avatar_url = _discord_avatar_url(
-                    str(after.id),
-                    after.avatar.key if after.avatar else None,
-                )
-                guild_avatar_url = _member_avatar_url(
-                    guild_entity.discord_id,
-                    str(after.id),
-                    guild_avatar_after,
-                )
                 await update_member(
                     guild_entity.guild_id,
                     str(after.id),
                     discord_name=after.global_name or after.name,
-                    discord_avatar_url=discord_avatar_url,
+                    discord_avatar_url=get_global_avatar_url(after),
                     guild_nick=after.nick,
-                    guild_avatar_url=guild_avatar_url,
+                    guild_avatar_url=get_guild_avatar_url(after),
                     db=db,
                 )
                 await db.commit()
@@ -181,11 +143,9 @@ async def main() -> None:
 
     @bot.event
     async def on_user_update(before, after):
-        global_avatar_before = before.avatar.key if before.avatar else None
-        global_avatar_after = after.avatar.key if after.avatar else None
         if (before.global_name or before.name) == (
             after.global_name or after.name
-        ) and global_avatar_before == global_avatar_after:
+        ) and before.avatar == after.avatar:
             return
         logger.info(f"User global profile updated: {after.name} ({after.id})")
         async for db in get_async_db():
@@ -193,7 +153,7 @@ async def main() -> None:
                 await update_discord_global(
                     str(after.id),
                     after.global_name or after.name,
-                    _discord_avatar_url(str(after.id), global_avatar_after),
+                    get_global_avatar_url(after),
                     db,
                 )
                 await db.commit()

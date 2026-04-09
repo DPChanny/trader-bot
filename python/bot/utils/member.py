@@ -1,26 +1,22 @@
+import discord
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.entities.discord import Discord
 from shared.entities.member import Member, Role
+from shared.utils.discord import get_avatar_url
 
 
-def _discord_avatar_url(discord_id: str, avatar_hash: str | None) -> str | None:
-    if not avatar_hash:
+def get_guild_avatar_url(member: discord.Member) -> str | None:
+    if not member.guild_avatar:
         return None
-    ext = "gif" if avatar_hash.startswith("a_") else "png"
-    return (
-        f"https://cdn.discordapp.com/avatars/{discord_id}/{avatar_hash}.{ext}?size=256"
-    )
+    h = member.guild_avatar.key
+    ext = "gif" if h.startswith("a_") else "png"
+    return f"https://cdn.discordapp.com/guilds/{member.guild.id}/users/{member.id}/avatars/{h}.{ext}?size=256"
 
 
-def _member_avatar_url(
-    guild_discord_id: str, discord_id: str, avatar_hash: str | None
-) -> str | None:
-    if not avatar_hash:
-        return None
-    ext = "gif" if avatar_hash.startswith("a_") else "png"
-    return f"https://cdn.discordapp.com/guilds/{guild_discord_id}/users/{discord_id}/avatars/{avatar_hash}.{ext}?size=256"
+def get_global_avatar_url(user: discord.User | discord.Member) -> str | None:
+    return get_avatar_url(str(user.id), user.avatar.key if user.avatar else None)
 
 
 async def _upsert_discord(

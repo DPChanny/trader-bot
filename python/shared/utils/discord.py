@@ -3,7 +3,7 @@ import urllib.parse
 import httpx
 from fastapi import HTTPException
 
-from shared.utils.env import (
+from .env import (
     get_api_origin,
     get_bot_token,
     get_discord_client_id,
@@ -15,6 +15,15 @@ DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize"
 DISCORD_TOKEN_URL = "https://discord.com/api/oauth2/token"
 DISCORD_USERS_URL = "https://discord.com/api/users"
 DISCORD_CHANNELS_URL = "https://discord.com/api/channels"
+
+
+def get_avatar_url(discord_id: str, avatar_hash: str | None) -> str | None:
+    if not avatar_hash:
+        return None
+    ext = "gif" if avatar_hash.startswith("a_") else "png"
+    return (
+        f"https://cdn.discordapp.com/avatars/{discord_id}/{avatar_hash}.{ext}?size=256"
+    )
 
 
 def _get_api_endpoint() -> str:

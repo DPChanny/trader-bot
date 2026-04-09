@@ -10,7 +10,7 @@ from shared.dtos.preset_dto import (
     PresetDTO,
     UpdatePresetDTO,
 )
-from shared.entities.member import Role
+from shared.entities.member import Member, Role
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
 

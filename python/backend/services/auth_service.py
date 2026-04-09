@@ -6,9 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.token_dto import RefreshDTO
 from shared.entities.discord import Discord
 from shared.entities.user import User
+from shared.utils.discord import get_avatar_url, get_login_url, get_me
 from shared.utils.env import get_app_origin
 
-from ..utils.discord import get_login_url, get_me
 from ..utils.exception import service_exception_handler
 from ..utils.token import create_refresh_token, create_token, decode_token, hash_token
 
@@ -24,13 +24,7 @@ async def callback_service(code: str, db: AsyncSession) -> RedirectResponse:
 
     discord_id = str(user_data["id"])
     name = user_data.get("global_name") or user_data.get("username", "")
-    avatar_hash = user_data.get("avatar")
-    ext = "gif" if avatar_hash and avatar_hash.startswith("a_") else "png"
-    avatar_url = (
-        f"https://cdn.discordapp.com/avatars/{discord_id}/{avatar_hash}.{ext}?size=256"
-        if avatar_hash
-        else None
-    )
+    avatar_url = get_avatar_url(discord_id, user_data.get("avatar"))
 
     result = await db.execute(select(Discord).where(Discord.discord_id == discord_id))
     discord_entity = result.scalar_one_or_none()
