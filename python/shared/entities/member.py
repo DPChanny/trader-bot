@@ -40,7 +40,7 @@ class Member(BaseEntity):
     riot_id: Mapped[str | None] = mapped_column(String(256), nullable=True)
     name: Mapped[str | None] = mapped_column(String(256), nullable=True)
     alias: Mapped[str | None] = mapped_column(String(256), nullable=True)
-    avatar_hash: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    avatar_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     role: Mapped[int] = mapped_column(SmallInteger, nullable=False)
 
     discord: Mapped[Discord] = relationship("Discord", back_populates="members")

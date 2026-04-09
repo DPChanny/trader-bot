@@ -8,7 +8,6 @@ export interface MemberDTO {
   riotId: string | null;
   name: string | null;
   alias: string | null;
-  avatarHash: string | null;
   avatarUrl: string | null;
 }
 

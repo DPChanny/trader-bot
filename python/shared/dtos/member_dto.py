@@ -1,5 +1,3 @@
-from pydantic import computed_field
-
 from shared.entities.member import Role
 
 from . import BaseDTO, NullableStr
@@ -14,17 +12,9 @@ class MemberDTO(BaseDTO):
     riot_id: str | None
     name: str | None
     alias: str | None
-    avatar_hash: str | None
+    avatar_url: str | None
 
     model_config = {"from_attributes": True}
-
-    @computed_field
-    @property
-    def avatar_url(self) -> str | None:
-        if not self.avatar_hash:
-            return None
-        ext = "gif" if self.avatar_hash.startswith("a_") else "png"
-        return f"https://cdn.discordapp.com/guilds/{self.guild_id}/users/{self.discord_id}/avatars/{self.avatar_hash}.{ext}?size=256"
 
 
 class MemberDetailDTO(MemberDTO):

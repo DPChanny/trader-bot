@@ -126,7 +126,6 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
                 riotId: riotId || null,
                 name: member.name,
                 alias: alias || null,
-                avatarHash: member.avatarHash,
                 discord: member.discord,
                 avatarUrl: member.avatarUrl,
               }}

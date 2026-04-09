@@ -11,6 +11,8 @@ from shared.utils.logging import setup_logging
 from .utils import setup_intents
 from .utils.guild import delete_guild, upsert_guild
 from .utils.member import (
+    _discord_avatar_url,
+    _member_avatar_url,
     delete_member,
     set_role,
     update_discord_global,
@@ -38,18 +40,23 @@ async def main() -> None:
                     async for member in guild.fetch_members():
                         if member.bot:
                             continue
-                        guild_avatar = (
-                            member.guild_avatar.key if member.guild_avatar else None
+                        guild_avatar_url = _member_avatar_url(
+                            guild_entity.discord_id,
+                            str(member.id),
+                            member.guild_avatar.key if member.guild_avatar else None,
                         )
-                        global_avatar = member.avatar.key if member.avatar else None
+                        discord_avatar_url = _discord_avatar_url(
+                            str(member.id),
+                            member.avatar.key if member.avatar else None,
+                        )
                         await upsert_member(
                             guild_entity.guild_id,
                             str(member.id),
                             db,
                             discord_name=member.global_name or member.name,
-                            discord_avatar_hash=global_avatar,
+                            discord_avatar_url=discord_avatar_url,
                             guild_nick=member.nick,
-                            guild_avatar_hash=guild_avatar,
+                            guild_avatar_url=guild_avatar_url,
                         )
                     owner_member = await upsert_member(
                         guild_entity.guild_id, owner_discord_id, db
@@ -75,18 +82,23 @@ async def main() -> None:
                     if member.bot:
                         continue
 
-                    guild_avatar = (
-                        member.guild_avatar.key if member.guild_avatar else None
+                    guild_avatar_url = _member_avatar_url(
+                        guild_entity.discord_id,
+                        str(member.id),
+                        member.guild_avatar.key if member.guild_avatar else None,
                     )
-                    global_avatar = member.avatar.key if member.avatar else None
+                    discord_avatar_url = _discord_avatar_url(
+                        str(member.id),
+                        member.avatar.key if member.avatar else None,
+                    )
                     await upsert_member(
                         guild_entity.guild_id,
                         str(member.id),
                         db,
                         discord_name=member.global_name or member.name,
-                        discord_avatar_hash=global_avatar,
+                        discord_avatar_url=discord_avatar_url,
                         guild_nick=member.nick,
-                        guild_avatar_hash=guild_avatar,
+                        guild_avatar_url=guild_avatar_url,
                     )
                 await set_role(guild_entity.guild_id, owner_discord_id, Role.OWNER, db)
                 await db.commit()
@@ -107,16 +119,23 @@ async def main() -> None:
         async for db in get_async_db():
             try:
                 guild_entity = await upsert_guild(member.guild, db)
-                guild_avatar = member.guild_avatar.key if member.guild_avatar else None
-                global_avatar = member.avatar.key if member.avatar else None
+                guild_avatar_url = _member_avatar_url(
+                    guild_entity.discord_id,
+                    str(member.id),
+                    member.guild_avatar.key if member.guild_avatar else None,
+                )
+                discord_avatar_url = _discord_avatar_url(
+                    str(member.id),
+                    member.avatar.key if member.avatar else None,
+                )
                 await upsert_member(
                     guild_entity.guild_id,
                     str(member.id),
                     db,
                     discord_name=member.global_name or member.name,
-                    discord_avatar_hash=global_avatar,
+                    discord_avatar_url=discord_avatar_url,
                     guild_nick=member.nick,
-                    guild_avatar_hash=guild_avatar,
+                    guild_avatar_url=guild_avatar_url,
                 )
                 await db.commit()
             except Exception as e:
@@ -137,14 +156,22 @@ async def main() -> None:
         async for db in get_async_db():
             try:
                 guild_entity = await upsert_guild(after.guild, db)
-                global_avatar = after.avatar.key if after.avatar else None
+                discord_avatar_url = _discord_avatar_url(
+                    str(after.id),
+                    after.avatar.key if after.avatar else None,
+                )
+                guild_avatar_url = _member_avatar_url(
+                    guild_entity.discord_id,
+                    str(after.id),
+                    guild_avatar_after,
+                )
                 await update_member(
                     guild_entity.guild_id,
                     str(after.id),
                     discord_name=after.global_name or after.name,
-                    discord_avatar_hash=global_avatar,
+                    discord_avatar_url=discord_avatar_url,
                     guild_nick=after.nick,
-                    guild_avatar_hash=guild_avatar_after,
+                    guild_avatar_url=guild_avatar_url,
                     db=db,
                 )
                 await db.commit()
@@ -166,7 +193,7 @@ async def main() -> None:
                 await update_discord_global(
                     str(after.id),
                     after.global_name or after.name,
-                    global_avatar_after,
+                    _discord_avatar_url(str(after.id), global_avatar_after),
                     db,
                 )
                 await db.commit()

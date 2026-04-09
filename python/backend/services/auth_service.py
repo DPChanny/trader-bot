@@ -25,18 +25,24 @@ async def callback_service(code: str, db: AsyncSession) -> RedirectResponse:
     discord_id = str(user_data["id"])
     name = user_data.get("global_name") or user_data.get("username", "")
     avatar_hash = user_data.get("avatar")
+    ext = "gif" if avatar_hash and avatar_hash.startswith("a_") else "png"
+    avatar_url = (
+        f"https://cdn.discordapp.com/avatars/{discord_id}/{avatar_hash}.{ext}?size=256"
+        if avatar_hash
+        else None
+    )
 
     result = await db.execute(select(Discord).where(Discord.discord_id == discord_id))
     discord_entity = result.scalar_one_or_none()
     if discord_entity is None:
         discord_entity = Discord(
-            discord_id=discord_id, name=name, avatar_hash=avatar_hash
+            discord_id=discord_id, name=name, avatar_url=avatar_url
         )
         db.add(discord_entity)
         await db.flush()
     else:
         discord_entity.name = name
-        discord_entity.avatar_hash = avatar_hash
+        discord_entity.avatar_url = avatar_url
 
     result = await db.execute(select(User).where(User.discord_id == discord_id))
     user = result.scalar_one_or_none()

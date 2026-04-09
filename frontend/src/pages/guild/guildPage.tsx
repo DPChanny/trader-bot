@@ -34,7 +34,6 @@ export function GuildPage({}: GuildPageProps) {
         guildId: guild.guildId,
         discordId: guild.discordId,
         name: guild.name,
-        iconHash: guild.iconHash,
         iconUrl: guild.iconUrl,
       });
       route("/preset");
