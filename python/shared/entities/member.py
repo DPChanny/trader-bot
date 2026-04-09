@@ -10,7 +10,7 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .discord import DiscordUser
+    from .discord_user import DiscordUser
     from .guild import Guild
     from .lol_stat import LolStat
     from .preset_member import PresetMember

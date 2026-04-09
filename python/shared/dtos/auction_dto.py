@@ -1,12 +1,8 @@
 from enum import StrEnum
 
+from shared.entities.auction import AuctionStatus as AuctionStatus
+
 from . import BaseDTO, DiscordId
-
-
-class AuctionStatus(StrEnum):
-    WAITING = "waiting"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
 
 
 class MessageType(StrEnum):
@@ -32,7 +28,7 @@ class Team(BaseDTO):
 
 
 class AuctionStateDTO(BaseDTO):
-    auction_id: str
+    auction_id: int
     preset_id: int
     guild_id: DiscordId
     status: AuctionStatus
@@ -44,10 +40,11 @@ class AuctionStateDTO(BaseDTO):
     auction_queue: list[int]
     unsold_queue: list[int]
     connected_users: list[int]
+    preset_snapshot: dict | None = None
 
 
 class AuctionDTO(BaseDTO):
-    auction_id: str
+    auction_id: int
     preset_id: int
 
 

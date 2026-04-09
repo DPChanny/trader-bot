@@ -136,7 +136,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
       case "status": {
         const data = message.data as {
-          status: "waiting" | "in_progress" | "completed";
+          status: import("@/dtos/auctionDto").AuctionStatus;
         };
         setState((prev) =>
           prev

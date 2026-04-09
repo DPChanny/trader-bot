@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..entities.discord import DiscordUser
+from ..entities.discord_user import DiscordUser
 from .env import (
     get_api_origin,
     get_bot_token,

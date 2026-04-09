@@ -1,5 +1,11 @@
+export enum AuctionStatus {
+  WAITING = 0,
+  IN_PROGRESS = 1,
+  COMPLETED = 2,
+}
+
 export interface AuctionDTO {
-  auctionId: string;
+  auctionId: number;
   presetId: number;
 }
 
@@ -30,10 +36,10 @@ export interface Team {
 }
 
 export interface AuctionInitDTO {
-  auctionId: string;
+  auctionId: number;
   presetId: number;
   guildId: string;
-  status: "waiting" | "in_progress" | "completed";
+  status: AuctionStatus;
   currentMemberId: number | null;
   currentBid: number | null;
   currentBidder: number | null;
@@ -42,9 +48,10 @@ export interface AuctionInitDTO {
   auctionQueue: number[];
   unsoldQueue: number[];
   teamId: number | null;
-  memberId: number;
+  memberId: number | null;
   isLeader: boolean;
   connectedUsers: number[];
+  presetSnapshot: any | null;
 }
 
 export interface BidPlacedMessageData {

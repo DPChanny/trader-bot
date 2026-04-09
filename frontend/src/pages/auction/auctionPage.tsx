@@ -18,6 +18,7 @@ import { Input } from "@/components/commons/input";
 import { Bar } from "@/components/commons/bar";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 import { Statistics } from "@/dtos/presetDto";
+import { AuctionStatus } from "@/dtos/auctionDto";
 
 import styles from "@/styles/pages/auction/auctionPage.module.css";
 
@@ -78,7 +79,7 @@ export function AuctionPage({}: AuctionPageProps) {
     }
   }, []);
 
-  const isCompleted = state?.status === "completed";
+  const isCompleted = state?.status === AuctionStatus.COMPLETED;
 
   const errorMessage = !token
     ? "유효하지 않은 접근입니다. 경매 참가 링크를 확인해주세요."
@@ -140,13 +141,13 @@ export function AuctionPage({}: AuctionPageProps) {
   const teamMemberCount = currentTeam ? currentTeam.memberIdList.length : 0;
   const isTeamFull = teamMemberCount >= 5;
 
-  const getStatusText = (status: string) => {
-    if (wasConnected && !isConnected && status !== "completed")
+  const getStatusText = (status: AuctionStatus) => {
+    if (wasConnected && !isConnected && status !== AuctionStatus.COMPLETED)
       return "연결 끊김";
-    if (status === "waiting") return "대기중";
-    if (status === "in_progress") return "진행중";
-    if (status === "completed") return "완료";
-    return status;
+    if (status === AuctionStatus.WAITING) return "대기중";
+    if (status === AuctionStatus.IN_PROGRESS) return "진행중";
+    if (status === AuctionStatus.COMPLETED) return "완료";
+    return String(status);
   };
 
   const currentMember = state.currentMemberId
@@ -201,17 +202,17 @@ export function AuctionPage({}: AuctionPageProps) {
               variantIntent="secondary"
               className={styles.auctionInfoTopSection}
             >
-              {state.status !== "completed" && currentMember && (
+              {state.status !== AuctionStatus.COMPLETED && currentMember && (
                 <PresetMemberCard
                   presetMember={currentMember}
                   tiers={presetDetail!.tiers}
                   positions={presetDetail!.positions}
                 />
               )}
-              {state.status !== "completed" &&
+              {state.status !== AuctionStatus.COMPLETED &&
                 presetDetail?.statistics === Statistics.LOL &&
                 lolStat && <LolStat lolStatDTO={lolStat} />}
-              {state.status !== "completed" &&
+              {state.status !== AuctionStatus.COMPLETED &&
                 presetDetail?.statistics === Statistics.VAL &&
                 valStat && <ValStat valStatDTO={valStat} />}
             </Section>
@@ -223,19 +224,21 @@ export function AuctionPage({}: AuctionPageProps) {
               <Section variantTone="ghost">
                 <InfoCard
                   label="남은 시간"
-                  value={state.status === "completed" ? 0 : state.timer}
+                  value={
+                    state.status === AuctionStatus.COMPLETED ? 0 : state.timer
+                  }
                 />
                 <InfoCard
                   label="입찰 포인트"
                   value={
-                    state.status === "completed"
+                    state.status === AuctionStatus.COMPLETED
                       ? 0
                       : (state.currentBid || 0) * pointScale
                   }
                 />
               </Section>
               <InfoCard label="입찰 팀장" value="">
-                {state.status !== "completed" && bidderLeader && (
+                {state.status !== AuctionStatus.COMPLETED && bidderLeader && (
                   <PresetMemberCard
                     presetMember={bidderLeader}
                     tiers={presetDetail!.tiers}
@@ -256,12 +259,12 @@ export function AuctionPage({}: AuctionPageProps) {
                   placeholder={`입찰 금액 (${pointScale}의 배수)`}
                   value={bidAmount}
                   onChange={(value) => setBidAmount(value)}
-                  disabled={state.status !== "in_progress"}
+                  disabled={state.status !== AuctionStatus.IN_PROGRESS}
                 />
                 <PrimaryButton
                   onClick={handlePlaceBid}
                   disabled={
-                    state.status !== "in_progress" ||
+                    state.status !== AuctionStatus.IN_PROGRESS ||
                     !bidAmount ||
                     parseInt(bidAmount) <= 0 ||
                     parseInt(bidAmount) % pointScale !== 0

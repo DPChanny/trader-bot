@@ -9,7 +9,7 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .discord import DiscordUser
+    from .discord_user import DiscordUser
 
 
 class User(BaseEntity):
