@@ -4,9 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.token_dto import RefreshDTO
-from shared.entities.discord import Discord
 from shared.entities.user import User
-from shared.utils.discord import get_avatar_url, get_login_url, get_me
+from shared.utils.discord import get_login_url, get_me, upsert_discord
 from shared.utils.env import get_app_origin
 
 from ..utils.exception import service_exception_handler
@@ -24,19 +23,9 @@ async def callback_service(code: str, db: AsyncSession) -> RedirectResponse:
 
     discord_id = str(user_data["id"])
     name = user_data.get("global_name") or user_data.get("username", "")
-    avatar_url = get_avatar_url(discord_id, user_data.get("avatar"))
+    avatar_hash = user_data.get("avatar")
 
-    result = await db.execute(select(Discord).where(Discord.discord_id == discord_id))
-    discord_entity = result.scalar_one_or_none()
-    if discord_entity is None:
-        discord_entity = Discord(
-            discord_id=discord_id, name=name, avatar_url=avatar_url
-        )
-        db.add(discord_entity)
-        await db.flush()
-    else:
-        discord_entity.name = name
-        discord_entity.avatar_url = avatar_url
+    await upsert_discord(discord_id, name, avatar_hash, db)
 
     result = await db.execute(select(User).where(User.discord_id == discord_id))
     user = result.scalar_one_or_none()

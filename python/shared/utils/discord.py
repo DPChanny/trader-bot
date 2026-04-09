@@ -2,7 +2,10 @@ import urllib.parse
 
 import httpx
 from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..entities.discord import Discord
 from .env import (
     get_api_origin,
     get_bot_token,
@@ -17,9 +20,7 @@ DISCORD_USERS_URL = "https://discord.com/api/users"
 DISCORD_CHANNELS_URL = "https://discord.com/api/channels"
 
 
-def get_avatar_url(discord_id: str, avatar_hash: str | None) -> str | None:
-    if not avatar_hash:
-        return None
+def get_avatar_url(discord_id: str, avatar_hash: str) -> str:
     ext = "gif" if avatar_hash.startswith("a_") else "png"
     return (
         f"https://cdn.discordapp.com/avatars/{discord_id}/{avatar_hash}.{ext}?size=256"
@@ -95,3 +96,20 @@ async def send_message(user_id: str, embeds: list[dict]) -> bool:
             json={"embeds": embeds},
         )
         return msg_response.status_code == 200
+
+
+async def upsert_discord(
+    discord_id: str,
+    name: str,
+    avatar_hash: str | None,
+    db: AsyncSession,
+) -> None:
+    avatar_url = get_avatar_url(discord_id, avatar_hash) if avatar_hash else None
+    result = await db.execute(select(Discord).where(Discord.discord_id == discord_id))
+    entity = result.scalar_one_or_none()
+    if entity is None:
+        db.add(Discord(discord_id=discord_id, name=name, avatar_url=avatar_url))
+    else:
+        entity.name = name
+        entity.avatar_url = avatar_url
+    await db.flush()
