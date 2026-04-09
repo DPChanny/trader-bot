@@ -1,5 +1,5 @@
 from . import BaseDTO
-from .member_dto import MemberDetailDTO
+from .member_dto import MemberDTO
 from .preset_member_position_dto import PresetMemberPositionDTO
 
 
@@ -14,7 +14,7 @@ class PresetMemberDTO(BaseDTO):
 
 
 class PresetMemberDetailDTO(PresetMemberDTO):
-    member: MemberDetailDTO | None = None
+    member: MemberDTO | None = None
     preset_member_positions: list[PresetMemberPositionDTO] = []
 
 

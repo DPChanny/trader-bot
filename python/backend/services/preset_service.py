@@ -10,7 +10,7 @@ from shared.dtos.preset_dto import (
     PresetDTO,
     UpdatePresetDTO,
 )
-from shared.entities.member import Member, Role
+from shared.entities.member import Role
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
 
@@ -23,9 +23,7 @@ async def _query_preset_detail(preset_id: int, db: AsyncSession) -> Preset | Non
     result = await db.execute(
         select(Preset)
         .options(
-            joinedload(Preset.preset_members)
-            .joinedload(PresetMember.member)
-            .joinedload(Member.discord),
+            joinedload(Preset.preset_members).joinedload(PresetMember.member),
             joinedload(Preset.preset_members).joinedload(
                 PresetMember.preset_member_positions
             ),

@@ -1,14 +1,15 @@
 import styles from "@/styles/components/memberCard.module.css";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
-import type { MemberDetailDTO } from "@/dtos/memberDto";
+import type { MemberDTO } from "@/dtos/memberDto";
 
 export interface MemberCardProps {
-  member: MemberDetailDTO;
+  member: MemberDTO;
   isActive?: boolean;
 }
 
 export function MemberCard({ member, isActive }: MemberCardProps) {
+  const displayName = member.alias || member.name;
   return (
     <Card
       variantColor="gray"
@@ -17,11 +18,8 @@ export function MemberCard({ member, isActive }: MemberCardProps) {
     >
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
-          {member.discord.avatarUrl ? (
-            <img
-              src={member.discord.avatarUrl}
-              alt={member.discord.name || member.riotId || "이름 없음"}
-            />
+          {member.avatarUrl ? (
+            <img src={member.avatarUrl} alt={displayName} />
           ) : (
             <svg
               class={styles.profileIcon}
@@ -40,9 +38,7 @@ export function MemberCard({ member, isActive }: MemberCardProps) {
         </div>
 
         <Section variantTone="ghost" variantIntent="tertiary">
-          <h3 class={styles.name}>
-            {member.discord.name || member.riotId || "이름 없음"}
-          </h3>
+          <h3 class={styles.name}>{displayName}</h3>
         </Section>
       </Section>
     </Card>

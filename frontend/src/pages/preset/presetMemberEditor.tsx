@@ -209,8 +209,8 @@ export function PresetMemberEditor({
           variantIntent="secondary"
         >
           <h3>
-            {presetMember.member?.discord?.name ||
-              presetMember.member?.riotId ||
+            {presetMember.member?.alias ||
+              presetMember.member?.name ||
               "이름 없음"}
           </h3>
           <Section

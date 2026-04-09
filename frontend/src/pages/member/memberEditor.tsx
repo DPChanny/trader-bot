@@ -36,13 +36,16 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
   const valStat = useValStat(member.memberId);
 
   const [riotId, setRiotId] = useState(member.riotId ?? "");
+  const [alias, setAlias] = useState(member.alias ?? "");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     setRiotId(member.riotId ?? "");
-  }, [member.memberId, member.riotId]);
+    setAlias(member.alias ?? "");
+  }, [member.memberId, member.riotId, member.alias]);
 
-  const hasChanges = riotId !== (member.riotId ?? "");
+  const hasChanges =
+    riotId !== (member.riotId ?? "") || alias !== (member.alias ?? "");
 
   const handleSave = async () => {
     if (!guildId) return;
@@ -50,7 +53,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
       await updateMember.mutateAsync({
         guildId,
         memberId: member.memberId,
-        dto: { riotId },
+        dto: { riotId, alias: alias || null },
       });
     } catch (err) {
       console.error("Failed to update member:", err);
@@ -76,7 +79,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
           variantLayout="row"
           variantIntent="secondary"
         >
-          <h3>{member.discord.name || member.riotId || "이름 없음"}</h3>
+          <h3>{member.alias || member.riotId || "이름 없음"}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -118,14 +121,23 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
               member={{
                 memberId: member.memberId,
                 guildId: member.guildId,
-                riotId: riotId || null,
                 discordId: member.discordId,
                 role: member.role,
-                discord: member.discord,
+                riotId: riotId || null,
+                name: member.name,
+                alias: alias || null,
+                avatarHash: member.avatarHash,
+                avatarUrl: member.avatarUrl,
               }}
             />
           </Section>
 
+          <LabelInput
+            label="별칭 (Alias)"
+            value={alias}
+            onChange={setAlias}
+            placeholder={member.name}
+          />
           <LabelInput label="Riot ID" value={riotId} onChange={setRiotId} />
 
           <Label>League of Legends 통계</Label>

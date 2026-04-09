@@ -1,21 +1,16 @@
-export interface DiscordDTO {
+export interface MemberDTO {
+  memberId: number;
+  guildId: number;
   discordId: string;
+  role: number;
+  riotId: string | null;
   name: string;
+  alias: string | null;
   avatarHash: string | null;
   avatarUrl: string | null;
 }
 
-export interface MemberDTO {
-  memberId: number;
-  guildId: number;
-  riotId: string | null;
-  discordId: string;
-  role: number;
-}
-
-export interface MemberDetailDTO extends MemberDTO {
-  discord: DiscordDTO;
-}
+export type MemberDetailDTO = MemberDTO;
 
 export interface AddMemberDTO {
   discordId: string;
@@ -24,5 +19,6 @@ export interface AddMemberDTO {
 
 export interface UpdateMemberDTO {
   riotId?: string | null;
+  alias?: string | null;
   role?: number;
 }
