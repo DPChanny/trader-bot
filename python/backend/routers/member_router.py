@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.member_dto import MemberDTO, UpdateMemberDTO
+from shared.dtos.member_dto import MemberDetailDTO, UpdateMemberDTO
 from shared.utils.database import get_async_db
 
 from ..services.member_service import (
@@ -15,7 +15,7 @@ from ..utils.token import Payload, verify_token
 member_router = APIRouter(prefix="/guild/{guild_id}/member", tags=["member"])
 
 
-@member_router.get("", response_model=list[MemberDTO])
+@member_router.get("", response_model=list[MemberDetailDTO])
 async def get_member_list_route(
     guild_id: int,
     db: AsyncSession = Depends(get_async_db),
@@ -24,7 +24,7 @@ async def get_member_list_route(
     return await get_member_list_service(guild_id, db, payload)
 
 
-@member_router.get("/{member_id}", response_model=MemberDTO)
+@member_router.get("/{member_id}", response_model=MemberDetailDTO)
 async def get_member_detail_route(
     guild_id: int,
     member_id: int,
@@ -34,7 +34,7 @@ async def get_member_detail_route(
     return await get_member_detail_service(guild_id, member_id, db, payload)
 
 
-@member_router.patch("/{member_id}", response_model=MemberDTO)
+@member_router.patch("/{member_id}", response_model=MemberDetailDTO)
 async def update_member_route(
     guild_id: int,
     member_id: int,

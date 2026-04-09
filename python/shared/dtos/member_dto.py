@@ -3,6 +3,7 @@ from pydantic import computed_field
 from shared.entities.member import Role
 
 from . import BaseDTO, NullableStr
+from .discord_dto import DiscordDTO
 
 
 class MemberDTO(BaseDTO):
@@ -11,7 +12,7 @@ class MemberDTO(BaseDTO):
     discord_id: str
     role: Role
     riot_id: str | None
-    name: str
+    name: str | None
     alias: str | None
     avatar_hash: str | None
 
@@ -26,9 +27,8 @@ class MemberDTO(BaseDTO):
         return f"https://cdn.discordapp.com/guilds/{self.guild_id}/users/{self.discord_id}/avatars/{self.avatar_hash}.{ext}?size=256"
 
 
-class AddMemberDTO(BaseDTO):
-    discord_id: str
-    riot_id: NullableStr = None
+class MemberDetailDTO(MemberDTO):
+    discord: DiscordDTO
 
 
 class UpdateMemberDTO(BaseDTO):

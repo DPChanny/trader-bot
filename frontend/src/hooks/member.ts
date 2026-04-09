@@ -1,9 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
-import type {
-  AddMemberDTO,
-  MemberDetailDTO,
-  UpdateMemberDTO,
-} from "@/dtos/memberDto";
+import type { MemberDetailDTO, UpdateMemberDTO } from "@/dtos/memberDto";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getMemberEndpoint } from "@/utils/env";
@@ -39,34 +35,6 @@ export function useMember(guildId: number | null, memberId: number | null) {
       return toCamelCase<MemberDetailDTO>(json);
     },
     enabled: !!guildId && !!memberId,
-  });
-}
-
-export function useAddMember() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      guildId,
-      dto,
-    }: {
-      guildId: number;
-      dto: AddMemberDTO;
-    }): Promise<MemberDetailDTO> => {
-      const response = await fetch(getMemberEndpoint(guildId), {
-        method: "POST",
-        headers: getAuthHeadersForMutation(),
-        body: JSON.stringify(toSnakeCase(dto)),
-      });
-      if (!response.ok) await handleHttpError(response);
-      const json = await response.json();
-      return toCamelCase<MemberDetailDTO>(json);
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["members", variables.guildId],
-      });
-    },
   });
 }
 

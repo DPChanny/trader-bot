@@ -1,9 +1,15 @@
 from __future__ import annotations
 
-from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import TYPE_CHECKING
+
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
+
+
+if TYPE_CHECKING:
+    from .discord import Discord
 
 
 class User(BaseEntity):
@@ -11,11 +17,10 @@ class User(BaseEntity):
 
     user_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     discord_id: Mapped[str] = mapped_column(
-        String(256),
+        ForeignKey("discord.discord_id"),
         unique=True,
         nullable=False,
     )
-    name: Mapped[str] = mapped_column(String(256), nullable=False)
-    alias: Mapped[str | None] = mapped_column(String(256), nullable=True)
-    avatar_hash: Mapped[str | None] = mapped_column(String(256), nullable=True)
     refresh_token: Mapped[str | None] = mapped_column(String(512), nullable=True)
+
+    discord: Mapped[Discord] = relationship("Discord", back_populates="users")

@@ -1,15 +1,16 @@
 import styles from "@/styles/components/memberCard.module.css";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
-import type { MemberDTO } from "@/dtos/memberDto";
+import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 export interface MemberCardProps {
-  member: MemberDTO;
+  member: MemberDetailDTO;
   isActive?: boolean;
 }
 
 export function MemberCard({ member, isActive }: MemberCardProps) {
-  const displayName = member.alias || member.name;
+  const displayName = member.alias || member.name || member.discord.name;
+  const avatarUrl = member.avatarUrl || member.discord.avatarUrl;
   return (
     <Card
       variantColor="gray"
@@ -18,8 +19,8 @@ export function MemberCard({ member, isActive }: MemberCardProps) {
     >
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
-          {member.avatarUrl ? (
-            <img src={member.avatarUrl} alt={displayName} />
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} />
           ) : (
             <svg
               class={styles.profileIcon}

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.user_dto import UserDTO
+from shared.dtos.user_dto import UserDetailDTO
 from shared.utils.database import get_async_db
 
 from ..services.user_service import delete_me_service, get_me_service
@@ -11,7 +11,7 @@ from ..utils.token import Payload, verify_token
 user_router = APIRouter(prefix="/user", tags=["user"])
 
 
-@user_router.get("/@me", response_model=UserDTO)
+@user_router.get("/@me", response_model=UserDetailDTO)
 async def get_me_route(
     db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),

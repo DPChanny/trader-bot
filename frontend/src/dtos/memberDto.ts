@@ -1,20 +1,19 @@
+import type { DiscordDTO } from "./discordDto";
+
 export interface MemberDTO {
   memberId: number;
   guildId: number;
   discordId: string;
   role: number;
   riotId: string | null;
-  name: string;
+  name: string | null;
   alias: string | null;
   avatarHash: string | null;
   avatarUrl: string | null;
 }
 
-export type MemberDetailDTO = MemberDTO;
-
-export interface AddMemberDTO {
-  discordId: string;
-  riotId?: string | null;
+export interface MemberDetailDTO extends MemberDTO {
+  discord: DiscordDTO;
 }
 
 export interface UpdateMemberDTO {

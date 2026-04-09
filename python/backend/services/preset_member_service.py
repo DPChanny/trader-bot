@@ -26,7 +26,7 @@ async def _query_preset_member_detail(
     stmt = (
         select(PresetMember)
         .options(
-            joinedload(PresetMember.member),
+            joinedload(PresetMember.member).joinedload(Member.discord),
             joinedload(PresetMember.preset_member_positions),
         )
         .where(PresetMember.preset_member_id == preset_member_id)

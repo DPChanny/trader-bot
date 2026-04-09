@@ -34,6 +34,8 @@ export function GuildPage({}: GuildPageProps) {
         guildId: guild.guildId,
         discordId: guild.discordId,
         name: guild.name,
+        iconHash: guild.iconHash,
+        iconUrl: guild.iconUrl,
       });
       route("/preset");
     }
@@ -74,7 +76,7 @@ export function GuildPage({}: GuildPageProps) {
           )}
           {isLoading && <Loading />}
           {!isLoading && !error && (
-            <Section variantTone="ghost" variantIntent="secondary">
+            <div class={styles.guildList}>
               {guilds?.map((guild) => (
                 <GuildCard
                   key={guild.guildId}
@@ -83,11 +85,11 @@ export function GuildPage({}: GuildPageProps) {
                 />
               ))}
               {guilds?.length === 0 && (
-                <p>
+                <p class={styles.empty}>
                   소속된 길드가 없습니다. 봇 초대 버튼으로 봇을 추가해주세요.
                 </p>
               )}
-            </Section>
+            </div>
           )}
         </Section>
       </PageContainer>

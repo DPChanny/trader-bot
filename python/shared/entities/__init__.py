@@ -5,6 +5,7 @@ class BaseEntity(DeclarativeBase):
     pass
 
 
+from .discord import Discord
 from .guild import Guild
 from .lol_stat import Champion, LolStat
 from .member import Member

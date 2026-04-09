@@ -1,8 +1,9 @@
-import { removeAuthToken } from "@/utils/auth";
+import { removeAuthToken, removeRefreshToken } from "@/utils/auth";
 
 export async function handleHttpError(response: Response): Promise<never> {
   if (response.status === 401) {
     removeAuthToken();
+    removeRefreshToken();
     window.location.href = "/auth/login";
   }
   let message: string;

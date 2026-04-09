@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
-import type { UserDTO } from "@/dtos/userDto";
+import type { UserDetailDTO } from "@/dtos/userDto";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { USER_API_ENDPOINT } from "@/utils/env";
 import { toCamelCase } from "@/utils/dto";
@@ -8,13 +8,13 @@ import { handleHttpError } from "@/utils/hook";
 export function useMe() {
   return useQuery({
     queryKey: ["me"],
-    queryFn: async (): Promise<UserDTO> => {
+    queryFn: async (): Promise<UserDetailDTO> => {
       const response = await fetch(`${USER_API_ENDPOINT}/@me`, {
         headers: getAuthHeaders(),
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
-      return toCamelCase<UserDTO>(json);
+      return toCamelCase<UserDetailDTO>(json);
     },
   });
 }

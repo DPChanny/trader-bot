@@ -1,5 +1,4 @@
 from . import BaseDTO
-from .position_dto import PositionDTO
 
 
 class PresetMemberPositionDTO(BaseDTO):
@@ -8,10 +7,6 @@ class PresetMemberPositionDTO(BaseDTO):
     position_id: int
 
     model_config = {"from_attributes": True}
-
-
-class PresetMemberPositionDetailDTO(PresetMemberPositionDTO):
-    position: PositionDTO
 
 
 class AddPresetMemberPositionDTO(BaseDTO):

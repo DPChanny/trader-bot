@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.guild_dto import GuildDetailDTO, GuildDTO
+from shared.dtos.guild_dto import GuildDTO
 from shared.utils.database import get_async_db
 
 from ..services.guild_service import get_guild_detail_service, get_guild_list_service
@@ -19,7 +19,7 @@ async def get_guild_list_route(
     return await get_guild_list_service(db, payload)
 
 
-@guild_router.get("/{guild_id}", response_model=GuildDetailDTO)
+@guild_router.get("/{guild_id}", response_model=GuildDTO)
 async def get_guild_detail_route(
     guild_id: int,
     db: AsyncSession = Depends(get_async_db),

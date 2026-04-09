@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.token_dto import RefreshDTO
+from shared.entities.discord import Discord
 from shared.entities.user import User
 from shared.utils.env import get_app_origin
 
@@ -25,17 +26,27 @@ async def callback_service(code: str, db: AsyncSession) -> RedirectResponse:
     name = user_data.get("global_name") or user_data.get("username", "")
     avatar_hash = user_data.get("avatar")
 
+    result = await db.execute(select(Discord).where(Discord.discord_id == discord_id))
+    discord_entity = result.scalar_one_or_none()
+    if discord_entity is None:
+        discord_entity = Discord(
+            discord_id=discord_id, name=name, avatar_hash=avatar_hash
+        )
+        db.add(discord_entity)
+        await db.flush()
+    else:
+        discord_entity.name = name
+        discord_entity.avatar_hash = avatar_hash
+
     result = await db.execute(select(User).where(User.discord_id == discord_id))
     user = result.scalar_one_or_none()
     if user is None:
         logger.info(f"User added: discord_id={discord_id}")
-        user = User(discord_id=discord_id, name=name, avatar_hash=avatar_hash)
+        user = User(discord_id=discord_id)
         db.add(user)
         await db.flush()
     else:
         logger.info(f"User login: user_id={user.user_id}, discord_id={discord_id}")
-        user.name = name
-        user.avatar_hash = avatar_hash
 
     access_token = create_token(user.user_id, user.discord_id)
     refresh_token = create_refresh_token(user.user_id, user.discord_id)

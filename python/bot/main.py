@@ -10,7 +10,13 @@ from shared.utils.logging import setup_logging
 
 from .utils import setup_intents
 from .utils.guild import delete_guild, upsert_guild
-from .utils.member import delete_member, set_role, update_member, upsert_member
+from .utils.member import (
+    delete_member,
+    set_role,
+    update_discord_global,
+    update_member,
+    upsert_member,
+)
 
 
 setup_logging()
@@ -35,11 +41,14 @@ async def main() -> None:
                         guild_avatar = (
                             member.guild_avatar.key if member.guild_avatar else None
                         )
+                        global_avatar = member.avatar.key if member.avatar else None
                         await upsert_member(
                             guild_entity.guild_id,
                             str(member.id),
                             db,
-                            name=member.nick or member.global_name or member.name,
+                            discord_name=member.global_name or member.name,
+                            discord_avatar_hash=global_avatar,
+                            guild_nick=member.nick,
                             guild_avatar_hash=guild_avatar,
                         )
                     owner_member = await upsert_member(
@@ -69,11 +78,14 @@ async def main() -> None:
                     guild_avatar = (
                         member.guild_avatar.key if member.guild_avatar else None
                     )
+                    global_avatar = member.avatar.key if member.avatar else None
                     await upsert_member(
                         guild_entity.guild_id,
                         str(member.id),
                         db,
-                        name=member.nick or member.global_name or member.name,
+                        discord_name=member.global_name or member.name,
+                        discord_avatar_hash=global_avatar,
+                        guild_nick=member.nick,
                         guild_avatar_hash=guild_avatar,
                     )
                 await set_role(guild_entity.guild_id, owner_discord_id, Role.OWNER, db)
@@ -96,11 +108,14 @@ async def main() -> None:
             try:
                 guild_entity = await upsert_guild(member.guild, db)
                 guild_avatar = member.guild_avatar.key if member.guild_avatar else None
+                global_avatar = member.avatar.key if member.avatar else None
                 await upsert_member(
                     guild_entity.guild_id,
                     str(member.id),
                     db,
-                    name=member.nick or member.global_name or member.name,
+                    discord_name=member.global_name or member.name,
+                    discord_avatar_hash=global_avatar,
+                    guild_nick=member.nick,
                     guild_avatar_hash=guild_avatar,
                 )
                 await db.commit()
@@ -122,17 +137,42 @@ async def main() -> None:
         async for db in get_async_db():
             try:
                 guild_entity = await upsert_guild(after.guild, db)
+                global_avatar = after.avatar.key if after.avatar else None
                 await update_member(
                     guild_entity.guild_id,
                     str(after.id),
-                    after.nick or after.global_name or after.name,
-                    guild_avatar_after,
-                    db,
+                    discord_name=after.global_name or after.name,
+                    discord_avatar_hash=global_avatar,
+                    guild_nick=after.nick,
+                    guild_avatar_hash=guild_avatar_after,
+                    db=db,
                 )
                 await db.commit()
             except Exception as e:
                 await db.rollback()
                 logger.exception(f"on_member_update error: {e}")
+
+    @bot.event
+    async def on_user_update(before, after):
+        global_avatar_before = before.avatar.key if before.avatar else None
+        global_avatar_after = after.avatar.key if after.avatar else None
+        if (before.global_name or before.name) == (
+            after.global_name or after.name
+        ) and global_avatar_before == global_avatar_after:
+            return
+        logger.info(f"User global profile updated: {after.name} ({after.id})")
+        async for db in get_async_db():
+            try:
+                await update_discord_global(
+                    str(after.id),
+                    after.global_name or after.name,
+                    global_avatar_after,
+                    db,
+                )
+                await db.commit()
+            except Exception as e:
+                await db.rollback()
+                logger.exception(f"on_user_update error: {e}")
 
     @bot.event
     async def on_guild_update(before, after):

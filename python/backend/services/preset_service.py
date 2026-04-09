@@ -23,7 +23,9 @@ async def _query_preset_detail(preset_id: int, db: AsyncSession) -> Preset | Non
     result = await db.execute(
         select(Preset)
         .options(
-            joinedload(Preset.preset_members).joinedload(PresetMember.member),
+            joinedload(Preset.preset_members)
+            .joinedload(PresetMember.member)
+            .joinedload(Member.discord),
             joinedload(Preset.preset_members).joinedload(
                 PresetMember.preset_member_positions
             ),

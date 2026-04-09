@@ -3,14 +3,12 @@ import { route } from "preact-router";
 import { useMembers } from "@/hooks/member";
 import { useGuildContext } from "@/contexts/guildContext";
 import { useMemberPageContext, MemberPageProvider } from "./memberContext";
-import { PrimaryButton } from "@/components/commons/button";
 import { MemberGrid } from "@/components/memberGrid";
 import { Section } from "@/components/commons/section";
 import { PageLayout, PageContainer } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { MemberEditor } from "./memberEditor";
-import { AddMemberModal } from "./addMemberModal";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 import styles from "@/styles/pages/member/memberPage.module.css";
@@ -23,8 +21,7 @@ interface MemberPageProps {
 function MemberPageContent() {
   const { guild } = useGuildContext();
   const guildId = guild?.guildId ?? null;
-  const { selectedMemberId, setSelectedMemberId, openModal } =
-    useMemberPageContext();
+  const { selectedMemberId, setSelectedMemberId } = useMemberPageContext();
 
   const { data: members, isLoading, error } = useMembers(guildId);
 
@@ -50,7 +47,6 @@ function MemberPageContent() {
         <Section variantIntent="primary" className={styles.mainSection}>
           <Section variantTone="ghost" variantLayout="row">
             <h3>멤버 목록</h3>
-            <PrimaryButton onClick={openModal}>추가</PrimaryButton>
           </Section>
           <Bar />
           {error && (
@@ -75,8 +71,6 @@ function MemberPageContent() {
           />
         )}
       </PageContainer>
-
-      <AddMemberModal />
     </PageLayout>
   );
 }

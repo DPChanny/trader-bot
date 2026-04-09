@@ -37,20 +37,25 @@ async function useRefreshToken(): Promise<TokenResponse> {
 export function useAutoRefreshToken() {
   useEffect(() => {
     async function tryRefresh() {
+      if (!isAuthenticated()) return;
       const token = getAuthToken();
-      if (!token) return;
-      try {
-        const parts = token.split(".");
-        if (parts.length !== 3) return;
-        const payload = JSON.parse(
-          atob(parts[1]!.replace(/-/g, "+").replace(/_/g, "/")),
-        );
-        const expiresIn = payload.exp - Date.now() / 1000;
-        if (expiresIn < 5 * 60 && isAuthenticated()) {
-          const data = await useRefreshToken();
-          setAuthToken(data.token);
-          setRefreshToken(data.refresh_token);
+      if (token) {
+        try {
+          const parts = token.split(".");
+          if (parts.length !== 3) return;
+          const payload = JSON.parse(
+            atob(parts[1]!.replace(/-/g, "+").replace(/_/g, "/")),
+          );
+          const expiresIn = payload.exp - Date.now() / 1000;
+          if (expiresIn >= 5 * 60) return;
+        } catch {
+          return;
         }
+      }
+      try {
+        const data = await useRefreshToken();
+        setAuthToken(data.token);
+        setRefreshToken(data.refresh_token);
       } catch {}
     }
 

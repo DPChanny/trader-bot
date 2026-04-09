@@ -127,6 +127,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
                 name: member.name,
                 alias: alias || null,
                 avatarHash: member.avatarHash,
+                discord: member.discord,
                 avatarUrl: member.avatarUrl,
               }}
             />
@@ -136,7 +137,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
             label="별칭 (Alias)"
             value={alias}
             onChange={setAlias}
-            placeholder={member.name}
+            placeholder={member.alias || member.name || member.discord.name}
           />
           <LabelInput label="Riot ID" value={riotId} onChange={setRiotId} />
 

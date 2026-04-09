@@ -2,8 +2,9 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
-from shared.dtos.user_dto import UserDTO
+from shared.dtos.user_dto import UserDetailDTO
 from shared.entities.user import User
 
 from ..utils.exception import service_exception_handler
@@ -11,12 +12,16 @@ from ..utils.token import Payload
 
 
 @service_exception_handler
-async def get_me_service(db: AsyncSession, payload: Payload) -> UserDTO:
-    result = await db.execute(select(User).where(User.user_id == payload.user_id))
+async def get_me_service(db: AsyncSession, payload: Payload) -> UserDetailDTO:
+    result = await db.execute(
+        select(User)
+        .options(selectinload(User.discord))
+        .where(User.user_id == payload.user_id)
+    )
     user = result.scalar_one_or_none()
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return UserDTO.model_validate(user)
+    return UserDetailDTO.model_validate(user)
 
 
 @service_exception_handler
