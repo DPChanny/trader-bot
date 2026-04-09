@@ -49,10 +49,7 @@ export function AuctionPage({}: AuctionPageProps) {
     data: presetDetail,
     isLoading: isPresetLoading,
     isFetching: isPresetFetching,
-  } = usePresetDetail(
-    state?.guildId ? String(state.guildId) : null,
-    state?.presetId || null,
-  );
+  } = usePresetDetail(state?.guildId || null, state?.presetId || null);
 
   const currentMemberId = state?.currentMemberId || null;
   const hasStatistics = !!presetDetail?.statistics;

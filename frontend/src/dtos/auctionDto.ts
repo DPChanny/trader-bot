@@ -32,7 +32,7 @@ export interface Team {
 export interface AuctionInitDTO {
   auctionId: string;
   presetId: number;
-  guildId: number;
+  guildId: string;
   status: "waiting" | "in_progress" | "completed";
   currentMemberId: number | null;
   currentBid: number | null;

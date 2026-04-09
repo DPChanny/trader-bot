@@ -1,5 +1,5 @@
 from ..entities.preset import Statistics
-from . import BaseDTO, NullableStr
+from . import BaseDTO, DiscordId, NullableStr
 from .position_dto import PositionDTO
 from .preset_member_dto import PresetMemberDetailDTO
 from .tier_dto import TierDTO
@@ -7,7 +7,7 @@ from .tier_dto import TierDTO
 
 class PresetDTO(BaseDTO):
     preset_id: int
-    guild_id: int
+    guild_id: DiscordId
     name: str
     points: int
     time: int
