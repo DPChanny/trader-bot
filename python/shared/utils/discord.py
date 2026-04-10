@@ -3,10 +3,10 @@ import urllib.parse
 
 import httpx
 from fastapi import HTTPException
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..entities.discord_user import DiscordUser
+from ..repositories.discord_user_repository import DiscordUserRepository
 from .env import (
     get_api_origin,
     get_bot_token,
@@ -107,15 +107,10 @@ async def upsert_discord_user(
     avatar_hash: str | None,
     session: AsyncSession,
 ) -> None:
-    result = await session.execute(
-        select(DiscordUser).where(DiscordUser.discord_id == discord_id)
-    )
-    entity = result.scalar_one_or_none()
+    repo = DiscordUserRepository(session)
+    entity = await repo.get_by_id(discord_id)
     if entity is None:
-        session.add(
-            DiscordUser(discord_id=discord_id, name=name, avatar_hash=avatar_hash)
-        )
+        repo.add(DiscordUser(discord_id=discord_id, name=name, avatar_hash=avatar_hash))
     else:
         entity.name = name
         entity.avatar_hash = avatar_hash
-    await session.flush()

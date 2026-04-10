@@ -1,7 +1,7 @@
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.entities.member import Member, Role
+from shared.repositories.member_repository import MemberRepository
 
 
 async def upsert_member(
@@ -11,13 +11,8 @@ async def upsert_member(
     name: str | None = None,
     avatar_hash: str | None = None,
 ) -> Member:
-    result = await session.execute(
-        select(Member).where(
-            Member.guild_id == guild_id,
-            Member.discord_user_id == discord_user_id,
-        )
-    )
-    entity = result.scalar_one_or_none()
+    repo = MemberRepository(session)
+    entity = await repo.get_by_discord_user_id(discord_user_id, guild_id)
     if entity is None:
         entity = Member(
             guild_id=guild_id,
@@ -26,12 +21,10 @@ async def upsert_member(
             name=name,
             avatar_hash=avatar_hash,
         )
-        session.add(entity)
-        await session.flush()
+        repo.add(entity)
     else:
         entity.name = name
         entity.avatar_hash = avatar_hash
-        await session.flush()
     return entity
 
 
@@ -41,16 +34,10 @@ async def set_role(
     role: Role,
     session: AsyncSession,
 ) -> None:
-    result = await session.execute(
-        select(Member).where(
-            Member.guild_id == guild_id,
-            Member.discord_user_id == discord_user_id,
-        )
-    )
-    entity = result.scalar_one_or_none()
+    repo = MemberRepository(session)
+    entity = await repo.get_by_discord_user_id(discord_user_id, guild_id)
     if entity is not None:
         entity.role = role
-        await session.flush()
 
 
 async def update_member(
@@ -60,17 +47,11 @@ async def update_member(
     avatar_hash: str | None = None,
     session: AsyncSession = None,
 ) -> None:
-    result = await session.execute(
-        select(Member).where(
-            Member.guild_id == guild_id,
-            Member.discord_user_id == discord_user_id,
-        )
-    )
-    entity = result.scalar_one_or_none()
+    repo = MemberRepository(session)
+    entity = await repo.get_by_discord_user_id(discord_user_id, guild_id)
     if entity is not None:
         entity.name = name
         entity.avatar_hash = avatar_hash
-        await session.flush()
 
 
 async def delete_member(
@@ -78,13 +59,7 @@ async def delete_member(
     discord_user_id: int,
     session: AsyncSession,
 ) -> None:
-    result = await session.execute(
-        select(Member).where(
-            Member.guild_id == guild_id,
-            Member.discord_user_id == discord_user_id,
-        )
-    )
-    entity = result.scalar_one_or_none()
+    repo = MemberRepository(session)
+    entity = await repo.get_by_discord_user_id(discord_user_id, guild_id)
     if entity is not None:
-        await session.delete(entity)
-        await session.flush()
+        await repo.delete(entity)
