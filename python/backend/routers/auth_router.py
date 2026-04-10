@@ -16,16 +16,19 @@ auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @auth_router.get("/login")
-async def login_route() -> RedirectResponse:
-    return await login_service()
+async def login_route(
+    next: str | None = Query(default=None),
+) -> RedirectResponse:
+    return await login_service(next_path=next)
 
 
 @auth_router.get("/login/callback")
 async def callback_route(
     code: str = Query(),
+    state: str | None = Query(default=None),
     db: AsyncSession = Depends(get_async_db),
 ) -> RedirectResponse:
-    return await callback_service(code, db)
+    return await callback_service(code, state, db)
 
 
 @auth_router.post("/token/refresh")

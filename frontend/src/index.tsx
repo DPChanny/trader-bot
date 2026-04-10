@@ -45,7 +45,7 @@ function App() {
       <GuildPageWrapper path="/guild" />
       <MemberPageWrapper path="/member" />
       <PresetPageWrapper path="/preset" />
-      <AuctionPage path="/auction" />
+      <AuctionPageWrapper path="/auction/:auctionId" />
     </Router>
   );
 }
@@ -89,6 +89,16 @@ function PresetPageWrapper({}: PageWrapperProps) {
       <PresetPage />
     </div>
   );
+}
+
+interface AuctionPageWrapperProps {
+  path?: string;
+  auctionId?: string;
+}
+
+function AuctionPageWrapper({ auctionId }: AuctionPageWrapperProps) {
+  const id = auctionId ? parseInt(auctionId, 10) : undefined;
+  return <AuctionPage auctionId={id} />;
 }
 
 render(

@@ -5,10 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from shared.utils.database import setup_db
+from shared.utils.database import get_async_session_factory, setup_db
 from shared.utils.env import get_app_origin
 from shared.utils.logging import LoggingMiddleware, setup_logging
 
+from .auction.auction_manager import auction_manager
 from .routers import (
     auction_router,
     auction_websocket_router,
@@ -24,6 +25,7 @@ from .routers import (
     user_router,
     val_stat_router,
 )
+from .services.auction_service import _make_save_snapshot_callback
 
 
 setup_logging()
@@ -32,6 +34,11 @@ setup_logging()
 @asynccontextmanager
 async def lifespan(_):
     setup_db()
+
+    session_factory = get_async_session_factory()
+    save_callback = _make_save_snapshot_callback(session_factory)
+    async with session_factory() as db:
+        await auction_manager.restore_from_db(db, save_callback)
 
     yield
 

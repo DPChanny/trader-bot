@@ -1,8 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { useAuctionWebSocket } from "@/hooks/auctionWebSocket";
-import { usePresetDetail } from "@/hooks/preset";
-import { useLolStat } from "@/hooks/lolStat";
-import { useValStat } from "@/hooks/valStat";
+import { useLogin } from "@/hooks/auth";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import { LolStat } from "@/components/lolStat";
@@ -17,6 +15,8 @@ import { PresetMemberCard } from "@/components/presetMemberCard";
 import { Input } from "@/components/commons/input";
 import { Bar } from "@/components/commons/bar";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
+import type { TierDTO } from "@/dtos/tierDto";
+import type { PositionDTO } from "@/dtos/positionDto";
 import { Statistics } from "@/dtos/presetDto";
 import { AuctionStatus } from "@/dtos/auctionDto";
 
@@ -24,14 +24,12 @@ import styles from "@/styles/pages/auction/auctionPage.module.css";
 
 interface AuctionPageProps {
   path?: string;
+  auctionId?: number;
 }
 
-export function AuctionPage({}: AuctionPageProps) {
+export function AuctionPage({ auctionId }: AuctionPageProps) {
   const [bidAmount, setBidAmount] = useState<string>("");
-  const [token] = useState<string | null>(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("token");
-  });
+  const login = useLogin(`/auction/${auctionId}`);
 
   const {
     isConnected,
@@ -46,48 +44,19 @@ export function AuctionPage({}: AuctionPageProps) {
     closeReason,
   } = useAuctionWebSocket();
 
-  const {
-    data: presetDetail,
-    isLoading: isPresetLoading,
-    isFetching: isPresetFetching,
-  } = usePresetDetail(state?.guildId || null, state?.presetId || null);
-
-  const currentMemberId = state?.currentMemberId || null;
-  const hasStatistics = !!presetDetail?.statistics;
-
-  const { data: lolStat } = useLolStat(
-    hasStatistics &&
-      presetDetail?.statistics === Statistics.LOL &&
-      currentMemberId
-      ? currentMemberId
-      : null,
-  );
-
-  const { data: valStat } = useValStat(
-    hasStatistics &&
-      presetDetail?.statistics === Statistics.VAL &&
-      currentMemberId
-      ? currentMemberId
-      : null,
-  );
-
-  const pointScale = presetDetail?.pointScale || 1;
-
   useEffect(() => {
-    if (token) {
-      connect(token);
+    if (auctionId !== undefined) {
+      connect(auctionId);
     }
   }, []);
 
   const isCompleted = state?.status === AuctionStatus.COMPLETED;
 
-  const errorMessage = !token
-    ? "유효하지 않은 접근입니다. 경매 참가 링크를 확인해주세요."
-    : closeReason
-      ? closeReason
-      : !isCompleted && wasConnected && !isConnected
-        ? "서버와의 연결이 끊어졌습니다."
-        : null;
+  const errorMessage = closeReason
+    ? closeReason
+    : !isCompleted && wasConnected && !isConnected
+      ? "서버와의 연결이 끊어졌습니다."
+      : null;
 
   if (errorMessage) {
     return (
@@ -101,13 +70,7 @@ export function AuctionPage({}: AuctionPageProps) {
     );
   }
 
-  const isLoading =
-    !isCompleted &&
-    (!isConnected ||
-      !state ||
-      !state.presetId ||
-      (!presetDetail && (isPresetLoading || isPresetFetching)) ||
-      !presetDetail);
+  const isLoading = !isCompleted && (!isConnected || !state || !state.presetId);
 
   if (isLoading) {
     return (
@@ -119,8 +82,37 @@ export function AuctionPage({}: AuctionPageProps) {
     );
   }
 
+  const snapshot = state!.presetSnapshot as {
+    presetMembers: PresetMemberDetailDTO[];
+    tiers: TierDTO[];
+    positions: PositionDTO[];
+    statistics: Statistics;
+    pointScale: number;
+    statsByMember: Record<string, { lolStat?: any; valStat?: any }>;
+  } | null;
+
+  const presetMembers: PresetMemberDetailDTO[] = snapshot?.presetMembers ?? [];
+  const tiers: TierDTO[] = snapshot?.tiers ?? [];
+  const positions: PositionDTO[] = snapshot?.positions ?? [];
+  const statistics: Statistics = snapshot?.statistics ?? Statistics.NONE;
+  const pointScale: number = snapshot?.pointScale ?? 1;
+  const statsByMember = snapshot?.statsByMember ?? {};
+
+  const currentMemberId = state!.currentMemberId;
+  const currentMemberStats = currentMemberId
+    ? statsByMember[String(currentMemberId)]
+    : null;
+  const lolStat =
+    statistics === Statistics.LOL
+      ? (currentMemberStats?.lolStat ?? null)
+      : null;
+  const valStat =
+    statistics === Statistics.VAL
+      ? (currentMemberStats?.valStat ?? null)
+      : null;
+
   const presetMemberMap = new Map<number, PresetMemberDetailDTO>(
-    presetDetail?.presetMembers.map((pu) => [pu.memberId, pu]) ?? [],
+    presetMembers.map((pm) => [pm.memberId, pm]),
   );
 
   const auctionQueueMembers = state!.auctionQueue
@@ -130,10 +122,6 @@ export function AuctionPage({}: AuctionPageProps) {
   const unsoldQueueMembers = state!.unsoldQueue
     .map((memberId) => presetMemberMap.get(memberId))
     .filter((m): m is PresetMemberDetailDTO => m !== undefined);
-
-  const presetMembers: PresetMemberDetailDTO[] = Array.from(
-    presetMemberMap.values(),
-  );
 
   const currentTeam = teamId
     ? state.teams.find((t) => t.teamId === teamId)
@@ -174,14 +162,21 @@ export function AuctionPage({}: AuctionPageProps) {
   return (
     <PageLayout>
       <PageContainer>
+        {memberId === null && !isCompleted && (
+          <Section variantIntent="primary" className={styles.centerSection}>
+            <span>경매를 관전 중입니다. 입찰하려면 로그인하세요.</span>
+            <PrimaryButton onClick={login}>로그인</PrimaryButton>
+          </Section>
+        )}
+
         <Section variantIntent="primary" className={styles.teamsSection}>
           <h3>팀 목록</h3>
           <Bar />
           <TeamList
             teams={state.teams}
             presetMembers={presetMembers}
-            tiers={presetDetail!.tiers}
-            positions={presetDetail!.positions}
+            tiers={tiers}
+            positions={positions}
             pointScale={pointScale}
             clientMemberId={memberId ?? undefined}
             connectedUsers={connectedUsers}
@@ -205,15 +200,15 @@ export function AuctionPage({}: AuctionPageProps) {
               {state.status !== AuctionStatus.COMPLETED && currentMember && (
                 <PresetMemberCard
                   presetMember={currentMember}
-                  tiers={presetDetail!.tiers}
-                  positions={presetDetail!.positions}
+                  tiers={tiers}
+                  positions={positions}
                 />
               )}
               {state.status !== AuctionStatus.COMPLETED &&
-                presetDetail?.statistics === Statistics.LOL &&
+                statistics === Statistics.LOL &&
                 lolStat && <LolStat lolStatDTO={lolStat} />}
               {state.status !== AuctionStatus.COMPLETED &&
-                presetDetail?.statistics === Statistics.VAL &&
+                statistics === Statistics.VAL &&
                 valStat && <ValStat valStatDTO={valStat} />}
             </Section>
 
@@ -241,8 +236,8 @@ export function AuctionPage({}: AuctionPageProps) {
                 {state.status !== AuctionStatus.COMPLETED && bidderLeader && (
                   <PresetMemberCard
                     presetMember={bidderLeader}
-                    tiers={presetDetail!.tiers}
-                    positions={presetDetail!.positions}
+                    tiers={tiers}
+                    positions={positions}
                   />
                 )}
               </InfoCard>
@@ -284,8 +279,8 @@ export function AuctionPage({}: AuctionPageProps) {
             <Section variantTone="ghost" className={styles.queueGrid}>
               <PresetMemberGrid
                 presetMembers={auctionQueueMembers}
-                tiers={presetDetail!.tiers}
-                positions={presetDetail!.positions}
+                tiers={tiers}
+                positions={positions}
                 onMemberClick={() => {}}
                 clientMemberId={memberId ?? undefined}
                 connectedUsers={connectedUsers}
@@ -299,8 +294,8 @@ export function AuctionPage({}: AuctionPageProps) {
             <Section variantTone="ghost" className={styles.queueGrid}>
               <PresetMemberGrid
                 presetMembers={unsoldQueueMembers}
-                tiers={presetDetail!.tiers}
-                positions={presetDetail!.positions}
+                tiers={tiers}
+                positions={positions}
                 onMemberClick={() => {}}
                 connectedUsers={connectedUsers}
                 clientMemberId={memberId ?? undefined}

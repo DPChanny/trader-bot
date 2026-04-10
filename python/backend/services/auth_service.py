@@ -5,7 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.token_dto import RefreshDTO
 from shared.entities.user import User
-from shared.utils.discord import get_login_url, get_me, upsert_discord_user
+from shared.utils.discord import (
+    get_login_url,
+    get_me,
+    parse_oauth_state,
+    upsert_discord_user,
+)
 from shared.utils.env import get_app_origin
 
 from ..utils.exception import service_exception_handler
@@ -13,12 +18,14 @@ from ..utils.token import create_refresh_token, create_token, decode_token, hash
 
 
 @service_exception_handler
-async def login_service() -> RedirectResponse:
-    return RedirectResponse(url=get_login_url())
+async def login_service(next_path: str | None = None) -> RedirectResponse:
+    return RedirectResponse(url=get_login_url(next_path))
 
 
 @service_exception_handler
-async def callback_service(code: str, db: AsyncSession) -> RedirectResponse:
+async def callback_service(
+    code: str, state: str | None, db: AsyncSession
+) -> RedirectResponse:
     user_data = await get_me(code)
 
     discord_id = int(user_data["id"])
@@ -42,9 +49,13 @@ async def callback_service(code: str, db: AsyncSession) -> RedirectResponse:
     user.refresh_token = hash_token(refresh_token)
     await db.commit()
 
-    redirect_url = (
-        f"{get_app_origin()}/?token={access_token}&refresh_token={refresh_token}"
-    )
+    next_path = parse_oauth_state(state)
+    if next_path:
+        redirect_url = f"{get_app_origin()}{next_path}?token={access_token}&refresh_token={refresh_token}"
+    else:
+        redirect_url = (
+            f"{get_app_origin()}/?token={access_token}&refresh_token={refresh_token}"
+        )
     return RedirectResponse(url=redirect_url)
 
 

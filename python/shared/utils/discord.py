@@ -1,3 +1,4 @@
+import base64
 import urllib.parse
 
 import httpx
@@ -28,16 +29,25 @@ def _get_login_callback_url() -> str:
     return f"{_get_api_endpoint()}/auth/login/callback"
 
 
-def get_login_url() -> str:
-    params = urllib.parse.urlencode(
-        {
-            "client_id": get_discord_client_id(),
-            "scope": "identify",
-            "response_type": "code",
-            "redirect_uri": _get_login_callback_url(),
-        }
-    )
-    return f"{DISCORD_OAUTH_URL}?{params}"
+def get_login_url(next_path: str | None = None) -> str:
+    params: dict = {
+        "client_id": get_discord_client_id(),
+        "scope": "identify",
+        "response_type": "code",
+        "redirect_uri": _get_login_callback_url(),
+    }
+    if next_path:
+        params["state"] = base64.urlsafe_b64encode(next_path.encode()).decode()
+    return f"{DISCORD_OAUTH_URL}?{urllib.parse.urlencode(params)}"
+
+
+def parse_oauth_state(state: str | None) -> str | None:
+    if not state:
+        return None
+    try:
+        return base64.urlsafe_b64decode(state.encode()).decode()
+    except Exception:
+        return None
 
 
 async def get_me(code: str) -> dict:

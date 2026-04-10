@@ -90,3 +90,7 @@ def get_sync_db() -> Generator[Session, None, None]:
 async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
     async with _async_session_maker() as db:
         yield db
+
+
+def get_async_session_factory():
+    return _async_session_maker

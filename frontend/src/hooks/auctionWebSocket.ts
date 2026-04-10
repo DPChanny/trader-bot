@@ -10,11 +10,12 @@ import type {
 } from "@/dtos/auctionDto";
 import { toCamelCase } from "@/utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@/utils/env";
+import { getAuthToken } from "@/utils/auth";
 
 interface AuctionWebSocketHook {
   isConnected: boolean;
   wasConnected: boolean;
-  connect: (token: string) => void;
+  connect: (auctionId: number) => void;
   disconnect: () => void;
   placeBid: (amount: number) => void;
   state: AuctionInitDTO | null;
@@ -35,8 +36,6 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
   const [connectedUsers, setConnectedUsers] = useState<number[]>([]);
   const [closeReason, setCloseReason] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const sessionIdRef = useRef<string | null>(null);
-  const accessCodeRef = useRef<string | null>(null);
   const mountedRef = useRef(true);
 
   const handleWebSocketMessage = (message: WebSocketMessage) => {
@@ -161,19 +160,19 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
-      sessionIdRef.current = null;
-      accessCodeRef.current = null;
       setIsConnected(false);
       setState(null);
       setCloseReason(null);
     }
   };
 
-  const connect = (token: string) => {
+  const connect = (auctionId: number) => {
     disconnect();
     setCloseReason(null);
 
-    const url = `${AUCTION_WS_ENDPOINT}/${token}`;
+    const jwtToken = getAuthToken();
+    const query = jwtToken ? `?token=${encodeURIComponent(jwtToken)}` : "";
+    const url = `${AUCTION_WS_ENDPOINT}/${auctionId}${query}`;
     const ws = new WebSocket(url);
     let opened = false;
 
@@ -202,7 +201,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         if (event.reason) {
           setCloseReason(event.reason);
         } else if (!opened) {
-          setCloseReason("유효하지 않은 토큰이거나 서버에 연결할 수 없습니다.");
+          setCloseReason("서버에 연결할 수 없습니다.");
         }
       }
     };

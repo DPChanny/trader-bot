@@ -14,9 +14,11 @@ interface TokenResponse {
   refresh_token: string;
 }
 
-export function useLogin() {
+export function useLogin(nextPath?: string) {
   return () => {
-    window.location.href = `${window.location.origin}/api/auth/login`;
+    const base = `${window.location.origin}/api/auth/login`;
+    const url = nextPath ? `${base}?next=${encodeURIComponent(nextPath)}` : base;
+    window.location.href = url;
   };
 }
 
