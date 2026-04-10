@@ -5,10 +5,10 @@ import { Badge } from "@/components/commons/badge";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 const ROLE_LABEL: Record<number, string> = {
-  3: "OWNER",
-  2: "ADMIN",
-  1: "EDITOR",
-  0: "VIEWER",
+  3: "O",
+  2: "A",
+  1: "E",
+  0: "V",
 };
 
 const ROLE_COLOR: Record<number, "gold" | "red" | "blue" | "gray"> = {

@@ -2,7 +2,7 @@ import { render } from "preact";
 import { QueryClientProvider } from "@tanstack/preact-query";
 import { AppRouter } from "@/utils/router";
 import { Header } from "@/components/header";
-import { Sidebar } from "@/components/sidebar/sidebar";
+import { SideMenu } from "@/components/sideMenu/sideMenu";
 import { queryClient } from "@/utils/query";
 import { removeAuthToken, removeRefreshToken } from "@/utils/auth";
 import { useAutoRefreshToken, useLogin } from "@/hooks/auth";
@@ -30,7 +30,7 @@ function AppShell() {
         onLogin={!user ? login : undefined}
       />
       <div className="app-body">
-        {user && <Sidebar />}
+        {user && <SideMenu />}
         <div className="app-content">
           <AppRouter />
         </div>

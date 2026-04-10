@@ -1,7 +1,3 @@
-.card {
-  padding: var(--padding-xs) var(--padding-sm) !important;
-}
-
 .icon {
   width: 1.5rem;
   height: 1.5rem;
@@ -26,8 +22,6 @@
 }
 
 .name {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

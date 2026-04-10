@@ -13,11 +13,7 @@
   flex-shrink: 0;
 }
 
-.panelHeader {
-  flex-shrink: 0;
-}
-
-.sidebar {
+.sideMenu {
   width: 18rem;
   height: 100%;
   background: var(--color-section-secondary-bg);
@@ -27,10 +23,6 @@
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-}
-
-.memberCard {
-  width: 100%;
 }
 
 .toggleTab {

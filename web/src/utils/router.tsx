@@ -28,12 +28,6 @@ function RootRoute({}: { path?: string }) {
   return <HomePage />;
 }
 
-function GuildRoute({ guildId }: { path?: string; guildId?: string }) {
-  useAuthGuard();
-  if (!isAuthenticated() || !guildId) return null;
-  return <GuildPage guildId={guildId} editor={null} presetId={null} />;
-}
-
 function GuildPresetRoute({
   guildId,
   presetId,
@@ -73,7 +67,6 @@ export function AppRouter() {
   return (
     <Router>
       <RootRoute path="/" />
-      <GuildRoute path="/guild/:guildId" />
       <GuildPresetRoute path="/guild/:guildId/preset/:presetId" />
       <GuildMemberRoute path="/guild/:guildId/member" />
       <AuctionRoute path="/auction/:auctionId" />

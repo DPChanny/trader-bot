@@ -1,15 +1,14 @@
 import { useState } from "preact/hooks";
-import { route, useRouter } from "preact-router";
-import styles from "@/styles/components/sidebar/sidebar.module.css";
+import { useRouter } from "preact-router";
+import styles from "@/styles/components/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@/hooks/guild";
 import { Button, CloseButton } from "@/components/commons/button";
 import { Section } from "@/components/commons/section";
-import { Card } from "@/components/commons/card";
 import { Bar } from "@/components/commons/bar";
 import { GuildList } from "./guild/guildList";
 import { PresetList } from "./preset/presetList";
 
-export function Sidebar() {
+export function SideMenu() {
   const [open, setOpen] = useState(false);
   const [router] = useRouter();
 
@@ -20,11 +19,7 @@ export function Sidebar() {
   const activeGuildId = guildMatch ? guildMatch[1]! : null;
   const presetMatch = url.match(/\/preset\/(\d+)/);
   const presetId = presetMatch ? parseInt(presetMatch[1]!) : null;
-  const editor: "preset" | "member" | null = url.includes("/member")
-    ? "member"
-    : url.includes("/preset")
-      ? "preset"
-      : null;
+  const isPresetEditor = url.includes("/preset");
 
   return (
     <>
@@ -33,17 +28,13 @@ export function Sidebar() {
           <Section
             variantTone="ghost"
             variantLayout="column"
-            className={styles.sidebar}
+            className={styles.sideMenu}
           >
-            <Section
-              variantTone="ghost"
-              variantLayout="row"
-              className={styles.panelHeader}
-            >
+            <Section variantTone="ghost" variantLayout="row">
               <h3>메뉴</h3>
               <CloseButton
                 onClick={() => setOpen(false)}
-                aria-label="사이드바 닫기"
+                aria-label="사이드메뉴 닫기"
               />
             </Section>
             <Bar />
@@ -51,24 +42,12 @@ export function Sidebar() {
               <GuildList guilds={guilds} activeGuildId={activeGuildId} />
             </Section>
             {activeGuildId && (
-              <>
-                <Card
-                  variantColor={editor === "member" ? "blue" : "gray"}
-                  variantActive={editor === "member"}
-                  variantLayout="row"
-                  className={styles.memberCard}
-                  onClick={() => route(`/guild/${activeGuildId}/member`)}
-                  style={{ cursor: "pointer" }}
-                >
-                  멤버 관리
-                </Card>
-                <Section variantIntent="secondary">
-                  <PresetList
-                    guildId={activeGuildId}
-                    selectedPresetId={editor === "preset" ? presetId : null}
-                  />
-                </Section>
-              </>
+              <Section variantIntent="secondary">
+                <PresetList
+                  guildId={activeGuildId}
+                  selectedPresetId={isPresetEditor ? presetId : null}
+                />
+              </Section>
             )}
           </Section>
         </Section>
@@ -78,7 +57,7 @@ export function Sidebar() {
           <Button
             className={styles.toggleTab}
             onClick={() => setOpen(true)}
-            aria-label="사이드바 펼치기"
+            aria-label="사이드메뉴 펼치기"
           >
             ▶
           </Button>

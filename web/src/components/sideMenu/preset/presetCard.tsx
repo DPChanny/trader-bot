@@ -1,7 +1,7 @@
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import { EditButton, DeleteButton } from "@/components/commons/button";
-import styles from "@/styles/components/sidebar/preset/presetCard.module.css";
+import styles from "@/styles/components/sideMenu/preset/presetCard.module.css";
 import type { PresetDTO } from "@/dtos/presetDto";
 
 interface PresetCardProps {
@@ -24,17 +24,12 @@ export function PresetCard({
       variantColor={isActive ? "blue" : "gray"}
       variantActive={isActive}
       variantLayout="row"
-      className={styles.card}
       onClick={onClick}
       style={{ cursor: "pointer" }}
     >
       <span className={styles.name}>{preset.name}</span>
 
-      <Section
-        variantTone="ghost"
-        variantLayout="row"
-        className={styles.actions}
-      >
+      <Section variantTone="ghost" variantLayout="row" variantIntent="tertiary">
         <EditButton
           variantSize="small"
           onClick={(e) => {

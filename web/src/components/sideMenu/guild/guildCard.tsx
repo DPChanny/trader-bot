@@ -1,5 +1,5 @@
 import { Card } from "@/components/commons/card";
-import styles from "@/styles/components/sidebar/guild/guildCard.module.css";
+import styles from "@/styles/components/sideMenu/guild/guildCard.module.css";
 import type { GuildDTO } from "@/dtos/guildDto";
 
 interface GuildCardProps {
@@ -14,7 +14,7 @@ export function GuildCard({ guild, isActive, onClick }: GuildCardProps) {
       variantColor={isActive ? "blue" : "gray"}
       variantActive={isActive}
       variantLayout="row"
-      className={styles.card}
+      variantIntent="secondary"
       onClick={onClick}
       style={{ cursor: "pointer" }}
     >

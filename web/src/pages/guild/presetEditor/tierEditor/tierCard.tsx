@@ -19,7 +19,7 @@ export function TierCard({
   isDeletePending,
 }: TierCardProps) {
   return (
-    <Card variantLayout="row" className={styles.card} variantIntent="secondary">
+    <Card variantLayout="row" variantIntent="secondary">
       <Badge
         src={tier.iconUrl || undefined}
         alt={tier.name}

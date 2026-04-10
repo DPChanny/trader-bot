@@ -8,7 +8,6 @@ import { EditPresetModal } from "./editPresetModal";
 import { AddPresetModal } from "./addPresetModal";
 import { PresetCard } from "./presetCard";
 import { usePresets, useDeletePreset, useUpdatePreset } from "@/hooks/preset";
-import styles from "@/styles/components/sidebar/preset/presetList.module.css";
 import type { PresetDTO } from "@/dtos/presetDto";
 
 interface PresetListProps {
@@ -51,7 +50,9 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
     if (!deletingPresetId) return;
     try {
       await deletePreset.mutateAsync({ guildId, presetId: deletingPresetId });
-      if (selectedPresetId === deletingPresetId) route(`/guild/${guildId}`);
+      if (selectedPresetId === deletingPresetId) {
+        route(`/guild/${guildId}/member`);
+      }
     } catch {
     } finally {
       setDeletingPresetId(null);
@@ -60,23 +61,18 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
 
   return (
     <>
-      <Section variantTone="ghost">
+      <Section variantTone="ghost" variantIntent="secondary">
         <Section variantTone="ghost" variantLayout="row">
-          <h3 className={styles.title}>프리셋 관리</h3>
-          <PrimaryButton
-            variantSize="small"
-            variantTone="outline"
-            onClick={() => setIsCreatingPreset(true)}
-            title="프리셋 추가"
-          >
-            +
+          <h3>프리셋 관리</h3>
+          <PrimaryButton onClick={() => setIsCreatingPreset(true)}>
+            추가
           </PrimaryButton>
         </Section>
         <Bar />
         <Section
           variantTone="ghost"
           variantLayout="column"
-          className={styles.list}
+          variantIntent="secondary"
         >
           {presets.map((preset) => (
             <PresetCard
