@@ -1,3 +1,5 @@
+import base64
+
 from fastapi.responses import RedirectResponse
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -5,21 +7,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.auth_dto import RefreshDTO
 from shared.entities.user import User
 from shared.repositories.user_repository import UserRepository
-from shared.utils.discord import (
-    get_login_url,
-    get_me,
-    parse_oauth_state,
-    upsert_discord_user,
-)
+from shared.utils.discord_user import upsert_discord_user
 from shared.utils.env import get_app_origin
 
+from ..utils.discord import get_login_url, get_me
 from ..utils.exception import service_exception_handler
 from ..utils.token import create_refresh_token, create_token, decode_token, hash_token
 
 
 @service_exception_handler
 async def login_service(next_path: str | None = None) -> RedirectResponse:
-    return RedirectResponse(url=get_login_url(next_path))
+    state = base64.urlsafe_b64encode(next_path.encode()).decode() if next_path else None
+    return RedirectResponse(url=get_login_url(state))
 
 
 @service_exception_handler
@@ -49,7 +48,7 @@ async def callback_service(
     user.refresh_token = hash_token(refresh_token)
     await user_repo.commit()
 
-    next_path = parse_oauth_state(state)
+    next_path = base64.urlsafe_b64decode(state.encode()).decode() if state else None
     if next_path:
         redirect_url = f"{get_app_origin()}{next_path}?token={access_token}&refresh_token={refresh_token}"
     else:

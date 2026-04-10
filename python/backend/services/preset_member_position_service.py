@@ -15,7 +15,7 @@ from shared.repositories.preset_member_position_repository import (
 from shared.repositories.preset_member_repository import PresetMemberRepository
 
 from ..utils.exception import service_exception_handler
-from ..utils.role import verify_role
+from ..utils.member import verify_role
 
 
 @service_exception_handler

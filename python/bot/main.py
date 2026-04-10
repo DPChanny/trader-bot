@@ -6,7 +6,7 @@ from loguru import logger
 
 from shared.entities.member import Role
 from shared.utils.database import get_session, setup_db
-from shared.utils.discord import upsert_discord_user
+from shared.utils.discord_user import upsert_discord_user
 from shared.utils.env import get_bot_token
 from shared.utils.logging import setup_logging
 

@@ -12,12 +12,12 @@ from shared.dtos.preset_dto import PresetDetailDTO
 from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
 from shared.repositories.preset_repository import PresetRepository
-from shared.utils.discord import send_message
 from shared.utils.env import get_app_origin
 
 from ..auction.auction_manager import auction_manager
+from ..utils.discord import send_message
 from ..utils.exception import service_exception_handler
-from ..utils.role import verify_role
+from ..utils.member import verify_role
 
 
 @service_exception_handler

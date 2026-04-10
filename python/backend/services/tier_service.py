@@ -13,7 +13,7 @@ from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
 
 from ..utils.exception import service_exception_handler
-from ..utils.role import verify_role
+from ..utils.member import verify_role
 
 
 @service_exception_handler

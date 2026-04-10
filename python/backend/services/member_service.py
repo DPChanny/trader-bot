@@ -5,7 +5,7 @@ from shared.dtos.member_dto import MemberDetailDTO
 from shared.repositories.member_repository import MemberRepository
 
 from ..utils.exception import service_exception_handler
-from ..utils.role import verify_role
+from ..utils.member import verify_role
 
 
 @service_exception_handler

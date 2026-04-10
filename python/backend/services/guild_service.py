@@ -5,7 +5,7 @@ from shared.dtos.guild_dto import GuildDetailDTO
 from shared.repositories.guild_repository import GuildRepository
 
 from ..utils.exception import service_exception_handler
-from ..utils.role import verify_role
+from ..utils.member import verify_role
 
 
 @service_exception_handler

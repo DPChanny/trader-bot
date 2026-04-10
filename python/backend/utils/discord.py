@@ -1,13 +1,9 @@
-import base64
 import urllib.parse
 
 import httpx
 from fastapi import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..entities.discord_user import DiscordUser
-from ..repositories.discord_user_repository import DiscordUserRepository
-from .env import (
+from shared.utils.env import (
     get_api_origin,
     get_bot_token,
     get_discord_client_id,
@@ -29,25 +25,16 @@ def _get_login_callback_url() -> str:
     return f"{_get_api_endpoint()}/auth/login/callback"
 
 
-def get_login_url(next_path: str | None = None) -> str:
+def get_login_url(state: str | None = None) -> str:
     params: dict = {
         "client_id": get_discord_client_id(),
         "scope": "identify",
         "response_type": "code",
         "redirect_uri": _get_login_callback_url(),
     }
-    if next_path:
-        params["state"] = base64.urlsafe_b64encode(next_path.encode()).decode()
+    if state:
+        params["state"] = state
     return f"{DISCORD_OAUTH_URL}?{urllib.parse.urlencode(params)}"
-
-
-def parse_oauth_state(state: str | None) -> str | None:
-    if not state:
-        return None
-    try:
-        return base64.urlsafe_b64decode(state.encode()).decode()
-    except Exception:
-        return None
 
 
 async def get_me(code: str) -> dict:
@@ -99,18 +86,3 @@ async def send_message(user_id: int, embeds: list[dict]) -> bool:
             json={"embeds": embeds},
         )
         return msg_response.status_code == 200
-
-
-async def upsert_discord_user(
-    discord_id: int,
-    name: str,
-    avatar_hash: str | None,
-    session: AsyncSession,
-) -> None:
-    repo = DiscordUserRepository(session)
-    entity = await repo.get_by_id(discord_id)
-    if entity is None:
-        repo.add(DiscordUser(discord_id=discord_id, name=name, avatar_hash=avatar_hash))
-    else:
-        entity.name = name
-        entity.avatar_hash = avatar_hash
