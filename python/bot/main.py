@@ -7,7 +7,7 @@ from loguru import logger
 from shared.entities.member import Role
 from shared.utils.database import get_session, setup_db
 from shared.utils.discord_user import upsert_discord_user
-from shared.utils.env import get_bot_token
+from shared.utils.env import get_discord_bot_token
 from shared.utils.logging import setup_logging
 
 from .utils.guild import delete_guild, upsert_guild
@@ -266,7 +266,7 @@ async def main() -> None:
                 await session.rollback()
                 logger.exception(f"on_member_remove error: {e}")
 
-    await bot.start(get_bot_token(), reconnect=True)
+    await bot.start(get_discord_bot_token(), reconnect=True)
 
 
 if __name__ == "__main__":

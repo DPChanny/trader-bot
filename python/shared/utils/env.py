@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 
-def get_bot_token() -> str:
-    return os.getenv("BOT_TOKEN", "")
+def get_discord_bot_token() -> str:
+    return os.getenv("DISCORD_BOT_TOKEN", "")
 
 
 def get_discord_client_id() -> str:

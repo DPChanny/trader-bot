@@ -5,7 +5,7 @@ from fastapi import HTTPException
 
 from shared.utils.env import (
     get_api_origin,
-    get_bot_token,
+    get_discord_bot_token,
     get_discord_client_id,
     get_discord_client_secret,
 )
@@ -62,7 +62,7 @@ async def get_me(code: str) -> dict:
 
 async def send_message(user_id: int, embeds: list[dict]) -> bool:
     headers = {
-        "Authorization": f"Bot {get_bot_token()}",
+        "Authorization": f"Bot {get_discord_bot_token()}",
         "Content-Type": "application/json",
     }
 
