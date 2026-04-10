@@ -11,7 +11,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction_dto import AuctionStatus, MessageType
-from shared.utils.database import get_async_db
+from shared.utils.database import get_db
 
 from ..services.auction_websocket_service import (
     handle_websocket_connect,
@@ -28,7 +28,7 @@ async def auction_websocket(
     websocket: WebSocket,
     auction_id: str,
     token: str | None = Query(default=None),
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_db),
 ):
     auction, member_id, is_leader, team_id = await handle_websocket_connect(
         websocket, auction_id, token, db

@@ -3,10 +3,9 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload, selectinload
 
-from shared.entities.member import Member
-from shared.entities.preset import Preset
-from shared.entities.preset_member import PresetMember
-
+from ..entities.member import Member
+from ..entities.preset import Preset
+from ..entities.preset_member import PresetMember
 from .base_repository import BaseRepository
 
 

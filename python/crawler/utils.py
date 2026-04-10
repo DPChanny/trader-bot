@@ -1,12 +1,8 @@
-from contextlib import contextmanager
-
 from loguru import logger
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-
-from shared.utils.database import get_sync_db
 
 
 PAGE_LOAD_TIMEOUT = 10
@@ -57,17 +53,3 @@ def get_chrome_options() -> Options:
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option("useAutomationExtension", False)
     return chrome_options
-
-
-@contextmanager
-def session_context():
-    gen = get_sync_db()
-    db = next(gen)
-    try:
-        yield db
-        db.commit()
-    except Exception:
-        db.rollback()
-        raise
-    finally:
-        gen.close()

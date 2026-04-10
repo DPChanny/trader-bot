@@ -5,7 +5,7 @@ from discord.ext import commands
 from loguru import logger
 
 from shared.entities.member import Role
-from shared.utils.database import get_async_db, setup_db
+from shared.utils.database import get_db, setup_db
 from shared.utils.discord import upsert_discord_user
 from shared.utils.env import get_bot_token
 from shared.utils.logging import setup_logging
@@ -21,17 +21,18 @@ from .utils.member import (
 
 
 setup_logging()
-setup_db()
 
 
 async def main() -> None:
+    await setup_db()
+
     intents = setup_intents()
     bot = commands.Bot(command_prefix="!", intents=intents)
 
     @bot.event
     async def on_ready():
         logger.info(f"Ready: {bot.user}")
-        async for db in get_async_db():
+        async for db in get_db():
             try:
                 for guild in bot.guilds:
                     owner_discord_id = guild.owner_id
@@ -79,7 +80,7 @@ async def main() -> None:
     async def on_guild_join(guild: Guild):
         logger.info(f"Joined guild: {guild.name} ({guild.id})")
         owner_discord_id = guild.owner_id
-        async for db in get_async_db():
+        async for db in get_db():
             try:
                 guild_entity = await upsert_guild(
                     guild.id,
@@ -124,7 +125,7 @@ async def main() -> None:
         logger.info(
             f"Member joined: {member.name} ({member.id}) in {member.guild.name}"
         )
-        async for db in get_async_db():
+        async for db in get_db():
             try:
                 guild_entity = await upsert_guild(
                     member.guild.id,
@@ -161,7 +162,7 @@ async def main() -> None:
         logger.info(
             f"Member profile updated: {after.name} ({after.id}) in {after.guild.name}"
         )
-        async for db in get_async_db():
+        async for db in get_db():
             try:
                 guild_entity = await upsert_guild(
                     after.guild.id,
@@ -194,7 +195,7 @@ async def main() -> None:
         ) and before.avatar == after.avatar:
             return
         logger.info(f"User global profile updated: {after.name} ({after.id})")
-        async for db in get_async_db():
+        async for db in get_db():
             try:
                 await upsert_discord_user(
                     after.id,
@@ -216,7 +217,7 @@ async def main() -> None:
         logger.info(
             f"Guild owner changed: {before.name} ({old_owner} \u2192 {new_owner})"
         )
-        async for db in get_async_db():
+        async for db in get_db():
             try:
                 guild_entity = await upsert_guild(
                     after.id,
@@ -234,7 +235,7 @@ async def main() -> None:
     @bot.event
     async def on_guild_remove(guild: Guild):
         logger.info(f"Left guild: {guild.name} ({guild.id})")
-        async for db in get_async_db():
+        async for db in get_db():
             try:
                 await delete_guild(guild.id, db)
                 await db.commit()
@@ -247,7 +248,7 @@ async def main() -> None:
         if member.bot:
             return
         logger.info(f"Member left: {member.name} ({member.id}) in {member.guild.name}")
-        async for db in get_async_db():
+        async for db in get_db():
             try:
                 guild_entity = await upsert_guild(
                     member.guild.id,

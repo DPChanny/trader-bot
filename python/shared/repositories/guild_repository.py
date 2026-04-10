@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from sqlalchemy import select
 
-from shared.entities.guild import Guild
-from shared.entities.member import Member
-
+from ..entities.guild import Guild
+from ..entities.member import Member
 from .base_repository import BaseRepository
 
 

@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.token_dto import RefreshDTO
-from shared.utils.database import get_async_db
+from shared.utils.database import get_db
 
 from ..services.auth_service import (
     callback_service,
@@ -26,7 +26,7 @@ async def login_route(
 async def callback_route(
     code: str = Query(),
     state: str | None = Query(default=None),
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_db),
 ) -> RedirectResponse:
     return await callback_service(code, state, db)
 
@@ -34,6 +34,6 @@ async def callback_route(
 @auth_router.post("/token/refresh")
 async def refresh_token_route(
     dto: RefreshDTO,
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_db),
 ) -> dict:
     return await refresh_token_service(dto, db)

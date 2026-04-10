@@ -1,7 +1,6 @@
 from pydantic import computed_field
 
-from shared.entities.member import Role
-
+from ..entities.member import Role
 from . import BaseDTO, DiscordId, NullableStr
 from .discord_dto import DiscordUserDetailDTO
 from .guild_dto import GuildDTO

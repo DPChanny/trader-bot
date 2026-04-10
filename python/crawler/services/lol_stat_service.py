@@ -6,49 +6,51 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
+from sqlalchemy import delete, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.lol_stat_dto import ChampionDTO, LolStatDTO
 from shared.entities.lol_stat import Champion, LolStat
-
-from ..utils import session_context
 
 
 WEB_DRIVER_TIMEOUT = 20
 
 
-def save_lol_stat_to_db(member_id: int, lol_stat_dto: LolStatDTO) -> None:
-    with session_context() as db:
-        lol_stat = db.query(LolStat).filter(LolStat.member_id == member_id).first()
+async def save_lol_stat_to_db(
+    member_id: int, lol_stat_dto: LolStatDTO, db: AsyncSession
+) -> None:
+    result = await db.execute(select(LolStat).where(LolStat.member_id == member_id))
+    lol_stat = result.scalar_one_or_none()
 
-        if lol_stat:
-            lol_stat.tier = lol_stat_dto.tier
-            lol_stat.rank = lol_stat_dto.rank
-            lol_stat.lp = lol_stat_dto.lp
-            db.query(Champion).filter(
-                Champion.lol_stat_id == lol_stat.lol_stat_id
-            ).delete()
-        else:
-            lol_stat = LolStat(
-                member_id=member_id,
-                tier=lol_stat_dto.tier,
-                rank=lol_stat_dto.rank,
-                lp=lol_stat_dto.lp,
-            )
-            db.add(lol_stat)
-            db.flush()
+    if lol_stat:
+        lol_stat.tier = lol_stat_dto.tier
+        lol_stat.rank = lol_stat_dto.rank
+        lol_stat.lp = lol_stat_dto.lp
+        await db.execute(
+            delete(Champion).where(Champion.lol_stat_id == lol_stat.lol_stat_id)
+        )
+    else:
+        lol_stat = LolStat(
+            member_id=member_id,
+            tier=lol_stat_dto.tier,
+            rank=lol_stat_dto.rank,
+            lp=lol_stat_dto.lp,
+        )
+        db.add(lol_stat)
+        await db.flush()
 
-        for idx, champ in enumerate(lol_stat_dto.top_champions, start=1):
-            champion = Champion(
-                lol_stat_id=lol_stat.lol_stat_id,
-                name=champ.name,
-                icon_url=champ.icon_url,
-                games=champ.games,
-                win_rate=champ.win_rate,
-                rank_order=idx,
-            )
-            db.add(champion)
+    for idx, champ in enumerate(lol_stat_dto.top_champions, start=1):
+        champion = Champion(
+            lol_stat_id=lol_stat.lol_stat_id,
+            name=champ.name,
+            icon_url=champ.icon_url,
+            games=champ.games,
+            win_rate=champ.win_rate,
+            rank_order=idx,
+        )
+        db.add(champion)
 
-        logger.info(f"LOL stat data saved: {member_id}")
+    logger.info(f"LOL stat data saved: {member_id}")
 
 
 def crawl_lol_stat(

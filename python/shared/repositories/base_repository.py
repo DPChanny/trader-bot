@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.entities import BaseEntity
+from ..entities import BaseEntity
 
 
 class BaseRepository[T: BaseEntity]:

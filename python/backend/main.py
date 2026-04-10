@@ -31,7 +31,7 @@ setup_logging()
 
 @asynccontextmanager
 async def lifespan(_):
-    setup_db()
+    await setup_db()
     yield
 
 

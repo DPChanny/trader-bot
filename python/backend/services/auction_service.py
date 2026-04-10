@@ -22,10 +22,6 @@ from ..utils.role import verify_role
 from ..utils.token import Payload
 
 
-def _build_preset_snapshot(preset) -> dict:
-    return PresetDetailDTO.model_validate(preset).model_dump(mode="json")
-
-
 @service_exception_handler
 async def add_auction_service(
     guild_id: int, preset_id: int, db: AsyncSession, payload: Payload
@@ -68,7 +64,7 @@ async def add_auction_service(
         leader_member_ids.add(leader.member_id)
 
     member_ids = [pm.member_id for pm in preset_members]
-    preset_snapshot = _build_preset_snapshot(preset)
+    preset_snapshot = PresetDetailDTO.model_validate(preset).model_dump(mode="json")
 
     auction = auction_manager.add_auction(
         teams=teams,

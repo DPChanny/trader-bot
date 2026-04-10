@@ -6,7 +6,7 @@ from shared.dtos.preset_member_dto import (
     PresetMemberDetailDTO,
     UpdatePresetMemberDTO,
 )
-from shared.utils.database import get_async_db
+from shared.utils.database import get_db
 
 from ..services.preset_member_service import (
     add_preset_member_service,
@@ -27,7 +27,7 @@ async def add_preset_member_route(
     guild_id: int,
     preset_id: int,
     dto: AddPresetMemberDTO,
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
     return await add_preset_member_service(guild_id, preset_id, dto, db, payload)
@@ -39,7 +39,7 @@ async def update_preset_member_route(
     preset_id: int,
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
     return await update_preset_member_service(
@@ -52,7 +52,7 @@ async def delete_preset_member_route(
     guild_id: int,
     preset_id: int,
     preset_member_id: int,
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
     return await delete_preset_member_service(

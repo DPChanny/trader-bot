@@ -3,8 +3,7 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
-from shared.entities.val_stat import ValStat
-
+from ..entities.val_stat import ValStat
 from .base_repository import BaseRepository
 
 

@@ -6,7 +6,7 @@ from shared.dtos.tier_dto import (
     TierDTO,
     UpdateTierDTO,
 )
-from shared.utils.database import get_async_db
+from shared.utils.database import get_db
 
 from ..services.tier_service import (
     add_tier_service,
@@ -26,7 +26,7 @@ async def add_tier_route(
     guild_id: int,
     preset_id: int,
     dto: AddTierDTO,
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
     return await add_tier_service(guild_id, preset_id, dto, db, payload)
@@ -38,7 +38,7 @@ async def update_tier_route(
     preset_id: int,
     tier_id: int,
     dto: UpdateTierDTO,
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
     return await update_tier_service(guild_id, preset_id, tier_id, dto, db, payload)
@@ -49,7 +49,7 @@ async def delete_tier_route(
     guild_id: int,
     preset_id: int,
     tier_id: int,
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
     return await delete_tier_service(guild_id, preset_id, tier_id, db, payload)

@@ -6,43 +6,45 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
+from sqlalchemy import delete, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.val_stat_dto import AgentDTO, ValStatDTO
 from shared.entities.val_stat import Agent, ValStat
-
-from ..utils import session_context
 
 
 WEB_DRIVER_TIMEOUT = 20
 
 
-def save_val_stat_to_db(member_id: int, val_stat_dto: ValStatDTO) -> None:
-    with session_context() as db:
-        val_stat = db.query(ValStat).filter(ValStat.member_id == member_id).first()
+async def save_val_stat_to_db(
+    member_id: int, val_stat_dto: ValStatDTO, db: AsyncSession
+) -> None:
+    result = await db.execute(select(ValStat).where(ValStat.member_id == member_id))
+    val_stat = result.scalar_one_or_none()
 
-        if val_stat:
-            val_stat.tier = val_stat_dto.tier
-            val_stat.rank = val_stat_dto.rank
-            db.query(Agent).filter(Agent.val_stat_id == val_stat.val_stat_id).delete()
-        else:
-            val_stat = ValStat(
-                member_id=member_id, tier=val_stat_dto.tier, rank=val_stat_dto.rank
-            )
-            db.add(val_stat)
-            db.flush()
+    if val_stat:
+        val_stat.tier = val_stat_dto.tier
+        val_stat.rank = val_stat_dto.rank
+        await db.execute(delete(Agent).where(Agent.val_stat_id == val_stat.val_stat_id))
+    else:
+        val_stat = ValStat(
+            member_id=member_id, tier=val_stat_dto.tier, rank=val_stat_dto.rank
+        )
+        db.add(val_stat)
+        await db.flush()
 
-        for idx, agent in enumerate(val_stat_dto.top_agents, start=1):
-            agent_obj = Agent(
-                val_stat_id=val_stat.val_stat_id,
-                name=agent.name,
-                icon_url=agent.icon_url,
-                games=agent.games,
-                win_rate=agent.win_rate,
-                rank_order=idx,
-            )
-            db.add(agent_obj)
+    for idx, agent in enumerate(val_stat_dto.top_agents, start=1):
+        agent_obj = Agent(
+            val_stat_id=val_stat.val_stat_id,
+            name=agent.name,
+            icon_url=agent.icon_url,
+            games=agent.games,
+            win_rate=agent.win_rate,
+            rank_order=idx,
+        )
+        db.add(agent_obj)
 
-        logger.info(f"VAL stat data saved: {member_id}")
+    logger.info(f"VAL stat data saved: {member_id}")
 
 
 def crawl_val_stat(

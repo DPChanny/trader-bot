@@ -5,7 +5,7 @@ from shared.dtos.preset_member_position_dto import (
     AddPresetMemberPositionDTO,
     PresetMemberPositionDTO,
 )
-from shared.utils.database import get_async_db
+from shared.utils.database import get_db
 
 from ..services.preset_member_position_service import (
     add_preset_member_position_service,
@@ -26,7 +26,7 @@ async def add_preset_member_position_route(
     preset_id: int,
     preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
     return await add_preset_member_position_service(
@@ -39,7 +39,7 @@ async def delete_preset_member_position_route(
     guild_id: int,
     preset_member_id: int,
     preset_member_position_id: int,
-    db: AsyncSession = Depends(get_async_db),
+    db: AsyncSession = Depends(get_db),
     payload: Payload = Depends(verify_token),
 ):
     return await delete_preset_member_position_service(
