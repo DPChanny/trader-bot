@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from ..entities.preset import Preset
 from ..entities.tier import Tier
-from .base_repository import BaseRepository
+from . import BaseRepository
 
 
 class TierRepository(BaseRepository[Tier]):

@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from ..entities.lol_stat import LolStat
-from .base_repository import BaseRepository
+from . import BaseRepository
 
 
 class LolStatRepository(BaseRepository[LolStat]):

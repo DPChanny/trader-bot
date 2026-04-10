@@ -1,26 +1,25 @@
-from .base_repository import BaseRepository
-from .guild_repository import GuildRepository
-from .lol_stat_repository import LolStatRepository
-from .member_repository import MemberRepository
-from .position_repository import PositionRepository
-from .preset_member_position_repository import PresetMemberPositionRepository
-from .preset_member_repository import PresetMemberRepository
-from .preset_repository import PresetRepository
-from .tier_repository import TierRepository
-from .user_repository import UserRepository
-from .val_stat_repository import ValStatRepository
+from __future__ import annotations
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from ..entities import BaseEntity
 
 
-__all__ = [
-    "BaseRepository",
-    "GuildRepository",
-    "LolStatRepository",
-    "MemberRepository",
-    "PositionRepository",
-    "PresetMemberPositionRepository",
-    "PresetMemberRepository",
-    "PresetRepository",
-    "TierRepository",
-    "UserRepository",
-    "ValStatRepository",
-]
+class BaseRepository[T: BaseEntity]:
+    def __init__(self, db: AsyncSession) -> None:
+        self.db = db
+
+    def add(self, entity: T) -> None:
+        self.db.add(entity)
+
+    async def delete(self, entity: T) -> None:
+        await self.db.delete(entity)
+
+    async def commit(self) -> None:
+        await self.db.commit()
+
+    async def flush(self) -> None:
+        await self.db.flush()
+
+    async def refresh(self, entity: T) -> None:
+        await self.db.refresh(entity)

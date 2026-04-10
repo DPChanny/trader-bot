@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload, selectinload
 from ..entities.member import Member
 from ..entities.preset import Preset
 from ..entities.preset_member import PresetMember
-from .base_repository import BaseRepository
+from . import BaseRepository
 
 
 class PresetRepository(BaseRepository[Preset]):

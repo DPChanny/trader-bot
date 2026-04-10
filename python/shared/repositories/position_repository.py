@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from ..entities.position import Position
 from ..entities.preset import Preset
-from .base_repository import BaseRepository
+from . import BaseRepository
 
 
 class PositionRepository(BaseRepository[Position]):

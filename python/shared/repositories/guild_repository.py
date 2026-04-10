@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from ..entities.guild import Guild
 from ..entities.member import Member
-from .base_repository import BaseRepository
+from . import BaseRepository
 
 
 class GuildRepository(BaseRepository[Guild]):

@@ -5,7 +5,7 @@ from sqlalchemy import select
 from ..entities.preset import Preset
 from ..entities.preset_member import PresetMember
 from ..entities.preset_member_position import PresetMemberPosition
-from .base_repository import BaseRepository
+from . import BaseRepository
 
 
 class PresetMemberPositionRepository(BaseRepository[PresetMemberPosition]):

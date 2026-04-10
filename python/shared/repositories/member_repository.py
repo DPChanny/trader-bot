@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from ..entities.member import Member
-from .base_repository import BaseRepository
+from . import BaseRepository
 
 
 class MemberRepository(BaseRepository[Member]):
