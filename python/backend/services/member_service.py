@@ -13,8 +13,8 @@ from ..utils.token import Payload
 async def get_member_detail_service(
     guild_id: int, member_id: int, db: AsyncSession, payload: Payload
 ) -> MemberDetailDTO:
+    await verify_role(guild_id, payload.discord_id, db)
     member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo)
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
@@ -25,8 +25,8 @@ async def get_member_detail_service(
 async def get_member_list_service(
     guild_id: int, db: AsyncSession, payload: Payload
 ) -> list[MemberDetailDTO]:
+    await verify_role(guild_id, payload.discord_id, db)
     member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo)
     members = await member_repo.get_all_by_guild(guild_id)
     return [MemberDetailDTO.model_validate(m) for m in members]
 
@@ -39,8 +39,8 @@ async def update_member_service(
     db: AsyncSession,
     payload: Payload,
 ) -> MemberDetailDTO:
+    await verify_role(guild_id, payload.discord_id, db)
     member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo)
     member = await member_repo.get_by_id(member_id, guild_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")

@@ -38,13 +38,11 @@ class Auction:
         self.leader_member_ids = leader_member_ids
         self.preset_snapshot = preset_snapshot
 
-        # member_id -> team_id mapping (all preset members)
         self.member_to_team: dict[int, int] = {}
         for team in teams:
             for mid in team.member_id_list:
                 self.member_to_team[mid] = team.team_id
 
-        # Multi-connection tracking
         self.connected_members: dict[int, set[WebSocket]] = {}
         self.anonymous_connections: dict[str, WebSocket] = {}
 

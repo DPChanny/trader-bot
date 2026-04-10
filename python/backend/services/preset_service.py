@@ -10,7 +10,6 @@ from shared.dtos.preset_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.preset import Preset
-from shared.repositories.member_repository import MemberRepository
 from shared.repositories.preset_repository import PresetRepository
 
 from ..utils.exception import service_exception_handler
@@ -22,8 +21,7 @@ from ..utils.token import Payload
 async def get_preset_detail_service(
     guild_id: int, preset_id: int, db: AsyncSession, payload: Payload
 ) -> PresetDetailDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.VIEWER)
+    await verify_role(guild_id, payload.discord_id, db, Role.VIEWER)
 
     preset_repo = PresetRepository(db)
     preset = await preset_repo.get_detail_by_id(preset_id, guild_id)
@@ -36,8 +34,7 @@ async def get_preset_detail_service(
 async def add_preset_service(
     guild_id: int, dto: AddPresetDTO, db: AsyncSession, payload: Payload
 ) -> PresetDetailDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     preset_repo = PresetRepository(db)
     preset = Preset(
@@ -60,8 +57,7 @@ async def add_preset_service(
 async def get_preset_list_service(
     guild_id: int, db: AsyncSession, payload: Payload
 ) -> list[PresetDTO]:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.VIEWER)
+    await verify_role(guild_id, payload.discord_id, db, Role.VIEWER)
 
     preset_repo = PresetRepository(db)
     presets = await preset_repo.get_all_by_guild(guild_id)
@@ -76,8 +72,7 @@ async def update_preset_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PresetDetailDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     preset_repo = PresetRepository(db)
     preset = await preset_repo.get_detail_by_id(preset_id, guild_id)
@@ -98,8 +93,7 @@ async def update_preset_service(
 async def delete_preset_service(
     guild_id: int, preset_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.ADMIN)
+    await verify_role(guild_id, payload.discord_id, db, Role.ADMIN)
 
     preset_repo = PresetRepository(db)
     preset = await preset_repo.get_by_id(preset_id, guild_id)

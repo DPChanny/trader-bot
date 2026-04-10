@@ -27,9 +27,9 @@ async def add_preset_member_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PresetMemberDetailDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
+    member_repo = MemberRepository(db)
     preset_repo = PresetRepository(db)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
         raise HTTPException(status_code=404, detail="Preset not found")
@@ -68,8 +68,7 @@ async def update_preset_member_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PresetMemberDetailDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(db)
     preset_member = await preset_member_repo.get_detail_by_id(
@@ -101,8 +100,7 @@ async def delete_preset_member_service(
     db: AsyncSession,
     payload: Payload,
 ) -> None:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(db)
     preset_member = await preset_member_repo.get_by_id(

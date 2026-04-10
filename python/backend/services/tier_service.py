@@ -9,7 +9,6 @@ from shared.dtos.tier_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.tier import Tier
-from shared.repositories.member_repository import MemberRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
 
@@ -22,8 +21,7 @@ from ..utils.token import Payload
 async def add_tier_service(
     guild_id: int, preset_id: int, dto: AddTierDTO, db: AsyncSession, payload: Payload
 ) -> TierDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     preset_repo = PresetRepository(db)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
@@ -47,8 +45,7 @@ async def update_tier_service(
     db: AsyncSession,
     payload: Payload,
 ) -> TierDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     tier_repo = TierRepository(db)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
@@ -69,8 +66,7 @@ async def update_tier_service(
 async def delete_tier_service(
     guild_id: int, preset_id: int, tier_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     tier_repo = TierRepository(db)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)

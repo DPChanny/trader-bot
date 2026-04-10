@@ -9,7 +9,6 @@ from shared.dtos.preset_member_position_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.preset_member_position import PresetMemberPosition
-from shared.repositories.member_repository import MemberRepository
 from shared.repositories.preset_member_position_repository import (
     PresetMemberPositionRepository,
 )
@@ -29,8 +28,7 @@ async def add_preset_member_position_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PresetMemberPositionDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(db)
     if (
@@ -74,8 +72,7 @@ async def delete_preset_member_position_service(
     db: AsyncSession,
     payload: Payload,
 ) -> None:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     pmp_repo = PresetMemberPositionRepository(db)
     preset_member_position = await pmp_repo.get_by_id(

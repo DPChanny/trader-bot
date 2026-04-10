@@ -11,7 +11,6 @@ from shared.dtos.auction_dto import (
 from shared.dtos.preset_dto import PresetDetailDTO
 from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
-from shared.repositories.member_repository import MemberRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.discord import send_message
 from shared.utils.env import get_app_origin
@@ -26,8 +25,7 @@ from ..utils.token import Payload
 async def add_auction_service(
     guild_id: int, preset_id: int, db: AsyncSession, payload: Payload
 ) -> AuctionDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.ADMIN)
+    await verify_role(guild_id, payload.discord_id, db, Role.ADMIN)
 
     preset_repo = PresetRepository(db)
     preset = await preset_repo.get_detail_by_id(preset_id, guild_id)

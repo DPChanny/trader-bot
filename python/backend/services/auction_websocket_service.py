@@ -15,7 +15,6 @@ async def _resolve_member(
     guild_id: int,
     preset_member_repo: PresetMemberRepository,
 ) -> tuple[int | None, bool, int | None]:
-    """Return (member_id, is_leader, team_id) or (None, False, None) for anonymous."""
     if not jwt_token:
         return None, False, None
 
@@ -30,7 +29,7 @@ async def _resolve_member(
     if pm is None:
         return None, False, None
 
-    return pm.member_id, pm.is_leader, None  # team_id resolved from Auction below
+    return pm.member_id, pm.is_leader, None
 
 
 async def handle_websocket_connect(
@@ -55,7 +54,6 @@ async def handle_websocket_connect(
         jwt_token, preset_id, guild_id, preset_member_repo
     )
 
-    # Resolve team_id from live auction state
     team_id: int | None = None
     if member_id is not None and is_leader:
         for tid, team in auction.teams.items():

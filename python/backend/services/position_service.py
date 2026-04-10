@@ -9,7 +9,6 @@ from shared.dtos.position_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.position import Position
-from shared.repositories.member_repository import MemberRepository
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 
@@ -26,8 +25,7 @@ async def add_position_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PositionDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     preset_repo = PresetRepository(db)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
@@ -55,8 +53,7 @@ async def update_position_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PositionDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     position_repo = PositionRepository(db)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
@@ -77,8 +74,7 @@ async def update_position_service(
 async def delete_position_service(
     guild_id: int, preset_id: int, position_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
     position_repo = PositionRepository(db)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)

@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild_dto import GuildDetailDTO
 from shared.repositories.guild_repository import GuildRepository
-from shared.repositories.member_repository import MemberRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
@@ -23,8 +22,7 @@ async def get_guild_list_service(
 async def get_guild_detail_service(
     guild_id: int, db: AsyncSession, payload: Payload
 ) -> GuildDetailDTO:
-    member_repo = MemberRepository(db)
-    await verify_role(guild_id, payload.discord_id, member_repo)
+    await verify_role(guild_id, payload.discord_id, db)
 
     guild_repo = GuildRepository(db)
     guild = await guild_repo.get_by_id(guild_id)
