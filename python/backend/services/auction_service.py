@@ -2,9 +2,9 @@ import asyncio
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import selectinload
 
 from shared.dtos.auction_dto import (
     AuctionDTO,
@@ -13,13 +13,11 @@ from shared.dtos.auction_dto import (
 from shared.dtos.lol_stat_dto import ChampionDTO, LolStatDTO
 from shared.dtos.preset_dto import PresetDetailDTO
 from shared.dtos.val_stat_dto import AgentDTO, ValStatDTO
-from shared.entities.auction import Auction as AuctionEntity
-from shared.entities.lol_stat import Champion, LolStat
+from shared.entities.lol_stat import LolStat
 from shared.entities.member import Member, Role
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
-from shared.entities.val_stat import Agent, ValStat
-from shared.utils.database import get_async_session_factory
+from shared.entities.val_stat import ValStat
 from shared.utils.discord import send_message
 from shared.utils.env import get_app_origin
 
@@ -27,19 +25,6 @@ from ..auction.auction_manager import auction_manager
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
 from ..utils.token import Payload
-
-
-def _make_save_snapshot_callback(session_factory):
-    async def callback(auction_id: int, state_snapshot: dict, status: int):
-        async with session_factory() as db:
-            await db.execute(
-                update(AuctionEntity)
-                .where(AuctionEntity.auction_id == auction_id)
-                .values(state_snapshot=state_snapshot, status=status)
-            )
-            await db.commit()
-
-    return callback
 
 
 async def _query_preset_for_auction(preset_id: int, db: AsyncSession) -> Preset | None:
@@ -160,22 +145,7 @@ async def add_auction_service(
     member_ids = [pm.member_id for pm in preset_members]
     preset_snapshot = _build_preset_snapshot(preset, preset_members)
 
-    # Persist to DB to get an auto-incremented auction_id
-    db_auction = AuctionEntity(
-        preset_id=preset_id,
-        guild_id=preset.guild_id,
-        preset_snapshot=preset_snapshot,
-    )
-    db.add(db_auction)
-    await db.flush()
-    auction_id: int = db_auction.auction_id
-    await db.commit()
-
-    session_factory = get_async_session_factory()
-    save_callback = _make_save_snapshot_callback(session_factory)
-
-    auction_manager.add_auction(
-        auction_id=auction_id,
+    auction = auction_manager.add_auction(
         preset_id=preset_id,
         guild_id=preset.guild_id,
         teams=teams,
@@ -183,8 +153,8 @@ async def add_auction_service(
         leader_member_ids=leader_member_ids,
         preset_snapshot=preset_snapshot,
         timer_duration=preset.time,
-        save_snapshot_callback=save_callback,
     )
+    auction_id: int = auction.auction_id
 
     logger.info(
         f"Auction created: auction_id={auction_id}, member_count={len(member_ids)}"

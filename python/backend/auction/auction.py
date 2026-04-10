@@ -33,7 +33,6 @@ class Auction:
         leader_member_ids: set[int],
         preset_snapshot: dict,
         timer_duration: int = 5,
-        save_snapshot_callback=None,
     ):
         self.auction_id = auction_id
         self.preset_id = preset_id
@@ -42,7 +41,6 @@ class Auction:
         self.teams = {team.team_id: team for team in teams}
         self.leader_member_ids = leader_member_ids
         self.preset_snapshot = preset_snapshot
-        self.save_snapshot_callback = save_snapshot_callback
 
         # member_id -> team_id mapping (all preset members)
         self.member_to_team: dict[int, int] = {}
@@ -196,71 +194,6 @@ class Auction:
             preset_snapshot=self.preset_snapshot,
         )
 
-    def to_snapshot(self) -> dict:
-        return {
-            "status": int(self.status),
-            "teams": [t.model_dump() for t in self.teams.values()],
-            "auction_queue": self.auction_queue,
-            "unsold_queue": self.unsold_queue,
-            "current_member_id": self.current_member_id,
-            "current_bid": self.current_bid,
-            "current_bidder": self.current_bidder,
-            "timer": self.timer,
-            "timer_duration": self.timer_duration,
-            "paused_timer": self.paused_timer,
-            "was_in_progress": self.was_in_progress,
-            "leader_member_ids": list(self.leader_member_ids),
-            "member_to_team": {str(k): v for k, v in self.member_to_team.items()},
-        }
-
-    @classmethod
-    def from_snapshot(
-        cls,
-        auction_id: int,
-        preset_id: int,
-        guild_id: int,
-        state_snapshot: dict,
-        preset_snapshot: dict,
-        save_snapshot_callback=None,
-    ) -> "Auction":
-        teams = [Team(**t) for t in state_snapshot["teams"]]
-        leader_member_ids = set(state_snapshot["leader_member_ids"])
-        member_ids = [int(k) for k in state_snapshot["member_to_team"].keys()]
-
-        instance = cls(
-            auction_id=auction_id,
-            preset_id=preset_id,
-            guild_id=guild_id,
-            teams=teams,
-            member_ids=member_ids,
-            leader_member_ids=leader_member_ids,
-            preset_snapshot=preset_snapshot,
-            timer_duration=state_snapshot["timer_duration"],
-            save_snapshot_callback=save_snapshot_callback,
-        )
-
-        # Restore queue/state from snapshot (constructor shuffles, we override)
-        instance.auction_queue = state_snapshot["auction_queue"]
-        instance.unsold_queue = state_snapshot["unsold_queue"]
-        instance.current_member_id = state_snapshot["current_member_id"]
-        instance.current_bid = state_snapshot["current_bid"]
-        instance.current_bidder = state_snapshot["current_bidder"]
-        instance.timer = state_snapshot["timer"]
-        instance.paused_timer = state_snapshot["paused_timer"]
-        instance.was_in_progress = state_snapshot["was_in_progress"]
-        instance.status = AuctionStatus.WAITING
-
-        return instance
-
-    async def _save_snapshot(self):
-        if self.save_snapshot_callback:
-            try:
-                await self.save_snapshot_callback(
-                    self.auction_id, self.to_snapshot(), int(self.status)
-                )
-            except Exception:
-                pass
-
     async def set_status(self, new_status: AuctionStatus):
         next_user = False
 
@@ -304,8 +237,6 @@ class Auction:
 
             self.status = new_status
 
-        await self._save_snapshot()
-
         if next_user:
             await self._next_user()
 
@@ -333,7 +264,10 @@ class Auction:
         self.timer_task = asyncio.create_task(self._timer())
 
     async def _next_user(self):
+        messages: list[WebSocketMessage] = []
         completed = False
+        start_timer = False
+
         async with self._state_lock:
             self._stop_timer()
 
@@ -343,17 +277,13 @@ class Auction:
 
             if len(incomplete_teams) == 1:
                 incomplete_team = incomplete_teams[0]
-                remaining_users = self.auction_queue + self.unsold_queue
-
-                for user_id in remaining_users:
+                for user_id in self.auction_queue + self.unsold_queue:
                     if len(incomplete_team.member_id_list) < 5:
                         incomplete_team.member_id_list.append(user_id)
                     else:
                         self.unsold_queue.append(user_id)
-
                 self.auction_queue = []
-
-                await self.broadcast(
+                messages.append(
                     WebSocketMessage(
                         type=MessageType.MEMBER_SOLD,
                         data=MemberSoldMessageData(
@@ -361,8 +291,7 @@ class Auction:
                         ).model_dump(),
                     )
                 )
-
-                await self.broadcast(
+                messages.append(
                     WebSocketMessage(
                         type=MessageType.QUEUE_UPDATE,
                         data=QueueUpdateMessageData(
@@ -371,53 +300,46 @@ class Auction:
                         ).model_dump(),
                     )
                 )
-
                 completed = True
-
-        if completed:
-            await self.set_status(AuctionStatus.COMPLETED)
-            return
-
-        async with self._state_lock:
-            if not self.auction_queue and self.unsold_queue:
-                self.auction_queue = self.unsold_queue
-                self.unsold_queue = []
-
-            if self.auction_queue:
-                self.current_member_id = self.auction_queue.pop(0)
             else:
-                completed = True
+                if not self.auction_queue and self.unsold_queue:
+                    self.auction_queue = self.unsold_queue
+                    self.unsold_queue = []
+
+                if self.auction_queue:
+                    self.current_member_id = self.auction_queue.pop(0)
+                    self.current_bid = None
+                    self.current_bidder = None
+                    self.timer = self.timer_duration
+                    messages.append(
+                        WebSocketMessage(
+                            type=MessageType.NEXT_MEMBER,
+                            data=NextMemberMessageData(
+                                member_id=self.current_member_id
+                            ).model_dump(),
+                        )
+                    )
+                    messages.append(
+                        WebSocketMessage(
+                            type=MessageType.QUEUE_UPDATE,
+                            data=QueueUpdateMessageData(
+                                auction_queue=self.auction_queue[:],
+                                unsold_queue=self.unsold_queue[:],
+                            ).model_dump(),
+                        )
+                    )
+                    start_timer = True
+                else:
+                    completed = True
+
+        for msg in messages:
+            await self.broadcast(msg)
 
         if completed:
             await self.set_status(AuctionStatus.COMPLETED)
             return
 
-        async with self._state_lock:
-            self.current_bid = None
-            self.current_bidder = None
-            self.timer = self.timer_duration
-
-            current_member_id = self.current_member_id
-
-            await self.broadcast(
-                WebSocketMessage(
-                    type=MessageType.NEXT_MEMBER,
-                    data=NextMemberMessageData(
-                        member_id=current_member_id,
-                    ).model_dump(),
-                )
-            )
-
-            await self.broadcast(
-                WebSocketMessage(
-                    type=MessageType.QUEUE_UPDATE,
-                    data=QueueUpdateMessageData(
-                        auction_queue=self.auction_queue[:],
-                        unsold_queue=self.unsold_queue[:],
-                    ).model_dump(),
-                )
-            )
-
+        if start_timer:
             self._start_timer()
 
     async def _timer(self):
@@ -439,83 +361,56 @@ class Auction:
             pass
 
     async def timer_expired(self):
+        message: WebSocketMessage
         async with self._state_lock:
             if self.current_bid is None or self.current_bidder is None:
                 self.unsold_queue.append(self.current_member_id)
-                await self.broadcast(
-                    WebSocketMessage(
-                        type=MessageType.MEMBER_UNSOLD,
-                        data={},
-                    )
-                )
+                message = WebSocketMessage(type=MessageType.MEMBER_UNSOLD, data={})
             else:
                 team = self.teams[self.current_bidder]
                 team.points -= self.current_bid
                 team.member_id_list.append(self.current_member_id)
-                await self.broadcast(
-                    WebSocketMessage(
-                        type=MessageType.MEMBER_SOLD,
-                        data=MemberSoldMessageData(
-                            teams=list(self.teams.values())
-                        ).model_dump(),
-                    )
+                message = WebSocketMessage(
+                    type=MessageType.MEMBER_SOLD,
+                    data=MemberSoldMessageData(
+                        teams=list(self.teams.values())
+                    ).model_dump(),
                 )
 
-        await self._save_snapshot()
+        await self.broadcast(message)
         await self._next_user()
 
     async def place_bid(self, member_id: int, amount: int) -> dict:
-        team_id: int | None = None
+        message: WebSocketMessage | None = None
         async with self._state_lock:
             if member_id not in self.connected_members:
                 return {"success": False, "error": "Not connected"}
-
             if member_id not in self.leader_member_ids:
                 return {"success": False, "error": "Only leaders can place bids"}
-
             team_id = self.member_to_team.get(member_id)
             if team_id is None:
                 return {"success": False, "error": "Team not found"}
-
-        if self.status != AuctionStatus.IN_PROGRESS:
-            return {"success": False, "error": "Auction not in progress"}
-
-        if self.current_member_id is None:
-            return {"success": False, "error": "No member being auctioned"}
-
-        if team_id not in self.teams:
-            return {"success": False, "error": "Team not found"}
-
-        team = self.teams[team_id]
-
-        if len(team.member_id_list) >= 5:
-            return {"success": False, "error": "Team already has 5 members"}
-
-        remaining_slots = 5 - len(team.member_id_list)
-        min_points_to_reserve = remaining_slots - 1
-        max_allowed_bid = team.points - min_points_to_reserve
-
-        if amount > max_allowed_bid:
-            return {
-                "success": False,
-                "error": "Bid too high.",
-            }
-
-        if team.points < amount:
-            return {"success": False, "error": "Insufficient points"}
-
-        min_bid = (self.current_bid + 1) if self.current_bid else 1
-        if amount < min_bid:
-            return {
-                "success": False,
-                "error": f"Bid must be at least {min_bid}",
-            }
-
-        self.current_bid = amount
-        self.current_bidder = team_id
-
-        await self.broadcast(
-            WebSocketMessage(
+            if self.status != AuctionStatus.IN_PROGRESS:
+                return {"success": False, "error": "Auction not in progress"}
+            if self.current_member_id is None:
+                return {"success": False, "error": "No member being auctioned"}
+            if team_id not in self.teams:
+                return {"success": False, "error": "Team not found"}
+            team = self.teams[team_id]
+            if len(team.member_id_list) >= 5:
+                return {"success": False, "error": "Team already has 5 members"}
+            remaining_slots = 5 - len(team.member_id_list)
+            max_allowed_bid = team.points - (remaining_slots - 1)
+            if amount > max_allowed_bid:
+                return {"success": False, "error": "Bid too high."}
+            if team.points < amount:
+                return {"success": False, "error": "Insufficient points"}
+            min_bid = (self.current_bid + 1) if self.current_bid else 1
+            if amount < min_bid:
+                return {"success": False, "error": f"Bid must be at least {min_bid}"}
+            self.current_bid = amount
+            self.current_bidder = team_id
+            message = WebSocketMessage(
                 type=MessageType.BID_PLACED,
                 data=BidPlacedMessageData(
                     team_id=team_id,
@@ -523,10 +418,9 @@ class Auction:
                     amount=amount,
                 ).model_dump(),
             )
-        )
 
+        await self.broadcast(message)
         self._start_timer()
-
         return {"success": True}
 
     async def terminate_auction(self):

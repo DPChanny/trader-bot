@@ -1,8 +1,12 @@
-from enum import StrEnum
-
-from shared.entities.auction import AuctionStatus as AuctionStatus
+from enum import IntEnum, StrEnum
 
 from . import BaseDTO, DiscordId
+
+
+class AuctionStatus(IntEnum):
+    WAITING = 0
+    IN_PROGRESS = 1
+    COMPLETED = 2
 
 
 class MessageType(StrEnum):

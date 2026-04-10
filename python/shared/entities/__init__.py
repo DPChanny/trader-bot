@@ -5,7 +5,6 @@ class BaseEntity(DeclarativeBase):
     pass
 
 
-from .auction import Auction, AuctionStatus
 from .discord_user import DiscordUser
 from .guild import Guild
 from .lol_stat import Champion, LolStat
