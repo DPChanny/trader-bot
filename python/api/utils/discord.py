@@ -17,12 +17,8 @@ DISCORD_USERS_URL = "https://discord.com/api/users"
 DISCORD_CHANNELS_URL = "https://discord.com/api/channels"
 
 
-def _get_api_endpoint() -> str:
-    return f"{get_api_origin()}/api"
-
-
 def _get_login_callback_url() -> str:
-    return f"{_get_api_endpoint()}/auth/login/callback"
+    return f"{get_api_origin()}/api/auth/login/callback"
 
 
 def get_login_url(state: str | None = None) -> str:
