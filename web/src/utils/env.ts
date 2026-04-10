@@ -1,5 +1,6 @@
 const API_ORIGIN = import.meta.env["VITE_API_ORIGIN"];
 const WS_ORIGIN = import.meta.env["VITE_WS_ORIGIN"];
+const DISCORD_CLIENT_ID = import.meta.env["VITE_DISCORD_CLIENT_ID"];
 
 const API_ENDPOINT = `${API_ORIGIN}/api`;
 const WS_ENDPOINT = `${WS_ORIGIN}/ws`;
@@ -36,4 +37,8 @@ export function getPresetMemberPositionEndpoint(
   presetMemberId: number,
 ) {
   return `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}/position`;
+}
+
+export function getBotInviteUrl() {
+  return `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&permissions=8&scope=bot`;
 }

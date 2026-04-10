@@ -9,6 +9,7 @@ import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { useGuildContext } from "@/contexts/guildContext";
 import { isAuthenticated } from "@/utils/auth";
+import { getBotInviteUrl } from "@/utils/env";
 import styles from "@/styles/pages/guild/guildPage.module.css";
 
 interface GuildPageProps {
@@ -46,19 +47,30 @@ export function GuildPage({}: GuildPageProps) {
           )}
           {isLoading && <Loading />}
           {!isLoading && !error && (
-            <div class={styles.guildList}>
-              {guilds?.map((guild) => (
-                <GuildCard
-                  key={guild.discordId}
-                  guild={guild}
-                  onClick={handleSelectGuild}
-                />
-              ))}
-              {guilds?.length === 0 && (
-                <p class={styles.empty}>소속된 길드가 없습니다.</p>
-              )}
+            <div class={styles.guildListWrapper}>
+              <div class={styles.guildList}>
+                {guilds?.map((guild) => (
+                  <GuildCard
+                    key={guild.discordId}
+                    guild={guild}
+                    onClick={handleSelectGuild}
+                  />
+                ))}
+                {guilds?.length === 0 && (
+                  <p class={styles.empty}>소속된 길드가 없습니다.</p>
+                )}
+              </div>
             </div>
           )}
+          <Bar />
+          <a
+            href={getBotInviteUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            class={styles.inviteButton}
+          >
+            봇 초대하기
+          </a>
         </Section>
       </PageContainer>
     </PageLayout>

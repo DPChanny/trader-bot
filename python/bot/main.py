@@ -62,6 +62,7 @@ async def main() -> None:
                             if member.guild_avatar
                             else None,
                         )
+                    await session.flush()
                     owner_member = await upsert_member(
                         guild_entity.discord_id, owner_discord_id, session
                     )
@@ -109,6 +110,7 @@ async def main() -> None:
                         if member.guild_avatar
                         else None,
                     )
+                await session.flush()
                 await set_role(
                     guild_entity.discord_id, owner_discord_id, Role.OWNER, session
                 )

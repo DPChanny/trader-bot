@@ -1,6 +1,12 @@
 .mainSection {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+}
+
+.guildListWrapper {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -16,4 +22,21 @@
   text-align: center;
   padding: var(--padding-xl) 0;
   margin: 0;
+}
+
+.inviteButton {
+  display: inline-block;
+  align-self: center;
+  padding: var(--padding-sm) var(--padding-lg);
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.inviteButton:hover {
+  opacity: 0.85;
 }
