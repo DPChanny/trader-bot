@@ -1,15 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from sqlalchemy import BigInteger, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from . import BaseEntity
-
-
-if TYPE_CHECKING:
-    from .member import Member
 
 
 class DiscordUser(BaseEntity):
@@ -18,7 +12,3 @@ class DiscordUser(BaseEntity):
     discord_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     avatar_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
-
-    members: Mapped[list[Member]] = relationship(
-        "Member", back_populates="discord_user"
-    )

@@ -10,9 +10,7 @@ from . import BaseEntity
 
 if TYPE_CHECKING:
     from .member import Member
-    from .preset import Preset
     from .preset_member_position import PresetMemberPosition
-    from .tier import Tier
 
 
 class PresetMember(BaseEntity):
@@ -33,11 +31,8 @@ class PresetMember(BaseEntity):
     )
     is_leader: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
-    preset: Mapped[Preset] = relationship("Preset", back_populates="preset_members")
-    member: Mapped[Member] = relationship("Member", back_populates="preset_members")
-    tier: Mapped[Tier | None] = relationship("Tier", back_populates="preset_members")
+    member: Mapped[Member] = relationship("Member", viewonly=True)
     preset_member_positions: Mapped[list[PresetMemberPosition]] = relationship(
         "PresetMemberPosition",
-        back_populates="preset_member",
-        cascade="all, delete-orphan",
+        viewonly=True,
     )

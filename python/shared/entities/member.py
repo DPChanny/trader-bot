@@ -34,7 +34,7 @@ class Member(BaseEntity):
     )
     discord_user_id: Mapped[int] = mapped_column(
         BigInteger,
-        ForeignKey("discord_user.discord_id"),
+        ForeignKey("discord_user.discord_id", ondelete="RESTRICT"),
         nullable=False,
     )
     name: Mapped[str | None] = mapped_column(String(256), nullable=True)
@@ -43,11 +43,8 @@ class Member(BaseEntity):
     info_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     role: Mapped[int] = mapped_column(SmallInteger, nullable=False)
 
-    discord_user: Mapped[DiscordUser] = relationship(
-        "DiscordUser", back_populates="members"
-    )
-    guild: Mapped[Guild] = relationship("Guild", back_populates="members")
-
+    discord_user: Mapped[DiscordUser] = relationship("DiscordUser", viewonly=True)
+    guild: Mapped[Guild] = relationship("Guild", viewonly=True)
     preset_members: Mapped[list[PresetMember]] = relationship(
-        "PresetMember", back_populates="member", cascade="all, delete-orphan"
+        "PresetMember", viewonly=True
     )

@@ -29,20 +29,10 @@ class Preset(BaseEntity):
     timer: Mapped[int] = mapped_column(nullable=False)
     team_size: Mapped[int] = mapped_column(nullable=False)
     point_scale: Mapped[int] = mapped_column(nullable=False)
-    guild: Mapped[Guild] = relationship("Guild", back_populates="presets")
+    guild: Mapped[Guild] = relationship("Guild", viewonly=True)
 
-    tiers: Mapped[list[Tier]] = relationship(
-        "Tier",
-        back_populates="preset",
-        cascade="all, delete-orphan",
-    )
-    positions: Mapped[list[Position]] = relationship(
-        "Position",
-        back_populates="preset",
-        cascade="all, delete-orphan",
-    )
+    tiers: Mapped[list[Tier]] = relationship("Tier", viewonly=True)
+    positions: Mapped[list[Position]] = relationship("Position", viewonly=True)
     preset_members: Mapped[list[PresetMember]] = relationship(
-        "PresetMember",
-        back_populates="preset",
-        cascade="all, delete-orphan",
+        "PresetMember", viewonly=True
     )

@@ -17,7 +17,7 @@ class User(BaseEntity):
 
     discord_id: Mapped[int] = mapped_column(
         BigInteger,
-        ForeignKey("discord_user.discord_id"),
+        ForeignKey("discord_user.discord_id", ondelete="RESTRICT"),
         primary_key=True,
     )
     refresh_token: Mapped[str | None] = mapped_column(String(512), nullable=True)

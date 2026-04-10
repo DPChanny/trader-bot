@@ -20,13 +20,5 @@ class Guild(BaseEntity):
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     icon_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
-    presets: Mapped[list[Preset]] = relationship(
-        "Preset",
-        back_populates="guild",
-        cascade="all, delete-orphan",
-    )
-    members: Mapped[list[Member]] = relationship(
-        "Member",
-        back_populates="guild",
-        cascade="all, delete-orphan",
-    )
+    presets: Mapped[list[Preset]] = relationship("Preset", viewonly=True)
+    members: Mapped[list[Member]] = relationship("Member", viewonly=True)
