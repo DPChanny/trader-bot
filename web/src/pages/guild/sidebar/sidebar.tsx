@@ -3,7 +3,7 @@ import { useRouter } from "preact-router";
 import styles from "@/styles/components/sidebar/sidebar.module.css";
 import { Section } from "@/components/commons/section";
 import { useGuilds } from "@/hooks/guild";
-import { GuildList } from "./guildList";
+import { GuildList } from "./guild/guildList";
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
@@ -17,7 +17,7 @@ export function Sidebar() {
   const activeGuildId = guildMatch ? guildMatch[1]! : null;
   const presetMatch = url.match(/\/preset\/(\d+)/);
   const presetId = presetMatch ? parseInt(presetMatch[1]!) : null;
-  const subPage: "preset" | "member" = url.includes("/member")
+  const editor: "preset" | "member" = url.includes("/member")
     ? "member"
     : "preset";
 
@@ -57,7 +57,7 @@ export function Sidebar() {
         guilds={guilds}
         activeGuildId={activeGuildId}
         selectedPresetId={presetId}
-        subPage={subPage}
+        editor={editor}
       />
     </nav>
   );

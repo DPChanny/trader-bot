@@ -5,7 +5,6 @@ import { QueryClientProvider } from "@tanstack/preact-query";
 import { GuildPage } from "@/pages/guild/guildPage";
 import { AuctionPage } from "@/pages/auction/auctionPage";
 import { Header } from "@/components/commons/header";
-import { Sidebar } from "@/components/sidebar/sidebar";
 import { queryClient } from "@/utils/query";
 import {
   removeAuthToken,
@@ -25,7 +24,6 @@ function handleLogout() {
   route("/");
 }
 
-// ── 홈 / 루트 ──────────────────────────────────────────────────────────────
 function Root({}: { path?: string }) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -44,11 +42,18 @@ function Root({}: { path?: string }) {
   );
 }
 
-// ── GuildPage 라우트 래퍼 ────────────────────────────────────────────────────
-interface GuildPresetRouteProps {
+interface GuildRouteProps {
   path?: string;
   guildId?: string;
+}
+
+interface GuildPresetRouteProps extends GuildRouteProps {
   presetId?: string;
+}
+
+function GuildRoute({ guildId }: GuildRouteProps) {
+  if (!guildId) return null;
+  return <GuildPage guildId={guildId} editor={null} presetId={null} />;
 }
 
 function GuildPresetRoute({ guildId, presetId }: GuildPresetRouteProps) {
@@ -56,20 +61,15 @@ function GuildPresetRoute({ guildId, presetId }: GuildPresetRouteProps) {
   return (
     <GuildPage
       guildId={guildId}
-      subPage="preset"
+      editor="preset"
       presetId={presetId ? parseInt(presetId, 10) : null}
     />
   );
 }
 
-interface GuildMemberRouteProps {
-  path?: string;
-  guildId?: string;
-}
-
-function GuildMemberRoute({ guildId }: GuildMemberRouteProps) {
+function GuildMemberRoute({ guildId }: GuildRouteProps) {
   if (!guildId) return null;
-  return <GuildPage guildId={guildId} subPage="member" presetId={null} />;
+  return <GuildPage guildId={guildId} editor="member" presetId={null} />;
 }
 
 interface AuctionLayoutProps {
@@ -86,7 +86,6 @@ function AuctionLayout({ auctionId }: AuctionLayoutProps) {
   );
 }
 
-// ── AppShell ─────────────────────────────────────────────────────────────────
 function AppShell() {
   useAutoRefreshToken();
   const { data: user } = useMe();
@@ -99,17 +98,15 @@ function AppShell() {
         onLogout={isAuthenticated() ? handleLogout : undefined}
         onLogin={!isAuthenticated() ? login : undefined}
       />
-      <div className="app-body">
-        <Sidebar />
-        <div className="app-content">
-          <Router>
-            <Root path="/" />
-            <GuildPresetRoute path="/guild/:guildId/preset" />
-            <GuildPresetRoute path="/guild/:guildId/preset/:presetId" />
-            <GuildMemberRoute path="/guild/:guildId/member" />
-            <AuctionLayout path="/auction/:auctionId" />
-          </Router>
-        </div>
+      <div className="app-content">
+        <Router>
+          <Root path="/" />
+          <GuildRoute path="/guild/:guildId" />
+          <GuildPresetRoute path="/guild/:guildId/preset" />
+          <GuildPresetRoute path="/guild/:guildId/preset/:presetId" />
+          <GuildMemberRoute path="/guild/:guildId/member" />
+          <AuctionLayout path="/auction/:auctionId" />
+        </Router>
       </div>
     </div>
   );

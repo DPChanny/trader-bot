@@ -3,7 +3,7 @@ import { route } from "preact-router";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
 import { GuildCard } from "./guildCard";
-import { SidebarPresetList } from "./presetList";
+import { SidebarPresetList } from "../preset/presetList";
 import styles from "@/styles/components/sidebar/guildList.module.css";
 import type { GuildDTO } from "@/dtos/guildDto";
 
@@ -11,14 +11,14 @@ interface GuildListProps {
   guilds: GuildDTO[];
   activeGuildId: string | null;
   selectedPresetId: number | null;
-  subPage: "preset" | "member";
+  editor: "preset" | "member";
 }
 
 export function GuildList({
   guilds,
   activeGuildId,
   selectedPresetId,
-  subPage,
+  editor,
 }: GuildListProps) {
   const [open, setOpen] = useState(true);
 
@@ -66,12 +66,12 @@ export function GuildList({
                     <SidebarPresetList
                       guildId={g.discordId}
                       selectedPresetId={selectedPresetId}
-                      subPage={subPage}
+                      editor={editor}
                     />
                     <button
                       type="button"
                       className={`${styles.navBtn} ${
-                        subPage === "member" ? styles.navBtnActive : ""
+                        editor === "member" ? styles.navBtnActive : ""
                       }`}
                       onClick={() => route(`/guild/${g.discordId}/member`)}
                     >

@@ -10,17 +10,17 @@ import { PositionCard } from "./positionCard";
 
 import styles from "@/styles/pages/preset/position/positionList.module.css";
 
-interface PositionListProps {
+interface PositionEditorProps {
   guildId: string;
   presetId: number;
   positions: any[];
 }
 
-export function PositionList({
+export function PositionEditor({
   guildId,
   presetId,
   positions,
-}: PositionListProps) {
+}: PositionEditorProps) {
   const [showPositionForm, setShowPositionForm] = useState(false);
   const [editingPositionId, setEditingPositionId] = useState<number | null>(
     null,

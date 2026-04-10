@@ -10,13 +10,13 @@ import styles from "@/styles/pages/preset/tier/tierList.module.css";
 import { Section } from "@/components/commons/section";
 import type { TierDTO } from "@/dtos/tierDto";
 
-interface TierListProps {
+interface TierEditorProps {
   guildId: string;
   presetId: number;
   tiers: TierDTO[];
 }
 
-export function TierList({ guildId, presetId, tiers }: TierListProps) {
+export function TierEditor({ guildId, presetId, tiers }: TierEditorProps) {
   const [showTierForm, setShowTierForm] = useState(false);
   const [editingTierId, setEditingTierId] = useState<number | null>(null);
   const [editingTierName, setEditingTierName] = useState("");

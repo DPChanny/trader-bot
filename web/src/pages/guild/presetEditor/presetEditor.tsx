@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import { usePresetDetail } from "@/hooks/preset";
 import { useMembers } from "@/hooks/member";
 import { useAddAuction } from "@/hooks/auction";
-import { TierList } from "./tier/tierList";
-import { PositionList } from "./position/positionList";
-import { PresetMemberPanel } from "./presetMemberPanel";
-import { MemberCandidateGrid } from "./memberCandidateGrid";
+import { TierEditor } from "./tierEditor/tierEditor";
+import { PositionEditor } from "./positionEditor/positionEditor";
+import { PresetMemberPanel } from "./presetMember/presetMemberPanel";
+import { MemberCandidateGrid } from "./presetMember/memberCandidateGrid";
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import { Section } from "@/components/commons/section";
 import { PageContainer, PageLayout } from "@/components/commons/page";
@@ -133,7 +133,7 @@ export function PresetEditor({ guildId, presetId }: PresetPageProps) {
           {presetId ? (
             <>
               <Section variantIntent="secondary" className={styles.tierSection}>
-                <TierList
+                <TierEditor
                   guildId={guildId}
                   presetId={presetId}
                   tiers={presetDetail?.tiers || []}
@@ -143,7 +143,7 @@ export function PresetEditor({ guildId, presetId }: PresetPageProps) {
                 variantIntent="secondary"
                 className={styles.positionSection}
               >
-                <PositionList
+                <PositionEditor
                   guildId={guildId}
                   presetId={presetId}
                   positions={presetDetail?.positions || []}

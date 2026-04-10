@@ -3,8 +3,8 @@ import { route } from "preact-router";
 import { Section } from "@/components/commons/section";
 import { PrimaryButton } from "@/components/commons/button";
 import { ConfirmModal } from "@/components/commons/modal";
-import { EditPresetModal } from "@/pages/preset/editPresetModal";
-import { AddPresetModal } from "@/pages/preset/addPresetModal";
+import { EditPresetModal } from "./editPresetModal";
+import { AddPresetModal } from "./addPresetModal";
 import { PresetCard } from "./presetCard";
 import { usePresets, useDeletePreset, useUpdatePreset } from "@/hooks/preset";
 import styles from "@/styles/components/sidebar/presetList.module.css";
@@ -13,13 +13,13 @@ import type { PresetDTO } from "@/dtos/presetDto";
 interface SidebarPresetListProps {
   guildId: string;
   selectedPresetId: number | null;
-  subPage: "preset" | "member";
+  editor: "preset" | "member";
 }
 
 export function SidebarPresetList({
   guildId,
   selectedPresetId,
-  subPage,
+  editor,
 }: SidebarPresetListProps) {
   const [open, setOpen] = useState(true);
   const [editingPreset, setEditingPreset] = useState<PresetDTO | null>(null);
@@ -35,7 +35,7 @@ export function SidebarPresetList({
   };
 
   const handleAddPreset = () => {
-    if (subPage !== "preset") route(`/guild/${guildId}/preset`);
+    if (editor !== "preset") route(`/guild/${guildId}/preset`);
     setIsCreatingPreset(true);
   };
 
@@ -92,7 +92,7 @@ export function SidebarPresetList({
             </span>
             <span
               className={`${styles.presetLabel} ${
-                subPage === "preset" ? styles.presetLabelActive : ""
+                editor === "preset" ? styles.presetLabelActive : ""
               }`}
               onClick={(e) => {
                 e.stopPropagation();
@@ -124,7 +124,7 @@ export function SidebarPresetList({
                 key={preset.presetId}
                 preset={preset}
                 isActive={
-                  selectedPresetId === preset.presetId && subPage === "preset"
+                  selectedPresetId === preset.presetId && editor === "preset"
                 }
                 onClick={() => handleSelectPreset(preset.presetId)}
                 onEdit={() => setEditingPreset(preset)}
