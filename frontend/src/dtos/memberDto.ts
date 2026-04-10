@@ -6,11 +6,11 @@ export interface MemberDTO {
   guildId: string;
   discordUserId: string;
   role: number;
-  riotId: string | null;
   name: string | null;
   alias: string | null;
   avatarHash: string | null;
   avatarUrl: string | null;
+  infoUrl: string | null;
 }
 
 export interface MemberDetailDTO extends MemberDTO {
@@ -19,7 +19,7 @@ export interface MemberDetailDTO extends MemberDTO {
 }
 
 export interface UpdateMemberDTO {
-  riotId?: string | null;
   alias?: string | null;
+  infoUrl?: string | null;
   role?: number;
 }

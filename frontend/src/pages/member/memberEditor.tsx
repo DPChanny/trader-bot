@@ -1,11 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { MemberCard } from "@/components/memberCard";
-import { LolStat } from "@/components/lolStat";
-import { ValStat } from "@/components/valStat";
 import { useDeleteMember, useUpdateMember } from "@/hooks/member";
 import { useGuildContext } from "@/contexts/guildContext";
-import { useLolStat } from "@/hooks/lolStat";
-import { useValStat } from "@/hooks/valStat";
 import {
   CloseButton,
   DangerButton,
@@ -16,11 +12,9 @@ import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
 import { ConfirmModal } from "@/components/commons/modal";
-import { Loading } from "@/components/commons/loading";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 import styles from "@/styles/components/memberEditor.module.css";
-import { Label } from "@/components/commons/label";
 
 interface MemberEditorProps {
   member: MemberDetailDTO;
@@ -32,20 +26,18 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
   const guildId = guild?.discordId ?? null;
   const updateMember = useUpdateMember();
   const deleteMember = useDeleteMember();
-  const lolStat = useLolStat(member.memberId);
-  const valStat = useValStat(member.memberId);
 
-  const [riotId, setRiotId] = useState(member.riotId ?? "");
   const [alias, setAlias] = useState(member.alias ?? "");
+  const [infoUrl, setInfoUrl] = useState(member.infoUrl ?? "");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    setRiotId(member.riotId ?? "");
     setAlias(member.alias ?? "");
-  }, [member.memberId, member.riotId, member.alias]);
+    setInfoUrl(member.infoUrl ?? "");
+  }, [member.memberId, member.alias, member.infoUrl]);
 
   const hasChanges =
-    riotId !== (member.riotId ?? "") || alias !== (member.alias ?? "");
+    alias !== (member.alias ?? "") || infoUrl !== (member.infoUrl ?? "");
 
   const handleSave = async () => {
     if (!guildId) return;
@@ -53,7 +45,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
       await updateMember.mutateAsync({
         guildId,
         memberId: member.memberId,
-        dto: { riotId, alias: alias || null },
+        dto: { alias: alias || null, infoUrl: infoUrl || null },
       });
     } catch (err) {
       console.error("Failed to update member:", err);
@@ -79,7 +71,7 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
           variantLayout="row"
           variantIntent="secondary"
         >
-          <h3>{member.alias || member.riotId || "이름 없음"}</h3>
+          <h3>{member.alias || member.discordUser.name}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -120,7 +112,6 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
             <MemberCard
               member={{
                 ...member,
-                riotId: riotId || null,
                 alias: alias || null,
               }}
             />
@@ -132,28 +123,16 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
             onChange={setAlias}
             placeholder={member.alias || member.name || member.discordUser.name}
           />
-          <LabelInput label="Riot ID" value={riotId} onChange={setRiotId} />
-
-          <Label>League of Legends 통계</Label>
-          {lolStat.isLoading ? (
-            <Loading />
-          ) : lolStat.data ? (
-            <LolStat lolStatDTO={lolStat.data} />
-          ) : (
-            <Error detail={lolStat.error?.message}>
-              통계를 불러오지 못했습니다.
-            </Error>
-          )}
-
-          <Label>VALORANT 통계</Label>
-          {valStat.isLoading ? (
-            <Loading />
-          ) : valStat.data ? (
-            <ValStat valStatDTO={valStat.data} />
-          ) : (
-            <Error detail={valStat.error?.message}>
-              통계를 불러오지 못했습니다.
-            </Error>
+          <LabelInput
+            label="프로필 링크"
+            value={infoUrl}
+            onChange={setInfoUrl}
+            placeholder="https://op.gg/..."
+          />
+          {infoUrl && (
+            <a href={infoUrl} target="_blank" rel="noopener noreferrer">
+              프로필 보기 →
+            </a>
           )}
         </Section>
       </Section>

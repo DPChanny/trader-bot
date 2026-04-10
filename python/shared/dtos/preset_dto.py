@@ -1,4 +1,3 @@
-from ..entities.preset import Statistics
 from . import BaseDTO, DiscordId, NullableStr
 from .position_dto import PositionDTO
 from .preset_member_dto import PresetMemberDetailDTO
@@ -13,7 +12,6 @@ class PresetDTO(BaseDTO):
     timer: int
     team_size: int
     point_scale: int
-    statistics: Statistics
 
     model_config = {"from_attributes": True}
 
@@ -30,7 +28,6 @@ class AddPresetDTO(BaseDTO):
     timer: int
     team_size: int
     point_scale: int
-    statistics: Statistics = Statistics.NONE
 
 
 class UpdatePresetDTO(BaseDTO):
@@ -39,4 +36,3 @@ class UpdatePresetDTO(BaseDTO):
     timer: int | None = None
     team_size: int | None = None
     point_scale: int | None = None
-    statistics: Statistics | None = None

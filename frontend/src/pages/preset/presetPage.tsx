@@ -162,7 +162,6 @@ function PresetPageContent() {
             presetMember={selectedPresetMember}
             tiers={presetDetail.tiers || []}
             positions={presetDetail.positions || []}
-            statistics={presetDetail.statistics ?? "NONE"}
           />
         )}
       </PageContainer>

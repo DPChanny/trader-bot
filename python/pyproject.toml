@@ -16,8 +16,6 @@ dependencies = [
     "websockets",
     "asyncpg",
     "psycopg2-binary",
-    "selenium",
-    "webdriver-manager",
 ]
 
 [dependency-groups]

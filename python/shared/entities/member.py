@@ -12,9 +12,7 @@ from . import BaseEntity
 if TYPE_CHECKING:
     from .discord_user import DiscordUser
     from .guild import Guild
-    from .lol_stat import LolStat
     from .preset_member import PresetMember
-    from .val_stat import ValStat
 
 
 class Role(enum.IntEnum):
@@ -39,10 +37,10 @@ class Member(BaseEntity):
         ForeignKey("discord_user.discord_id"),
         nullable=False,
     )
-    riot_id: Mapped[str | None] = mapped_column(String(256), nullable=True)
     name: Mapped[str | None] = mapped_column(String(256), nullable=True)
     alias: Mapped[str | None] = mapped_column(String(256), nullable=True)
     avatar_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    info_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     role: Mapped[int] = mapped_column(SmallInteger, nullable=False)
 
     discord_user: Mapped[DiscordUser] = relationship(
@@ -52,16 +50,4 @@ class Member(BaseEntity):
 
     preset_members: Mapped[list[PresetMember]] = relationship(
         "PresetMember", back_populates="member", cascade="all, delete-orphan"
-    )
-    lol_stat: Mapped[LolStat | None] = relationship(
-        "LolStat",
-        back_populates="member",
-        uselist=False,
-        cascade="all, delete-orphan",
-    )
-    val_stat: Mapped[ValStat | None] = relationship(
-        "ValStat",
-        back_populates="member",
-        uselist=False,
-        cascade="all, delete-orphan",
     )

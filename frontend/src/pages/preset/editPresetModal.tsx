@@ -8,10 +8,6 @@ import {
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
-import { Toggle } from "@/components/commons/toggle";
-import { Label } from "@/components/commons/label";
-import { Section } from "@/components/commons/section";
-import { Statistics, StatisticsDisplay } from "@/dtos/presetDto";
 
 interface EditPresetModalProps {
   isOpen: boolean;
@@ -22,7 +18,6 @@ interface EditPresetModalProps {
     timer: number,
     teamSize: number,
     pointScale: number,
-    statistics: Statistics,
   ) => void;
   presetId: number | null;
   name: string;
@@ -30,7 +25,6 @@ interface EditPresetModalProps {
   timer: number;
   teamSize: number;
   pointScale: number;
-  statistics: Statistics;
   isPending?: boolean;
   error?: any;
 }
@@ -44,7 +38,6 @@ export function EditPresetModal({
   timer: propTimer,
   teamSize: propTeamSize,
   pointScale: propPointScale,
-  statistics: propStatistics,
   isPending = false,
   error,
 }: EditPresetModalProps) {
@@ -53,7 +46,6 @@ export function EditPresetModal({
   const [timer, setTimer] = useState(propTimer);
   const [teamSize, setTeamSize] = useState(propTeamSize);
   const [pointScale, setPointScale] = useState(propPointScale);
-  const [statistics, setStatistics] = useState<Statistics>(propStatistics);
 
   useEffect(() => {
     if (isOpen) {
@@ -62,17 +54,8 @@ export function EditPresetModal({
       setTimer(propTimer);
       setTeamSize(propTeamSize);
       setPointScale(propPointScale);
-      setStatistics(propStatistics);
     }
-  }, [
-    isOpen,
-    propName,
-    propPoints,
-    propTimer,
-    propTeamSize,
-    propPointScale,
-    propStatistics,
-  ]);
+  }, [isOpen, propName, propPoints, propTimer, propTeamSize, propPointScale]);
 
   const isDivisible = inputPoints % pointScale === 0;
 
@@ -80,14 +63,7 @@ export function EditPresetModal({
     e.preventDefault();
     if (!name.trim() || pointScale <= 0 || !isDivisible) return;
     const actualPoints = inputPoints / pointScale;
-    onSubmit(
-      name.trim(),
-      actualPoints,
-      timer,
-      teamSize,
-      pointScale,
-      statistics,
-    );
+    onSubmit(name.trim(), actualPoints, timer, teamSize, pointScale);
   };
 
   const hasChanges =
@@ -95,8 +71,7 @@ export function EditPresetModal({
     inputPoints !== propPoints * propPointScale ||
     timer !== propTimer ||
     teamSize !== propTeamSize ||
-    pointScale !== propPointScale ||
-    statistics !== propStatistics;
+    pointScale !== propPointScale;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="프리셋 수정">
@@ -145,32 +120,6 @@ export function EditPresetModal({
           value={teamSize.toString()}
           onChange={(value) => setTeamSize(Math.max(1, Number(value) || 1))}
         />
-        <Section variantTone="ghost" variantIntent="tertiary">
-          <Label>통계</Label>
-          <Section variantLayout="row" variantIntent="tertiary">
-            <Toggle
-              type="button"
-              isActive={statistics === Statistics.NONE}
-              onClick={() => setStatistics(Statistics.NONE)}
-            >
-              없음
-            </Toggle>
-            <Toggle
-              type="button"
-              isActive={statistics === Statistics.LOL}
-              onClick={() => setStatistics(Statistics.LOL)}
-            >
-              {StatisticsDisplay[Statistics.LOL]}
-            </Toggle>
-            <Toggle
-              type="button"
-              isActive={statistics === Statistics.VAL}
-              onClick={() => setStatistics(Statistics.VAL)}
-            >
-              {StatisticsDisplay[Statistics.VAL]}
-            </Toggle>
-          </Section>
-        </Section>
 
         <ModalFooter>
           <SecondaryButton type="button" onClick={onClose}>

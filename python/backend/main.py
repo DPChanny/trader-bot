@@ -14,7 +14,6 @@ from .routers import (
     auction_websocket_router,
     auth_router,
     guild_router,
-    lol_stat_router,
     member_router,
     position_router,
     preset_member_position_router,
@@ -22,7 +21,6 @@ from .routers import (
     preset_router,
     tier_router,
     user_router,
-    val_stat_router,
 )
 
 
@@ -62,8 +60,6 @@ app.include_router(preset_router, prefix="/api")
 app.include_router(tier_router, prefix="/api")
 app.include_router(preset_member_router, prefix="/api")
 app.include_router(preset_member_position_router, prefix="/api")
-app.include_router(lol_stat_router, prefix="/api")
-app.include_router(val_stat_router, prefix="/api")
 app.include_router(auction_router, prefix="/api")
 app.include_router(guild_router, prefix="/api")
 app.include_router(auction_websocket_router, prefix="/ws")

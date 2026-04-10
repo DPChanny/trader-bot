@@ -11,10 +11,10 @@ class MemberDTO(BaseDTO):
     guild_id: DiscordId
     discord_user_id: DiscordId
     role: Role
-    riot_id: str | None
     name: str | None
     alias: str | None
     avatar_hash: str | None
+    info_url: str | None
 
     model_config = {"from_attributes": True}
 
@@ -33,6 +33,6 @@ class MemberDetailDTO(MemberDTO):
 
 
 class UpdateMemberDTO(BaseDTO):
-    riot_id: NullableStr = None
     alias: NullableStr = None
+    info_url: NullableStr = None
     role: Role | None = None

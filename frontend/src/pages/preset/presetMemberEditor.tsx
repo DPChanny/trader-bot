@@ -1,7 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
 import { PresetMemberCard } from "@/components/presetMemberCard";
-import { LolStat } from "@/components/lolStat";
-import { ValStat } from "@/components/valStat";
 import { Toggle } from "@/components/commons/toggle";
 import {
   useRemovePresetMember,
@@ -11,12 +9,9 @@ import {
   useAddPresetMemberPosition,
   useDeletePresetMemberPosition,
 } from "@/hooks/presetMemberPosition";
-import { useLolStat } from "@/hooks/lolStat";
-import { useValStat } from "@/hooks/valStat";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 import type { TierDTO } from "@/dtos/tierDto";
 import type { PositionDTO } from "@/dtos/positionDto";
-import { Statistics } from "@/dtos/presetDto";
 import {
   CloseButton,
   DangerButton,
@@ -26,7 +21,6 @@ import { Label } from "@/components/commons/label";
 import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
-import { Loading } from "@/components/commons/loading";
 import styles from "@/styles/components/memberEditor.module.css";
 import { useGuildContext } from "@/contexts/guildContext";
 import { usePresetPageContext } from "./presetContext";
@@ -35,14 +29,12 @@ interface PresetMemberEditorProps {
   presetMember: PresetMemberDetailDTO;
   tiers: TierDTO[];
   positions: PositionDTO[];
-  statistics: Statistics;
 }
 
 export function PresetMemberEditor({
   presetMember,
   tiers,
   positions,
-  statistics,
 }: PresetMemberEditorProps) {
   const { guild } = useGuildContext();
   const guildId = guild?.discordId ?? null;
@@ -57,16 +49,6 @@ export function PresetMemberEditor({
   const removePresetMember = useRemovePresetMember();
   const addPresetMemberPosition = useAddPresetMemberPosition();
   const deletePresetMemberPosition = useDeletePresetMemberPosition();
-  const lolStat = useLolStat(
-    statistics === Statistics.LOL
-      ? (presetMember.member?.memberId ?? null)
-      : null,
-  );
-  const valStat = useValStat(
-    statistics === Statistics.VAL
-      ? (presetMember.member?.memberId ?? null)
-      : null,
-  );
 
   const [isLeader, setIsLeader] = useState(presetMember.isLeader);
   const [tierId, setTierId] = useState<number | null>(
@@ -303,36 +285,6 @@ export function PresetMemberEditor({
               </Toggle>
             ))}
           </Section>
-
-          {statistics !== Statistics.NONE && <Label>통계</Label>}
-
-          {statistics === Statistics.LOL && (
-            <>
-              {lolStat.isLoading ? (
-                <Loading />
-              ) : lolStat.data ? (
-                <LolStat lolStatDTO={lolStat.data} />
-              ) : (
-                <Error detail={lolStat.error?.message}>
-                  통계를 불러오지 못했습니다.
-                </Error>
-              )}
-            </>
-          )}
-
-          {statistics === Statistics.VAL && (
-            <>
-              {valStat.isLoading ? (
-                <Loading />
-              ) : valStat.data ? (
-                <ValStat valStatDTO={valStat.data} />
-              ) : (
-                <Error detail={valStat.error?.message}>
-                  통계를 불러오지 못했습니다.
-                </Error>
-              )}
-            </>
-          )}
         </Section>
       </Section>
 

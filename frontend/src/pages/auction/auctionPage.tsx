@@ -3,8 +3,6 @@ import { useAuctionWebSocket } from "@/hooks/auctionWebSocket";
 import { useLogin } from "@/hooks/auth";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
-import { LolStat } from "@/components/lolStat";
-import { ValStat } from "@/components/valStat";
 import { Section } from "@/components/commons/section";
 import { PageContainer, PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
@@ -17,7 +15,6 @@ import { Bar } from "@/components/commons/bar";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 import type { TierDTO } from "@/dtos/tierDto";
 import type { PositionDTO } from "@/dtos/positionDto";
-import { Statistics } from "@/dtos/presetDto";
 import { AuctionStatus } from "@/dtos/auctionDto";
 
 import styles from "@/styles/pages/auction/auctionPage.module.css";
@@ -86,30 +83,13 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     presetMembers: PresetMemberDetailDTO[];
     tiers: TierDTO[];
     positions: PositionDTO[];
-    statistics: Statistics;
     pointScale: number;
-    statsByMember: Record<string, { lolStat?: any; valStat?: any }>;
   } | null;
 
   const presetMembers: PresetMemberDetailDTO[] = snapshot?.presetMembers ?? [];
   const tiers: TierDTO[] = snapshot?.tiers ?? [];
   const positions: PositionDTO[] = snapshot?.positions ?? [];
-  const statistics: Statistics = snapshot?.statistics ?? Statistics.NONE;
   const pointScale: number = snapshot?.pointScale ?? 1;
-  const statsByMember = snapshot?.statsByMember ?? {};
-
-  const currentMemberId = state!.currentMemberId;
-  const currentMemberStats = currentMemberId
-    ? statsByMember[String(currentMemberId)]
-    : null;
-  const lolStat =
-    statistics === Statistics.LOL
-      ? (currentMemberStats?.lolStat ?? null)
-      : null;
-  const valStat =
-    statistics === Statistics.VAL
-      ? (currentMemberStats?.valStat ?? null)
-      : null;
 
   const presetMemberMap = new Map<number, PresetMemberDetailDTO>(
     presetMembers.map((pm) => [pm.memberId, pm]),
@@ -204,12 +184,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
                   positions={positions}
                 />
               )}
-              {state.status !== AuctionStatus.COMPLETED &&
-                statistics === Statistics.LOL &&
-                lolStat && <LolStat lolStatDTO={lolStat} />}
-              {state.status !== AuctionStatus.COMPLETED &&
-                statistics === Statistics.VAL &&
-                valStat && <ValStat valStatDTO={valStat} />}
             </Section>
 
             <Section

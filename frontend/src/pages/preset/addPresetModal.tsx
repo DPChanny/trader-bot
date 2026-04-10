@@ -8,13 +8,9 @@ import {
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
-import { Toggle } from "@/components/commons/toggle";
-import { Label } from "@/components/commons/label";
-import { Section } from "@/components/commons/section";
 import { useAddPreset } from "@/hooks/preset";
 import { useGuildContext } from "@/contexts/guildContext";
 import { usePresetPageContext } from "./presetContext";
-import { Statistics, StatisticsDisplay } from "@/dtos/presetDto";
 
 const INITIAL_STATE = {
   presetName: "",
@@ -22,7 +18,6 @@ const INITIAL_STATE = {
   pointScale: 1,
   timer: 30,
   teamSize: 5,
-  statistics: Statistics.NONE as Statistics,
 };
 
 export function AddPresetModal() {
@@ -35,9 +30,6 @@ export function AddPresetModal() {
   const [pointScale, setPointScale] = useState(INITIAL_STATE.pointScale);
   const [timer, setTimer] = useState(INITIAL_STATE.timer);
   const [teamSize, setTeamSize] = useState(INITIAL_STATE.teamSize);
-  const [statistics, setStatistics] = useState<Statistics>(
-    INITIAL_STATE.statistics,
-  );
 
   const addPreset = useAddPreset();
   const isDivisible = inputPoints % pointScale === 0;
@@ -48,7 +40,6 @@ export function AddPresetModal() {
     setPointScale(INITIAL_STATE.pointScale);
     setTimer(INITIAL_STATE.timer);
     setTeamSize(INITIAL_STATE.teamSize);
-    setStatistics(INITIAL_STATE.statistics);
     addPreset.reset();
     closeCreatePreset();
   };
@@ -67,7 +58,6 @@ export function AddPresetModal() {
           timer,
           teamSize,
           pointScale,
-          statistics,
         },
       });
       handleClose();
@@ -119,32 +109,6 @@ export function AddPresetModal() {
           value={teamSize.toString()}
           onChange={(v) => setTeamSize(parseInt(v) || 5)}
         />
-        <Section variantTone="ghost" variantIntent="tertiary">
-          <Label>통계</Label>
-          <Section variantLayout="row" variantIntent="tertiary">
-            <Toggle
-              type="button"
-              isActive={statistics === Statistics.NONE}
-              onClick={() => setStatistics(Statistics.NONE)}
-            >
-              없음
-            </Toggle>
-            <Toggle
-              type="button"
-              isActive={statistics === Statistics.LOL}
-              onClick={() => setStatistics(Statistics.LOL)}
-            >
-              {StatisticsDisplay[Statistics.LOL]}
-            </Toggle>
-            <Toggle
-              type="button"
-              isActive={statistics === Statistics.VAL}
-              onClick={() => setStatistics(Statistics.VAL)}
-            >
-              {StatisticsDisplay[Statistics.VAL]}
-            </Toggle>
-          </Section>
-        </Section>
         <ModalFooter>
           <SecondaryButton onClick={handleClose}>취소</SecondaryButton>
           <PrimaryButton

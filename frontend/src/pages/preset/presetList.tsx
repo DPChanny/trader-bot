@@ -12,7 +12,6 @@ import { Bar } from "@/components/commons/bar";
 import { Error } from "@/components/commons/error";
 import { useGuildContext } from "@/contexts/guildContext";
 import { usePresetPageContext } from "./presetContext";
-import { Statistics } from "@/dtos/presetDto";
 import type { PresetDTO } from "@/dtos/presetDto";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 
@@ -52,7 +51,6 @@ export function PresetList({
     timer: number,
     teamSize: number,
     pointScale: number,
-    statistics: Statistics,
   ) => {
     if (!editingPresetId || !name.trim() || !guildId) return;
     try {
@@ -65,7 +63,6 @@ export function PresetList({
           timer,
           teamSize,
           pointScale,
-          statistics,
         },
       });
       setIsEditing(false);
@@ -194,10 +191,6 @@ export function PresetList({
         }
         pointScale={
           presets?.find((p) => p.presetId === editingPresetId)?.pointScale || 1
-        }
-        statistics={
-          presets?.find((p) => p.presetId === editingPresetId)?.statistics ??
-          Statistics.NONE
         }
         isPending={updatePreset.isPending}
         error={updatePreset.error}

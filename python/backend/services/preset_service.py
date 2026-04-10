@@ -43,7 +43,6 @@ async def add_preset_service(
         timer=dto.timer,
         team_size=dto.team_size,
         point_scale=dto.point_scale,
-        statistics=dto.statistics,
     )
     preset_repo.add(preset)
     await preset_repo.commit()

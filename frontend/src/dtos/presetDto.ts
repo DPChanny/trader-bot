@@ -2,17 +2,6 @@ import type { PresetMemberDetailDTO } from "./presetMemberDto";
 import type { TierDTO } from "./tierDto";
 import type { PositionDTO } from "./positionDto";
 
-export enum Statistics {
-  NONE = 0,
-  LOL = 1,
-  VAL = 2,
-}
-export const StatisticsDisplay: { [key in Statistics]: string } = {
-  [Statistics.NONE]: "",
-  [Statistics.LOL]: "League of Legends",
-  [Statistics.VAL]: "VALORANT",
-};
-
 export interface PresetDTO {
   presetId: number;
   guildId: string;
@@ -21,7 +10,6 @@ export interface PresetDTO {
   timer: number;
   teamSize: number;
   pointScale: number;
-  statistics: Statistics;
 }
 
 export interface PresetDetailDTO extends PresetDTO {
@@ -36,7 +24,6 @@ export interface AddPresetDTO {
   timer: number;
   teamSize: number;
   pointScale?: number;
-  statistics?: Statistics;
 }
 
 export interface UpdatePresetDTO {
@@ -45,5 +32,4 @@ export interface UpdatePresetDTO {
   timer?: number;
   teamSize?: number;
   pointScale?: number;
-  statistics?: Statistics;
 }
