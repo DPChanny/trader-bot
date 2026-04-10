@@ -1,13 +1,10 @@
-import styles from "@/styles/components/commons/header.module.css";
+import { route } from "preact-router";
+import styles from "@/styles/components/header.module.css";
 import { Button, DangerButton } from "@/components/commons/button";
-
-interface HeaderUser {
-  name: string;
-  avatarUrl: string | null;
-}
+import type { UserDetailDTO } from "@/dtos/userDto";
 
 interface HeaderProps {
-  user?: HeaderUser;
+  user?: UserDetailDTO;
   onLogout?: () => void;
   onLogin?: () => void;
 }
@@ -16,22 +13,26 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
   return (
     <header className={styles.header}>
       <div className={styles.headerContent}>
-        <div className={styles.headerLogo}>
+        <button
+          type="button"
+          className={styles.headerLogo}
+          onClick={() => route("/")}
+        >
           <span className={styles.headerIcon}>🎮</span>
           <span className={styles.headerText}>Trader</span>
-        </div>
+        </button>
 
         <div className={styles.headerUser}>
           {user ? (
             <>
-              {user.avatarUrl && (
+              {user.discordUser.avatarUrl && (
                 <img
                   className={styles.userAvatar}
-                  src={user.avatarUrl}
-                  alt={user.name}
+                  src={user.discordUser.avatarUrl}
+                  alt={user.discordUser.name}
                 />
               )}
-              <span className={styles.userName}>{user.name}</span>
+              <span className={styles.userName}>{user.discordUser.name}</span>
               {onLogout && (
                 <DangerButton variantSize="small" onClick={onLogout}>
                   로그아웃

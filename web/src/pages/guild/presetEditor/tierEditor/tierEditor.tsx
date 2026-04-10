@@ -6,7 +6,7 @@ import { Bar } from "@/components/commons/bar";
 import { AddTierModal } from "./addTierModal";
 import { ConfirmModal } from "@/components/commons/modal";
 import { TierCard } from "./tierCard";
-import styles from "@/styles/pages/preset/tier/tierList.module.css";
+import styles from "@/styles/pages/guild/presetEditor/tierEditor/tierList.module.css";
 import { Section } from "@/components/commons/section";
 import type { TierDTO } from "@/dtos/tierDto";
 

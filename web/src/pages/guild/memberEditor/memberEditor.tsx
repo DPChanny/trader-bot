@@ -9,14 +9,14 @@ import { Error } from "@/components/commons/error";
 import { MemberPanel } from "./memberPanel";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 
-import styles from "@/styles/pages/member/memberPage.module.css";
+import styles from "@/styles/pages/guild/memberEditor/memberPage.module.css";
 import { Bar } from "@/components/commons/bar";
 
-interface MemberPageProps {
+interface MemberEditorProps {
   guildId: string;
 }
 
-function MemberPageContent({ guildId }: MemberPageProps) {
+function MemberPageContent({ guildId }: MemberEditorProps) {
   const { selectedMemberId, setSelectedMemberId } = useMemberPageContext();
 
   const { data: members, isLoading, error } = useMembers(guildId);
@@ -74,7 +74,7 @@ function MemberPageContent({ guildId }: MemberPageProps) {
   );
 }
 
-export function MemberEditor({ guildId }: MemberPageProps) {
+export function MemberEditor({ guildId }: MemberEditorProps) {
   return (
     <MemberPageProvider>
       <MemberPageContent guildId={guildId} />

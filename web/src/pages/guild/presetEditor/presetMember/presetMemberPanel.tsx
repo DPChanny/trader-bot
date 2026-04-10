@@ -21,7 +21,7 @@ import { Label } from "@/components/commons/label";
 import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
-import styles from "@/styles/components/memberEditor.module.css";
+import styles from "@/styles/pages/guild/memberEditor.module.css";
 
 interface PresetMemberPanelProps {
   guildId: string;

@@ -1,27 +1,22 @@
 import { useState } from "preact/hooks";
 import { route } from "preact-router";
 import { Section } from "@/components/commons/section";
+import { Bar } from "@/components/commons/bar";
 import { PrimaryButton } from "@/components/commons/button";
 import { ConfirmModal } from "@/components/commons/modal";
 import { EditPresetModal } from "./editPresetModal";
 import { AddPresetModal } from "./addPresetModal";
 import { PresetCard } from "./presetCard";
 import { usePresets, useDeletePreset, useUpdatePreset } from "@/hooks/preset";
-import styles from "@/styles/components/sidebar/presetList.module.css";
+import styles from "@/styles/components/sidebar/preset/presetList.module.css";
 import type { PresetDTO } from "@/dtos/presetDto";
 
-interface SidebarPresetListProps {
+interface PresetListProps {
   guildId: string;
   selectedPresetId: number | null;
-  editor: "preset" | "member" | null;
 }
 
-export function PresetList({
-  guildId,
-  selectedPresetId,
-  editor,
-}: SidebarPresetListProps) {
-  const [open, setOpen] = useState(true);
+export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
   const [editingPreset, setEditingPreset] = useState<PresetDTO | null>(null);
   const [deletingPresetId, setDeletingPresetId] = useState<number | null>(null);
   const [isCreatingPreset, setIsCreatingPreset] = useState(false);
@@ -32,10 +27,6 @@ export function PresetList({
 
   const handleSelectPreset = (presetId: number) => {
     route(`/guild/${guildId}/preset/${presetId}`);
-  };
-
-  const handleAddPreset = () => {
-    setIsCreatingPreset(true);
   };
 
   const handleUpdate = async (
@@ -69,68 +60,35 @@ export function PresetList({
 
   return (
     <>
-      <Section
-        variantTone="ghost"
-        variantLayout="column"
-        className={styles.presetListSection}
-      >
-        <Section
-          variantTone="ghost"
-          variantLayout="row"
-          className={styles.presetHeader}
-        >
-          <button
-            type="button"
-            className={styles.presetToggle}
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-          >
-            <span className={`${styles.arrow} ${open ? styles.arrowOpen : ""}`}>
-              ▶
-            </span>
-            <span
-              className={`${styles.presetLabel} ${
-                editor === "preset" ? styles.presetLabelActive : ""
-              }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                route(`/guild/${guildId}`);
-              }}
-            >
-              프리셋
-            </span>
-          </button>
+      <Section variantTone="ghost" variantIntent="secondary">
+        <Section variantTone="ghost" variantLayout="row">
+          <h3 className={styles.title}>프리셋</h3>
           <PrimaryButton
             variantSize="small"
             variantTone="outline"
-            onClick={handleAddPreset}
+            onClick={() => setIsCreatingPreset(true)}
             title="프리셋 추가"
-            className={styles.addBtn}
           >
             +
           </PrimaryButton>
         </Section>
-
-        {open && (
-          <Section
-            variantTone="ghost"
-            variantLayout="column"
-            className={styles.presetItems}
-          >
-            {presets.map((preset) => (
-              <PresetCard
-                key={preset.presetId}
-                preset={preset}
-                isActive={
-                  selectedPresetId === preset.presetId && editor === "preset"
-                }
-                onClick={() => handleSelectPreset(preset.presetId)}
-                onEdit={() => setEditingPreset(preset)}
-                onDelete={() => setDeletingPresetId(preset.presetId)}
-              />
-            ))}
-          </Section>
-        )}
+        <Bar />
+        <Section
+          variantTone="ghost"
+          variantLayout="column"
+          className={styles.list}
+        >
+          {presets.map((preset) => (
+            <PresetCard
+              key={preset.presetId}
+              preset={preset}
+              isActive={selectedPresetId === preset.presetId}
+              onClick={() => handleSelectPreset(preset.presetId)}
+              onEdit={() => setEditingPreset(preset)}
+              onDelete={() => setDeletingPresetId(preset.presetId)}
+            />
+          ))}
+        </Section>
       </Section>
 
       {editingPreset && (

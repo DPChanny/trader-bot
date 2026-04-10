@@ -1,0 +1,26 @@
+.card {
+  padding: var(--padding-xs) var(--padding-sm) !important;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.actions {
+  gap: var(--gap-xs);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.card:hover .actions {
+  opacity: 1;
+}

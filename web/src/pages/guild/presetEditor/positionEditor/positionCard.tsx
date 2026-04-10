@@ -9,7 +9,7 @@ import { Input } from "@/components/commons/input";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import type { PositionDTO } from "@/dtos/positionDto";
-import styles from "@/styles/pages/preset/position/positionCard.module.css";
+import styles from "@/styles/pages/guild/presetEditor/positionEditor/positionCard.module.css";
 
 interface PositionCardProps {
   position: PositionDTO;

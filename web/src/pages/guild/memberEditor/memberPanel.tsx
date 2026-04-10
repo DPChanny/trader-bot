@@ -9,15 +9,15 @@ import { Section } from "@/components/commons/section";
 import { Toggle } from "@/components/commons/toggle";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 
-import styles from "@/styles/components/memberEditor.module.css";
+import styles from "@/styles/pages/guild/memberEditor.module.css";
 
-interface MemberEditorProps {
+interface MemberPanelProps {
   guildId: string;
   member: MemberDetailDTO;
   onClose: () => void;
 }
 
-export function MemberPanel({ guildId, member, onClose }: MemberEditorProps) {
+export function MemberPanel({ guildId, member, onClose }: MemberPanelProps) {
   const updateMember = useUpdateMember();
 
   const [alias, setAlias] = useState(member.alias ?? "");

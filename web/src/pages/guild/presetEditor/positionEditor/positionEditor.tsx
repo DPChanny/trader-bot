@@ -8,7 +8,7 @@ import { Section } from "@/components/commons/section";
 import { AddPositionModal } from "./addPositionModal";
 import { PositionCard } from "./positionCard";
 
-import styles from "@/styles/pages/preset/position/positionList.module.css";
+import styles from "@/styles/pages/guild/presetEditor/positionEditor/positionList.module.css";
 
 interface PositionEditorProps {
   guildId: string;

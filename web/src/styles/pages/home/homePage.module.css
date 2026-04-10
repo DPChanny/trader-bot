@@ -1,0 +1,13 @@
+.homeBody {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+  min-width: 0;
+}
+
+.homeContent {
+  flex: 1;
+  min-width: 0;
+}

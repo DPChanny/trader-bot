@@ -13,14 +13,14 @@ import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
-import styles from "@/styles/pages/preset/presetPage.module.css";
+import styles from "@/styles/pages/guild/presetEditor/presetPage.module.css";
 
-interface PresetPageProps {
+interface PresetEditorProps {
   guildId: string;
   presetId: number | null;
 }
 
-export function PresetEditor({ guildId, presetId }: PresetPageProps) {
+export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
   const [selectedPresetMemberId, setSelectedPresetMemberId] = useState<
     number | null
   >(null);

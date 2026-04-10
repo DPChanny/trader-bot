@@ -1,6 +1,6 @@
 ﻿.panelSection {
-  flex: 1;
-  min-width: 20%;
+  flex: none;
+  width: 24rem;
   min-height: 0;
 }
 
