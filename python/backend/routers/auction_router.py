@@ -5,7 +5,7 @@ from shared.dtos.auction_dto import AuctionDTO
 from shared.utils.database import get_session
 
 from ..services.auction_service import add_auction_service
-from ..utils.token import TokenPayload, verify_token
+from ..utils.token import verify_token
 
 
 auction_router = APIRouter(
@@ -18,6 +18,6 @@ async def add_auction_route(
     guild_id: int,
     preset_id: int,
     session: AsyncSession = Depends(get_session),
-    token_payload: TokenPayload = Depends(verify_token),
+    discord_id: int = Depends(verify_token),
 ) -> AuctionDTO:
-    return await add_auction_service(guild_id, preset_id, session, token_payload)
+    return await add_auction_service(guild_id, discord_id, preset_id, session)

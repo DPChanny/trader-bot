@@ -14,24 +14,23 @@ from shared.repositories.tier_repository import TierRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
-from ..utils.token import TokenPayload
 
 
 @service_exception_handler
 async def add_tier_service(
     guild_id: int,
+    discord_id: int,
     preset_id: int,
     dto: AddTierDTO,
-    db: AsyncSession,
-    payload: TokenPayload,
+    session: AsyncSession,
 ) -> TierDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
-    preset_repo = PresetRepository(db)
+    preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    tier_repo = TierRepository(db)
+    tier_repo = TierRepository(session)
     tier = Tier(preset_id=preset_id, name=dto.name)
     tier_repo.add(tier)
     await tier_repo.commit()
@@ -43,15 +42,15 @@ async def add_tier_service(
 @service_exception_handler
 async def update_tier_service(
     guild_id: int,
+    discord_id: int,
     preset_id: int,
     tier_id: int,
     dto: UpdateTierDTO,
-    db: AsyncSession,
-    payload: TokenPayload,
+    session: AsyncSession,
 ) -> TierDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
-    tier_repo = TierRepository(db)
+    tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
         raise HTTPException(status_code=404, detail="Tier not found")
@@ -68,11 +67,11 @@ async def update_tier_service(
 
 @service_exception_handler
 async def delete_tier_service(
-    guild_id: int, preset_id: int, tier_id: int, db: AsyncSession, payload: TokenPayload
+    guild_id: int, discord_id: int, preset_id: int, tier_id: int, session: AsyncSession
 ) -> None:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
-    tier_repo = TierRepository(db)
+    tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
         raise HTTPException(status_code=404, detail="Tier not found")

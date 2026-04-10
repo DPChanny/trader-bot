@@ -10,21 +10,21 @@ from ..utils.token import decode_token
 
 
 async def _resolve_member(
-    jwt_token: str | None,
+    token: str | None,
     preset_id: int,
     guild_id: int,
     preset_member_repo: PresetMemberRepository,
 ) -> tuple[int | None, bool, int | None]:
-    if not jwt_token:
+    if not token:
         return None, False, None
 
     try:
-        token_payload = decode_token(jwt_token)
+        discord_id = decode_token(token)
     except Exception:
         return None, False, None
 
     pm = await preset_member_repo.get_by_discord_user_id(
-        token_payload.discord_id, preset_id, guild_id
+        discord_id, preset_id, guild_id
     )
     if pm is None:
         return None, False, None
@@ -35,7 +35,7 @@ async def _resolve_member(
 async def handle_websocket_connect(
     websocket: WebSocket,
     auction_id: str,
-    jwt_token: str | None,
+    token: str | None,
     session: AsyncSession,
 ) -> tuple[Auction | None, int | None, bool, int | None]:
     auction = auction_manager.get_auction(auction_id)
@@ -51,7 +51,7 @@ async def handle_websocket_connect(
     guild_id: int = auction.preset_snapshot["guild_id"]
     preset_member_repo = PresetMemberRepository(session)
     member_id, is_leader, _ = await _resolve_member(
-        jwt_token, preset_id, guild_id, preset_member_repo
+        token, preset_id, guild_id, preset_member_repo
     )
 
     team_id: int | None = None

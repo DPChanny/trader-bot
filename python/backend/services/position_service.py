@@ -14,18 +14,17 @@ from shared.repositories.preset_repository import PresetRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
-from ..utils.token import TokenPayload
 
 
 @service_exception_handler
 async def add_position_service(
     guild_id: int,
+    discord_id: int,
     preset_id: int,
     dto: AddPositionDTO,
     session: AsyncSession,
-    token_payload: TokenPayload,
 ) -> PositionDTO:
-    await verify_role(guild_id, token_payload.discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
@@ -47,13 +46,13 @@ async def add_position_service(
 @service_exception_handler
 async def update_position_service(
     guild_id: int,
+    discord_id: int,
     preset_id: int,
     position_id: int,
     dto: UpdatePositionDTO,
     session: AsyncSession,
-    token_payload: TokenPayload,
 ) -> PositionDTO:
-    await verify_role(guild_id, token_payload.discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
@@ -73,12 +72,12 @@ async def update_position_service(
 @service_exception_handler
 async def delete_position_service(
     guild_id: int,
+    discord_id: int,
     preset_id: int,
     position_id: int,
     session: AsyncSession,
-    token_payload: TokenPayload,
 ) -> None:
-    await verify_role(guild_id, token_payload.discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)

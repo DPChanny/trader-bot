@@ -4,15 +4,8 @@ from datetime import UTC, datetime, timedelta
 import jwt
 from fastapi import Header, HTTPException
 from loguru import logger
-from pydantic import BaseModel
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
-
-
-class TokenPayload(BaseModel):
-    discord_id: int
-    exp: int
-    iat: int
 
 
 ACCESS_TOKEN_EXPIRATION_MINUTES = 15
@@ -48,21 +41,21 @@ def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-def decode_token(token: str) -> TokenPayload:
+def decode_token(token: str) -> int:
     try:
-        token_payload = jwt.decode(
+        data = jwt.decode(
             token,
             get_jwt_secret(),
             algorithms=[get_jwt_algorithm()],
         )
-        return TokenPayload(**token_payload)
+        return int(data["discord_id"])
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired") from None
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token") from None
 
 
-async def verify_token(authorization: str = Header(None)) -> TokenPayload:
+async def verify_token(authorization: str = Header(None)) -> int:
     if not authorization:
         logger.warning("Auth failed: reason=missing_header")
         raise HTTPException(status_code=401, detail="Auth failed")

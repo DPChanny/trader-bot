@@ -11,7 +11,7 @@ from ..services.preset_member_position_service import (
     add_preset_member_position_service,
     delete_preset_member_position_service,
 )
-from ..utils.token import TokenPayload, verify_token
+from ..utils.token import verify_token
 
 
 preset_member_position_router = APIRouter(
@@ -27,10 +27,10 @@ async def add_preset_member_position_route(
     preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
     session: AsyncSession = Depends(get_session),
-    token_payload: TokenPayload = Depends(verify_token),
+    discord_id: int = Depends(verify_token),
 ):
     return await add_preset_member_position_service(
-        guild_id, preset_id, preset_member_id, dto, session, token_payload
+        guild_id, discord_id, preset_id, preset_member_id, dto, session
     )
 
 
@@ -40,8 +40,8 @@ async def delete_preset_member_position_route(
     preset_member_id: int,
     preset_member_position_id: int,
     session: AsyncSession = Depends(get_session),
-    token_payload: TokenPayload = Depends(verify_token),
+    discord_id: int = Depends(verify_token),
 ):
     return await delete_preset_member_position_service(
-        guild_id, preset_member_id, preset_member_position_id, session, token_payload
+        guild_id, discord_id, preset_member_id, preset_member_position_id, session
     )

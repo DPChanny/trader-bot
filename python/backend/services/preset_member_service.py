@@ -16,21 +16,20 @@ from shared.repositories.tier_repository import TierRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
-from ..utils.token import TokenPayload
 
 
 @service_exception_handler
 async def add_preset_member_service(
     guild_id: int,
+    discord_id: int,
     preset_id: int,
     dto: AddPresetMemberDTO,
-    db: AsyncSession,
-    payload: TokenPayload,
+    session: AsyncSession,
 ) -> PresetMemberDetailDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
-    member_repo = MemberRepository(db)
-    preset_repo = PresetRepository(db)
+    member_repo = MemberRepository(session)
+    preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
@@ -38,11 +37,11 @@ async def add_preset_member_service(
         raise HTTPException(status_code=404, detail="Member not found")
 
     if dto.tier_id is not None:
-        tier_repo = TierRepository(db)
+        tier_repo = TierRepository(session)
         if await tier_repo.get_by_id(dto.tier_id, preset_id, guild_id) is None:
             raise HTTPException(status_code=404, detail="Tier not found")
 
-    preset_member_repo = PresetMemberRepository(db)
+    preset_member_repo = PresetMemberRepository(session)
     preset_member = PresetMember(
         preset_id=preset_id,
         member_id=dto.member_id,
@@ -62,22 +61,22 @@ async def add_preset_member_service(
 @service_exception_handler
 async def update_preset_member_service(
     guild_id: int,
+    discord_id: int,
     preset_id: int,
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
-    db: AsyncSession,
-    payload: TokenPayload,
+    session: AsyncSession,
 ) -> PresetMemberDetailDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
-    preset_member_repo = PresetMemberRepository(db)
+    preset_member_repo = PresetMemberRepository(session)
     preset_member = await preset_member_repo.get_detail_by_id(
         preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
-    tier_repo = TierRepository(db)
+    tier_repo = TierRepository(session)
     for key, value in dto.model_dump(exclude_unset=True).items():
         if key == "tier_id" and value is not None:
             tier = await tier_repo.get_by_id(value, preset_id, guild_id)
@@ -95,14 +94,14 @@ async def update_preset_member_service(
 @service_exception_handler
 async def delete_preset_member_service(
     guild_id: int,
+    discord_id: int,
     preset_id: int,
     preset_member_id: int,
-    db: AsyncSession,
-    payload: TokenPayload,
+    session: AsyncSession,
 ) -> None:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
-    preset_member_repo = PresetMemberRepository(db)
+    preset_member_repo = PresetMemberRepository(session)
     preset_member = await preset_member_repo.get_by_id(
         preset_member_id, preset_id, guild_id
     )

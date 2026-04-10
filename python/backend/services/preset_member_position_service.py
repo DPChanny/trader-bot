@@ -16,28 +16,27 @@ from shared.repositories.preset_member_repository import PresetMemberRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
-from ..utils.token import TokenPayload
 
 
 @service_exception_handler
 async def add_preset_member_position_service(
     guild_id: int,
+    discord_id: int,
     preset_id: int,
     preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
-    db: AsyncSession,
-    payload: TokenPayload,
+    session: AsyncSession,
 ) -> PresetMemberPositionDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
-    preset_member_repo = PresetMemberRepository(db)
+    preset_member_repo = PresetMemberRepository(session)
     if (
         await preset_member_repo.get_by_id(preset_member_id, preset_id, guild_id)
         is None
     ):
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
-    pmp_repo = PresetMemberPositionRepository(db)
+    pmp_repo = PresetMemberPositionRepository(session)
     if await pmp_repo.get_by_composite(preset_member_id, dto.position_id) is not None:
         raise HTTPException(
             status_code=400,
@@ -67,14 +66,14 @@ async def add_preset_member_position_service(
 @service_exception_handler
 async def delete_preset_member_position_service(
     guild_id: int,
+    discord_id: int,
     preset_member_id: int,
     preset_member_position_id: int,
-    db: AsyncSession,
-    payload: TokenPayload,
+    session: AsyncSession,
 ) -> None:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
-    pmp_repo = PresetMemberPositionRepository(db)
+    pmp_repo = PresetMemberPositionRepository(session)
     preset_member_position = await pmp_repo.get_by_id(
         preset_member_position_id, preset_member_id, guild_id
     )

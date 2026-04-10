@@ -13,7 +13,7 @@ from ..services.preset_member_service import (
     delete_preset_member_service,
     update_preset_member_service,
 )
-from ..utils.token import TokenPayload, verify_token
+from ..utils.token import verify_token
 
 
 preset_member_router = APIRouter(
@@ -28,10 +28,10 @@ async def add_preset_member_route(
     preset_id: int,
     dto: AddPresetMemberDTO,
     session: AsyncSession = Depends(get_session),
-    token_payload: TokenPayload = Depends(verify_token),
+    discord_id: int = Depends(verify_token),
 ):
     return await add_preset_member_service(
-        guild_id, preset_id, dto, session, token_payload
+        guild_id, discord_id, preset_id, dto, session
     )
 
 
@@ -42,10 +42,10 @@ async def update_preset_member_route(
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
     session: AsyncSession = Depends(get_session),
-    token_payload: TokenPayload = Depends(verify_token),
+    discord_id: int = Depends(verify_token),
 ):
     return await update_preset_member_service(
-        guild_id, preset_id, preset_member_id, dto, session, token_payload
+        guild_id, discord_id, preset_id, preset_member_id, dto, session
     )
 
 
@@ -55,8 +55,8 @@ async def delete_preset_member_route(
     preset_id: int,
     preset_member_id: int,
     session: AsyncSession = Depends(get_session),
-    token_payload: TokenPayload = Depends(verify_token),
+    discord_id: int = Depends(verify_token),
 ):
     return await delete_preset_member_service(
-        guild_id, preset_id, preset_member_id, session, token_payload
+        guild_id, discord_id, preset_id, preset_member_id, session
     )

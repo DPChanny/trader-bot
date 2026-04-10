@@ -13,7 +13,7 @@ from ..services.tier_service import (
     delete_tier_service,
     update_tier_service,
 )
-from ..utils.token import TokenPayload, verify_token
+from ..utils.token import verify_token
 
 
 tier_router = APIRouter(
@@ -27,9 +27,9 @@ async def add_tier_route(
     preset_id: int,
     dto: AddTierDTO,
     session: AsyncSession = Depends(get_session),
-    token_payload: TokenPayload = Depends(verify_token),
+    discord_id: int = Depends(verify_token),
 ):
-    return await add_tier_service(guild_id, preset_id, dto, session, token_payload)
+    return await add_tier_service(guild_id, discord_id, preset_id, dto, session)
 
 
 @tier_router.patch("/{tier_id}", response_model=TierDTO)
@@ -39,10 +39,10 @@ async def update_tier_route(
     tier_id: int,
     dto: UpdateTierDTO,
     session: AsyncSession = Depends(get_session),
-    token_payload: TokenPayload = Depends(verify_token),
+    discord_id: int = Depends(verify_token),
 ):
     return await update_tier_service(
-        guild_id, preset_id, tier_id, dto, session, token_payload
+        guild_id, discord_id, preset_id, tier_id, dto, session
     )
 
 
@@ -52,8 +52,6 @@ async def delete_tier_route(
     preset_id: int,
     tier_id: int,
     session: AsyncSession = Depends(get_session),
-    token_payload: TokenPayload = Depends(verify_token),
+    discord_id: int = Depends(verify_token),
 ):
-    return await delete_tier_service(
-        guild_id, preset_id, tier_id, session, token_payload
-    )
+    return await delete_tier_service(guild_id, discord_id, preset_id, tier_id, session)

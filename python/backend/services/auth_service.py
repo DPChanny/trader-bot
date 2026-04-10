@@ -63,10 +63,10 @@ async def callback_service(
 async def refresh_token_service(dto: RefreshDTO, session: AsyncSession) -> dict:
     from fastapi import HTTPException
 
-    token_payload = decode_token(dto.refresh_token)
+    discord_id = decode_token(dto.refresh_token)
 
     user_repo = UserRepository(session)
-    user = await user_repo.get_by_id(token_payload.discord_id)
+    user = await user_repo.get_by_id(discord_id)
     if user is None or user.refresh_token != hash_token(dto.refresh_token):
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
