@@ -22,29 +22,28 @@ import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
 import styles from "@/styles/components/memberEditor.module.css";
-import { useGuildContext } from "@/contexts/guildContext";
-import { usePresetPageContext } from "./presetContext";
 
-interface PresetMemberEditorProps {
+interface PresetMemberPanelProps {
+  guildId: string;
+  presetId: number;
   presetMember: PresetMemberDetailDTO;
   tiers: TierDTO[];
   positions: PositionDTO[];
+  setSelectedPresetMemberId: (id: number | null) => void;
+  addMemberIdToRemoving: (memberId: number) => void;
+  removeMemberIdFromRemoving: (memberId: number) => void;
 }
 
-export function PresetMemberEditor({
+export function PresetMemberPanel({
+  guildId,
+  presetId,
   presetMember,
   tiers,
   positions,
-}: PresetMemberEditorProps) {
-  const { guild } = useGuildContext();
-  const guildId = guild?.discordId ?? null;
-  const {
-    selectedPresetId: presetId,
-    setSelectedPresetMemberId,
-    addMemberIdToRemoving,
-    removeMemberIdFromRemoving,
-  } = usePresetPageContext();
-
+  setSelectedPresetMemberId,
+  addMemberIdToRemoving,
+  removeMemberIdFromRemoving,
+}: PresetMemberPanelProps) {
   const updatePresetMember = useUpdatePresetMember();
   const removePresetMember = useRemovePresetMember();
   const addPresetMemberPosition = useAddPresetMemberPosition();

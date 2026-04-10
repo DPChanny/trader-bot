@@ -4,20 +4,22 @@ import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
 import { useAddTier } from "@/hooks/tier";
-import { useGuildContext } from "@/contexts/guildContext";
-import { usePresetPageContext } from "../presetContext";
 
 const INITIAL_STATE = { tierName: "", tierIconUrl: "" };
 
 interface AddTierModalProps {
+  guildId: string;
+  presetId: number;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function AddTierModal({ isOpen, onClose }: AddTierModalProps) {
-  const { guild } = useGuildContext();
-  const guildId = guild?.discordId ?? null;
-  const { selectedPresetId: presetId } = usePresetPageContext();
+export function AddTierModal({
+  guildId,
+  presetId,
+  isOpen,
+  onClose,
+}: AddTierModalProps) {
   const [tierName, setTierName] = useState(INITIAL_STATE.tierName);
   const [tierIconUrl, setTierIconUrl] = useState(INITIAL_STATE.tierIconUrl);
   const addTier = useAddTier();

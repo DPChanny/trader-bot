@@ -2,12 +2,10 @@ import { render } from "preact";
 import { useEffect } from "preact/hooks";
 import Router from "preact-router";
 import { QueryClientProvider } from "@tanstack/preact-query";
-import { LoginPage } from "@/pages/auth/loginPage";
 import { GuildPage } from "@/pages/guild/guildPage";
-import { PresetPage } from "@/pages/preset/presetPage";
-import { MemberPage } from "@/pages/member/memberPage";
 import { AuctionPage } from "@/pages/auction/auctionPage";
 import { Header } from "@/components/commons/header";
+import { Sidebar } from "@/components/sidebar/sidebar";
 import { queryClient } from "@/utils/query";
 import {
   removeAuthToken,
@@ -16,96 +14,110 @@ import {
   setAuthToken,
   setRefreshToken,
 } from "@/utils/auth";
-import { useAutoRefreshToken } from "@/hooks/auth";
-import { GuildProvider } from "@/contexts/guildContext";
+import { useAutoRefreshToken, useLogin } from "@/hooks/auth";
+import { useMe } from "@/hooks/user";
 import { route } from "preact-router";
 import "@/styles/app.css";
 
+function handleLogout() {
+  removeAuthToken();
+  removeRefreshToken();
+  route("/");
+}
+
+// ── 홈 / 루트 ──────────────────────────────────────────────────────────────
 function Root({}: { path?: string }) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
     const refreshToken = params.get("refresh_token");
-    if (token) {
-      setAuthToken(token);
-    }
-    if (refreshToken) {
-      setRefreshToken(refreshToken);
-    }
-    route(isAuthenticated() ? "/guild" : "/auth/login", true);
+    if (token) setAuthToken(token);
+    if (refreshToken) setRefreshToken(refreshToken);
   }, []);
-  return null;
-}
 
-function App() {
+  if (isAuthenticated()) return null;
+
   return (
-    <Router>
-      <Root path="/" />
-      <LoginPage path="/auth/login" />
-      <GuildPageWrapper path="/guild" />
-      <MemberPageWrapper path="/member" />
-      <PresetPageWrapper path="/preset" />
-      <AuctionPageWrapper path="/auction/:auctionId" />
-    </Router>
+    <main className="app-main app-home">
+      <p>Discord 계정으로 로그인하여 이용해주세요.</p>
+    </main>
   );
 }
 
-interface PageWrapperProps {
+// ── GuildPage 라우트 래퍼 ────────────────────────────────────────────────────
+interface GuildPresetRouteProps {
   path?: string;
+  guildId?: string;
+  presetId?: string;
 }
 
-function handleLogout() {
-  removeAuthToken();
-  removeRefreshToken();
-  sessionStorage.removeItem("guild");
-  route("/");
-}
-
-function GuildPageWrapper({}: PageWrapperProps) {
-  useAutoRefreshToken();
+function GuildPresetRoute({ guildId, presetId }: GuildPresetRouteProps) {
+  if (!guildId) return null;
   return (
-    <div className="app-container">
-      <Header currentPage="guild" onLogout={handleLogout} />
-      <GuildPage />
-    </div>
+    <GuildPage
+      guildId={guildId}
+      subPage="preset"
+      presetId={presetId ? parseInt(presetId, 10) : null}
+    />
   );
 }
 
-function MemberPageWrapper({}: PageWrapperProps) {
-  useAutoRefreshToken();
-  return (
-    <div className="app-container">
-      <Header currentPage="member" onLogout={handleLogout} />
-      <MemberPage />
-    </div>
-  );
+interface GuildMemberRouteProps {
+  path?: string;
+  guildId?: string;
 }
 
-function PresetPageWrapper({}: PageWrapperProps) {
-  useAutoRefreshToken();
-  return (
-    <div className="app-container">
-      <Header currentPage="preset" onLogout={handleLogout} />
-      <PresetPage />
-    </div>
-  );
+function GuildMemberRoute({ guildId }: GuildMemberRouteProps) {
+  if (!guildId) return null;
+  return <GuildPage guildId={guildId} subPage="member" presetId={null} />;
 }
 
-interface AuctionPageWrapperProps {
+interface AuctionLayoutProps {
   path?: string;
   auctionId?: string;
 }
 
-function AuctionPageWrapper({ auctionId }: AuctionPageWrapperProps) {
+function AuctionLayout({ auctionId }: AuctionLayoutProps) {
   const id = auctionId ? parseInt(auctionId, 10) : undefined;
-  return <AuctionPage auctionId={id} />;
+  return (
+    <main className="app-main">
+      <AuctionPage auctionId={id} />
+    </main>
+  );
+}
+
+// ── AppShell ─────────────────────────────────────────────────────────────────
+function AppShell() {
+  useAutoRefreshToken();
+  const { data: user } = useMe();
+  const login = useLogin();
+
+  return (
+    <div className="app-container">
+      <Header
+        user={user?.discordUser}
+        onLogout={isAuthenticated() ? handleLogout : undefined}
+        onLogin={!isAuthenticated() ? login : undefined}
+      />
+      <div className="app-body">
+        <Sidebar />
+        <div className="app-content">
+          <Router>
+            <Root path="/" />
+            <GuildPresetRoute path="/guild/:guildId/preset" />
+            <GuildPresetRoute path="/guild/:guildId/preset/:presetId" />
+            <GuildMemberRoute path="/guild/:guildId/member" />
+            <AuctionLayout path="/auction/:auctionId" />
+          </Router>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 render(
   <QueryClientProvider client={queryClient}>
-    <GuildProvider>
-      <App />
-    </GuildProvider>
+    <AppShell />
   </QueryClientProvider>,
   document.getElementById("app")!,
 );

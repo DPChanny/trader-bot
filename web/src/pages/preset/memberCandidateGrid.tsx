@@ -1,28 +1,32 @@
-import { useGuildContext } from "@/contexts/guildContext";
-import { usePresetPageContext } from "./presetContext";
 import { useAddPresetMember } from "@/hooks/presetMember";
 import { MemberGrid } from "@/components/memberGrid";
 import { Error } from "@/components/commons/error";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 interface MemberCandidateGridProps {
+  guildId: string;
+  presetId: number;
   members: MemberDetailDTO[];
+  addingMemberIds: Set<number>;
+  addMemberIdToAdding: (memberId: number) => void;
+  removeMemberIdFromAdding: (memberId: number) => void;
 }
 
-export function MemberCandidateGrid({ members }: MemberCandidateGridProps) {
-  const { guild } = useGuildContext();
-  const guildId = guild?.discordId ?? null;
-  const { selectedPresetId, addMemberIdToAdding, removeMemberIdFromAdding } =
-    usePresetPageContext();
+export function MemberCandidateGrid({
+  guildId,
+  presetId,
+  members,
+  addMemberIdToAdding,
+  removeMemberIdFromAdding,
+}: MemberCandidateGridProps) {
   const addPresetMember = useAddPresetMember();
 
   const handleClick = async (memberId: number) => {
-    if (!selectedPresetId || !guildId) return;
     addMemberIdToAdding(memberId);
     try {
       await addPresetMember.mutateAsync({
         guildId,
-        presetId: selectedPresetId,
+        presetId,
         dto: { memberId, tierId: null, isLeader: false },
       });
     } catch (err) {

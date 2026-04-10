@@ -1,7 +1,22 @@
 import styles from "@/styles/components/memberCard.module.css";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
+import { Badge } from "@/components/commons/badge";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
+
+const ROLE_LABEL: Record<number, string> = {
+  3: "OWNER",
+  2: "ADMIN",
+  1: "EDITOR",
+  0: "VIEWER",
+};
+
+const ROLE_COLOR: Record<number, "gold" | "red" | "blue" | "gray"> = {
+  3: "gold",
+  2: "red",
+  1: "blue",
+  0: "gray",
+};
 
 export interface MemberCardProps {
   member: MemberDetailDTO;
@@ -11,12 +26,25 @@ export interface MemberCardProps {
 export function MemberCard({ member, isActive }: MemberCardProps) {
   const displayName = member.alias || member.name || member.discordUser.name;
   const avatarUrl = member.avatarUrl || member.discordUser.avatarUrl;
+  const roleLabel = ROLE_LABEL[member.role];
+  const roleColor = ROLE_COLOR[member.role];
   return (
     <Card
       variantColor="gray"
       variantActive={isActive}
       className={styles.memberCard}
     >
+      {roleLabel && (
+        <div className={styles.badgesRight}>
+          <Badge
+            variantColor={roleColor}
+            variantSize="small"
+            variantTone="outline"
+          >
+            {roleLabel}
+          </Badge>
+        </div>
+      )}
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
           {avatarUrl ? (

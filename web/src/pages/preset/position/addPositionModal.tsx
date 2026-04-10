@@ -4,20 +4,22 @@ import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
 import { useAddPosition } from "@/hooks/position";
-import { useGuildContext } from "@/contexts/guildContext";
-import { usePresetPageContext } from "../presetContext";
 
 const INITIAL_STATE = { positionName: "", positionIconUrl: "" };
 
 interface AddPositionModalProps {
+  guildId: string;
+  presetId: number;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function AddPositionModal({ isOpen, onClose }: AddPositionModalProps) {
-  const { guild } = useGuildContext();
-  const guildId = guild?.discordId ?? null;
-  const { selectedPresetId: presetId } = usePresetPageContext();
+export function AddPositionModal({
+  guildId,
+  presetId,
+  isOpen,
+  onClose,
+}: AddPositionModalProps) {
   const [positionName, setPositionName] = useState(INITIAL_STATE.positionName);
   const [positionIconUrl, setPositionIconUrl] = useState(
     INITIAL_STATE.positionIconUrl,

@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { route } from "preact-router";
 import { Loading } from "@/components/commons/loading";
 import { PresetCard } from "./presetCard";
 import styles from "@/styles/pages/preset/presetList.module.css";
@@ -10,27 +11,26 @@ import { EditPresetModal } from "./editPresetModal";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
 import { Error } from "@/components/commons/error";
-import { useGuildContext } from "@/contexts/guildContext";
-import { usePresetPageContext } from "./presetContext";
 import type { PresetDTO } from "@/dtos/presetDto";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 
 interface PresetListProps {
+  guildId: string;
   presets: PresetDTO[];
+  selectedPresetId: number | null;
   presetMembers: PresetMemberDetailDTO[] | undefined;
   isLoading: boolean;
+  onOpenCreate: () => void;
 }
 
 export function PresetList({
+  guildId,
   presets,
+  selectedPresetId,
   presetMembers,
   isLoading,
+  onOpenCreate,
 }: PresetListProps) {
-  const { guild } = useGuildContext();
-  const guildId = guild?.discordId ?? null;
-  const { selectedPresetId, setSelectedPresetId, openCreatePreset } =
-    usePresetPageContext();
-
   const [isEditing, setIsEditing] = useState(false);
   const [editingPresetId, setEditingPresetId] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -83,7 +83,7 @@ export function PresetList({
       await deletePreset.mutateAsync({ guildId, presetId: deletingPresetId });
       setShowDeleteConfirm(false);
       if (selectedPresetId === deletingPresetId) {
-        setSelectedPresetId(null);
+        route(`/guild/${guildId}/preset`);
       }
       setDeletingPresetId(null);
     } catch (err) {
@@ -125,7 +125,7 @@ export function PresetList({
         variantIntent="secondary"
       >
         <h3>프리셋 목록</h3>
-        <PrimaryButton onClick={openCreatePreset}>추가</PrimaryButton>
+        <PrimaryButton onClick={onOpenCreate}>추가</PrimaryButton>
       </Section>
       <Bar />
 
@@ -142,7 +142,7 @@ export function PresetList({
               key={preset.presetId}
               preset={preset}
               isActive={selectedPresetId === preset.presetId}
-              onSelect={setSelectedPresetId}
+              onSelect={(id) => route(`/guild/${guildId}/preset/${id}`)}
               onEdit={handleEdit}
               onDelete={handleDeleteClick}
             />

@@ -1,7 +1,5 @@
 import { useState } from "preact/hooks";
 import { useDeleteTier, useUpdateTier } from "@/hooks/tier";
-import { useGuildContext } from "@/contexts/guildContext";
-import { usePresetPageContext } from "../presetContext";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
@@ -13,14 +11,12 @@ import { Section } from "@/components/commons/section";
 import type { TierDTO } from "@/dtos/tierDto";
 
 interface TierListProps {
+  guildId: string;
+  presetId: number;
   tiers: TierDTO[];
 }
 
-export function TierList({ tiers }: TierListProps) {
-  const { guild } = useGuildContext();
-  const guildId = guild?.discordId ?? null;
-  const { selectedPresetId: presetId } = usePresetPageContext();
-
+export function TierList({ guildId, presetId, tiers }: TierListProps) {
   const [showTierForm, setShowTierForm] = useState(false);
   const [editingTierId, setEditingTierId] = useState<number | null>(null);
   const [editingTierName, setEditingTierName] = useState("");
@@ -120,6 +116,8 @@ export function TierList({ tiers }: TierListProps) {
       </Section>
 
       <AddTierModal
+        guildId={guildId}
+        presetId={presetId}
         isOpen={showTierForm}
         onClose={() => setShowTierForm(false)}
       />

@@ -9,8 +9,6 @@ import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
 import { useAddPreset } from "@/hooks/preset";
-import { useGuildContext } from "@/contexts/guildContext";
-import { usePresetPageContext } from "./presetContext";
 
 const INITIAL_STATE = {
   presetName: "",
@@ -20,11 +18,17 @@ const INITIAL_STATE = {
   teamSize: 5,
 };
 
-export function AddPresetModal() {
-  const { guild } = useGuildContext();
-  const guildId = guild?.discordId ?? null;
-  const { isCreatingPreset, closeCreatePreset } = usePresetPageContext();
+interface AddPresetModalProps {
+  guildId: string;
+  isOpen: boolean;
+  onClose: () => void;
+}
 
+export function AddPresetModal({
+  guildId,
+  isOpen,
+  onClose,
+}: AddPresetModalProps) {
   const [presetName, setPresetName] = useState(INITIAL_STATE.presetName);
   const [inputPoints, setInputPoints] = useState(INITIAL_STATE.inputPoints);
   const [pointScale, setPointScale] = useState(INITIAL_STATE.pointScale);
@@ -41,7 +45,7 @@ export function AddPresetModal() {
     setTimer(INITIAL_STATE.timer);
     setTeamSize(INITIAL_STATE.teamSize);
     addPreset.reset();
-    closeCreatePreset();
+    onClose();
   };
 
   const handleSubmit = async (e: Event) => {
@@ -65,7 +69,7 @@ export function AddPresetModal() {
   };
 
   return (
-    <Modal isOpen={isCreatingPreset} onClose={handleClose} title="프리셋 추가">
+    <Modal isOpen={isOpen} onClose={handleClose} title="프리셋 추가">
       <ModalForm onSubmit={handleSubmit}>
         {addPreset.isError ? (
           <ErrorMessage detail={addPreset.error.message}>

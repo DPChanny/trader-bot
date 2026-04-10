@@ -1,114 +1,83 @@
-import { useEffect, useState } from "preact/hooks";
-import { MemberCard } from "@/components/memberCard";
-import { useUpdateMember } from "@/hooks/member";
-import { useGuildContext } from "@/contexts/guildContext";
-import { CloseButton, SaveButton } from "@/components/commons/button";
-import { LabelInput } from "@/components/commons/labelInput";
-import { Error } from "@/components/commons/error";
-import { Bar } from "@/components/commons/bar";
+import { useMemo } from "preact/hooks";
+import { useMembers } from "@/hooks/member";
+import { useMemberPageContext, MemberPageProvider } from "./memberContext";
+import { MemberGrid } from "@/components/memberGrid";
 import { Section } from "@/components/commons/section";
+import { PageLayout, PageContainer } from "@/components/commons/page";
+import { Loading } from "@/components/commons/loading";
+import { Error } from "@/components/commons/error";
+import { MemberPanel } from "./memberPanel";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 
-import styles from "@/styles/components/memberEditor.module.css";
+import styles from "@/styles/pages/member/memberPage.module.css";
+import { Bar } from "@/components/commons/bar";
 
-interface MemberEditorProps {
-  member: MemberDetailDTO;
-  onClose: () => void;
+interface MemberPageProps {
+  guildId: string;
 }
 
-export function MemberEditor({ member, onClose }: MemberEditorProps) {
-  const { guild } = useGuildContext();
-  const guildId = guild?.discordId ?? null;
-  const updateMember = useUpdateMember();
+function MemberPageContent({ guildId }: MemberPageProps) {
+  const { selectedMemberId, setSelectedMemberId } = useMemberPageContext();
 
-  const [alias, setAlias] = useState(member.alias ?? "");
-  const [infoUrl, setInfoUrl] = useState(member.infoUrl ?? "");
+  const { data: members, isLoading, error } = useMembers(guildId);
 
-  useEffect(() => {
-    setAlias(member.alias ?? "");
-    setInfoUrl(member.infoUrl ?? "");
-  }, [member.memberId, member.alias, member.infoUrl]);
+  const sortedMembers = useMemo(
+    () =>
+      members
+        ? [...members].sort(
+            (a: MemberDetailDTO, b: MemberDetailDTO) => b.role - a.role,
+          )
+        : [],
+    [members],
+  );
 
-  const hasChanges =
-    alias !== (member.alias ?? "") || infoUrl !== (member.infoUrl ?? "");
-
-  const handleSave = async () => {
-    if (!guildId) return;
-    try {
-      await updateMember.mutateAsync({
-        guildId,
-        memberId: member.memberId,
-        dto: { alias: alias || null, infoUrl: infoUrl || null },
-      });
-    } catch (err) {
-      console.error("Failed to update member:", err);
-    }
-  };
+  const selectedMember = useMemo(
+    () =>
+      selectedMemberId && members
+        ? members.find((m: MemberDetailDTO) => m.memberId === selectedMemberId)
+        : null,
+    [selectedMemberId, members],
+  );
 
   return (
-    <Section variantIntent="primary" className={styles.panelSection}>
-      <Section variantTone="ghost" variantIntent="secondary">
-        <Section
-          variantTone="ghost"
-          variantLayout="row"
-          variantIntent="secondary"
-        >
-          <h3>{member.alias || member.discordUser.name}</h3>
-          <Section
-            variantTone="ghost"
-            variantLayout="row"
-            variantIntent="secondary"
-          >
-            <SaveButton
-              onClick={handleSave}
-              disabled={updateMember.isPending || !hasChanges}
-            />
-            <CloseButton onClick={onClose} />
+    <PageLayout>
+      <PageContainer>
+        <Section variantIntent="primary" className={styles.mainSection}>
+          <Section variantTone="ghost" variantLayout="row">
+            <h3>멤버 목록</h3>
           </Section>
-        </Section>
-        {updateMember.isError && (
-          <Error detail={updateMember.error?.message}>
-            멤버 정보 수정에 실패했습니다.
-          </Error>
-        )}
-      </Section>
-
-      <Bar />
-
-      <Section
-        className={styles.content}
-        variantTone="ghost"
-        variantIntent="secondary"
-      >
-        <Section variantTone="ghost">
-          <Section variantTone="ghost" className={styles.cardSection}>
-            <MemberCard
-              member={{
-                ...member,
-                alias: alias || null,
-              }}
+          <Bar />
+          {error && (
+            <Error detail={error?.message}>
+              멤버 목록을 불러오는데 실패했습니다.
+            </Error>
+          )}
+          {isLoading && <Loading />}
+          {!isLoading && !error && (
+            <MemberGrid
+              members={sortedMembers}
+              selectedMemberId={selectedMemberId}
+              onMemberClick={setSelectedMemberId}
             />
-          </Section>
-
-          <LabelInput
-            label="별칭 (Alias)"
-            value={alias}
-            onChange={setAlias}
-            placeholder={member.alias || member.name || member.discordUser.name}
-          />
-          <LabelInput
-            label="프로필 링크"
-            value={infoUrl}
-            onChange={setInfoUrl}
-            placeholder="https://op.gg/..."
-          />
-          {infoUrl && (
-            <a href={infoUrl} target="_blank" rel="noopener noreferrer">
-              프로필 보기 →
-            </a>
           )}
         </Section>
-      </Section>
-    </Section>
+
+        {selectedMember && (
+          <MemberPanel
+            guildId={guildId}
+            member={selectedMember}
+            onClose={() => setSelectedMemberId(null)}
+          />
+        )}
+      </PageContainer>
+    </PageLayout>
+  );
+}
+
+export function MemberEditor({ guildId }: MemberPageProps) {
+  return (
+    <MemberPageProvider>
+      <MemberPageContent guildId={guildId} />
+    </MemberPageProvider>
   );
 }

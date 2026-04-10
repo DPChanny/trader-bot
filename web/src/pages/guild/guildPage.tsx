@@ -1,78 +1,20 @@
-import { useEffect } from "preact/hooks";
-import { route } from "preact-router";
-import { useGuilds } from "@/hooks/guild";
-import { GuildCard } from "./guildCard";
-import { Section } from "@/components/commons/section";
-import { PageContainer, PageLayout } from "@/components/commons/page";
-import { Loading } from "@/components/commons/loading";
-import { Error } from "@/components/commons/error";
-import { Bar } from "@/components/commons/bar";
-import { useGuildContext } from "@/contexts/guildContext";
-import { isAuthenticated } from "@/utils/auth";
-import { getBotInviteUrl } from "@/utils/env";
-import styles from "@/styles/pages/guild/guildPage.module.css";
+import { PresetEditor } from "@/pages/preset/presetEditor";
+import { MemberEditor } from "@/pages/member/memberEditor";
 
 interface GuildPageProps {
-  path?: string;
+  guildId: string;
+  subPage: "preset" | "member";
+  presetId: number | null;
 }
 
-export function GuildPage({}: GuildPageProps) {
-  const { data: guilds, isLoading, error } = useGuilds();
-  const { setGuild } = useGuildContext();
-
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      route("/auth/login", true);
-    }
-  }, []);
-
-  const handleSelectGuild = (guildId: string) => {
-    const guild = guilds?.find((g) => g.discordId === guildId);
-    if (guild) {
-      setGuild(guild);
-      route("/preset");
-    }
-  };
-
+export function GuildPage({ guildId, subPage, presetId }: GuildPageProps) {
   return (
-    <PageLayout>
-      <PageContainer>
-        <Section variantIntent="primary" className={styles.mainSection}>
-          <h3>길드 선택</h3>
-          <Bar />
-          {error && (
-            <Error detail={error?.message}>
-              길드 목록을 불러오는데 실패했습니다.
-            </Error>
-          )}
-          {isLoading && <Loading />}
-          {!isLoading && !error && (
-            <div class={styles.guildListWrapper}>
-              <div class={styles.guildList}>
-                {guilds?.map((guild) => (
-                  <GuildCard
-                    key={guild.discordId}
-                    guild={guild}
-                    onClick={handleSelectGuild}
-                  />
-                ))}
-                {guilds?.length === 0 && (
-                  <p class={styles.empty}>소속된 길드가 없습니다.</p>
-                )}
-              </div>
-            </div>
-          )}
-          <Bar />
-          <a
-            href={getBotInviteUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            class={styles.inviteButton}
-          >
-            봇 초대하기
-          </a>
-        </Section>
-      </PageContainer>
-    </PageLayout>
+    <main className="app-main">
+      {subPage === "preset" ? (
+        <PresetEditor guildId={guildId} presetId={presetId} />
+      ) : (
+        <MemberEditor guildId={guildId} />
+      )}
+    </main>
   );
 }
