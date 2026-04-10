@@ -10,9 +10,10 @@ import { ConfirmModal } from "@/components/commons/modal";
 import { TierCard } from "./tierCard";
 import styles from "@/styles/pages/preset/tier/tierList.module.css";
 import { Section } from "@/components/commons/section";
+import type { TierDTO } from "@/dtos/tierDto";
 
 interface TierListProps {
-  tiers: any[];
+  tiers: TierDTO[];
 }
 
 export function TierList({ tiers }: TierListProps) {
@@ -23,6 +24,7 @@ export function TierList({ tiers }: TierListProps) {
   const [showTierForm, setShowTierForm] = useState(false);
   const [editingTierId, setEditingTierId] = useState<number | null>(null);
   const [editingTierName, setEditingTierName] = useState("");
+  const [editingTierIconUrl, setEditingTierIconUrl] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
@@ -36,10 +38,15 @@ export function TierList({ tiers }: TierListProps) {
         guildId,
         presetId,
         tierId,
-        dto: { name: editingTierName.trim() },
+        dto: {
+          name: editingTierName.trim(),
+          iconUrl:
+            editingTierIconUrl.trim() === "" ? null : editingTierIconUrl.trim(),
+        },
       });
       setEditingTierId(null);
       setEditingTierName("");
+      setEditingTierIconUrl("");
     } catch (err) {
       console.error("Failed to update tier:", err);
     }
@@ -88,15 +95,19 @@ export function TierList({ tiers }: TierListProps) {
             tier={tier}
             isEditing={editingTierId === tier.tierId}
             editingName={editingTierName}
+            editingIconUrl={editingTierIconUrl}
             onEditingNameChange={setEditingTierName}
+            onEditingIconUrlChange={setEditingTierIconUrl}
             onEdit={() => {
               setEditingTierId(tier.tierId);
               setEditingTierName(tier.name);
+              setEditingTierIconUrl(tier.iconUrl || "");
             }}
             onSave={() => handleUpdateTierName(tier.tierId)}
             onCancelEdit={() => {
               setEditingTierId(null);
               setEditingTierName("");
+              setEditingTierIconUrl("");
             }}
             onDelete={() => {
               setDeleteTargetId(tier.tierId);

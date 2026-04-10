@@ -1,4 +1,4 @@
-import type { DiscordUserDTO } from "./discordDto";
+import type { DiscordUserDTO } from "./discordUserDto";
 import type { GuildDTO } from "./guildDto";
 
 export interface MemberDTO {

@@ -47,7 +47,15 @@ export function PresetMemberCard({
         {statusClass && <div className={clsx(styles.statusDot, statusClass)} />}
       </div>
       <div class={styles.badgesRight}>
-        {tier && <Badge variantColor="red">{tier.name.charAt(0)}</Badge>}
+        {tier && (
+          <Badge
+            src={tier.iconUrl || undefined}
+            alt={tier.name}
+            variantColor="red"
+          >
+            {tier.name.charAt(0)}
+          </Badge>
+        )}
       </div>
 
       <Section variantTone="ghost" variantIntent="secondary">

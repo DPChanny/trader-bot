@@ -15,3 +15,4 @@ class Tier(BaseEntity):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(256), nullable=False)
+    icon_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)

@@ -7,7 +7,7 @@ import { useAddTier } from "@/hooks/tier";
 import { useGuildContext } from "@/contexts/guildContext";
 import { usePresetPageContext } from "../presetContext";
 
-const INITIAL_STATE = { tierName: "" };
+const INITIAL_STATE = { tierName: "", tierIconUrl: "" };
 
 interface AddTierModalProps {
   isOpen: boolean;
@@ -19,10 +19,12 @@ export function AddTierModal({ isOpen, onClose }: AddTierModalProps) {
   const guildId = guild?.discordId ?? null;
   const { selectedPresetId: presetId } = usePresetPageContext();
   const [tierName, setTierName] = useState(INITIAL_STATE.tierName);
+  const [tierIconUrl, setTierIconUrl] = useState(INITIAL_STATE.tierIconUrl);
   const addTier = useAddTier();
 
   const handleClose = () => {
     setTierName(INITIAL_STATE.tierName);
+    setTierIconUrl(INITIAL_STATE.tierIconUrl);
     addTier.reset();
     onClose();
   };
@@ -34,7 +36,7 @@ export function AddTierModal({ isOpen, onClose }: AddTierModalProps) {
       await addTier.mutateAsync({
         guildId,
         presetId,
-        dto: { name: tierName.trim() },
+        dto: { name: tierName.trim(), iconUrl: tierIconUrl.trim() || null },
       });
       handleClose();
     } catch {}
@@ -53,6 +55,12 @@ export function AddTierModal({ isOpen, onClose }: AddTierModalProps) {
           type="text"
           value={tierName}
           onChange={setTierName}
+        />
+        <LabelInput
+          label="아이콘 URL (선택사항)"
+          type="text"
+          value={tierIconUrl}
+          onChange={setTierIconUrl}
         />
         <ModalFooter>
           <SecondaryButton onClick={handleClose}>취소</SecondaryButton>

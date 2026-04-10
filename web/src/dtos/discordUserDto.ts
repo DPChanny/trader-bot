@@ -4,6 +4,3 @@ export interface DiscordUserDTO {
   avatarHash: string | null;
   avatarUrl: string | null;
 }
-
-// Backwards-compatible alias
-export type DiscordDTO = DiscordUserDTO;

@@ -31,7 +31,7 @@ async def add_tier_service(
         raise HTTPException(status_code=404, detail="Preset not found")
 
     tier_repo = TierRepository(session)
-    tier = Tier(preset_id=preset_id, name=dto.name)
+    tier = Tier(preset_id=preset_id, name=dto.name, icon_url=dto.icon_url)
     tier_repo.add(tier)
     await tier_repo.commit()
     await tier_repo.refresh(tier)
