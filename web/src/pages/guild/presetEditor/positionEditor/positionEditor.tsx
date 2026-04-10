@@ -6,7 +6,9 @@ import { Bar } from "@/components/commons/bar";
 import { ConfirmModal } from "@/components/commons/modal";
 import { Section } from "@/components/commons/section";
 import { AddPositionModal } from "./addPositionModal";
+import { EditPositionModal } from "./editPositionModal";
 import { PositionCard } from "./positionCard";
+import type { PositionDTO } from "@/dtos/positionDto";
 
 import styles from "@/styles/pages/guild/presetEditor/positionEditor/positionList.module.css";
 
@@ -22,32 +24,26 @@ export function PositionEditor({
   positions,
 }: PositionEditorProps) {
   const [showPositionForm, setShowPositionForm] = useState(false);
-  const [editingPositionId, setEditingPositionId] = useState<number | null>(
+  const [editingPosition, setEditingPosition] = useState<PositionDTO | null>(
     null,
   );
-  const [editingName, setEditingName] = useState("");
-  const [editingIconUrl, setEditingIconUrl] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
   const updatePosition = useUpdatePosition();
   const deletePosition = useDeletePosition();
 
-  const handleUpdatePosition = async (positionId: number) => {
-    if (!editingName.trim() || !guildId || !presetId) return;
+  const handleUpdatePosition = async (name: string, iconUrl: string | null) => {
+    if (!editingPosition || !guildId || !presetId) return;
     try {
       await updatePosition.mutateAsync({
         guildId,
         presetId,
-        positionId,
-        dto: {
-          name: editingName.trim(),
-          iconUrl: editingIconUrl.trim() === "" ? null : editingIconUrl.trim(),
-        },
+        positionId: editingPosition.positionId,
+        dto: { name, iconUrl },
       });
-      setEditingPositionId(null);
-      setEditingName("");
-      setEditingIconUrl("");
+      setEditingPosition(null);
+      updatePosition.reset();
     } catch (err) {
       console.error("Failed to update position:", err);
     }
@@ -78,8 +74,8 @@ export function PositionEditor({
         </PrimaryButton>
       </Section>
       <Bar />
-      {(updatePosition.isError || deletePosition.isError) && (
-        <Error detail={(updatePosition.error || deletePosition.error)?.message}>
+      {deletePosition.isError && (
+        <Error detail={deletePosition.error?.message}>
           포지션 작업 중 오류가 발생했습니다.
         </Error>
       )}
@@ -94,27 +90,11 @@ export function PositionEditor({
           <PositionCard
             key={position.positionId}
             position={position}
-            isEditing={editingPositionId === position.positionId}
-            editingName={editingName}
-            editingIconUrl={editingIconUrl}
-            onEditingNameChange={setEditingName}
-            onEditingIconUrlChange={setEditingIconUrl}
-            onEdit={() => {
-              setEditingPositionId(position.positionId);
-              setEditingName(position.name);
-              setEditingIconUrl(position.iconUrl || "");
-            }}
-            onSave={() => handleUpdatePosition(position.positionId)}
-            onCancelEdit={() => {
-              setEditingPositionId(null);
-              setEditingName("");
-              setEditingIconUrl("");
-            }}
+            onEdit={() => setEditingPosition(position)}
             onDelete={() => {
               setDeleteTargetId(position.positionId);
               setShowDeleteConfirm(true);
             }}
-            isUpdatePending={updatePosition.isPending}
             isDeletePending={deletePosition.isPending}
           />
         ))}
@@ -125,6 +105,17 @@ export function PositionEditor({
         presetId={presetId}
         isOpen={showPositionForm}
         onClose={() => setShowPositionForm(false)}
+      />
+
+      <EditPositionModal
+        position={editingPosition}
+        onClose={() => {
+          setEditingPosition(null);
+          updatePosition.reset();
+        }}
+        onSubmit={handleUpdatePosition}
+        isPending={updatePosition.isPending}
+        error={updatePosition.isError ? updatePosition.error : undefined}
       />
 
       <ConfirmModal

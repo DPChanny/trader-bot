@@ -12,9 +12,9 @@ interface GuildListProps {
 
 export function GuildList({ guilds, activeGuildId }: GuildListProps) {
   return (
-    <Section variantTone="ghost" variantIntent="secondary">
+    <Section variantTone="ghost">
       <Section variantTone="ghost" variantLayout="row">
-        <h3 className={styles.title}>길드</h3>
+        <h3 className={styles.title}>길드 관리</h3>
       </Section>
       <Bar />
       <Section

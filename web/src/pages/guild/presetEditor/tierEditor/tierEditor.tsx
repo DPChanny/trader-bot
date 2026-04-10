@@ -4,6 +4,7 @@ import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
 import { AddTierModal } from "./addTierModal";
+import { EditTierModal } from "./editTierModal";
 import { ConfirmModal } from "@/components/commons/modal";
 import { TierCard } from "./tierCard";
 import styles from "@/styles/pages/guild/presetEditor/tierEditor/tierList.module.css";
@@ -18,31 +19,24 @@ interface TierEditorProps {
 
 export function TierEditor({ guildId, presetId, tiers }: TierEditorProps) {
   const [showTierForm, setShowTierForm] = useState(false);
-  const [editingTierId, setEditingTierId] = useState<number | null>(null);
-  const [editingTierName, setEditingTierName] = useState("");
-  const [editingTierIconUrl, setEditingTierIconUrl] = useState("");
+  const [editingTier, setEditingTier] = useState<TierDTO | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
   const updateTier = useUpdateTier();
   const deleteTier = useDeleteTier();
 
-  const handleUpdateTierName = async (tierId: number) => {
-    if (!editingTierName.trim() || !guildId || !presetId) return;
+  const handleUpdateTier = async (name: string, iconUrl: string | null) => {
+    if (!editingTier || !guildId || !presetId) return;
     try {
       await updateTier.mutateAsync({
         guildId,
         presetId,
-        tierId,
-        dto: {
-          name: editingTierName.trim(),
-          iconUrl:
-            editingTierIconUrl.trim() === "" ? null : editingTierIconUrl.trim(),
-        },
+        tierId: editingTier.tierId,
+        dto: { name, iconUrl },
       });
-      setEditingTierId(null);
-      setEditingTierName("");
-      setEditingTierIconUrl("");
+      setEditingTier(null);
+      updateTier.reset();
     } catch (err) {
       console.error("Failed to update tier:", err);
     }
@@ -73,8 +67,8 @@ export function TierEditor({ guildId, presetId, tiers }: TierEditorProps) {
         </PrimaryButton>
       </Section>
       <Bar />
-      {(updateTier.isError || deleteTier.isError) && (
-        <Error detail={(updateTier.error || deleteTier.error)?.message}>
+      {deleteTier.isError && (
+        <Error detail={deleteTier.error?.message}>
           티어 작업 중 오류가 발생했습니다.
         </Error>
       )}
@@ -89,27 +83,11 @@ export function TierEditor({ guildId, presetId, tiers }: TierEditorProps) {
           <TierCard
             key={tier.tierId}
             tier={tier}
-            isEditing={editingTierId === tier.tierId}
-            editingName={editingTierName}
-            editingIconUrl={editingTierIconUrl}
-            onEditingNameChange={setEditingTierName}
-            onEditingIconUrlChange={setEditingTierIconUrl}
-            onEdit={() => {
-              setEditingTierId(tier.tierId);
-              setEditingTierName(tier.name);
-              setEditingTierIconUrl(tier.iconUrl || "");
-            }}
-            onSave={() => handleUpdateTierName(tier.tierId)}
-            onCancelEdit={() => {
-              setEditingTierId(null);
-              setEditingTierName("");
-              setEditingTierIconUrl("");
-            }}
+            onEdit={() => setEditingTier(tier)}
             onDelete={() => {
               setDeleteTargetId(tier.tierId);
               setShowDeleteConfirm(true);
             }}
-            isUpdatePending={updateTier.isPending}
             isDeletePending={deleteTier.isPending}
           />
         ))}
@@ -120,6 +98,16 @@ export function TierEditor({ guildId, presetId, tiers }: TierEditorProps) {
         presetId={presetId}
         isOpen={showTierForm}
         onClose={() => setShowTierForm(false)}
+      />
+      <EditTierModal
+        tier={editingTier}
+        onClose={() => {
+          setEditingTier(null);
+          updateTier.reset();
+        }}
+        onSubmit={handleUpdateTier}
+        isPending={updateTier.isPending}
+        error={updateTier.isError ? updateTier.error : undefined}
       />
       <ConfirmModal
         isOpen={showDeleteConfirm}

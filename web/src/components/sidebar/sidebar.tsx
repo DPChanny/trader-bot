@@ -2,12 +2,9 @@ import { useState } from "preact/hooks";
 import { route, useRouter } from "preact-router";
 import styles from "@/styles/components/sidebar/sidebar.module.css";
 import { useGuilds } from "@/hooks/guild";
-import {
-  Button,
-  CloseButton,
-  SecondaryButton,
-} from "@/components/commons/button";
+import { Button, CloseButton } from "@/components/commons/button";
 import { Section } from "@/components/commons/section";
+import { Card } from "@/components/commons/card";
 import { Bar } from "@/components/commons/bar";
 import { GuildList } from "./guild/guildList";
 import { PresetList } from "./preset/presetList";
@@ -50,19 +47,27 @@ export function Sidebar() {
               />
             </Section>
             <Bar />
-            <GuildList guilds={guilds} activeGuildId={activeGuildId} />
+            <Section variantIntent="secondary">
+              <GuildList guilds={guilds} activeGuildId={activeGuildId} />
+            </Section>
             {activeGuildId && (
               <>
-                <SecondaryButton
-                  variantSize="small"
+                <Card
+                  variantColor={editor === "member" ? "blue" : "gray"}
+                  variantActive={editor === "member"}
+                  variantLayout="row"
+                  className={styles.memberCard}
                   onClick={() => route(`/guild/${activeGuildId}/member`)}
+                  style={{ cursor: "pointer" }}
                 >
-                  멤버
-                </SecondaryButton>
-                <PresetList
-                  guildId={activeGuildId}
-                  selectedPresetId={editor === "preset" ? presetId : null}
-                />
+                  멤버 관리
+                </Card>
+                <Section variantIntent="secondary">
+                  <PresetList
+                    guildId={activeGuildId}
+                    selectedPresetId={editor === "preset" ? presetId : null}
+                  />
+                </Section>
               </>
             )}
           </Section>

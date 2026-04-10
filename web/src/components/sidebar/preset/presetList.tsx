@@ -60,9 +60,9 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
 
   return (
     <>
-      <Section variantTone="ghost" variantIntent="secondary">
+      <Section variantTone="ghost">
         <Section variantTone="ghost" variantLayout="row">
-          <h3 className={styles.title}>프리셋</h3>
+          <h3 className={styles.title}>프리셋 관리</h3>
           <PrimaryButton
             variantSize="small"
             variantTone="outline"

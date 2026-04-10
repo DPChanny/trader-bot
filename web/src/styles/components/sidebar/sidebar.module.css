@@ -20,13 +20,17 @@
 .sidebar {
   width: 18rem;
   height: 100%;
-  background: var(--color-section-primary-bg);
-  border-right: var(--border-width-default) solid
-    var(--color-section-primary-border);
+  background: var(--color-section-secondary-bg);
+  border: var(--border-width-default) solid
+    var(--color-section-secondary-border);
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.memberCard {
+  width: 100%;
 }
 
 .toggleTab {
