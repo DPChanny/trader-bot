@@ -1,7 +1,6 @@
 import { useState } from "preact/hooks";
 import { route } from "preact-router";
 import { Section } from "@/components/commons/section";
-import { Bar } from "@/components/commons/bar";
 import { GuildCard } from "./guildCard";
 import { PresetList } from "../preset/presetList";
 import styles from "@/styles/components/sidebar/guildList.module.css";
