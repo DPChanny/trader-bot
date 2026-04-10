@@ -8,8 +8,8 @@ from ..utils.exception import service_exception_handler
 
 
 @service_exception_handler
-async def get_lol_stat(member_id: int, db: AsyncSession) -> LolStatDTO:
-    lol_stat_repo = LolStatRepository(db)
+async def get_lol_stat(member_id: int, session: AsyncSession) -> LolStatDTO:
+    lol_stat_repo = LolStatRepository(session)
     lol_stat = await lol_stat_repo.get_by_member_id(member_id)
 
     if lol_stat is None:

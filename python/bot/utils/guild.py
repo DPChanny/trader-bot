@@ -5,9 +5,9 @@ from shared.entities.guild import Guild
 
 
 async def upsert_guild(
-    guild_id: int, name: str, icon_hash: str | None, db: AsyncSession
+    guild_id: int, name: str, icon_hash: str | None, session: AsyncSession
 ) -> Guild:
-    result = await db.execute(select(Guild).where(Guild.discord_id == guild_id))
+    result = await session.execute(select(Guild).where(Guild.discord_id == guild_id))
     entity = result.scalar_one_or_none()
     if entity is None:
         entity = Guild(
@@ -15,18 +15,20 @@ async def upsert_guild(
             name=name,
             icon_hash=icon_hash,
         )
-        db.add(entity)
-        await db.flush()
+        session.add(entity)
+        await session.flush()
     else:
         entity.name = name
         entity.icon_hash = icon_hash
-        await db.flush()
+        await session.flush()
     return entity
 
 
-async def delete_guild(discord_guild_id: int, db: AsyncSession) -> None:
-    result = await db.execute(select(Guild).where(Guild.discord_id == discord_guild_id))
+async def delete_guild(discord_guild_id: int, session: AsyncSession) -> None:
+    result = await session.execute(
+        select(Guild).where(Guild.discord_id == discord_guild_id)
+    )
     entity = result.scalar_one_or_none()
     if entity is not None:
-        await db.delete(entity)
-        await db.flush()
+        await session.delete(entity)
+        await session.flush()

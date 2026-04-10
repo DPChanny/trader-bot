@@ -19,12 +19,12 @@ async def _resolve_member(
         return None, False, None
 
     try:
-        payload = decode_token(jwt_token)
+        token_payload = decode_token(jwt_token)
     except Exception:
         return None, False, None
 
     pm = await preset_member_repo.get_by_discord_user_id(
-        payload.discord_id, preset_id, guild_id
+        token_payload.discord_id, preset_id, guild_id
     )
     if pm is None:
         return None, False, None
@@ -36,7 +36,7 @@ async def handle_websocket_connect(
     websocket: WebSocket,
     auction_id: str,
     jwt_token: str | None,
-    db: AsyncSession,
+    session: AsyncSession,
 ) -> tuple[Auction | None, int | None, bool, int | None]:
     auction = auction_manager.get_auction(auction_id)
 
@@ -49,7 +49,7 @@ async def handle_websocket_connect(
 
     preset_id: int = auction.preset_snapshot["preset_id"]
     guild_id: int = auction.preset_snapshot["guild_id"]
-    preset_member_repo = PresetMemberRepository(db)
+    preset_member_repo = PresetMemberRepository(session)
     member_id, is_leader, _ = await _resolve_member(
         jwt_token, preset_id, guild_id, preset_member_repo
     )

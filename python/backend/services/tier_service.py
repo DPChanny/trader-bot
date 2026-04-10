@@ -14,12 +14,16 @@ from shared.repositories.tier_repository import TierRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
-from ..utils.token import Payload
+from ..utils.token import TokenPayload
 
 
 @service_exception_handler
 async def add_tier_service(
-    guild_id: int, preset_id: int, dto: AddTierDTO, db: AsyncSession, payload: Payload
+    guild_id: int,
+    preset_id: int,
+    dto: AddTierDTO,
+    db: AsyncSession,
+    payload: TokenPayload,
 ) -> TierDTO:
     await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
@@ -43,7 +47,7 @@ async def update_tier_service(
     tier_id: int,
     dto: UpdateTierDTO,
     db: AsyncSession,
-    payload: Payload,
+    payload: TokenPayload,
 ) -> TierDTO:
     await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
@@ -64,7 +68,7 @@ async def update_tier_service(
 
 @service_exception_handler
 async def delete_tier_service(
-    guild_id: int, preset_id: int, tier_id: int, db: AsyncSession, payload: Payload
+    guild_id: int, preset_id: int, tier_id: int, db: AsyncSession, payload: TokenPayload
 ) -> None:
     await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 

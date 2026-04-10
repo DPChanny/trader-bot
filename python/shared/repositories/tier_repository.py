@@ -11,7 +11,7 @@ class TierRepository(BaseRepository[Tier]):
     async def get_by_id(
         self, tier_id: int, preset_id: int, guild_id: int
     ) -> Tier | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(Tier)
             .join(Preset)
             .where(

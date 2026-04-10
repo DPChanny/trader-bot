@@ -11,7 +11,7 @@ class PositionRepository(BaseRepository[Position]):
     async def get_by_id(
         self, position_id: int, preset_id: int, guild_id: int
     ) -> Position | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(Position)
             .join(Preset)
             .where(

@@ -14,7 +14,7 @@ from shared.repositories.preset_repository import PresetRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
-from ..utils.token import Payload
+from ..utils.token import TokenPayload
 
 
 @service_exception_handler
@@ -22,16 +22,16 @@ async def add_position_service(
     guild_id: int,
     preset_id: int,
     dto: AddPositionDTO,
-    db: AsyncSession,
-    payload: Payload,
+    session: AsyncSession,
+    token_payload: TokenPayload,
 ) -> PositionDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    await verify_role(guild_id, token_payload.discord_id, session, Role.EDITOR)
 
-    preset_repo = PresetRepository(db)
+    preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    position_repo = PositionRepository(db)
+    position_repo = PositionRepository(session)
     position = Position(
         preset_id=preset_id,
         name=dto.name,
@@ -50,12 +50,12 @@ async def update_position_service(
     preset_id: int,
     position_id: int,
     dto: UpdatePositionDTO,
-    db: AsyncSession,
-    payload: Payload,
+    session: AsyncSession,
+    token_payload: TokenPayload,
 ) -> PositionDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    await verify_role(guild_id, token_payload.discord_id, session, Role.EDITOR)
 
-    position_repo = PositionRepository(db)
+    position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
         raise HTTPException(status_code=404, detail="Position not found")
@@ -72,11 +72,15 @@ async def update_position_service(
 
 @service_exception_handler
 async def delete_position_service(
-    guild_id: int, preset_id: int, position_id: int, db: AsyncSession, payload: Payload
+    guild_id: int,
+    preset_id: int,
+    position_id: int,
+    session: AsyncSession,
+    token_payload: TokenPayload,
 ) -> None:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    await verify_role(guild_id, token_payload.discord_id, session, Role.EDITOR)
 
-    position_repo = PositionRepository(db)
+    position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
         raise HTTPException(status_code=404, detail="Position not found")

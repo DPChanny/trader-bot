@@ -18,16 +18,16 @@ from shared.utils.env import get_app_origin
 from ..auction.auction_manager import auction_manager
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
-from ..utils.token import Payload
+from ..utils.token import TokenPayload
 
 
 @service_exception_handler
 async def add_auction_service(
-    guild_id: int, preset_id: int, db: AsyncSession, payload: Payload
+    guild_id: int, preset_id: int, session: AsyncSession, token_payload: TokenPayload
 ) -> AuctionDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.ADMIN)
+    await verify_role(guild_id, token_payload.discord_id, session, Role.ADMIN)
 
-    preset_repo = PresetRepository(db)
+    preset_repo = PresetRepository(session)
     preset = await preset_repo.get_detail_by_id(preset_id, guild_id)
 
     if preset is None:

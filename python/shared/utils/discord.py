@@ -105,15 +105,17 @@ async def upsert_discord_user(
     discord_id: int,
     name: str,
     avatar_hash: str | None,
-    db: AsyncSession,
+    session: AsyncSession,
 ) -> None:
-    result = await db.execute(
+    result = await session.execute(
         select(DiscordUser).where(DiscordUser.discord_id == discord_id)
     )
     entity = result.scalar_one_or_none()
     if entity is None:
-        db.add(DiscordUser(discord_id=discord_id, name=name, avatar_hash=avatar_hash))
+        session.add(
+            DiscordUser(discord_id=discord_id, name=name, avatar_hash=avatar_hash)
+        )
     else:
         entity.name = name
         entity.avatar_hash = avatar_hash
-    await db.flush()
+    await session.flush()

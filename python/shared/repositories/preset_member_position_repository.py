@@ -15,7 +15,7 @@ class PresetMemberPositionRepository(BaseRepository[PresetMemberPosition]):
         preset_member_id: int,
         guild_id: int,
     ) -> PresetMemberPosition | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(PresetMemberPosition)
             .join(
                 PresetMember,
@@ -34,7 +34,7 @@ class PresetMemberPositionRepository(BaseRepository[PresetMemberPosition]):
     async def get_by_composite(
         self, preset_member_id: int, position_id: int
     ) -> PresetMemberPosition | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(PresetMemberPosition).where(
                 PresetMemberPosition.preset_member_id == preset_member_id,
                 PresetMemberPosition.position_id == position_id,

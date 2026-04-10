@@ -9,7 +9,7 @@ from . import BaseRepository
 
 class ValStatRepository(BaseRepository[ValStat]):
     async def get_by_member_id(self, member_id: int) -> ValStat | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(ValStat)
             .options(joinedload(ValStat.agents))
             .where(ValStat.member_id == member_id)

@@ -11,7 +11,7 @@ from . import BaseRepository
 
 class PresetRepository(BaseRepository[Preset]):
     async def get_by_id(self, preset_id: int, guild_id: int) -> Preset | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(Preset).where(
                 Preset.preset_id == preset_id,
                 Preset.guild_id == guild_id,
@@ -24,7 +24,7 @@ class PresetRepository(BaseRepository[Preset]):
         preset_id: int,
         guild_id: int,
     ) -> Preset | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(Preset)
             .options(
                 joinedload(Preset.guild),
@@ -48,7 +48,7 @@ class PresetRepository(BaseRepository[Preset]):
         return result.unique().scalar_one_or_none()
 
     async def get_all_by_guild(self, guild_id: int) -> list[Preset]:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(Preset).where(Preset.guild_id == guild_id)
         )
         return list(result.scalars().all())

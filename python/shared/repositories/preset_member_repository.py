@@ -13,7 +13,7 @@ class PresetMemberRepository(BaseRepository[PresetMember]):
     async def get_by_id(
         self, preset_member_id: int, preset_id: int, guild_id: int
     ) -> PresetMember | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(PresetMember)
             .join(Preset)
             .where(
@@ -30,7 +30,7 @@ class PresetMemberRepository(BaseRepository[PresetMember]):
         preset_id: int,
         guild_id: int,
     ) -> PresetMember | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(PresetMember)
             .options(
                 joinedload(PresetMember.member).joinedload(Member.discord_user),
@@ -49,7 +49,7 @@ class PresetMemberRepository(BaseRepository[PresetMember]):
     async def get_by_discord_user_id(
         self, discord_user_id: int, preset_id: int, guild_id: int
     ) -> PresetMember | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(PresetMember)
             .join(PresetMember.member)
             .join(Preset, PresetMember.preset_id == Preset.preset_id)

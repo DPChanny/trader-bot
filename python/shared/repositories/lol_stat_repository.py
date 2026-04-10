@@ -9,7 +9,7 @@ from . import BaseRepository
 
 class LolStatRepository(BaseRepository[LolStat]):
     async def get_by_member_id(self, member_id: int) -> LolStat | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(LolStat)
             .options(joinedload(LolStat.champions))
             .where(LolStat.member_id == member_id)

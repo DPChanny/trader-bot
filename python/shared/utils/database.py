@@ -55,6 +55,6 @@ async def setup_db():
             await conn.commit()
 
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with _sessionmaker() as db:
-        yield db
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    async with _sessionmaker() as session:
+        yield session

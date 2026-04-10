@@ -1,5 +1,5 @@
 from . import BaseDTO, DiscordId
-from .discord_dto import DiscordUserDetailDTO
+from .discord_user_dto import DiscordUserDetailDTO
 
 
 class UserDTO(BaseDTO):

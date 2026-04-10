@@ -6,20 +6,20 @@ from ..entities import BaseEntity
 
 
 class BaseRepository[T: BaseEntity]:
-    def __init__(self, db: AsyncSession) -> None:
-        self.db = db
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
 
     def add(self, entity: T) -> None:
-        self.db.add(entity)
+        self.session.add(entity)
 
     async def delete(self, entity: T) -> None:
-        await self.db.delete(entity)
+        await self.session.delete(entity)
 
     async def commit(self) -> None:
-        await self.db.commit()
+        await self.session.commit()
 
     async def flush(self) -> None:
-        await self.db.flush()
+        await self.session.flush()
 
     async def refresh(self, entity: T) -> None:
-        await self.db.refresh(entity)
+        await self.session.refresh(entity)

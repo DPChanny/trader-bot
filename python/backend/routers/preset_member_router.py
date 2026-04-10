@@ -6,14 +6,14 @@ from shared.dtos.preset_member_dto import (
     PresetMemberDetailDTO,
     UpdatePresetMemberDTO,
 )
-from shared.utils.database import get_db
+from shared.utils.database import get_session
 
 from ..services.preset_member_service import (
     add_preset_member_service,
     delete_preset_member_service,
     update_preset_member_service,
 )
-from ..utils.token import Payload, verify_token
+from ..utils.token import TokenPayload, verify_token
 
 
 preset_member_router = APIRouter(
@@ -27,10 +27,12 @@ async def add_preset_member_route(
     guild_id: int,
     preset_id: int,
     dto: AddPresetMemberDTO,
-    db: AsyncSession = Depends(get_db),
-    payload: Payload = Depends(verify_token),
+    session: AsyncSession = Depends(get_session),
+    token_payload: TokenPayload = Depends(verify_token),
 ):
-    return await add_preset_member_service(guild_id, preset_id, dto, db, payload)
+    return await add_preset_member_service(
+        guild_id, preset_id, dto, session, token_payload
+    )
 
 
 @preset_member_router.patch("/{preset_member_id}", response_model=PresetMemberDetailDTO)
@@ -39,11 +41,11 @@ async def update_preset_member_route(
     preset_id: int,
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
-    db: AsyncSession = Depends(get_db),
-    payload: Payload = Depends(verify_token),
+    session: AsyncSession = Depends(get_session),
+    token_payload: TokenPayload = Depends(verify_token),
 ):
     return await update_preset_member_service(
-        guild_id, preset_id, preset_member_id, dto, db, payload
+        guild_id, preset_id, preset_member_id, dto, session, token_payload
     )
 
 
@@ -52,9 +54,9 @@ async def delete_preset_member_route(
     guild_id: int,
     preset_id: int,
     preset_member_id: int,
-    db: AsyncSession = Depends(get_db),
-    payload: Payload = Depends(verify_token),
+    session: AsyncSession = Depends(get_session),
+    token_payload: TokenPayload = Depends(verify_token),
 ):
     return await delete_preset_member_service(
-        guild_id, preset_id, preset_member_id, db, payload
+        guild_id, preset_id, preset_member_id, session, token_payload
     )

@@ -16,7 +16,7 @@ from shared.repositories.preset_member_repository import PresetMemberRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
-from ..utils.token import Payload
+from ..utils.token import TokenPayload
 
 
 @service_exception_handler
@@ -26,7 +26,7 @@ async def add_preset_member_position_service(
     preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
     db: AsyncSession,
-    payload: Payload,
+    payload: TokenPayload,
 ) -> PresetMemberPositionDTO:
     await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
@@ -70,7 +70,7 @@ async def delete_preset_member_position_service(
     preset_member_id: int,
     preset_member_position_id: int,
     db: AsyncSession,
-    payload: Payload,
+    payload: TokenPayload,
 ) -> None:
     await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 

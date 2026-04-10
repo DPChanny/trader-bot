@@ -6,14 +6,14 @@ from shared.dtos.position_dto import (
     PositionDTO,
     UpdatePositionDTO,
 )
-from shared.utils.database import get_db
+from shared.utils.database import get_session
 
 from ..services.position_service import (
     add_position_service,
     delete_position_service,
     update_position_service,
 )
-from ..utils.token import Payload, verify_token
+from ..utils.token import TokenPayload, verify_token
 
 
 position_router = APIRouter(
@@ -26,10 +26,10 @@ async def add_position_route(
     guild_id: int,
     preset_id: int,
     dto: AddPositionDTO,
-    db: AsyncSession = Depends(get_db),
-    payload: Payload = Depends(verify_token),
+    session: AsyncSession = Depends(get_session),
+    token_payload: TokenPayload = Depends(verify_token),
 ):
-    return await add_position_service(guild_id, preset_id, dto, db, payload)
+    return await add_position_service(guild_id, preset_id, dto, session, token_payload)
 
 
 @position_router.patch("/{position_id}", response_model=PositionDTO)
@@ -38,11 +38,11 @@ async def update_position_route(
     preset_id: int,
     position_id: int,
     dto: UpdatePositionDTO,
-    db: AsyncSession = Depends(get_db),
-    payload: Payload = Depends(verify_token),
+    session: AsyncSession = Depends(get_session),
+    token_payload: TokenPayload = Depends(verify_token),
 ):
     return await update_position_service(
-        guild_id, preset_id, position_id, dto, db, payload
+        guild_id, preset_id, position_id, dto, session, token_payload
     )
 
 
@@ -51,7 +51,9 @@ async def delete_position_route(
     guild_id: int,
     preset_id: int,
     position_id: int,
-    db: AsyncSession = Depends(get_db),
-    payload: Payload = Depends(verify_token),
+    session: AsyncSession = Depends(get_session),
+    token_payload: TokenPayload = Depends(verify_token),
 ):
-    return await delete_position_service(guild_id, preset_id, position_id, db, payload)
+    return await delete_position_service(
+        guild_id, preset_id, position_id, session, token_payload
+    )

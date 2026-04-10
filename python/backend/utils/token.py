@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 
 
-class Payload(BaseModel):
+class TokenPayload(BaseModel):
     discord_id: int
     exp: int
     iat: int
@@ -48,21 +48,21 @@ def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-def decode_token(token: str) -> Payload:
+def decode_token(token: str) -> TokenPayload:
     try:
-        payload = jwt.decode(
+        token_payload = jwt.decode(
             token,
             get_jwt_secret(),
             algorithms=[get_jwt_algorithm()],
         )
-        return Payload(**payload)
+        return TokenPayload(**token_payload)
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired") from None
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token") from None
 
 
-async def verify_token(authorization: str = Header(None)) -> Payload:
+async def verify_token(authorization: str = Header(None)) -> TokenPayload:
     if not authorization:
         logger.warning("Auth failed: reason=missing_header")
         raise HTTPException(status_code=401, detail="Auth failed")

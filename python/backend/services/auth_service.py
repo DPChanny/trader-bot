@@ -24,7 +24,7 @@ async def login_service(next_path: str | None = None) -> RedirectResponse:
 
 @service_exception_handler
 async def callback_service(
-    code: str, state: str | None, db: AsyncSession
+    code: str, state: str | None, session: AsyncSession
 ) -> RedirectResponse:
     user_data = await get_me(code)
 
@@ -32,9 +32,9 @@ async def callback_service(
     name = user_data.get("global_name") or user_data.get("username", "")
     avatar_hash = user_data.get("avatar")
 
-    await upsert_discord_user(discord_id, name, avatar_hash, db)
+    await upsert_discord_user(discord_id, name, avatar_hash, session)
 
-    user_repo = UserRepository(db)
+    user_repo = UserRepository(session)
     user = await user_repo.get_by_id(discord_id)
     if user is None:
         logger.info(f"User added: discord_id={discord_id}")
@@ -60,13 +60,13 @@ async def callback_service(
 
 
 @service_exception_handler
-async def refresh_token_service(dto: RefreshDTO, db: AsyncSession) -> dict:
+async def refresh_token_service(dto: RefreshDTO, session: AsyncSession) -> dict:
     from fastapi import HTTPException
 
-    payload = decode_token(dto.refresh_token)
+    token_payload = decode_token(dto.refresh_token)
 
-    user_repo = UserRepository(db)
-    user = await user_repo.get_by_id(payload.discord_id)
+    user_repo = UserRepository(session)
+    user = await user_repo.get_by_id(token_payload.discord_id)
     if user is None or user.refresh_token != hash_token(dto.refresh_token):
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 

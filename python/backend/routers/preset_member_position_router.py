@@ -5,13 +5,13 @@ from shared.dtos.preset_member_position_dto import (
     AddPresetMemberPositionDTO,
     PresetMemberPositionDTO,
 )
-from shared.utils.database import get_db
+from shared.utils.database import get_session
 
 from ..services.preset_member_position_service import (
     add_preset_member_position_service,
     delete_preset_member_position_service,
 )
-from ..utils.token import Payload, verify_token
+from ..utils.token import TokenPayload, verify_token
 
 
 preset_member_position_router = APIRouter(
@@ -26,11 +26,11 @@ async def add_preset_member_position_route(
     preset_id: int,
     preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
-    db: AsyncSession = Depends(get_db),
-    payload: Payload = Depends(verify_token),
+    session: AsyncSession = Depends(get_session),
+    token_payload: TokenPayload = Depends(verify_token),
 ):
     return await add_preset_member_position_service(
-        guild_id, preset_id, preset_member_id, dto, db, payload
+        guild_id, preset_id, preset_member_id, dto, session, token_payload
     )
 
 
@@ -39,9 +39,9 @@ async def delete_preset_member_position_route(
     guild_id: int,
     preset_member_id: int,
     preset_member_position_id: int,
-    db: AsyncSession = Depends(get_db),
-    payload: Payload = Depends(verify_token),
+    session: AsyncSession = Depends(get_session),
+    token_payload: TokenPayload = Depends(verify_token),
 ):
     return await delete_preset_member_position_service(
-        guild_id, preset_member_id, preset_member_position_id, db, payload
+        guild_id, preset_member_id, preset_member_position_id, session, token_payload
     )

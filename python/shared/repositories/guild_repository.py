@@ -9,13 +9,13 @@ from . import BaseRepository
 
 class GuildRepository(BaseRepository[Guild]):
     async def get_by_id(self, guild_id: int) -> Guild | None:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(Guild).where(Guild.discord_id == guild_id)
         )
         return result.scalar_one_or_none()
 
     async def get_all_by_discord_user(self, discord_user_id: int) -> list[Guild]:
-        result = await self.db.execute(
+        result = await self.session.execute(
             select(Guild)
             .join(Member, Member.guild_id == Guild.discord_id)
             .where(Member.discord_user_id == discord_user_id)

@@ -8,8 +8,8 @@ from ..utils.exception import service_exception_handler
 
 
 @service_exception_handler
-async def get_val_stat(member_id: int, db: AsyncSession) -> ValStatDTO:
-    val_stat_repo = ValStatRepository(db)
+async def get_val_stat(member_id: int, session: AsyncSession) -> ValStatDTO:
+    val_stat_repo = ValStatRepository(session)
     val_stat = await val_stat_repo.get_by_member_id(member_id)
 
     if val_stat is None:

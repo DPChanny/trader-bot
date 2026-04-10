@@ -7,11 +7,11 @@ from shared.entities.member import Member, Role
 async def upsert_member(
     guild_id: int,
     discord_user_id: int,
-    db: AsyncSession,
+    session: AsyncSession,
     name: str | None = None,
     avatar_hash: str | None = None,
 ) -> Member:
-    result = await db.execute(
+    result = await session.execute(
         select(Member).where(
             Member.guild_id == guild_id,
             Member.discord_user_id == discord_user_id,
@@ -26,12 +26,12 @@ async def upsert_member(
             name=name,
             avatar_hash=avatar_hash,
         )
-        db.add(entity)
-        await db.flush()
+        session.add(entity)
+        await session.flush()
     else:
         entity.name = name
         entity.avatar_hash = avatar_hash
-        await db.flush()
+        await session.flush()
     return entity
 
 
@@ -39,9 +39,9 @@ async def set_role(
     guild_id: int,
     discord_user_id: int,
     role: Role,
-    db: AsyncSession,
+    session: AsyncSession,
 ) -> None:
-    result = await db.execute(
+    result = await session.execute(
         select(Member).where(
             Member.guild_id == guild_id,
             Member.discord_user_id == discord_user_id,
@@ -50,7 +50,7 @@ async def set_role(
     entity = result.scalar_one_or_none()
     if entity is not None:
         entity.role = role
-        await db.flush()
+        await session.flush()
 
 
 async def update_member(
@@ -58,9 +58,9 @@ async def update_member(
     discord_user_id: int,
     name: str | None = None,
     avatar_hash: str | None = None,
-    db: AsyncSession = None,
+    session: AsyncSession = None,
 ) -> None:
-    result = await db.execute(
+    result = await session.execute(
         select(Member).where(
             Member.guild_id == guild_id,
             Member.discord_user_id == discord_user_id,
@@ -70,15 +70,15 @@ async def update_member(
     if entity is not None:
         entity.name = name
         entity.avatar_hash = avatar_hash
-        await db.flush()
+        await session.flush()
 
 
 async def delete_member(
     guild_id: int,
     discord_user_id: int,
-    db: AsyncSession,
+    session: AsyncSession,
 ) -> None:
-    result = await db.execute(
+    result = await session.execute(
         select(Member).where(
             Member.guild_id == guild_id,
             Member.discord_user_id == discord_user_id,
@@ -86,5 +86,5 @@ async def delete_member(
     )
     entity = result.scalar_one_or_none()
     if entity is not None:
-        await db.delete(entity)
-        await db.flush()
+        await session.delete(entity)
+        await session.flush()

@@ -16,7 +16,7 @@ from shared.repositories.tier_repository import TierRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
-from ..utils.token import Payload
+from ..utils.token import TokenPayload
 
 
 @service_exception_handler
@@ -25,7 +25,7 @@ async def add_preset_member_service(
     preset_id: int,
     dto: AddPresetMemberDTO,
     db: AsyncSession,
-    payload: Payload,
+    payload: TokenPayload,
 ) -> PresetMemberDetailDTO:
     await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
@@ -66,7 +66,7 @@ async def update_preset_member_service(
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
     db: AsyncSession,
-    payload: Payload,
+    payload: TokenPayload,
 ) -> PresetMemberDetailDTO:
     await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
@@ -98,7 +98,7 @@ async def delete_preset_member_service(
     preset_id: int,
     preset_member_id: int,
     db: AsyncSession,
-    payload: Payload,
+    payload: TokenPayload,
 ) -> None:
     await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
 
