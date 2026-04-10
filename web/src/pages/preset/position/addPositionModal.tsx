@@ -40,7 +40,7 @@ export function AddPositionModal({ isOpen, onClose }: AddPositionModalProps) {
         presetId,
         dto: {
           name: positionName.trim(),
-          iconUrl: positionIconUrl.trim() || undefined,
+          iconUrl: positionIconUrl.trim() || null,
         },
       });
       handleClose();

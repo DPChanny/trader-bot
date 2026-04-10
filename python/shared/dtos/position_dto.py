@@ -5,14 +5,14 @@ class PositionDTO(BaseDTO):
     position_id: int
     preset_id: int
     name: str
-    icon_url: str | None = None
+    icon_url: str | None
 
     model_config = {"from_attributes": True}
 
 
 class AddPositionDTO(BaseDTO):
     name: str
-    icon_url: NullableStr = None
+    icon_url: NullableStr
 
 
 class UpdatePositionDTO(BaseDTO):

@@ -23,7 +23,7 @@ export function MemberCandidateGrid({ members }: MemberCandidateGridProps) {
       await addPresetMember.mutateAsync({
         guildId,
         presetId: selectedPresetId,
-        dto: { memberId },
+        dto: { memberId, tierId: null, isLeader: false },
       });
     } catch (err) {
       console.error("Failed to add member:", err);

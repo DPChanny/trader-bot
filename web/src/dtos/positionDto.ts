@@ -7,7 +7,7 @@ export interface PositionDTO {
 
 export interface AddPositionDTO {
   name: string;
-  iconUrl?: string;
+  iconUrl: string | null;
 }
 
 export interface UpdatePositionDTO {

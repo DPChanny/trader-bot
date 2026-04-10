@@ -27,22 +27,22 @@ class MessageType(StrEnum):
 class Team(BaseDTO):
     team_id: int
     leader_id: int
-    member_id_list: list[int] = []
+    member_id_list: list[int]
     points: int
 
 
 class AuctionStateDTO(BaseDTO):
     auction_id: str
     status: AuctionStatus
-    current_member_id: int | None = None
-    current_bid: int | None = None
-    current_bidder: int | None = None
+    current_member_id: int | None
+    current_bid: int | None
+    current_bidder: int | None
     timer: int
     teams: list[Team]
     auction_queue: list[int]
     unsold_queue: list[int]
     connected_users: list[int]
-    preset_snapshot: dict | None = None
+    preset_snapshot: dict | None
 
 
 class AuctionDTO(BaseDTO):

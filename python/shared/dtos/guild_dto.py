@@ -6,7 +6,7 @@ from . import BaseDTO, DiscordId
 class GuildDTO(BaseDTO):
     discord_id: DiscordId
     name: str
-    icon_hash: str | None = None
+    icon_hash: str | None
 
     model_config = {"from_attributes": True}
 

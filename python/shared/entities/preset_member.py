@@ -31,7 +31,7 @@ class PresetMember(BaseEntity):
         ForeignKey("tier.tier_id", ondelete="SET NULL"),
         nullable=True,
     )
-    is_leader: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_leader: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     preset: Mapped[Preset] = relationship("Preset", back_populates="preset_members")
     member: Mapped[Member] = relationship("Member", back_populates="preset_members")

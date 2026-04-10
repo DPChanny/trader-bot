@@ -16,8 +16,8 @@ export interface PresetMemberDetailDTO extends PresetMemberDTO {
 
 export interface AddPresetMemberDTO {
   memberId: number;
-  tierId?: number | null;
-  isLeader?: boolean;
+  tierId: number | null;
+  isLeader: boolean;
 }
 
 export interface UpdatePresetMemberDTO {

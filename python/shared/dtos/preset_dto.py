@@ -17,9 +17,9 @@ class PresetDTO(BaseDTO):
 
 
 class PresetDetailDTO(PresetDTO):
-    preset_members: list[PresetMemberDetailDTO] = []
-    tiers: list[TierDTO] = []
-    positions: list[PositionDTO] = []
+    preset_members: list[PresetMemberDetailDTO]
+    tiers: list[TierDTO]
+    positions: list[PositionDTO]
 
 
 class AddPresetDTO(BaseDTO):
