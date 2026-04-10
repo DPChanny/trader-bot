@@ -1,11 +1,9 @@
 from fastapi import WebSocket
 from loguru import logger
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction_dto import AuctionStatus, MessageType
-from shared.entities.member import Member
-from shared.entities.preset_member import PresetMember
+from shared.repositories.preset_member_repository import PresetMemberRepository
 
 from ..auction import Auction, auction_manager
 from ..utils.token import decode_token
@@ -14,7 +12,8 @@ from ..utils.token import decode_token
 async def _resolve_member(
     jwt_token: str | None,
     preset_id: int,
-    db: AsyncSession,
+    guild_id: int,
+    preset_member_repo: PresetMemberRepository,
 ) -> tuple[int | None, bool, int | None]:
     """Return (member_id, is_leader, team_id) or (None, False, None) for anonymous."""
     if not jwt_token:
@@ -25,15 +24,9 @@ async def _resolve_member(
     except Exception:
         return None, False, None
 
-    result = await db.execute(
-        select(PresetMember)
-        .join(PresetMember.member)
-        .where(
-            PresetMember.preset_id == preset_id,
-            Member.discord_user_id == payload.discord_id,
-        )
+    pm = await preset_member_repo.get_by_discord_user_id(
+        payload.discord_id, preset_id, guild_id
     )
-    pm = result.scalar_one_or_none()
     if pm is None:
         return None, False, None
 
@@ -56,7 +49,11 @@ async def handle_websocket_connect(
         return None, None, False, None
 
     preset_id: int = auction.preset_snapshot["preset_id"]
-    member_id, is_leader, _ = await _resolve_member(jwt_token, preset_id, db)
+    guild_id: int = auction.preset_snapshot["guild_id"]
+    preset_member_repo = PresetMemberRepository(db)
+    member_id, is_leader, _ = await _resolve_member(
+        jwt_token, preset_id, guild_id, preset_member_repo
+    )
 
     # Resolve team_id from live auction state
     team_id: int | None = None

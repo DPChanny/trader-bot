@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.tier_dto import (
@@ -9,8 +8,10 @@ from shared.dtos.tier_dto import (
     UpdateTierDTO,
 )
 from shared.entities.member import Role
-from shared.entities.preset import Preset
 from shared.entities.tier import Tier
+from shared.repositories.member_repository import MemberRepository
+from shared.repositories.preset_repository import PresetRepository
+from shared.repositories.tier_repository import TierRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
@@ -21,17 +22,18 @@ from ..utils.token import Payload
 async def add_tier_service(
     guild_id: int, preset_id: int, dto: AddTierDTO, db: AsyncSession, payload: Payload
 ) -> TierDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
-    result = await db.execute(
-        select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
-    )
-    if result.scalar_one_or_none() is None:
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+
+    preset_repo = PresetRepository(db)
+    if await preset_repo.get_by_id(preset_id, guild_id) is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
+    tier_repo = TierRepository(db)
     tier = Tier(preset_id=preset_id, name=dto.name)
-    db.add(tier)
-    await db.commit()
-    await db.refresh(tier)
+    tier_repo.add(tier)
+    await tier_repo.commit()
+    await tier_repo.refresh(tier)
     logger.info(f"Tier created: id={tier.tier_id}, name={dto.name}")
     return TierDTO.model_validate(tier)
 
@@ -45,25 +47,19 @@ async def update_tier_service(
     db: AsyncSession,
     payload: Payload,
 ) -> TierDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
-    result = await db.execute(
-        select(Tier)
-        .join(Preset)
-        .where(
-            Tier.tier_id == tier_id,
-            Tier.preset_id == preset_id,
-            Preset.guild_id == guild_id,
-        )
-    )
-    tier = result.scalar_one_or_none()
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+
+    tier_repo = TierRepository(db)
+    tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
         raise HTTPException(status_code=404, detail="Tier not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(tier, key, value)
 
-    await db.commit()
-    await db.refresh(tier)
+    await tier_repo.commit()
+    await tier_repo.refresh(tier)
     logger.info(f"Tier updated: id={tier_id}")
 
     return TierDTO.model_validate(tier)
@@ -73,20 +69,14 @@ async def update_tier_service(
 async def delete_tier_service(
     guild_id: int, preset_id: int, tier_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
-    result = await db.execute(
-        select(Tier)
-        .join(Preset)
-        .where(
-            Tier.tier_id == tier_id,
-            Tier.preset_id == preset_id,
-            Preset.guild_id == guild_id,
-        )
-    )
-    tier = result.scalar_one_or_none()
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+
+    tier_repo = TierRepository(db)
+    tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
         raise HTTPException(status_code=404, detail="Tier not found")
 
-    await db.delete(tier)
-    await db.commit()
+    await tier_repo.delete(tier)
+    await tier_repo.commit()
     logger.info(f"Tier deleted: id={tier_id}")

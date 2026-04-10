@@ -1,10 +1,8 @@
 from fastapi import HTTPException
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from shared.dtos.member_dto import MemberDetailDTO
-from shared.entities.member import Member
+from shared.repositories.member_repository import MemberRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
@@ -15,13 +13,9 @@ from ..utils.token import Payload
 async def get_member_detail_service(
     guild_id: int, member_id: int, db: AsyncSession, payload: Payload
 ) -> MemberDetailDTO:
-    await verify_role(guild_id, payload.discord_id, db)
-    result = await db.execute(
-        select(Member)
-        .options(selectinload(Member.discord_user), selectinload(Member.guild))
-        .where(Member.member_id == member_id, Member.guild_id == guild_id)
-    )
-    member = result.scalar_one_or_none()
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo)
+    member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
     return MemberDetailDTO.model_validate(member)
@@ -31,13 +25,9 @@ async def get_member_detail_service(
 async def get_member_list_service(
     guild_id: int, db: AsyncSession, payload: Payload
 ) -> list[MemberDetailDTO]:
-    await verify_role(guild_id, payload.discord_id, db)
-    result = await db.execute(
-        select(Member)
-        .options(selectinload(Member.discord_user), selectinload(Member.guild))
-        .where(Member.guild_id == guild_id)
-    )
-    members = result.scalars().all()
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo)
+    members = await member_repo.get_all_by_guild(guild_id)
     return [MemberDetailDTO.model_validate(m) for m in members]
 
 
@@ -49,24 +39,16 @@ async def update_member_service(
     db: AsyncSession,
     payload: Payload,
 ) -> MemberDetailDTO:
-
-    await verify_role(guild_id, payload.discord_id, db)
-    result = await db.execute(
-        select(Member).where(Member.member_id == member_id, Member.guild_id == guild_id)
-    )
-    member = result.scalar_one_or_none()
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo)
+    member = await member_repo.get_by_id(member_id, guild_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(member, key, value)
 
-    await db.commit()
+    await member_repo.commit()
 
-    result = await db.execute(
-        select(Member)
-        .options(selectinload(Member.discord_user), selectinload(Member.guild))
-        .where(Member.member_id == member_id)
-    )
-    member = result.scalar_one()
+    member = await member_repo.get_detail_by_id(member_id, guild_id)
     return MemberDetailDTO.model_validate(member)

@@ -1,39 +1,22 @@
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
 
 from shared.dtos.preset_member_dto import (
     AddPresetMemberDTO,
     PresetMemberDetailDTO,
     UpdatePresetMemberDTO,
 )
-from shared.entities.member import Member, Role
-from shared.entities.preset import Preset
+from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
-from shared.entities.tier import Tier
+from shared.repositories.member_repository import MemberRepository
+from shared.repositories.preset_member_repository import PresetMemberRepository
+from shared.repositories.preset_repository import PresetRepository
+from shared.repositories.tier_repository import TierRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
 from ..utils.token import Payload
-
-
-async def _query_preset_member_detail(
-    preset_member_id: int,
-    db: AsyncSession,
-) -> PresetMember | None:
-    stmt = (
-        select(PresetMember)
-        .options(
-            joinedload(PresetMember.member).joinedload(Member.discord_user),
-            joinedload(PresetMember.member).joinedload(Member.guild),
-            selectinload(PresetMember.preset_member_positions),
-        )
-        .where(PresetMember.preset_member_id == preset_member_id)
-    )
-    result = await db.execute(stmt)
-    return result.unique().scalar_one_or_none()
 
 
 @service_exception_handler
@@ -44,43 +27,34 @@ async def add_preset_member_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PresetMemberDetailDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
 
-    result = await db.execute(
-        select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
-    )
-    if result.scalar_one_or_none() is None:
+    preset_repo = PresetRepository(db)
+    if await preset_repo.get_by_id(preset_id, guild_id) is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    result = await db.execute(
-        select(Member).where(
-            Member.member_id == dto.member_id, Member.guild_id == guild_id
-        )
-    )
-    if result.scalar_one_or_none() is None:
+    if await member_repo.get_by_id(dto.member_id, guild_id) is None:
         raise HTTPException(status_code=404, detail="Member not found")
 
     if dto.tier_id is not None:
-        result = await db.execute(
-            select(Tier)
-            .join(Preset, Tier.preset_id == Preset.preset_id)
-            .where(Tier.tier_id == dto.tier_id, Preset.guild_id == guild_id)
-        )
-        if result.scalar_one_or_none() is None:
+        tier_repo = TierRepository(db)
+        if await tier_repo.get_by_id(dto.tier_id, preset_id, guild_id) is None:
             raise HTTPException(status_code=404, detail="Tier not found")
 
+    preset_member_repo = PresetMemberRepository(db)
     preset_member = PresetMember(
         preset_id=preset_id,
         member_id=dto.member_id,
         tier_id=dto.tier_id,
         is_leader=dto.is_leader,
     )
-    db.add(preset_member)
-    await db.commit()
+    preset_member_repo.add(preset_member)
+    await preset_member_repo.commit()
     logger.info(f"PresetMember created: id={preset_member.preset_member_id}")
 
-    preset_member = await _query_preset_member_detail(
-        preset_member.preset_member_id, db
+    preset_member = await preset_member_repo.get_detail_by_id(
+        preset_member.preset_member_id, preset_id, guild_id
     )
     return PresetMemberDetailDTO.model_validate(preset_member)
 
@@ -94,35 +68,28 @@ async def update_preset_member_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PresetMemberDetailDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
-    result = await db.execute(
-        select(PresetMember)
-        .join(Preset)
-        .where(
-            PresetMember.preset_member_id == preset_member_id,
-            PresetMember.preset_id == preset_id,
-            Preset.guild_id == guild_id,
-        )
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+
+    preset_member_repo = PresetMemberRepository(db)
+    preset_member = await preset_member_repo.get_detail_by_id(
+        preset_member_id, preset_id, guild_id
     )
-    preset_member = result.scalar_one_or_none()
     if preset_member is None:
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
+    tier_repo = TierRepository(db)
     for key, value in dto.model_dump(exclude_unset=True).items():
         if key == "tier_id" and value is not None:
-            tier_result = await db.execute(
-                select(Tier)
-                .join(Preset, Tier.preset_id == Preset.preset_id)
-                .where(Tier.tier_id == value, Preset.guild_id == guild_id)
-            )
-            if tier_result.scalar_one_or_none() is None:
+            tier = await tier_repo.get_by_id(value, preset_id, guild_id)
+            if tier is None:
                 raise HTTPException(status_code=404, detail="Tier not found")
         setattr(preset_member, key, value)
 
-    await db.commit()
+    await preset_member_repo.commit()
     logger.info(f"PresetMember updated: id={preset_member_id}")
 
-    preset_member = await _query_preset_member_detail(preset_member_id, db)
+    await preset_member_repo.refresh(preset_member)
     return PresetMemberDetailDTO.model_validate(preset_member)
 
 
@@ -134,20 +101,16 @@ async def delete_preset_member_service(
     db: AsyncSession,
     payload: Payload,
 ) -> None:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
-    result = await db.execute(
-        select(PresetMember)
-        .join(Preset)
-        .where(
-            PresetMember.preset_member_id == preset_member_id,
-            PresetMember.preset_id == preset_id,
-            Preset.guild_id == guild_id,
-        )
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+
+    preset_member_repo = PresetMemberRepository(db)
+    preset_member = await preset_member_repo.get_by_id(
+        preset_member_id, preset_id, guild_id
     )
-    preset_member = result.scalar_one_or_none()
     if preset_member is None:
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
-    await db.delete(preset_member)
-    await db.commit()
+    await preset_member_repo.delete(preset_member)
+    await preset_member_repo.commit()
     logger.info(f"PresetMember deleted: id={preset_member_id}")

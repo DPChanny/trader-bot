@@ -1,22 +1,16 @@
 from fastapi import HTTPException
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from shared.dtos.lol_stat_dto import ChampionDTO, LolStatDTO
-from shared.entities.lol_stat import LolStat
+from shared.repositories.lol_stat_repository import LolStatRepository
 
 from ..utils.exception import service_exception_handler
 
 
 @service_exception_handler
 async def get_lol_stat(member_id: int, db: AsyncSession) -> LolStatDTO:
-    result = await db.execute(
-        select(LolStat)
-        .options(joinedload(LolStat.champions))
-        .where(LolStat.member_id == member_id)
-    )
-    lol_stat = result.unique().scalar_one_or_none()
+    lol_stat_repo = LolStatRepository(db)
+    lol_stat = await lol_stat_repo.get_by_member_id(member_id)
 
     if lol_stat is None:
         raise HTTPException(

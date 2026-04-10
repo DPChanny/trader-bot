@@ -2,18 +2,17 @@ import asyncio
 
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
 
 from shared.dtos.auction_dto import (
     AuctionDTO,
     Team,
 )
 from shared.dtos.preset_dto import PresetDetailDTO
-from shared.entities.member import Member, Role
-from shared.entities.preset import Preset
+from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
+from shared.repositories.member_repository import MemberRepository
+from shared.repositories.preset_repository import PresetRepository
 from shared.utils.discord import send_message
 from shared.utils.env import get_app_origin
 
@@ -23,44 +22,24 @@ from ..utils.role import verify_role
 from ..utils.token import Payload
 
 
-async def _query_preset_for_auction(preset_id: int, db: AsyncSession) -> Preset | None:
-    result = await db.execute(
-        select(Preset)
-        .options(
-            joinedload(Preset.guild),
-            selectinload(Preset.preset_members)
-            .joinedload(PresetMember.member)
-            .joinedload(Member.discord_user),
-            selectinload(Preset.preset_members)
-            .joinedload(PresetMember.member)
-            .joinedload(Member.guild),
-            selectinload(Preset.preset_members).selectinload(
-                PresetMember.preset_member_positions
-            ),
-            selectinload(Preset.tiers),
-            selectinload(Preset.positions),
-        )
-        .where(Preset.preset_id == preset_id)
-    )
-    return result.unique().scalar_one_or_none()
-
-
-def _build_preset_snapshot(preset: Preset) -> dict:
+def _build_preset_snapshot(preset) -> dict:
     return PresetDetailDTO.model_validate(preset).model_dump(mode="json")
 
 
 @service_exception_handler
 async def add_auction_service(
-    preset_id: int, db: AsyncSession, payload: Payload
+    guild_id: int, preset_id: int, db: AsyncSession, payload: Payload
 ) -> AuctionDTO:
-    preset = await _query_preset_for_auction(preset_id, db)
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo, Role.ADMIN)
+
+    preset_repo = PresetRepository(db)
+    preset = await preset_repo.get_detail_by_id(preset_id, guild_id)
 
     if preset is None:
         raise HTTPException(
             status_code=404, detail="Auction create failed: preset not found"
         )
-
-    await verify_role(preset.guild_id, payload.discord_id, db, Role.EDITOR)
 
     preset_members = preset.preset_members
     if not preset_members:

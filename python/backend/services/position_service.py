@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from loguru import logger
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.position_dto import (
@@ -10,7 +9,9 @@ from shared.dtos.position_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.position import Position
-from shared.entities.preset import Preset
+from shared.repositories.member_repository import MemberRepository
+from shared.repositories.position_repository import PositionRepository
+from shared.repositories.preset_repository import PresetRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.role import verify_role
@@ -25,21 +26,22 @@ async def add_position_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PositionDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
-    result = await db.execute(
-        select(Preset).where(Preset.preset_id == preset_id, Preset.guild_id == guild_id)
-    )
-    if result.scalar_one_or_none() is None:
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+
+    preset_repo = PresetRepository(db)
+    if await preset_repo.get_by_id(preset_id, guild_id) is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
+    position_repo = PositionRepository(db)
     position = Position(
         preset_id=preset_id,
         name=dto.name,
         icon_url=dto.icon_url,
     )
-    db.add(position)
-    await db.commit()
-    await db.refresh(position)
+    position_repo.add(position)
+    await position_repo.commit()
+    await position_repo.refresh(position)
     logger.info(f"Position created: id={position.position_id}, name={dto.name}")
     return PositionDTO.model_validate(position)
 
@@ -53,25 +55,19 @@ async def update_position_service(
     db: AsyncSession,
     payload: Payload,
 ) -> PositionDTO:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
-    result = await db.execute(
-        select(Position)
-        .join(Preset)
-        .where(
-            Position.position_id == position_id,
-            Position.preset_id == preset_id,
-            Preset.guild_id == guild_id,
-        )
-    )
-    position = result.scalar_one_or_none()
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+
+    position_repo = PositionRepository(db)
+    position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
         raise HTTPException(status_code=404, detail="Position not found")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(position, key, value)
 
-    await db.commit()
-    await db.refresh(position)
+    await position_repo.commit()
+    await position_repo.refresh(position)
     logger.info(f"Position updated: id={position_id}")
 
     return PositionDTO.model_validate(position)
@@ -81,20 +77,14 @@ async def update_position_service(
 async def delete_position_service(
     guild_id: int, preset_id: int, position_id: int, db: AsyncSession, payload: Payload
 ) -> None:
-    await verify_role(guild_id, payload.discord_id, db, Role.EDITOR)
-    result = await db.execute(
-        select(Position)
-        .join(Preset)
-        .where(
-            Position.position_id == position_id,
-            Position.preset_id == preset_id,
-            Preset.guild_id == guild_id,
-        )
-    )
-    position = result.scalar_one_or_none()
+    member_repo = MemberRepository(db)
+    await verify_role(guild_id, payload.discord_id, member_repo, Role.EDITOR)
+
+    position_repo = PositionRepository(db)
+    position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
         raise HTTPException(status_code=404, detail="Position not found")
 
-    await db.delete(position)
-    await db.commit()
+    await position_repo.delete(position)
+    await position_repo.commit()
     logger.info(f"Position deleted: id={position_id}")

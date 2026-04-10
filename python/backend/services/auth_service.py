@@ -1,10 +1,10 @@
 from fastapi.responses import RedirectResponse
 from loguru import logger
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.token_dto import RefreshDTO
 from shared.entities.user import User
+from shared.repositories.user_repository import UserRepository
 from shared.utils.discord import (
     get_login_url,
     get_me,
@@ -34,20 +34,20 @@ async def callback_service(
 
     await upsert_discord_user(discord_id, name, avatar_hash, db)
 
-    result = await db.execute(select(User).where(User.discord_id == discord_id))
-    user = result.scalar_one_or_none()
+    user_repo = UserRepository(db)
+    user = await user_repo.get_by_id(discord_id)
     if user is None:
         logger.info(f"User added: discord_id={discord_id}")
         user = User(discord_id=discord_id)
-        db.add(user)
-        await db.flush()
+        user_repo.add(user)
+        await user_repo.flush()
     else:
         logger.info(f"User login: discord_id={discord_id}")
 
     access_token = create_token(user.discord_id)
     refresh_token = create_refresh_token(user.discord_id)
     user.refresh_token = hash_token(refresh_token)
-    await db.commit()
+    await user_repo.commit()
 
     next_path = parse_oauth_state(state)
     if next_path:
@@ -65,15 +65,15 @@ async def refresh_token_service(dto: RefreshDTO, db: AsyncSession) -> dict:
 
     payload = decode_token(dto.refresh_token)
 
-    result = await db.execute(select(User).where(User.discord_id == payload.discord_id))
-    user = result.scalar_one_or_none()
+    user_repo = UserRepository(db)
+    user = await user_repo.get_by_id(payload.discord_id)
     if user is None or user.refresh_token != hash_token(dto.refresh_token):
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
     access_token = create_token(user.discord_id)
     new_refresh_token = create_refresh_token(user.discord_id)
     user.refresh_token = hash_token(new_refresh_token)
-    await db.commit()
+    await user_repo.commit()
 
     logger.info(f"Token refreshed: discord_id={user.discord_id}")
     return {"token": access_token, "refresh_token": new_refresh_token}

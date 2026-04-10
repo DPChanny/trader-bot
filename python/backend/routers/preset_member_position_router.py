@@ -23,13 +23,14 @@ preset_member_position_router = APIRouter(
 @preset_member_position_router.post("", response_model=PresetMemberPositionDTO)
 async def add_preset_member_position_route(
     guild_id: int,
+    preset_id: int,
     preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
     db: AsyncSession = Depends(get_async_db),
     payload: Payload = Depends(verify_token),
 ):
     return await add_preset_member_position_service(
-        guild_id, preset_member_id, dto, db, payload
+        guild_id, preset_id, preset_member_id, dto, db, payload
     )
 
 

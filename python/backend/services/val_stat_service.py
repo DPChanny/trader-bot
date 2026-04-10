@@ -1,22 +1,16 @@
 from fastapi import HTTPException
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from shared.dtos.val_stat_dto import AgentDTO, ValStatDTO
-from shared.entities.val_stat import ValStat
+from shared.repositories.val_stat_repository import ValStatRepository
 
 from ..utils.exception import service_exception_handler
 
 
 @service_exception_handler
 async def get_val_stat(member_id: int, db: AsyncSession) -> ValStatDTO:
-    result = await db.execute(
-        select(ValStat)
-        .options(joinedload(ValStat.agents))
-        .where(ValStat.member_id == member_id)
-    )
-    val_stat = result.unique().scalar_one_or_none()
+    val_stat_repo = ValStatRepository(db)
+    val_stat = await val_stat_repo.get_by_member_id(member_id)
 
     if val_stat is None:
         raise HTTPException(
