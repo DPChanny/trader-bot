@@ -30,7 +30,8 @@ class Auction:
         member_ids: list[int],
         leader_member_ids: set[int],
         preset_snapshot: dict,
-        timer_duration: int = 5,
+        timer: int,
+        team_size: int,
     ):
         self.auction_id = auction_id
         self.status: AuctionStatus = AuctionStatus.WAITING
@@ -55,8 +56,9 @@ class Auction:
         self.current_member_id: int | None = None
         self.current_bid: int | None = None
         self.current_bidder: int | None = None
-        self.timer_duration = timer_duration
-        self.timer = timer_duration
+        self.initial_timer = timer
+        self.timer = timer
+        self.team_size = team_size
         self.timer_task: asyncio.Task | None = None
         self.auto_delete_task: asyncio.Task | None = None
         self.terminate_task: asyncio.Task | None = None
@@ -251,7 +253,7 @@ class Auction:
             self.timer = self.paused_timer
             self.paused_timer = None
         else:
-            self.timer = self.timer_duration
+            self.timer = self.initial_timer
 
         self.timer_task = asyncio.create_task(self._timer())
 
@@ -264,13 +266,15 @@ class Auction:
             self._stop_timer()
 
             incomplete_teams = [
-                team for team in self.teams.values() if len(team.member_id_list) < 5
+                team
+                for team in self.teams.values()
+                if len(team.member_id_list) < self.team_size
             ]
 
             if len(incomplete_teams) == 1:
                 incomplete_team = incomplete_teams[0]
                 for user_id in self.auction_queue + self.unsold_queue:
-                    if len(incomplete_team.member_id_list) < 5:
+                    if len(incomplete_team.member_id_list) < self.team_size:
                         incomplete_team.member_id_list.append(user_id)
                     else:
                         self.unsold_queue.append(user_id)
@@ -302,7 +306,7 @@ class Auction:
                     self.current_member_id = self.auction_queue.pop(0)
                     self.current_bid = None
                     self.current_bidder = None
-                    self.timer = self.timer_duration
+                    self.timer = self.initial_timer
                     messages.append(
                         WebSocketMessage(
                             type=MessageType.NEXT_MEMBER,
@@ -389,9 +393,12 @@ class Auction:
             if team_id not in self.teams:
                 return {"success": False, "error": "Team not found"}
             team = self.teams[team_id]
-            if len(team.member_id_list) >= 5:
-                return {"success": False, "error": "Team already has 5 members"}
-            remaining_slots = 5 - len(team.member_id_list)
+            if len(team.member_id_list) >= self.team_size:
+                return {
+                    "success": False,
+                    "error": f"Team already has {self.team_size} members",
+                }
+            remaining_slots = self.team_size - len(team.member_id_list)
             max_allowed_bid = team.points - (remaining_slots - 1)
             if amount > max_allowed_bid:
                 return {"success": False, "error": "Bid too high."}

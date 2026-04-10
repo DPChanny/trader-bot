@@ -13,7 +13,8 @@ class AuctionManager:
         member_ids: list[int],
         leader_member_ids: set[int],
         preset_snapshot: dict,
-        timer_duration: int = 5,
+        timer: int,
+        team_size: int,
     ) -> Auction:
         auction_id = str(uuid.uuid4())
         auction = Auction(
@@ -22,7 +23,8 @@ class AuctionManager:
             member_ids=member_ids,
             leader_member_ids=leader_member_ids,
             preset_snapshot=preset_snapshot,
-            timer_duration=timer_duration,
+            timer=timer,
+            team_size=team_size,
         )
         self.auctions[auction_id] = auction
         return auction

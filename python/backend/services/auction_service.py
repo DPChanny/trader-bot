@@ -68,7 +68,8 @@ async def add_auction_service(
         member_ids=member_ids,
         leader_member_ids=leader_member_ids,
         preset_snapshot=preset_snapshot,
-        timer_duration=preset.time,
+        timer=preset.timer,
+        team_size=preset.team_size,
     )
     auction_id: str = auction.auction_id
 

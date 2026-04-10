@@ -49,7 +49,8 @@ export function PresetList({
   const handleUpdate = async (
     name: string,
     points: number,
-    time: number,
+    timer: number,
+    teamSize: number,
     pointScale: number,
     statistics: Statistics,
   ) => {
@@ -58,7 +59,14 @@ export function PresetList({
       await updatePreset.mutateAsync({
         guildId,
         presetId: editingPresetId,
-        dto: { name: name.trim(), points, time, pointScale, statistics },
+        dto: {
+          name: name.trim(),
+          points,
+          timer,
+          teamSize,
+          pointScale,
+          statistics,
+        },
       });
       setIsEditing(false);
       setEditingPresetId(null);
@@ -178,7 +186,12 @@ export function PresetList({
         points={
           presets?.find((p) => p.presetId === editingPresetId)?.points || 1000
         }
-        time={presets?.find((p) => p.presetId === editingPresetId)?.time || 30}
+        timer={
+          presets?.find((p) => p.presetId === editingPresetId)?.timer || 30
+        }
+        teamSize={
+          presets?.find((p) => p.presetId === editingPresetId)?.teamSize || 5
+        }
         pointScale={
           presets?.find((p) => p.presetId === editingPresetId)?.pointScale || 1
         }

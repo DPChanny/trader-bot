@@ -20,7 +20,8 @@ const INITIAL_STATE = {
   presetName: "",
   inputPoints: 1000,
   pointScale: 1,
-  time: 30,
+  timer: 30,
+  teamSize: 5,
   statistics: Statistics.NONE as Statistics,
 };
 
@@ -32,7 +33,8 @@ export function AddPresetModal() {
   const [presetName, setPresetName] = useState(INITIAL_STATE.presetName);
   const [inputPoints, setInputPoints] = useState(INITIAL_STATE.inputPoints);
   const [pointScale, setPointScale] = useState(INITIAL_STATE.pointScale);
-  const [time, setTime] = useState(INITIAL_STATE.time);
+  const [timer, setTimer] = useState(INITIAL_STATE.timer);
+  const [teamSize, setTeamSize] = useState(INITIAL_STATE.teamSize);
   const [statistics, setStatistics] = useState<Statistics>(
     INITIAL_STATE.statistics,
   );
@@ -44,7 +46,8 @@ export function AddPresetModal() {
     setPresetName(INITIAL_STATE.presetName);
     setInputPoints(INITIAL_STATE.inputPoints);
     setPointScale(INITIAL_STATE.pointScale);
-    setTime(INITIAL_STATE.time);
+    setTimer(INITIAL_STATE.timer);
+    setTeamSize(INITIAL_STATE.teamSize);
     setStatistics(INITIAL_STATE.statistics);
     addPreset.reset();
     closeCreatePreset();
@@ -61,7 +64,8 @@ export function AddPresetModal() {
         dto: {
           name: presetName.trim(),
           points: actualPoints,
-          time,
+          timer,
+          teamSize,
           pointScale,
           statistics,
         },
@@ -106,8 +110,14 @@ export function AddPresetModal() {
         <LabelInput
           label="경매 타이머 (초)"
           type="number"
-          value={time.toString()}
-          onChange={(v) => setTime(parseInt(v) || 30)}
+          value={timer.toString()}
+          onChange={(v) => setTimer(parseInt(v) || 30)}
+        />
+        <LabelInput
+          label="팀당 인원수"
+          type="number"
+          value={teamSize.toString()}
+          onChange={(v) => setTeamSize(parseInt(v) || 5)}
         />
         <Section variantTone="ghost" variantIntent="tertiary">
           <Label>통계</Label>

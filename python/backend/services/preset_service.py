@@ -40,7 +40,8 @@ async def add_preset_service(
         guild_id=guild_id,
         name=dto.name,
         points=dto.points,
-        time=dto.time,
+        timer=dto.timer,
+        team_size=dto.team_size,
         point_scale=dto.point_scale,
         statistics=dto.statistics,
     )

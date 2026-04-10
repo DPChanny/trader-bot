@@ -10,7 +10,8 @@ class PresetDTO(BaseDTO):
     guild_id: DiscordId
     name: str
     points: int
-    time: int
+    timer: int
+    team_size: int
     point_scale: int
     statistics: Statistics
 
@@ -26,7 +27,8 @@ class PresetDetailDTO(PresetDTO):
 class AddPresetDTO(BaseDTO):
     name: str
     points: int
-    time: int
+    timer: int
+    team_size: int
     point_scale: int
     statistics: Statistics = Statistics.NONE
 
@@ -34,6 +36,7 @@ class AddPresetDTO(BaseDTO):
 class UpdatePresetDTO(BaseDTO):
     name: NullableStr = None
     points: int | None = None
-    time: int | None = None
+    timer: int | None = None
+    team_size: int | None = None
     point_scale: int | None = None
     statistics: Statistics | None = None

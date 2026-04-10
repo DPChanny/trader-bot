@@ -33,7 +33,8 @@ class Preset(BaseEntity):
     )
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     points: Mapped[int] = mapped_column(nullable=False)
-    time: Mapped[int] = mapped_column(nullable=False)
+    timer: Mapped[int] = mapped_column(nullable=False)
+    team_size: Mapped[int] = mapped_column(nullable=False)
     point_scale: Mapped[int] = mapped_column(nullable=False)
     statistics: Mapped[int] = mapped_column(
         SmallInteger, nullable=False, default=Statistics.NONE

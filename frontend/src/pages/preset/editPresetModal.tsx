@@ -19,14 +19,16 @@ interface EditPresetModalProps {
   onSubmit: (
     name: string,
     points: number,
-    time: number,
+    timer: number,
+    teamSize: number,
     pointScale: number,
     statistics: Statistics,
   ) => void;
   presetId: number | null;
   name: string;
   points: number;
-  time: number;
+  timer: number;
+  teamSize: number;
   pointScale: number;
   statistics: Statistics;
   isPending?: boolean;
@@ -39,7 +41,8 @@ export function EditPresetModal({
   onSubmit,
   name: propName,
   points: propPoints,
-  time: propTime,
+  timer: propTimer,
+  teamSize: propTeamSize,
   pointScale: propPointScale,
   statistics: propStatistics,
   isPending = false,
@@ -47,7 +50,8 @@ export function EditPresetModal({
 }: EditPresetModalProps) {
   const [name, setName] = useState(propName);
   const [inputPoints, setInputPoints] = useState(propPoints * propPointScale);
-  const [time, setTime] = useState(propTime);
+  const [timer, setTimer] = useState(propTimer);
+  const [teamSize, setTeamSize] = useState(propTeamSize);
   const [pointScale, setPointScale] = useState(propPointScale);
   const [statistics, setStatistics] = useState<Statistics>(propStatistics);
 
@@ -55,11 +59,20 @@ export function EditPresetModal({
     if (isOpen) {
       setName(propName);
       setInputPoints(propPoints * propPointScale);
-      setTime(propTime);
+      setTimer(propTimer);
+      setTeamSize(propTeamSize);
       setPointScale(propPointScale);
       setStatistics(propStatistics);
     }
-  }, [isOpen, propName, propPoints, propTime, propPointScale, propStatistics]);
+  }, [
+    isOpen,
+    propName,
+    propPoints,
+    propTimer,
+    propTeamSize,
+    propPointScale,
+    propStatistics,
+  ]);
 
   const isDivisible = inputPoints % pointScale === 0;
 
@@ -67,13 +80,21 @@ export function EditPresetModal({
     e.preventDefault();
     if (!name.trim() || pointScale <= 0 || !isDivisible) return;
     const actualPoints = inputPoints / pointScale;
-    onSubmit(name.trim(), actualPoints, time, pointScale, statistics);
+    onSubmit(
+      name.trim(),
+      actualPoints,
+      timer,
+      teamSize,
+      pointScale,
+      statistics,
+    );
   };
 
   const hasChanges =
     name !== propName ||
     inputPoints !== propPoints * propPointScale ||
-    time !== propTime ||
+    timer !== propTimer ||
+    teamSize !== propTeamSize ||
     pointScale !== propPointScale ||
     statistics !== propStatistics;
 
@@ -115,8 +136,14 @@ export function EditPresetModal({
         <LabelInput
           label="타이머 (초)"
           type="number"
-          value={time.toString()}
-          onChange={(value) => setTime(Number(value) || 0)}
+          value={timer.toString()}
+          onChange={(value) => setTimer(Number(value) || 0)}
+        />
+        <LabelInput
+          label="팀당 인원수"
+          type="number"
+          value={teamSize.toString()}
+          onChange={(value) => setTeamSize(Math.max(1, Number(value) || 1))}
         />
         <Section variantTone="ghost" variantIntent="tertiary">
           <Label>통계</Label>

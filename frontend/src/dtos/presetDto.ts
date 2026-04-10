@@ -18,7 +18,8 @@ export interface PresetDTO {
   guildId: string;
   name: string;
   points: number;
-  time: number;
+  timer: number;
+  teamSize: number;
   pointScale: number;
   statistics: Statistics;
 }
@@ -32,7 +33,8 @@ export interface PresetDetailDTO extends PresetDTO {
 export interface AddPresetDTO {
   name: string;
   points: number;
-  time: number;
+  timer: number;
+  teamSize: number;
   pointScale?: number;
   statistics?: Statistics;
 }
@@ -40,7 +42,8 @@ export interface AddPresetDTO {
 export interface UpdatePresetDTO {
   name?: string;
   points?: number;
-  time?: number;
+  timer?: number;
+  teamSize?: number;
   pointScale?: number;
   statistics?: Statistics;
 }
