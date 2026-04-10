@@ -4,19 +4,19 @@ import { Sidebar } from "./sidebar/sidebar";
 import styles from "@/styles/pages/guild/guildPage.module.css";
 
 interface GuildPageProps {
-  guildId: string;
+  guildId: string | null;
   editor: "preset" | "member" | null;
   presetId: number | null;
 }
 
 export function GuildPage({ guildId, editor, presetId }: GuildPageProps) {
   return (
-    <main className={`app-main ${styles.guildBody}`}>
+    <main className={styles.guildBody}>
       <Sidebar />
       <div className={styles.guildContent}>
-        {editor === "preset" ? (
+        {guildId !== null && editor === "preset" ? (
           <PresetEditor guildId={guildId} presetId={presetId} />
-        ) : editor === "member" ? (
+        ) : guildId !== null && editor === "member" ? (
           <MemberEditor guildId={guildId} />
         ) : null}
       </div>

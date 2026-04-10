@@ -81,7 +81,7 @@ export function TierEditor({ guildId, presetId, tiers }: TierEditorProps) {
 
       <Section
         variantTone="ghost"
-        variantLayout="row"
+        variantLayout="column"
         variantIntent="secondary"
         className={styles.tierList}
       >

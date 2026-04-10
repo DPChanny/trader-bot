@@ -1,8 +1,7 @@
 .tierList {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  overflow-y: visible;
-  justify-content: flex-start;
-  min-height: 0;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
+  min-height: 0;
 }

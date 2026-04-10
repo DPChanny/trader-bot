@@ -86,7 +86,7 @@ export function PositionEditor({
 
       <Section
         variantTone="ghost"
-        variantLayout="row"
+        variantLayout="column"
         variantIntent="secondary"
         className={styles.positionList}
       >

@@ -3,7 +3,7 @@ import { route } from "preact-router";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
 import { GuildCard } from "./guildCard";
-import { SidebarPresetList } from "../preset/presetList";
+import { PresetList } from "../preset/presetList";
 import styles from "@/styles/components/sidebar/guildList.module.css";
 import type { GuildDTO } from "@/dtos/guildDto";
 
@@ -11,7 +11,7 @@ interface GuildListProps {
   guilds: GuildDTO[];
   activeGuildId: string | null;
   selectedPresetId: number | null;
-  editor: "preset" | "member";
+  editor: "preset" | "member" | null;
 }
 
 export function GuildList({
@@ -53,7 +53,7 @@ export function GuildList({
                 <GuildCard
                   guild={g}
                   isActive={isActive}
-                  onClick={() => route(`/guild/${g.discordId}/preset`)}
+                  onClick={() => route(`/guild/${g.discordId}`)}
                 />
 
                 {isActive && (
@@ -62,8 +62,7 @@ export function GuildList({
                     variantLayout="column"
                     className={styles.guildSub}
                   >
-                    <Bar />
-                    <SidebarPresetList
+                    <PresetList
                       guildId={g.discordId}
                       selectedPresetId={selectedPresetId}
                       editor={editor}

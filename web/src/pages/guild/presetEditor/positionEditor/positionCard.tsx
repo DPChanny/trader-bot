@@ -82,6 +82,7 @@ export function PositionCard({
           >
             {position.name.charAt(0)}
           </Badge>
+          <span className={styles.name}>{position.name}</span>
 
           <Section
             variantTone="ghost"

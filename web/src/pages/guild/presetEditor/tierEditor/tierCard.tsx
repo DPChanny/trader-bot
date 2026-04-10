@@ -81,6 +81,7 @@ export function TierCard({
           >
             {tier.name.charAt(0)}
           </Badge>
+          <span className={styles.name}>{tier.name}</span>
 
           <Section
             variantTone="ghost"

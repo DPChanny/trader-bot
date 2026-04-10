@@ -3,6 +3,7 @@ import { useEffect } from "preact/hooks";
 import Router from "preact-router";
 import { QueryClientProvider } from "@tanstack/preact-query";
 import { GuildPage } from "@/pages/guild/guildPage";
+import { HomePage } from "@/pages/home/homePage";
 import { AuctionPage } from "@/pages/auction/auctionPage";
 import { Header } from "@/components/commons/header";
 import { queryClient } from "@/utils/query";
@@ -31,15 +32,14 @@ function Root({}: { path?: string }) {
     const refreshToken = params.get("refresh_token");
     if (token) setAuthToken(token);
     if (refreshToken) setRefreshToken(refreshToken);
+    if (isAuthenticated()) {
+      route("/guild", true);
+    }
   }, []);
 
   if (isAuthenticated()) return null;
 
-  return (
-    <main className="app-main app-home">
-      <p>Discord 계정으로 로그인하여 이용해주세요.</p>
-    </main>
-  );
+  return <HomePage />;
 }
 
 interface GuildRouteProps {
@@ -51,13 +51,35 @@ interface GuildPresetRouteProps extends GuildRouteProps {
   presetId?: string;
 }
 
+function GuildBaseRoute({}: GuildRouteProps) {
+  useEffect(() => {
+    if (!isAuthenticated()) route("/", true);
+  }, []);
+  if (!isAuthenticated()) return null;
+  return <GuildPage guildId={null} editor={null} presetId={null} />;
+}
+
 function GuildRoute({ guildId }: GuildRouteProps) {
-  if (!guildId) return null;
+  useEffect(() => {
+    if (!isAuthenticated()) route("/", true);
+  }, []);
+  if (!isAuthenticated() || !guildId) return null;
   return <GuildPage guildId={guildId} editor={null} presetId={null} />;
 }
 
+function GuildPresetRedirect({ guildId }: GuildRouteProps) {
+  useEffect(() => {
+    if (!isAuthenticated()) route("/", true);
+    else route(guildId ? `/guild/${guildId}` : "/guild", true);
+  }, [guildId]);
+  return null;
+}
+
 function GuildPresetRoute({ guildId, presetId }: GuildPresetRouteProps) {
-  if (!guildId) return null;
+  useEffect(() => {
+    if (!isAuthenticated()) route("/", true);
+  }, []);
+  if (!isAuthenticated() || !guildId) return null;
   return (
     <GuildPage
       guildId={guildId}
@@ -68,7 +90,10 @@ function GuildPresetRoute({ guildId, presetId }: GuildPresetRouteProps) {
 }
 
 function GuildMemberRoute({ guildId }: GuildRouteProps) {
-  if (!guildId) return null;
+  useEffect(() => {
+    if (!isAuthenticated()) route("/", true);
+  }, []);
+  if (!isAuthenticated() || !guildId) return null;
   return <GuildPage guildId={guildId} editor="member" presetId={null} />;
 }
 
@@ -101,8 +126,9 @@ function AppShell() {
       <div className="app-content">
         <Router>
           <Root path="/" />
+          <GuildBaseRoute path="/guild" />
           <GuildRoute path="/guild/:guildId" />
-          <GuildPresetRoute path="/guild/:guildId/preset" />
+          <GuildPresetRedirect path="/guild/:guildId/preset" />
           <GuildPresetRoute path="/guild/:guildId/preset/:presetId" />
           <GuildMemberRoute path="/guild/:guildId/member" />
           <AuctionLayout path="/auction/:auctionId" />

@@ -13,10 +13,10 @@ import type { PresetDTO } from "@/dtos/presetDto";
 interface SidebarPresetListProps {
   guildId: string;
   selectedPresetId: number | null;
-  editor: "preset" | "member";
+  editor: "preset" | "member" | null;
 }
 
-export function SidebarPresetList({
+export function PresetList({
   guildId,
   selectedPresetId,
   editor,
@@ -35,7 +35,6 @@ export function SidebarPresetList({
   };
 
   const handleAddPreset = () => {
-    if (editor !== "preset") route(`/guild/${guildId}/preset`);
     setIsCreatingPreset(true);
   };
 
@@ -61,8 +60,7 @@ export function SidebarPresetList({
     if (!deletingPresetId) return;
     try {
       await deletePreset.mutateAsync({ guildId, presetId: deletingPresetId });
-      if (selectedPresetId === deletingPresetId)
-        route(`/guild/${guildId}/preset`);
+      if (selectedPresetId === deletingPresetId) route(`/guild/${guildId}`);
     } catch {
     } finally {
       setDeletingPresetId(null);
@@ -96,7 +94,7 @@ export function SidebarPresetList({
               }`}
               onClick={(e) => {
                 e.stopPropagation();
-                route(`/guild/${guildId}/preset`);
+                route(`/guild/${guildId}`);
               }}
             >
               프리셋

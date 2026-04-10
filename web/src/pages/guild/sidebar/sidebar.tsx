@@ -17,9 +17,11 @@ export function Sidebar() {
   const activeGuildId = guildMatch ? guildMatch[1]! : null;
   const presetMatch = url.match(/\/preset\/(\d+)/);
   const presetId = presetMatch ? parseInt(presetMatch[1]!) : null;
-  const editor: "preset" | "member" = url.includes("/member")
+  const editor: "preset" | "member" | null = url.includes("/member")
     ? "member"
-    : "preset";
+    : url.includes("/preset")
+      ? "preset"
+      : null;
 
   if (collapsed) {
     return (
