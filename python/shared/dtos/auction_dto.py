@@ -1,6 +1,6 @@
 from enum import IntEnum, StrEnum
 
-from . import BaseDTO, DiscordId
+from . import BaseDTO
 
 
 class AuctionStatus(IntEnum):
@@ -32,9 +32,7 @@ class Team(BaseDTO):
 
 
 class AuctionStateDTO(BaseDTO):
-    auction_id: int
-    preset_id: int
-    guild_id: DiscordId
+    auction_id: str
     status: AuctionStatus
     current_member_id: int | None = None
     current_bid: int | None = None
@@ -48,8 +46,7 @@ class AuctionStateDTO(BaseDTO):
 
 
 class AuctionDTO(BaseDTO):
-    auction_id: int
-    preset_id: int
+    auction_id: str
 
 
 class TimerMessageData(BaseDTO):

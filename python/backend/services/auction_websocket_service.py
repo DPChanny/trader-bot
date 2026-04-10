@@ -42,7 +42,7 @@ async def _resolve_member(
 
 async def handle_websocket_connect(
     websocket: WebSocket,
-    auction_id: int,
+    auction_id: str,
     jwt_token: str | None,
     db: AsyncSession,
 ) -> tuple[Auction | None, int | None, bool, int | None]:
@@ -55,7 +55,8 @@ async def handle_websocket_connect(
         await websocket.close(code=4004, reason="Auction not found")
         return None, None, False, None
 
-    member_id, is_leader, _ = await _resolve_member(jwt_token, auction.preset_id, db)
+    preset_id: int = auction.preset_snapshot["preset_id"]
+    member_id, is_leader, _ = await _resolve_member(jwt_token, preset_id, db)
 
     # Resolve team_id from live auction state
     team_id: int | None = None

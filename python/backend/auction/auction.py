@@ -25,9 +25,7 @@ from shared.dtos.auction_dto import (
 class Auction:
     def __init__(
         self,
-        auction_id: int,
-        preset_id: int,
-        guild_id: int,
+        auction_id: str,
         teams: list[Team],
         member_ids: list[int],
         leader_member_ids: set[int],
@@ -35,8 +33,6 @@ class Auction:
         timer_duration: int = 5,
     ):
         self.auction_id = auction_id
-        self.preset_id = preset_id
-        self.guild_id = guild_id
         self.status: AuctionStatus = AuctionStatus.WAITING
         self.teams = {team.team_id: team for team in teams}
         self.leader_member_ids = leader_member_ids
@@ -180,8 +176,6 @@ class Auction:
     def get_state(self) -> AuctionStateDTO:
         return AuctionStateDTO(
             auction_id=self.auction_id,
-            preset_id=self.preset_id,
-            guild_id=self.guild_id,
             status=self.status,
             current_member_id=self.current_member_id,
             current_bid=self.current_bid,

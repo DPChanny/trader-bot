@@ -4,20 +4,16 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import joinedload, selectinload
 
 from shared.dtos.auction_dto import (
     AuctionDTO,
     Team,
 )
-from shared.dtos.lol_stat_dto import ChampionDTO, LolStatDTO
 from shared.dtos.preset_dto import PresetDetailDTO
-from shared.dtos.val_stat_dto import AgentDTO, ValStatDTO
-from shared.entities.lol_stat import LolStat
 from shared.entities.member import Member, Role
 from shared.entities.preset import Preset
 from shared.entities.preset_member import PresetMember
-from shared.entities.val_stat import ValStat
 from shared.utils.discord import send_message
 from shared.utils.env import get_app_origin
 
@@ -31,6 +27,7 @@ async def _query_preset_for_auction(preset_id: int, db: AsyncSession) -> Preset 
     result = await db.execute(
         select(Preset)
         .options(
+            joinedload(Preset.guild),
             selectinload(Preset.preset_members)
             .joinedload(PresetMember.member)
             .joinedload(Member.discord_user),
@@ -40,14 +37,6 @@ async def _query_preset_for_auction(preset_id: int, db: AsyncSession) -> Preset 
             selectinload(Preset.preset_members).selectinload(
                 PresetMember.preset_member_positions
             ),
-            selectinload(Preset.preset_members)
-            .joinedload(PresetMember.member)
-            .selectinload(Member.lol_stat)
-            .selectinload(LolStat.champions),
-            selectinload(Preset.preset_members)
-            .joinedload(PresetMember.member)
-            .selectinload(Member.val_stat)
-            .selectinload(ValStat.agents),
             selectinload(Preset.tiers),
             selectinload(Preset.positions),
         )
@@ -56,51 +45,8 @@ async def _query_preset_for_auction(preset_id: int, db: AsyncSession) -> Preset 
     return result.unique().scalar_one_or_none()
 
 
-def _build_preset_snapshot(preset: Preset, preset_members: list[PresetMember]) -> dict:
-    base = PresetDetailDTO.model_validate(preset).model_dump(mode="json")
-
-    stats_by_member: dict[str, dict] = {}
-    for pm in preset_members:
-        member = pm.member
-        if member is None:
-            continue
-        member_stats: dict = {}
-        if member.lol_stat is not None:
-            lol = member.lol_stat
-            member_stats["lol_stat"] = LolStatDTO(
-                tier=lol.tier,
-                rank=lol.rank,
-                lp=lol.lp,
-                top_champions=[
-                    ChampionDTO(
-                        name=c.name,
-                        icon_url=c.icon_url,
-                        games=c.games,
-                        win_rate=c.win_rate,
-                    )
-                    for c in sorted(lol.champions, key=lambda x: x.rank_order)
-                ],
-            ).model_dump(mode="json")
-        if member.val_stat is not None:
-            val = member.val_stat
-            member_stats["val_stat"] = ValStatDTO(
-                tier=val.tier,
-                rank=val.rank,
-                top_agents=[
-                    AgentDTO(
-                        name=a.name,
-                        icon_url=a.icon_url,
-                        games=a.games,
-                        win_rate=a.win_rate,
-                    )
-                    for a in sorted(val.agents, key=lambda x: x.rank_order)
-                ],
-            ).model_dump(mode="json")
-        if member_stats:
-            stats_by_member[str(pm.member_id)] = member_stats
-
-    base["stats_by_member"] = stats_by_member
-    return base
+def _build_preset_snapshot(preset: Preset) -> dict:
+    return PresetDetailDTO.model_validate(preset).model_dump(mode="json")
 
 
 @service_exception_handler
@@ -143,25 +89,22 @@ async def add_auction_service(
         leader_member_ids.add(leader.member_id)
 
     member_ids = [pm.member_id for pm in preset_members]
-    preset_snapshot = _build_preset_snapshot(preset, preset_members)
+    preset_snapshot = _build_preset_snapshot(preset)
 
     auction = auction_manager.add_auction(
-        preset_id=preset_id,
-        guild_id=preset.guild_id,
         teams=teams,
         member_ids=member_ids,
         leader_member_ids=leader_member_ids,
         preset_snapshot=preset_snapshot,
         timer_duration=preset.time,
     )
-    auction_id: int = auction.auction_id
+    auction_id: str = auction.auction_id
 
     logger.info(
         f"Auction created: auction_id={auction_id}, member_count={len(member_ids)}"
     )
 
     app_origin = get_app_origin()
-    member_map = {pm.member_id: pm for pm in preset_members}
 
     async def _send_dm(pm: PresetMember):
         member = pm.member
@@ -173,6 +116,16 @@ async def add_auction_service(
             {
                 "title": "Trader 경매",
                 "fields": [
+                    {
+                        "name": "서버",
+                        "value": preset.guild.name,
+                        "inline": True,
+                    },
+                    {
+                        "name": "프리셋",
+                        "value": preset.name,
+                        "inline": True,
+                    },
                     {
                         "name": "역할",
                         "value": role_label,
@@ -193,7 +146,4 @@ async def add_auction_service(
         return_exceptions=True,
     )
 
-    return AuctionDTO(
-        auction_id=auction_id,
-        preset_id=preset_id,
-    )
+    return AuctionDTO(auction_id=auction_id)
