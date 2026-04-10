@@ -76,37 +76,3 @@ export function useUpdateMember() {
     },
   });
 }
-
-export function useDeleteMember() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      guildId,
-      memberId,
-    }: {
-      guildId: string;
-      memberId: number;
-    }): Promise<void> => {
-      const response = await fetch(
-        `${getMemberEndpoint(guildId)}/${memberId}`,
-        {
-          method: "DELETE",
-          headers: getAuthHeadersForMutation(),
-        },
-      );
-      if (!response.ok) await handleHttpError(response);
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["members", variables.guildId],
-      });
-      queryClient.removeQueries({
-        queryKey: ["members", variables.guildId, variables.memberId],
-      });
-      queryClient.invalidateQueries({ queryKey: ["preset"] });
-      queryClient.removeQueries({ queryKey: ["lol", variables.memberId] });
-      queryClient.removeQueries({ queryKey: ["val", variables.memberId] });
-    },
-  });
-}

@@ -1,17 +1,12 @@
 import { useEffect, useState } from "preact/hooks";
 import { MemberCard } from "@/components/memberCard";
-import { useDeleteMember, useUpdateMember } from "@/hooks/member";
+import { useUpdateMember } from "@/hooks/member";
 import { useGuildContext } from "@/contexts/guildContext";
-import {
-  CloseButton,
-  DangerButton,
-  SaveButton,
-} from "@/components/commons/button";
+import { CloseButton, SaveButton } from "@/components/commons/button";
 import { LabelInput } from "@/components/commons/labelInput";
 import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
-import { ConfirmModal } from "@/components/commons/modal";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 import styles from "@/styles/components/memberEditor.module.css";
@@ -25,11 +20,9 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
   const { guild } = useGuildContext();
   const guildId = guild?.discordId ?? null;
   const updateMember = useUpdateMember();
-  const deleteMember = useDeleteMember();
 
   const [alias, setAlias] = useState(member.alias ?? "");
   const [infoUrl, setInfoUrl] = useState(member.infoUrl ?? "");
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     setAlias(member.alias ?? "");
@@ -49,17 +42,6 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
       });
     } catch (err) {
       console.error("Failed to update member:", err);
-    }
-  };
-
-  const handleDeleteMember = async () => {
-    if (!guildId) return;
-    try {
-      await deleteMember.mutateAsync({ guildId, memberId: member.memberId });
-      onClose();
-    } catch (err) {
-      console.error("Failed to delete member:", err);
-      setShowDeleteConfirm(false);
     }
   };
 
@@ -84,19 +66,10 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
             <CloseButton onClick={onClose} />
           </Section>
         </Section>
-        {(updateMember.isError || deleteMember.isError) && (
-          <>
-            {updateMember.isError && (
-              <Error detail={updateMember.error?.message}>
-                멤버 정보 수정에 실패했습니다.
-              </Error>
-            )}
-            {deleteMember.isError && (
-              <Error detail={deleteMember.error?.message}>
-                멤버 삭제에 실패했습니다.
-              </Error>
-            )}
-          </>
+        {updateMember.isError && (
+          <Error detail={updateMember.error?.message}>
+            멤버 정보 수정에 실패했습니다.
+          </Error>
         )}
       </Section>
 
@@ -136,28 +109,6 @@ export function MemberEditor({ member, onClose }: MemberEditorProps) {
           )}
         </Section>
       </Section>
-
-      <Bar />
-
-      <Section variantTone="ghost" variantIntent="secondary">
-        <DangerButton
-          variantSize="large"
-          onClick={() => setShowDeleteConfirm(true)}
-          disabled={deleteMember.isPending}
-        >
-          멤버 삭제
-        </DangerButton>
-      </Section>
-
-      <ConfirmModal
-        isOpen={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={handleDeleteMember}
-        title="멤버 삭제"
-        message="정말 이 멤버를 삭제하시겠습니까?"
-        confirmText="삭제"
-        isPending={deleteMember.isPending}
-      />
     </Section>
   );
 }

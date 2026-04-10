@@ -1,8 +1,7 @@
 import { useEffect } from "preact/hooks";
 import { route } from "preact-router";
-import { useGuilds, useGuildInviteUrl } from "@/hooks/guild";
+import { useGuilds } from "@/hooks/guild";
 import { GuildCard } from "./guildCard";
-import { PrimaryButton } from "@/components/commons/button";
 import { Section } from "@/components/commons/section";
 import { PageContainer, PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
@@ -18,7 +17,6 @@ interface GuildPageProps {
 
 export function GuildPage({}: GuildPageProps) {
   const { data: guilds, isLoading, error } = useGuilds();
-  const guildInvite = useGuildInviteUrl();
   const { setGuild } = useGuildContext();
 
   useEffect(() => {
@@ -35,34 +33,12 @@ export function GuildPage({}: GuildPageProps) {
     }
   };
 
-  const handleInvite = async () => {
-    try {
-      const result = await guildInvite.mutateAsync();
-      window.open(result.url, "_blank");
-    } catch (err) {
-      console.error("Failed to get invite URL:", err);
-    }
-  };
-
   return (
     <PageLayout>
       <PageContainer>
         <Section variantIntent="primary" className={styles.mainSection}>
-          <Section variantTone="ghost" variantLayout="row">
-            <h3>길드 선택</h3>
-            <PrimaryButton
-              onClick={handleInvite}
-              disabled={guildInvite.isPending}
-            >
-              봇 초대
-            </PrimaryButton>
-          </Section>
+          <h3>길드 선택</h3>
           <Bar />
-          {guildInvite.isError && (
-            <Error detail={guildInvite.error?.message}>
-              초대 링크를 가져오는데 실패했습니다.
-            </Error>
-          )}
           {error && (
             <Error detail={error?.message}>
               길드 목록을 불러오는데 실패했습니다.
@@ -79,9 +55,7 @@ export function GuildPage({}: GuildPageProps) {
                 />
               ))}
               {guilds?.length === 0 && (
-                <p class={styles.empty}>
-                  소속된 길드가 없습니다. 봇 초대 버튼으로 봇을 추가해주세요.
-                </p>
+                <p class={styles.empty}>소속된 길드가 없습니다.</p>
               )}
             </div>
           )}
