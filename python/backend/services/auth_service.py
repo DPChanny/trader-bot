@@ -2,7 +2,7 @@ from fastapi.responses import RedirectResponse
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.token_dto import RefreshDTO
+from shared.dtos.auth_dto import RefreshDTO
 from shared.entities.user import User
 from shared.repositories.user_repository import UserRepository
 from shared.utils.discord import (
