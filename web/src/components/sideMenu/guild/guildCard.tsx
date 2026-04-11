@@ -5,27 +5,30 @@ import type { GuildDTO } from "@/dtos/guildDto";
 interface GuildCardProps {
   guild: GuildDTO;
   isActive?: boolean;
-  onClick: () => void;
 }
 
-export function GuildCard({ guild, isActive, onClick }: GuildCardProps) {
+export function GuildCard({ guild, isActive }: GuildCardProps) {
   return (
-    <Card
-      variantColor={isActive ? "blue" : "gray"}
-      variantActive={isActive}
-      variantLayout="row"
-      variantIntent="tertiary"
-      onClick={onClick}
-      style={{ cursor: "pointer" }}
+    <a
+      href={`/guild/${guild.discordId}/member`}
+      style={{ display: "contents", textDecoration: "none", color: "inherit" }}
     >
-      <div className={styles.icon}>
-        {guild.iconUrl ? (
-          <img src={guild.iconUrl} alt={guild.name} />
-        ) : (
-          <span className={styles.iconFallback}>🎮</span>
-        )}
-      </div>
-      <span className={styles.name}>{guild.name}</span>
-    </Card>
+      <Card
+        variantColor={isActive ? "blue" : "gray"}
+        variantActive={isActive}
+        variantLayout="row"
+        variantIntent="tertiary"
+        style={{ cursor: "pointer" }}
+      >
+        <div className={styles.icon}>
+          {guild.iconUrl ? (
+            <img src={guild.iconUrl} alt={guild.name} />
+          ) : (
+            <span className={styles.iconFallback}>🎮</span>
+          )}
+        </div>
+        <span className={styles.name}>{guild.name}</span>
+      </Card>
+    </a>
   );
 }

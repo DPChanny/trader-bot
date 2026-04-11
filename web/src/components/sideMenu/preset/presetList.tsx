@@ -1,5 +1,4 @@
 import { useState } from "preact/hooks";
-import { route } from "preact-router";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
 import { PrimaryButton } from "@/components/commons/button";
@@ -18,10 +17,6 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
 
   const { data: presets = [] } = usePresets(guildId);
   const addPreset = useAddPreset();
-
-  const handleSelectPreset = (presetId: number) => {
-    route(`/guild/${guildId}/preset/${presetId}`);
-  };
 
   const handleOpenAddPresetModal = () => {
     setShowAddPresetModal(true);
@@ -55,8 +50,8 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
             <PresetCard
               key={preset.presetId}
               preset={preset}
+              guildId={guildId}
               isActive={selectedPresetId === preset.presetId}
-              onClick={() => handleSelectPreset(preset.presetId)}
             />
           ))}
         </Section>

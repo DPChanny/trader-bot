@@ -4,21 +4,25 @@ import type { PresetDTO } from "@/dtos/presetDto";
 
 interface PresetCardProps {
   preset: PresetDTO;
+  guildId: string;
   isActive?: boolean;
-  onClick: () => void;
 }
 
-export function PresetCard({ preset, isActive, onClick }: PresetCardProps) {
+export function PresetCard({ preset, guildId, isActive }: PresetCardProps) {
   return (
-    <Card
-      variantColor={isActive ? "blue" : "gray"}
-      variantActive={isActive}
-      variantLayout="row"
-      variantIntent="tertiary"
-      onClick={onClick}
-      style={{ cursor: "pointer" }}
+    <a
+      href={`/guild/${guildId}/preset/${preset.presetId}`}
+      style={{ display: "contents", textDecoration: "none", color: "inherit" }}
     >
-      <span className={styles.name}>{preset.name}</span>
-    </Card>
+      <Card
+        variantColor={isActive ? "blue" : "gray"}
+        variantActive={isActive}
+        variantLayout="row"
+        variantIntent="tertiary"
+        style={{ cursor: "pointer" }}
+      >
+        <span className={styles.name}>{preset.name}</span>
+      </Card>
+    </a>
   );
 }

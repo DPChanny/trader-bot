@@ -1,4 +1,3 @@
-import { route } from "preact-router";
 import styles from "@/styles/components/header.module.css";
 import { Button, DangerButton } from "@/components/commons/button";
 import type { UserDetailDTO } from "@/dtos/userDto";
@@ -13,14 +12,10 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
   return (
     <header className={styles.header}>
       <div className={styles.headerContent}>
-        <button
-          type="button"
-          className={styles.headerLogo}
-          onClick={() => route("/")}
-        >
+        <a href="/" className={styles.headerLogo}>
           <span className={styles.headerIcon}>🎮</span>
           <span className={styles.headerText}>Trader</span>
-        </button>
+        </a>
 
         <div className={styles.headerUser}>
           {user ? (

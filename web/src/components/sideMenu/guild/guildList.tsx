@@ -1,4 +1,3 @@
-import { route } from "preact-router";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
 import { PrimaryButton } from "@/components/commons/button";
@@ -28,7 +27,6 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
             key={g.discordId}
             guild={g}
             isActive={activeGuildId === g.discordId}
-            onClick={() => route(`/guild/${g.discordId}/member`)}
           />
         ))}
       </Section>
