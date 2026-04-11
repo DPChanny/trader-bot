@@ -1,6 +1,5 @@
-import { useMemo } from "preact/hooks";
+import { useMemo, useState } from "preact/hooks";
 import { useMembers } from "@/hooks/member";
-import { useMemberPageContext, MemberPageProvider } from "./memberContext";
 import { MemberGrid } from "@/components/memberGrid";
 import { Section } from "@/components/commons/section";
 import { PageLayout, PageContainer } from "@/components/commons/page";
@@ -16,8 +15,8 @@ interface MemberEditorProps {
   guildId: string;
 }
 
-function MemberPageContent({ guildId }: MemberEditorProps) {
-  const { selectedMemberId, setSelectedMemberId } = useMemberPageContext();
+export function MemberEditor({ guildId }: MemberEditorProps) {
+  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
 
   const { data: members, isLoading, error } = useMembers(guildId);
 
@@ -64,20 +63,11 @@ function MemberPageContent({ guildId }: MemberEditorProps) {
 
         {selectedMember && (
           <MemberPanel
-            guildId={guildId}
             member={selectedMember}
             onClose={() => setSelectedMemberId(null)}
           />
         )}
       </PageContainer>
     </PageLayout>
-  );
-}
-
-export function MemberEditor({ guildId }: MemberEditorProps) {
-  return (
-    <MemberPageProvider>
-      <MemberPageContent guildId={guildId} />
-    </MemberPageProvider>
   );
 }

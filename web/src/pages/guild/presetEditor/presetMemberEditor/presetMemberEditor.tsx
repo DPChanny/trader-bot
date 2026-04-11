@@ -159,8 +159,6 @@ export function PresetMemberEditor({
       {selectedPresetMember && (
         <PresetMemberPanel
           key={selectedPresetMember.presetMemberId}
-          guildId={guildId}
-          presetId={presetId}
           presetMember={selectedPresetMember}
           setSelectedPresetMemberId={setSelectedPresetMemberId}
           addMemberIdToRemoving={addMemberIdToRemoving}

@@ -11,7 +11,7 @@ export interface PresetMemberDTO {
 }
 
 export interface PresetMemberDetailDTO extends PresetMemberDTO {
-  member: MemberDetailDTO | null;
+  member: MemberDetailDTO;
   tier: TierDTO | null;
   presetMemberPositions: PresetMemberPositionDetailDTO[];
 }

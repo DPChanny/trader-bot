@@ -15,7 +15,7 @@ class PresetMemberDTO(BaseDTO):
 
 
 class PresetMemberDetailDTO(PresetMemberDTO):
-    member: MemberDetailDTO | None
+    member: MemberDetailDTO
     tier: TierDTO | None
     preset_member_positions: list[PresetMemberPositionDetailDTO]
 

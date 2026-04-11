@@ -12,12 +12,11 @@ import type { MemberDetailDTO } from "@/dtos/memberDto";
 import styles from "@/styles/pages/guild/memberEditor.module.css";
 
 interface MemberPanelProps {
-  guildId: string;
   member: MemberDetailDTO;
   onClose: () => void;
 }
 
-export function MemberPanel({ guildId, member, onClose }: MemberPanelProps) {
+export function MemberPanel({ member, onClose }: MemberPanelProps) {
   const updateMember = useUpdateMember();
 
   const [alias, setAlias] = useState(member.alias ?? "");
@@ -38,7 +37,7 @@ export function MemberPanel({ guildId, member, onClose }: MemberPanelProps) {
   const handleSave = async () => {
     try {
       await updateMember.mutateAsync({
-        guildId,
+        guildId: member.guildId,
         memberId: member.memberId,
         dto: { alias: alias || null, infoUrl: infoUrl || null, role },
       });

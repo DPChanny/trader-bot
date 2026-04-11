@@ -2,7 +2,7 @@ import { useAddAuction } from "@/hooks/auction";
 import { usePresetMembers } from "@/hooks/presetMember";
 import { TierEditor } from "./tierEditor/tierEditor";
 import { PositionEditor } from "./positionEditor/positionEditor";
-import { PresetMemberEditor } from "./presetMember/presetMemberEditor";
+import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
 import { Section } from "@/components/commons/section";
 import { PageContainer, PageLayout } from "@/components/commons/page";
 import { PrimaryButton } from "@/components/commons/button";

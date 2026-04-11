@@ -24,8 +24,6 @@ import { Section } from "@/components/commons/section";
 import styles from "@/styles/pages/guild/presetEditor/presetMember/presetMemberPanel.module.css";
 
 interface PresetMemberPanelProps {
-  guildId: string;
-  presetId: number;
   presetMember: PresetMemberDetailDTO;
   setSelectedPresetMemberId: (id: number | null) => void;
   addMemberIdToRemoving: (memberId: number) => void;
@@ -33,8 +31,6 @@ interface PresetMemberPanelProps {
 }
 
 export function PresetMemberPanel({
-  guildId,
-  presetId,
   presetMember,
   setSelectedPresetMemberId,
   addMemberIdToRemoving,
@@ -44,6 +40,8 @@ export function PresetMemberPanel({
   const removePresetMember = useDeletePresetMember();
   const addPresetMemberPosition = useAddPresetMemberPosition();
   const deletePresetMemberPosition = useDeletePresetMemberPosition();
+  const guildId = presetMember.member.guildId;
+  const presetId = presetMember.presetId;
   const { data: tiers = [] } = useTiers(guildId, presetId);
   const { data: positions = [] } = usePositions(guildId, presetId);
 
@@ -86,7 +84,6 @@ export function PresetMemberPanel({
     selectedPositionIds.some((id) => !initialPositionIds.includes(id));
 
   const handleSave = async () => {
-    if (!guildId || !presetId) return;
     try {
       if (
         isLeader !== presetMember.isLeader ||
@@ -152,8 +149,8 @@ export function PresetMemberPanel({
     try {
       if (presetMember.memberId) addMemberIdToRemoving(presetMember.memberId);
       await removePresetMember.mutateAsync({
-        guildId: guildId!,
-        presetId: presetId!,
+        guildId,
+        presetId,
         presetMemberId: presetMember.presetMemberId,
       });
       setSelectedPresetMemberId(null);
@@ -205,9 +202,9 @@ export function PresetMemberPanel({
           variantIntent="secondary"
         >
           <h3>
-            {presetMember.member?.alias ||
-              presetMember.member?.name ||
-              "이름 없음"}
+            {presetMember.member.alias ||
+              presetMember.member.name ||
+              presetMember.member.discordUser.name}
           </h3>
           <Section
             variantTone="ghost"
