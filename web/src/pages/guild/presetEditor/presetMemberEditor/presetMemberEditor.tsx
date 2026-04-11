@@ -56,7 +56,11 @@ export function PresetMemberEditor({
     isLoading: presetMembersLoading,
     error: presetMembersError,
   } = usePresetMembers(guildId, presetId);
-  const { data: members } = useMembers(guildId);
+  const {
+    data: members,
+    isLoading: membersLoading,
+    error: membersError,
+  } = useMembers(guildId);
 
   const addPresetMember = useAddPresetMember();
 
@@ -121,27 +125,35 @@ export function PresetMemberEditor({
         variantIntent="secondary"
         className={styles.gridsColumn}
       >
-        {presetMembersError && (
-          <Error detail={presetMembersError?.message}>
-            프리셋 멤버 목록을 불러오는데 실패했습니다.
-          </Error>
-        )}
-        {presetMembersLoading ? (
-          <Loading />
-        ) : (
-          <>
-            <Section variantIntent="secondary" className={styles.gridSection}>
-              <PresetMemberGrid
-                presetMembers={
-                  presetMembers?.filter(
-                    (pm) => !removingMemberIds.has(pm.memberId),
-                  ) ?? []
-                }
-                selectedMemberId={selectedPresetMemberId}
-                onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
-              />
-            </Section>
-            <Section variantIntent="secondary" className={styles.gridSection}>
+        <Section variantIntent="secondary" className={styles.gridSection}>
+          {presetMembersError ? (
+            <Error detail={presetMembersError?.message}>
+              프리셋 멤버 목록을 불러오는데 실패했습니다.
+            </Error>
+          ) : presetMembersLoading ? (
+            <Loading />
+          ) : (
+            <PresetMemberGrid
+              presetMembers={
+                presetMembers?.filter(
+                  (pm) => !removingMemberIds.has(pm.memberId),
+                ) ?? []
+              }
+              selectedMemberId={selectedPresetMemberId}
+              onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
+            />
+          )}
+        </Section>
+
+        <Section variantIntent="secondary" className={styles.gridSection}>
+          {membersError ? (
+            <Error detail={membersError?.message}>
+              멤버 목록을 불러오는데 실패했습니다.
+            </Error>
+          ) : membersLoading ? (
+            <Loading />
+          ) : (
+            <>
               {addPresetMember.isError && (
                 <Error detail={addPresetMember.error?.message}>
                   멤버를 프리셋에 추가하는데 실패했습니다.
@@ -151,9 +163,9 @@ export function PresetMemberEditor({
                 members={candidateMembers}
                 onMemberClick={handleAddMember}
               />
-            </Section>
-          </>
-        )}
+            </>
+          )}
+        </Section>
       </Section>
 
       {selectedPresetMember && (

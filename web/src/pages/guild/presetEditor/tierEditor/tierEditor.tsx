@@ -101,12 +101,6 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
         <PrimaryButton onClick={handleOpenAddTierModal}>추가</PrimaryButton>
       </Section>
       <Bar />
-      {isLoading && <Loading />}
-      {error && (
-        <Error detail={error?.message}>
-          티어 목록을 불러오는데 실패했습니다.
-        </Error>
-      )}
 
       <Section
         variantTone="ghost"
@@ -114,15 +108,23 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
         variantIntent="secondary"
         className={styles.tierList}
       >
-        {tiers?.map((tier) => (
-          <TierCard
-            key={tier.tierId}
-            tier={tier}
-            onEdit={() => setEditingTier(tier)}
-            onDelete={() => handleOpenDeleteTierModal(tier.tierId)}
-            isDeletePending={deleteTier.isPending}
-          />
-        ))}
+        {error ? (
+          <Error detail={error?.message}>
+            티어 목록을 불러오는데 실패했습니다.
+          </Error>
+        ) : isLoading ? (
+          <Loading />
+        ) : (
+          tiers?.map((tier) => (
+            <TierCard
+              key={tier.tierId}
+              tier={tier}
+              onEdit={() => setEditingTier(tier)}
+              onDelete={() => handleOpenDeleteTierModal(tier.tierId)}
+              isDeletePending={deleteTier.isPending}
+            />
+          ))
+        )}
       </Section>
 
       {showAddTierModal && (

@@ -106,12 +106,6 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
         <PrimaryButton onClick={handleOpenAddPositionModal}>추가</PrimaryButton>
       </Section>
       <Bar />
-      {isLoading && <Loading />}
-      {error && (
-        <Error detail={error?.message}>
-          포지션 목록을 불러오는데 실패했습니다.
-        </Error>
-      )}
 
       <Section
         variantTone="ghost"
@@ -119,15 +113,25 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
         variantIntent="secondary"
         className={styles.positionList}
       >
-        {positions?.map((position) => (
-          <PositionCard
-            key={position.positionId}
-            position={position}
-            onEdit={() => setEditingPosition(position)}
-            onDelete={() => handleOpenDeletePositionModal(position.positionId)}
-            isDeletePending={deletePosition.isPending}
-          />
-        ))}
+        {error ? (
+          <Error detail={error?.message}>
+            포지션 목록을 불러오는데 실패했습니다.
+          </Error>
+        ) : isLoading ? (
+          <Loading />
+        ) : (
+          positions?.map((position) => (
+            <PositionCard
+              key={position.positionId}
+              position={position}
+              onEdit={() => setEditingPosition(position)}
+              onDelete={() =>
+                handleOpenDeletePositionModal(position.positionId)
+              }
+              isDeletePending={deletePosition.isPending}
+            />
+          ))
+        )}
       </Section>
 
       {showAddPositionModal && (

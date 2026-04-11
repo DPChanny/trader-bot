@@ -46,19 +46,21 @@ export function MemberEditor({ guildId }: MemberEditorProps) {
             <h3>멤버 목록</h3>
           </Section>
           <Bar />
-          {error && (
-            <Error detail={error?.message}>
-              멤버 목록을 불러오는데 실패했습니다.
-            </Error>
-          )}
-          {isLoading && <Loading />}
-          {!isLoading && !error && (
-            <MemberGrid
-              members={sortedMembers}
-              selectedMemberId={selectedMemberId}
-              onMemberClick={setSelectedMemberId}
-            />
-          )}
+          <Section variantTone="ghost" variantIntent="secondary">
+            {error ? (
+              <Error detail={error?.message}>
+                멤버 목록을 불러오는데 실패했습니다.
+              </Error>
+            ) : isLoading ? (
+              <Loading />
+            ) : (
+              <MemberGrid
+                members={sortedMembers}
+                selectedMemberId={selectedMemberId}
+                onMemberClick={setSelectedMemberId}
+              />
+            )}
+          </Section>
         </Section>
 
         {selectedMember && (

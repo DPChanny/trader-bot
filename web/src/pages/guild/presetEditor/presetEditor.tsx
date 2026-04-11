@@ -44,7 +44,9 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
       <PageLayout>
         <PageContainer>
           <Section variantIntent="primary" className={styles.panelSection}>
-            <Loading />
+            <Section variantTone="ghost" variantIntent="secondary">
+              <Loading />
+            </Section>
           </Section>
         </PageContainer>
       </PageLayout>
@@ -56,9 +58,11 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
       <PageLayout>
         <PageContainer>
           <Section variantIntent="primary" className={styles.panelSection}>
-            <Error detail={presetError.message}>
-              프리셋을 불러오는데 실패했습니다.
-            </Error>
+            <Section variantTone="ghost" variantIntent="secondary">
+              <Error detail={presetError.message}>
+                프리셋을 불러오는데 실패했습니다.
+              </Error>
+            </Section>
           </Section>
         </PageContainer>
       </PageLayout>
@@ -70,7 +74,9 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
       <PageLayout>
         <PageContainer>
           <Section variantIntent="primary" className={styles.panelSection}>
-            <Error>프리셋을 찾을 수 없습니다.</Error>
+            <Section variantTone="ghost" variantIntent="secondary">
+              <Error>프리셋을 찾을 수 없습니다.</Error>
+            </Section>
           </Section>
         </PageContainer>
       </PageLayout>
