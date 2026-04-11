@@ -194,7 +194,7 @@ export function PresetMemberPanel({
   };
 
   return (
-    <Section variantIntent="primary" className={styles.panelSection}>
+    <Section variantIntent="secondary" className={styles.panelSection}>
       <Section variantTone="ghost" variantIntent="secondary">
         <Section
           variantTone="ghost"
@@ -247,7 +247,7 @@ export function PresetMemberPanel({
           </Section>
 
           <Label>팀장</Label>
-          <Section variantIntent="secondary">
+          <Section variantIntent="tertiary">
             <Toggle
               isActive={isLeader}
               variantColor="gold"
@@ -260,7 +260,7 @@ export function PresetMemberPanel({
           <Label>티어</Label>
           <Section
             variantLayout="row"
-            variantIntent="secondary"
+            variantIntent="tertiary"
             className={styles.toggleSection}
           >
             {tiers?.map((tier) => (
@@ -278,7 +278,7 @@ export function PresetMemberPanel({
           <Label>포지션</Label>
           <Section
             variantLayout="row"
-            variantIntent="secondary"
+            variantIntent="tertiary"
             className={styles.toggleSection}
           >
             {positions.map((position) => (

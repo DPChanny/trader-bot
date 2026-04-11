@@ -114,15 +114,10 @@ export function PresetMemberEditor({
   };
 
   return (
-    <Section
-      variantTone="ghost"
-      variantIntent="secondary"
-      className={styles.editorLayout}
-    >
+    <Section variantTone="ghost" className={styles.editorLayout}>
       <Section
         variantTone="ghost"
         variantLayout="column"
-        variantIntent="secondary"
         className={styles.gridsColumn}
       >
         <Section variantIntent="secondary" className={styles.gridSection}>

@@ -38,52 +38,7 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
   const updatePreset = useUpdatePreset();
   const deletePreset = useDeletePreset();
   const { data: presetMembers } = usePresetMembers(guildId, presetId);
-
-  if (isPresetLoading) {
-    return (
-      <PageLayout>
-        <PageContainer>
-          <Section variantIntent="primary" className={styles.panelSection}>
-            <Section variantTone="ghost" variantIntent="secondary">
-              <Loading />
-            </Section>
-          </Section>
-        </PageContainer>
-      </PageLayout>
-    );
-  }
-
-  if (presetError) {
-    return (
-      <PageLayout>
-        <PageContainer>
-          <Section variantIntent="primary" className={styles.panelSection}>
-            <Section variantTone="ghost" variantIntent="secondary">
-              <Error detail={presetError.message}>
-                프리셋을 불러오는데 실패했습니다.
-              </Error>
-            </Section>
-          </Section>
-        </PageContainer>
-      </PageLayout>
-    );
-  }
-
-  if (!preset) {
-    return (
-      <PageLayout>
-        <PageContainer>
-          <Section variantIntent="primary" className={styles.panelSection}>
-            <Section variantTone="ghost" variantIntent="secondary">
-              <Error>프리셋을 찾을 수 없습니다.</Error>
-            </Section>
-          </Section>
-        </PageContainer>
-      </PageLayout>
-    );
-  }
-
-  const teamSize = preset.teamSize;
+  const teamSize = preset?.teamSize ?? 0;
   const leaderCount = presetMembers?.filter((pm) => pm.isLeader).length ?? 0;
   const memberCount = presetMembers?.length ?? 0;
   const requiredMembers = leaderCount * teamSize;
@@ -111,6 +66,7 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
     teamSize: number,
     pointScale: number,
   ) => {
+    if (!preset) return;
     try {
       await updatePreset.mutateAsync({
         guildId,
@@ -151,63 +107,73 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
       <PageLayout>
         <PageContainer>
           <Section variantIntent="primary" className={styles.panelSection}>
-            <Section variantTone="ghost" variantIntent="secondary">
-              <Section
-                variantTone="ghost"
-                variantLayout="row"
-                variantIntent="secondary"
-              >
-                <h3>{preset.name}</h3>
+            {isPresetLoading ? (
+              <Section variantIntent="secondary">
+                <Loading />
+              </Section>
+            ) : presetError ? (
+              <Section variantIntent="secondary">
+                <Error detail={presetError.message}>
+                  프리셋을 불러오는데 실패했습니다.
+                </Error>
+              </Section>
+            ) : !preset ? (
+              <Section variantIntent="secondary">
+                <Error>프리셋을 찾을 수 없습니다.</Error>
+              </Section>
+            ) : (
+              <Section variantIntent="secondary">
                 <Section
                   variantTone="ghost"
                   variantLayout="row"
                   variantIntent="secondary"
                 >
-                  <EditButton
-                    variantSize="small"
-                    onClick={handleOpenEditPresetModal}
-                  />
-                  <DeleteButton
-                    variantSize="small"
-                    onClick={handleOpenDeletePresetModal}
-                  />
+                  <h3>{preset.name}</h3>
+                  <Section
+                    variantTone="ghost"
+                    variantLayout="row"
+                    variantIntent="secondary"
+                  >
+                    <EditButton
+                      variantSize="small"
+                      onClick={handleOpenEditPresetModal}
+                    />
+                    <DeleteButton
+                      variantSize="small"
+                      onClick={handleOpenDeletePresetModal}
+                    />
+                  </Section>
                 </Section>
+                <Section variantLayout="row" variantIntent="tertiary">
+                  <span>팀 크기: {teamSize}명</span>
+                  <span>포인트: {preset.points * preset.pointScale}</span>
+                  <span>타이머: {preset.timer}초</span>
+                </Section>
+
+                <PrimaryButton
+                  onClick={handleStartAuction}
+                  disabled={addAuction.isPending || !canStartAuction}
+                >
+                  {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
+                </PrimaryButton>
+                {presetValidMessage && <Error>{presetValidMessage}</Error>}
+                {addAuction.isError && (
+                  <Error detail={addAuction.error?.message}>
+                    경매를 시작하는데 실패했습니다.
+                  </Error>
+                )}
               </Section>
-              <Section
-                variantTone="ghost"
-                variantLayout="row"
-                variantIntent="tertiary"
-              >
-                <span>팀 크기: {teamSize}명</span>
-                <span>포인트: {preset.points * preset.pointScale}</span>
-                <span>타이머: {preset.timer}초</span>
-              </Section>
-              <Bar />
-              <PrimaryButton
-                onClick={handleStartAuction}
-                disabled={addAuction.isPending || !canStartAuction}
-              >
-                {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
-              </PrimaryButton>
-              {presetValidMessage && <Error>{presetValidMessage}</Error>}
-              {addAuction.isError && (
-                <Error detail={addAuction.error?.message}>
-                  경매를 시작하는데 실패했습니다.
-                </Error>
-              )}
+            )}
+
+            <Section variantIntent="secondary" className={styles.tierSection}>
+              <TierEditor guildId={guildId} presetId={presetId} />
             </Section>
-            <Bar />
-            <>
-              <Section variantIntent="secondary" className={styles.tierSection}>
-                <TierEditor guildId={guildId} presetId={presetId} />
-              </Section>
-              <Section
-                variantIntent="secondary"
-                className={styles.positionSection}
-              >
-                <PositionEditor guildId={guildId} presetId={presetId} />
-              </Section>
-            </>
+            <Section
+              variantIntent="secondary"
+              className={styles.positionSection}
+            >
+              <PositionEditor guildId={guildId} presetId={presetId} />
+            </Section>
           </Section>
 
           <Section
@@ -219,7 +185,7 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
         </PageContainer>
       </PageLayout>
 
-      {showEditPresetModal && (
+      {preset && showEditPresetModal && (
         <EditPresetModal
           preset={preset}
           onClose={handleCloseEditPresetModal}
@@ -228,6 +194,7 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
           error={updatePreset.error}
         />
       )}
+
       {showDeletePresetModal && (
         <ConfirmModal
           onClose={handleCloseDeletePresetModal}
