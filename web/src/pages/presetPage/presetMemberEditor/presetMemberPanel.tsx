@@ -21,7 +21,7 @@ import { Label } from "@/components/commons/label";
 import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
-import styles from "@/styles/pages/guild/presetEditor/presetMember/presetMemberPanel.module.css";
+import styles from "@/styles/pages/guild/presetPage/presetMember/presetMemberPanel.module.css";
 
 interface PresetMemberPanelProps {
   presetMember: PresetMemberDetailDTO;

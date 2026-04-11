@@ -16,7 +16,7 @@ import { DeletePositionModal } from "./deletePositionModal";
 import { PositionCard } from "./positionCard";
 import type { PositionDTO } from "@/dtos/positionDto";
 
-import styles from "@/styles/pages/guild/presetEditor/positionEditor/positionList.module.css";
+import styles from "@/styles/pages/guild/presetPage/positionEditor/positionList.module.css";
 
 interface PositionEditorProps {
   guildId: string;

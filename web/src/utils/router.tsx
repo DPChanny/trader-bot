@@ -1,9 +1,10 @@
 import { useEffect } from "preact/hooks";
 import Router, { route } from "preact-router";
 import type { RoutableProps } from "preact-router";
-import { GuildPage } from "@/pages/guild/guildPage";
-import { HomePage } from "@/pages/home/homePage";
-import { AuctionPage } from "@/pages/auction/auctionPage";
+import { MemberPage } from "@/pages/memberPage/memberPage";
+import { PresetPage } from "@/pages/presetPage/presetPage";
+import { HomePage } from "@/pages/homePage/homePage";
+import { AuctionPage } from "@/pages/auctionPage/auctionPage";
 import { useLoginCallback } from "@/hooks/auth";
 import { isAuthenticated } from "@/utils/auth";
 
@@ -17,7 +18,7 @@ function LoginCallbackRoute({}: RoutableProps) {
   return null;
 }
 
-function GuildRoute({ guildId }: RoutableProps & { guildId?: string }) {
+function MemberRoute({ guildId }: RoutableProps & { guildId?: string }) {
   useEffect(() => {
     if (!isAuthenticated()) route("/", true);
   }, []);
@@ -27,15 +28,27 @@ function GuildRoute({ guildId }: RoutableProps & { guildId?: string }) {
     return null;
   }
 
-  return <GuildPage />;
+  return <MemberPage guildId={guildId} />;
+}
+
+function PresetRoute({
+  guildId,
+  presetId,
+}: RoutableProps & { guildId?: string; presetId?: string }) {
+  useEffect(() => {
+    if (!isAuthenticated()) route("/", true);
+  }, []);
+
+  if (!guildId || !presetId) {
+    route("/", true);
+    return null;
+  }
+
+  return <PresetPage guildId={guildId} presetId={parseInt(presetId, 10)} />;
 }
 
 function AuctionRoute({ auctionId }: RoutableProps & { auctionId?: string }) {
-  return (
-    <main className="app-main">
-      <AuctionPage auctionId={auctionId} />
-    </main>
-  );
+  return <AuctionPage auctionId={auctionId} />;
 }
 
 export function AppRouter() {
@@ -43,8 +56,8 @@ export function AppRouter() {
     <Router>
       <LoginCallbackRoute path="/auth/callback" />
       <RootRoute path="/" />
-      <GuildRoute path="/guild/:guildId/preset/:presetId" />
-      <GuildRoute path="/guild/:guildId/member" />
+      <PresetRoute path="/guild/:guildId/preset/:presetId" />
+      <MemberRoute path="/guild/:guildId/member" />
       <AuctionRoute path="/auction/:auctionId" />
     </Router>
   );

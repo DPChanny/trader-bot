@@ -1,13 +1,6 @@
-.homeBody {
-  display: flex;
-  flex-direction: row;
-  flex: 1;
-  overflow: hidden;
-  min-height: 0;
-  min-width: 0;
-}
-
-.homeContent {
-  flex: 1;
-  min-width: 0;
+.layout {
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
 }

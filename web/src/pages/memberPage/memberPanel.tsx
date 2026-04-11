@@ -9,7 +9,7 @@ import { Section } from "@/components/commons/section";
 import { Toggle } from "@/components/commons/toggle";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 
-import styles from "@/styles/pages/guild/memberEditor.module.css";
+import styles from "@/styles/pages/guild/memberPage/memberPanel.module.css";
 
 interface MemberPanelProps {
   member: MemberDetailDTO;

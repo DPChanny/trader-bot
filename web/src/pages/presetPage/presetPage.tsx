@@ -7,7 +7,7 @@ import { TierEditor } from "./tierEditor/tierEditor";
 import { PositionEditor } from "./positionEditor/positionEditor";
 import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
 import { Section } from "@/components/commons/section";
-import { PageContainer, PageLayout } from "@/components/commons/page";
+import { PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
 import {
   PrimaryButton,
@@ -20,14 +20,14 @@ import { DeletePresetModal } from "./deletePresetModal";
 import { AddAuctionModal } from "./addAuctionModal";
 import { AuctionLinkModal } from "./auctionLinkModal";
 import type { AddAuctionDTO } from "@/dtos/auctionDto";
-import styles from "@/styles/pages/guild/presetEditor/presetEditor.module.css";
+import styles from "@/styles/pages/guild/presetPage/presetPage.module.css";
 
-interface PresetEditorProps {
+interface PresetPageProps {
   guildId: string;
   presetId: number;
 }
 
-export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
+export function PresetPage({ guildId, presetId }: PresetPageProps) {
   const [showEditPresetModal, setShowEditPresetModal] = useState(false);
   const [showDeletePresetModal, setShowDeletePresetModal] = useState(false);
   const [showAddAuctionModal, setShowAddAuctionModal] = useState(false);
@@ -109,70 +109,66 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
   };
 
   return (
-    <>
-      <PageLayout>
-        <PageContainer>
-          <Section variantIntent="primary" className={styles.panelSection}>
-            {isPresetLoading ? (
-              <Section variantIntent="secondary">
-                <Loading />
-              </Section>
-            ) : presetError ? (
-              <Section variantIntent="secondary">
-                <Error detail={presetError.message}>
-                  프리셋을 불러오는데 실패했습니다.
-                </Error>
-              </Section>
-            ) : !preset ? (
-              <Section variantIntent="secondary">
-                <Error>프리셋을 찾을 수 없습니다.</Error>
-              </Section>
-            ) : (
-              <Section variantIntent="secondary">
-                <Section
-                  variantTone="ghost"
-                  variantLayout="row"
-                  variantIntent="secondary"
-                >
-                  <h3>{preset.name}</h3>
-                  <Section
-                    variantTone="ghost"
-                    variantLayout="row"
-                    variantIntent="secondary"
-                  >
-                    <EditButton
-                      variantSize="small"
-                      onClick={handleOpenEditPresetModal}
-                    />
-                    <DeleteButton
-                      variantSize="small"
-                      onClick={handleOpenDeletePresetModal}
-                    />
-                  </Section>
-                </Section>
-                <Section variantLayout="row" variantIntent="tertiary">
-                  <span>팀 크기: {teamSize}명</span>
-                  <span>포인트: {preset.points * preset.pointScale}</span>
-                  <span>타이머: {preset.timer}초</span>
-                </Section>
-
-                <PrimaryButton
-                  onClick={() => setShowAddAuctionModal(true)}
-                  disabled={!canStartAuction}
-                >
-                  경매 생성
-                </PrimaryButton>
-                {presetValidMessage && <Error>{presetValidMessage}</Error>}
-              </Section>
-            )}
-
-            <TierEditor guildId={guildId} presetId={presetId} />
-            <PositionEditor guildId={guildId} presetId={presetId} />
+    <PageLayout>
+      <Section variantIntent="primary" className={styles.panelSection}>
+        {isPresetLoading ? (
+          <Section variantIntent="secondary">
+            <Loading />
           </Section>
+        ) : presetError ? (
+          <Section variantIntent="secondary">
+            <Error detail={presetError.message}>
+              프리셋을 불러오는데 실패했습니다.
+            </Error>
+          </Section>
+        ) : !preset ? (
+          <Section variantIntent="secondary">
+            <Error>프리셋을 찾을 수 없습니다.</Error>
+          </Section>
+        ) : (
+          <Section variantIntent="secondary">
+            <Section
+              variantTone="ghost"
+              variantLayout="row"
+              variantIntent="secondary"
+            >
+              <h3>{preset.name}</h3>
+              <Section
+                variantTone="ghost"
+                variantLayout="row"
+                variantIntent="secondary"
+              >
+                <EditButton
+                  variantSize="small"
+                  onClick={handleOpenEditPresetModal}
+                />
+                <DeleteButton
+                  variantSize="small"
+                  onClick={handleOpenDeletePresetModal}
+                />
+              </Section>
+            </Section>
+            <Section variantLayout="row" variantIntent="tertiary">
+              <span>팀 크기: {teamSize}명</span>
+              <span>포인트: {preset.points * preset.pointScale}</span>
+              <span>타이머: {preset.timer}초</span>
+            </Section>
 
-          <PresetMemberEditor guildId={guildId} presetId={presetId} />
-        </PageContainer>
-      </PageLayout>
+            <PrimaryButton
+              onClick={() => setShowAddAuctionModal(true)}
+              disabled={!canStartAuction}
+            >
+              경매 생성
+            </PrimaryButton>
+            {presetValidMessage && <Error>{presetValidMessage}</Error>}
+          </Section>
+        )}
+
+        <TierEditor guildId={guildId} presetId={presetId} />
+        <PositionEditor guildId={guildId} presetId={presetId} />
+      </Section>
+
+      <PresetMemberEditor guildId={guildId} presetId={presetId} />
 
       {preset && showEditPresetModal && (
         <EditPresetModal
@@ -211,6 +207,6 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
           onClose={() => setCreatedAuctionId(null)}
         />
       )}
-    </>
+    </PageLayout>
   );
 }

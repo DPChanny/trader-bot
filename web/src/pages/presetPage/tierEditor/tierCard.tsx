@@ -3,7 +3,7 @@ import { Badge } from "@/components/commons/badge";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import type { TierDTO } from "@/dtos/tierDto";
-import styles from "@/styles/pages/guild/presetEditor/tierEditor/tierCard.module.css";
+import styles from "@/styles/pages/guild/presetPage/tierEditor/tierCard.module.css";
 
 interface TierCardProps {
   tier: TierDTO;
