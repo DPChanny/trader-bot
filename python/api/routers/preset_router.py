@@ -12,7 +12,7 @@ from shared.utils.database import get_session
 from ..services.preset_service import (
     add_preset_service,
     delete_preset_service,
-    get_preset_detail_service,
+    get_preset_service,
     get_preset_list_service,
     update_preset_service,
 )
@@ -42,13 +42,13 @@ async def get_preset_list_route(
 
 
 @preset_router.get("/{preset_id}", response_model=PresetDetailDTO)
-async def get_preset_detail_route(
+async def get_preset_route(
     guild_id: int,
     preset_id: int,
     session: AsyncSession = Depends(get_session),
     discord_id: int = Depends(verify_token),
 ):
-    return await get_preset_detail_service(guild_id, discord_id, preset_id, session)
+    return await get_preset_service(guild_id, discord_id, preset_id, session)
 
 
 @preset_router.patch("/{preset_id}", response_model=PresetDetailDTO)

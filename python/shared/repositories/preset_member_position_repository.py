@@ -9,6 +9,24 @@ from . import BaseRepository
 
 
 class PresetMemberPositionRepository(BaseRepository[PresetMemberPosition]):
+    async def get_list_by_preset_member_id(
+        self, preset_member_id: int, preset_id: int, guild_id: int
+    ) -> list[PresetMemberPosition]:
+        result = await self.session.execute(
+            select(PresetMemberPosition)
+            .join(
+                PresetMember,
+                PresetMemberPosition.preset_member_id == PresetMember.preset_member_id,
+            )
+            .join(Preset, PresetMember.preset_id == Preset.preset_id)
+            .where(
+                PresetMemberPosition.preset_member_id == preset_member_id,
+                PresetMember.preset_id == preset_id,
+                Preset.guild_id == guild_id,
+            )
+        )
+        return list(result.scalars().all())
+
     async def get_by_id(
         self,
         preset_member_position_id: int,

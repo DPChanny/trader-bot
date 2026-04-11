@@ -9,7 +9,7 @@ from ..utils.member import verify_role
 
 
 @service_exception_handler
-async def get_member_detail_service(
+async def get_member_service(
     guild_id: int, discord_id: int, member_id: int, session: AsyncSession
 ) -> MemberDetailDTO:
     await verify_role(guild_id, discord_id, session)
@@ -26,7 +26,7 @@ async def get_member_list_service(
 ) -> list[MemberDetailDTO]:
     await verify_role(guild_id, discord_id, session)
     member_repo = MemberRepository(session)
-    members = await member_repo.get_all_by_guild(guild_id)
+    members = await member_repo.get_list_by_guild_id(guild_id)
     return [MemberDetailDTO.model_validate(m) for m in members]
 
 

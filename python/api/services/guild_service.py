@@ -13,12 +13,12 @@ async def get_guild_list_service(
     discord_id: int, session: AsyncSession
 ) -> list[GuildDetailDTO]:
     guild_repo = GuildRepository(session)
-    guilds = await guild_repo.get_all_by_discord_user(discord_id)
+    guilds = await guild_repo.get_list_by_discord_user_id(discord_id)
     return [GuildDetailDTO.model_validate(g) for g in guilds]
 
 
 @service_exception_handler
-async def get_guild_detail_service(
+async def get_guild_service(
     guild_id: int, discord_id: int, session: AsyncSession
 ) -> GuildDetailDTO:
     await verify_role(guild_id, discord_id, session)

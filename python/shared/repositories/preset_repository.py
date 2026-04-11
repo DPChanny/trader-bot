@@ -47,7 +47,7 @@ class PresetRepository(BaseRepository[Preset]):
         )
         return result.unique().scalar_one_or_none()
 
-    async def get_all_by_guild(self, guild_id: int) -> list[Preset]:
+    async def get_list_by_guild_id(self, guild_id: int) -> list[Preset]:
         result = await self.session.execute(
             select(Preset).where(Preset.guild_id == guild_id)
         )

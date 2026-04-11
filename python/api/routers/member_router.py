@@ -5,7 +5,7 @@ from shared.dtos.member_dto import MemberDetailDTO, UpdateMemberDTO
 from shared.utils.database import get_session
 
 from ..services.member_service import (
-    get_member_detail_service,
+    get_member_service,
     get_member_list_service,
     update_member_service,
 )
@@ -25,13 +25,13 @@ async def get_member_list_route(
 
 
 @member_router.get("/{member_id}", response_model=MemberDetailDTO)
-async def get_member_detail_route(
+async def get_member_route(
     guild_id: int,
     member_id: int,
     session: AsyncSession = Depends(get_session),
     discord_id: int = Depends(verify_token),
 ):
-    return await get_member_detail_service(guild_id, discord_id, member_id, session)
+    return await get_member_service(guild_id, discord_id, member_id, session)
 
 
 @member_router.patch("/{member_id}", response_model=MemberDetailDTO)

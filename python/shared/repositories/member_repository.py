@@ -42,7 +42,7 @@ class MemberRepository(BaseRepository[Member]):
         )
         return result.scalar_one_or_none()
 
-    async def get_all_by_guild(self, guild_id: int) -> list[Member]:
+    async def get_list_by_guild_id(self, guild_id: int) -> list[Member]:
         result = await self.session.execute(
             select(Member)
             .options(

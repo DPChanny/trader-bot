@@ -17,6 +17,41 @@ from ..utils.member import verify_role
 
 
 @service_exception_handler
+async def get_position_list_service(
+    guild_id: int,
+    discord_id: int,
+    preset_id: int,
+    session: AsyncSession,
+) -> list[PositionDTO]:
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+
+    preset_repo = PresetRepository(session)
+    if await preset_repo.get_by_id(preset_id, guild_id) is None:
+        raise HTTPException(status_code=404, detail="Preset not found")
+
+    position_repo = PositionRepository(session)
+    positions = await position_repo.get_list_by_preset_id(preset_id, guild_id)
+    return [PositionDTO.model_validate(p) for p in positions]
+
+
+@service_exception_handler
+async def get_position_service(
+    guild_id: int,
+    discord_id: int,
+    preset_id: int,
+    position_id: int,
+    session: AsyncSession,
+) -> PositionDTO:
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+
+    position_repo = PositionRepository(session)
+    position = await position_repo.get_by_id(position_id, preset_id, guild_id)
+    if position is None:
+        raise HTTPException(status_code=404, detail="Position not found")
+    return PositionDTO.model_validate(position)
+
+
+@service_exception_handler
 async def add_position_service(
     guild_id: int,
     discord_id: int,

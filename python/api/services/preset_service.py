@@ -17,7 +17,7 @@ from ..utils.member import verify_role
 
 
 @service_exception_handler
-async def get_preset_detail_service(
+async def get_preset_service(
     guild_id: int, discord_id: int, preset_id: int, session: AsyncSession
 ) -> PresetDetailDTO:
     await verify_role(guild_id, discord_id, session, Role.VIEWER)
@@ -59,7 +59,7 @@ async def get_preset_list_service(
     await verify_role(guild_id, discord_id, session, Role.VIEWER)
 
     preset_repo = PresetRepository(session)
-    presets = await preset_repo.get_all_by_guild(guild_id)
+    presets = await preset_repo.get_list_by_guild_id(guild_id)
     return [PresetDTO.model_validate(p) for p in presets]
 
 

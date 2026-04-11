@@ -19,6 +19,43 @@ from ..utils.member import verify_role
 
 
 @service_exception_handler
+async def get_preset_member_list_service(
+    guild_id: int,
+    discord_id: int,
+    preset_id: int,
+    session: AsyncSession,
+) -> list[PresetMemberDetailDTO]:
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+
+    preset_repo = PresetRepository(session)
+    if await preset_repo.get_by_id(preset_id, guild_id) is None:
+        raise HTTPException(status_code=404, detail="Preset not found")
+
+    preset_member_repo = PresetMemberRepository(session)
+    members = await preset_member_repo.get_list_detail_by_preset_id(preset_id, guild_id)
+    return [PresetMemberDetailDTO.model_validate(m) for m in members]
+
+
+@service_exception_handler
+async def get_preset_member_service(
+    guild_id: int,
+    discord_id: int,
+    preset_id: int,
+    preset_member_id: int,
+    session: AsyncSession,
+) -> PresetMemberDetailDTO:
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+
+    preset_member_repo = PresetMemberRepository(session)
+    preset_member = await preset_member_repo.get_detail_by_id(
+        preset_member_id, preset_id, guild_id
+    )
+    if preset_member is None:
+        raise HTTPException(status_code=404, detail="PresetMember not found")
+    return PresetMemberDetailDTO.model_validate(preset_member)
+
+
+@service_exception_handler
 async def add_preset_member_service(
     guild_id: int,
     discord_id: int,

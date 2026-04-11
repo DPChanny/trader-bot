@@ -17,6 +17,41 @@ from ..utils.member import verify_role
 
 
 @service_exception_handler
+async def get_tier_list_service(
+    guild_id: int,
+    discord_id: int,
+    preset_id: int,
+    session: AsyncSession,
+) -> list[TierDTO]:
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+
+    preset_repo = PresetRepository(session)
+    if await preset_repo.get_by_id(preset_id, guild_id) is None:
+        raise HTTPException(status_code=404, detail="Preset not found")
+
+    tier_repo = TierRepository(session)
+    tiers = await tier_repo.get_list_by_preset_id(preset_id, guild_id)
+    return [TierDTO.model_validate(t) for t in tiers]
+
+
+@service_exception_handler
+async def get_tier_service(
+    guild_id: int,
+    discord_id: int,
+    preset_id: int,
+    tier_id: int,
+    session: AsyncSession,
+) -> TierDTO:
+    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+
+    tier_repo = TierRepository(session)
+    tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
+    if tier is None:
+        raise HTTPException(status_code=404, detail="Tier not found")
+    return TierDTO.model_validate(tier)
+
+
+@service_exception_handler
 async def add_tier_service(
     guild_id: int,
     discord_id: int,

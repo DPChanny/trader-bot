@@ -8,6 +8,19 @@ from . import BaseRepository
 
 
 class PositionRepository(BaseRepository[Position]):
+    async def get_list_by_preset_id(
+        self, preset_id: int, guild_id: int
+    ) -> list[Position]:
+        result = await self.session.execute(
+            select(Position)
+            .join(Preset)
+            .where(
+                Position.preset_id == preset_id,
+                Preset.guild_id == guild_id,
+            )
+        )
+        return list(result.scalars().all())
+
     async def get_by_id(
         self, position_id: int, preset_id: int, guild_id: int
     ) -> Position | None:

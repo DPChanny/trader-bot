@@ -10,6 +10,24 @@ from . import BaseRepository
 
 
 class PresetMemberRepository(BaseRepository[PresetMember]):
+    async def get_list_detail_by_preset_id(
+        self, preset_id: int, guild_id: int
+    ) -> list[PresetMember]:
+        result = await self.session.execute(
+            select(PresetMember)
+            .options(
+                joinedload(PresetMember.member).joinedload(Member.discord_user),
+                joinedload(PresetMember.member).joinedload(Member.guild),
+                selectinload(PresetMember.preset_member_positions),
+            )
+            .join(Preset)
+            .where(
+                PresetMember.preset_id == preset_id,
+                Preset.guild_id == guild_id,
+            )
+        )
+        return list(result.unique().scalars().all())
+
     async def get_by_id(
         self, preset_member_id: int, preset_id: int, guild_id: int
     ) -> PresetMember | None:
