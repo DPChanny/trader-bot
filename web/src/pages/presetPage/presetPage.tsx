@@ -21,6 +21,7 @@ import { AddAuctionModal } from "./addAuctionModal";
 import { AuctionModal } from "./auctionModal";
 import type { AddAuctionDTO } from "@/dtos/auctionDto";
 import styles from "@/styles/pages/presetPage/presetPage.module.css";
+import { Bar } from "@/components/commons/bar";
 
 interface PresetPageProps {
   guildId: string;
@@ -139,28 +140,29 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
                 variantIntent="secondary"
               >
                 <EditButton
-                  variantSize="small"
+                  variantSize="medium"
                   onClick={handleOpenEditPresetModal}
                 />
                 <DeleteButton
-                  variantSize="small"
+                  variantSize="medium"
                   onClick={handleOpenDeletePresetModal}
                 />
               </Section>
             </Section>
+            <Bar />
             <Section variantLayout="row" variantIntent="tertiary">
               <span>팀 크기: {teamSize}명</span>
               <span>포인트: {preset.points * preset.pointScale}</span>
               <span>타이머: {preset.timer}초</span>
             </Section>
 
+            {presetValidMessage && <Error>{presetValidMessage}</Error>}
             <PrimaryButton
               onClick={() => setShowAddAuctionModal(true)}
               disabled={!canStartAuction}
             >
               경매 생성
             </PrimaryButton>
-            {presetValidMessage && <Error>{presetValidMessage}</Error>}
           </Section>
         )}
 

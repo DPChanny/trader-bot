@@ -79,7 +79,6 @@ export function PresetMemberCard({
           {presetMemberPositions?.length > 0 && (
             <Section
               variantTone="ghost"
-              variantLayout="row"
               variantIntent="tertiary"
               className={styles.positions}
             >
