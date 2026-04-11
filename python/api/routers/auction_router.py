@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auction_dto import AuctionDTO
+from shared.dtos.auction_dto import AddAuctionDTO, AuctionDTO
 from shared.utils.database import get_session
 
 from ..services.auction_service import add_auction_service
@@ -17,7 +17,8 @@ auction_router = APIRouter(
 async def add_auction_route(
     guild_id: int,
     preset_id: int,
+    dto: AddAuctionDTO,
     session: AsyncSession = Depends(get_session),
     discord_id: int = Depends(verify_token),
 ) -> AuctionDTO:
-    return await add_auction_service(guild_id, discord_id, preset_id, session)
+    return await add_auction_service(guild_id, discord_id, preset_id, dto, session)

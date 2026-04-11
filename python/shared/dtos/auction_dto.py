@@ -50,6 +50,11 @@ class AuctionDTO(BaseDTO):
     auction_id: str
 
 
+class AddAuctionDTO(BaseDTO):
+    allow_public: bool = True
+    send_invite: bool = True
+
+
 class TimerMessageData(BaseDTO):
     timer: int
 

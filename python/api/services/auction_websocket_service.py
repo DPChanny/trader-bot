@@ -84,6 +84,10 @@ async def handle_websocket_connect(
                 team_id = tid
                 break
 
+    if member_id is None and not auction.allow_public:
+        await websocket.close(code=4003, reason="Public access not allowed")
+        return None, None, False, None
+
     logger.info(f"WebSocket connected: member_id={member_id}, auction_id={auction_id}")
 
     await auction.connect(websocket, member_id, is_leader, team_id)

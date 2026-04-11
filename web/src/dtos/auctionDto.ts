@@ -8,6 +8,11 @@ export interface AuctionDTO {
   auctionId: string;
 }
 
+export interface AddAuctionDTO {
+  allowPublic: boolean;
+  sendInvite: boolean;
+}
+
 export type MessageType =
   | "auth"
   | "timer"

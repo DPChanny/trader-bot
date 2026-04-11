@@ -5,6 +5,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction_dto import (
+    AddAuctionDTO,
     AuctionDTO,
     Team,
 )
@@ -22,7 +23,11 @@ from ..utils.member import verify_role
 
 @service_exception_handler
 async def add_auction_service(
-    guild_id: int, discord_id: int, preset_id: int, session: AsyncSession
+    guild_id: int,
+    discord_id: int,
+    preset_id: int,
+    dto: AddAuctionDTO,
+    session: AsyncSession,
 ) -> AuctionDTO:
     await verify_role(guild_id, discord_id, session, Role.ADMIN)
 
@@ -70,6 +75,7 @@ async def add_auction_service(
         preset_snapshot=preset_snapshot,
         timer=preset.timer,
         team_size=preset.team_size,
+        allow_public=dto.allow_public,
     )
     auction_id: str = auction.auction_id
 
@@ -114,9 +120,10 @@ async def add_auction_service(
         ]
         await send_message(member.discord_user_id, embed)
 
-    await asyncio.gather(
-        *[_send_dm(pm) for pm in preset_members],
-        return_exceptions=True,
-    )
+    if dto.send_invite:
+        await asyncio.gather(
+            *[_send_dm(pm) for pm in preset_members],
+            return_exceptions=True,
+        )
 
     return AuctionDTO(auction_id=auction_id)

@@ -32,8 +32,10 @@ class Auction:
         preset_snapshot: dict,
         timer: int,
         team_size: int,
+        allow_public: bool = True,
     ):
         self.auction_id = auction_id
+        self.allow_public = allow_public
         self.status: AuctionStatus = AuctionStatus.WAITING
         self.teams = {team.team_id: team for team in teams}
         self.leader_member_ids = leader_member_ids
@@ -45,7 +47,7 @@ class Auction:
                 self.member_to_team[mid] = team.team_id
 
         self.connected_members: dict[int, set[WebSocket]] = {}
-        self.anonymous_connections: dict[str, WebSocket] = {}
+        self.public_connections: dict[str, WebSocket] = {}
 
         auction_members = [mid for mid in member_ids if mid not in leader_member_ids]
         shuffled = auction_members.copy()
@@ -110,7 +112,7 @@ class Auction:
                 )
         else:
             conn_id = str(uuid.uuid4())
-            self.anonymous_connections[conn_id] = websocket
+            self.public_connections[conn_id] = websocket
 
         return {
             "success": True,
@@ -138,11 +140,11 @@ class Auction:
                     )
         else:
             key = next(
-                (k for k, v in self.anonymous_connections.items() if v is websocket),
+                (k for k, v in self.public_connections.items() if v is websocket),
                 None,
             )
             if key:
-                del self.anonymous_connections[key]
+                del self.public_connections[key]
 
         return member_id
 
@@ -154,7 +156,7 @@ class Auction:
         async with self._broadcast_lock:
             for ws_set in self.connected_members.values():
                 all_connections.extend(ws_set)
-            all_connections.extend(self.anonymous_connections.values())
+            all_connections.extend(self.public_connections.values())
 
         disconnected: list[WebSocket] = []
         message_dict = message.model_dump()
@@ -169,9 +171,9 @@ class Auction:
                 for ws in disconnected:
                     for ws_set in self.connected_members.values():
                         ws_set.discard(ws)
-                    for k, v in list(self.anonymous_connections.items()):
+                    for k, v in list(self.public_connections.items()):
                         if v is ws:
-                            del self.anonymous_connections[k]
+                            del self.public_connections[k]
 
     def get_state(self) -> AuctionStateDTO:
         return AuctionStateDTO(
@@ -428,13 +430,13 @@ class Auction:
         all_ws: list[WebSocket] = []
         for ws_set in self.connected_members.values():
             all_ws.extend(ws_set)
-        all_ws.extend(self.anonymous_connections.values())
+        all_ws.extend(self.public_connections.values())
         for ws in all_ws:
             with contextlib.suppress(Exception):
                 await ws.close()
 
         self.connected_members.clear()
-        self.anonymous_connections.clear()
+        self.public_connections.clear()
 
     async def _delayed_terminate(self):
         await asyncio.sleep(5)

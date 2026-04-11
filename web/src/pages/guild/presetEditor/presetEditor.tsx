@@ -17,6 +17,8 @@ import {
 import { Error } from "@/components/commons/error";
 import { ConfirmModal } from "@/components/commons/modal";
 import { EditPresetModal } from "./editPresetModal";
+import { AddAuctionModal } from "./addAuctionModal";
+import type { AddAuctionDTO } from "@/dtos/auctionDto";
 import styles from "@/styles/pages/guild/presetEditor/presetEditor.module.css";
 
 interface PresetEditorProps {
@@ -27,6 +29,8 @@ interface PresetEditorProps {
 export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
   const [showEditPresetModal, setShowEditPresetModal] = useState(false);
   const [showDeletePresetModal, setShowDeletePresetModal] = useState(false);
+  const [showAddAuctionModal, setShowAddAuctionModal] = useState(false);
+  const [createdAuctionId, setCreatedAuctionId] = useState<string | null>(null);
 
   const addAuction = useAddAuction();
   const {
@@ -52,9 +56,11 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
     }
   }
 
-  const handleStartAuction = async () => {
+  const handleStartAuction = async (dto: AddAuctionDTO) => {
     try {
-      await addAuction.mutateAsync({ guildId, presetId });
+      const result = await addAuction.mutateAsync({ guildId, presetId, dto });
+      setShowAddAuctionModal(false);
+      setCreatedAuctionId(result.auctionId);
     } catch {}
   };
 
@@ -150,17 +156,12 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
                 </Section>
 
                 <PrimaryButton
-                  onClick={handleStartAuction}
-                  disabled={addAuction.isPending || !canStartAuction}
+                  onClick={() => setShowAddAuctionModal(true)}
+                  disabled={!canStartAuction}
                 >
-                  {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
+                  경매 생성
                 </PrimaryButton>
                 {presetValidMessage && <Error>{presetValidMessage}</Error>}
-                {addAuction.isError && (
-                  <Error detail={addAuction.error?.message}>
-                    경매를 시작하는데 실패했습니다.
-                  </Error>
-                )}
               </Section>
             )}
 
@@ -203,6 +204,34 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
           confirmText="삭제"
           isPending={deletePreset.isPending}
           error={deletePreset.isError ? deletePreset.error : undefined}
+        />
+      )}
+
+      {showAddAuctionModal && (
+        <AddAuctionModal
+          onClose={() => {
+            setShowAddAuctionModal(false);
+            addAuction.reset();
+          }}
+          onSubmit={handleStartAuction}
+          isPending={addAuction.isPending}
+          error={addAuction.isError ? addAuction.error : undefined}
+        />
+      )}
+
+      {createdAuctionId && (
+        <ConfirmModal
+          onClose={() => setCreatedAuctionId(null)}
+          onConfirm={() =>
+            navigator.clipboard.writeText(
+              `${window.location.origin}/auction/${createdAuctionId}`,
+            )
+          }
+          title="경매 생성 완료"
+          message={`경매가 생성되었습니다.\n링크: ${window.location.origin}/auction/${createdAuctionId}`}
+          confirmText="링크 복사"
+          cancelText="닫기"
+          isPending={false}
         />
       )}
     </>

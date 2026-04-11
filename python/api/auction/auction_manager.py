@@ -15,6 +15,7 @@ class AuctionManager:
         preset_snapshot: dict,
         timer: int,
         team_size: int,
+        allow_public: bool = True,
     ) -> Auction:
         auction_id = str(uuid.uuid4())
         auction = Auction(
@@ -25,6 +26,7 @@ class AuctionManager:
             preset_snapshot=preset_snapshot,
             timer=timer,
             team_size=team_size,
+            allow_public=allow_public,
         )
         self.auctions[auction_id] = auction
         return auction
