@@ -16,13 +16,18 @@ export function DeleteTierModal({
   isPending,
   error,
 }: DeleteTierModalProps) {
+  const handleClose = () => {
+    if (isPending) return;
+    onClose();
+  };
+
   return (
-    <Modal onClose={onClose} title="티어 삭제">
+    <Modal onClose={handleClose} title="티어 삭제">
       <Section variantTone="ghost" variantIntent="secondary">
         정말 이 티어를 삭제하시겠습니까?
         {error && <Error detail={error?.message}>삭제에 실패했습니다.</Error>}
         <ModalFooter>
-          <SecondaryButton type="button" onClick={onClose}>
+          <SecondaryButton type="button" onClick={handleClose}>
             취소
           </SecondaryButton>
           <PrimaryButton type="button" onClick={onConfirm} disabled={isPending}>

@@ -70,8 +70,13 @@ export function EditPresetModal({
     teamSize !== preset.teamSize ||
     pointScale !== preset.pointScale;
 
+  const handleClose = () => {
+    if (isPending) return;
+    onClose();
+  };
+
   return (
-    <Modal onClose={onClose} title="프리셋 수정">
+    <Modal onClose={handleClose} title="프리셋 수정">
       <ModalForm onSubmit={handleSubmit}>
         {error && (
           <Error detail={error?.message}>프리셋 수정에 실패했습니다.</Error>
@@ -121,7 +126,7 @@ export function EditPresetModal({
         </ModalRow>
 
         <ModalFooter>
-          <SecondaryButton type="button" onClick={onClose}>
+          <SecondaryButton type="button" onClick={handleClose}>
             취소
           </SecondaryButton>
           <PrimaryButton

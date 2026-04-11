@@ -18,7 +18,7 @@ import { Error } from "@/components/commons/error";
 import { EditPresetModal } from "./editPresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { AddAuctionModal } from "./addAuctionModal";
-import { AuctionLinkModal } from "./auctionLinkModal";
+import { AuctionModal } from "./auctionModal";
 import type { AddAuctionDTO } from "@/dtos/auctionDto";
 import styles from "@/styles/pages/guild/presetPage/presetPage.module.css";
 
@@ -202,7 +202,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
       )}
 
       {createdAuctionId && (
-        <AuctionLinkModal
+        <AuctionModal
           auctionId={createdAuctionId}
           onClose={() => setCreatedAuctionId(null)}
         />

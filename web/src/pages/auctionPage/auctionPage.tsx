@@ -1,6 +1,5 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { useAuctionWebSocket } from "@/hooks/auctionWebSocket";
-import { useLogin } from "@/hooks/auth";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import { Section } from "@/components/commons/section";
@@ -12,6 +11,7 @@ import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import { PresetMemberCard } from "@/components/presetMemberCard";
 import { Input } from "@/components/commons/input";
 import { Bar } from "@/components/commons/bar";
+import { isAuthenticated } from "@/utils/auth";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 import { AuctionStatus } from "@/dtos/auctionDto";
 
@@ -24,7 +24,7 @@ interface AuctionPageProps {
 
 export function AuctionPage({ auctionId }: AuctionPageProps) {
   const [bidAmount, setBidAmount] = useState<string>("");
-  const login = useLogin(`/auction/${auctionId}`);
+  const reconnectedRef = useRef(false);
 
   const {
     isConnected,
@@ -44,6 +44,20 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
       connect(auctionId);
     }
   }, []);
+
+  useEffect(() => {
+    if (
+      state !== null &&
+      memberId === null &&
+      isConnected &&
+      !reconnectedRef.current &&
+      isAuthenticated() &&
+      auctionId !== undefined
+    ) {
+      reconnectedRef.current = true;
+      connect(auctionId);
+    }
+  }, [state, memberId, isConnected]);
 
   const isCompleted = state?.status === AuctionStatus.COMPLETED;
 
@@ -131,13 +145,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
   return (
     <PageLayout>
-      {memberId === null && !isCompleted && (
-        <Section variantIntent="primary" className={styles.centerSection}>
-          <span>경매를 관전 중입니다. 입찰하려면 로그인하세요.</span>
-          <PrimaryButton onClick={login}>로그인</PrimaryButton>
-        </Section>
-      )}
-
       <Section variantIntent="primary" className={styles.teamsSection}>
         <h3>팀 목록</h3>
         <Bar />

@@ -25,6 +25,7 @@ export function AddPositionModal({
   );
 
   const handleClose = () => {
+    if (isPending) return;
     setPositionName(INITIAL_STATE.positionName);
     setPositionIconUrl(INITIAL_STATE.positionIconUrl);
     onClose();

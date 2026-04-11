@@ -23,8 +23,13 @@ export function AddAuctionModal({
   const [allowPublic, setAllowPublic] = useState(true);
   const [sendInvite, setSendInvite] = useState(true);
 
+  const handleClose = () => {
+    if (isPending) return;
+    onClose();
+  };
+
   return (
-    <Modal onClose={onClose} title="경매 생성">
+    <Modal onClose={handleClose} title="경매 생성">
       <Section variantTone="ghost" variantIntent="secondary">
         {error && (
           <Error detail={error?.message}>경매 생성에 실패했습니다.</Error>
@@ -56,7 +61,7 @@ export function AddAuctionModal({
           </Toggle>
         </Section>
         <ModalFooter>
-          <SecondaryButton type="button" onClick={onClose}>
+          <SecondaryButton type="button" onClick={handleClose}>
             취소
           </SecondaryButton>
           <PrimaryButton

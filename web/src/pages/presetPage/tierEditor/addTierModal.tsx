@@ -23,6 +23,7 @@ export function AddTierModal({
   const [tierIconUrl, setTierIconUrl] = useState(INITIAL_STATE.tierIconUrl);
 
   const handleClose = () => {
+    if (isPending) return;
     setTierName(INITIAL_STATE.tierName);
     setTierIconUrl(INITIAL_STATE.tierIconUrl);
     onClose();

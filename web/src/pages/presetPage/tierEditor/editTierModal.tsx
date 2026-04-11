@@ -28,6 +28,11 @@ export function EditTierModal({
     setIconUrl(tier.iconUrl ?? "");
   }, [tier.tierId, tier.name, tier.iconUrl]);
 
+  const handleClose = () => {
+    if (isPending) return;
+    onClose();
+  };
+
   const handleSubmit = (e: Event) => {
     e.preventDefault();
     if (!name.trim()) return;
@@ -35,7 +40,7 @@ export function EditTierModal({
   };
 
   return (
-    <Modal onClose={onClose} title="티어 수정">
+    <Modal onClose={handleClose} title="티어 수정">
       <ModalForm onSubmit={handleSubmit}>
         {error ? (
           <ErrorMessage detail={error?.message}>
@@ -55,7 +60,7 @@ export function EditTierModal({
           onChange={setIconUrl}
         />
         <ModalFooter>
-          <SecondaryButton onClick={onClose}>취소</SecondaryButton>
+          <SecondaryButton onClick={handleClose}>취소</SecondaryButton>
           <PrimaryButton type="submit" disabled={isPending || !name.trim()}>
             저장
           </PrimaryButton>
