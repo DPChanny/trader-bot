@@ -14,6 +14,7 @@ export function PresetCard({ preset, isActive, onClick }: PresetCardProps) {
       variantColor={isActive ? "blue" : "gray"}
       variantActive={isActive}
       variantLayout="row"
+      variantIntent="tertiary"
       onClick={onClick}
       style={{ cursor: "pointer" }}
     >

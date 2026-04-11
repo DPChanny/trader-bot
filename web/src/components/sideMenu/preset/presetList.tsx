@@ -50,11 +50,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
           <PrimaryButton onClick={handleOpenAddPresetModal}>추가</PrimaryButton>
         </Section>
         <Bar />
-        <Section
-          variantTone="ghost"
-          variantLayout="column"
-          variantIntent="secondary"
-        >
+        <Section variantTone="ghost" variantIntent="tertiary">
           {presets.map((preset) => (
             <PresetCard
               key={preset.presetId}

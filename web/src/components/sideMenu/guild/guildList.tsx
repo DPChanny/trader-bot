@@ -22,11 +22,7 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
         </PrimaryButton>
       </Section>
       <Bar />
-      <Section
-        variantTone="ghost"
-        variantLayout="column"
-        variantIntent="secondary"
-      >
+      <Section variantTone="ghost" variantIntent="tertiary">
         {guilds.map((g) => (
           <GuildCard
             key={g.discordId}

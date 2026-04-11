@@ -19,7 +19,7 @@ export function PositionCard({
   isDeletePending,
 }: PositionCardProps) {
   return (
-    <Card variantLayout="row" variantIntent="secondary">
+    <Card variantLayout="row" variantIntent="tertiary">
       <Badge
         src={position.iconUrl || undefined}
         alt={position.name}

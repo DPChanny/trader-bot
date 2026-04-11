@@ -14,7 +14,7 @@ export function GuildCard({ guild, isActive, onClick }: GuildCardProps) {
       variantColor={isActive ? "blue" : "gray"}
       variantActive={isActive}
       variantLayout="row"
-      variantIntent="secondary"
+      variantIntent="tertiary"
       onClick={onClick}
       style={{ cursor: "pointer" }}
     >
