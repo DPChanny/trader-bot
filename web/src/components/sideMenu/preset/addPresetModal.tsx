@@ -50,8 +50,7 @@ export function AddPresetModal({
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!presetName.trim() || pointScale <= 0 || !isDivisible || !guildId)
-      return;
+    if (!presetName.trim() || pointScale <= 0 || !isDivisible) return;
     const actualPoints = inputPoints / pointScale;
     try {
       await addPreset.mutateAsync({

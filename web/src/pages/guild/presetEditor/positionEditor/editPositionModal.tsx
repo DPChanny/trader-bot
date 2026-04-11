@@ -6,7 +6,7 @@ import { Error as ErrorMessage } from "@/components/commons/error";
 import type { PositionDTO } from "@/dtos/positionDto";
 
 interface EditPositionModalProps {
-  position: PositionDTO | null;
+  position: PositionDTO;
   onClose: () => void;
   onSubmit: (name: string, iconUrl: string | null) => void;
   isPending?: boolean;
@@ -20,15 +20,13 @@ export function EditPositionModal({
   isPending = false,
   error,
 }: EditPositionModalProps) {
-  const [name, setName] = useState("");
-  const [iconUrl, setIconUrl] = useState("");
+  const [name, setName] = useState(position.name);
+  const [iconUrl, setIconUrl] = useState(position.iconUrl ?? "");
 
   useEffect(() => {
-    if (position) {
-      setName(position.name);
-      setIconUrl(position.iconUrl ?? "");
-    }
-  }, [position?.positionId]);
+    setName(position.name);
+    setIconUrl(position.iconUrl ?? "");
+  }, [position.positionId, position.name, position.iconUrl]);
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
@@ -37,7 +35,7 @@ export function EditPositionModal({
   };
 
   return (
-    <Modal isOpen={!!position} onClose={onClose} title="포지션 수정">
+    <Modal isOpen onClose={onClose} title="포지션 수정">
       <ModalForm onSubmit={handleSubmit}>
         {error ? (
           <ErrorMessage detail={error?.message}>

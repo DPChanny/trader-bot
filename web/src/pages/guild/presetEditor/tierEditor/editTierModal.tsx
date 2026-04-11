@@ -6,7 +6,7 @@ import { Error as ErrorMessage } from "@/components/commons/error";
 import type { TierDTO } from "@/dtos/tierDto";
 
 interface EditTierModalProps {
-  tier: TierDTO | null;
+  tier: TierDTO;
   onClose: () => void;
   onSubmit: (name: string, iconUrl: string | null) => void;
   isPending?: boolean;
@@ -20,15 +20,13 @@ export function EditTierModal({
   isPending = false,
   error,
 }: EditTierModalProps) {
-  const [name, setName] = useState("");
-  const [iconUrl, setIconUrl] = useState("");
+  const [name, setName] = useState(tier.name);
+  const [iconUrl, setIconUrl] = useState(tier.iconUrl ?? "");
 
   useEffect(() => {
-    if (tier) {
-      setName(tier.name);
-      setIconUrl(tier.iconUrl ?? "");
-    }
-  }, [tier?.tierId]);
+    setName(tier.name);
+    setIconUrl(tier.iconUrl ?? "");
+  }, [tier.tierId, tier.name, tier.iconUrl]);
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
@@ -37,7 +35,7 @@ export function EditTierModal({
   };
 
   return (
-    <Modal isOpen={!!tier} onClose={onClose} title="티어 수정">
+    <Modal isOpen onClose={onClose} title="티어 수정">
       <ModalForm onSubmit={handleSubmit}>
         {error ? (
           <ErrorMessage detail={error?.message}>

@@ -8,8 +8,10 @@ import {
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
+import type { PresetDTO } from "@/dtos/presetDto";
 
 interface EditPresetModalProps {
+  preset: PresetDTO;
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (
@@ -19,42 +21,43 @@ interface EditPresetModalProps {
     teamSize: number,
     pointScale: number,
   ) => void;
-  name: string;
-  points: number;
-  timer: number;
-  teamSize: number;
-  pointScale: number;
   isPending?: boolean;
   error?: any;
 }
 
 export function EditPresetModal({
+  preset,
   isOpen,
   onClose,
   onSubmit,
-  name: propName,
-  points: propPoints,
-  timer: propTimer,
-  teamSize: propTeamSize,
-  pointScale: propPointScale,
   isPending = false,
   error,
 }: EditPresetModalProps) {
-  const [name, setName] = useState(propName);
-  const [inputPoints, setInputPoints] = useState(propPoints * propPointScale);
-  const [timer, setTimer] = useState(propTimer);
-  const [teamSize, setTeamSize] = useState(propTeamSize);
-  const [pointScale, setPointScale] = useState(propPointScale);
+  const [name, setName] = useState(preset.name);
+  const [inputPoints, setInputPoints] = useState(
+    preset.points * preset.pointScale,
+  );
+  const [timer, setTimer] = useState(preset.timer);
+  const [teamSize, setTeamSize] = useState(preset.teamSize);
+  const [pointScale, setPointScale] = useState(preset.pointScale);
 
   useEffect(() => {
     if (isOpen) {
-      setName(propName);
-      setInputPoints(propPoints * propPointScale);
-      setTimer(propTimer);
-      setTeamSize(propTeamSize);
-      setPointScale(propPointScale);
+      setName(preset.name);
+      setInputPoints(preset.points * preset.pointScale);
+      setTimer(preset.timer);
+      setTeamSize(preset.teamSize);
+      setPointScale(preset.pointScale);
     }
-  }, [isOpen, propName, propPoints, propTimer, propTeamSize, propPointScale]);
+  }, [
+    isOpen,
+    preset.presetId,
+    preset.name,
+    preset.points,
+    preset.timer,
+    preset.teamSize,
+    preset.pointScale,
+  ]);
 
   const isDivisible = inputPoints % pointScale === 0;
 
@@ -66,11 +69,11 @@ export function EditPresetModal({
   };
 
   const hasChanges =
-    name !== propName ||
-    inputPoints !== propPoints * propPointScale ||
-    timer !== propTimer ||
-    teamSize !== propTeamSize ||
-    pointScale !== propPointScale;
+    name !== preset.name ||
+    inputPoints !== preset.points * preset.pointScale ||
+    timer !== preset.timer ||
+    teamSize !== preset.teamSize ||
+    pointScale !== preset.pointScale;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="프리셋 수정">

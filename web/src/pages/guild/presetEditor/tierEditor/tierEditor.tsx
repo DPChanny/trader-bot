@@ -55,7 +55,6 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
       setDeleteTargetId(null);
     } catch (err) {
       console.error("Failed to delete tier:", err);
-      setShowDeleteConfirm(false);
     }
   };
 
@@ -106,16 +105,18 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
         isOpen={showTierForm}
         onClose={() => setShowTierForm(false)}
       />
-      <EditTierModal
-        tier={editingTier}
-        onClose={() => {
-          setEditingTier(null);
-          updateTier.reset();
-        }}
-        onSubmit={handleUpdateTier}
-        isPending={updateTier.isPending}
-        error={updateTier.isError ? updateTier.error : undefined}
-      />
+      {editingTier && (
+        <EditTierModal
+          tier={editingTier}
+          onClose={() => {
+            setEditingTier(null);
+            updateTier.reset();
+          }}
+          onSubmit={handleUpdateTier}
+          isPending={updateTier.isPending}
+          error={updateTier.isError ? updateTier.error : undefined}
+        />
+      )}
       <ConfirmModal
         isOpen={showDeleteConfirm}
         onClose={() => {
@@ -127,6 +128,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
         message="정말 이 티어를 삭제하시겠습니까?"
         confirmText="삭제"
         isPending={deleteTier.isPending}
+        error={deleteTier.isError ? deleteTier.error : undefined}
       />
     </Section>
   );

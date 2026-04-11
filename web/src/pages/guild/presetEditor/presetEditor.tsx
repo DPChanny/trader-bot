@@ -76,9 +76,9 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
   const handleDelete = async () => {
     try {
       await deletePreset.mutateAsync({ guildId, presetId });
+      setIsDeletingPreset(false);
       route(`/guild/${guildId}/member`);
     } catch {}
-    setIsDeletingPreset(false);
   };
 
   return (
@@ -160,14 +160,10 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
 
       {preset && (
         <EditPresetModal
+          preset={preset}
           isOpen={isEditingPreset}
           onClose={() => setIsEditingPreset(false)}
           onSubmit={handleUpdate}
-          name={preset.name}
-          points={preset.points}
-          timer={preset.timer}
-          teamSize={preset.teamSize}
-          pointScale={preset.pointScale}
           isPending={updatePreset.isPending}
           error={updatePreset.error}
         />
@@ -180,6 +176,7 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
         message="정말 이 프리셋을 삭제하시겠습니까?"
         confirmText="삭제"
         isPending={deletePreset.isPending}
+        error={deletePreset.isError ? deletePreset.error : undefined}
       />
     </>
   );

@@ -8,11 +8,9 @@ interface GuildPageProps {
 }
 
 export function GuildPage({ guildId, presetId }: GuildPageProps) {
-  const isPresetRoute = presetId !== null;
-
   return (
     <div className={styles.guildContent}>
-      {isPresetRoute ? (
+      {presetId !== null ? (
         <PresetEditor guildId={guildId} presetId={presetId} />
       ) : (
         <MemberEditor guildId={guildId} />

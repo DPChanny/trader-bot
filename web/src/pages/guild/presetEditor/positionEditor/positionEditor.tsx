@@ -62,7 +62,6 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
       setDeleteTargetId(null);
     } catch (err) {
       console.error("Failed to delete position:", err);
-      setShowDeleteConfirm(false);
     }
   };
 
@@ -114,16 +113,18 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
         onClose={() => setShowPositionForm(false)}
       />
 
-      <EditPositionModal
-        position={editingPosition}
-        onClose={() => {
-          setEditingPosition(null);
-          updatePosition.reset();
-        }}
-        onSubmit={handleUpdatePosition}
-        isPending={updatePosition.isPending}
-        error={updatePosition.isError ? updatePosition.error : undefined}
-      />
+      {editingPosition && (
+        <EditPositionModal
+          position={editingPosition}
+          onClose={() => {
+            setEditingPosition(null);
+            updatePosition.reset();
+          }}
+          onSubmit={handleUpdatePosition}
+          isPending={updatePosition.isPending}
+          error={updatePosition.isError ? updatePosition.error : undefined}
+        />
+      )}
 
       <ConfirmModal
         isOpen={showDeleteConfirm}
@@ -136,6 +137,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
         message="정말 이 포지션을 삭제하시겠습니까?"
         confirmText="삭제"
         isPending={deletePosition.isPending}
+        error={deletePosition.isError ? deletePosition.error : undefined}
       />
     </Section>
   );
