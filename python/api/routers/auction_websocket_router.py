@@ -3,7 +3,6 @@ import json
 from fastapi import (
     APIRouter,
     Depends,
-    Query,
     WebSocket,
     WebSocketDisconnect,
 )
@@ -27,11 +26,10 @@ auction_websocket_router = APIRouter(prefix="/auction", tags=["auction_websocket
 async def auction_websocket(
     websocket: WebSocket,
     auction_id: str,
-    token: str | None = Query(default=None),
     session: AsyncSession = Depends(get_session),
 ):
     auction, member_id, is_leader, team_id = await handle_websocket_connect(
-        websocket, auction_id, token, session
+        websocket, auction_id, session
     )
 
     if not auction:

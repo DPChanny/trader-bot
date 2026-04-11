@@ -1,3 +1,5 @@
+import json
+
 from fastapi import WebSocket
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,7 +37,6 @@ async def _resolve_member(
 async def handle_websocket_connect(
     websocket: WebSocket,
     auction_id: str,
-    token: str | None,
     session: AsyncSession,
 ) -> tuple[Auction | None, int | None, bool, int | None]:
     auction = auction_manager.get_auction(auction_id)
@@ -45,6 +46,28 @@ async def handle_websocket_connect(
             f"WebSocket connect failed: reason=auction_not_found, auction_id={auction_id}"
         )
         await websocket.close(code=4004, reason="Auction not found")
+        return None, None, False, None
+
+    await websocket.accept()
+
+    try:
+        auth_message = json.loads(await websocket.receive_text())
+    except Exception:
+        await websocket.close(code=4001, reason="Auth failed")
+        return None, None, False, None
+
+    if auth_message.get("type") != MessageType.AUTH.value:
+        await websocket.close(code=4001, reason="Auth failed")
+        return None, None, False, None
+
+    auth_data = auth_message.get("data")
+    if not isinstance(auth_data, dict):
+        await websocket.close(code=4001, reason="Auth failed")
+        return None, None, False, None
+
+    token = auth_data.get("token")
+    if token is not None and not isinstance(token, str):
+        await websocket.close(code=4001, reason="Auth failed")
         return None, None, False, None
 
     preset_id: int = auction.preset_snapshot["preset_id"]
@@ -61,7 +84,6 @@ async def handle_websocket_connect(
                 team_id = tid
                 break
 
-    await websocket.accept()
     logger.info(f"WebSocket connected: member_id={member_id}, auction_id={auction_id}")
 
     await auction.connect(websocket, member_id, is_leader, team_id)

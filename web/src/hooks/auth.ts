@@ -1,6 +1,10 @@
 import { useEffect } from "preact/hooks";
 import { route } from "preact-router";
-import type { TokenResponseDTO } from "@/dtos/authDto";
+import type {
+  ExchangeTokenDTO,
+  RefreshTokenDTO,
+  TokenDTO,
+} from "@/dtos/authDto";
 import {
   setAuthToken,
   getAuthToken,
@@ -35,25 +39,42 @@ export function useLogout(redirect?: string) {
 
 export function useLoginCallback() {
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-    const refreshToken = params.get("refresh_token");
-    const callbackRedirect = params.get("redirect") ?? "/";
+    async function handleLoginCallback() {
+      const params = new URLSearchParams(window.location.search);
+      const exchangeToken = params.get("exchangeToken");
+      const callbackRedirect = params.get("redirect") ?? "/";
 
-    if (token) setAuthToken(token);
-    if (refreshToken) setRefreshToken(refreshToken);
+      if (!exchangeToken) {
+        route("/", true);
+        return;
+      }
 
-    if (token || refreshToken) {
+      const response = await fetch(`${AUTH_API_ENDPOINT}/token/exchange`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          exchange_token: exchangeToken,
+        } satisfies ExchangeTokenDTO),
+      });
+      if (!response.ok) {
+        await handleHttpError(response);
+        return;
+      }
+
+      const data = (await response.json()) as TokenDTO;
+      setAuthToken(data.token);
+      setRefreshToken(data.refresh_token);
       queryClient.invalidateQueries({ queryKey: ["me"] });
       route(callbackRedirect, true);
-      return;
     }
 
-    route("/", true);
+    void handleLoginCallback();
   }, []);
 }
 
-async function useRefreshToken(): Promise<TokenResponseDTO> {
+async function useRefreshToken(): Promise<TokenDTO> {
   const refreshToken = getRefreshToken();
   if (!refreshToken) throw new Error("No refresh token available");
   const response = await fetch(`${AUTH_API_ENDPOINT}/token/refresh`, {
@@ -61,7 +82,9 @@ async function useRefreshToken(): Promise<TokenResponseDTO> {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ refresh_token: refreshToken }),
+    body: JSON.stringify({
+      refresh_token: refreshToken,
+    } satisfies RefreshTokenDTO),
   });
   if (!response.ok) await handleHttpError(response);
   return response.json();
@@ -89,6 +112,7 @@ export function useAutoRefreshToken() {
         const data = await useRefreshToken();
         setAuthToken(data.token);
         setRefreshToken(data.refresh_token);
+        queryClient.invalidateQueries({ queryKey: ["me"] });
       } catch {}
     }
 

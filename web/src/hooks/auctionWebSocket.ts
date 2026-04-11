@@ -170,14 +170,21 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     disconnect();
     setCloseReason(null);
 
-    const jwtToken = getAuthToken();
-    const query = jwtToken ? `?token=${encodeURIComponent(jwtToken)}` : "";
-    const url = `${AUCTION_WS_ENDPOINT}/${auctionId}${query}`;
+    const token = getAuthToken();
+    const url = `${AUCTION_WS_ENDPOINT}/${auctionId}`;
     const ws = new WebSocket(url);
     let opened = false;
 
     ws.onopen = () => {
       if (mountedRef.current) {
+        ws.send(
+          JSON.stringify({
+            type: "auth",
+            data: {
+              token: token,
+            },
+          } satisfies WebSocketMessage),
+        );
         opened = true;
         setIsConnected(true);
         setWasConnected(true);

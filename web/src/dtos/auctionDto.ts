@@ -10,6 +10,7 @@ export interface AuctionDTO {
 }
 
 export type MessageType =
+  | "auth"
   | "timer"
   | "place_bid"
   | "bid_placed"

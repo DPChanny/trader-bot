@@ -10,6 +10,7 @@ class AuctionStatus(IntEnum):
 
 
 class MessageType(StrEnum):
+    AUTH = "auth"
     TIMER = "timer"
     PLACE_BID = "place_bid"
     BID_PLACED = "bid_placed"

@@ -1,5 +1,8 @@
 import hashlib
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from secrets import token_urlsafe
+from time import time
 
 import jwt
 from fastapi import Header, HTTPException
@@ -10,6 +13,28 @@ from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 
 ACCESS_TOKEN_EXPIRATION_MINUTES = 15
 REFRESH_TOKEN_EXPIRATION_DAYS = 30
+EXCHANGE_TOKEN_EXPIRATION_SECONDS = 60
+
+
+@dataclass
+class ExchangeTokenPayload:
+    token: str
+    refresh_token: str
+    exp: float
+
+
+exchange_tokens: dict[str, ExchangeTokenPayload] = {}
+
+
+def _manage_exchange_tokens() -> None:
+    now = time()
+    expired_exchange_tokens = [
+        exchange_token
+        for exchange_token, entry in exchange_tokens.items()
+        if entry.exp <= now
+    ]
+    for exchange_token in expired_exchange_tokens:
+        exchange_tokens.pop(exchange_token, None)
 
 
 def create_token(
@@ -35,6 +60,25 @@ def create_refresh_token(discord_id: int) -> str:
         "type": "refresh",
     }
     return jwt.encode(token_data, get_jwt_secret(), algorithm=get_jwt_algorithm())
+
+
+def create_exchange_token(token: str, refresh_token: str) -> str:
+    _manage_exchange_tokens()
+    exchange_token = token_urlsafe(32)
+    exchange_tokens[exchange_token] = ExchangeTokenPayload(
+        token=token,
+        refresh_token=refresh_token,
+        exp=time() + EXCHANGE_TOKEN_EXPIRATION_SECONDS,
+    )
+    return exchange_token
+
+
+def consume_exchange_token(exchange_token: str) -> tuple[str, str] | None:
+    _manage_exchange_tokens()
+    entry = exchange_tokens.pop(exchange_token, None)
+    if entry is None:
+        return None
+    return entry.token, entry.refresh_token
 
 
 def hash_token(token: str) -> str:
