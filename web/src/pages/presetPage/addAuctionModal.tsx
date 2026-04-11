@@ -61,7 +61,11 @@ export function AddAuctionModal({
           </Toggle>
         </Section>
         <ModalFooter>
-          <SecondaryButton type="button" onClick={handleClose}>
+          <SecondaryButton
+            type="button"
+            onClick={handleClose}
+            disabled={isPending}
+          >
             취소
           </SecondaryButton>
           <PrimaryButton

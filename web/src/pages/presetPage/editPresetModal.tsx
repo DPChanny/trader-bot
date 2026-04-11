@@ -126,7 +126,11 @@ export function EditPresetModal({
         </ModalRow>
 
         <ModalFooter>
-          <SecondaryButton type="button" onClick={handleClose}>
+          <SecondaryButton
+            type="button"
+            onClick={handleClose}
+            disabled={isPending}
+          >
             취소
           </SecondaryButton>
           <PrimaryButton

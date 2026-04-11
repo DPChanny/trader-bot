@@ -62,7 +62,9 @@ export function AddTierModal({
           onChange={setTierIconUrl}
         />
         <ModalFooter>
-          <SecondaryButton onClick={handleClose}>취소</SecondaryButton>
+          <SecondaryButton onClick={handleClose} disabled={isPending}>
+            취소
+          </SecondaryButton>
           <PrimaryButton type="submit" disabled={isPending || !tierName.trim()}>
             추가
           </PrimaryButton>

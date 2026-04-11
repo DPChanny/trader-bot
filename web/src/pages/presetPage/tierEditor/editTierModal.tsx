@@ -60,7 +60,9 @@ export function EditTierModal({
           onChange={setIconUrl}
         />
         <ModalFooter>
-          <SecondaryButton onClick={handleClose}>취소</SecondaryButton>
+          <SecondaryButton onClick={handleClose} disabled={isPending}>
+            취소
+          </SecondaryButton>
           <PrimaryButton type="submit" disabled={isPending || !name.trim()}>
             저장
           </PrimaryButton>

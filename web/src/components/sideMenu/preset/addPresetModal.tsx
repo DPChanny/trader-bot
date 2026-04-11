@@ -45,6 +45,7 @@ export function AddPresetModal({
   const isDivisible = inputPoints % pointScale === 0;
 
   const handleClose = () => {
+    if (isPending) return;
     setPresetName(INITIAL_STATE.presetName);
     setInputPoints(INITIAL_STATE.inputPoints);
     setPointScale(INITIAL_STATE.pointScale);
@@ -117,7 +118,9 @@ export function AddPresetModal({
           />
         </ModalRow>
         <ModalFooter>
-          <SecondaryButton onClick={handleClose}>취소</SecondaryButton>
+          <SecondaryButton onClick={handleClose} disabled={isPending}>
+            취소
+          </SecondaryButton>
           <PrimaryButton
             type="submit"
             disabled={
