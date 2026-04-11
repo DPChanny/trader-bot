@@ -13,8 +13,6 @@ import { PresetMemberCard } from "@/components/presetMemberCard";
 import { Input } from "@/components/commons/input";
 import { Bar } from "@/components/commons/bar";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
-import type { TierDTO } from "@/dtos/tierDto";
-import type { PositionDTO } from "@/dtos/positionDto";
 import { AuctionStatus } from "@/dtos/auctionDto";
 
 import styles from "@/styles/pages/auction/auctionPage.module.css";
@@ -81,14 +79,10 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
   const snapshot = state!.presetSnapshot as {
     presetMembers: PresetMemberDetailDTO[];
-    tiers: TierDTO[];
-    positions: PositionDTO[];
     pointScale: number;
   } | null;
 
   const presetMembers: PresetMemberDetailDTO[] = snapshot?.presetMembers ?? [];
-  const tiers: TierDTO[] = snapshot?.tiers ?? [];
-  const positions: PositionDTO[] = snapshot?.positions ?? [];
   const pointScale: number = snapshot?.pointScale ?? 1;
 
   const presetMemberMap = new Map<number, PresetMemberDetailDTO>(
@@ -155,8 +149,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
           <TeamList
             teams={state.teams}
             presetMembers={presetMembers}
-            tiers={tiers}
-            positions={positions}
             pointScale={pointScale}
             clientMemberId={memberId ?? undefined}
             connectedUsers={connectedUsers}
@@ -178,11 +170,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
               className={styles.auctionInfoTopSection}
             >
               {state.status !== AuctionStatus.COMPLETED && currentMember && (
-                <PresetMemberCard
-                  presetMember={currentMember}
-                  tiers={tiers}
-                  positions={positions}
-                />
+                <PresetMemberCard presetMember={currentMember} />
               )}
             </Section>
 
@@ -208,11 +196,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
               </Section>
               <InfoCard label="입찰 팀장" value="">
                 {state.status !== AuctionStatus.COMPLETED && bidderLeader && (
-                  <PresetMemberCard
-                    presetMember={bidderLeader}
-                    tiers={tiers}
-                    positions={positions}
-                  />
+                  <PresetMemberCard presetMember={bidderLeader} />
                 )}
               </InfoCard>
             </Section>
@@ -253,8 +237,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             <Section variantTone="ghost" className={styles.queueGrid}>
               <PresetMemberGrid
                 presetMembers={auctionQueueMembers}
-                tiers={tiers}
-                positions={positions}
                 onMemberClick={() => {}}
                 clientMemberId={memberId ?? undefined}
                 connectedUsers={connectedUsers}
@@ -268,8 +250,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             <Section variantTone="ghost" className={styles.queueGrid}>
               <PresetMemberGrid
                 presetMembers={unsoldQueueMembers}
-                tiers={tiers}
-                positions={positions}
                 onMemberClick={() => {}}
                 connectedUsers={connectedUsers}
                 clientMemberId={memberId ?? undefined}

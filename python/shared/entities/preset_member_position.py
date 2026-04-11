@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
+
+if TYPE_CHECKING:
+    from .position import Position
 
 
 class PresetMemberPosition(BaseEntity):
@@ -27,3 +32,5 @@ class PresetMemberPosition(BaseEntity):
         ForeignKey("position.position_id", ondelete="CASCADE"),
         nullable=False,
     )
+
+    position: Mapped[Position] = relationship("Position", viewonly=True)

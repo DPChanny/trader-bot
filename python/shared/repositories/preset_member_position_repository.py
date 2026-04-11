@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 
 from ..entities.preset import Preset
 from ..entities.preset_member import PresetMember
@@ -14,6 +15,7 @@ class PresetMemberPositionRepository(BaseRepository[PresetMemberPosition]):
     ) -> list[PresetMemberPosition]:
         result = await self.session.execute(
             select(PresetMemberPosition)
+            .options(joinedload(PresetMemberPosition.position))
             .join(
                 PresetMember,
                 PresetMemberPosition.preset_member_id == PresetMember.preset_member_id,
@@ -35,6 +37,7 @@ class PresetMemberPositionRepository(BaseRepository[PresetMemberPosition]):
     ) -> PresetMemberPosition | None:
         result = await self.session.execute(
             select(PresetMemberPosition)
+            .options(joinedload(PresetMemberPosition.position))
             .join(
                 PresetMember,
                 PresetMemberPosition.preset_member_id == PresetMember.preset_member_id,

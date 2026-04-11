@@ -6,6 +6,7 @@ from sqlalchemy.orm import joinedload, selectinload
 from ..entities.member import Member
 from ..entities.preset import Preset
 from ..entities.preset_member import PresetMember
+from ..entities.preset_member_position import PresetMemberPosition
 from . import BaseRepository
 
 
@@ -28,14 +29,15 @@ class PresetRepository(BaseRepository[Preset]):
             select(Preset)
             .options(
                 joinedload(Preset.guild),
-                selectinload(Preset.preset_members)
-                .joinedload(PresetMember.member)
-                .joinedload(Member.discord_user),
-                selectinload(Preset.preset_members)
-                .joinedload(PresetMember.member)
-                .joinedload(Member.guild),
-                selectinload(Preset.preset_members).selectinload(
-                    PresetMember.preset_member_positions
+                selectinload(Preset.preset_members).options(
+                    joinedload(PresetMember.member).options(
+                        joinedload(Member.discord_user),
+                        joinedload(Member.guild),
+                    ),
+                    joinedload(PresetMember.tier),
+                    selectinload(PresetMember.preset_member_positions).joinedload(
+                        PresetMemberPosition.position
+                    ),
                 ),
                 selectinload(Preset.tiers),
                 selectinload(Preset.positions),

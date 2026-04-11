@@ -6,6 +6,7 @@ from sqlalchemy.orm import joinedload, selectinload
 from ..entities.member import Member
 from ..entities.preset import Preset
 from ..entities.preset_member import PresetMember
+from ..entities.preset_member_position import PresetMemberPosition
 from . import BaseRepository
 
 
@@ -16,9 +17,14 @@ class PresetMemberRepository(BaseRepository[PresetMember]):
         result = await self.session.execute(
             select(PresetMember)
             .options(
-                joinedload(PresetMember.member).joinedload(Member.discord_user),
-                joinedload(PresetMember.member).joinedload(Member.guild),
-                selectinload(PresetMember.preset_member_positions),
+                joinedload(PresetMember.member).options(
+                    joinedload(Member.discord_user),
+                    joinedload(Member.guild),
+                ),
+                joinedload(PresetMember.tier),
+                selectinload(PresetMember.preset_member_positions).joinedload(
+                    PresetMemberPosition.position
+                ),
             )
             .join(Preset)
             .where(
@@ -51,9 +57,14 @@ class PresetMemberRepository(BaseRepository[PresetMember]):
         result = await self.session.execute(
             select(PresetMember)
             .options(
-                joinedload(PresetMember.member).joinedload(Member.discord_user),
-                joinedload(PresetMember.member).joinedload(Member.guild),
-                selectinload(PresetMember.preset_member_positions),
+                joinedload(PresetMember.member).options(
+                    joinedload(Member.discord_user),
+                    joinedload(Member.guild),
+                ),
+                joinedload(PresetMember.tier),
+                selectinload(PresetMember.preset_member_positions).joinedload(
+                    PresetMemberPosition.position
+                ),
             )
             .join(Preset)
             .where(

@@ -167,16 +167,23 @@ export function PresetMemberPanel({
     const existingEntry = presetMember.presetMemberPositions?.find(
       (p) => p.positionId === id,
     );
+    const position = positions.find((p) => p.positionId === id)!;
     return {
       presetMemberPositionId: existingEntry?.presetMemberPositionId || 0,
       presetMemberId: presetMember.presetMemberId,
       positionId: id,
+      position,
     };
   });
+
+  const previewTier = tierId
+    ? (tiers.find((t) => t.tierId === tierId) ?? null)
+    : null;
 
   const previewPresetMember = {
     ...presetMember,
     tierId: tierId,
+    tier: previewTier,
     isLeader: isLeader,
     presetMemberPositions: previewPositions,
   };
@@ -231,11 +238,7 @@ export function PresetMemberPanel({
       >
         <Section variantTone="ghost">
           <Section variantTone="ghost" className={styles.cardSection}>
-            <PresetMemberCard
-              presetMember={previewPresetMember}
-              tiers={tiers}
-              positions={positions}
-            />
+            <PresetMemberCard presetMember={previewPresetMember} />
           </Section>
 
           <Label>팀장</Label>

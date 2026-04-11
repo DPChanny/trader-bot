@@ -141,8 +141,6 @@ export function PresetMemberEditor({
                     (pm) => !removingMemberIds.has(pm.memberId),
                   ) ?? []
                 }
-                tiers={tiers ?? []}
-                positions={positions ?? []}
                 selectedMemberId={selectedPresetMemberId}
                 onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
               />
