@@ -1,9 +1,7 @@
 import { createPortal } from "preact/compat";
 import { clsx } from "clsx";
 import { Bar } from "@/components/commons/bar";
-import { Error as ErrorMessage } from "@/components/commons/error";
 import { Section } from "@/components/commons/section";
-import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import styles from "@/styles/components/commons/modal.module.css";
 import type { JSX } from "preact";
 
@@ -85,58 +83,5 @@ export function ModalFooter({ children, className }: ModalFooterProps) {
     >
       {children}
     </Section>
-  );
-}
-
-interface ConfirmModalProps {
-  onClose: () => void;
-  onConfirm: () => void | Promise<void>;
-  title: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  isPending: boolean;
-  error?: any;
-}
-
-export function ConfirmModal({
-  onClose,
-  onConfirm,
-  title,
-  message,
-  confirmText = "확인",
-  cancelText = "취소",
-  isPending,
-  error,
-}: ConfirmModalProps) {
-  const handleConfirm = async () => {
-    try {
-      await onConfirm();
-    } catch {}
-  };
-
-  return (
-    <Modal onClose={onClose} title={title}>
-      <Section variantTone="ghost" variantIntent="secondary">
-        {message}
-        {error ? (
-          <ErrorMessage detail={error?.message}>
-            작업에 실패했습니다.
-          </ErrorMessage>
-        ) : null}
-        <ModalFooter>
-          <SecondaryButton type="button" onClick={onClose}>
-            {cancelText}
-          </SecondaryButton>
-          <PrimaryButton
-            type="button"
-            onClick={handleConfirm}
-            disabled={isPending}
-          >
-            {confirmText}
-          </PrimaryButton>
-        </ModalFooter>
-      </Section>
-    </Modal>
   );
 }

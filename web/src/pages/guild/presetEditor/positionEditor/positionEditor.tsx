@@ -9,10 +9,10 @@ import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
-import { ConfirmModal } from "@/components/commons/modal";
 import { Section } from "@/components/commons/section";
 import { AddPositionModal } from "./addPositionModal";
 import { EditPositionModal } from "./editPositionModal";
+import { DeletePositionModal } from "./deletePositionModal";
 import { PositionCard } from "./positionCard";
 import type { PositionDTO } from "@/dtos/positionDto";
 
@@ -154,12 +154,9 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
       )}
 
       {showDeletePositionModal && (
-        <ConfirmModal
+        <DeletePositionModal
           onClose={handleCloseDeletePositionModal}
           onConfirm={handleDeletePosition}
-          title="포지션 삭제"
-          message="정말 이 포지션을 삭제하시겠습니까?"
-          confirmText="삭제"
           isPending={deletePosition.isPending}
           error={deletePosition.isError ? deletePosition.error : undefined}
         />

@@ -105,18 +105,20 @@ export function EditPresetModal({
           )}
         </div>
 
-        <LabelInput
-          label="타이머 (초)"
-          type="number"
-          value={timer.toString()}
-          onChange={(value) => setTimer(Number(value) || 0)}
-        />
-        <LabelInput
-          label="팀당 인원수"
-          type="number"
-          value={teamSize.toString()}
-          onChange={(value) => setTeamSize(Math.max(1, Number(value) || 1))}
-        />
+        <ModalRow>
+          <LabelInput
+            label="타이머 (초)"
+            type="number"
+            value={timer.toString()}
+            onChange={(value) => setTimer(Number(value) || 0)}
+          />
+          <LabelInput
+            label="팀당 인원수"
+            type="number"
+            value={teamSize.toString()}
+            onChange={(value) => setTeamSize(Math.max(1, Number(value) || 1))}
+          />
+        </ModalRow>
 
         <ModalFooter>
           <SecondaryButton type="button" onClick={onClose}>

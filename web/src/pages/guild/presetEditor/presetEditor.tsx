@@ -15,9 +15,11 @@ import {
   DeleteButton,
 } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
-import { ConfirmModal } from "@/components/commons/modal";
+import { Modal, ModalFooter } from "@/components/commons/modal";
 import { EditPresetModal } from "./editPresetModal";
+import { DeletePresetModal } from "./deletePresetModal";
 import { AddAuctionModal } from "./addAuctionModal";
+import { AuctionLinkModal } from "./auctionLinkModal";
 import type { AddAuctionDTO } from "@/dtos/auctionDto";
 import styles from "@/styles/pages/guild/presetEditor/presetEditor.module.css";
 
@@ -165,9 +167,7 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
               </Section>
             )}
 
-            <Section variantIntent="secondary" className={styles.tierSection}>
-              <TierEditor guildId={guildId} presetId={presetId} />
-            </Section>
+            <TierEditor guildId={guildId} presetId={presetId} />
             <Section
               variantIntent="secondary"
               className={styles.positionSection}
@@ -196,12 +196,9 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
       )}
 
       {showDeletePresetModal && (
-        <ConfirmModal
+        <DeletePresetModal
           onClose={handleCloseDeletePresetModal}
           onConfirm={handleDelete}
-          title="프리셋 삭제"
-          message="정말 이 프리셋을 삭제하시겠습니까?"
-          confirmText="삭제"
           isPending={deletePreset.isPending}
           error={deletePreset.isError ? deletePreset.error : undefined}
         />
@@ -220,18 +217,9 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
       )}
 
       {createdAuctionId && (
-        <ConfirmModal
+        <AuctionLinkModal
+          auctionId={createdAuctionId}
           onClose={() => setCreatedAuctionId(null)}
-          onConfirm={() =>
-            navigator.clipboard.writeText(
-              `${window.location.origin}/auction/${createdAuctionId}`,
-            )
-          }
-          title="경매 생성 완료"
-          message={`경매가 생성되었습니다.\n링크: ${window.location.origin}/auction/${createdAuctionId}`}
-          confirmText="링크 복사"
-          cancelText="닫기"
-          isPending={false}
         />
       )}
     </>

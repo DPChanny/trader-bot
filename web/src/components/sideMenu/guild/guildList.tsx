@@ -13,7 +13,7 @@ interface GuildListProps {
 
 export function GuildList({ guilds, activeGuildId }: GuildListProps) {
   return (
-    <Section variantTone="ghost" variantIntent="secondary">
+    <Section variantIntent="secondary">
       <Section variantTone="ghost" variantLayout="row">
         <h3>길드 관리</h3>
         <PrimaryButton onClick={() => window.open(getBotInviteUrl(), "_blank")}>

@@ -30,13 +30,9 @@ export function SideMenu() {
               />
             </Section>
             <Bar />
-            <Section variantIntent="secondary">
-              <GuildList guilds={guilds} activeGuildId={guildId} />
-            </Section>
+            <GuildList guilds={guilds} activeGuildId={guildId} />
             {guildId && (
-              <Section variantIntent="secondary">
-                <PresetList guildId={guildId} selectedPresetId={presetId} />
-              </Section>
+              <PresetList guildId={guildId} selectedPresetId={presetId} />
             )}
           </Section>
         </Section>

@@ -11,7 +11,7 @@ import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
 import { AddTierModal } from "./addTierModal";
 import { EditTierModal } from "./editTierModal";
-import { ConfirmModal } from "@/components/commons/modal";
+import { DeleteTierModal } from "./deleteTierModal";
 import { TierCard } from "./tierCard";
 import styles from "@/styles/pages/guild/presetEditor/tierEditor/tierList.module.css";
 import { Section } from "@/components/commons/section";
@@ -95,7 +95,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
   };
 
   return (
-    <Section variantTone="ghost" variantIntent="secondary">
+    <Section variantIntent="secondary">
       <Section variantTone="ghost" variantLayout="row">
         <h3>티어 목록</h3>
         <PrimaryButton onClick={handleOpenAddTierModal}>추가</PrimaryButton>
@@ -145,12 +145,9 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
         />
       )}
       {showDeleteTierModal && (
-        <ConfirmModal
+        <DeleteTierModal
           onClose={handleCloseDeleteTierModal}
           onConfirm={handleDeleteTier}
-          title="티어 삭제"
-          message="정말 이 티어를 삭제하시겠습니까?"
-          confirmText="삭제"
           isPending={deleteTier.isPending}
           error={deleteTier.isError ? deleteTier.error : undefined}
         />

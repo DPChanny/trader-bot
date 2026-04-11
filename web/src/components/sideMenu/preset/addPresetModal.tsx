@@ -102,18 +102,20 @@ export function AddPresetModal({
             포인트는 포인트 스케일로 나뉘어떨어져야 합니다.
           </ErrorMessage>
         ) : null}
-        <LabelInput
-          label="경매 타이머 (초)"
-          type="number"
-          value={timer.toString()}
-          onChange={(v) => setTimer(parseInt(v) || 30)}
-        />
-        <LabelInput
-          label="팀당 인원수"
-          type="number"
-          value={teamSize.toString()}
-          onChange={(v) => setTeamSize(parseInt(v) || 5)}
-        />
+        <ModalRow>
+          <LabelInput
+            label="경매 타이머 (초)"
+            type="number"
+            value={timer.toString()}
+            onChange={(v) => setTimer(parseInt(v) || 30)}
+          />
+          <LabelInput
+            label="팀당 인원수"
+            type="number"
+            value={teamSize.toString()}
+            onChange={(v) => setTeamSize(parseInt(v) || 5)}
+          />
+        </ModalRow>
         <ModalFooter>
           <SecondaryButton onClick={handleClose}>취소</SecondaryButton>
           <PrimaryButton

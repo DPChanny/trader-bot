@@ -43,7 +43,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
 
   return (
     <>
-      <Section variantTone="ghost" variantIntent="secondary">
+      <Section variantIntent="secondary">
         <Section variantTone="ghost" variantLayout="row">
           <h3>프리셋 관리</h3>
           <PrimaryButton onClick={handleOpenAddPresetModal}>추가</PrimaryButton>

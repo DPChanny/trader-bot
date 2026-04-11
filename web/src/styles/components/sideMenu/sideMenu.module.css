@@ -39,6 +39,10 @@
   cursor: pointer;
 }
 
+.expandSection {
+  flex: 1;
+}
+
 .toggleTab:hover {
   color: var(--color-text);
   background: var(--color-section-secondary-bg);
