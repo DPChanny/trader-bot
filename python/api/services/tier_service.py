@@ -23,7 +23,7 @@ async def get_tier_list_service(
     preset_id: int,
     session: AsyncSession,
 ) -> list[TierDTO]:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.VIEWER)
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
@@ -42,7 +42,7 @@ async def get_tier_service(
     tier_id: int,
     session: AsyncSession,
 ) -> TierDTO:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.VIEWER)
 
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)

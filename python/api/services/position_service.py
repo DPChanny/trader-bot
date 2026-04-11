@@ -23,7 +23,7 @@ async def get_position_list_service(
     preset_id: int,
     session: AsyncSession,
 ) -> list[PositionDTO]:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.VIEWER)
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
@@ -42,7 +42,7 @@ async def get_position_service(
     position_id: int,
     session: AsyncSession,
 ) -> PositionDTO:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, discord_id, session, Role.VIEWER)
 
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)

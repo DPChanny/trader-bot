@@ -27,6 +27,7 @@ interface ToggleProps extends VariantProps<typeof toggleVariants> {
   onClick: () => void;
   className?: string;
   type?: "button" | "submit" | "reset";
+  disabled?: boolean;
 }
 
 export function Toggle({
@@ -36,6 +37,7 @@ export function Toggle({
   onClick,
   className,
   type = "button",
+  disabled = false,
 }: ToggleProps) {
   return (
     <button
@@ -45,6 +47,7 @@ export function Toggle({
         className,
       )}
       onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </button>

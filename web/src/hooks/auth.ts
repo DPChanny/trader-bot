@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/preact-query";
 import { useEffect } from "preact/hooks";
 import { route } from "preact-router";
 import type {
@@ -10,6 +11,7 @@ import {
   getAuthToken,
   isAuthenticated,
   getRefreshToken,
+  getAuthHeadersForMutation,
   setRefreshToken,
   removeAuthToken,
   removeRefreshToken,
@@ -20,7 +22,7 @@ import { queryClient } from "@/utils/query";
 
 export function useLogin(redirect?: string) {
   return () => {
-    const base = `${window.location.origin}/api/auth/login`;
+    const base = `${AUTH_API_ENDPOINT}/login`;
     const url = redirect
       ? `${base}?redirect=${encodeURIComponent(redirect)}`
       : base;
@@ -29,12 +31,21 @@ export function useLogin(redirect?: string) {
 }
 
 export function useLogout(redirect?: string) {
-  return () => {
-    removeAuthToken();
-    removeRefreshToken();
-    queryClient.setQueryData(["me"], null);
-    route(redirect ?? "/");
-  };
+  return useMutation({
+    mutationFn: async (): Promise<void> => {
+      const response = await fetch(`${AUTH_API_ENDPOINT}/logout`, {
+        method: "POST",
+        headers: getAuthHeadersForMutation(),
+      });
+      if (!response.ok) await handleHttpError(response);
+    },
+    onSettled: () => {
+      removeAuthToken();
+      removeRefreshToken();
+      queryClient.setQueryData(["me"], null);
+      route(redirect ?? "/", true);
+    },
+  });
 }
 
 export function useLoginCallback() {

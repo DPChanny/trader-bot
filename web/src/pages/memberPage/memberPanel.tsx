@@ -13,10 +13,11 @@ import styles from "@/styles/pages/memberPage/memberPanel.module.css";
 
 interface MemberPanelProps {
   member: MemberDetailDTO;
+  myRole: number;
   onClose: () => void;
 }
 
-export function MemberPanel({ member, onClose }: MemberPanelProps) {
+export function MemberPanel({ member, myRole, onClose }: MemberPanelProps) {
   const updateMember = useUpdateMember();
 
   const [alias, setAlias] = useState(member.alias ?? "");
@@ -29,17 +30,23 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
     setRole(member.role);
   }, [member.memberId, member.alias, member.infoUrl, member.role]);
 
+  const canEditRole = myRole >= 2;
+
   const hasChanges =
     alias !== (member.alias ?? "") ||
     infoUrl !== (member.infoUrl ?? "") ||
-    role !== member.role;
+    (canEditRole && role !== member.role);
 
   const handleSave = async () => {
     try {
       await updateMember.mutateAsync({
         guildId: member.guildId,
         memberId: member.memberId,
-        dto: { alias: alias || null, infoUrl: infoUrl || null, role },
+        dto: {
+          alias: alias || null,
+          infoUrl: infoUrl || null,
+          ...(canEditRole && role !== 3 ? { role } : {}),
+        },
       });
     } catch (err) {
       console.error("Failed to update member:", err);
@@ -131,6 +138,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
                     value === 3 ? "gold" : value === 2 ? "red" : "blue"
                   }
                   isActive={role === value}
+                  disabled={!canEditRole || value === 3}
                   onClick={() => setRole(value)}
                 >
                   {label}

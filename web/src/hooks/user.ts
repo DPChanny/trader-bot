@@ -1,15 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
+import { useQuery } from "@tanstack/preact-query";
 import type { UserDetailDTO } from "@/dtos/userDto";
-import {
-  getAuthHeaders,
-  getAuthHeadersForMutation,
-  getAuthToken,
-} from "@/utils/auth";
+import { getAuthHeaders, getAuthToken } from "@/utils/auth";
 import { USER_API_ENDPOINT } from "@/utils/env";
 import { toCamelCase } from "@/utils/dto";
 import { handleHttpError } from "@/utils/hook";
 
-export function useMe() {
+export function useMyUser() {
   return useQuery({
     queryKey: ["me"],
     queryFn: async (): Promise<UserDetailDTO | null> => {
@@ -24,22 +20,5 @@ export function useMe() {
       return toCamelCase<UserDetailDTO>(json);
     },
     retry: false,
-  });
-}
-
-export function useDeleteMe() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (): Promise<void> => {
-      const response = await fetch(`${USER_API_ENDPOINT}/@me`, {
-        method: "DELETE",
-        headers: getAuthHeadersForMutation(),
-      });
-      if (!response.ok) await handleHttpError(response);
-    },
-    onSuccess: () => {
-      queryClient.clear();
-    },
   });
 }

@@ -99,3 +99,14 @@ async def refresh_token_service(
 
     logger.info(f"Token refreshed: discord_id={user.discord_id}")
     return TokenDTO(token=access_token, refresh_token=new_refresh_token)
+
+
+@service_exception_handler
+async def logout_service(discord_id: int, session: AsyncSession) -> None:
+    user_repo = UserRepository(session)
+    user = await user_repo.get_by_id(discord_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.refresh_token = None
+    await user_repo.commit()
+    logger.info(f"User logged out: discord_id={discord_id}")

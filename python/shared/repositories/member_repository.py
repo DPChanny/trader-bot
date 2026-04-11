@@ -41,6 +41,21 @@ class MemberRepository(BaseRepository[Member]):
         )
         return result.scalar_one_or_none()
 
+    async def get_detail_by_discord_user_id(
+        self, discord_user_id: int, guild_id: int
+    ) -> Member | None:
+        result = await self.session.execute(
+            select(Member)
+            .options(
+                selectinload(Member.discord_user),
+            )
+            .where(
+                Member.discord_user_id == discord_user_id,
+                Member.guild_id == guild_id,
+            )
+        )
+        return result.scalar_one_or_none()
+
     async def get_list_by_guild_id(self, guild_id: int) -> list[Member]:
         result = await self.session.execute(
             select(Member)

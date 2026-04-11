@@ -12,10 +12,10 @@ import { SideMenu } from "@/components/sideMenu/sideMenu";
 import {
   useAutoRefreshToken,
   useLogin,
-  useLogout,
   useLoginCallback,
+  useLogout,
 } from "@/hooks/auth";
-import { useMe } from "@/hooks/user";
+import { useMyUser } from "@/hooks/user";
 import { isAuthenticated } from "@/utils/auth";
 import { queryClient } from "@/utils/query";
 import "@/styles/app.css";
@@ -71,15 +71,19 @@ function AuctionRoute({ auctionId }: RoutableProps & { auctionId?: string }) {
 
 function App() {
   useAutoRefreshToken();
-  const { data: user } = useMe();
+  const { data: user } = useMyUser();
   const login = useLogin();
   const logout = useLogout();
+
+  const handleLogout = () => {
+    logout.mutate();
+  };
 
   return (
     <div className="app-container">
       <Header
         user={user ?? undefined}
-        onLogout={user ? logout : undefined}
+        onLogout={user ? handleLogout : undefined}
         onLogin={!user ? login : undefined}
       />
       <div className="app-body">

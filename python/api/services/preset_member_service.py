@@ -92,6 +92,8 @@ async def add_preset_member_service(
     preset_member = await preset_member_repo.get_detail_by_id(
         preset_member.preset_member_id, preset_id, guild_id
     )
+    if preset_member is None:
+        raise HTTPException(status_code=404, detail="PresetMember not found")
     return PresetMemberDetailDTO.model_validate(preset_member)
 
 

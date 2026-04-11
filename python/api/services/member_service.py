@@ -2,10 +2,22 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member_dto import MemberDetailDTO
+from shared.entities.member import Role
 from shared.repositories.member_repository import MemberRepository
 
 from ..utils.exception import service_exception_handler
 from ..utils.member import verify_role
+
+
+@service_exception_handler
+async def get_my_member_service(
+    guild_id: int, discord_id: int, session: AsyncSession
+) -> MemberDetailDTO:
+    member_repo = MemberRepository(session)
+    member = await member_repo.get_detail_by_discord_user_id(discord_id, guild_id)
+    if member is None:
+        raise HTTPException(status_code=404, detail="Member not found")
+    return MemberDetailDTO.model_validate(member)
 
 
 @service_exception_handler
@@ -38,11 +50,15 @@ async def update_member_service(
     dto,
     session: AsyncSession,
 ) -> MemberDetailDTO:
-    await verify_role(guild_id, discord_id, session)
+    await verify_role(guild_id, discord_id, session, Role.ADMIN)
     member_repo = MemberRepository(session)
     member = await member_repo.get_by_id(member_id, guild_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
+    if member.role == Role.OWNER and dto.role is not None:
+        raise HTTPException(status_code=403, detail="Cannot modify an OWNER's role")
+    if dto.role == Role.OWNER:
+        raise HTTPException(status_code=403, detail="OWNER role is managed by the bot")
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(member, key, value)
@@ -50,4 +66,6 @@ async def update_member_service(
     await member_repo.commit()
 
     member = await member_repo.get_detail_by_id(member_id, guild_id)
+    if member is None:
+        raise HTTPException(status_code=404, detail="Member not found")
     return MemberDetailDTO.model_validate(member)
