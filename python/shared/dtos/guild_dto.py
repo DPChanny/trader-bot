@@ -10,8 +10,6 @@ class GuildDTO(BaseDTO):
 
     model_config = {"from_attributes": True}
 
-
-class GuildDetailDTO(GuildDTO):
     @computed_field
     @property
     def icon_url(self) -> str | None:

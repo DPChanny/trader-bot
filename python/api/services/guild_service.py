@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.guild_dto import GuildDetailDTO
+from shared.dtos.guild_dto import GuildDTO
 from shared.repositories.guild_repository import GuildRepository
 
 from ..utils.exception import service_exception_handler
@@ -11,16 +11,16 @@ from ..utils.member import verify_role
 @service_exception_handler
 async def get_guild_list_service(
     discord_id: int, session: AsyncSession
-) -> list[GuildDetailDTO]:
+) -> list[GuildDTO]:
     guild_repo = GuildRepository(session)
     guilds = await guild_repo.get_list_by_discord_user_id(discord_id)
-    return [GuildDetailDTO.model_validate(g) for g in guilds]
+    return [GuildDTO.model_validate(g) for g in guilds]
 
 
 @service_exception_handler
 async def get_guild_service(
     guild_id: int, discord_id: int, session: AsyncSession
-) -> GuildDetailDTO:
+) -> GuildDTO:
     await verify_role(guild_id, discord_id, session)
 
     guild_repo = GuildRepository(session)
@@ -28,4 +28,4 @@ async def get_guild_service(
     if guild is None:
         raise HTTPException(status_code=404, detail="Guild not found")
 
-    return GuildDetailDTO.model_validate(guild)
+    return GuildDTO.model_validate(guild)
