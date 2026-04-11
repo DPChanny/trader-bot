@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import type {
   AuctionInitDTO,
+  AuctionStatus,
   BidPlacedMessageData,
   NextMemberMessageData,
   QueueUpdateMessageData,
+  StatusMessageData,
   TimerMessageData,
   MemberSoldMessageData,
   WebSocketMessage,
@@ -15,7 +17,7 @@ import { getAuthToken } from "@/utils/auth";
 interface AuctionWebSocketHook {
   isConnected: boolean;
   wasConnected: boolean;
-  connect: (auctionId: number) => void;
+  connect: (auctionId: string) => void;
   disconnect: () => void;
   placeBid: (amount: number) => void;
   state: AuctionInitDTO | null;
@@ -134,14 +136,12 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       }
 
       case "status": {
-        const data = message.data as {
-          status: import("@/dtos/auctionDto").AuctionStatus;
-        };
+        const data = toCamelCase<StatusMessageData>(message.data);
         setState((prev) =>
           prev
             ? {
                 ...prev,
-                status: data.status,
+                status: parseInt(data.status) as AuctionStatus,
               }
             : null,
         );
@@ -166,7 +166,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     }
   };
 
-  const connect = (auctionId: number) => {
+  const connect = (auctionId: string) => {
     disconnect();
     setCloseReason(null);
 

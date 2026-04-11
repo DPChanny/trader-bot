@@ -54,14 +54,15 @@ export function useAddPresetMember() {
       guildId: string;
       presetId: number;
       dto: AddPresetMemberDTO;
-    }) => {
+    }): Promise<PresetMemberDetailDTO> => {
       const response = await fetch(getPresetMemberEndpoint(guildId, presetId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(dto)),
       });
       if (!response.ok) await handleHttpError(response);
-      return response.json();
+      const json = await response.json();
+      return toCamelCase<PresetMemberDetailDTO>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -88,7 +89,7 @@ export function useUpdatePresetMember() {
       presetId: number;
       presetMemberId: number;
       dto: UpdatePresetMemberDTO;
-    }) => {
+    }): Promise<PresetMemberDetailDTO> => {
       const response = await fetch(
         `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
         {
@@ -98,7 +99,8 @@ export function useUpdatePresetMember() {
         },
       );
       if (!response.ok) await handleHttpError(response);
-      return response.json();
+      const json = await response.json();
+      return toCamelCase<PresetMemberDetailDTO>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

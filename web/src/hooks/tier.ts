@@ -48,14 +48,15 @@ export function useAddTier() {
       guildId: string;
       presetId: number;
       dto: AddTierDTO;
-    }) => {
+    }): Promise<TierDTO> => {
       const response = await fetch(getTierEndpoint(guildId, presetId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(dto)),
       });
       if (!response.ok) await handleHttpError(response);
-      return response.json();
+      const json = await response.json();
+      return toCamelCase<TierDTO>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -82,7 +83,7 @@ export function useUpdateTier() {
       presetId: number;
       tierId: number;
       dto: UpdateTierDTO;
-    }) => {
+    }): Promise<TierDTO> => {
       const response = await fetch(
         `${getTierEndpoint(guildId, presetId)}/${tierId}`,
         {
@@ -92,7 +93,8 @@ export function useUpdateTier() {
         },
       );
       if (!response.ok) await handleHttpError(response);
-      return response.json();
+      const json = await response.json();
+      return toCamelCase<TierDTO>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

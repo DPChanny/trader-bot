@@ -13,7 +13,7 @@ export interface AddPresetDTO {
   points: number;
   timer: number;
   teamSize: number;
-  pointScale?: number;
+  pointScale: number;
 }
 
 export interface UpdatePresetDTO {

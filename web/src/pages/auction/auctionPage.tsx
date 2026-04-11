@@ -19,7 +19,7 @@ import styles from "@/styles/pages/auction/auctionPage.module.css";
 
 interface AuctionPageProps {
   path?: string;
-  auctionId?: number;
+  auctionId?: string;
 }
 
 export function AuctionPage({ auctionId }: AuctionPageProps) {
@@ -65,7 +65,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     );
   }
 
-  const isLoading = !isCompleted && (!isConnected || !state || !state.presetId);
+  const isLoading = !isCompleted && (!isConnected || !state);
 
   if (isLoading) {
     return (

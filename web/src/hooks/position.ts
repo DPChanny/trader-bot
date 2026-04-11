@@ -54,14 +54,15 @@ export function useAddPosition() {
       guildId: string;
       presetId: number;
       dto: AddPositionDTO;
-    }) => {
+    }): Promise<PositionDTO> => {
       const response = await fetch(getPositionEndpoint(guildId, presetId), {
         method: "POST",
         headers: getAuthHeadersForMutation(),
         body: JSON.stringify(toSnakeCase(dto)),
       });
       if (!response.ok) await handleHttpError(response);
-      return response.json();
+      const json = await response.json();
+      return toCamelCase<PositionDTO>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -88,7 +89,7 @@ export function useUpdatePosition() {
       presetId: number;
       positionId: number;
       dto: UpdatePositionDTO;
-    }) => {
+    }): Promise<PositionDTO> => {
       const response = await fetch(
         `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
         {
@@ -98,7 +99,8 @@ export function useUpdatePosition() {
         },
       );
       if (!response.ok) await handleHttpError(response);
-      return response.json();
+      const json = await response.json();
+      return toCamelCase<PositionDTO>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

@@ -33,9 +33,7 @@ function GuildRoute({ guildId }: RoutableProps & { guildId?: string }) {
 function AuctionRoute({ auctionId }: RoutableProps & { auctionId?: string }) {
   return (
     <main className="app-main">
-      <AuctionPage
-        auctionId={auctionId ? parseInt(auctionId, 10) : undefined}
-      />
+      <AuctionPage auctionId={auctionId} />
     </main>
   );
 }

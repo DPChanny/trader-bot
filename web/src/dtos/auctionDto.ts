@@ -5,8 +5,7 @@ export enum AuctionStatus {
 }
 
 export interface AuctionDTO {
-  auctionId: number;
-  presetId: number;
+  auctionId: string;
 }
 
 export type MessageType =
@@ -36,10 +35,12 @@ export interface Team {
   points: number;
 }
 
+export interface StatusMessageData {
+  status: string;
+}
+
 export interface AuctionInitDTO {
-  auctionId: number;
-  presetId: number;
-  guildId: string;
+  auctionId: string;
   status: AuctionStatus;
   currentMemberId: number | null;
   currentBid: number | null;
