@@ -12,6 +12,13 @@ function RootRoute({}: RoutableProps) {
   return <HomePage />;
 }
 
+function RootRedirectRoute({}: RoutableProps) {
+  useEffect(() => {
+    route("/", true);
+  }, []);
+  return null;
+}
+
 function LoginCallbackRoute({}: RoutableProps) {
   useLoginCallback();
 
@@ -59,6 +66,7 @@ export function AppRouter() {
       <PresetRoute path="/guild/:guildId/preset/:presetId" />
       <MemberRoute path="/guild/:guildId/member" />
       <AuctionRoute path="/auction/:auctionId" />
+      <RootRedirectRoute default />
     </Router>
   );
 }
