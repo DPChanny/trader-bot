@@ -263,6 +263,13 @@ export function PresetMemberPanel({
             variantIntent="tertiary"
             className={styles.toggleSection}
           >
+            <Toggle
+              isActive={tierId === null}
+              variantColor="red"
+              onClick={() => setTierId(null)}
+            >
+              없음
+            </Toggle>
             {tiers?.map((tier) => (
               <Toggle
                 key={tier.tierId}
@@ -281,6 +288,13 @@ export function PresetMemberPanel({
             variantIntent="tertiary"
             className={styles.toggleSection}
           >
+            <Toggle
+              isActive={selectedPositionIds.length === 0}
+              variantColor="blue"
+              onClick={() => setSelectedPositionIds([])}
+            >
+              없음
+            </Toggle>
             {positions.map((position) => (
               <Toggle
                 key={position.positionId}
