@@ -107,7 +107,7 @@ async def update_preset_member_service(
     await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(session)
-    preset_member = await preset_member_repo.get_detail_by_id(
+    preset_member = await preset_member_repo.get_by_id(
         preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
@@ -124,7 +124,9 @@ async def update_preset_member_service(
     await preset_member_repo.commit()
     logger.info(f"PresetMember updated: id={preset_member_id}")
 
-    await preset_member_repo.refresh(preset_member)
+    preset_member = await preset_member_repo.get_detail_by_id(
+        preset_member_id, preset_id, guild_id
+    )
     return PresetMemberDetailDTO.model_validate(preset_member)
 
 
