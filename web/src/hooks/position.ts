@@ -66,10 +66,10 @@ export function useAddPosition() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
+        queryKey: ["positions", variables.guildId, variables.presetId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["positions", variables.guildId, variables.presetId],
+        queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
     },
   });
@@ -104,10 +104,10 @@ export function useUpdatePosition() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
+        queryKey: ["positions", variables.guildId, variables.presetId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["positions", variables.guildId, variables.presetId],
+        queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
     },
   });
@@ -137,10 +137,10 @@ export function useDeletePosition() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
+        queryKey: ["positions", variables.guildId, variables.presetId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["positions", variables.guildId, variables.presetId],
+        queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
     },
   });

@@ -69,7 +69,7 @@ export function useUpdateMember() {
         queryKey: ["members", variables.guildId, variables.memberId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId],
+        queryKey: ["presetMembers", variables.guildId],
       });
     },
   });

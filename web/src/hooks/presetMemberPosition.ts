@@ -37,9 +37,6 @@ export function useAddPresetMemberPosition() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
-      });
-      queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
     },
@@ -71,9 +68,6 @@ export function useDeletePresetMemberPosition() {
       if (!response.ok) await handleHttpError(response);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
-      });
       queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });

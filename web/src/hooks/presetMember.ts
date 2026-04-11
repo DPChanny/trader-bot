@@ -66,9 +66,6 @@ export function useAddPresetMember() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
-      });
-      queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
     },
@@ -104,9 +101,6 @@ export function useUpdatePresetMember() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
-      });
-      queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
     },
@@ -136,9 +130,6 @@ export function useDeletePresetMember() {
       if (!response.ok) await handleHttpError(response);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
-      });
       queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });

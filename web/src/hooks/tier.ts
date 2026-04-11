@@ -60,10 +60,10 @@ export function useAddTier() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
+        queryKey: ["tiers", variables.guildId, variables.presetId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["tiers", variables.guildId, variables.presetId],
+        queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
     },
   });
@@ -98,10 +98,10 @@ export function useUpdateTier() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
+        queryKey: ["tiers", variables.guildId, variables.presetId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["tiers", variables.guildId, variables.presetId],
+        queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
     },
   });
@@ -131,10 +131,10 @@ export function useDeleteTier() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
+        queryKey: ["tiers", variables.guildId, variables.presetId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["tiers", variables.guildId, variables.presetId],
+        queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
     },
   });
