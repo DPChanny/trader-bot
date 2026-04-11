@@ -3,31 +3,28 @@ import { Modal, ModalForm, ModalFooter } from "@/components/commons/modal";
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
-import { useAddTier } from "@/hooks/tier";
 
 const INITIAL_STATE = { tierName: "", tierIconUrl: "" };
 
 interface AddTierModalProps {
-  guildId: string;
-  presetId: number;
-  isOpen: boolean;
   onClose: () => void;
+  onSubmit: (input: { name: string; iconUrl: string | null }) => Promise<void>;
+  isPending: boolean;
+  error?: any;
 }
 
 export function AddTierModal({
-  guildId,
-  presetId,
-  isOpen,
   onClose,
+  onSubmit,
+  isPending,
+  error,
 }: AddTierModalProps) {
   const [tierName, setTierName] = useState(INITIAL_STATE.tierName);
   const [tierIconUrl, setTierIconUrl] = useState(INITIAL_STATE.tierIconUrl);
-  const addTier = useAddTier();
 
   const handleClose = () => {
     setTierName(INITIAL_STATE.tierName);
     setTierIconUrl(INITIAL_STATE.tierIconUrl);
-    addTier.reset();
     onClose();
   };
 
@@ -35,20 +32,19 @@ export function AddTierModal({
     e.preventDefault();
     if (!tierName.trim()) return;
     try {
-      await addTier.mutateAsync({
-        guildId,
-        presetId,
-        dto: { name: tierName.trim(), iconUrl: tierIconUrl.trim() || null },
+      await onSubmit({
+        name: tierName.trim(),
+        iconUrl: tierIconUrl.trim() || null,
       });
       handleClose();
     } catch {}
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="티어 추가">
+    <Modal onClose={handleClose} title="티어 추가">
       <ModalForm onSubmit={handleSubmit}>
-        {addTier.isError ? (
-          <ErrorMessage detail={addTier.error.message}>
+        {error ? (
+          <ErrorMessage detail={error?.message}>
             티어 추가에 실패했습니다.
           </ErrorMessage>
         ) : null}
@@ -66,10 +62,7 @@ export function AddTierModal({
         />
         <ModalFooter>
           <SecondaryButton onClick={handleClose}>취소</SecondaryButton>
-          <PrimaryButton
-            type="submit"
-            disabled={addTier.isPending || !tierName.trim()}
-          >
+          <PrimaryButton type="submit" disabled={isPending || !tierName.trim()}>
             추가
           </PrimaryButton>
         </ModalFooter>

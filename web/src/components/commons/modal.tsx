@@ -8,22 +8,13 @@ import styles from "@/styles/components/commons/modal.module.css";
 import type { JSX } from "preact";
 
 export type ModalProps = {
-  isOpen: boolean;
   onClose: () => void;
   title: string;
   children: JSX.Element | JSX.Element[] | string;
   className?: string;
 };
 
-export function Modal({
-  isOpen,
-  onClose,
-  title,
-  children,
-  className,
-}: ModalProps) {
-  if (!isOpen) return null;
-
+export function Modal({ onClose, title, children, className }: ModalProps) {
   const content = (
     <div className={styles.modal}>
       <div className={styles.overlay} onClick={onClose}>
@@ -98,26 +89,24 @@ export function ModalFooter({ children, className }: ModalFooterProps) {
 }
 
 interface ConfirmModalProps {
-  isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void | Promise<void>;
   title: string;
   message: string;
   confirmText?: string;
   cancelText?: string;
-  isPending?: boolean;
+  isPending: boolean;
   error?: any;
 }
 
 export function ConfirmModal({
-  isOpen,
   onClose,
   onConfirm,
   title,
   message,
   confirmText = "확인",
   cancelText = "취소",
-  isPending = false,
+  isPending,
   error,
 }: ConfirmModalProps) {
   const handleConfirm = async () => {
@@ -127,7 +116,7 @@ export function ConfirmModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title}>
+    <Modal onClose={onClose} title={title}>
       <Section variantTone="ghost" variantIntent="secondary">
         {message}
         {error ? (

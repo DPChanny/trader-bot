@@ -8,6 +8,7 @@ import { PositionEditor } from "./positionEditor/positionEditor";
 import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
 import { Section } from "@/components/commons/section";
 import { PageContainer, PageLayout } from "@/components/commons/page";
+import { Loading } from "@/components/commons/loading";
 import {
   PrimaryButton,
   EditButton,
@@ -25,16 +26,58 @@ interface PresetEditorProps {
 }
 
 export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
-  const [isEditingPreset, setIsEditingPreset] = useState(false);
-  const [isDeletingPreset, setIsDeletingPreset] = useState(false);
+  const [showEditPresetModal, setShowEditPresetModal] = useState(false);
+  const [showDeletePresetModal, setShowDeletePresetModal] = useState(false);
 
   const addAuction = useAddAuction();
-  const { data: preset } = usePreset(guildId, presetId);
+  const {
+    data: preset,
+    isLoading: isPresetLoading,
+    error: presetError,
+  } = usePreset(guildId, presetId);
   const updatePreset = useUpdatePreset();
   const deletePreset = useDeletePreset();
   const { data: presetMembers } = usePresetMembers(guildId, presetId);
 
-  const teamSize = preset?.teamSize ?? 5;
+  if (isPresetLoading) {
+    return (
+      <PageLayout>
+        <PageContainer>
+          <Section variantIntent="primary" className={styles.panelSection}>
+            <Loading />
+          </Section>
+        </PageContainer>
+      </PageLayout>
+    );
+  }
+
+  if (presetError) {
+    return (
+      <PageLayout>
+        <PageContainer>
+          <Section variantIntent="primary" className={styles.panelSection}>
+            <Error detail={presetError.message}>
+              프리셋을 불러오는데 실패했습니다.
+            </Error>
+          </Section>
+        </PageContainer>
+      </PageLayout>
+    );
+  }
+
+  if (!preset) {
+    return (
+      <PageLayout>
+        <PageContainer>
+          <Section variantIntent="primary" className={styles.panelSection}>
+            <Error>프리셋을 찾을 수 없습니다.</Error>
+          </Section>
+        </PageContainer>
+      </PageLayout>
+    );
+  }
+
+  const teamSize = preset.teamSize;
   const leaderCount = presetMembers?.filter((pm) => pm.isLeader).length ?? 0;
   const memberCount = presetMembers?.length ?? 0;
   const requiredMembers = leaderCount * teamSize;
@@ -62,21 +105,37 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
     teamSize: number,
     pointScale: number,
   ) => {
-    if (!preset) return;
     try {
       await updatePreset.mutateAsync({
         guildId,
         presetId: preset.presetId,
         dto: { name, points, timer, teamSize, pointScale },
       });
-      setIsEditingPreset(false);
+      setShowEditPresetModal(false);
     } catch {}
+  };
+
+  const handleOpenEditPresetModal = () => {
+    setShowEditPresetModal(true);
+  };
+
+  const handleCloseEditPresetModal = () => {
+    setShowEditPresetModal(false);
+    updatePreset.reset();
+  };
+
+  const handleOpenDeletePresetModal = () => {
+    setShowDeletePresetModal(true);
+  };
+
+  const handleCloseDeletePresetModal = () => {
+    setShowDeletePresetModal(false);
   };
 
   const handleDelete = async () => {
     try {
       await deletePreset.mutateAsync({ guildId, presetId });
-      setIsDeletingPreset(false);
+      setShowDeletePresetModal(false);
       route(`/guild/${guildId}/member`);
     } catch {}
   };
@@ -92,35 +151,31 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
                 variantLayout="row"
                 variantIntent="secondary"
               >
-                <h3>{preset?.name ?? "프리셋 없음"}</h3>
-                {preset && (
-                  <Section
-                    variantTone="ghost"
-                    variantLayout="row"
-                    variantIntent="secondary"
-                  >
-                    <EditButton
-                      variantSize="small"
-                      onClick={() => setIsEditingPreset(true)}
-                    />
-                    <DeleteButton
-                      variantSize="small"
-                      onClick={() => setIsDeletingPreset(true)}
-                    />
-                  </Section>
-                )}
-              </Section>
-              {preset && (
+                <h3>{preset.name}</h3>
                 <Section
                   variantTone="ghost"
                   variantLayout="row"
-                  variantIntent="tertiary"
+                  variantIntent="secondary"
                 >
-                  <span>팀 크기: {teamSize}명</span>
-                  <span>포인트: {preset.points * preset.pointScale}</span>
-                  <span>타이머: {preset.timer}초</span>
+                  <EditButton
+                    variantSize="small"
+                    onClick={handleOpenEditPresetModal}
+                  />
+                  <DeleteButton
+                    variantSize="small"
+                    onClick={handleOpenDeletePresetModal}
+                  />
                 </Section>
-              )}
+              </Section>
+              <Section
+                variantTone="ghost"
+                variantLayout="row"
+                variantIntent="tertiary"
+              >
+                <span>팀 크기: {teamSize}명</span>
+                <span>포인트: {preset.points * preset.pointScale}</span>
+                <span>타이머: {preset.timer}초</span>
+              </Section>
               <Bar />
               <PrimaryButton
                 onClick={handleStartAuction}
@@ -158,26 +213,26 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
         </PageContainer>
       </PageLayout>
 
-      {preset && (
+      {showEditPresetModal && (
         <EditPresetModal
           preset={preset}
-          isOpen={isEditingPreset}
-          onClose={() => setIsEditingPreset(false)}
+          onClose={handleCloseEditPresetModal}
           onSubmit={handleUpdate}
           isPending={updatePreset.isPending}
           error={updatePreset.error}
         />
       )}
-      <ConfirmModal
-        isOpen={isDeletingPreset}
-        onClose={() => setIsDeletingPreset(false)}
-        onConfirm={handleDelete}
-        title="프리셋 삭제"
-        message="정말 이 프리셋을 삭제하시겠습니까?"
-        confirmText="삭제"
-        isPending={deletePreset.isPending}
-        error={deletePreset.isError ? deletePreset.error : undefined}
-      />
+      {showDeletePresetModal && (
+        <ConfirmModal
+          onClose={handleCloseDeletePresetModal}
+          onConfirm={handleDelete}
+          title="프리셋 삭제"
+          message="정말 이 프리셋을 삭제하시겠습니까?"
+          confirmText="삭제"
+          isPending={deletePreset.isPending}
+          error={deletePreset.isError ? deletePreset.error : undefined}
+        />
+      )}
     </>
   );
 }

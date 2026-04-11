@@ -8,7 +8,6 @@ import {
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
-import { useAddPreset } from "@/hooks/preset";
 
 const INITIAL_STATE = {
   presetName: "",
@@ -19,15 +18,23 @@ const INITIAL_STATE = {
 };
 
 interface AddPresetModalProps {
-  guildId: string;
-  isOpen: boolean;
   onClose: () => void;
+  onSubmit: (input: {
+    name: string;
+    points: number;
+    timer: number;
+    teamSize: number;
+    pointScale: number;
+  }) => Promise<void>;
+  isPending: boolean;
+  error?: any;
 }
 
 export function AddPresetModal({
-  guildId,
-  isOpen,
   onClose,
+  onSubmit,
+  isPending,
+  error,
 }: AddPresetModalProps) {
   const [presetName, setPresetName] = useState(INITIAL_STATE.presetName);
   const [inputPoints, setInputPoints] = useState(INITIAL_STATE.inputPoints);
@@ -35,7 +42,6 @@ export function AddPresetModal({
   const [timer, setTimer] = useState(INITIAL_STATE.timer);
   const [teamSize, setTeamSize] = useState(INITIAL_STATE.teamSize);
 
-  const addPreset = useAddPreset();
   const isDivisible = inputPoints % pointScale === 0;
 
   const handleClose = () => {
@@ -44,7 +50,6 @@ export function AddPresetModal({
     setPointScale(INITIAL_STATE.pointScale);
     setTimer(INITIAL_STATE.timer);
     setTeamSize(INITIAL_STATE.teamSize);
-    addPreset.reset();
     onClose();
   };
 
@@ -53,25 +58,22 @@ export function AddPresetModal({
     if (!presetName.trim() || pointScale <= 0 || !isDivisible) return;
     const actualPoints = inputPoints / pointScale;
     try {
-      await addPreset.mutateAsync({
-        guildId,
-        dto: {
-          name: presetName.trim(),
-          points: actualPoints,
-          timer,
-          teamSize,
-          pointScale,
-        },
+      await onSubmit({
+        name: presetName.trim(),
+        points: actualPoints,
+        timer,
+        teamSize,
+        pointScale,
       });
       handleClose();
     } catch {}
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="프리셋 추가">
+    <Modal onClose={handleClose} title="프리셋 추가">
       <ModalForm onSubmit={handleSubmit}>
-        {addPreset.isError ? (
-          <ErrorMessage detail={addPreset.error.message}>
+        {error ? (
+          <ErrorMessage detail={error?.message}>
             프리셋 추가에 실패했습니다.
           </ErrorMessage>
         ) : null}
@@ -117,10 +119,7 @@ export function AddPresetModal({
           <PrimaryButton
             type="submit"
             disabled={
-              addPreset.isPending ||
-              !presetName.trim() ||
-              !isDivisible ||
-              pointScale <= 0
+              isPending || !presetName.trim() || !isDivisible || pointScale <= 0
             }
           >
             추가

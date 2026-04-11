@@ -9,7 +9,7 @@ interface EditTierModalProps {
   tier: TierDTO;
   onClose: () => void;
   onSubmit: (name: string, iconUrl: string | null) => void;
-  isPending?: boolean;
+  isPending: boolean;
   error?: any;
 }
 
@@ -17,7 +17,7 @@ export function EditTierModal({
   tier,
   onClose,
   onSubmit,
-  isPending = false,
+  isPending,
   error,
 }: EditTierModalProps) {
   const [name, setName] = useState(tier.name);
@@ -35,7 +35,7 @@ export function EditTierModal({
   };
 
   return (
-    <Modal isOpen onClose={onClose} title="티어 수정">
+    <Modal onClose={onClose} title="티어 수정">
       <ModalForm onSubmit={handleSubmit}>
         {error ? (
           <ErrorMessage detail={error?.message}>

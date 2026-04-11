@@ -9,7 +9,7 @@ interface EditPositionModalProps {
   position: PositionDTO;
   onClose: () => void;
   onSubmit: (name: string, iconUrl: string | null) => void;
-  isPending?: boolean;
+  isPending: boolean;
   error?: any;
 }
 
@@ -17,7 +17,7 @@ export function EditPositionModal({
   position,
   onClose,
   onSubmit,
-  isPending = false,
+  isPending,
   error,
 }: EditPositionModalProps) {
   const [name, setName] = useState(position.name);
@@ -35,7 +35,7 @@ export function EditPositionModal({
   };
 
   return (
-    <Modal isOpen onClose={onClose} title="포지션 수정">
+    <Modal onClose={onClose} title="포지션 수정">
       <ModalForm onSubmit={handleSubmit}>
         {error ? (
           <ErrorMessage detail={error?.message}>

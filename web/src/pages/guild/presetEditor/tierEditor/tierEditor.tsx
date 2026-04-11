@@ -1,5 +1,10 @@
 import { useState } from "preact/hooks";
-import { useDeleteTier, useTiers, useUpdateTier } from "@/hooks/tier";
+import {
+  useAddTier,
+  useDeleteTier,
+  useTiers,
+  useUpdateTier,
+} from "@/hooks/tier";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
@@ -18,14 +23,31 @@ interface TierEditorProps {
 }
 
 export function TierEditor({ guildId, presetId }: TierEditorProps) {
-  const [showTierForm, setShowTierForm] = useState(false);
+  const [showAddTierModal, setShowAddTierModal] = useState(false);
   const [editingTier, setEditingTier] = useState<TierDTO | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const [showDeleteTierModal, setShowDeleteTierModal] = useState(false);
+  const [deletingTierId, setDeletingTierId] = useState<number | null>(null);
 
   const { data: tiers, isLoading, error } = useTiers(guildId, presetId);
+  const addTier = useAddTier();
   const updateTier = useUpdateTier();
   const deleteTier = useDeleteTier();
+
+  const handleOpenAddTierModal = () => {
+    setShowAddTierModal(true);
+  };
+
+  const handleCloseAddTierModal = () => {
+    setShowAddTierModal(false);
+    addTier.reset();
+  };
+
+  const handleAddTier = async (input: {
+    name: string;
+    iconUrl: string | null;
+  }) => {
+    await addTier.mutateAsync({ guildId, presetId, dto: input });
+  };
 
   const handleUpdateTier = async (name: string, iconUrl: string | null) => {
     if (!editingTier) return;
@@ -43,16 +65,30 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
     }
   };
 
+  const handleCloseEditTierModal = () => {
+    setEditingTier(null);
+    updateTier.reset();
+  };
+
+  const handleOpenDeleteTierModal = (tierId: number) => {
+    setDeletingTierId(tierId);
+    setShowDeleteTierModal(true);
+  };
+
+  const handleCloseDeleteTierModal = () => {
+    setShowDeleteTierModal(false);
+    setDeletingTierId(null);
+  };
+
   const handleDeleteTier = async () => {
-    if (deleteTargetId === null) return;
+    if (deletingTierId === null) return;
     try {
       await deleteTier.mutateAsync({
         guildId,
         presetId,
-        tierId: deleteTargetId,
+        tierId: deletingTierId,
       });
-      setShowDeleteConfirm(false);
-      setDeleteTargetId(null);
+      handleCloseDeleteTierModal();
     } catch (err) {
       console.error("Failed to delete tier:", err);
     }
@@ -62,20 +98,13 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
     <Section variantTone="ghost" variantIntent="secondary">
       <Section variantTone="ghost" variantLayout="row">
         <h3>티어 목록</h3>
-        <PrimaryButton onClick={() => setShowTierForm(true)}>
-          추가
-        </PrimaryButton>
+        <PrimaryButton onClick={handleOpenAddTierModal}>추가</PrimaryButton>
       </Section>
       <Bar />
       {isLoading && <Loading />}
       {error && (
         <Error detail={error?.message}>
           티어 목록을 불러오는데 실패했습니다.
-        </Error>
-      )}
-      {deleteTier.isError && (
-        <Error detail={deleteTier.error?.message}>
-          티어 작업 중 오류가 발생했습니다.
         </Error>
       )}
 
@@ -90,46 +119,40 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
             key={tier.tierId}
             tier={tier}
             onEdit={() => setEditingTier(tier)}
-            onDelete={() => {
-              setDeleteTargetId(tier.tierId);
-              setShowDeleteConfirm(true);
-            }}
+            onDelete={() => handleOpenDeleteTierModal(tier.tierId)}
             isDeletePending={deleteTier.isPending}
           />
         ))}
       </Section>
 
-      <AddTierModal
-        guildId={guildId}
-        presetId={presetId}
-        isOpen={showTierForm}
-        onClose={() => setShowTierForm(false)}
-      />
+      {showAddTierModal && (
+        <AddTierModal
+          onClose={handleCloseAddTierModal}
+          onSubmit={handleAddTier}
+          isPending={addTier.isPending}
+          error={addTier.isError ? addTier.error : undefined}
+        />
+      )}
       {editingTier && (
         <EditTierModal
           tier={editingTier}
-          onClose={() => {
-            setEditingTier(null);
-            updateTier.reset();
-          }}
+          onClose={handleCloseEditTierModal}
           onSubmit={handleUpdateTier}
           isPending={updateTier.isPending}
           error={updateTier.isError ? updateTier.error : undefined}
         />
       )}
-      <ConfirmModal
-        isOpen={showDeleteConfirm}
-        onClose={() => {
-          setShowDeleteConfirm(false);
-          setDeleteTargetId(null);
-        }}
-        onConfirm={handleDeleteTier}
-        title="티어 삭제"
-        message="정말 이 티어를 삭제하시겠습니까?"
-        confirmText="삭제"
-        isPending={deleteTier.isPending}
-        error={deleteTier.isError ? deleteTier.error : undefined}
-      />
+      {showDeleteTierModal && (
+        <ConfirmModal
+          onClose={handleCloseDeleteTierModal}
+          onConfirm={handleDeleteTier}
+          title="티어 삭제"
+          message="정말 이 티어를 삭제하시겠습니까?"
+          confirmText="삭제"
+          isPending={deleteTier.isPending}
+          error={deleteTier.isError ? deleteTier.error : undefined}
+        />
+      )}
     </Section>
   );
 }

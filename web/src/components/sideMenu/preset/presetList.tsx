@@ -5,7 +5,7 @@ import { Bar } from "@/components/commons/bar";
 import { PrimaryButton } from "@/components/commons/button";
 import { AddPresetModal } from "./addPresetModal";
 import { PresetCard } from "./presetCard";
-import { usePresets } from "@/hooks/preset";
+import { useAddPreset, usePresets } from "@/hooks/preset";
 
 interface PresetListProps {
   guildId: string;
@@ -13,12 +13,32 @@ interface PresetListProps {
 }
 
 export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
-  const [isCreatingPreset, setIsCreatingPreset] = useState(false);
+  const [showAddPresetModal, setShowAddPresetModal] = useState(false);
 
   const { data: presets = [] } = usePresets(guildId);
+  const addPreset = useAddPreset();
 
   const handleSelectPreset = (presetId: number) => {
     route(`/guild/${guildId}/preset/${presetId}`);
+  };
+
+  const handleOpenAddPresetModal = () => {
+    setShowAddPresetModal(true);
+  };
+
+  const handleCloseAddPresetModal = () => {
+    setShowAddPresetModal(false);
+    addPreset.reset();
+  };
+
+  const handleAddPreset = async (input: {
+    name: string;
+    points: number;
+    timer: number;
+    teamSize: number;
+    pointScale: number;
+  }) => {
+    await addPreset.mutateAsync({ guildId, dto: input });
   };
 
   return (
@@ -26,9 +46,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
       <Section variantTone="ghost" variantIntent="secondary">
         <Section variantTone="ghost" variantLayout="row">
           <h3>프리셋 관리</h3>
-          <PrimaryButton onClick={() => setIsCreatingPreset(true)}>
-            추가
-          </PrimaryButton>
+          <PrimaryButton onClick={handleOpenAddPresetModal}>추가</PrimaryButton>
         </Section>
         <Bar />
         <Section
@@ -47,11 +65,14 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
         </Section>
       </Section>
 
-      <AddPresetModal
-        guildId={guildId}
-        isOpen={isCreatingPreset}
-        onClose={() => setIsCreatingPreset(false)}
-      />
+      {showAddPresetModal && (
+        <AddPresetModal
+          onClose={handleCloseAddPresetModal}
+          onSubmit={handleAddPreset}
+          isPending={addPreset.isPending}
+          error={addPreset.isError ? addPreset.error : undefined}
+        />
+      )}
     </>
   );
 }

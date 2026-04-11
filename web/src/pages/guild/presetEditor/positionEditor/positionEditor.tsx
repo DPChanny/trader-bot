@@ -1,5 +1,6 @@
 import { useState } from "preact/hooks";
 import {
+  useAddPosition,
   useDeletePosition,
   usePositions,
   useUpdatePosition,
@@ -23,16 +24,35 @@ interface PositionEditorProps {
 }
 
 export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
-  const [showPositionForm, setShowPositionForm] = useState(false);
+  const [showAddPositionModal, setShowAddPositionModal] = useState(false);
   const [editingPosition, setEditingPosition] = useState<PositionDTO | null>(
     null,
   );
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const [showDeletePositionModal, setShowDeletePositionModal] = useState(false);
+  const [deletingPositionId, setDeletingPositionId] = useState<number | null>(
+    null,
+  );
 
   const { data: positions, isLoading, error } = usePositions(guildId, presetId);
+  const addPosition = useAddPosition();
   const updatePosition = useUpdatePosition();
   const deletePosition = useDeletePosition();
+
+  const handleOpenAddPositionModal = () => {
+    setShowAddPositionModal(true);
+  };
+
+  const handleCloseAddPositionModal = () => {
+    setShowAddPositionModal(false);
+    addPosition.reset();
+  };
+
+  const handleAddPosition = async (input: {
+    name: string;
+    iconUrl: string | null;
+  }) => {
+    await addPosition.mutateAsync({ guildId, presetId, dto: input });
+  };
 
   const handleUpdatePosition = async (name: string, iconUrl: string | null) => {
     if (!editingPosition) return;
@@ -50,16 +70,30 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
     }
   };
 
+  const handleCloseEditPositionModal = () => {
+    setEditingPosition(null);
+    updatePosition.reset();
+  };
+
+  const handleOpenDeletePositionModal = (positionId: number) => {
+    setDeletingPositionId(positionId);
+    setShowDeletePositionModal(true);
+  };
+
+  const handleCloseDeletePositionModal = () => {
+    setShowDeletePositionModal(false);
+    setDeletingPositionId(null);
+  };
+
   const handleDeletePosition = async () => {
-    if (deleteTargetId === null) return;
+    if (deletingPositionId === null) return;
     try {
       await deletePosition.mutateAsync({
         guildId,
         presetId,
-        positionId: deleteTargetId,
+        positionId: deletingPositionId,
       });
-      setShowDeleteConfirm(false);
-      setDeleteTargetId(null);
+      handleCloseDeletePositionModal();
     } catch (err) {
       console.error("Failed to delete position:", err);
     }
@@ -69,20 +103,13 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
     <Section variantTone="ghost" variantIntent="secondary">
       <Section variantTone="ghost" variantLayout="row">
         <h3>포지션 목록</h3>
-        <PrimaryButton onClick={() => setShowPositionForm(true)}>
-          추가
-        </PrimaryButton>
+        <PrimaryButton onClick={handleOpenAddPositionModal}>추가</PrimaryButton>
       </Section>
       <Bar />
       {isLoading && <Loading />}
       {error && (
         <Error detail={error?.message}>
           포지션 목록을 불러오는데 실패했습니다.
-        </Error>
-      )}
-      {deletePosition.isError && (
-        <Error detail={deletePosition.error?.message}>
-          포지션 작업 중 오류가 발생했습니다.
         </Error>
       )}
 
@@ -97,48 +124,42 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
             key={position.positionId}
             position={position}
             onEdit={() => setEditingPosition(position)}
-            onDelete={() => {
-              setDeleteTargetId(position.positionId);
-              setShowDeleteConfirm(true);
-            }}
+            onDelete={() => handleOpenDeletePositionModal(position.positionId)}
             isDeletePending={deletePosition.isPending}
           />
         ))}
       </Section>
 
-      <AddPositionModal
-        guildId={guildId}
-        presetId={presetId}
-        isOpen={showPositionForm}
-        onClose={() => setShowPositionForm(false)}
-      />
+      {showAddPositionModal && (
+        <AddPositionModal
+          onClose={handleCloseAddPositionModal}
+          onSubmit={handleAddPosition}
+          isPending={addPosition.isPending}
+          error={addPosition.isError ? addPosition.error : undefined}
+        />
+      )}
 
       {editingPosition && (
         <EditPositionModal
           position={editingPosition}
-          onClose={() => {
-            setEditingPosition(null);
-            updatePosition.reset();
-          }}
+          onClose={handleCloseEditPositionModal}
           onSubmit={handleUpdatePosition}
           isPending={updatePosition.isPending}
           error={updatePosition.isError ? updatePosition.error : undefined}
         />
       )}
 
-      <ConfirmModal
-        isOpen={showDeleteConfirm}
-        onClose={() => {
-          setShowDeleteConfirm(false);
-          setDeleteTargetId(null);
-        }}
-        onConfirm={handleDeletePosition}
-        title="포지션 삭제"
-        message="정말 이 포지션을 삭제하시겠습니까?"
-        confirmText="삭제"
-        isPending={deletePosition.isPending}
-        error={deletePosition.isError ? deletePosition.error : undefined}
-      />
+      {showDeletePositionModal && (
+        <ConfirmModal
+          onClose={handleCloseDeletePositionModal}
+          onConfirm={handleDeletePosition}
+          title="포지션 삭제"
+          message="정말 이 포지션을 삭제하시겠습니까?"
+          confirmText="삭제"
+          isPending={deletePosition.isPending}
+          error={deletePosition.isError ? deletePosition.error : undefined}
+        />
+      )}
     </Section>
   );
 }

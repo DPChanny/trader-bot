@@ -12,7 +12,6 @@ import type { PresetDTO } from "@/dtos/presetDto";
 
 interface EditPresetModalProps {
   preset: PresetDTO;
-  isOpen: boolean;
   onClose: () => void;
   onSubmit: (
     name: string,
@@ -21,16 +20,15 @@ interface EditPresetModalProps {
     teamSize: number,
     pointScale: number,
   ) => void;
-  isPending?: boolean;
+  isPending: boolean;
   error?: any;
 }
 
 export function EditPresetModal({
   preset,
-  isOpen,
   onClose,
   onSubmit,
-  isPending = false,
+  isPending,
   error,
 }: EditPresetModalProps) {
   const [name, setName] = useState(preset.name);
@@ -42,15 +40,12 @@ export function EditPresetModal({
   const [pointScale, setPointScale] = useState(preset.pointScale);
 
   useEffect(() => {
-    if (isOpen) {
-      setName(preset.name);
-      setInputPoints(preset.points * preset.pointScale);
-      setTimer(preset.timer);
-      setTeamSize(preset.teamSize);
-      setPointScale(preset.pointScale);
-    }
+    setName(preset.name);
+    setInputPoints(preset.points * preset.pointScale);
+    setTimer(preset.timer);
+    setTeamSize(preset.teamSize);
+    setPointScale(preset.pointScale);
   }, [
-    isOpen,
     preset.presetId,
     preset.name,
     preset.points,
@@ -76,7 +71,7 @@ export function EditPresetModal({
     pointScale !== preset.pointScale;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="프리셋 수정">
+    <Modal onClose={onClose} title="프리셋 수정">
       <ModalForm onSubmit={handleSubmit}>
         {error && (
           <Error detail={error?.message}>프리셋 수정에 실패했습니다.</Error>
