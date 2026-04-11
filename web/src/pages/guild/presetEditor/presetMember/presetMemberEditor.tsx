@@ -7,8 +7,6 @@ import { PresetMemberPanel } from "./presetMemberPanel";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { Section } from "@/components/commons/section";
-import { useTiers } from "@/hooks/tier";
-import { usePositions } from "@/hooks/position";
 import styles from "@/styles/pages/guild/presetEditor/presetMember/presetMemberEditor.module.css";
 
 interface PresetMemberEditorProps {
@@ -59,8 +57,6 @@ export function PresetMemberEditor({
     error: presetMembersError,
   } = usePresetMembers(guildId, presetId);
   const { data: members } = useMembers(guildId);
-  const { data: tiers } = useTiers(guildId, presetId);
-  const { data: positions } = usePositions(guildId, presetId);
 
   const addPresetMember = useAddPresetMember();
 
@@ -160,14 +156,12 @@ export function PresetMemberEditor({
         )}
       </Section>
 
-      {selectedPresetMember && tiers && positions && (
+      {selectedPresetMember && (
         <PresetMemberPanel
           key={selectedPresetMember.presetMemberId}
           guildId={guildId}
           presetId={presetId}
           presetMember={selectedPresetMember}
-          tiers={tiers}
-          positions={positions}
           setSelectedPresetMemberId={setSelectedPresetMemberId}
           addMemberIdToRemoving={addMemberIdToRemoving}
           removeMemberIdFromRemoving={removeMemberIdFromRemoving}

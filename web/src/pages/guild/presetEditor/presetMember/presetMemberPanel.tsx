@@ -9,9 +9,9 @@ import {
   useAddPresetMemberPosition,
   useDeletePresetMemberPosition,
 } from "@/hooks/presetMemberPosition";
+import { useTiers } from "@/hooks/tier";
+import { usePositions } from "@/hooks/position";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
-import type { TierDTO } from "@/dtos/tierDto";
-import type { PositionDTO } from "@/dtos/positionDto";
 import {
   CloseButton,
   DangerButton,
@@ -27,8 +27,6 @@ interface PresetMemberPanelProps {
   guildId: string;
   presetId: number;
   presetMember: PresetMemberDetailDTO;
-  tiers: TierDTO[];
-  positions: PositionDTO[];
   setSelectedPresetMemberId: (id: number | null) => void;
   addMemberIdToRemoving: (memberId: number) => void;
   removeMemberIdFromRemoving: (memberId: number) => void;
@@ -38,8 +36,6 @@ export function PresetMemberPanel({
   guildId,
   presetId,
   presetMember,
-  tiers,
-  positions,
   setSelectedPresetMemberId,
   addMemberIdToRemoving,
   removeMemberIdFromRemoving,
@@ -48,6 +44,8 @@ export function PresetMemberPanel({
   const removePresetMember = useDeletePresetMember();
   const addPresetMemberPosition = useAddPresetMemberPosition();
   const deletePresetMemberPosition = useDeletePresetMemberPosition();
+  const { data: tiers = [] } = useTiers(guildId, presetId);
+  const { data: positions = [] } = usePositions(guildId, presetId);
 
   const [isLeader, setIsLeader] = useState(presetMember.isLeader);
   const [tierId, setTierId] = useState<number | null>(
