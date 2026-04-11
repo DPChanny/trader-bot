@@ -95,7 +95,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
   };
 
   return (
-    <Section variantIntent="secondary">
+    <Section variantIntent="secondary" className={styles.wrapper}>
       <Section variantTone="ghost" variantLayout="row">
         <h3>티어 목록</h3>
         <PrimaryButton onClick={handleOpenAddTierModal}>추가</PrimaryButton>

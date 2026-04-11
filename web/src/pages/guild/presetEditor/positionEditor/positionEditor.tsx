@@ -100,7 +100,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   };
 
   return (
-    <Section variantTone="ghost" variantIntent="secondary">
+    <Section variantIntent="secondary" className={styles.wrapper}>
       <Section variantTone="ghost" variantLayout="row">
         <h3>포지션 목록</h3>
         <PrimaryButton onClick={handleOpenAddPositionModal}>추가</PrimaryButton>

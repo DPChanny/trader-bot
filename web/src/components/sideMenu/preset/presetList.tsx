@@ -6,6 +6,7 @@ import { PrimaryButton } from "@/components/commons/button";
 import { AddPresetModal } from "./addPresetModal";
 import { PresetCard } from "./presetCard";
 import { useAddPreset, usePresets } from "@/hooks/preset";
+import styles from "@/styles/components/sideMenu/preset/presetList.module.css";
 
 interface PresetListProps {
   guildId: string;
@@ -43,7 +44,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
 
   return (
     <>
-      <Section variantIntent="secondary">
+      <Section variantIntent="secondary" className={styles.wrapper}>
         <Section variantTone="ghost" variantLayout="row">
           <h3>프리셋 관리</h3>
           <PrimaryButton onClick={handleOpenAddPresetModal}>추가</PrimaryButton>

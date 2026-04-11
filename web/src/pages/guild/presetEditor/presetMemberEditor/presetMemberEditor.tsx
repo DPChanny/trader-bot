@@ -114,7 +114,7 @@ export function PresetMemberEditor({
   };
 
   return (
-    <Section variantTone="ghost" className={styles.editorLayout}>
+    <Section variantIntent="primary" className={styles.editorLayout}>
       <Section
         variantTone="ghost"
         variantLayout="column"

@@ -15,7 +15,6 @@ import {
   DeleteButton,
 } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
-import { Modal, ModalFooter } from "@/components/commons/modal";
 import { EditPresetModal } from "./editPresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { AddAuctionModal } from "./addAuctionModal";
@@ -168,20 +167,10 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
             )}
 
             <TierEditor guildId={guildId} presetId={presetId} />
-            <Section
-              variantIntent="secondary"
-              className={styles.positionSection}
-            >
-              <PositionEditor guildId={guildId} presetId={presetId} />
-            </Section>
+            <PositionEditor guildId={guildId} presetId={presetId} />
           </Section>
 
-          <Section
-            variantIntent="primary"
-            className={styles.presetDetailSection}
-          >
-            <PresetMemberEditor guildId={guildId} presetId={presetId} />
-          </Section>
+          <PresetMemberEditor guildId={guildId} presetId={presetId} />
         </PageContainer>
       </PageLayout>
 

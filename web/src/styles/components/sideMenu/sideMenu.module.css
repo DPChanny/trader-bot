@@ -16,9 +16,6 @@
 .sideMenu {
   width: 18rem;
   height: 100%;
-  background: var(--color-section-secondary-bg);
-  border: var(--border-width-default) solid
-    var(--color-section-secondary-border);
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
@@ -37,10 +34,6 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-}
-
-.expandSection {
-  flex: 1;
 }
 
 .toggleTab:hover {

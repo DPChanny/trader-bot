@@ -5,6 +5,7 @@ import { PrimaryButton } from "@/components/commons/button";
 import { GuildCard } from "./guildCard";
 import type { GuildDTO } from "@/dtos/guildDto";
 import { getBotInviteUrl } from "@/utils/env";
+import styles from "@/styles/components/sideMenu/guild/guildList.module.css";
 
 interface GuildListProps {
   guilds: GuildDTO[];
@@ -13,7 +14,7 @@ interface GuildListProps {
 
 export function GuildList({ guilds, activeGuildId }: GuildListProps) {
   return (
-    <Section variantIntent="secondary">
+    <Section variantIntent="secondary" className={styles.wrapper}>
       <Section variantTone="ghost" variantLayout="row">
         <h3>길드 관리</h3>
         <PrimaryButton onClick={() => window.open(getBotInviteUrl(), "_blank")}>
