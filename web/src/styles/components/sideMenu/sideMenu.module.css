@@ -1,27 +1,13 @@
-.collapsedBar {
-  display: flex;
-  align-items: flex-start;
-  padding: var(--space-2);
-  border-right: var(--border-width-default) solid
-    var(--color-section-primary-border);
-  height: 100%;
-  flex-shrink: 0;
-}
-
-.sideMenu {
-  width: 18rem;
-  height: 100%;
-  flex-shrink: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.toggleTab {
+.floatingToggle {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  z-index: var(--z-panel);
   background: var(--color-section-primary-bg);
   border: var(--border-width-default) solid var(--color-section-primary-border);
-  border-radius: var(--radius-md);
+  border-left: none;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
   color: var(--color-text-muted);
   font-size: 0.6rem;
   padding: var(--space-3) var(--space-2);
@@ -32,7 +18,17 @@
   cursor: pointer;
 }
 
-.toggleTab:hover {
+.floatingToggle:hover {
   color: var(--color-text);
   background: var(--color-section-secondary-bg);
+}
+
+.sideMenu {
+  width: 20rem;
+  height: 100%;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }

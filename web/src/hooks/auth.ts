@@ -32,7 +32,7 @@ export function useLogout(redirect?: string) {
   return () => {
     removeAuthToken();
     removeRefreshToken();
-    queryClient.removeQueries({ queryKey: ["me"] });
+    queryClient.setQueryData(["me"], null);
     route(redirect ?? "/");
   };
 }

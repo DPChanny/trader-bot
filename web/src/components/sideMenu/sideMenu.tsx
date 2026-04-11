@@ -11,7 +11,7 @@ import { PresetList } from "./preset/presetList";
 export function SideMenu() {
   const { data: guilds = [] } = useGuilds();
   const { guildId, presetId } = useGuildRoute();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
@@ -32,15 +32,13 @@ export function SideMenu() {
         </Section>
       )}
       {!isOpen && (
-        <div className={styles.collapsedBar}>
-          <Button
-            className={styles.toggleTab}
-            onClick={() => setIsOpen(true)}
-            aria-label="사이드메뉴 펼치기"
-          >
-            ▶
-          </Button>
-        </div>
+        <Button
+          className={styles.floatingToggle}
+          onClick={() => setIsOpen(true)}
+          aria-label="사이드메뉴 펼치기"
+        >
+          ▶
+        </Button>
       )}
     </>
   );

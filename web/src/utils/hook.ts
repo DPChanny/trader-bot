@@ -6,7 +6,7 @@ export async function handleHttpError(response: Response): Promise<never> {
   if (response.status === 401) {
     removeAuthToken();
     removeRefreshToken();
-    queryClient.removeQueries({ queryKey: ["me"] });
+    queryClient.setQueryData(["me"], null);
     route("/");
   }
   let message: string;
