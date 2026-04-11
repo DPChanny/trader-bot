@@ -1,20 +1,25 @@
+import { useGuild } from "@/hooks/guild";
+import { usePreset } from "@/hooks/preset";
 import { PresetEditor } from "./presetEditor/presetEditor";
 import { MemberEditor } from "./memberEditor/memberEditor";
 import styles from "@/styles/pages/guild/guildPage.module.css";
 
 interface GuildPageProps {
   guildId: string;
-  editor: "preset" | "member" | null;
   presetId: number | null;
 }
 
-export function GuildPage({ guildId, editor, presetId }: GuildPageProps) {
+export function GuildPage({ guildId, presetId }: GuildPageProps) {
+  const { data: guild } = useGuild(guildId);
+  const { data: preset } = usePreset(guildId, presetId);
+  const isPresetRoute = presetId !== null;
+
   return (
     <div className={styles.guildContent}>
-      {editor === "preset" ? (
-        <PresetEditor guildId={guildId} presetId={presetId} />
-      ) : editor === "member" ? (
-        <MemberEditor guildId={guildId} />
+      {isPresetRoute ? (
+        <PresetEditor preset={preset ?? null} />
+      ) : guild ? (
+        <MemberEditor guild={guild} />
       ) : null}
     </div>
   );

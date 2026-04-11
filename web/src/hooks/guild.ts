@@ -18,3 +18,18 @@ export function useGuilds() {
     },
   });
 }
+
+export function useGuild(guildId: string | null) {
+  return useQuery({
+    queryKey: ["guild", guildId],
+    queryFn: async (): Promise<GuildDTO> => {
+      const response = await fetch(`${GUILD_API_ENDPOINT}/${guildId!}`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) await handleHttpError(response);
+      const json = await response.json();
+      return toCamelCase<GuildDTO>(json);
+    },
+    enabled: !!guildId,
+  });
+}

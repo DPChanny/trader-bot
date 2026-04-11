@@ -24,6 +24,24 @@ export function usePresets(guildId: string | null) {
   });
 }
 
+export function usePreset(guildId: string | null, presetId: number | null) {
+  return useQuery({
+    queryKey: ["preset", guildId, presetId],
+    queryFn: async (): Promise<PresetDTO> => {
+      const response = await fetch(
+        `${getPresetEndpoint(guildId!)}/${presetId}`,
+        {
+          headers: getAuthHeaders(),
+        },
+      );
+      if (!response.ok) await handleHttpError(response);
+      const json = await response.json();
+      return toCamelCase<PresetDTO>(json);
+    },
+    enabled: !!guildId && !!presetId,
+  });
+}
+
 export function useAddPreset() {
   const queryClient = useQueryClient();
 

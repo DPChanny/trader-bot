@@ -8,7 +8,6 @@ const WS_ENDPOINT = `${WS_ORIGIN}/ws`;
 export const AUTH_API_ENDPOINT = `${API_ENDPOINT}/auth`;
 export const USER_API_ENDPOINT = `${API_ENDPOINT}/user`;
 export const GUILD_API_ENDPOINT = `${API_ENDPOINT}/guild`;
-export const AUCTION_API_ENDPOINT = `${API_ENDPOINT}/auction`;
 export const AUCTION_WS_ENDPOINT = `${WS_ENDPOINT}/auction`;
 
 export function getMemberEndpoint(guildId: string) {
@@ -17,6 +16,10 @@ export function getMemberEndpoint(guildId: string) {
 
 export function getPresetEndpoint(guildId: string) {
   return `${GUILD_API_ENDPOINT}/${guildId}/preset`;
+}
+
+export function getAuctionEndpoint(guildId: string, presetId: number) {
+  return `${getPresetEndpoint(guildId)}/${presetId}/auction`;
 }
 
 export function getPresetMemberEndpoint(guildId: string, presetId: number) {

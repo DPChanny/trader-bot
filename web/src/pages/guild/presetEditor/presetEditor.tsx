@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import { route } from "preact-router";
 import { useAddAuction } from "@/hooks/auction";
-import { usePresets, useUpdatePreset, useDeletePreset } from "@/hooks/preset";
+import { useUpdatePreset, useDeletePreset } from "@/hooks/preset";
 import { usePresetMembers } from "@/hooks/presetMember";
 import { TierEditor } from "./tierEditor/tierEditor";
 import { PositionEditor } from "./positionEditor/positionEditor";
@@ -17,28 +17,29 @@ import { Bar } from "@/components/commons/bar";
 import { Error } from "@/components/commons/error";
 import { ConfirmModal } from "@/components/commons/modal";
 import { EditPresetModal } from "./editPresetModal";
+import type { PresetDTO } from "@/dtos/presetDto";
 import styles from "@/styles/pages/guild/presetEditor/presetEditor.module.css";
 
 interface PresetEditorProps {
-  guildId: string;
-  presetId: number | null;
+  preset: PresetDTO | null;
 }
 
-export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
+export function PresetEditor({ preset }: PresetEditorProps) {
   const [isEditingPreset, setIsEditingPreset] = useState(false);
   const [isDeletingPreset, setIsDeletingPreset] = useState(false);
 
   const addAuction = useAddAuction();
   const updatePreset = useUpdatePreset();
   const deletePreset = useDeletePreset();
-  const { data: presets } = usePresets(guildId);
+  const presetId = preset?.presetId ?? null;
+  const guildId = preset?.guildId ?? null;
   const { data: presetMembers } = usePresetMembers(guildId, presetId);
 
-  const preset = presets?.find((p) => p.presetId === presetId) ?? null;
   const teamSize = preset?.teamSize ?? 5;
   const leaderCount = presetMembers?.filter((pm) => pm.isLeader).length ?? 0;
   const memberCount = presetMembers?.length ?? 0;
   const requiredMembers = leaderCount * teamSize;
+  const hasPresetContext = !!guildId && !!presetId;
   const canStartAuction = !!presetId && !!presetMembers && leaderCount >= 2;
 
   let presetValidMessage = "";
@@ -51,9 +52,9 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
   }
 
   const handleStartAuction = async () => {
-    if (!presetId) return;
+    if (!guildId || !presetId) return;
     try {
-      await addAuction.mutateAsync(presetId);
+      await addAuction.mutateAsync({ guildId, presetId });
     } catch {}
   };
 
@@ -64,7 +65,7 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
     teamSize: number,
     pointScale: number,
   ) => {
-    if (!preset) return;
+    if (!preset || !guildId) return;
     try {
       await updatePreset.mutateAsync({
         guildId,
@@ -76,7 +77,7 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
   };
 
   const handleDelete = async () => {
-    if (!presetId) return;
+    if (!guildId || !presetId) return;
     try {
       await deletePreset.mutateAsync({ guildId, presetId });
       route(`/guild/${guildId}/member`);
@@ -139,7 +140,7 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
               )}
             </Section>
             <Bar />
-            {presetId ? (
+            {hasPresetContext ? (
               <>
                 <Section
                   variantIntent="secondary"
@@ -161,7 +162,7 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
             variantIntent="primary"
             className={styles.presetDetailSection}
           >
-            {presetId ? (
+            {hasPresetContext ? (
               <PresetMemberEditor guildId={guildId} presetId={presetId} />
             ) : (
               <div />

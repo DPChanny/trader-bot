@@ -1,7 +1,6 @@
-import { useState } from "preact/hooks";
-import { useRouter } from "preact-router";
 import styles from "@/styles/components/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@/hooks/guild";
+import { useActiveGuildRoute, useSideMenuUrlState } from "@/hooks/router";
 import { Button, CloseButton } from "@/components/commons/button";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
@@ -9,21 +8,13 @@ import { GuildList } from "./guild/guildList";
 import { PresetList } from "./preset/presetList";
 
 export function SideMenu() {
-  const [open, setOpen] = useState(false);
-  const [router] = useRouter();
-
   const { data: guilds = [] } = useGuilds();
-
-  const url = router.url ?? "";
-  const guildMatch = url.match(/^\/guild\/([^\/]+)/);
-  const activeGuildId = guildMatch ? guildMatch[1]! : null;
-  const presetMatch = url.match(/\/preset\/(\d+)/);
-  const presetId = presetMatch ? parseInt(presetMatch[1]!) : null;
-  const isPresetEditor = url.includes("/preset");
+  const { activeGuildId, selectedPresetId } = useActiveGuildRoute();
+  const { isOpen, setOpen } = useSideMenuUrlState();
 
   return (
     <>
-      {open && (
+      {isOpen && (
         <Section className={styles.wrapper}>
           <Section
             variantTone="ghost"
@@ -45,14 +36,14 @@ export function SideMenu() {
               <Section variantIntent="secondary">
                 <PresetList
                   guildId={activeGuildId}
-                  selectedPresetId={isPresetEditor ? presetId : null}
+                  selectedPresetId={selectedPresetId}
                 />
               </Section>
             )}
           </Section>
         </Section>
       )}
-      {!open && (
+      {!isOpen && (
         <div className={styles.collapsedBar}>
           <Button
             className={styles.toggleTab}

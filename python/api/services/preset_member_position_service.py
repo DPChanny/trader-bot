@@ -19,49 +19,6 @@ from ..utils.member import verify_role
 
 
 @service_exception_handler
-async def get_preset_member_position_list_service(
-    guild_id: int,
-    discord_id: int,
-    preset_id: int,
-    preset_member_id: int,
-    session: AsyncSession,
-) -> list[PresetMemberPositionDTO]:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
-
-    preset_member_repo = PresetMemberRepository(session)
-    if (
-        await preset_member_repo.get_by_id(preset_member_id, preset_id, guild_id)
-        is None
-    ):
-        raise HTTPException(status_code=404, detail="PresetMember not found")
-
-    pmp_repo = PresetMemberPositionRepository(session)
-    positions = await pmp_repo.get_list_by_preset_member_id(
-        preset_member_id, preset_id, guild_id
-    )
-    return [PresetMemberPositionDTO.model_validate(p) for p in positions]
-
-
-@service_exception_handler
-async def get_preset_member_position_service(
-    guild_id: int,
-    discord_id: int,
-    preset_member_id: int,
-    preset_member_position_id: int,
-    session: AsyncSession,
-) -> PresetMemberPositionDTO:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
-
-    pmp_repo = PresetMemberPositionRepository(session)
-    pmp = await pmp_repo.get_by_id(
-        preset_member_position_id, preset_member_id, guild_id
-    )
-    if pmp is None:
-        raise HTTPException(status_code=404, detail="PresetMemberPosition not found")
-    return PresetMemberPositionDTO.model_validate(pmp)
-
-
-@service_exception_handler
 async def add_preset_member_position_service(
     guild_id: int,
     discord_id: int,

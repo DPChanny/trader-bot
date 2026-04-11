@@ -37,11 +37,10 @@ function GuildPresetRoute({
   presetId?: string;
 }) {
   useAuthGuard();
-  if (!isAuthenticated() || !guildId) return null;
+  if (!guildId) return null;
   return (
     <GuildPage
       guildId={guildId}
-      editor="preset"
       presetId={presetId ? parseInt(presetId, 10) : null}
     />
   );
@@ -49,8 +48,8 @@ function GuildPresetRoute({
 
 function GuildMemberRoute({ guildId }: { path?: string; guildId?: string }) {
   useAuthGuard();
-  if (!isAuthenticated() || !guildId) return null;
-  return <GuildPage guildId={guildId} editor="member" presetId={null} />;
+  if (!guildId) return null;
+  return <GuildPage guildId={guildId} presetId={null} />;
 }
 
 function AuctionRoute({ auctionId }: { path?: string; auctionId?: string }) {
