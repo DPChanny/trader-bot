@@ -1,5 +1,6 @@
 import { useState } from "preact/hooks";
-import { useDeleteTier, useUpdateTier } from "@/hooks/tier";
+import { useDeleteTier, useTiers, useUpdateTier } from "@/hooks/tier";
+import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
@@ -14,15 +15,15 @@ import type { TierDTO } from "@/dtos/tierDto";
 interface TierEditorProps {
   guildId: string;
   presetId: number;
-  tiers: TierDTO[];
 }
 
-export function TierEditor({ guildId, presetId, tiers }: TierEditorProps) {
+export function TierEditor({ guildId, presetId }: TierEditorProps) {
   const [showTierForm, setShowTierForm] = useState(false);
   const [editingTier, setEditingTier] = useState<TierDTO | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
+  const { data: tiers, isLoading, error } = useTiers(guildId, presetId);
   const updateTier = useUpdateTier();
   const deleteTier = useDeleteTier();
 
@@ -67,6 +68,12 @@ export function TierEditor({ guildId, presetId, tiers }: TierEditorProps) {
         </PrimaryButton>
       </Section>
       <Bar />
+      {isLoading && <Loading />}
+      {error && (
+        <Error detail={error?.message}>
+          티어 목록을 불러오는데 실패했습니다.
+        </Error>
+      )}
       {deleteTier.isError && (
         <Error detail={deleteTier.error?.message}>
           티어 작업 중 오류가 발생했습니다.

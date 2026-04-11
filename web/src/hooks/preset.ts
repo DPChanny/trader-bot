@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type {
   AddPresetDTO,
   PresetDTO,
-  PresetDetailDTO,
   UpdatePresetDTO,
 } from "@/dtos/presetDto";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
@@ -22,28 +21,6 @@ export function usePresets(guildId: string | null) {
       return toCamelCase<PresetDTO[]>(json);
     },
     enabled: !!guildId,
-  });
-}
-
-export function usePresetDetail(
-  guildId: string | null,
-  presetId: number | null,
-) {
-  return useQuery({
-    queryKey: ["preset", guildId, presetId],
-    queryFn: async (): Promise<PresetDetailDTO | null> => {
-      if (!guildId || !presetId) return null;
-      const response = await fetch(
-        `${getPresetEndpoint(guildId)}/${presetId}`,
-        {
-          headers: getAuthHeaders(),
-        },
-      );
-      if (!response.ok) await handleHttpError(response);
-      const json = await response.json();
-      return toCamelCase<PresetDetailDTO>(json);
-    },
-    enabled: !!guildId && !!presetId,
   });
 }
 

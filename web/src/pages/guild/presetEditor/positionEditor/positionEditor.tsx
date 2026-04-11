@@ -1,5 +1,10 @@
 import { useState } from "preact/hooks";
-import { useDeletePosition, useUpdatePosition } from "@/hooks/position";
+import {
+  useDeletePosition,
+  usePositions,
+  useUpdatePosition,
+} from "@/hooks/position";
+import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
@@ -15,14 +20,9 @@ import styles from "@/styles/pages/guild/presetEditor/positionEditor/positionLis
 interface PositionEditorProps {
   guildId: string;
   presetId: number;
-  positions: any[];
 }
 
-export function PositionEditor({
-  guildId,
-  presetId,
-  positions,
-}: PositionEditorProps) {
+export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   const [showPositionForm, setShowPositionForm] = useState(false);
   const [editingPosition, setEditingPosition] = useState<PositionDTO | null>(
     null,
@@ -30,6 +30,7 @@ export function PositionEditor({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
+  const { data: positions, isLoading, error } = usePositions(guildId, presetId);
   const updatePosition = useUpdatePosition();
   const deletePosition = useDeletePosition();
 
@@ -74,6 +75,12 @@ export function PositionEditor({
         </PrimaryButton>
       </Section>
       <Bar />
+      {isLoading && <Loading />}
+      {error && (
+        <Error detail={error?.message}>
+          포지션 목록을 불러오는데 실패했습니다.
+        </Error>
+      )}
       {deletePosition.isError && (
         <Error detail={deletePosition.error?.message}>
           포지션 작업 중 오류가 발생했습니다.

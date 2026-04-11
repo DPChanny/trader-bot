@@ -1,9 +1,48 @@
-import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import type { AddPositionDTO, UpdatePositionDTO } from "@/dtos/positionDto";
-import { getAuthHeadersForMutation } from "@/utils/auth";
-import { toSnakeCase } from "@/utils/dto";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
+import type {
+  AddPositionDTO,
+  PositionDTO,
+  UpdatePositionDTO,
+} from "@/dtos/positionDto";
+import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
+import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPositionEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
+
+export function usePositions(guildId: string | null, presetId: number | null) {
+  return useQuery({
+    queryKey: ["positions", guildId, presetId],
+    queryFn: async (): Promise<PositionDTO[]> => {
+      const response = await fetch(getPositionEndpoint(guildId!, presetId!), {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) await handleHttpError(response);
+      const json = await response.json();
+      return toCamelCase<PositionDTO[]>(json);
+    },
+    enabled: !!guildId && !!presetId,
+  });
+}
+
+export function usePosition(
+  guildId: string | null,
+  presetId: number | null,
+  positionId: number | null,
+) {
+  return useQuery({
+    queryKey: ["position", guildId, presetId, positionId],
+    queryFn: async (): Promise<PositionDTO> => {
+      const response = await fetch(
+        `${getPositionEndpoint(guildId!, presetId!)}/${positionId}`,
+        { headers: getAuthHeaders() },
+      );
+      if (!response.ok) await handleHttpError(response);
+      const json = await response.json();
+      return toCamelCase<PositionDTO>(json);
+    },
+    enabled: !!guildId && !!presetId && !!positionId,
+  });
+}
 
 export function useAddPosition() {
   const queryClient = useQueryClient();
@@ -29,6 +68,9 @@ export function useAddPosition() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["preset", variables.guildId, variables.presetId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["positions", variables.guildId, variables.presetId],
       });
     },
   });
@@ -64,6 +106,9 @@ export function useUpdatePosition() {
       queryClient.invalidateQueries({
         queryKey: ["preset", variables.guildId, variables.presetId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["positions", variables.guildId, variables.presetId],
+      });
     },
   });
 }
@@ -93,6 +138,9 @@ export function useDeletePosition() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["preset", variables.guildId, variables.presetId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["positions", variables.guildId, variables.presetId],
       });
     },
   });

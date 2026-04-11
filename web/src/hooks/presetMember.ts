@@ -1,12 +1,52 @@
-import { useMutation, useQueryClient } from "@tanstack/preact-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type {
   AddPresetMemberDTO,
+  PresetMemberDetailDTO,
   UpdatePresetMemberDTO,
 } from "@/dtos/presetMemberDto";
-import { getAuthHeadersForMutation } from "@/utils/auth";
-import { toSnakeCase } from "@/utils/dto";
+import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
+import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetMemberEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
+
+export function usePresetMembers(
+  guildId: string | null,
+  presetId: number | null,
+) {
+  return useQuery({
+    queryKey: ["presetMembers", guildId, presetId],
+    queryFn: async (): Promise<PresetMemberDetailDTO[]> => {
+      const response = await fetch(
+        getPresetMemberEndpoint(guildId!, presetId!),
+        { headers: getAuthHeaders() },
+      );
+      if (!response.ok) await handleHttpError(response);
+      const json = await response.json();
+      return toCamelCase<PresetMemberDetailDTO[]>(json);
+    },
+    enabled: !!guildId && !!presetId,
+  });
+}
+
+export function usePresetMember(
+  guildId: string | null,
+  presetId: number | null,
+  presetMemberId: number | null,
+) {
+  return useQuery({
+    queryKey: ["presetMember", guildId, presetId, presetMemberId],
+    queryFn: async (): Promise<PresetMemberDetailDTO> => {
+      const response = await fetch(
+        `${getPresetMemberEndpoint(guildId!, presetId!)}/${presetMemberId}`,
+        { headers: getAuthHeaders() },
+      );
+      if (!response.ok) await handleHttpError(response);
+      const json = await response.json();
+      return toCamelCase<PresetMemberDetailDTO>(json);
+    },
+    enabled: !!guildId && !!presetId && !!presetMemberId,
+  });
+}
 
 export function useAddPresetMember() {
   const queryClient = useQueryClient();
@@ -32,6 +72,9 @@ export function useAddPresetMember() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["preset", variables.guildId, variables.presetId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
     },
   });
@@ -67,11 +110,14 @@ export function useUpdatePresetMember() {
       queryClient.invalidateQueries({
         queryKey: ["preset", variables.guildId, variables.presetId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["presetMembers", variables.guildId, variables.presetId],
+      });
     },
   });
 }
 
-export function useRemovePresetMember() {
+export function useDeletePresetMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -96,6 +142,9 @@ export function useRemovePresetMember() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["preset", variables.guildId, variables.presetId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
     },
   });

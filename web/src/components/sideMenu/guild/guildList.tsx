@@ -1,8 +1,10 @@
 import { route } from "preact-router";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
+import { PrimaryButton } from "@/components/commons/button";
 import { GuildCard } from "./guildCard";
 import type { GuildDTO } from "@/dtos/guildDto";
+import { getBotInviteUrl } from "@/utils/env";
 
 interface GuildListProps {
   guilds: GuildDTO[];
@@ -14,6 +16,9 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
     <Section variantTone="ghost" variantIntent="secondary">
       <Section variantTone="ghost" variantLayout="row">
         <h3>길드 관리</h3>
+        <PrimaryButton onClick={() => window.open(getBotInviteUrl(), "_blank")}>
+          추가
+        </PrimaryButton>
       </Section>
       <Bar />
       <Section

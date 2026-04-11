@@ -2,7 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import { PresetMemberCard } from "@/components/presetMemberCard";
 import { Toggle } from "@/components/commons/toggle";
 import {
-  useRemovePresetMember,
+  useDeletePresetMember,
   useUpdatePresetMember,
 } from "@/hooks/presetMember";
 import {
@@ -21,7 +21,7 @@ import { Label } from "@/components/commons/label";
 import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
-import styles from "@/styles/pages/guild/memberEditor.module.css";
+import styles from "@/styles/pages/guild/presetEditor/presetMember/presetMemberPanel.module.css";
 
 interface PresetMemberPanelProps {
   guildId: string;
@@ -45,7 +45,7 @@ export function PresetMemberPanel({
   removeMemberIdFromRemoving,
 }: PresetMemberPanelProps) {
   const updatePresetMember = useUpdatePresetMember();
-  const removePresetMember = useRemovePresetMember();
+  const removePresetMember = useDeletePresetMember();
   const addPresetMemberPosition = useAddPresetMemberPosition();
   const deletePresetMemberPosition = useDeletePresetMemberPosition();
 

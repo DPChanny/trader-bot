@@ -1,9 +1,44 @@
-import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import type { AddTierDTO, UpdateTierDTO } from "@/dtos/tierDto";
-import { getAuthHeadersForMutation } from "@/utils/auth";
-import { toSnakeCase } from "@/utils/dto";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
+import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@/dtos/tierDto";
+import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
+import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getTierEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
+
+export function useTiers(guildId: string | null, presetId: number | null) {
+  return useQuery({
+    queryKey: ["tiers", guildId, presetId],
+    queryFn: async (): Promise<TierDTO[]> => {
+      const response = await fetch(getTierEndpoint(guildId!, presetId!), {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) await handleHttpError(response);
+      const json = await response.json();
+      return toCamelCase<TierDTO[]>(json);
+    },
+    enabled: !!guildId && !!presetId,
+  });
+}
+
+export function useTier(
+  guildId: string | null,
+  presetId: number | null,
+  tierId: number | null,
+) {
+  return useQuery({
+    queryKey: ["tier", guildId, presetId, tierId],
+    queryFn: async (): Promise<TierDTO> => {
+      const response = await fetch(
+        `${getTierEndpoint(guildId!, presetId!)}/${tierId}`,
+        { headers: getAuthHeaders() },
+      );
+      if (!response.ok) await handleHttpError(response);
+      const json = await response.json();
+      return toCamelCase<TierDTO>(json);
+    },
+    enabled: !!guildId && !!presetId && !!tierId,
+  });
+}
 
 export function useAddTier() {
   const queryClient = useQueryClient();
@@ -29,6 +64,9 @@ export function useAddTier() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["preset", variables.guildId, variables.presetId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["tiers", variables.guildId, variables.presetId],
       });
     },
   });
@@ -64,6 +102,9 @@ export function useUpdateTier() {
       queryClient.invalidateQueries({
         queryKey: ["preset", variables.guildId, variables.presetId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["tiers", variables.guildId, variables.presetId],
+      });
     },
   });
 }
@@ -93,6 +134,9 @@ export function useDeleteTier() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["preset", variables.guildId, variables.presetId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["tiers", variables.guildId, variables.presetId],
       });
     },
   });
