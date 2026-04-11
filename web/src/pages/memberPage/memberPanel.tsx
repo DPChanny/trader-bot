@@ -113,7 +113,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
           <Section variantTone="ghost" variantIntent="secondary">
             <span>권한</span>
             <Section
-              variantTone="ghost"
+              variantIntent="tertiary"
               variantLayout="row"
               className={styles.toggleSection}
             >
