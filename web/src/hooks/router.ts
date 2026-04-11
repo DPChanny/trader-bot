@@ -1,5 +1,5 @@
-import { useCallback, useMemo } from "preact/hooks";
-import { route, useRouter } from "preact-router";
+import { useMemo } from "preact/hooks";
+import { useRouter } from "preact-router";
 
 function getParsedRouterUrl(routerUrl?: string) {
   const currentUrl =
@@ -9,7 +9,7 @@ function getParsedRouterUrl(routerUrl?: string) {
   return new URL(currentUrl, window.location.origin);
 }
 
-export function useActiveGuildRoute() {
+export function useGuildRoute() {
   const [router] = useRouter();
   const url = router.url;
 
@@ -19,38 +19,8 @@ export function useActiveGuildRoute() {
     const presetMatch = parsedUrl.pathname.match(/\/preset\/(\d+)/);
 
     return {
-      activeGuildId: guildMatch ? (guildMatch[1] ?? null) : null,
-      selectedPresetId: presetMatch ? parseInt(presetMatch[1]!, 10) : null,
+      guildId: guildMatch ? (guildMatch[1] ?? null) : null,
+      presetId: presetMatch ? parseInt(presetMatch[1]!, 10) : null,
     };
   }, [url]);
-}
-
-export function useSideMenuUrlState() {
-  const [router] = useRouter();
-  const url = router.url;
-
-  const isOpen = useMemo(() => {
-    const parsedUrl = getParsedRouterUrl(url);
-    return parsedUrl.searchParams.get("menu") === "open";
-  }, [url]);
-
-  const setOpen = useCallback(
-    (open: boolean) => {
-      const parsedUrl = getParsedRouterUrl(url);
-
-      if (open) {
-        parsedUrl.searchParams.set("menu", "open");
-      } else {
-        parsedUrl.searchParams.delete("menu");
-      }
-
-      route(`${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`, true);
-    },
-    [url],
-  );
-
-  return {
-    isOpen,
-    setOpen,
-  };
 }

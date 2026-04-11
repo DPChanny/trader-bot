@@ -4,29 +4,21 @@ import { AppRouter } from "@/utils/router";
 import { Header } from "@/components/header";
 import { SideMenu } from "@/components/sideMenu/sideMenu";
 import { queryClient } from "@/utils/query";
-import { removeAuthToken, removeRefreshToken } from "@/utils/auth";
-import { useAutoRefreshToken, useLogin } from "@/hooks/auth";
+import { useAutoRefreshToken, useLogin, useLogout } from "@/hooks/auth";
 import { useMe } from "@/hooks/user";
-import { route } from "preact-router";
 import "@/styles/app.css";
 
-function AppShell() {
+function App() {
   useAutoRefreshToken();
   const { data: user } = useMe();
   const login = useLogin();
-
-  function handleLogout() {
-    removeAuthToken();
-    removeRefreshToken();
-    queryClient.invalidateQueries({ queryKey: ["me"] });
-    route("/");
-  }
+  const logout = useLogout();
 
   return (
     <div className="app-container">
       <Header
         user={user ?? undefined}
-        onLogout={user ? handleLogout : undefined}
+        onLogout={user ? logout : undefined}
         onLogin={!user ? login : undefined}
       />
       <div className="app-body">
@@ -41,7 +33,7 @@ function AppShell() {
 
 render(
   <QueryClientProvider client={queryClient}>
-    <AppShell />
+    <App />
   </QueryClientProvider>,
   document.getElementById("app")!,
 );

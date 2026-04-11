@@ -1,4 +1,5 @@
 import base64
+import urllib.parse
 
 from fastapi.responses import RedirectResponse
 from loguru import logger
@@ -16,8 +17,8 @@ from ..utils.token import create_refresh_token, create_token, decode_token, hash
 
 
 @service_exception_handler
-async def login_service(next_path: str | None = None) -> RedirectResponse:
-    state = base64.urlsafe_b64encode(next_path.encode()).decode() if next_path else None
+async def login_service(redirect: str | None = None) -> RedirectResponse:
+    state = base64.urlsafe_b64encode(redirect.encode()).decode() if redirect else None
     return RedirectResponse(url=get_login_url(state))
 
 
@@ -48,13 +49,15 @@ async def callback_service(
     user.refresh_token = hash_token(refresh_token)
     await user_repo.commit()
 
-    next_path = base64.urlsafe_b64decode(state.encode()).decode() if state else None
-    if next_path:
-        redirect_url = f"{get_app_origin()}{next_path}?token={access_token}&refresh_token={refresh_token}"
-    else:
-        redirect_url = (
-            f"{get_app_origin()}/?token={access_token}&refresh_token={refresh_token}"
-        )
+    redirect = base64.urlsafe_b64decode(state.encode()).decode() if state else None
+    params = {
+        "token": access_token,
+        "refresh_token": refresh_token,
+    }
+    if redirect:
+        params["redirect"] = redirect
+
+    redirect_url = f"{get_app_origin()}/auth/callback?{urllib.parse.urlencode(params)}"
     return RedirectResponse(url=redirect_url)
 
 

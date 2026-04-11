@@ -1,28 +1,59 @@
 import { useEffect } from "preact/hooks";
+import { route } from "preact-router";
+import type { TokenResponseDTO } from "@/dtos/authDto";
 import {
   setAuthToken,
   getAuthToken,
   isAuthenticated,
   getRefreshToken,
   setRefreshToken,
+  removeAuthToken,
+  removeRefreshToken,
 } from "@/utils/auth";
 import { AUTH_API_ENDPOINT } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
+import { queryClient } from "@/utils/query";
 
-interface TokenResponse {
-  token: string;
-  refresh_token: string;
-}
-
-export function useLogin(nextPath?: string) {
+export function useLogin(redirect?: string) {
   return () => {
     const base = `${window.location.origin}/api/auth/login`;
-    const url = nextPath ? `${base}?next=${encodeURIComponent(nextPath)}` : base;
+    const url = redirect
+      ? `${base}?redirect=${encodeURIComponent(redirect)}`
+      : base;
     window.location.href = url;
   };
 }
 
-async function useRefreshToken(): Promise<TokenResponse> {
+export function useLogout(redirect?: string) {
+  return () => {
+    removeAuthToken();
+    removeRefreshToken();
+    queryClient.invalidateQueries({ queryKey: ["me"] });
+    route(redirect ?? "/");
+  };
+}
+
+export function useLoginCallback() {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const refreshToken = params.get("refresh_token");
+    const callbackRedirect = params.get("redirect") ?? "/";
+
+    if (token) setAuthToken(token);
+    if (refreshToken) setRefreshToken(refreshToken);
+
+    if (token || refreshToken) {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      route(callbackRedirect, true);
+      return;
+    }
+
+    route("/", true);
+  }, []);
+}
+
+async function useRefreshToken(): Promise<TokenResponseDTO> {
   const refreshToken = getRefreshToken();
   if (!refreshToken) throw new Error("No refresh token available");
   const response = await fetch(`${AUTH_API_ENDPOINT}/token/refresh`, {

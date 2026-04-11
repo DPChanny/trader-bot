@@ -17,9 +17,9 @@ auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
 @auth_router.get("/login")
 async def login_route(
-    next: str | None = Query(default=None),
+    redirect: str | None = Query(default=None),
 ) -> RedirectResponse:
-    return await login_service(next_path=next)
+    return await login_service(redirect=redirect)
 
 
 @auth_router.get("/login/callback")

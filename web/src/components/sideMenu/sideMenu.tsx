@@ -1,6 +1,7 @@
+import { useState } from "preact/hooks";
 import styles from "@/styles/components/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@/hooks/guild";
-import { useActiveGuildRoute, useSideMenuUrlState } from "@/hooks/router";
+import { useGuildRoute } from "@/hooks/router";
 import { Button, CloseButton } from "@/components/commons/button";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
@@ -9,8 +10,8 @@ import { PresetList } from "./preset/presetList";
 
 export function SideMenu() {
   const { data: guilds = [] } = useGuilds();
-  const { activeGuildId, selectedPresetId } = useActiveGuildRoute();
-  const { isOpen, setOpen } = useSideMenuUrlState();
+  const { guildId, presetId } = useGuildRoute();
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <>
@@ -24,20 +25,17 @@ export function SideMenu() {
             <Section variantTone="ghost" variantLayout="row">
               <h3>메뉴</h3>
               <CloseButton
-                onClick={() => setOpen(false)}
+                onClick={() => setIsOpen(false)}
                 aria-label="사이드메뉴 닫기"
               />
             </Section>
             <Bar />
             <Section variantIntent="secondary">
-              <GuildList guilds={guilds} activeGuildId={activeGuildId} />
+              <GuildList guilds={guilds} activeGuildId={guildId} />
             </Section>
-            {activeGuildId && (
+            {guildId && (
               <Section variantIntent="secondary">
-                <PresetList
-                  guildId={activeGuildId}
-                  selectedPresetId={selectedPresetId}
-                />
+                <PresetList guildId={guildId} selectedPresetId={presetId} />
               </Section>
             )}
           </Section>
@@ -47,7 +45,7 @@ export function SideMenu() {
         <div className={styles.collapsedBar}>
           <Button
             className={styles.toggleTab}
-            onClick={() => setOpen(true)}
+            onClick={() => setIsOpen(true)}
             aria-label="사이드메뉴 펼치기"
           >
             ▶

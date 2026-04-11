@@ -14,7 +14,6 @@ import {
   EditButton,
   DeleteButton,
 } from "@/components/commons/button";
-import { Bar } from "@/components/commons/bar";
 import { Error } from "@/components/commons/error";
 import { ConfirmModal } from "@/components/commons/modal";
 import { EditPresetModal } from "./editPresetModal";

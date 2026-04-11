@@ -1,58 +1,36 @@
 import { useEffect } from "preact/hooks";
 import Router, { route } from "preact-router";
+import type { RoutableProps } from "preact-router";
 import { GuildPage } from "@/pages/guild/guildPage";
 import { HomePage } from "@/pages/home/homePage";
 import { AuctionPage } from "@/pages/auction/auctionPage";
-import { isAuthenticated, setAuthToken, setRefreshToken } from "@/utils/auth";
-import { queryClient } from "@/utils/query";
+import { useLoginCallback } from "@/hooks/auth";
+import { isAuthenticated } from "@/utils/auth";
 
-function useAuthGuard() {
-  useEffect(() => {
-    if (!isAuthenticated()) route("/", true);
-  }, []);
-}
-
-function RootRoute({}: { path?: string }) {
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-    const refreshToken = params.get("refresh_token");
-    if (token) setAuthToken(token);
-    if (refreshToken) setRefreshToken(refreshToken);
-    if (token || refreshToken) {
-      queryClient.invalidateQueries({ queryKey: ["me"] });
-      route("/", true);
-    }
-  }, []);
-
+function RootRoute({}: RoutableProps) {
   return <HomePage />;
 }
 
-function GuildPresetRoute({
-  guildId,
-  presetId,
-}: {
-  path?: string;
-  guildId?: string;
-  presetId?: string;
-}) {
-  useAuthGuard();
-  if (!guildId) return null;
-  return (
-    <GuildPage
-      guildId={guildId}
-      presetId={presetId ? parseInt(presetId, 10) : null}
-    />
-  );
+function LoginCallbackRoute({}: RoutableProps) {
+  useLoginCallback();
+
+  return null;
 }
 
-function GuildMemberRoute({ guildId }: { path?: string; guildId?: string }) {
-  useAuthGuard();
-  if (!guildId) return null;
-  return <GuildPage guildId={guildId} presetId={null} />;
+function GuildRoute({ guildId }: RoutableProps & { guildId?: string }) {
+  useEffect(() => {
+    if (!isAuthenticated()) route("/", true);
+  }, []);
+
+  if (!guildId) {
+    route("/", true);
+    return null;
+  }
+
+  return <GuildPage />;
 }
 
-function AuctionRoute({ auctionId }: { path?: string; auctionId?: string }) {
+function AuctionRoute({ auctionId }: RoutableProps & { auctionId?: string }) {
   return (
     <main className="app-main">
       <AuctionPage
@@ -65,9 +43,10 @@ function AuctionRoute({ auctionId }: { path?: string; auctionId?: string }) {
 export function AppRouter() {
   return (
     <Router>
+      <LoginCallbackRoute path="/auth/callback" />
       <RootRoute path="/" />
-      <GuildPresetRoute path="/guild/:guildId/preset/:presetId" />
-      <GuildMemberRoute path="/guild/:guildId/member" />
+      <GuildRoute path="/guild/:guildId/preset/:presetId" />
+      <GuildRoute path="/guild/:guildId/member" />
       <AuctionRoute path="/auction/:auctionId" />
     </Router>
   );
