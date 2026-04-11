@@ -1,12 +1,73 @@
+import { useEffect } from "preact/hooks";
 import { render } from "preact";
+import Router, { route } from "preact-router";
+import type { RoutableProps } from "preact-router";
 import { QueryClientProvider } from "@tanstack/preact-query";
-import { AppRouter } from "@/utils/router";
+import { MemberPage } from "@/pages/memberPage/memberPage";
+import { PresetPage } from "@/pages/presetPage/presetPage";
+import { HomePage } from "@/pages/homePage/homePage";
+import { AuctionPage } from "@/pages/auctionPage/auctionPage";
 import { Header } from "@/components/header";
 import { SideMenu } from "@/components/sideMenu/sideMenu";
-import { queryClient } from "@/utils/query";
-import { useAutoRefreshToken, useLogin, useLogout } from "@/hooks/auth";
+import {
+  useAutoRefreshToken,
+  useLogin,
+  useLogout,
+  useLoginCallback,
+} from "@/hooks/auth";
 import { useMe } from "@/hooks/user";
+import { isAuthenticated } from "@/utils/auth";
+import { queryClient } from "@/utils/query";
 import "@/styles/app.css";
+
+function RootRoute({}: RoutableProps) {
+  return <HomePage />;
+}
+
+function DefaultRoute({}: RoutableProps) {
+  useEffect(() => {
+    route("/", true);
+  }, []);
+  return null;
+}
+
+function LoginCallbackRoute({}: RoutableProps) {
+  useLoginCallback();
+  return null;
+}
+
+function MemberRoute({ guildId }: RoutableProps & { guildId?: string }) {
+  useEffect(() => {
+    if (!isAuthenticated()) route("/", true);
+  }, []);
+
+  if (!guildId) {
+    route("/", true);
+    return null;
+  }
+
+  return <MemberPage guildId={guildId} />;
+}
+
+function PresetRoute({
+  guildId,
+  presetId,
+}: RoutableProps & { guildId?: string; presetId?: string }) {
+  useEffect(() => {
+    if (!isAuthenticated()) route("/", true);
+  }, []);
+
+  if (!guildId || !presetId) {
+    route("/", true);
+    return null;
+  }
+
+  return <PresetPage guildId={guildId} presetId={parseInt(presetId, 10)} />;
+}
+
+function AuctionRoute({ auctionId }: RoutableProps & { auctionId?: string }) {
+  return <AuctionPage auctionId={auctionId} />;
+}
 
 function App() {
   useAutoRefreshToken();
@@ -24,7 +85,14 @@ function App() {
       <div className="app-body">
         {user && <SideMenu />}
         <div className="app-content">
-          <AppRouter />
+          <Router>
+            <LoginCallbackRoute path="/auth/login/callback" />
+            <RootRoute path="/" />
+            <PresetRoute path="/guild/:guildId/preset/:presetId" />
+            <MemberRoute path="/guild/:guildId/member" />
+            <AuctionRoute path="/auction/:auctionId" />
+            <DefaultRoute default />
+          </Router>
         </div>
       </div>
     </div>

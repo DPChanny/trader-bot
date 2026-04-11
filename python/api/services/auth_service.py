@@ -65,7 +65,9 @@ async def callback_service(
     if redirect:
         params["redirect"] = redirect
 
-    redirect_url = f"{get_app_origin()}/auth/callback?{urllib.parse.urlencode(params)}"
+    redirect_url = (
+        f"{get_app_origin()}/auth/login/callback?{urllib.parse.urlencode(params)}"
+    )
     return RedirectResponse(url=redirect_url)
 
 
