@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useMemo, useState } from "preact/hooks";
 import { PresetMemberCard } from "@/components/presetMemberCard";
 import { Toggle } from "@/components/commons/toggle";
 import {
@@ -46,6 +46,15 @@ export function PresetMemberPanel({
   const deletePresetMemberPosition = useDeletePresetMemberPosition();
   const { data: tiers = [] } = useTiers(guildId, presetId);
   const { data: positions = [] } = usePositions(guildId, presetId);
+
+  const tiersMap = useMemo(
+    () => new Map(tiers.map((t) => [t.tierId, t])),
+    [tiers],
+  );
+  const positionsMap = useMemo(
+    () => new Map(positions.map((p) => [p.positionId, p])),
+    [positions],
+  );
 
   const [isLeader, setIsLeader] = useState(presetMember.isLeader);
   const [tierId, setTierId] = useState<number | null>(
@@ -161,22 +170,23 @@ export function PresetMemberPanel({
     deletePresetMemberPosition.isError ||
     removePresetMember.isError;
 
-  const previewPositions = selectedPositionIds.map((id) => {
-    const existingEntry = presetMember.presetMemberPositions?.find(
-      (p) => p.positionId === id,
-    );
-    const position = positions.find((p) => p.positionId === id)!;
-    return {
-      presetMemberPositionId: existingEntry?.presetMemberPositionId || 0,
-      presetMemberId: presetMember.presetMemberId,
-      positionId: id,
-      position,
-    };
-  });
+  const previewPositions = selectedPositionIds
+    .map((id) => {
+      const existingEntry = presetMember.presetMemberPositions?.find(
+        (p) => p.positionId === id,
+      );
+      const position = positionsMap.get(id);
+      if (!position) return null;
+      return {
+        presetMemberPositionId: existingEntry?.presetMemberPositionId || 0,
+        presetMemberId: presetMember.presetMemberId,
+        positionId: id,
+        position,
+      };
+    })
+    .filter((p): p is NonNullable<typeof p> => p !== null);
 
-  const previewTier = tierId
-    ? (tiers.find((t) => t.tierId === tierId) ?? null)
-    : null;
+  const previewTier = tierId ? (tiersMap.get(tierId) ?? null) : null;
 
   const previewPresetMember = {
     ...presetMember,

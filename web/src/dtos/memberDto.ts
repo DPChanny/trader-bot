@@ -1,5 +1,4 @@
 import type { DiscordUserDTO } from "./discordUserDto";
-import type { GuildDTO } from "./guildDto";
 
 export interface MemberDTO {
   memberId: number;
@@ -15,7 +14,6 @@ export interface MemberDTO {
 
 export interface MemberDetailDTO extends MemberDTO {
   discordUser: DiscordUserDTO;
-  guild: GuildDTO;
 }
 
 export interface UpdateMemberDTO {

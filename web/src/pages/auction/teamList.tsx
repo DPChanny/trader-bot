@@ -6,7 +6,7 @@ import styles from "@/styles/pages/auction/teamList.module.css";
 
 interface TeamListProps {
   teams: Team[];
-  presetMembers: PresetMemberDetailDTO[];
+  presetMemberMap: Map<number, PresetMemberDetailDTO>;
   pointScale: number;
   connectedUsers?: number[];
   clientMemberId?: number;
@@ -14,7 +14,7 @@ interface TeamListProps {
 
 export function TeamList({
   teams,
-  presetMembers,
+  presetMemberMap,
   pointScale,
   connectedUsers,
   clientMemberId,
@@ -26,9 +26,9 @@ export function TeamList({
       variantLayout="column"
     >
       {teams.map((team) => {
-        const members = presetMembers.filter((pm) =>
-          team.memberIdList.includes(pm.memberId),
-        );
+        const members = team.memberIdList
+          .map((id) => presetMemberMap.get(id))
+          .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
         return (
           <TeamCard

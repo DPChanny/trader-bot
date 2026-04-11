@@ -22,7 +22,6 @@ class MemberRepository(BaseRepository[Member]):
             select(Member)
             .options(
                 selectinload(Member.discord_user),
-                selectinload(Member.guild),
             )
             .where(
                 Member.member_id == member_id,
@@ -47,7 +46,6 @@ class MemberRepository(BaseRepository[Member]):
             select(Member)
             .options(
                 selectinload(Member.discord_user),
-                selectinload(Member.guild),
             )
             .where(Member.guild_id == guild_id)
         )

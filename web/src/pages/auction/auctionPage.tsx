@@ -148,7 +148,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
           <Bar />
           <TeamList
             teams={state.teams}
-            presetMembers={presetMembers}
+            presetMemberMap={presetMemberMap}
             pointScale={pointScale}
             clientMemberId={memberId ?? undefined}
             connectedUsers={connectedUsers}

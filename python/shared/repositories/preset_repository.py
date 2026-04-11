@@ -32,7 +32,6 @@ class PresetRepository(BaseRepository[Preset]):
                 selectinload(Preset.preset_members).options(
                     joinedload(PresetMember.member).options(
                         joinedload(Member.discord_user),
-                        joinedload(Member.guild),
                     ),
                     joinedload(PresetMember.tier),
                     selectinload(PresetMember.preset_member_positions).joinedload(
