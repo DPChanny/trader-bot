@@ -8,7 +8,7 @@ import { Error } from "@/components/commons/error";
 import { MemberPanel } from "./memberPanel";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 
-import styles from "@/styles/pages/guild/memberPage/memberPage.module.css";
+import styles from "@/styles/pages/memberPage/memberPage.module.css";
 import { Bar } from "@/components/commons/bar";
 
 interface MemberPageProps {

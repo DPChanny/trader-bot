@@ -25,7 +25,3 @@
 .footer {
   justify-content: flex-end !important;
 }
-
-.errorContainer {
-  margin-top: var(--gap-md);
-}

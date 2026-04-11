@@ -7,7 +7,7 @@ import { PresetMemberPanel } from "./presetMemberPanel";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { Section } from "@/components/commons/section";
-import styles from "@/styles/pages/guild/presetPage/presetMember/presetMemberEditor.module.css";
+import styles from "@/styles/pages/presetPage/presetMemberEditor/presetMemberEditor.module.css";
 
 interface PresetMemberEditorProps {
   guildId: string;

@@ -4,7 +4,7 @@ import type { Team } from "@/dtos/auctionDto";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
-import styles from "@/styles/pages/auction/teamCard.module.css";
+import styles from "@/styles/pages/auctionPage/teamCard.module.css";
 
 interface TeamCardProps {
   team: Team;

@@ -1,5 +1,5 @@
 import { Section } from "@/components/commons/section";
-import styles from "@/styles/pages/auction/infoCard.module.css";
+import styles from "@/styles/pages/auctionPage/infoCard.module.css";
 
 interface InfoCardProps {
   label: string;

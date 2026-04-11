@@ -1,10 +1,13 @@
+import { route } from "preact-router";
 import { removeAuthToken, removeRefreshToken } from "@/utils/auth";
+import { queryClient } from "@/utils/query";
 
 export async function handleHttpError(response: Response): Promise<never> {
   if (response.status === 401) {
     removeAuthToken();
     removeRefreshToken();
-    window.location.href = "/auth/login";
+    queryClient.removeQueries({ queryKey: ["me"] });
+    route("/");
   }
   let message: string;
   try {

@@ -13,7 +13,7 @@ import { AddTierModal } from "./addTierModal";
 import { EditTierModal } from "./editTierModal";
 import { DeleteTierModal } from "./deleteTierModal";
 import { TierCard } from "./tierCard";
-import styles from "@/styles/pages/guild/presetPage/tierEditor/tierList.module.css";
+import styles from "@/styles/pages/presetPage/tierEditor/tierList.module.css";
 import { Section } from "@/components/commons/section";
 import type { TierDTO } from "@/dtos/tierDto";
 

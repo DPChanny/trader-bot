@@ -20,7 +20,7 @@ import { DeletePresetModal } from "./deletePresetModal";
 import { AddAuctionModal } from "./addAuctionModal";
 import { AuctionModal } from "./auctionModal";
 import type { AddAuctionDTO } from "@/dtos/auctionDto";
-import styles from "@/styles/pages/guild/presetPage/presetPage.module.css";
+import styles from "@/styles/pages/presetPage/presetPage.module.css";
 
 interface PresetPageProps {
   guildId: string;

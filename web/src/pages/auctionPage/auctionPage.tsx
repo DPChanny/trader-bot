@@ -15,7 +15,7 @@ import { isAuthenticated } from "@/utils/auth";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 import { AuctionStatus } from "@/dtos/auctionDto";
 
-import styles from "@/styles/pages/auction/auctionPage.module.css";
+import styles from "@/styles/pages/auctionPage/auctionPage.module.css";
 
 interface AuctionPageProps {
   path?: string;

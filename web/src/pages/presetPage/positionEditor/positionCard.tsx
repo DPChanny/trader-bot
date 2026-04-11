@@ -3,7 +3,7 @@ import { Badge } from "@/components/commons/badge";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import type { PositionDTO } from "@/dtos/positionDto";
-import styles from "@/styles/pages/guild/presetPage/positionEditor/positionCard.module.css";
+import styles from "@/styles/pages/presetPage/positionEditor/positionCard.module.css";
 
 interface PositionCardProps {
   position: PositionDTO;
