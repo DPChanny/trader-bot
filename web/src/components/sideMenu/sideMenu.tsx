@@ -16,25 +16,19 @@ export function SideMenu() {
   return (
     <>
       {isOpen && (
-        <Section className={styles.wrapper}>
-          <Section
-            variantTone="ghost"
-            variantLayout="column"
-            className={styles.sideMenu}
-          >
-            <Section variantTone="ghost" variantLayout="row">
-              <h3>메뉴</h3>
-              <CloseButton
-                onClick={() => setIsOpen(false)}
-                aria-label="사이드메뉴 닫기"
-              />
-            </Section>
-            <Bar />
-            <GuildList guilds={guilds} activeGuildId={guildId} />
-            {guildId && (
-              <PresetList guildId={guildId} selectedPresetId={presetId} />
-            )}
+        <Section variantLayout="column" className={styles.sideMenu}>
+          <Section variantTone="ghost" variantLayout="row">
+            <h3>메뉴</h3>
+            <CloseButton
+              onClick={() => setIsOpen(false)}
+              aria-label="사이드메뉴 닫기"
+            />
           </Section>
+          <Bar />
+          <GuildList guilds={guilds} activeGuildId={guildId} />
+          {guildId && (
+            <PresetList guildId={guildId} selectedPresetId={presetId} />
+          )}
         </Section>
       )}
       {!isOpen && (

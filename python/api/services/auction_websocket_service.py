@@ -71,7 +71,7 @@ async def handle_websocket_connect(
         return None, None, False, None
 
     preset_id: int = auction.preset_snapshot["preset_id"]
-    guild_id: int = auction.preset_snapshot["guild_id"]
+    guild_id: int = int(auction.preset_snapshot["guild_id"])
     preset_member_repo = PresetMemberRepository(session)
     member_id, is_leader, _ = await _resolve_member(
         token, preset_id, guild_id, preset_member_repo

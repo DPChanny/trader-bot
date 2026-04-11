@@ -3,7 +3,7 @@ import type { ComponentChildren } from "preact";
 import styles from "@/styles/components/commons/page.module.css";
 
 interface PageLayoutProps {
-  children: ComponentChildren;
+  children?: ComponentChildren;
   className?: string;
 }
 
