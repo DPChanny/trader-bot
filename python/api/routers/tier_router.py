@@ -11,8 +11,8 @@ from shared.utils.database import get_session
 from ..services.tier_service import (
     add_tier_service,
     delete_tier_service,
-    get_tier_service,
     get_tier_list_service,
+    get_tier_service,
     update_tier_service,
 )
 from ..utils.token import verify_token

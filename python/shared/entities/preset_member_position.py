@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
 
+
 if TYPE_CHECKING:
     from .position import Position
 

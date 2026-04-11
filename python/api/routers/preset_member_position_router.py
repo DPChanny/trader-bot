@@ -10,8 +10,8 @@ from shared.utils.database import get_session
 from ..services.preset_member_position_service import (
     add_preset_member_position_service,
     delete_preset_member_position_service,
-    get_preset_member_position_service,
     get_preset_member_position_list_service,
+    get_preset_member_position_service,
 )
 from ..utils.token import verify_token
 

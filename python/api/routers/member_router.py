@@ -5,8 +5,8 @@ from shared.dtos.member_dto import MemberDetailDTO, UpdateMemberDTO
 from shared.utils.database import get_session
 
 from ..services.member_service import (
-    get_member_service,
     get_member_list_service,
+    get_member_service,
     update_member_service,
 )
 from ..utils.token import verify_token

@@ -38,8 +38,6 @@ class PresetRepository(BaseRepository[Preset]):
                         PresetMemberPosition.position
                     ),
                 ),
-                selectinload(Preset.tiers),
-                selectinload(Preset.positions),
             )
             .where(
                 Preset.preset_id == preset_id,

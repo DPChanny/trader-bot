@@ -1,7 +1,5 @@
 from . import BaseDTO, DiscordId, NullableStr
-from .position_dto import PositionDTO
 from .preset_member_dto import PresetMemberDetailDTO
-from .tier_dto import TierDTO
 
 
 class PresetDTO(BaseDTO):
@@ -18,8 +16,6 @@ class PresetDTO(BaseDTO):
 
 class PresetDetailDTO(PresetDTO):
     preset_members: list[PresetMemberDetailDTO]
-    tiers: list[TierDTO]
-    positions: list[PositionDTO]
 
 
 class AddPresetDTO(BaseDTO):

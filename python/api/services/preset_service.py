@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.preset_dto import (
     AddPresetDTO,
-    PresetDetailDTO,
     PresetDTO,
     UpdatePresetDTO,
 )
@@ -19,20 +18,20 @@ from ..utils.member import verify_role
 @service_exception_handler
 async def get_preset_service(
     guild_id: int, discord_id: int, preset_id: int, session: AsyncSession
-) -> PresetDetailDTO:
+) -> PresetDTO:
     await verify_role(guild_id, discord_id, session, Role.VIEWER)
 
     preset_repo = PresetRepository(session)
-    preset = await preset_repo.get_detail_by_id(preset_id, guild_id)
+    preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
         raise HTTPException(status_code=404, detail="Preset not found")
-    return PresetDetailDTO.model_validate(preset)
+    return PresetDTO.model_validate(preset)
 
 
 @service_exception_handler
 async def add_preset_service(
     guild_id: int, discord_id: int, dto: AddPresetDTO, session: AsyncSession
-) -> PresetDetailDTO:
+) -> PresetDTO:
     await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
@@ -46,10 +45,9 @@ async def add_preset_service(
     )
     preset_repo.add(preset)
     await preset_repo.commit()
-
-    preset = await preset_repo.get_detail_by_id(preset.preset_id, guild_id)
+    await preset_repo.refresh(preset)
     logger.info(f"Preset created: id={preset.preset_id}, name={dto.name}")
-    return PresetDetailDTO.model_validate(preset)
+    return PresetDTO.model_validate(preset)
 
 
 @service_exception_handler
@@ -70,11 +68,11 @@ async def update_preset_service(
     preset_id: int,
     dto: UpdatePresetDTO,
     session: AsyncSession,
-) -> PresetDetailDTO:
+) -> PresetDTO:
     await verify_role(guild_id, discord_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
-    preset = await preset_repo.get_detail_by_id(preset_id, guild_id)
+    preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
@@ -85,7 +83,7 @@ async def update_preset_service(
     logger.info(f"Preset updated: id={preset_id}")
 
     await preset_repo.refresh(preset)
-    return PresetDetailDTO.model_validate(preset)
+    return PresetDTO.model_validate(preset)
 
 
 @service_exception_handler

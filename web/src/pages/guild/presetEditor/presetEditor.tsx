@@ -1,13 +1,22 @@
+import { useState } from "preact/hooks";
+import { route } from "preact-router";
 import { useAddAuction } from "@/hooks/auction";
+import { usePresets, useUpdatePreset, useDeletePreset } from "@/hooks/preset";
 import { usePresetMembers } from "@/hooks/presetMember";
 import { TierEditor } from "./tierEditor/tierEditor";
 import { PositionEditor } from "./positionEditor/positionEditor";
 import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
 import { Section } from "@/components/commons/section";
 import { PageContainer, PageLayout } from "@/components/commons/page";
-import { PrimaryButton } from "@/components/commons/button";
+import {
+  PrimaryButton,
+  EditButton,
+  DeleteButton,
+} from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
 import { Error } from "@/components/commons/error";
+import { ConfirmModal } from "@/components/commons/modal";
+import { EditPresetModal } from "./editPresetModal";
 import styles from "@/styles/pages/guild/presetEditor/presetEditor.module.css";
 
 interface PresetEditorProps {
@@ -16,20 +25,28 @@ interface PresetEditorProps {
 }
 
 export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
+  const [isEditingPreset, setIsEditingPreset] = useState(false);
+  const [isDeletingPreset, setIsDeletingPreset] = useState(false);
+
   const addAuction = useAddAuction();
+  const updatePreset = useUpdatePreset();
+  const deletePreset = useDeletePreset();
+  const { data: presets } = usePresets(guildId);
   const { data: presetMembers } = usePresetMembers(guildId, presetId);
 
+  const preset = presets?.find((p) => p.presetId === presetId) ?? null;
+  const teamSize = preset?.teamSize ?? 5;
   const leaderCount = presetMembers?.filter((pm) => pm.isLeader).length ?? 0;
   const memberCount = presetMembers?.length ?? 0;
-  const requiredMembers = leaderCount * 5;
-  const canStartAuction = leaderCount >= 2;
+  const requiredMembers = leaderCount * teamSize;
+  const canStartAuction = !!presetId && !!presetMembers && leaderCount >= 2;
 
   let presetValidMessage = "";
   if (presetId && presetMembers) {
     if (leaderCount < 2) {
       presetValidMessage = `현재 팀장 인원(${leaderCount}명)이 최소 인원(2명)보다 적습니다.`;
     } else if (memberCount < requiredMembers) {
-      presetValidMessage = `현재 인원(${memberCount}명)이 권장 인원(${requiredMembers}명)보다 적습니다.`;
+      presetValidMessage = `현재 인원(${memberCount}명)이 권장 인원(${requiredMembers}명, 팀당 ${teamSize}명)보다 적습니다.`;
     }
   }
 
@@ -40,53 +57,143 @@ export function PresetEditor({ guildId, presetId }: PresetEditorProps) {
     } catch {}
   };
 
+  const handleUpdate = async (
+    name: string,
+    points: number,
+    timer: number,
+    teamSize: number,
+    pointScale: number,
+  ) => {
+    if (!preset) return;
+    try {
+      await updatePreset.mutateAsync({
+        guildId,
+        presetId: preset.presetId,
+        dto: { name, points, timer, teamSize, pointScale },
+      });
+      setIsEditingPreset(false);
+    } catch {}
+  };
+
+  const handleDelete = async () => {
+    if (!presetId) return;
+    try {
+      await deletePreset.mutateAsync({ guildId, presetId });
+      route(`/guild/${guildId}/member`);
+    } catch {}
+    setIsDeletingPreset(false);
+  };
+
   return (
-    <PageLayout>
-      <PageContainer>
-        <Section variantIntent="primary" className={styles.panelSection}>
-          {presetId ? (
-            <>
-              <Section variantIntent="secondary" className={styles.tierSection}>
-                <TierEditor guildId={guildId} presetId={presetId} />
-              </Section>
+    <>
+      <PageLayout>
+        <PageContainer>
+          <Section variantIntent="primary" className={styles.panelSection}>
+            <Section variantTone="ghost" variantIntent="secondary">
               <Section
+                variantTone="ghost"
+                variantLayout="row"
                 variantIntent="secondary"
-                className={styles.positionSection}
               >
-                <PositionEditor guildId={guildId} presetId={presetId} />
+                <h3>{preset?.name ?? "프리셋 없음"}</h3>
+                {preset && (
+                  <Section
+                    variantTone="ghost"
+                    variantLayout="row"
+                    variantIntent="secondary"
+                  >
+                    <EditButton
+                      variantSize="small"
+                      onClick={() => setIsEditingPreset(true)}
+                    />
+                    <DeleteButton
+                      variantSize="small"
+                      onClick={() => setIsDeletingPreset(true)}
+                    />
+                  </Section>
+                )}
               </Section>
-            </>
-          ) : null}
-          <Bar />
-          <Section variantTone="ghost" variantIntent="secondary">
-            <PrimaryButton
-              onClick={handleStartAuction}
-              disabled={
-                addAuction.isPending ||
-                !canStartAuction ||
-                !presetId ||
-                !presetMembers
-              }
-            >
-              {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
-            </PrimaryButton>
-            {presetValidMessage && <Error>{presetValidMessage}</Error>}
-            {addAuction.isError && (
-              <Error detail={addAuction.error?.message}>
-                경매를 시작하는데 실패했습니다.
-              </Error>
+              {preset && (
+                <Section
+                  variantTone="ghost"
+                  variantLayout="row"
+                  variantIntent="tertiary"
+                >
+                  <span>팀 크기: {teamSize}명</span>
+                  <span>포인트: {preset.points * preset.pointScale}</span>
+                  <span>타이머: {preset.timer}초</span>
+                </Section>
+              )}
+              <Bar />
+              <PrimaryButton
+                onClick={handleStartAuction}
+                disabled={addAuction.isPending || !canStartAuction}
+              >
+                {addAuction.isPending ? "경매 생성 중" : "경매 생성"}
+              </PrimaryButton>
+              {presetValidMessage && <Error>{presetValidMessage}</Error>}
+              {addAuction.isError && (
+                <Error detail={addAuction.error?.message}>
+                  경매를 시작하는데 실패했습니다.
+                </Error>
+              )}
+            </Section>
+            <Bar />
+            {presetId ? (
+              <>
+                <Section
+                  variantIntent="secondary"
+                  className={styles.tierSection}
+                >
+                  <TierEditor guildId={guildId} presetId={presetId} />
+                </Section>
+                <Section
+                  variantIntent="secondary"
+                  className={styles.positionSection}
+                >
+                  <PositionEditor guildId={guildId} presetId={presetId} />
+                </Section>
+              </>
+            ) : null}
+          </Section>
+
+          <Section
+            variantIntent="primary"
+            className={styles.presetDetailSection}
+          >
+            {presetId ? (
+              <PresetMemberEditor guildId={guildId} presetId={presetId} />
+            ) : (
+              <div />
             )}
           </Section>
-        </Section>
+        </PageContainer>
+      </PageLayout>
 
-        <Section variantIntent="primary" className={styles.presetDetailSection}>
-          {presetId ? (
-            <PresetMemberEditor guildId={guildId} presetId={presetId} />
-          ) : (
-            <div />
-          )}
-        </Section>
-      </PageContainer>
-    </PageLayout>
+      {preset && (
+        <EditPresetModal
+          isOpen={isEditingPreset}
+          onClose={() => setIsEditingPreset(false)}
+          onSubmit={handleUpdate}
+          presetId={preset.presetId}
+          name={preset.name}
+          points={preset.points}
+          timer={preset.timer}
+          teamSize={preset.teamSize}
+          pointScale={preset.pointScale}
+          isPending={updatePreset.isPending}
+          error={updatePreset.error}
+        />
+      )}
+      <ConfirmModal
+        isOpen={isDeletingPreset}
+        onClose={() => setIsDeletingPreset(false)}
+        onConfirm={handleDelete}
+        title="프리셋 삭제"
+        message="정말 이 프리셋을 삭제하시겠습니까?"
+        confirmText="삭제"
+        isPending={deletePreset.isPending}
+      />
+    </>
   );
 }

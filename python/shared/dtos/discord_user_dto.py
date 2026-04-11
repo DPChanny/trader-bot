@@ -10,8 +10,6 @@ class DiscordUserDTO(BaseDTO):
 
     model_config = {"from_attributes": True}
 
-
-class DiscordUserDetailDTO(DiscordUserDTO):
     @computed_field
     @property
     def avatar_url(self) -> str | None:

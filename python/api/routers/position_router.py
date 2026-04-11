@@ -11,8 +11,8 @@ from shared.utils.database import get_session
 from ..services.position_service import (
     add_position_service,
     delete_position_service,
-    get_position_service,
     get_position_list_service,
+    get_position_service,
     update_position_service,
 )
 from ..utils.token import verify_token
