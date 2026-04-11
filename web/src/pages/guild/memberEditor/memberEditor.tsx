@@ -6,20 +6,19 @@ import { PageLayout, PageContainer } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { MemberPanel } from "./memberPanel";
-import type { GuildDTO } from "@/dtos/guildDto";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 
 import styles from "@/styles/pages/guild/memberEditor/memberPage.module.css";
 import { Bar } from "@/components/commons/bar";
 
 interface MemberEditorProps {
-  guild: GuildDTO;
+  guildId: string;
 }
 
-export function MemberEditor({ guild }: MemberEditorProps) {
+export function MemberEditor({ guildId }: MemberEditorProps) {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
 
-  const { data: members, isLoading, error } = useMembers(guild.discordId);
+  const { data: members, isLoading, error } = useMembers(guildId);
 
   const sortedMembers = useMemo(
     () =>
@@ -33,7 +32,7 @@ export function MemberEditor({ guild }: MemberEditorProps) {
 
   const selectedMember = useMemo(
     () =>
-      selectedMemberId && members
+      selectedMemberId !== null && members
         ? members.find((m: MemberDetailDTO) => m.memberId === selectedMemberId)
         : null,
     [selectedMemberId, members],

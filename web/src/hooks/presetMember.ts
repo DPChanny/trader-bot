@@ -9,42 +9,36 @@ import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetMemberEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
-export function usePresetMembers(
-  guildId: string | null,
-  presetId: number | null,
-) {
+export function usePresetMembers(guildId: string, presetId: number) {
   return useQuery({
     queryKey: ["presetMembers", guildId, presetId],
     queryFn: async (): Promise<PresetMemberDetailDTO[]> => {
-      const response = await fetch(
-        getPresetMemberEndpoint(guildId!, presetId!),
-        { headers: getAuthHeaders() },
-      );
+      const response = await fetch(getPresetMemberEndpoint(guildId, presetId), {
+        headers: getAuthHeaders(),
+      });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<PresetMemberDetailDTO[]>(json);
     },
-    enabled: !!guildId && !!presetId,
   });
 }
 
 export function usePresetMember(
-  guildId: string | null,
-  presetId: number | null,
-  presetMemberId: number | null,
+  guildId: string,
+  presetId: number,
+  presetMemberId: number,
 ) {
   return useQuery({
     queryKey: ["presetMember", guildId, presetId, presetMemberId],
     queryFn: async (): Promise<PresetMemberDetailDTO> => {
       const response = await fetch(
-        `${getPresetMemberEndpoint(guildId!, presetId!)}/${presetMemberId}`,
+        `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
         { headers: getAuthHeaders() },
       );
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<PresetMemberDetailDTO>(json);
     },
-    enabled: !!guildId && !!presetId && !!presetMemberId,
   });
 }
 

@@ -9,38 +9,36 @@ import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPositionEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
-export function usePositions(guildId: string | null, presetId: number | null) {
+export function usePositions(guildId: string, presetId: number) {
   return useQuery({
     queryKey: ["positions", guildId, presetId],
     queryFn: async (): Promise<PositionDTO[]> => {
-      const response = await fetch(getPositionEndpoint(guildId!, presetId!), {
+      const response = await fetch(getPositionEndpoint(guildId, presetId), {
         headers: getAuthHeaders(),
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<PositionDTO[]>(json);
     },
-    enabled: !!guildId && !!presetId,
   });
 }
 
 export function usePosition(
-  guildId: string | null,
-  presetId: number | null,
-  positionId: number | null,
+  guildId: string,
+  presetId: number,
+  positionId: number,
 ) {
   return useQuery({
     queryKey: ["position", guildId, presetId, positionId],
     queryFn: async (): Promise<PositionDTO> => {
       const response = await fetch(
-        `${getPositionEndpoint(guildId!, presetId!)}/${positionId}`,
+        `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
         { headers: getAuthHeaders() },
       );
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<PositionDTO>(json);
     },
-    enabled: !!guildId && !!presetId && !!positionId,
   });
 }
 

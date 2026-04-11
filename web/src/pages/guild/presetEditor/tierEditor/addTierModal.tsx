@@ -33,7 +33,7 @@ export function AddTierModal({
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!tierName.trim() || !guildId || !presetId) return;
+    if (!tierName.trim()) return;
     try {
       await addTier.mutateAsync({
         guildId,

@@ -19,7 +19,6 @@ interface EditPresetModalProps {
     teamSize: number,
     pointScale: number,
   ) => void;
-  presetId: number | null;
   name: string;
   points: number;
   timer: number;

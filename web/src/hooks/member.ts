@@ -5,27 +5,26 @@ import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getMemberEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
-export function useMembers(guildId: string | null) {
+export function useMembers(guildId: string) {
   return useQuery({
     queryKey: ["members", guildId],
     queryFn: async (): Promise<MemberDetailDTO[]> => {
-      const response = await fetch(getMemberEndpoint(guildId!), {
+      const response = await fetch(getMemberEndpoint(guildId), {
         headers: getAuthHeaders(),
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<MemberDetailDTO[]>(json);
     },
-    enabled: !!guildId,
   });
 }
 
-export function useMember(guildId: string | null, memberId: number | null) {
+export function useMember(guildId: string, memberId: number) {
   return useQuery({
     queryKey: ["members", guildId, memberId],
     queryFn: async (): Promise<MemberDetailDTO> => {
       const response = await fetch(
-        `${getMemberEndpoint(guildId!)}/${memberId}`,
+        `${getMemberEndpoint(guildId)}/${memberId}`,
         {
           headers: getAuthHeaders(),
         },
@@ -34,7 +33,6 @@ export function useMember(guildId: string | null, memberId: number | null) {
       const json = await response.json();
       return toCamelCase<MemberDetailDTO>(json);
     },
-    enabled: !!guildId && !!memberId,
   });
 }
 

@@ -35,7 +35,7 @@ export function AddPositionModal({
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!positionName.trim() || !guildId || !presetId) return;
+    if (!positionName.trim()) return;
     try {
       await addPosition.mutateAsync({
         guildId,

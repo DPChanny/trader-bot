@@ -87,7 +87,7 @@ export function PresetMemberEditor({
 
   const selectedPresetMember = useMemo(
     () =>
-      selectedPresetMemberId && presetMembers
+      selectedPresetMemberId !== null && presetMembers
         ? presetMembers.find(
             (pm) => pm.presetMemberId === selectedPresetMemberId,
           )

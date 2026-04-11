@@ -5,38 +5,34 @@ import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getTierEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
-export function useTiers(guildId: string | null, presetId: number | null) {
+export function useTiers(guildId: string, presetId: number) {
   return useQuery({
     queryKey: ["tiers", guildId, presetId],
     queryFn: async (): Promise<TierDTO[]> => {
-      const response = await fetch(getTierEndpoint(guildId!, presetId!), {
+      const response = await fetch(getTierEndpoint(guildId, presetId), {
         headers: getAuthHeaders(),
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<TierDTO[]>(json);
     },
-    enabled: !!guildId && !!presetId,
   });
 }
 
-export function useTier(
-  guildId: string | null,
-  presetId: number | null,
-  tierId: number | null,
-) {
+export function useTier(guildId: string, presetId: number, tierId: number) {
   return useQuery({
     queryKey: ["tier", guildId, presetId, tierId],
     queryFn: async (): Promise<TierDTO> => {
       const response = await fetch(
-        `${getTierEndpoint(guildId!, presetId!)}/${tierId}`,
-        { headers: getAuthHeaders() },
+        `${getTierEndpoint(guildId, presetId)}/${tierId}`,
+        {
+          headers: getAuthHeaders(),
+        },
       );
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<TierDTO>(json);
     },
-    enabled: !!guildId && !!presetId && !!tierId,
   });
 }
 

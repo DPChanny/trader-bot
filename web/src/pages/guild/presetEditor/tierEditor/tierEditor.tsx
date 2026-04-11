@@ -28,7 +28,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
   const deleteTier = useDeleteTier();
 
   const handleUpdateTier = async (name: string, iconUrl: string | null) => {
-    if (!editingTier || !guildId || !presetId) return;
+    if (!editingTier) return;
     try {
       await updateTier.mutateAsync({
         guildId,
@@ -44,7 +44,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
   };
 
   const handleDeleteTier = async () => {
-    if (deleteTargetId === null || !guildId || !presetId) return;
+    if (deleteTargetId === null) return;
     try {
       await deleteTier.mutateAsync({
         guildId,

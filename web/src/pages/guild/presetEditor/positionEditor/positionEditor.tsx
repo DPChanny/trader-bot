@@ -35,7 +35,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   const deletePosition = useDeletePosition();
 
   const handleUpdatePosition = async (name: string, iconUrl: string | null) => {
-    if (!editingPosition || !guildId || !presetId) return;
+    if (!editingPosition) return;
     try {
       await updatePosition.mutateAsync({
         guildId,
@@ -51,7 +51,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   };
 
   const handleDeletePosition = async () => {
-    if (deleteTargetId === null || !guildId || !presetId) return;
+    if (deleteTargetId === null) return;
     try {
       await deletePosition.mutateAsync({
         guildId,

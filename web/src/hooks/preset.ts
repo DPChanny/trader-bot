@@ -9,27 +9,26 @@ import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
-export function usePresets(guildId: string | null) {
+export function usePresets(guildId: string) {
   return useQuery({
     queryKey: ["presets", guildId],
     queryFn: async (): Promise<PresetDTO[]> => {
-      const response = await fetch(getPresetEndpoint(guildId!), {
+      const response = await fetch(getPresetEndpoint(guildId), {
         headers: getAuthHeaders(),
       });
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
       return toCamelCase<PresetDTO[]>(json);
     },
-    enabled: !!guildId,
   });
 }
 
-export function usePreset(guildId: string | null, presetId: number | null) {
+export function usePreset(guildId: string, presetId: number) {
   return useQuery({
     queryKey: ["preset", guildId, presetId],
     queryFn: async (): Promise<PresetDTO> => {
       const response = await fetch(
-        `${getPresetEndpoint(guildId!)}/${presetId}`,
+        `${getPresetEndpoint(guildId)}/${presetId}`,
         {
           headers: getAuthHeaders(),
         },
@@ -38,7 +37,6 @@ export function usePreset(guildId: string | null, presetId: number | null) {
       const json = await response.json();
       return toCamelCase<PresetDTO>(json);
     },
-    enabled: !!guildId && !!presetId,
   });
 }
 
