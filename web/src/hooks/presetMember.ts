@@ -6,10 +6,11 @@ import {
   updatePresetMember,
   deletePresetMember,
 } from "@/apis/presetMember";
+import { queryKeys } from "@/utils/query";
 
 export function usePresetMembers(guildId: string, presetId: number) {
   return useQuery({
-    queryKey: ["presetMembers", guildId, presetId],
+    queryKey: queryKeys.presetMembers(guildId, presetId),
     queryFn: () => getPresetMembers(guildId, presetId),
   });
 }
@@ -20,7 +21,7 @@ export function usePresetMember(
   presetMemberId: number,
 ) {
   return useQuery({
-    queryKey: ["presetMember", guildId, presetId, presetMemberId],
+    queryKey: queryKeys.presetMember(guildId, presetId, presetMemberId),
     queryFn: () => getPresetMember(guildId, presetId, presetMemberId),
   });
 }
@@ -32,7 +33,10 @@ export function useCreatePresetMember() {
     mutationFn: createPresetMember,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["presetMembers", variables.guildId, variables.presetId],
+        queryKey: queryKeys.presetMembers(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
     },
   });
@@ -45,7 +49,10 @@ export function useUpdatePresetMember() {
     mutationFn: updatePresetMember,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["presetMembers", variables.guildId, variables.presetId],
+        queryKey: queryKeys.presetMembers(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
     },
   });
@@ -58,15 +65,17 @@ export function useDeletePresetMember() {
     mutationFn: deletePresetMember,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["presetMembers", variables.guildId, variables.presetId],
+        queryKey: queryKeys.presetMembers(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
       queryClient.removeQueries({
-        queryKey: [
-          "presetMember",
+        queryKey: queryKeys.presetMember(
           variables.guildId,
           variables.presetId,
           variables.presetMemberId,
-        ],
+        ),
       });
     },
   });

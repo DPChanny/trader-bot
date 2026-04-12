@@ -1,12 +1,16 @@
 import type { MemberDetailDTO, UpdateMemberDTO } from "@/dtos/memberDto";
-import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getMemberEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/hook";
+import {
+  handleHttpError,
+  getAuthHeader,
+  getJsonHeader,
+  getHeaders,
+} from "@/utils/api";
 
 export async function getMyMember(guildId: string): Promise<MemberDetailDTO> {
   const response = await fetch(`${getMemberEndpoint(guildId)}/me`, {
-    headers: getAuthHeaders(),
+    headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHttpError(response);
   const json = await response.json();
@@ -15,7 +19,7 @@ export async function getMyMember(guildId: string): Promise<MemberDetailDTO> {
 
 export async function getMembers(guildId: string): Promise<MemberDetailDTO[]> {
   const response = await fetch(getMemberEndpoint(guildId), {
-    headers: getAuthHeaders(),
+    headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHttpError(response);
   const json = await response.json();
@@ -27,7 +31,7 @@ export async function getMember(
   memberId: number,
 ): Promise<MemberDetailDTO> {
   const response = await fetch(`${getMemberEndpoint(guildId)}/${memberId}`, {
-    headers: getAuthHeaders(),
+    headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHttpError(response);
   const json = await response.json();
@@ -45,7 +49,7 @@ export async function updateMember({
 }): Promise<MemberDetailDTO> {
   const response = await fetch(`${getMemberEndpoint(guildId)}/${memberId}`, {
     method: "PATCH",
-    headers: getAuthHeadersForMutation(),
+    headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
   if (!response.ok) await handleHttpError(response);

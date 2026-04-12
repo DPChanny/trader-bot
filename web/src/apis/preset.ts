@@ -3,14 +3,18 @@ import type {
   CreatePresetDTO,
   UpdatePresetDTO,
 } from "@/dtos/presetDto";
-import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/hook";
+import {
+  handleHttpError,
+  getAuthHeader,
+  getJsonHeader,
+  getHeaders,
+} from "@/utils/api";
 
 export async function getPresets(guildId: string): Promise<PresetDTO[]> {
   const response = await fetch(getPresetEndpoint(guildId), {
-    headers: getAuthHeaders(),
+    headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHttpError(response);
   const json = await response.json();
@@ -22,7 +26,7 @@ export async function getPreset(
   presetId: number,
 ): Promise<PresetDTO> {
   const response = await fetch(`${getPresetEndpoint(guildId)}/${presetId}`, {
-    headers: getAuthHeaders(),
+    headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHttpError(response);
   const json = await response.json();
@@ -38,7 +42,7 @@ export async function createPreset({
 }): Promise<PresetDTO> {
   const response = await fetch(getPresetEndpoint(guildId), {
     method: "POST",
-    headers: getAuthHeadersForMutation(),
+    headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
   if (!response.ok) await handleHttpError(response);
@@ -57,7 +61,7 @@ export async function updatePreset({
 }): Promise<PresetDTO> {
   const response = await fetch(`${getPresetEndpoint(guildId)}/${presetId}`, {
     method: "PATCH",
-    headers: getAuthHeadersForMutation(),
+    headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
   if (!response.ok) await handleHttpError(response);
@@ -74,7 +78,7 @@ export async function deletePreset({
 }): Promise<void> {
   const response = await fetch(`${getPresetEndpoint(guildId)}/${presetId}`, {
     method: "DELETE",
-    headers: getAuthHeaders(),
+    headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHttpError(response);
 }

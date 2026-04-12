@@ -1,12 +1,16 @@
 import { route } from "preact-router";
-import { removeAccessToken, removeRefreshToken } from "@/utils/auth";
-import { queryClient } from "@/utils/query";
+import {
+  removeAccessToken,
+  removeRefreshToken,
+  getAccessToken,
+} from "@/utils/auth";
+import { queryClient, queryKeys } from "@/utils/query";
 
 export async function handleHttpError(response: Response): Promise<never> {
   if (response.status === 401) {
     removeAccessToken();
     removeRefreshToken();
-    queryClient.setQueryData(["me"], null);
+    queryClient.setQueryData(queryKeys.me(), null);
     route("/");
   }
   let message: string;
@@ -23,4 +27,17 @@ export async function handleHttpError(response: Response): Promise<never> {
     message = `HTTP ${response.status}`;
   }
   throw new Error(message);
+}
+
+export function getAuthHeader(): HeadersInit {
+  const token = getAccessToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export function getJsonHeader(): HeadersInit {
+  return { "Content-Type": "application/json" };
+}
+
+export function getHeaders(...headers: HeadersInit[]): HeadersInit {
+  return Object.assign({}, ...headers);
 }

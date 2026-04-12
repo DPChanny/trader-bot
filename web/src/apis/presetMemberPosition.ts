@@ -2,10 +2,14 @@ import type {
   AddPresetMemberPositionDTO,
   PresetMemberPositionDTO,
 } from "@/dtos/presetMemberPositionDto";
-import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetMemberPositionEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/hook";
+import {
+  handleHttpError,
+  getAuthHeader,
+  getJsonHeader,
+  getHeaders,
+} from "@/utils/api";
 
 export async function createPresetMemberPosition({
   guildId,
@@ -22,7 +26,7 @@ export async function createPresetMemberPosition({
     getPresetMemberPositionEndpoint(guildId, presetId, presetMemberId),
     {
       method: "POST",
-      headers: getAuthHeadersForMutation(),
+      headers: getHeaders(getAuthHeader(), getJsonHeader()),
       body: JSON.stringify(toSnakeCase(dto)),
     },
   );
@@ -46,7 +50,7 @@ export async function deletePresetMemberPosition({
     `${getPresetMemberPositionEndpoint(guildId, presetId, presetMemberId)}/${presetMemberPositionId}`,
     {
       method: "DELETE",
-      headers: getAuthHeadersForMutation(),
+      headers: getHeaders(getAuthHeader(), getJsonHeader()),
     },
   );
   if (!response.ok) await handleHttpError(response);

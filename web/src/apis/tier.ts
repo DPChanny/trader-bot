@@ -1,15 +1,19 @@
 import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@/dtos/tierDto";
-import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getTierEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/hook";
+import {
+  handleHttpError,
+  getAuthHeader,
+  getJsonHeader,
+  getHeaders,
+} from "@/utils/api";
 
 export async function getTiers(
   guildId: string,
   presetId: number,
 ): Promise<TierDTO[]> {
   const response = await fetch(getTierEndpoint(guildId, presetId), {
-    headers: getAuthHeaders(),
+    headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHttpError(response);
   const json = await response.json();
@@ -23,7 +27,7 @@ export async function getTier(
 ): Promise<TierDTO> {
   const response = await fetch(
     `${getTierEndpoint(guildId, presetId)}/${tierId}`,
-    { headers: getAuthHeaders() },
+    { headers: getHeaders(getAuthHeader()) },
   );
   if (!response.ok) await handleHttpError(response);
   const json = await response.json();
@@ -41,7 +45,7 @@ export async function addTier({
 }): Promise<TierDTO> {
   const response = await fetch(getTierEndpoint(guildId, presetId), {
     method: "POST",
-    headers: getAuthHeadersForMutation(),
+    headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
   if (!response.ok) await handleHttpError(response);
@@ -64,7 +68,7 @@ export async function updateTier({
     `${getTierEndpoint(guildId, presetId)}/${tierId}`,
     {
       method: "PATCH",
-      headers: getAuthHeadersForMutation(),
+      headers: getHeaders(getAuthHeader(), getJsonHeader()),
       body: JSON.stringify(toSnakeCase(dto)),
     },
   );
@@ -86,7 +90,7 @@ export async function deleteTier({
     `${getTierEndpoint(guildId, presetId)}/${tierId}`,
     {
       method: "DELETE",
-      headers: getAuthHeadersForMutation(),
+      headers: getHeaders(getAuthHeader(), getJsonHeader()),
     },
   );
   if (!response.ok) await handleHttpError(response);

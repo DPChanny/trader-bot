@@ -3,17 +3,21 @@ import type {
   PresetMemberDetailDTO,
   UpdatePresetMemberDTO,
 } from "@/dtos/presetMemberDto";
-import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetMemberEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/hook";
+import {
+  handleHttpError,
+  getAuthHeader,
+  getJsonHeader,
+  getHeaders,
+} from "@/utils/api";
 
 export async function getPresetMembers(
   guildId: string,
   presetId: number,
 ): Promise<PresetMemberDetailDTO[]> {
   const response = await fetch(getPresetMemberEndpoint(guildId, presetId), {
-    headers: getAuthHeaders(),
+    headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHttpError(response);
   const json = await response.json();
@@ -27,7 +31,7 @@ export async function getPresetMember(
 ): Promise<PresetMemberDetailDTO> {
   const response = await fetch(
     `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
-    { headers: getAuthHeaders() },
+    { headers: getHeaders(getAuthHeader()) },
   );
   if (!response.ok) await handleHttpError(response);
   const json = await response.json();
@@ -45,7 +49,7 @@ export async function createPresetMember({
 }): Promise<PresetMemberDetailDTO> {
   const response = await fetch(getPresetMemberEndpoint(guildId, presetId), {
     method: "POST",
-    headers: getAuthHeadersForMutation(),
+    headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
   if (!response.ok) await handleHttpError(response);
@@ -68,7 +72,7 @@ export async function updatePresetMember({
     `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
     {
       method: "PATCH",
-      headers: getAuthHeadersForMutation(),
+      headers: getHeaders(getAuthHeader(), getJsonHeader()),
       body: JSON.stringify(toSnakeCase(dto)),
     },
   );
@@ -90,7 +94,7 @@ export async function deletePresetMember({
     `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
     {
       method: "DELETE",
-      headers: getAuthHeadersForMutation(),
+      headers: getHeaders(getAuthHeader(), getJsonHeader()),
     },
   );
   if (!response.ok) await handleHttpError(response);

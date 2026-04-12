@@ -6,10 +6,11 @@ import {
   updatePosition,
   deletePosition,
 } from "@/apis/position";
+import { queryKeys } from "@/utils/query";
 
 export function usePositions(guildId: string, presetId: number) {
   return useQuery({
-    queryKey: ["positions", guildId, presetId],
+    queryKey: queryKeys.positions(guildId, presetId),
     queryFn: () => getPositions(guildId, presetId),
   });
 }
@@ -20,7 +21,7 @@ export function usePosition(
   positionId: number,
 ) {
   return useQuery({
-    queryKey: ["position", guildId, presetId, positionId],
+    queryKey: queryKeys.position(guildId, presetId, positionId),
     queryFn: () => getPosition(guildId, presetId, positionId),
   });
 }
@@ -32,10 +33,13 @@ export function useAddPosition() {
     mutationFn: addPosition,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["positions", variables.guildId, variables.presetId],
+        queryKey: queryKeys.positions(variables.guildId, variables.presetId),
       });
       queryClient.invalidateQueries({
-        queryKey: ["presetMembers", variables.guildId, variables.presetId],
+        queryKey: queryKeys.presetMembers(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
     },
   });
@@ -48,10 +52,13 @@ export function useUpdatePosition() {
     mutationFn: updatePosition,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["positions", variables.guildId, variables.presetId],
+        queryKey: queryKeys.positions(variables.guildId, variables.presetId),
       });
       queryClient.invalidateQueries({
-        queryKey: ["presetMembers", variables.guildId, variables.presetId],
+        queryKey: queryKeys.presetMembers(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
     },
   });
@@ -64,18 +71,20 @@ export function useDeletePosition() {
     mutationFn: deletePosition,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["positions", variables.guildId, variables.presetId],
+        queryKey: queryKeys.positions(variables.guildId, variables.presetId),
       });
       queryClient.removeQueries({
-        queryKey: [
-          "position",
+        queryKey: queryKeys.position(
           variables.guildId,
           variables.presetId,
           variables.positionId,
-        ],
+        ),
       });
       queryClient.invalidateQueries({
-        queryKey: ["presetMembers", variables.guildId, variables.presetId],
+        queryKey: queryKeys.presetMembers(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
     },
   });

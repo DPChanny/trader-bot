@@ -7,24 +7,25 @@ import {
   getMyMember,
   updateMember,
 } from "@/apis/member";
+import { queryKeys } from "@/utils/query";
 
 export function useMyMember(guildId: string) {
   return useQuery({
-    queryKey: ["members", guildId, "me"],
+    queryKey: queryKeys.myMember(guildId),
     queryFn: (): Promise<MemberDetailDTO> => getMyMember(guildId),
   });
 }
 
 export function useMembers(guildId: string) {
   return useQuery({
-    queryKey: ["members", guildId],
+    queryKey: queryKeys.members(guildId),
     queryFn: (): Promise<MemberDetailDTO[]> => getMembers(guildId),
   });
 }
 
 export function useMember(guildId: string, memberId: number) {
   return useQuery({
-    queryKey: ["members", guildId, memberId],
+    queryKey: queryKeys.member(guildId, memberId),
     queryFn: (): Promise<MemberDetailDTO> => getMember(guildId, memberId),
   });
 }
@@ -44,13 +45,13 @@ export function useUpdateMember() {
     }): Promise<MemberDetailDTO> => updateMember({ guildId, memberId, dto }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["members", variables.guildId],
+        queryKey: queryKeys.members(variables.guildId),
       });
       queryClient.invalidateQueries({
-        queryKey: ["members", variables.guildId, variables.memberId],
+        queryKey: queryKeys.member(variables.guildId, variables.memberId),
       });
       queryClient.invalidateQueries({
-        queryKey: ["presetMembers", variables.guildId],
+        queryKey: queryKeys.presetMembersByGuild(variables.guildId),
       });
     },
   });

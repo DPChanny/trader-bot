@@ -16,7 +16,7 @@ import {
   useLogout,
 } from "@/hooks/auth";
 import { useMyUser } from "@/hooks/user";
-import { isAuthenticated } from "@/utils/auth";
+import { checkRefreshToken } from "@/utils/auth";
 import { queryClient } from "@/utils/query";
 import "@/styles/app.css";
 
@@ -38,7 +38,7 @@ function LoginCallbackRoute({}: RoutableProps) {
 
 function MemberRoute({ guildId }: RoutableProps & { guildId?: string }) {
   useEffect(() => {
-    if (!isAuthenticated()) route("/", true);
+    if (!checkRefreshToken()) route("/", true);
   }, []);
 
   if (!guildId) {
@@ -54,7 +54,7 @@ function PresetRoute({
   presetId,
 }: RoutableProps & { guildId?: string; presetId?: string }) {
   useEffect(() => {
-    if (!isAuthenticated()) route("/", true);
+    if (!checkRefreshToken()) route("/", true);
   }, []);
 
   if (!guildId || !presetId) {

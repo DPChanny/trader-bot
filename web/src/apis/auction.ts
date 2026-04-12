@@ -1,8 +1,12 @@
 import type { CreateAuctionDTO, AuctionDTO } from "@/dtos/auctionDto";
-import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getAuctionEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/hook";
+import {
+  handleHttpError,
+  getAuthHeader,
+  getJsonHeader,
+  getHeaders,
+} from "@/utils/api";
 
 export async function createAuction({
   guildId,
@@ -15,7 +19,7 @@ export async function createAuction({
 }): Promise<AuctionDTO> {
   const response = await fetch(getAuctionEndpoint(guildId, presetId), {
     method: "POST",
-    headers: getAuthHeadersForMutation(),
+    headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
   if (!response.ok) await handleHttpError(response);

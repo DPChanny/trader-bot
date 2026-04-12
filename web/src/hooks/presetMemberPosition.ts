@@ -3,6 +3,7 @@ import {
   createPresetMemberPosition,
   deletePresetMemberPosition,
 } from "@/apis/presetMemberPosition";
+import { queryKeys } from "@/utils/query";
 
 export function useCreatePresetMemberPosition() {
   const queryClient = useQueryClient();
@@ -11,7 +12,10 @@ export function useCreatePresetMemberPosition() {
     mutationFn: createPresetMemberPosition,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["presetMembers", variables.guildId, variables.presetId],
+        queryKey: queryKeys.presetMembers(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
     },
   });
@@ -24,7 +28,10 @@ export function useDeletePresetMemberPosition() {
     mutationFn: deletePresetMemberPosition,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["presetMembers", variables.guildId, variables.presetId],
+        queryKey: queryKeys.presetMembers(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
     },
   });

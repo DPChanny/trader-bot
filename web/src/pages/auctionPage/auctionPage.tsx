@@ -11,7 +11,7 @@ import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import { PresetMemberCard } from "@/components/presetMemberCard";
 import { Input } from "@/components/commons/input";
 import { Bar } from "@/components/commons/bar";
-import { isAuthenticated } from "@/utils/auth";
+import { checkRefreshToken } from "@/utils/auth";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 import { AuctionStatus } from "@/dtos/auctionDto";
 
@@ -51,7 +51,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
       memberId === null &&
       isConnected &&
       !reconnectedRef.current &&
-      isAuthenticated() &&
+      checkRefreshToken() &&
       auctionId !== undefined
     ) {
       reconnectedRef.current = true;

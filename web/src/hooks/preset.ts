@@ -6,17 +6,18 @@ import {
   updatePreset,
   deletePreset,
 } from "@/apis/preset";
+import { queryKeys } from "@/utils/query";
 
 export function usePresets(guildId: string) {
   return useQuery({
-    queryKey: ["presets", guildId],
+    queryKey: queryKeys.presets(guildId),
     queryFn: () => getPresets(guildId),
   });
 }
 
 export function usePreset(guildId: string, presetId: number) {
   return useQuery({
-    queryKey: ["preset", guildId, presetId],
+    queryKey: queryKeys.preset(guildId, presetId),
     queryFn: () => getPreset(guildId, presetId),
   });
 }
@@ -28,7 +29,7 @@ export function useCreatePreset() {
     mutationFn: createPreset,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["presets", variables.guildId],
+        queryKey: queryKeys.presets(variables.guildId),
       });
     },
   });
@@ -41,10 +42,10 @@ export function useUpdatePreset() {
     mutationFn: updatePreset,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["presets", variables.guildId],
+        queryKey: queryKeys.presets(variables.guildId),
       });
       queryClient.invalidateQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
+        queryKey: queryKeys.preset(variables.guildId, variables.presetId),
       });
     },
   });
@@ -57,28 +58,34 @@ export function useDeletePreset() {
     mutationFn: deletePreset,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["presets", variables.guildId],
+        queryKey: queryKeys.presets(variables.guildId),
       });
       queryClient.removeQueries({
-        queryKey: ["preset", variables.guildId, variables.presetId],
+        queryKey: queryKeys.preset(variables.guildId, variables.presetId),
       });
       queryClient.removeQueries({
-        queryKey: ["presetMembers", variables.guildId, variables.presetId],
+        queryKey: queryKeys.presetMembers(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
       queryClient.removeQueries({
-        queryKey: ["presetMember", variables.guildId, variables.presetId],
+        queryKey: queryKeys.presetMemberAll(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
       queryClient.removeQueries({
-        queryKey: ["tiers", variables.guildId, variables.presetId],
+        queryKey: queryKeys.tiers(variables.guildId, variables.presetId),
       });
       queryClient.removeQueries({
-        queryKey: ["tier", variables.guildId, variables.presetId],
+        queryKey: queryKeys.tierAll(variables.guildId, variables.presetId),
       });
       queryClient.removeQueries({
-        queryKey: ["positions", variables.guildId, variables.presetId],
+        queryKey: queryKeys.positions(variables.guildId, variables.presetId),
       });
       queryClient.removeQueries({
-        queryKey: ["position", variables.guildId, variables.presetId],
+        queryKey: queryKeys.positionAll(variables.guildId, variables.presetId),
       });
     },
   });

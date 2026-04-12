@@ -3,17 +3,21 @@ import type {
   AddPositionDTO,
   UpdatePositionDTO,
 } from "@/dtos/positionDto";
-import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPositionEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/hook";
+import {
+  handleHttpError,
+  getAuthHeader,
+  getJsonHeader,
+  getHeaders,
+} from "@/utils/api";
 
 export async function getPositions(
   guildId: string,
   presetId: number,
 ): Promise<PositionDTO[]> {
   const response = await fetch(getPositionEndpoint(guildId, presetId), {
-    headers: getAuthHeaders(),
+    headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHttpError(response);
   const json = await response.json();
@@ -28,7 +32,7 @@ export async function getPosition(
   const response = await fetch(
     `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
     {
-      headers: getAuthHeaders(),
+      headers: getHeaders(getAuthHeader()),
     },
   );
   if (!response.ok) await handleHttpError(response);
@@ -47,7 +51,7 @@ export async function addPosition({
 }): Promise<PositionDTO> {
   const response = await fetch(getPositionEndpoint(guildId, presetId), {
     method: "POST",
-    headers: getAuthHeadersForMutation(),
+    headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
   if (!response.ok) await handleHttpError(response);
@@ -70,7 +74,7 @@ export async function updatePosition({
     `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
     {
       method: "PATCH",
-      headers: getAuthHeadersForMutation(),
+      headers: getHeaders(getAuthHeader(), getJsonHeader()),
       body: JSON.stringify(toSnakeCase(dto)),
     },
   );
@@ -92,7 +96,7 @@ export async function deletePosition({
     `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
     {
       method: "DELETE",
-      headers: getAuthHeaders(),
+      headers: getHeaders(getAuthHeader()),
     },
   );
   if (!response.ok) await handleHttpError(response);

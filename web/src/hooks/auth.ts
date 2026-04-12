@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { useEffect } from "preact/hooks";
+import { queryKeys } from "@/utils/query";
 import { route } from "preact-router";
 import type { JwtTokenDTO } from "@/dtos/authDto";
 import {
@@ -9,7 +10,7 @@ import {
 import {
   setAccessToken,
   getAccessToken,
-  isAuthenticated,
+  checkRefreshToken,
   getRefreshToken,
   setRefreshToken,
   removeAccessToken,
@@ -34,7 +35,7 @@ export function useLogout(redirect?: string) {
     onSettled: () => {
       removeAccessToken();
       removeRefreshToken();
-      queryClient.setQueryData(["me"], null);
+      queryClient.setQueryData(queryKeys.me(), null);
       route(redirect ?? "/", true);
     },
   });
@@ -59,7 +60,7 @@ export function useLoginCallback() {
 
       setAccessToken(data.access_token);
       setRefreshToken(data.refresh_token);
-      queryClient.invalidateQueries({ queryKey: ["me"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.me() });
       route(callbackRedirect, true);
     }
 
@@ -77,7 +78,7 @@ export function useAutoRefreshToken() {
   const queryClient = useQueryClient();
   useEffect(() => {
     async function tryRefresh() {
-      if (!isAuthenticated()) return;
+      if (!checkRefreshToken()) return;
       const token = getAccessToken();
       if (token) {
         try {
@@ -96,7 +97,7 @@ export function useAutoRefreshToken() {
         const data = await useRefreshToken();
         setAccessToken(data.access_token);
         setRefreshToken(data.refresh_token);
-        queryClient.invalidateQueries({ queryKey: ["me"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.me() });
       } catch {}
     }
 
