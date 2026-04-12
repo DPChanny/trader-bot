@@ -2,14 +2,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member_dto import MemberDetailDTO
 from shared.entities.member import Role
-from shared.error import AppError, Member
+from shared.error import AppError, Member, service_error_handler
 from shared.repositories.member_repository import MemberRepository
 
-from ..utils.exception import service_exception_handler
 from ..utils.member import verify_role
 
 
-@service_exception_handler
+@service_error_handler
 async def get_my_member_service(
     guild_id: int, user_id: int, session: AsyncSession
 ) -> MemberDetailDTO:
@@ -20,7 +19,7 @@ async def get_my_member_service(
     return MemberDetailDTO.model_validate(member)
 
 
-@service_exception_handler
+@service_error_handler
 async def get_member_service(
     guild_id: int, user_id: int, member_id: int, session: AsyncSession
 ) -> MemberDetailDTO:
@@ -32,7 +31,7 @@ async def get_member_service(
     return MemberDetailDTO.model_validate(member)
 
 
-@service_exception_handler
+@service_error_handler
 async def get_member_list_service(
     guild_id: int, user_id: int, session: AsyncSession
 ) -> list[MemberDetailDTO]:
@@ -42,7 +41,7 @@ async def get_member_list_service(
     return [MemberDetailDTO.model_validate(m) for m in members]
 
 
-@service_exception_handler
+@service_error_handler
 async def update_member_service(
     guild_id: int,
     user_id: int,
@@ -64,4 +63,6 @@ async def update_member_service(
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
         raise AppError(Member.NotFound)
-    return MemberDetailDTO.model_validate(member)
+    result = MemberDetailDTO.model_validate(member)
+    logger.bind(**result.model_dump(exclude={"user"})).info("")
+    return result

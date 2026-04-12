@@ -79,8 +79,11 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         with logger.contextualize(request_id=request_id):
             response = await call_next(request)
             duration_ms = round((time.perf_counter() - start) * 1000)
-            logger.info(
-                f"HTTP {request.method} {request.url.path} → {response.status_code} {duration_ms}ms"
-            )
+            logger.bind(
+                method=request.method,
+                path=request.url.path,
+                status_code=response.status_code,
+                duration_ms=duration_ms,
+            ).info("")
             response.headers["X-Request-ID"] = request_id
             return response

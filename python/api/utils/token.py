@@ -7,7 +7,6 @@ from typing import ClassVar
 
 import jwt
 from fastapi import Header
-from loguru import logger
 
 from shared.error import AppError, Auth
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
@@ -106,10 +105,8 @@ class ExchangeToken:
 
 async def verify_access_token(authorization: str = Header(None)) -> int:
     if not authorization:
-        logger.warning("Auth failed: reason=missing_header")
         raise AppError(Auth.Failed)
     if not authorization.startswith("Bearer "):
-        logger.warning("Auth failed: reason=invalid_format")
         raise AppError(Auth.Failed)
     token = authorization.removeprefix("Bearer ")
     return AccessToken.decode(token).user_id

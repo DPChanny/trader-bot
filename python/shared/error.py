@@ -10,7 +10,10 @@ Code ranges:
   50xx  Server
 """
 
+import functools
 from enum import Enum
+
+from loguru import logger
 
 
 class _AppErrorCode(Enum):
@@ -94,7 +97,6 @@ class Discord(_AppErrorCode):
 
 class Server(_AppErrorCode):
     InternalError = (5001, 500)
-    UserNotFoundAfterUpsert = (5002, 500)
 
 
 class AppError(Exception):
@@ -102,3 +104,30 @@ class AppError(Exception):
         self.code: int = code.value
         self.status_code: int = code.http_status
         super().__init__(str(code.value))
+
+
+def service_error_handler(func):
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except AppError as e:
+            if e.status_code < 500:
+                logger.bind(
+                    target_func=func.__name__,
+                    error_code=e.code,
+                ).warning("")
+            else:
+                logger.bind(
+                    target_func=func.__name__,
+                    error_code=e.code,
+                ).error("")
+            raise
+        except Exception as e:
+            logger.bind(
+                target_func=func.__name__,
+                exception_type=type(e).__name__,
+            ).exception("")
+            raise AppError(Server.InternalError) from None
+
+    return wrapper

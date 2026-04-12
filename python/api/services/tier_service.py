@@ -8,17 +8,16 @@ from shared.dtos.tier_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.tier import Tier
-from shared.error import AppError
+from shared.error import AppError, service_error_handler
 from shared.error import Preset as PresetError
 from shared.error import Tier as TierError
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
 
-from ..utils.exception import service_exception_handler
 from ..utils.member import verify_role
 
 
-@service_exception_handler
+@service_error_handler
 async def get_tier_list_service(
     guild_id: int,
     user_id: int,
@@ -36,7 +35,7 @@ async def get_tier_list_service(
     return [TierDTO.model_validate(t) for t in tiers]
 
 
-@service_exception_handler
+@service_error_handler
 async def get_tier_service(
     guild_id: int,
     user_id: int,
@@ -53,7 +52,7 @@ async def get_tier_service(
     return TierDTO.model_validate(tier)
 
 
-@service_exception_handler
+@service_error_handler
 async def add_tier_service(
     guild_id: int,
     user_id: int,
@@ -70,11 +69,12 @@ async def add_tier_service(
     tier = Tier(preset_id=preset_id, name=dto.name, icon_url=dto.icon_url)
     session.add(tier)
     await session.flush()
-    logger.info(f"Tier added: id={tier.tier_id}, name={dto.name}")
-    return TierDTO.model_validate(tier)
+    result = TierDTO.model_validate(tier)
+    logger.bind(**result.model_dump()).info("")
+    return result
 
 
-@service_exception_handler
+@service_error_handler
 async def update_tier_service(
     guild_id: int,
     user_id: int,
@@ -93,12 +93,12 @@ async def update_tier_service(
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(tier, key, value)
 
-    logger.info(f"Tier updated: id={tier_id}")
+    result = TierDTO.model_validate(tier)
+    logger.bind(**result.model_dump()).info("")
+    return result
 
-    return TierDTO.model_validate(tier)
 
-
-@service_exception_handler
+@service_error_handler
 async def delete_tier_service(
     guild_id: int, user_id: int, preset_id: int, tier_id: int, session: AsyncSession
 ) -> None:
@@ -110,4 +110,4 @@ async def delete_tier_service(
         raise AppError(TierError.NotFound)
 
     await session.delete(tier)
-    logger.info(f"Tier deleted: id={tier_id}")
+    logger.bind(tier_id=tier_id).info("")

@@ -51,9 +51,10 @@ async def auction_websocket(
         )
 
         if is_leader and auction.are_all_leaders_connected():
-            logger.info(
-                f"Auction starting: all_leaders_connected, count={len(auction.leader_member_ids)}"
-            )
+            logger.bind(
+                action="starting",
+                leader_count=len(auction.leader_member_ids),
+            ).info("")
             if auction.status == AuctionStatus.WAITING:
                 await auction.set_status(AuctionStatus.IN_PROGRESS)
         elif is_leader:
@@ -62,9 +63,11 @@ async def auction_websocket(
                 for lid in auction.leader_member_ids
                 if lid in auction.connected_members
             )
-            logger.info(
-                f"WebSocket leader joined: connected={connected_count}, total={len(auction.leader_member_ids)}"
-            )
+            logger.bind(
+                action="leader_joined",
+                connected=connected_count,
+                total=len(auction.leader_member_ids),
+            ).info("")
 
         while True:
             data = await websocket.receive_text()
@@ -78,6 +81,8 @@ async def auction_websocket(
         await handle_websocket_disconnect(auction, member_id, websocket)
 
     except Exception:
-        logger.exception(f"WebSocket error: member_id={member_id}")
+        logger.bind(
+            action="error", auction_id=auction_id, member_id=member_id
+        ).exception("")
         await handle_websocket_disconnect(auction, member_id, websocket)
         await websocket.close()

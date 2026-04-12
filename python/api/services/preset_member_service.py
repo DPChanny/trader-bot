@@ -11,6 +11,7 @@ from shared.entities.preset_member import PresetMember
 from shared.error import (
     AppError,
     Member,
+    service_error_handler,
 )
 from shared.error import (
     Preset as PresetError,
@@ -26,11 +27,10 @@ from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
 
-from ..utils.exception import service_exception_handler
 from ..utils.member import verify_role
 
 
-@service_exception_handler
+@service_error_handler
 async def get_preset_member_list_service(
     guild_id: int,
     user_id: int,
@@ -48,7 +48,7 @@ async def get_preset_member_list_service(
     return [PresetMemberDetailDTO.model_validate(m) for m in members]
 
 
-@service_exception_handler
+@service_error_handler
 async def get_preset_member_service(
     guild_id: int,
     user_id: int,
@@ -67,7 +67,7 @@ async def get_preset_member_service(
     return PresetMemberDetailDTO.model_validate(preset_member)
 
 
-@service_exception_handler
+@service_error_handler
 async def add_preset_member_service(
     guild_id: int,
     user_id: int,
@@ -105,11 +105,14 @@ async def add_preset_member_service(
     )
     if preset_member is None:
         raise AppError(PresetMemberError.NotFound)
-    logger.info(f"PresetMember added: id={preset_member.preset_member_id}")
-    return PresetMemberDetailDTO.model_validate(preset_member)
+    result = PresetMemberDetailDTO.model_validate(preset_member)
+    logger.bind(
+        **result.model_dump(exclude={"member", "tier", "preset_member_positions"})
+    ).info("")
+    return result
 
 
-@service_exception_handler
+@service_error_handler
 async def update_preset_member_service(
     guild_id: int,
     user_id: int,
@@ -135,15 +138,17 @@ async def update_preset_member_service(
                 raise AppError(TierError.NotFound)
         setattr(preset_member, key, value)
 
-    logger.info(f"PresetMember updated: id={preset_member_id}")
-
     preset_member = await preset_member_repo.get_detail_by_id(
         preset_member_id, preset_id, guild_id
     )
-    return PresetMemberDetailDTO.model_validate(preset_member)
+    result = PresetMemberDetailDTO.model_validate(preset_member)
+    logger.bind(
+        **result.model_dump(exclude={"member", "tier", "preset_member_positions"})
+    ).info("")
+    return result
 
 
-@service_exception_handler
+@service_error_handler
 async def delete_preset_member_service(
     guild_id: int,
     user_id: int,
@@ -161,4 +166,4 @@ async def delete_preset_member_service(
         raise AppError(PresetMemberError.NotFound)
 
     await session.delete(preset_member)
-    logger.info(f"PresetMember deleted: id={preset_member_id}")
+    logger.bind(preset_member_id=preset_member_id).info("")

@@ -11,18 +11,17 @@ from shared.dtos.auction_dto import (
 from shared.dtos.preset_dto import PresetDetailDTO
 from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
-from shared.error import AppError, Auction
+from shared.error import AppError, Auction, service_error_handler
 from shared.error import Preset as PresetError
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin
 
 from ..auction.auction_manager import auction_manager
 from ..utils.discord import send_message
-from ..utils.exception import service_exception_handler
 from ..utils.member import verify_role
 
 
-@service_exception_handler
+@service_error_handler
 async def create_auction_service(
     guild_id: int,
     user_id: int,
@@ -75,9 +74,8 @@ async def create_auction_service(
     )
     auction_id: str = auction.auction_id
 
-    logger.info(
-        f"Auction created: auction_id={auction_id}, member_count={len(member_ids)}"
-    )
+    result = AuctionDTO(auction_id=auction_id)
+    logger.bind(**result.model_dump(), member_count=len(member_ids)).info("")
 
     app_origin = get_app_origin()
 
@@ -122,4 +120,4 @@ async def create_auction_service(
             return_exceptions=True,
         )
 
-    return AuctionDTO(auction_id=auction_id)
+    return result

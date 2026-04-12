@@ -8,17 +8,16 @@ from shared.dtos.position_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.position import Position
-from shared.error import AppError
+from shared.error import AppError, service_error_handler
 from shared.error import Position as PositionError
 from shared.error import Preset as PresetError
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 
-from ..utils.exception import service_exception_handler
 from ..utils.member import verify_role
 
 
-@service_exception_handler
+@service_error_handler
 async def get_position_list_service(
     guild_id: int,
     user_id: int,
@@ -36,7 +35,7 @@ async def get_position_list_service(
     return [PositionDTO.model_validate(p) for p in positions]
 
 
-@service_exception_handler
+@service_error_handler
 async def get_position_service(
     guild_id: int,
     user_id: int,
@@ -53,7 +52,7 @@ async def get_position_service(
     return PositionDTO.model_validate(position)
 
 
-@service_exception_handler
+@service_error_handler
 async def add_position_service(
     guild_id: int,
     user_id: int,
@@ -74,11 +73,12 @@ async def add_position_service(
     )
     session.add(position)
     await session.flush()
-    logger.info(f"Position added: id={position.position_id}, name={dto.name}")
-    return PositionDTO.model_validate(position)
+    result = PositionDTO.model_validate(position)
+    logger.bind(**result.model_dump()).info("")
+    return result
 
 
-@service_exception_handler
+@service_error_handler
 async def update_position_service(
     guild_id: int,
     user_id: int,
@@ -97,12 +97,12 @@ async def update_position_service(
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(position, key, value)
 
-    logger.info(f"Position updated: id={position_id}")
+    result = PositionDTO.model_validate(position)
+    logger.bind(**result.model_dump()).info("")
+    return result
 
-    return PositionDTO.model_validate(position)
 
-
-@service_exception_handler
+@service_error_handler
 async def delete_position_service(
     guild_id: int,
     user_id: int,
@@ -118,4 +118,4 @@ async def delete_position_service(
         raise AppError(PositionError.NotFound)
 
     await session.delete(position)
-    logger.info(f"Position deleted: id={position_id}")
+    logger.bind(position_id=position_id).info("")

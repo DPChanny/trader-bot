@@ -50,7 +50,10 @@ async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
 async def validation_error_handler(
     _: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    logger.warning(f"Validation error: {exc}")
+    logger.bind(
+        error_code=Validation.Error.value,
+        exception_type=type(exc).__name__,
+    ).warning("")
     return JSONResponse(
         status_code=422,
         content={"code": Validation.Error.value},
@@ -59,7 +62,10 @@ async def validation_error_handler(
 
 @app.exception_handler(Exception)
 async def global_exception_handler(_: Request, exc: Exception) -> JSONResponse:
-    logger.exception(f"Unhandled exception: {exc}")
+    logger.bind(
+        error_code=Server.InternalError.value,
+        exception_type=type(exc).__name__,
+    ).exception("")
     return JSONResponse(
         status_code=500,
         content={"code": Server.InternalError.value},

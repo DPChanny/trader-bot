@@ -31,7 +31,7 @@ async def main() -> None:
 
     @bot.event
     async def on_ready():
-        logger.info(f"Ready: {bot.user}")
+        logger.bind(bot_user=str(bot.user)).info("")
         try:
             async for session in get_session():
                 for guild in bot.guilds:
@@ -64,19 +64,26 @@ async def main() -> None:
                     owner_member = await upsert_member(
                         guild_entity.discord_id, owner_discord_id, session
                     )
+                    logger.bind(
+                        **guild_entity.model_dump(),
+                        owner_discord_id=owner_discord_id,
+                    ).info("")
                     if Role(owner_member.role) < Role.OWNER:
-                        await set_role(
+                        owner_member = await set_role(
                             guild_entity.discord_id,
                             owner_discord_id,
                             Role.OWNER,
                             session,
                         )
+                        if owner_member is not None:
+                            logger.bind(
+                                **owner_member.model_dump(exclude={"avatar_url"})
+                            ).info("")
         except Exception as e:
-            logger.exception(f"on_ready sync error: {e}")
+            logger.bind(event="on_ready", exception_type=type(e).__name__).exception("")
 
     @bot.event
     async def on_guild_join(guild: Guild):
-        logger.info(f"Joined guild: {guild.name} ({guild.id})")
         owner_discord_id = guild.owner_id
         try:
             async for session in get_session():
@@ -106,19 +113,26 @@ async def main() -> None:
                         else None,
                     )
                 await session.flush()
-                await set_role(
+                logger.bind(
+                    **guild_entity.model_dump(),
+                    owner_discord_id=owner_discord_id,
+                ).info("")
+                owner_member = await set_role(
                     guild_entity.discord_id, owner_discord_id, Role.OWNER, session
                 )
+                if owner_member is not None:
+                    logger.bind(**owner_member.model_dump(exclude={"avatar_url"})).info(
+                        ""
+                    )
         except Exception as e:
-            logger.exception(f"on_guild_join error: {e}")
+            logger.bind(
+                event="on_guild_join", exception_type=type(e).__name__
+            ).exception("")
 
     @bot.event
     async def on_member_join(member: Member):
         if member.bot:
             return
-        logger.info(
-            f"Member joined: {member.name} ({member.id}) in {member.guild.name}"
-        )
         try:
             async for session in get_session():
                 guild_entity = await upsert_guild(
@@ -127,13 +141,13 @@ async def main() -> None:
                     member.guild.icon.key if member.guild.icon else None,
                     session,
                 )
-                await upsert_user(
+                user = await upsert_user(
                     member.id,
                     member.global_name or member.name,
                     member.avatar.key if member.avatar else None,
                     session,
                 )
-                await upsert_member(
+                member_dto = await upsert_member(
                     guild_entity.discord_id,
                     member.id,
                     session,
@@ -142,8 +156,12 @@ async def main() -> None:
                     if member.guild_avatar
                     else None,
                 )
+                logger.bind(**user.model_dump()).info("")
+                logger.bind(**member_dto.model_dump(exclude={"avatar_url"})).info("")
         except Exception as e:
-            logger.exception(f"on_member_join error: {e}")
+            logger.bind(
+                event="on_member_join", exception_type=type(e).__name__
+            ).exception("")
 
     @bot.event
     async def on_member_update(before: Member, after: Member):
@@ -151,9 +169,6 @@ async def main() -> None:
             return
         if before.nick == after.nick and before.guild_avatar == after.guild_avatar:
             return
-        logger.info(
-            f"Member profile updated: {after.name} ({after.id}) in {after.guild.name}"
-        )
         try:
             async for session in get_session():
                 guild_entity = await upsert_guild(
@@ -162,21 +177,28 @@ async def main() -> None:
                     after.guild.icon.key if after.guild.icon else None,
                     session,
                 )
-                await upsert_user(
+                user = await upsert_user(
                     after.id,
                     after.global_name or after.name,
                     after.avatar.key if after.avatar else None,
                     session,
                 )
-                await update_member(
+                member_dto = await update_member(
                     guild_entity.discord_id,
                     after.id,
                     name=after.nick,
                     avatar_hash=after.guild_avatar.key if after.guild_avatar else None,
                     session=session,
                 )
+                logger.bind(**user.model_dump()).info("")
+                if member_dto is not None:
+                    logger.bind(**member_dto.model_dump(exclude={"avatar_url"})).info(
+                        ""
+                    )
         except Exception as e:
-            logger.exception(f"on_member_update error: {e}")
+            logger.bind(
+                event="on_member_update", exception_type=type(e).__name__
+            ).exception("")
 
     @bot.event
     async def on_user_update(before: User, after: User):
@@ -184,17 +206,19 @@ async def main() -> None:
             after.global_name or after.name
         ) and before.avatar == after.avatar:
             return
-        logger.info(f"User global profile updated: {after.name} ({after.id})")
         try:
             async for session in get_session():
-                await upsert_user(
+                user = await upsert_user(
                     after.id,
                     after.global_name or after.name,
                     after.avatar.key if after.avatar else None,
                     session,
                 )
+                logger.bind(**user.model_dump()).info("")
         except Exception as e:
-            logger.exception(f"on_user_update error: {e}")
+            logger.bind(
+                event="on_user_update", exception_type=type(e).__name__
+            ).exception("")
 
     @bot.event
     async def on_guild_update(before: Guild, after: Guild):
@@ -202,7 +226,6 @@ async def main() -> None:
             return
         old_owner = before.owner_id
         new_owner = after.owner_id
-        logger.info(f"Guild owner changed: {before.name} ({old_owner} → {new_owner})")
         try:
             async for session in get_session():
                 guild_entity = await upsert_guild(
@@ -211,25 +234,45 @@ async def main() -> None:
                     after.icon.key if after.icon else None,
                     session,
                 )
-                await set_role(guild_entity.discord_id, old_owner, Role.ADMIN, session)
-                await set_role(guild_entity.discord_id, new_owner, Role.OWNER, session)
+                logger.bind(
+                    **guild_entity.model_dump(),
+                    old_owner_discord_id=old_owner,
+                    new_owner_discord_id=new_owner,
+                ).info("")
+                old_owner_member = await set_role(
+                    guild_entity.discord_id, old_owner, Role.ADMIN, session
+                )
+                new_owner_member = await set_role(
+                    guild_entity.discord_id, new_owner, Role.OWNER, session
+                )
+                if old_owner_member is not None:
+                    logger.bind(
+                        **old_owner_member.model_dump(exclude={"avatar_url"})
+                    ).info("")
+                if new_owner_member is not None:
+                    logger.bind(
+                        **new_owner_member.model_dump(exclude={"avatar_url"})
+                    ).info("")
         except Exception as e:
-            logger.exception(f"on_guild_update error: {e}")
+            logger.bind(
+                event="on_guild_update", exception_type=type(e).__name__
+            ).exception("")
 
     @bot.event
     async def on_guild_remove(guild: Guild):
-        logger.info(f"Left guild: {guild.name} ({guild.id})")
         try:
             async for session in get_session():
                 await delete_guild(guild.id, session)
+                logger.bind(discord_id=guild.id, name=guild.name).info("")
         except Exception as e:
-            logger.exception(f"on_guild_remove error: {e}")
+            logger.bind(
+                event="on_guild_remove", exception_type=type(e).__name__
+            ).exception("")
 
     @bot.event
     async def on_member_remove(member: Member):
         if member.bot:
             return
-        logger.info(f"Member left: {member.name} ({member.id}) in {member.guild.name}")
         try:
             async for session in get_session():
                 guild_entity = await upsert_guild(
@@ -239,8 +282,15 @@ async def main() -> None:
                     session,
                 )
                 await delete_member(guild_entity.discord_id, member.id, session)
+                logger.bind(
+                    guild_id=guild_entity.discord_id,
+                    user_id=member.id,
+                    name=member.name,
+                ).info("")
         except Exception as e:
-            logger.exception(f"on_member_remove error: {e}")
+            logger.bind(
+                event="on_member_remove", exception_type=type(e).__name__
+            ).exception("")
 
     await bot.start(get_discord_bot_token(), reconnect=True)
 

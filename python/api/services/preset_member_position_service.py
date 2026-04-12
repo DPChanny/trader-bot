@@ -10,6 +10,7 @@ from shared.entities.member import Role
 from shared.entities.preset_member_position import PresetMemberPosition
 from shared.error import (
     AppError,
+    service_error_handler,
 )
 from shared.error import (
     Position as PositionError,
@@ -26,11 +27,10 @@ from shared.repositories.preset_member_position_repository import (
 )
 from shared.repositories.preset_member_repository import PresetMemberRepository
 
-from ..utils.exception import service_exception_handler
 from ..utils.member import verify_role
 
 
-@service_exception_handler
+@service_error_handler
 async def add_preset_member_position_service(
     guild_id: int,
     user_id: int,
@@ -62,13 +62,12 @@ async def add_preset_member_position_service(
     except IntegrityError:
         raise AppError(PresetMemberPositionError.Duplicated) from None
 
-    logger.info(
-        f"PresetMemberPosition added: id={preset_member_position.preset_member_position_id}"
-    )
-    return PresetMemberPositionDTO.model_validate(preset_member_position)
+    result = PresetMemberPositionDTO.model_validate(preset_member_position)
+    logger.bind(**result.model_dump()).info("")
+    return result
 
 
-@service_exception_handler
+@service_error_handler
 async def delete_preset_member_position_service(
     guild_id: int,
     user_id: int,
@@ -87,4 +86,4 @@ async def delete_preset_member_position_service(
         raise AppError(PresetMemberPositionError.NotFound)
 
     await session.delete(preset_member_position)
-    logger.info(f"PresetMemberPosition deleted: id={preset_member_position_id}")
+    logger.bind(preset_member_position_id=preset_member_position_id).info("")

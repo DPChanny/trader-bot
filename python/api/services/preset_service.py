@@ -8,15 +8,14 @@ from shared.dtos.preset_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.preset import Preset
-from shared.error import AppError
+from shared.error import AppError, service_error_handler
 from shared.error import Preset as PresetError
 from shared.repositories.preset_repository import PresetRepository
 
-from ..utils.exception import service_exception_handler
 from ..utils.member import verify_role
 
 
-@service_exception_handler
+@service_error_handler
 async def get_preset_service(
     guild_id: int, user_id: int, preset_id: int, session: AsyncSession
 ) -> PresetDTO:
@@ -29,7 +28,7 @@ async def get_preset_service(
     return PresetDTO.model_validate(preset)
 
 
-@service_exception_handler
+@service_error_handler
 async def create_preset_service(
     guild_id: int, user_id: int, dto: CreatePresetDTO, session: AsyncSession
 ) -> PresetDTO:
@@ -45,11 +44,12 @@ async def create_preset_service(
     )
     session.add(preset)
     await session.flush()
-    logger.info(f"Preset created: id={preset.preset_id}, name={dto.name}")
-    return PresetDTO.model_validate(preset)
+    result = PresetDTO.model_validate(preset)
+    logger.bind(**result.model_dump()).info("")
+    return result
 
 
-@service_exception_handler
+@service_error_handler
 async def get_preset_list_service(
     guild_id: int, user_id: int, session: AsyncSession
 ) -> list[PresetDTO]:
@@ -60,7 +60,7 @@ async def get_preset_list_service(
     return [PresetDTO.model_validate(p) for p in presets]
 
 
-@service_exception_handler
+@service_error_handler
 async def update_preset_service(
     guild_id: int,
     user_id: int,
@@ -78,11 +78,12 @@ async def update_preset_service(
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(preset, key, value)
 
-    logger.info(f"Preset updated: id={preset_id}")
-    return PresetDTO.model_validate(preset)
+    result = PresetDTO.model_validate(preset)
+    logger.bind(**result.model_dump()).info("")
+    return result
 
 
-@service_exception_handler
+@service_error_handler
 async def delete_preset_service(
     guild_id: int, user_id: int, preset_id: int, session: AsyncSession
 ) -> None:
@@ -94,3 +95,4 @@ async def delete_preset_service(
         raise AppError(PresetError.NotFound)
 
     await session.delete(preset)
+    logger.bind(preset_id=preset_id).info("")

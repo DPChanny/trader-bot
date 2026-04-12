@@ -1,8 +1,9 @@
-에러 처리 방식 개선(에러 코드, 다국어)
+api 에러 처리 방식 개선(에러 코드, 다국어)
 로그 개선
+error context 확인
 error code 개선
+web 다국어 지원
 code layout
-다국어 지원
 util 자격
 auction api 개편
 auction web 개편
