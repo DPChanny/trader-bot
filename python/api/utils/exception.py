@@ -3,12 +3,20 @@ import functools
 from fastapi import HTTPException
 from loguru import logger
 
+from shared.error import AppError, Server
+
 
 def service_exception_handler(func):
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
+        except AppError as e:
+            if e.status_code < 500:
+                logger.bind(error_code=e.code).warning(f"{func.__name__}: [{e.code}]")
+            else:
+                logger.bind(error_code=e.code).error(f"{func.__name__}: [{e.code}]")
+            raise
         except HTTPException as e:
             if e.status_code < 500:
                 logger.warning(f"{func.__name__}: {e.status_code} {e.detail}")
@@ -17,8 +25,6 @@ def service_exception_handler(func):
             raise
         except Exception as e:
             logger.exception(f"Unhandled exception in {func.__name__}: {e}")
-            raise HTTPException(
-                status_code=500, detail="Internal server error"
-            ) from None
+            raise AppError(Server.InternalError) from None
 
     return wrapper

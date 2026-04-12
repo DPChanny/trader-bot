@@ -1,7 +1,7 @@
-from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.entities.member import Role
+from shared.error import AppError, Member
 from shared.repositories.member_repository import MemberRepository
 
 
@@ -14,7 +14,7 @@ async def verify_role(
     member_repo = MemberRepository(db)
     member = await member_repo.get_by_user_id(user_id, guild_id)
     if member is None:
-        raise HTTPException(status_code=404, detail="Member not found")
+        raise AppError(Member.NotFound)
     if member.role < min_role:
-        raise HTTPException(status_code=403, detail="Insufficient guild permissions")
+        raise AppError(Member.InsufficientRole)
     return Role(member.role)

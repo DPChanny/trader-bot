@@ -6,9 +6,10 @@ from time import time
 from typing import ClassVar
 
 import jwt
-from fastapi import Header, HTTPException
+from fastapi import Header
 from loguru import logger
 
+from shared.error import AppError, Auth
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 
 
@@ -49,12 +50,12 @@ class JwtToken:
                 algorithms=[get_jwt_algorithm()],
             )
             if data.get("type") != cls._type:
-                raise HTTPException(status_code=401, detail="Invalid token type")
+                raise AppError(Auth.InvalidTokenType)
             return cls.Payload(**data)
         except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail="Token expired") from None
+            raise AppError(Auth.TokenExpired) from None
         except jwt.InvalidTokenError:
-            raise HTTPException(status_code=401, detail="Invalid token") from None
+            raise AppError(Auth.InvalidToken) from None
 
 
 class AccessToken(JwtToken):
@@ -106,9 +107,9 @@ class ExchangeToken:
 async def verify_access_token(authorization: str = Header(None)) -> int:
     if not authorization:
         logger.warning("Auth failed: reason=missing_header")
-        raise HTTPException(status_code=401, detail="Auth failed")
+        raise AppError(Auth.Failed)
     if not authorization.startswith("Bearer "):
         logger.warning("Auth failed: reason=invalid_format")
-        raise HTTPException(status_code=401, detail="Auth failed")
+        raise AppError(Auth.Failed)
     token = authorization.removeprefix("Bearer ")
     return AccessToken.decode(token).user_id

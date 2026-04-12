@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from loguru import logger
 
+from shared.error import AppError, Server, Validation
 from shared.utils.database import setup_db
 from shared.utils.env import get_app_origin
 from shared.utils.logging import LoggingMiddleware, setup_logging
@@ -36,10 +38,32 @@ async def lifespan(_):
 app = FastAPI(title="Trader API", version="1.0.0", lifespan=lifespan)
 
 
+@app.exception_handler(AppError)
+async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"code": exc.code},
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(
+    _: Request, exc: RequestValidationError
+) -> JSONResponse:
+    logger.warning(f"Validation error: {exc}")
+    return JSONResponse(
+        status_code=422,
+        content={"code": Validation.Error.value},
+    )
+
+
 @app.exception_handler(Exception)
-async def global_exception_handler(_, exc):
+async def global_exception_handler(_: Request, exc: Exception) -> JSONResponse:
     logger.exception(f"Unhandled exception: {exc}")
-    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+    return JSONResponse(
+        status_code=500,
+        content={"code": Server.InternalError.value},
+    )
 
 
 app.add_middleware(LoggingMiddleware)
