@@ -13,6 +13,7 @@ from shared.error import Preset as PresetError
 from shared.error import Tier as TierError
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
+from shared.utils.logging import bind_target_func
 
 from ..utils.member import verify_role
 
@@ -60,6 +61,7 @@ async def add_tier_service(
     dto: AddTierDTO,
     session: AsyncSession,
 ) -> TierDTO:
+    log = bind_target_func(add_tier_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
@@ -70,7 +72,7 @@ async def add_tier_service(
     session.add(tier)
     await session.flush()
     result = TierDTO.model_validate(tier)
-    logger.bind(**result.model_dump()).info("")
+    log.bind(**result.model_dump()).info("")
     return result
 
 
@@ -83,6 +85,7 @@ async def update_tier_service(
     dto: UpdateTierDTO,
     session: AsyncSession,
 ) -> TierDTO:
+    log = bind_target_func(update_tier_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     tier_repo = TierRepository(session)
@@ -94,7 +97,7 @@ async def update_tier_service(
         setattr(tier, key, value)
 
     result = TierDTO.model_validate(tier)
-    logger.bind(**result.model_dump()).info("")
+    log.bind(**result.model_dump()).info("")
     return result
 
 
@@ -102,6 +105,7 @@ async def update_tier_service(
 async def delete_tier_service(
     guild_id: int, user_id: int, preset_id: int, tier_id: int, session: AsyncSession
 ) -> None:
+    log = bind_target_func(delete_tier_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     tier_repo = TierRepository(session)
@@ -110,4 +114,4 @@ async def delete_tier_service(
         raise AppError(TierError.NotFound)
 
     await session.delete(tier)
-    logger.bind(tier_id=tier_id).info("")
+    log.bind(tier_id=tier_id).info("")

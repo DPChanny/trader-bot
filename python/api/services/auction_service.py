@@ -15,6 +15,7 @@ from shared.error import AppError, Auction, service_error_handler
 from shared.error import Preset as PresetError
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin
+from shared.utils.logging import bind_target_func
 
 from ..auction.auction_manager import auction_manager
 from ..utils.discord import send_message
@@ -29,6 +30,7 @@ async def create_auction_service(
     dto: CreateAuctionDTO,
     session: AsyncSession,
 ) -> AuctionDTO:
+    log = bind_target_func(create_auction_service)
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
@@ -75,7 +77,7 @@ async def create_auction_service(
     auction_id: str = auction.auction_id
 
     result = AuctionDTO(auction_id=auction_id)
-    logger.bind(**result.model_dump(), member_count=len(member_ids)).info("")
+    log.bind(**result.model_dump(), member_count=len(member_ids)).info("")
 
     app_origin = get_app_origin()
 

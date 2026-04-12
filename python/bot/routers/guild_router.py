@@ -3,6 +3,8 @@ from discord.ext import commands
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.utils.logging import bind_target_func
+
 from ..services import (
     on_guild_join_service,
     on_guild_remove_service,
@@ -16,7 +18,7 @@ def register_guild_router(bot: commands.Bot) -> None:
     @with_error_handler
     @with_session
     async def on_ready(session: AsyncSession):
-        logger.bind(bot_user=str(bot.user)).info("")
+        bind_target_func(on_ready, bot_user=str(bot.user)).info("")
         for guild in bot.guilds:
             await on_guild_join_service(guild, session)
 

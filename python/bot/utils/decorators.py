@@ -2,10 +2,9 @@ import functools
 from collections.abc import Awaitable, Callable
 from typing import ParamSpec, TypeVar
 
-from loguru import logger
-
 from shared.error import AppError
 from shared.utils.database import get_session
+from shared.utils.logging import bind_target_func
 
 
 P = ParamSpec("P")
@@ -35,8 +34,8 @@ def with_error_handler[**P, T](
         except AppError:
             return None
         except Exception as e:
-            logger.bind(
-                event=func.__name__,
+            bind_target_func(
+                func,
                 exception_type=type(e).__name__,
             ).exception("")
             return None

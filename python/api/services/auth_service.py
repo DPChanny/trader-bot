@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.auth_dto import ExchangeTokenDTO, JwtTokenDTO, RefreshTokenDTO
 from shared.error import AppError, Auth, service_error_handler
 from shared.utils.env import get_app_origin
+from shared.utils.logging import bind_target_func
 from shared.utils.user import upsert_user
 
 from ..utils.discord import get_login_url, get_me
@@ -24,6 +25,7 @@ async def login_service(redirect: str | None = None) -> RedirectResponse:
 async def callback_service(
     code: str, state: str | None, session: AsyncSession
 ) -> RedirectResponse:
+    log = bind_target_func(callback_service)
     user_data = await get_me(code)
 
     discord_id = int(user_data["id"])
@@ -31,7 +33,7 @@ async def callback_service(
     avatar_hash = user_data.get("avatar")
 
     user = await upsert_user(discord_id, name, avatar_hash, session)
-    logger.bind(**user.model_dump()).info("")
+    log.bind(**user.model_dump()).info("")
 
     access_token, _ = AccessToken.create(user.discord_id)
     refresh_token, _ = RefreshToken.create(user.discord_id)
@@ -62,8 +64,9 @@ async def exchange_token_service(dto: ExchangeTokenDTO) -> JwtTokenDTO:
 
 @service_error_handler
 async def refresh_token_service(dto: RefreshTokenDTO) -> JwtTokenDTO:
+    log = bind_target_func(refresh_token_service)
     rt_payload = RefreshToken.decode(dto.refresh_token)
     access_token, _ = AccessToken.create(rt_payload.user_id)
     new_refresh_token, _ = RefreshToken.create(rt_payload.user_id)
-    logger.bind(action="token_refreshed", discord_id=rt_payload.user_id).info("")
+    log.bind(discord_id=rt_payload.user_id).info("")
     return JwtTokenDTO(access_token=access_token, refresh_token=new_refresh_token)

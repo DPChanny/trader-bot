@@ -1,9 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.member_dto import MemberDetailDTO
+from shared.dtos.member_dto import MemberDTO, MemberDetailDTO
 from shared.entities.member import Role
 from shared.error import AppError, Member, service_error_handler
 from shared.repositories.member_repository import MemberRepository
+from shared.utils.logging import bind_target_func
 
 from ..utils.member import verify_role
 
@@ -49,6 +50,7 @@ async def update_member_service(
     dto,
     session: AsyncSession,
 ) -> MemberDetailDTO:
+    log = bind_target_func(update_member_service)
     await verify_role(guild_id, user_id, session, Role.ADMIN)
     member_repo = MemberRepository(session)
     member = await member_repo.get_by_id(member_id, guild_id)
@@ -64,5 +66,5 @@ async def update_member_service(
     if member is None:
         raise AppError(Member.NotFound)
     result = MemberDetailDTO.model_validate(member)
-    logger.bind(**result.model_dump(exclude={"user"})).info("")
+    log.bind(**MemberDTO.model_validate(result).model_dump()).info("")
     return result

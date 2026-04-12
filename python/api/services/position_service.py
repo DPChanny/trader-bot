@@ -13,6 +13,7 @@ from shared.error import Position as PositionError
 from shared.error import Preset as PresetError
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
+from shared.utils.logging import bind_target_func
 
 from ..utils.member import verify_role
 
@@ -60,6 +61,7 @@ async def add_position_service(
     dto: AddPositionDTO,
     session: AsyncSession,
 ) -> PositionDTO:
+    log = bind_target_func(add_position_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
@@ -74,7 +76,7 @@ async def add_position_service(
     session.add(position)
     await session.flush()
     result = PositionDTO.model_validate(position)
-    logger.bind(**result.model_dump()).info("")
+    log.bind(**result.model_dump()).info("")
     return result
 
 
@@ -87,6 +89,7 @@ async def update_position_service(
     dto: UpdatePositionDTO,
     session: AsyncSession,
 ) -> PositionDTO:
+    log = bind_target_func(update_position_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     position_repo = PositionRepository(session)
@@ -98,7 +101,7 @@ async def update_position_service(
         setattr(position, key, value)
 
     result = PositionDTO.model_validate(position)
-    logger.bind(**result.model_dump()).info("")
+    log.bind(**result.model_dump()).info("")
     return result
 
 
@@ -110,6 +113,7 @@ async def delete_position_service(
     position_id: int,
     session: AsyncSession,
 ) -> None:
+    log = bind_target_func(delete_position_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     position_repo = PositionRepository(session)
@@ -118,4 +122,4 @@ async def delete_position_service(
         raise AppError(PositionError.NotFound)
 
     await session.delete(position)
-    logger.bind(position_id=position_id).info("")
+    log.bind(position_id=position_id).info("")

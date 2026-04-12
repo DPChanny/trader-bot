@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { nullableNameSchema, nullableUrlSchema } from "@/utils/dto";
-import type { UserDTO } from "./userDto";
+import type { UserDetailDTO } from "./userDto";
 
 export enum Role {
   VIEWER = 0,
@@ -17,12 +17,12 @@ export interface MemberDTO {
   name: string | null;
   alias: string | null;
   avatarHash: string | null;
-  avatarUrl: string | null;
   infoUrl: string | null;
 }
 
 export interface MemberDetailDTO extends MemberDTO {
-  user: UserDTO;
+  avatarUrl: string | null;
+  user: UserDetailDTO;
 }
 
 export const UpdateMemberSchema = z.object({

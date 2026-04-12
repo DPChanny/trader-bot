@@ -1,9 +1,9 @@
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.preset_member_dto import (
     AddPresetMemberDTO,
     PresetMemberDetailDTO,
+    PresetMemberDTO,
     UpdatePresetMemberDTO,
 )
 from shared.entities.member import Role
@@ -26,6 +26,7 @@ from shared.repositories.member_repository import MemberRepository
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
+from shared.utils.logging import bind_target_func
 
 from ..utils.member import verify_role
 
@@ -75,6 +76,7 @@ async def add_preset_member_service(
     dto: AddPresetMemberDTO,
     session: AsyncSession,
 ) -> PresetMemberDetailDTO:
+    log = bind_target_func(add_preset_member_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     member_repo = MemberRepository(session)
@@ -106,9 +108,7 @@ async def add_preset_member_service(
     if preset_member is None:
         raise AppError(PresetMemberError.NotFound)
     result = PresetMemberDetailDTO.model_validate(preset_member)
-    logger.bind(
-        **result.model_dump(exclude={"member", "tier", "preset_member_positions"})
-    ).info("")
+    log.bind(**PresetMemberDTO.model_validate(result).model_dump()).info("")
     return result
 
 
@@ -121,6 +121,7 @@ async def update_preset_member_service(
     dto: UpdatePresetMemberDTO,
     session: AsyncSession,
 ) -> PresetMemberDetailDTO:
+    log = bind_target_func(update_preset_member_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(session)
@@ -142,9 +143,7 @@ async def update_preset_member_service(
         preset_member_id, preset_id, guild_id
     )
     result = PresetMemberDetailDTO.model_validate(preset_member)
-    logger.bind(
-        **result.model_dump(exclude={"member", "tier", "preset_member_positions"})
-    ).info("")
+    log.bind(**PresetMemberDTO.model_validate(result).model_dump()).info("")
     return result
 
 
@@ -156,6 +155,7 @@ async def delete_preset_member_service(
     preset_member_id: int,
     session: AsyncSession,
 ) -> None:
+    log = bind_target_func(delete_preset_member_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(session)
@@ -166,4 +166,4 @@ async def delete_preset_member_service(
         raise AppError(PresetMemberError.NotFound)
 
     await session.delete(preset_member)
-    logger.bind(preset_member_id=preset_member_id).info("")
+    log.bind(preset_member_id=preset_member_id).info("")

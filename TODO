@@ -6,6 +6,7 @@ api 에러 처리 방식 개선(에러 코드, 다국어)
     error code 개선
     auction api 개편
 
+web api hook 검토
 web 다국어 지원
 code layout
 util 자격

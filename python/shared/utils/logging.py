@@ -2,12 +2,27 @@ import json
 import logging
 import sys
 import time
+from collections.abc import Callable
 from uuid import uuid4
 
 from loguru import logger
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
+
+
+def bind_target_func(
+    target_func: str | Callable[..., object],
+    **kwargs,
+):
+    _target_func = target_func
+    if not isinstance(target_func, str):
+        _target_func = target_func.__name__
+
+    return logger.bind(
+        target_func=_target_func,
+        **kwargs,
+    )
 
 
 class LoguruHandler(logging.Handler):

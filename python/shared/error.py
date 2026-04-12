@@ -13,7 +13,7 @@ Code ranges:
 import functools
 from enum import Enum
 
-from loguru import logger
+from shared.utils.logging import bind_target_func
 
 
 class _AppErrorCode(Enum):
@@ -113,19 +113,19 @@ def service_error_handler(func):
             return await func(*args, **kwargs)
         except AppError as e:
             if e.status_code < 500:
-                logger.bind(
-                    target_func=func.__name__,
+                bind_target_func(
+                    func,
                     error_code=e.code,
                 ).warning("")
             else:
-                logger.bind(
-                    target_func=func.__name__,
+                bind_target_func(
+                    func,
                     error_code=e.code,
                 ).error("")
             raise
         except Exception as e:
-            logger.bind(
-                target_func=func.__name__,
+            bind_target_func(
+                func,
                 exception_type=type(e).__name__,
             ).exception("")
             raise AppError(Server.InternalError) from None

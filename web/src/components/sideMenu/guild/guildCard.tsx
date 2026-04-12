@@ -1,9 +1,9 @@
 import { Card } from "@/components/commons/card";
 import styles from "@/styles/components/sideMenu/guild/guildCard.module.css";
-import type { GuildDTO } from "@/dtos/guildDto";
+import type { GuildDetailDTO } from "@/dtos/guildDto";
 
 interface GuildCardProps {
-  guild: GuildDTO;
+  guild: GuildDetailDTO;
   isActive?: boolean;
 }
 

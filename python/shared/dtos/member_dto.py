@@ -2,7 +2,7 @@ from pydantic import computed_field
 
 from ..entities.member import Role
 from . import BaseDTO, DiscordId, NullableNameStr, NullableUrlStr
-from .user_dto import UserDTO
+from .user_dto import UserDetailDTO
 
 
 class MemberDTO(BaseDTO):
@@ -17,6 +17,10 @@ class MemberDTO(BaseDTO):
 
     model_config = {"from_attributes": True}
 
+
+class MemberDetailDTO(MemberDTO):
+    user: UserDetailDTO
+
     @computed_field
     @property
     def avatar_url(self) -> str | None:
@@ -24,10 +28,6 @@ class MemberDTO(BaseDTO):
             return None
         ext = "gif" if self.avatar_hash.startswith("a_") else "png"
         return f"https://cdn.discordapp.com/guilds/{self.guild_id}/users/{self.user_id}/avatars/{self.avatar_hash}.{ext}?size=256"
-
-
-class MemberDetailDTO(MemberDTO):
-    user: UserDTO
 
 
 class UpdateMemberDTO(BaseDTO):

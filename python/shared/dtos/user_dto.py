@@ -10,6 +10,8 @@ class UserDTO(BaseDTO):
 
     model_config = {"from_attributes": True}
 
+
+class UserDetailDTO(UserDTO):
     @computed_field
     @property
     def avatar_url(self) -> str | None:

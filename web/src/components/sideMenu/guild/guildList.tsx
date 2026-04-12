@@ -2,12 +2,12 @@ import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
 import { PrimaryButton } from "@/components/commons/button";
 import { GuildCard } from "./guildCard";
-import type { GuildDTO } from "@/dtos/guildDto";
+import type { GuildDetailDTO } from "@/dtos/guildDto";
 import { getBotInviteUrl } from "@/utils/env";
 import styles from "@/styles/components/sideMenu/guild/guildList.module.css";
 
 interface GuildListProps {
-  guilds: GuildDTO[];
+  guilds: GuildDetailDTO[];
   activeGuildId: string | null;
 }
 

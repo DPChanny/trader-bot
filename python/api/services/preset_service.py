@@ -11,6 +11,7 @@ from shared.entities.preset import Preset
 from shared.error import AppError, service_error_handler
 from shared.error import Preset as PresetError
 from shared.repositories.preset_repository import PresetRepository
+from shared.utils.logging import bind_target_func
 
 from ..utils.member import verify_role
 
@@ -32,6 +33,7 @@ async def get_preset_service(
 async def create_preset_service(
     guild_id: int, user_id: int, dto: CreatePresetDTO, session: AsyncSession
 ) -> PresetDTO:
+    log = bind_target_func(create_preset_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset = Preset(
@@ -45,7 +47,7 @@ async def create_preset_service(
     session.add(preset)
     await session.flush()
     result = PresetDTO.model_validate(preset)
-    logger.bind(**result.model_dump()).info("")
+    log.bind(**result.model_dump()).info("")
     return result
 
 
@@ -68,6 +70,7 @@ async def update_preset_service(
     dto: UpdatePresetDTO,
     session: AsyncSession,
 ) -> PresetDTO:
+    log = bind_target_func(update_preset_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
@@ -79,7 +82,7 @@ async def update_preset_service(
         setattr(preset, key, value)
 
     result = PresetDTO.model_validate(preset)
-    logger.bind(**result.model_dump()).info("")
+    log.bind(**result.model_dump()).info("")
     return result
 
 
@@ -87,6 +90,7 @@ async def update_preset_service(
 async def delete_preset_service(
     guild_id: int, user_id: int, preset_id: int, session: AsyncSession
 ) -> None:
+    log = bind_target_func(delete_preset_service)
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
@@ -95,4 +99,4 @@ async def delete_preset_service(
         raise AppError(PresetError.NotFound)
 
     await session.delete(preset)
-    logger.bind(preset_id=preset_id).info("")
+    log.bind(preset_id=preset_id).info("")
