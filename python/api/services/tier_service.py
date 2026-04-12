@@ -67,9 +67,9 @@ async def add_tier_service(
 
     tier_repo = TierRepository(session)
     tier = Tier(preset_id=preset_id, name=dto.name, icon_url=dto.icon_url)
-    tier_repo.add(tier)
-    await tier_repo.commit()
-    await tier_repo.refresh(tier)
+    session.add(tier)
+    await session.flush()
+    await session.refresh(tier)
     logger.info(f"Tier created: id={tier.tier_id}, name={dto.name}")
     return TierDTO.model_validate(tier)
 
@@ -93,8 +93,8 @@ async def update_tier_service(
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(tier, key, value)
 
-    await tier_repo.commit()
-    await tier_repo.refresh(tier)
+    await session.flush()
+    await session.refresh(tier)
     logger.info(f"Tier updated: id={tier_id}")
 
     return TierDTO.model_validate(tier)
@@ -111,6 +111,5 @@ async def delete_tier_service(
     if tier is None:
         raise HTTPException(status_code=404, detail="Tier not found")
 
-    await tier_repo.delete(tier)
-    await tier_repo.commit()
+    await session.delete(tier)
     logger.info(f"Tier deleted: id={tier_id}")

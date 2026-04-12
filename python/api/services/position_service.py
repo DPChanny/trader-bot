@@ -71,9 +71,9 @@ async def add_position_service(
         name=dto.name,
         icon_url=dto.icon_url,
     )
-    position_repo.add(position)
-    await position_repo.commit()
-    await position_repo.refresh(position)
+    session.add(position)
+    await session.flush()
+    await session.refresh(position)
     logger.info(f"Position created: id={position.position_id}, name={dto.name}")
     return PositionDTO.model_validate(position)
 
@@ -97,8 +97,8 @@ async def update_position_service(
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(position, key, value)
 
-    await position_repo.commit()
-    await position_repo.refresh(position)
+    await session.flush()
+    await session.refresh(position)
     logger.info(f"Position updated: id={position_id}")
 
     return PositionDTO.model_validate(position)
@@ -119,6 +119,5 @@ async def delete_position_service(
     if position is None:
         raise HTTPException(status_code=404, detail="Position not found")
 
-    await position_repo.delete(position)
-    await position_repo.commit()
+    await session.delete(position)
     logger.info(f"Position deleted: id={position_id}")

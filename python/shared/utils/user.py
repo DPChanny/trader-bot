@@ -13,7 +13,8 @@ async def upsert_user(
     repo = UserRepository(session)
     entity = await repo.get_by_id(discord_id)
     if entity is None:
-        repo.add(User(discord_id=discord_id, name=name, avatar_hash=avatar_hash))
+        session.add(User(discord_id=discord_id, name=name, avatar_hash=avatar_hash))
+        await session.flush()
     else:
         entity.name = name
         entity.avatar_hash = avatar_hash

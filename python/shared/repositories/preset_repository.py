@@ -10,7 +10,7 @@ from ..entities.preset_member_position import PresetMemberPosition
 from . import BaseRepository
 
 
-class PresetRepository(BaseRepository[Preset]):
+class PresetRepository(BaseRepository):
     async def get_by_id(self, preset_id: int, guild_id: int) -> Preset | None:
         result = await self.session.execute(
             select(Preset).where(

@@ -21,7 +21,8 @@ async def upsert_member(
             name=name,
             avatar_hash=avatar_hash,
         )
-        repo.add(entity)
+        session.add(entity)
+        await session.flush()
     else:
         entity.name = name
         entity.avatar_hash = avatar_hash
@@ -62,4 +63,4 @@ async def delete_member(
     repo = MemberRepository(session)
     entity = await repo.get_by_user_id(user_id, guild_id)
     if entity is not None:
-        await repo.delete(entity)
+        await session.delete(entity)

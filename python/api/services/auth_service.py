@@ -42,7 +42,6 @@ async def callback_service(
 
     access_token, _ = AccessToken.create(user.discord_id)
     refresh_token, _ = RefreshToken.create(user.discord_id)
-    await user_repo.commit()
 
     exchange_token = ExchangeToken.create(access_token, refresh_token)
     redirect = base64.urlsafe_b64decode(state.encode()).decode() if state else None

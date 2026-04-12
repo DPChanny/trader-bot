@@ -6,7 +6,7 @@ from ..entities.user import User
 from . import BaseRepository
 
 
-class UserRepository(BaseRepository[User]):
+class UserRepository(BaseRepository):
     async def get_by_id(self, discord_id: int) -> User | None:
         result = await self.session.execute(
             select(User).where(User.discord_id == discord_id)

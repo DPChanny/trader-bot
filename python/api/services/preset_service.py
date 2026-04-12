@@ -43,9 +43,9 @@ async def create_preset_service(
         team_size=dto.team_size,
         point_scale=dto.point_scale,
     )
-    preset_repo.add(preset)
-    await preset_repo.commit()
-    await preset_repo.refresh(preset)
+    session.add(preset)
+    await session.flush()
+    await session.refresh(preset)
     logger.info(f"Preset created: id={preset.preset_id}, name={dto.name}")
     return PresetDTO.model_validate(preset)
 
@@ -79,10 +79,10 @@ async def update_preset_service(
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(preset, key, value)
 
-    await preset_repo.commit()
     logger.info(f"Preset updated: id={preset_id}")
 
-    await preset_repo.refresh(preset)
+    await session.flush()
+    await session.refresh(preset)
     return PresetDTO.model_validate(preset)
 
 
@@ -97,5 +97,4 @@ async def delete_preset_service(
     if preset is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    await preset_repo.delete(preset)
-    await preset_repo.commit()
+    await session.delete(preset)

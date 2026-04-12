@@ -7,7 +7,7 @@ from ..entities.member import Member
 from . import BaseRepository
 
 
-class MemberRepository(BaseRepository[Member]):
+class MemberRepository(BaseRepository):
     async def get_by_id(self, member_id: int, guild_id: int) -> Member | None:
         result = await self.session.execute(
             select(Member).where(

@@ -8,7 +8,7 @@ from ..entities.preset_member_position import PresetMemberPosition
 from . import BaseRepository
 
 
-class PresetMemberPositionRepository(BaseRepository[PresetMemberPosition]):
+class PresetMemberPositionRepository(BaseRepository):
     async def get_by_id(
         self,
         preset_member_position_id: int,

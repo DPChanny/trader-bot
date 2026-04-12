@@ -7,7 +7,7 @@ from ..entities.preset import Preset
 from . import BaseRepository
 
 
-class PositionRepository(BaseRepository[Position]):
+class PositionRepository(BaseRepository):
     async def get_list_by_preset_id(
         self, preset_id: int, guild_id: int
     ) -> list[Position]:

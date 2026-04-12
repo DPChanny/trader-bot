@@ -85,15 +85,15 @@ async def add_preset_member_service(
         tier_id=dto.tier_id,
         is_leader=dto.is_leader,
     )
-    preset_member_repo.add(preset_member)
-    await preset_member_repo.commit()
-    logger.info(f"PresetMember created: id={preset_member.preset_member_id}")
+    session.add(preset_member)
+    await session.flush()
 
     preset_member = await preset_member_repo.get_detail_by_id(
         preset_member.preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
         raise HTTPException(status_code=404, detail="PresetMember not found")
+    logger.info(f"PresetMember created: id={preset_member.preset_member_id}")
     return PresetMemberDetailDTO.model_validate(preset_member)
 
 
@@ -123,7 +123,6 @@ async def update_preset_member_service(
                 raise HTTPException(status_code=404, detail="Tier not found")
         setattr(preset_member, key, value)
 
-    await preset_member_repo.commit()
     logger.info(f"PresetMember updated: id={preset_member_id}")
 
     preset_member = await preset_member_repo.get_detail_by_id(
@@ -149,6 +148,5 @@ async def delete_preset_member_service(
     if preset_member is None:
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
-    await preset_member_repo.delete(preset_member)
-    await preset_member_repo.commit()
+    await session.delete(preset_member)
     logger.info(f"PresetMember deleted: id={preset_member_id}")

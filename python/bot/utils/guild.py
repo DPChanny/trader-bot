@@ -11,7 +11,8 @@ async def upsert_guild(
     entity = await repo.get_by_id(guild_id)
     if entity is None:
         entity = Guild(discord_id=guild_id, name=name, icon_hash=icon_hash)
-        repo.add(entity)
+        session.add(entity)
+        await session.flush()
     else:
         entity.name = name
         entity.icon_hash = icon_hash
@@ -22,4 +23,4 @@ async def delete_guild(discord_guild_id: int, session: AsyncSession) -> None:
     repo = GuildRepository(session)
     entity = await repo.get_by_id(discord_guild_id)
     if entity is not None:
-        await repo.delete(entity)
+        await session.delete(entity)

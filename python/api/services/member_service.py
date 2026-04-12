@@ -61,8 +61,6 @@ async def update_member_service(
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(member, key, value)
 
-    await member_repo.commit()
-
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")

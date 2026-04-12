@@ -46,16 +46,16 @@ async def add_preset_member_position_service(
         preset_member_id=preset_member_id,
         position_id=dto.position_id,
     )
-    pmp_repo.add(preset_member_position)
+    session.add(preset_member_position)
     try:
-        await pmp_repo.commit()
+        await session.flush()
     except IntegrityError:
         raise HTTPException(
             status_code=400,
             detail="PresetMemberPosition duplicated",
         ) from None
 
-    await pmp_repo.refresh(preset_member_position)
+    await session.refresh(preset_member_position)
     logger.info(
         f"PresetMemberPosition created: id={preset_member_position.preset_member_position_id}"
     )
@@ -80,6 +80,5 @@ async def delete_preset_member_position_service(
     if preset_member_position is None:
         raise HTTPException(status_code=404, detail="PresetMemberPosition not found")
 
-    await pmp_repo.delete(preset_member_position)
-    await pmp_repo.commit()
+    await session.delete(preset_member_position)
     logger.info(f"PresetMemberPosition deleted: id={preset_member_position_id}")

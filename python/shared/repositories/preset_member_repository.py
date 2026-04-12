@@ -10,7 +10,7 @@ from ..entities.preset_member_position import PresetMemberPosition
 from . import BaseRepository
 
 
-class PresetMemberRepository(BaseRepository[PresetMember]):
+class PresetMemberRepository(BaseRepository):
     async def get_list_detail_by_preset_id(
         self, preset_id: int, guild_id: int
     ) -> list[PresetMember]:
