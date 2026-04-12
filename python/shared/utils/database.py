@@ -2,7 +2,6 @@ from collections.abc import AsyncGenerator
 
 import asyncpg
 import boto3
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -49,25 +48,8 @@ _sessionmaker = sessionmaker(
 
 
 async def setup_db():
-    async with _engine.connect() as conn:
-        await conn.execute(text("SELECT pg_advisory_lock(8675309)"))
-        try:
-            for table in BaseEntity.metadata.sorted_tables:
-                table_exists = (
-                    await conn.execute(
-                        text(
-                            "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = :name)"
-                        ),
-                        {"name": table.name},
-                    )
-                ).scalar()
-                if not table_exists:
-                    await conn.execute(text(f'DROP TYPE IF EXISTS "{table.name}"'))
-            await conn.commit()
-            await conn.run_sync(BaseEntity.metadata.create_all, checkfirst=True)
-        finally:
-            await conn.execute(text("SELECT pg_advisory_unlock(8675309)"))
-            await conn.commit()
+    async with _engine.begin() as conn:
+        await conn.run_sync(BaseEntity.metadata.create_all, checkfirst=True)
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:

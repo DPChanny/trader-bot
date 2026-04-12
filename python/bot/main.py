@@ -5,7 +5,7 @@ from discord.ext import commands
 from loguru import logger
 
 from shared.entities.member import Role
-from shared.utils.database import get_session, setup_db
+from shared.utils.database import get_session
 from shared.utils.env import get_discord_bot_token
 from shared.utils.logging import setup_logging
 from shared.utils.user import upsert_user
@@ -23,8 +23,6 @@ setup_logging()
 
 
 async def main() -> None:
-    await setup_db()
-
     intents = Intents.default()
     intents.message_content = True
     intents.members = True

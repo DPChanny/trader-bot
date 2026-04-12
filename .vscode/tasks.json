@@ -23,7 +23,7 @@
       "presentation": { "panel": "dedicated" }
     },
     {
-      "label": "CSS: Watch",
+      "label": "Watch CSS",
       "type": "shell",
       "command": "npm run css:dts",
       "options": { "cwd": "${workspaceFolder}/web" },
