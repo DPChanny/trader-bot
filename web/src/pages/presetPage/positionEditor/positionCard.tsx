@@ -4,7 +4,7 @@ import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import type { PositionDTO } from "@/dtos/positionDto";
 import { Role } from "@/dtos/memberDto";
-import { useHasRole } from "@/utils/member";
+import { useVerifyRole } from "@/hooks/member";
 import styles from "@/styles/pages/presetPage/positionEditor/positionCard.module.css";
 
 interface PositionCardProps {
@@ -22,7 +22,7 @@ export function PositionCard({
   onDelete,
   isDeletePending,
 }: PositionCardProps) {
-  const canEdit = useHasRole(guildId, Role.EDITOR);
+  const canEdit = useVerifyRole(guildId, Role.EDITOR);
   return (
     <Card variantLayout="row" variantIntent="tertiary">
       <Badge

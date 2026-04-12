@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type { MemberDetailDTO, UpdateMemberDTO } from "@/dtos/memberDto";
-import { getMember, getMembers, getMyMember, updateMember } from "@/apis/member";
+import { Role } from "@/dtos/memberDto";
+import {
+  getMember,
+  getMembers,
+  getMyMember,
+  updateMember,
+} from "@/apis/member";
 
 export function useMyMember(guildId: string) {
   return useQuery({
@@ -48,4 +54,9 @@ export function useUpdateMember() {
       });
     },
   });
+}
+
+export function useVerifyRole(guildId: string, required: Role): boolean {
+  const { data: myMember } = useMyMember(guildId);
+  return (myMember?.role ?? Role.VIEWER) >= required;
 }

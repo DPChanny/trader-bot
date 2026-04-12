@@ -6,7 +6,7 @@ import { CreatePresetModal } from "./createPresetModal";
 import { PresetCard } from "./presetCard";
 import { useCreatePreset, usePresets } from "@/hooks/preset";
 import { Role } from "@/dtos/memberDto";
-import { useHasRole } from "@/utils/member";
+import { useVerifyRole } from "@/hooks/member";
 import styles from "@/styles/components/sideMenu/preset/presetList.module.css";
 
 interface PresetListProps {
@@ -19,7 +19,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
 
   const { data: presets = [] } = usePresets(guildId);
   const createPreset = useCreatePreset();
-  const canEdit = useHasRole(guildId, Role.EDITOR);
+  const canEdit = useVerifyRole(guildId, Role.EDITOR);
 
   const handleOpenCreatePresetModal = () => {
     setShowCreatePresetModal(true);

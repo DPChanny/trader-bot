@@ -6,7 +6,7 @@ import {
   useUpdateTier,
 } from "@/hooks/tier";
 import { Role } from "@/dtos/memberDto";
-import { useHasRole } from "@/utils/member";
+import { useVerifyRole } from "@/hooks/member";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
@@ -34,7 +34,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
   const addTier = useAddTier();
   const updateTier = useUpdateTier();
   const deleteTier = useDeleteTier();
-  const canEdit = useHasRole(guildId, Role.EDITOR);
+  const canEdit = useVerifyRole(guildId, Role.EDITOR);
 
   const handleOpenAddTierModal = () => {
     setShowAddTierModal(true);

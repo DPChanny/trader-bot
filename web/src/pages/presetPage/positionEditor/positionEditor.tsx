@@ -6,7 +6,7 @@ import {
   useUpdatePosition,
 } from "@/hooks/position";
 import { Role } from "@/dtos/memberDto";
-import { useHasRole } from "@/utils/member";
+import { useVerifyRole } from "@/hooks/member";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
@@ -39,7 +39,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   const addPosition = useAddPosition();
   const updatePosition = useUpdatePosition();
   const deletePosition = useDeletePosition();
-  const canEdit = useHasRole(guildId, Role.EDITOR);
+  const canEdit = useVerifyRole(guildId, Role.EDITOR);
 
   const handleOpenAddPositionModal = () => {
     setShowAddPositionModal(true);

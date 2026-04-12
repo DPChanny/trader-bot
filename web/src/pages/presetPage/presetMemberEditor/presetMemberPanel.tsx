@@ -12,7 +12,7 @@ import {
 import { useTiers } from "@/hooks/tier";
 import { usePositions } from "@/hooks/position";
 import { Role } from "@/dtos/memberDto";
-import { useHasRole } from "@/utils/member";
+import { useVerifyRole } from "@/hooks/member";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 import {
   CloseButton,
@@ -46,7 +46,7 @@ export function PresetMemberPanel({
   const presetId = presetMember.presetId;
   const { data: tiers = [] } = useTiers(guildId, presetId);
   const { data: positions = [] } = usePositions(guildId, presetId);
-  const canEdit = useHasRole(guildId, Role.EDITOR);
+  const canEdit = useVerifyRole(guildId, Role.EDITOR);
 
   const tiersMap = useMemo(
     () => new Map(tiers.map((t) => [t.tierId, t])),

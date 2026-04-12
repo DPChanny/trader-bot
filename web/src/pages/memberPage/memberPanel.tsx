@@ -9,7 +9,7 @@ import { Section } from "@/components/commons/section";
 import { Toggle } from "@/components/commons/toggle";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
 import { Role } from "@/dtos/memberDto";
-import { useHasRole as useVerifyRole } from "@/utils/member";
+import { useVerifyRole } from "@/hooks/member";
 
 import styles from "@/styles/pages/memberPage/memberPanel.module.css";
 

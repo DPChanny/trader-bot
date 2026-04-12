@@ -4,7 +4,7 @@ import { useCreateAuction } from "@/hooks/auction";
 import { usePreset, useUpdatePreset, useDeletePreset } from "@/hooks/preset";
 import { usePresetMembers } from "@/hooks/presetMember";
 import { Role } from "@/dtos/memberDto";
-import { useHasRole } from "@/utils/member";
+import { useVerifyRole } from "@/hooks/member";
 import { TierEditor } from "./tierEditor/tierEditor";
 import { PositionEditor } from "./positionEditor/positionEditor";
 import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
@@ -45,7 +45,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
   const updatePreset = useUpdatePreset();
   const deletePreset = useDeletePreset();
   const { data: presetMembers } = usePresetMembers(guildId, presetId);
-  const canEdit = useHasRole(guildId, Role.EDITOR);
+  const canEdit = useVerifyRole(guildId, Role.EDITOR);
   const teamSize = preset?.teamSize ?? 0;
   const leaderCount = presetMembers?.filter((pm) => pm.isLeader).length ?? 0;
   const memberCount = presetMembers?.length ?? 0;
