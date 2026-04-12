@@ -1,7 +1,9 @@
+backend dto validation (string length, int range)
+create auction valid message mouse hover
+warning danger info
 에러 처리 방식 개선(에러 코드, 다국어)
 로그 개선
 다국어 지원
-point scale UI
 section div 역할 분리
 auction api 개편
 auction web 개편

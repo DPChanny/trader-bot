@@ -162,11 +162,11 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
             </Section>
             <Bar />
             <Section variantLayout="row" variantIntent="tertiary">
-              <span>{teamSize}명</span>
+              <span>{teamSize} 명</span>
               <span>
-                {preset.points}/{preset.pointScale}포인트
+                {preset.points}/{preset.pointScale} 포인트
               </span>
-              <span>{preset.timer}초</span>
+              <span>{preset.timer} 초</span>
             </Section>
 
             {presetValidMessage && <Error>{presetValidMessage}</Error>}
