@@ -11,10 +11,10 @@ from ..utils.member import verify_role
 
 @service_exception_handler
 async def get_my_member_service(
-    guild_id: int, discord_id: int, session: AsyncSession
+    guild_id: int, user_id: int, session: AsyncSession
 ) -> MemberDetailDTO:
     member_repo = MemberRepository(session)
-    member = await member_repo.get_detail_by_user_id(discord_id, guild_id)
+    member = await member_repo.get_detail_by_user_id(user_id, guild_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
     return MemberDetailDTO.model_validate(member)
@@ -22,9 +22,9 @@ async def get_my_member_service(
 
 @service_exception_handler
 async def get_member_service(
-    guild_id: int, discord_id: int, member_id: int, session: AsyncSession
+    guild_id: int, user_id: int, member_id: int, session: AsyncSession
 ) -> MemberDetailDTO:
-    await verify_role(guild_id, discord_id, session)
+    await verify_role(guild_id, user_id, session)
     member_repo = MemberRepository(session)
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
@@ -34,9 +34,9 @@ async def get_member_service(
 
 @service_exception_handler
 async def get_member_list_service(
-    guild_id: int, discord_id: int, session: AsyncSession
+    guild_id: int, user_id: int, session: AsyncSession
 ) -> list[MemberDetailDTO]:
-    await verify_role(guild_id, discord_id, session)
+    await verify_role(guild_id, user_id, session)
     member_repo = MemberRepository(session)
     members = await member_repo.get_list_by_guild_id(guild_id)
     return [MemberDetailDTO.model_validate(m) for m in members]
@@ -45,12 +45,12 @@ async def get_member_list_service(
 @service_exception_handler
 async def update_member_service(
     guild_id: int,
-    discord_id: int,
+    user_id: int,
     member_id: int,
     dto,
     session: AsyncSession,
 ) -> MemberDetailDTO:
-    await verify_role(guild_id, discord_id, session, Role.ADMIN)
+    await verify_role(guild_id, user_id, session, Role.ADMIN)
     member_repo = MemberRepository(session)
     member = await member_repo.get_by_id(member_id, guild_id)
     if member is None:

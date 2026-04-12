@@ -76,7 +76,7 @@ async def exchange_token_service(dto: ExchangeTokenDTO) -> JwtTokenDTO:
 @service_exception_handler
 async def refresh_token_service(dto: RefreshTokenDTO) -> JwtTokenDTO:
     rt_payload = RefreshToken.decode(dto.refresh_token)
-    access_token, _ = AccessToken.create(rt_payload.discord_id)
-    new_refresh_token, _ = RefreshToken.create(rt_payload.discord_id)
-    logger.info(f"Token refreshed: discord_id={rt_payload.discord_id}")
+    access_token, _ = AccessToken.create(rt_payload.user_id)
+    new_refresh_token, _ = RefreshToken.create(rt_payload.user_id)
+    logger.info(f"Token refreshed: discord_id={rt_payload.user_id}")
     return JwtTokenDTO(access_token=access_token, refresh_token=new_refresh_token)

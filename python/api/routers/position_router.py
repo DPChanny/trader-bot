@@ -28,9 +28,9 @@ async def get_position_list_route(
     guild_id: int,
     preset_id: int,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
-    return await get_position_list_service(guild_id, discord_id, preset_id, session)
+    return await get_position_list_service(guild_id, user_id, preset_id, session)
 
 
 @position_router.get("/{position_id}", response_model=PositionDTO)
@@ -39,10 +39,10 @@ async def get_position_route(
     preset_id: int,
     position_id: int,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
     return await get_position_service(
-        guild_id, discord_id, preset_id, position_id, session
+        guild_id, user_id, preset_id, position_id, session
     )
 
 
@@ -52,9 +52,9 @@ async def add_position_route(
     preset_id: int,
     dto: AddPositionDTO,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
-    return await add_position_service(guild_id, discord_id, preset_id, dto, session)
+    return await add_position_service(guild_id, user_id, preset_id, dto, session)
 
 
 @position_router.patch("/{position_id}", response_model=PositionDTO)
@@ -64,10 +64,10 @@ async def update_position_route(
     position_id: int,
     dto: UpdatePositionDTO,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
     return await update_position_service(
-        guild_id, discord_id, preset_id, position_id, dto, session
+        guild_id, user_id, preset_id, position_id, dto, session
     )
 
 
@@ -77,8 +77,8 @@ async def delete_position_route(
     preset_id: int,
     position_id: int,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
     return await delete_position_service(
-        guild_id, discord_id, preset_id, position_id, session
+        guild_id, user_id, preset_id, position_id, session
     )

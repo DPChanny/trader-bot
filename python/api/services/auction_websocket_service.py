@@ -21,11 +21,11 @@ async def _resolve_member(
         return None, False, None
 
     try:
-        discord_id = AccessToken.decode(token).discord_id
+        user_id = AccessToken.decode(token).user_id
     except Exception:
         return None, False, None
 
-    pm = await preset_member_repo.get_by_user_id(discord_id, preset_id, guild_id)
+    pm = await preset_member_repo.get_by_user_id(user_id, preset_id, guild_id)
     if pm is None:
         return None, False, None
 

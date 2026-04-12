@@ -27,10 +27,10 @@ async def add_preset_member_position_route(
     preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
     return await add_preset_member_position_service(
-        guild_id, discord_id, preset_id, preset_member_id, dto, session
+        guild_id, user_id, preset_id, preset_member_id, dto, session
     )
 
 
@@ -40,8 +40,8 @@ async def delete_preset_member_position_route(
     preset_member_id: int,
     preset_member_position_id: int,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
     return await delete_preset_member_position_service(
-        guild_id, discord_id, preset_member_id, preset_member_position_id, session
+        guild_id, user_id, preset_member_id, preset_member_position_id, session
     )

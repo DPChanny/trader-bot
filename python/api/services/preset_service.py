@@ -17,9 +17,9 @@ from ..utils.member import verify_role
 
 @service_exception_handler
 async def get_preset_service(
-    guild_id: int, discord_id: int, preset_id: int, session: AsyncSession
+    guild_id: int, user_id: int, preset_id: int, session: AsyncSession
 ) -> PresetDTO:
-    await verify_role(guild_id, discord_id, session, Role.VIEWER)
+    await verify_role(guild_id, user_id, session, Role.VIEWER)
 
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
@@ -30,9 +30,9 @@ async def get_preset_service(
 
 @service_exception_handler
 async def add_preset_service(
-    guild_id: int, discord_id: int, dto: AddPresetDTO, session: AsyncSession
+    guild_id: int, user_id: int, dto: AddPresetDTO, session: AsyncSession
 ) -> PresetDTO:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
     preset = Preset(
@@ -52,9 +52,9 @@ async def add_preset_service(
 
 @service_exception_handler
 async def get_preset_list_service(
-    guild_id: int, discord_id: int, session: AsyncSession
+    guild_id: int, user_id: int, session: AsyncSession
 ) -> list[PresetDTO]:
-    await verify_role(guild_id, discord_id, session, Role.VIEWER)
+    await verify_role(guild_id, user_id, session, Role.VIEWER)
 
     preset_repo = PresetRepository(session)
     presets = await preset_repo.get_list_by_guild_id(guild_id)
@@ -64,12 +64,12 @@ async def get_preset_list_service(
 @service_exception_handler
 async def update_preset_service(
     guild_id: int,
-    discord_id: int,
+    user_id: int,
     preset_id: int,
     dto: UpdatePresetDTO,
     session: AsyncSession,
 ) -> PresetDTO:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
@@ -88,9 +88,9 @@ async def update_preset_service(
 
 @service_exception_handler
 async def delete_preset_service(
-    guild_id: int, discord_id: int, preset_id: int, session: AsyncSession
+    guild_id: int, user_id: int, preset_id: int, session: AsyncSession
 ) -> None:
-    await verify_role(guild_id, discord_id, session, Role.ADMIN)
+    await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)

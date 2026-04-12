@@ -20,7 +20,7 @@ _EXCHANGE_TOKEN_EXPIRATION_SECONDS = 60
 class JwtToken:
     @dataclass
     class Payload:
-        discord_id: int
+        user_id: int
         exp: int
         type: str
 
@@ -28,10 +28,10 @@ class JwtToken:
     _exp_delta: ClassVar[timedelta]
 
     @classmethod
-    def create(cls, discord_id: int) -> tuple[str, "JwtToken.Payload"]:
+    def create(cls, user_id: int) -> tuple[str, "JwtToken.Payload"]:
         expiration = datetime.now(UTC) + cls._exp_delta
         payload = cls.Payload(
-            discord_id=discord_id,
+            user_id=user_id,
             exp=int(expiration.timestamp()),
             type=cls._type,
         )
@@ -111,4 +111,4 @@ async def verify_access_token(authorization: str = Header(None)) -> int:
         logger.warning("Auth failed: reason=invalid_format")
         raise HTTPException(status_code=401, detail="Auth failed")
     token = authorization.removeprefix("Bearer ")
-    return AccessToken.decode(token).discord_id
+    return AccessToken.decode(token).user_id

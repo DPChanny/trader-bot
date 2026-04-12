@@ -14,15 +14,15 @@ guild_router = APIRouter(prefix="/guild", tags=["guild"])
 @guild_router.get("", response_model=list[GuildDTO])
 async def get_guild_list_route(
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
-    return await get_guild_list_service(discord_id, session)
+    return await get_guild_list_service(user_id, session)
 
 
 @guild_router.get("/{guild_id}", response_model=GuildDTO)
 async def get_guild_route(
     guild_id: int,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
-    return await get_guild_service(guild_id, discord_id, session)
+    return await get_guild_service(guild_id, user_id, session)

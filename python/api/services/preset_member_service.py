@@ -21,11 +21,11 @@ from ..utils.member import verify_role
 @service_exception_handler
 async def get_preset_member_list_service(
     guild_id: int,
-    discord_id: int,
+    user_id: int,
     preset_id: int,
     session: AsyncSession,
 ) -> list[PresetMemberDetailDTO]:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
@@ -39,12 +39,12 @@ async def get_preset_member_list_service(
 @service_exception_handler
 async def get_preset_member_service(
     guild_id: int,
-    discord_id: int,
+    user_id: int,
     preset_id: int,
     preset_member_id: int,
     session: AsyncSession,
 ) -> PresetMemberDetailDTO:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(session)
     preset_member = await preset_member_repo.get_detail_by_id(
@@ -58,12 +58,12 @@ async def get_preset_member_service(
 @service_exception_handler
 async def add_preset_member_service(
     guild_id: int,
-    discord_id: int,
+    user_id: int,
     preset_id: int,
     dto: AddPresetMemberDTO,
     session: AsyncSession,
 ) -> PresetMemberDetailDTO:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     member_repo = MemberRepository(session)
     preset_repo = PresetRepository(session)
@@ -100,13 +100,13 @@ async def add_preset_member_service(
 @service_exception_handler
 async def update_preset_member_service(
     guild_id: int,
-    discord_id: int,
+    user_id: int,
     preset_id: int,
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
     session: AsyncSession,
 ) -> PresetMemberDetailDTO:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(session)
     preset_member = await preset_member_repo.get_by_id(
@@ -135,12 +135,12 @@ async def update_preset_member_service(
 @service_exception_handler
 async def delete_preset_member_service(
     guild_id: int,
-    discord_id: int,
+    user_id: int,
     preset_id: int,
     preset_member_id: int,
     session: AsyncSession,
 ) -> None:
-    await verify_role(guild_id, discord_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(session)
     preset_member = await preset_member_repo.get_by_id(

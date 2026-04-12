@@ -19,6 +19,6 @@ async def add_auction_route(
     preset_id: int,
     dto: AddAuctionDTO,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ) -> AuctionDTO:
-    return await add_auction_service(guild_id, discord_id, preset_id, dto, session)
+    return await add_auction_service(guild_id, user_id, preset_id, dto, session)

@@ -14,6 +14,6 @@ user_router = APIRouter(prefix="/user", tags=["user"])
 @user_router.get("/@me", response_model=UserDTO)
 async def get_my_user_route(
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
-    return await get_my_user_service(discord_id, session)
+    return await get_my_user_service(user_id, session)

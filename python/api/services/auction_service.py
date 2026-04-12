@@ -24,12 +24,12 @@ from ..utils.member import verify_role
 @service_exception_handler
 async def add_auction_service(
     guild_id: int,
-    discord_id: int,
+    user_id: int,
     preset_id: int,
     dto: AddAuctionDTO,
     session: AsyncSession,
 ) -> AuctionDTO:
-    await verify_role(guild_id, discord_id, session, Role.ADMIN)
+    await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_detail_by_id(preset_id, guild_id)

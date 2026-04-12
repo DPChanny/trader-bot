@@ -28,9 +28,9 @@ async def get_tier_list_route(
     guild_id: int,
     preset_id: int,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
-    return await get_tier_list_service(guild_id, discord_id, preset_id, session)
+    return await get_tier_list_service(guild_id, user_id, preset_id, session)
 
 
 @tier_router.get("/{tier_id}", response_model=TierDTO)
@@ -39,9 +39,9 @@ async def get_tier_route(
     preset_id: int,
     tier_id: int,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
-    return await get_tier_service(guild_id, discord_id, preset_id, tier_id, session)
+    return await get_tier_service(guild_id, user_id, preset_id, tier_id, session)
 
 
 @tier_router.post("", response_model=TierDTO)
@@ -50,9 +50,9 @@ async def add_tier_route(
     preset_id: int,
     dto: AddTierDTO,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
-    return await add_tier_service(guild_id, discord_id, preset_id, dto, session)
+    return await add_tier_service(guild_id, user_id, preset_id, dto, session)
 
 
 @tier_router.patch("/{tier_id}", response_model=TierDTO)
@@ -62,10 +62,10 @@ async def update_tier_route(
     tier_id: int,
     dto: UpdateTierDTO,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
     return await update_tier_service(
-        guild_id, discord_id, preset_id, tier_id, dto, session
+        guild_id, user_id, preset_id, tier_id, dto, session
     )
 
 
@@ -75,6 +75,6 @@ async def delete_tier_route(
     preset_id: int,
     tier_id: int,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_access_token),
+    user_id: int = Depends(verify_access_token),
 ):
-    return await delete_tier_service(guild_id, discord_id, preset_id, tier_id, session)
+    return await delete_tier_service(guild_id, user_id, preset_id, tier_id, session)

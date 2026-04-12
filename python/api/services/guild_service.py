@@ -10,18 +10,18 @@ from ..utils.member import verify_role
 
 @service_exception_handler
 async def get_guild_list_service(
-    discord_id: int, session: AsyncSession
+    user_id: int, session: AsyncSession
 ) -> list[GuildDTO]:
     guild_repo = GuildRepository(session)
-    guilds = await guild_repo.get_list_by_user_id(discord_id)
+    guilds = await guild_repo.get_list_by_user_id(user_id)
     return [GuildDTO.model_validate(g) for g in guilds]
 
 
 @service_exception_handler
 async def get_guild_service(
-    guild_id: int, discord_id: int, session: AsyncSession
+    guild_id: int, user_id: int, session: AsyncSession
 ) -> GuildDTO:
-    await verify_role(guild_id, discord_id, session)
+    await verify_role(guild_id, user_id, session)
 
     guild_repo = GuildRepository(session)
     guild = await guild_repo.get_by_id(guild_id)
