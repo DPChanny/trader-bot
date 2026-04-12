@@ -7,13 +7,12 @@ import type {
   TokenDTO,
 } from "@/dtos/authDto";
 import {
-  setAuthToken,
-  getAuthToken,
+  setAccessToken,
+  getAccessToken,
   isAuthenticated,
   getRefreshToken,
-  getAuthHeadersForMutation,
   setRefreshToken,
-  removeAuthToken,
+  removeAccessToken,
   removeRefreshToken,
 } from "@/utils/auth";
 import { AUTH_API_ENDPOINT } from "@/utils/env";
@@ -32,15 +31,9 @@ export function useLogin(redirect?: string) {
 
 export function useLogout(redirect?: string) {
   return useMutation({
-    mutationFn: async (): Promise<void> => {
-      const response = await fetch(`${AUTH_API_ENDPOINT}/logout`, {
-        method: "POST",
-        headers: getAuthHeadersForMutation(),
-      });
-      if (!response.ok) await handleHttpError(response);
-    },
+    mutationFn: async (): Promise<void> => {},
     onSettled: () => {
-      removeAuthToken();
+      removeAccessToken();
       removeRefreshToken();
       queryClient.setQueryData(["me"], null);
       route(redirect ?? "/", true);
@@ -75,7 +68,7 @@ export function useLoginCallback() {
       }
 
       const data = (await response.json()) as TokenDTO;
-      setAuthToken(data.token);
+      setAccessToken(data.access_token);
       setRefreshToken(data.refresh_token);
       queryClient.invalidateQueries({ queryKey: ["me"] });
       route(callbackRedirect, true);
@@ -105,7 +98,7 @@ export function useAutoRefreshToken() {
   useEffect(() => {
     async function tryRefresh() {
       if (!isAuthenticated()) return;
-      const token = getAuthToken();
+      const token = getAccessToken();
       if (token) {
         try {
           const parts = token.split(".");
@@ -121,7 +114,7 @@ export function useAutoRefreshToken() {
       }
       try {
         const data = await useRefreshToken();
-        setAuthToken(data.token);
+        setAccessToken(data.access_token);
         setRefreshToken(data.refresh_token);
         queryClient.invalidateQueries({ queryKey: ["me"] });
       } catch {}

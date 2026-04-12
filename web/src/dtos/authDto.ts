@@ -7,6 +7,6 @@ export interface RefreshTokenDTO {
 }
 
 export interface TokenDTO {
-  token: string;
+  access_token: string;
   refresh_token: string;
 }

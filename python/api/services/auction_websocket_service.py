@@ -8,7 +8,7 @@ from shared.dtos.auction_dto import AuctionStatus, MessageType
 from shared.repositories.preset_member_repository import PresetMemberRepository
 
 from ..auction import Auction, auction_manager
-from ..utils.token import decode_access_token
+from ..utils.token import AccessToken
 
 
 async def _resolve_member(
@@ -21,7 +21,7 @@ async def _resolve_member(
         return None, False, None
 
     try:
-        discord_id = decode_access_token(token)
+        discord_id = AccessToken.decode(token).discord_id
     except Exception:
         return None, False, None
 

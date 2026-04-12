@@ -1,13 +1,13 @@
 const ACCESS_TOKEN_COOKIE_NAME = "accessToken";
 const REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
 
-export function setAuthToken(token: string): void {
+export function setAccessToken(token: string): void {
   const expires = new Date();
   expires.setTime(expires.getTime() + 60 * 60 * 1000); // 1 hour (access token은 15분이지만 여유분)
   document.cookie = `${ACCESS_TOKEN_COOKIE_NAME}=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
 }
 
-export function getAuthToken(): string | null {
+export function getAccessToken(): string | null {
   const cookies = document.cookie.split(";");
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split("=");
@@ -18,7 +18,7 @@ export function getAuthToken(): string | null {
   return null;
 }
 
-export function removeAuthToken(): void {
+export function removeAccessToken(): void {
   document.cookie = `${ACCESS_TOKEN_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 }
 
@@ -59,7 +59,7 @@ export function isAuthenticated(): boolean {
 }
 
 export function getAuthHeaders(): HeadersInit {
-  const token = getAuthToken();
+  const token = getAccessToken();
   if (token) {
     return { Authorization: `Bearer ${token}` };
   }
@@ -67,7 +67,7 @@ export function getAuthHeaders(): HeadersInit {
 }
 
 export function getAuthHeadersForMutation(): HeadersInit {
-  const token = getAuthToken();
+  const token = getAccessToken();
   if (token) {
     return {
       Authorization: `Bearer ${token}`,

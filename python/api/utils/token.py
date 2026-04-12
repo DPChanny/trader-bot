@@ -1,9 +1,9 @@
-import hashlib
-import uuid
+import dataclasses
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from secrets import token_urlsafe
 from time import time
+from typing import ClassVar
 
 import jwt
 from fastapi import Header, HTTPException
@@ -12,124 +12,103 @@ from loguru import logger
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 
 
-ACCESS_TOKEN_EXPIRATION_MINUTES = 15
-REFRESH_TOKEN_EXPIRATION_DAYS = 30
-EXCHANGE_TOKEN_EXPIRATION_SECONDS = 60
+_ACCESS_TOKEN_EXPIRATION_MINUTES = 5
+_REFRESH_TOKEN_EXPIRATION_DAYS = 7
+_EXCHANGE_TOKEN_EXPIRATION_SECONDS = 60
 
 
-@dataclass
-class ExchangeTokenPayload:
-    token: str
-    refresh_token: str
-    exp: float
+class JwtToken:
+    @dataclass
+    class Payload:
+        discord_id: int
+        exp: int
+        type: str
 
+    _type: ClassVar[str]
+    _exp_delta: ClassVar[timedelta]
 
-exchange_tokens: dict[str, ExchangeTokenPayload] = {}
-
-
-def _manage_exchange_tokens() -> None:
-    now = time()
-    expired_exchange_tokens = [
-        exchange_token
-        for exchange_token, entry in exchange_tokens.items()
-        if entry.exp <= now
-    ]
-    for exchange_token in expired_exchange_tokens:
-        exchange_tokens.pop(exchange_token, None)
-
-
-def create_exchange_token(token: str, refresh_token: str) -> str:
-    _manage_exchange_tokens()
-    exchange_token = token_urlsafe(32)
-    exchange_tokens[exchange_token] = ExchangeTokenPayload(
-        token=token,
-        refresh_token=refresh_token,
-        exp=time() + EXCHANGE_TOKEN_EXPIRATION_SECONDS,
-    )
-    return exchange_token
-
-
-def consume_exchange_token(exchange_token: str) -> tuple[str, str] | None:
-    _manage_exchange_tokens()
-    entry = exchange_tokens.pop(exchange_token, None)
-    if entry is None:
-        return None
-    return entry.token, entry.refresh_token
-
-
-def create_access_token(
-    discord_id: int,
-) -> str:
-    now = datetime.now(UTC)
-    expiration = now + timedelta(minutes=ACCESS_TOKEN_EXPIRATION_MINUTES)
-    token_data = {
-        "discord_id": discord_id,
-        "exp": int(expiration.timestamp()),
-        "iat": int(now.timestamp()),
-    }
-    return jwt.encode(token_data, get_jwt_secret(), algorithm=get_jwt_algorithm())
-
-
-def decode_access_token(token: str) -> int:
-    try:
-        data = jwt.decode(
-            token,
-            get_jwt_secret(),
-            algorithms=[get_jwt_algorithm()],
+    @classmethod
+    def create(cls, discord_id: int) -> tuple[str, "JwtToken.Payload"]:
+        expiration = datetime.now(UTC) + cls._exp_delta
+        payload = cls.Payload(
+            discord_id=discord_id,
+            exp=int(expiration.timestamp()),
+            type=cls._type,
         )
-        return int(data["discord_id"])
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired") from None
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token") from None
+        token = jwt.encode(
+            dataclasses.asdict(payload), get_jwt_secret(), algorithm=get_jwt_algorithm()
+        )
+        return token, payload
+
+    @classmethod
+    def decode(cls, token: str) -> "JwtToken.Payload":
+        try:
+            data = jwt.decode(
+                token,
+                get_jwt_secret(),
+                algorithms=[get_jwt_algorithm()],
+            )
+            if data.get("type") != cls._type:
+                raise HTTPException(status_code=401, detail="Invalid token type")
+            return cls.Payload(**data)
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status_code=401, detail="Token expired") from None
+        except jwt.InvalidTokenError:
+            raise HTTPException(status_code=401, detail="Invalid token") from None
+
+
+class AccessToken(JwtToken):
+    _type = "access"
+    _exp_delta = timedelta(minutes=_ACCESS_TOKEN_EXPIRATION_MINUTES)
+
+
+class RefreshToken(JwtToken):
+    _type = "refresh"
+    _exp_delta = timedelta(days=_REFRESH_TOKEN_EXPIRATION_DAYS)
+
+
+class ExchangeToken:
+    @dataclass
+    class Payload:
+        access_token: str
+        refresh_token: str
+        exp: float
+
+    _store: dict[str, "ExchangeToken.Payload"] = {}
+
+    @classmethod
+    def _purge(cls) -> None:
+        now = time()
+        expired = [k for k, v in cls._store.items() if v.exp <= now]
+        for k in expired:
+            cls._store.pop(k, None)
+
+    @classmethod
+    def create(cls, token: str, refresh_token: str) -> str:
+        cls._purge()
+        code = token_urlsafe(32)
+        cls._store[code] = ExchangeToken.Payload(
+            access_token=token,
+            refresh_token=refresh_token,
+            exp=time() + _EXCHANGE_TOKEN_EXPIRATION_SECONDS,
+        )
+        return code
+
+    @classmethod
+    def consume(cls, code: str) -> tuple[str, str] | None:
+        cls._purge()
+        entry = cls._store.pop(code, None)
+        if entry is None:
+            return None
+        return entry.access_token, entry.refresh_token
 
 
 async def verify_access_token(authorization: str = Header(None)) -> int:
     if not authorization:
         logger.warning("Auth failed: reason=missing_header")
         raise HTTPException(status_code=401, detail="Auth failed")
-
     if not authorization.startswith("Bearer "):
         logger.warning("Auth failed: reason=invalid_format")
         raise HTTPException(status_code=401, detail="Auth failed")
-
-    token = authorization.replace("Bearer ", "")
-    return decode_access_token(token)
-
-
-def create_refresh_token(discord_id: int) -> tuple[str, str, int]:
-    now = datetime.now(UTC)
-    expiration = now + timedelta(days=REFRESH_TOKEN_EXPIRATION_DAYS)
-    jti = uuid.uuid4().hex
-    token_data = {
-        "discord_id": discord_id,
-        "exp": int(expiration.timestamp()),
-        "iat": int(now.timestamp()),
-        "type": "refresh",
-        "jti": jti,
-    }
-    return (
-        jwt.encode(token_data, get_jwt_secret(), algorithm=get_jwt_algorithm()),
-        jti,
-        int(expiration.timestamp()),
-    )
-
-
-def decode_refresh_token(token: str) -> tuple[int, str]:
-    try:
-        data = jwt.decode(
-            token,
-            get_jwt_secret(),
-            algorithms=[get_jwt_algorithm()],
-        )
-        if data.get("type") != "refresh":
-            raise HTTPException(status_code=401, detail="Invalid token type")
-        return int(data["discord_id"]), data["jti"]
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired") from None
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token") from None
-
-
-def hash_token(token: str) -> str:
-    return hashlib.sha256(token.encode()).hexdigest()
+    token = authorization.removeprefix("Bearer ")
+    return AccessToken.decode(token).discord_id

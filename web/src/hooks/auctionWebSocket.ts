@@ -12,7 +12,7 @@ import type {
 } from "@/dtos/auctionDto";
 import { toCamelCase } from "@/utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@/utils/env";
-import { getAuthToken } from "@/utils/auth";
+import { getAccessToken } from "@/utils/auth";
 
 interface AuctionWebSocketHook {
   isConnected: boolean;
@@ -170,7 +170,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     disconnect();
     setCloseReason(null);
 
-    const token = getAuthToken();
+    const token = getAccessToken();
     const url = `${AUCTION_WS_ENDPOINT}/${auctionId}`;
     const ws = new WebSocket(url);
     let opened = false;
