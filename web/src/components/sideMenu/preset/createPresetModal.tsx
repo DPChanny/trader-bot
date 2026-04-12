@@ -8,16 +8,11 @@ import {
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
+import type { CreatePresetDTO } from "@/dtos/presetDto";
 
 interface CreatePresetModalProps {
   onClose: () => void;
-  onSubmit: (input: {
-    name: string;
-    points: number;
-    timer: number;
-    teamSize: number;
-    pointScale: number;
-  }) => Promise<void>;
+  onSubmit: (dto: CreatePresetDTO) => Promise<void>;
   isPending: boolean;
   error?: any;
 }
@@ -53,14 +48,16 @@ export function CreatePresetModal({
     const parsedTimer = Math.max(1, Number(timer) || 15);
     const parsedTeamSize = Math.max(1, Number(teamSize) || 5);
 
+    const dto: CreatePresetDTO = {
+      name: presetName.trim(),
+      points: parsedPoints,
+      timer: parsedTimer,
+      teamSize: parsedTeamSize,
+      pointScale: parsedPointScale,
+    };
+
     try {
-      await onSubmit({
-        name: presetName.trim(),
-        points: parsedPoints,
-        timer: parsedTimer,
-        teamSize: parsedTeamSize,
-        pointScale: parsedPointScale,
-      });
+      await onSubmit(dto);
       handleClose();
     } catch {}
   };

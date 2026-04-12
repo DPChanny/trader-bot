@@ -22,6 +22,7 @@ import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionModal } from "./auctionModal";
 import type { CreateAuctionDTO } from "@/dtos/auctionDto";
+import type { UpdatePresetDTO } from "@/dtos/presetDto";
 import styles from "@/styles/pages/presetPage/presetPage.module.css";
 import { Bar } from "@/components/commons/bar";
 
@@ -73,19 +74,13 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
     } catch {}
   };
 
-  const handleUpdate = async (
-    name: string,
-    points: number,
-    timer: number,
-    teamSize: number,
-    pointScale: number,
-  ) => {
+  const handleUpdate = async (dto: UpdatePresetDTO) => {
     if (!preset) return;
     try {
       await updatePreset.mutateAsync({
         guildId,
         presetId: preset.presetId,
-        dto: { name, points, timer, teamSize, pointScale },
+        dto,
       });
       setShowEditPresetModal(false);
     } catch {}

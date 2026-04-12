@@ -7,9 +7,10 @@ import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
 import { Toggle } from "@/components/commons/toggle";
-import type { MemberDetailDTO } from "@/dtos/memberDto";
+import type { MemberDetailDTO, UpdateMemberDTO } from "@/dtos/memberDto";
 import { Role } from "@/dtos/memberDto";
 import { useVerifyRole } from "@/hooks/member";
+import { hasPatchFields, normalizeNullableText } from "@/utils/hook";
 
 import styles from "@/styles/pages/memberPage/memberPanel.module.css";
 
@@ -35,20 +36,30 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
   const canEditRole = useVerifyRole(member.guildId, Role.ADMIN);
 
   const hasChanges =
-    alias !== (member.alias ?? "") ||
-    infoUrl !== (member.infoUrl ?? "") ||
-    (canEditRole && role !== member.role);
+    alias.trim() !== (member.alias ?? "") ||
+    infoUrl.trim() !== (member.infoUrl ?? "") ||
+    (canEditRole && role !== member.role && role !== Role.OWNER);
 
   const handleSave = async () => {
+    if (!hasChanges) return;
+
+    const dto: UpdateMemberDTO = {};
+    const normalizedAlias = normalizeNullableText(alias);
+    const normalizedInfoUrl = normalizeNullableText(infoUrl);
+
+    if (normalizedAlias !== member.alias) dto.alias = normalizedAlias;
+    if (normalizedInfoUrl !== member.infoUrl) dto.infoUrl = normalizedInfoUrl;
+    if (canEditRole && role !== member.role && role !== Role.OWNER) {
+      dto.role = role;
+    }
+
+    if (!hasPatchFields(dto)) return;
+
     try {
       await updateMember.mutateAsync({
         guildId: member.guildId,
         memberId: member.memberId,
-        dto: {
-          alias: alias || null,
-          infoUrl: infoUrl || null,
-          ...(canEditRole && role !== 3 ? { role } : {}),
-        },
+        dto,
       });
     } catch (err) {
       console.error("Failed to update member:", err);

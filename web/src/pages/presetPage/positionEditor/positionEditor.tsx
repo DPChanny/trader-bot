@@ -16,7 +16,11 @@ import { AddPositionModal } from "./addPositionModal";
 import { EditPositionModal } from "./editPositionModal";
 import { DeletePositionModal } from "./deletePositionModal";
 import { PositionCard } from "./positionCard";
-import type { PositionDTO } from "@/dtos/positionDto";
+import type {
+  AddPositionDTO,
+  PositionDTO,
+  UpdatePositionDTO,
+} from "@/dtos/positionDto";
 
 import styles from "@/styles/pages/presetPage/positionEditor/positionList.module.css";
 
@@ -50,21 +54,18 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
     addPosition.reset();
   };
 
-  const handleAddPosition = async (input: {
-    name: string;
-    iconUrl: string | null;
-  }) => {
-    await addPosition.mutateAsync({ guildId, presetId, dto: input });
+  const handleAddPosition = async (dto: AddPositionDTO) => {
+    await addPosition.mutateAsync({ guildId, presetId, dto });
   };
 
-  const handleUpdatePosition = async (name: string, iconUrl: string | null) => {
+  const handleUpdatePosition = async (dto: UpdatePositionDTO) => {
     if (!editingPosition) return;
     try {
       await updatePosition.mutateAsync({
         guildId,
         presetId,
         positionId: editingPosition.positionId,
-        dto: { name, iconUrl },
+        dto,
       });
       setEditingPosition(null);
       updatePosition.reset();

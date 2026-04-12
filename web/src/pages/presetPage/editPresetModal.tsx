@@ -8,18 +8,13 @@ import {
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
-import type { PresetDTO } from "@/dtos/presetDto";
+import type { PresetDTO, UpdatePresetDTO } from "@/dtos/presetDto";
+import { hasPatchFields } from "@/utils/hook";
 
 interface EditPresetModalProps {
   preset: PresetDTO;
   onClose: () => void;
-  onSubmit: (
-    name: string,
-    points: number,
-    timer: number,
-    teamSize: number,
-    pointScale: number,
-  ) => void;
+  onSubmit: (dto: UpdatePresetDTO) => void;
   isPending: boolean;
   error?: any;
 }
@@ -62,11 +57,21 @@ export function EditPresetModal({
       teamSize < 1
     )
       return;
-    onSubmit(name.trim(), points, timer, teamSize, pointScale);
+
+    const dto: UpdatePresetDTO = {};
+    const normalizedName = name.trim();
+    if (normalizedName !== preset.name) dto.name = normalizedName;
+    if (points !== preset.points) dto.points = points;
+    if (timer !== preset.timer) dto.timer = timer;
+    if (teamSize !== preset.teamSize) dto.teamSize = teamSize;
+    if (pointScale !== preset.pointScale) dto.pointScale = pointScale;
+
+    if (!hasPatchFields(dto)) return;
+    onSubmit(dto);
   };
 
   const hasChanges =
-    name !== preset.name ||
+    name.trim() !== preset.name ||
     points !== preset.points ||
     timer !== preset.timer ||
     teamSize !== preset.teamSize ||

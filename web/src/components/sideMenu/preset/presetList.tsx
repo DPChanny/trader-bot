@@ -8,6 +8,7 @@ import { useCreatePreset, usePresets } from "@/hooks/preset";
 import { Role } from "@/dtos/memberDto";
 import { useVerifyRole } from "@/hooks/member";
 import styles from "@/styles/components/sideMenu/preset/presetList.module.css";
+import type { CreatePresetDTO } from "@/dtos/presetDto";
 
 interface PresetListProps {
   guildId: string;
@@ -30,14 +31,8 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
     createPreset.reset();
   };
 
-  const handleCreatePreset = async (input: {
-    name: string;
-    points: number;
-    timer: number;
-    teamSize: number;
-    pointScale: number;
-  }) => {
-    await createPreset.mutateAsync({ guildId, dto: input });
+  const handleCreatePreset = async (dto: CreatePresetDTO) => {
+    await createPreset.mutateAsync({ guildId, dto });
   };
 
   return (

@@ -3,12 +3,13 @@ import { Modal, ModalFooter, ModalForm } from "@/components/commons/modal";
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
-import type { PositionDTO } from "@/dtos/positionDto";
+import type { PositionDTO, UpdatePositionDTO } from "@/dtos/positionDto";
+import { hasPatchFields, normalizeNullableText } from "@/utils/hook";
 
 interface EditPositionModalProps {
   position: PositionDTO;
   onClose: () => void;
-  onSubmit: (name: string, iconUrl: string | null) => void;
+  onSubmit: (dto: UpdatePositionDTO) => void;
   isPending: boolean;
   error?: any;
 }
@@ -28,6 +29,13 @@ export function EditPositionModal({
     setIconUrl(position.iconUrl ?? "");
   }, [position.positionId, position.name, position.iconUrl]);
 
+  const normalizedName = name.trim();
+  const normalizedIconUrl = iconUrl.trim();
+  const hasChanges =
+    normalizedName !== position.name ||
+    (normalizedIconUrl.length > 0 ? normalizedIconUrl : null) !==
+      (position.iconUrl ?? null);
+
   const handleClose = () => {
     if (isPending) return;
     onClose();
@@ -36,7 +44,15 @@ export function EditPositionModal({
   const handleSubmit = (e: Event) => {
     e.preventDefault();
     if (!name.trim()) return;
-    onSubmit(name.trim(), iconUrl.trim() || null);
+    if (!hasChanges) return;
+
+    const dto: UpdatePositionDTO = {};
+    const iconUrl = normalizeNullableText(normalizedIconUrl);
+    if (normalizedName !== position.name) dto.name = normalizedName;
+    if (iconUrl !== (position.iconUrl ?? null)) dto.iconUrl = iconUrl;
+
+    if (!hasPatchFields(dto)) return;
+    onSubmit(dto);
   };
 
   return (
@@ -63,7 +79,10 @@ export function EditPositionModal({
           <SecondaryButton onClick={handleClose} disabled={isPending}>
             취소
           </SecondaryButton>
-          <PrimaryButton type="submit" disabled={isPending || !name.trim()}>
+          <PrimaryButton
+            type="submit"
+            disabled={isPending || !name.trim() || !hasChanges}
+          >
             저장
           </PrimaryButton>
         </ModalFooter>

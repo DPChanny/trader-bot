@@ -3,10 +3,11 @@ import { Modal, ModalFooter, ModalForm } from "@/components/commons/modal";
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
+import type { AddPositionDTO } from "@/dtos/positionDto";
 
 interface AddPositionModalProps {
   onClose: () => void;
-  onSubmit: (input: { name: string; iconUrl: string | null }) => Promise<void>;
+  onSubmit: (dto: AddPositionDTO) => Promise<void>;
   isPending: boolean;
   error?: any;
 }
@@ -30,11 +31,14 @@ export function AddPositionModal({
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
     if (!positionName.trim()) return;
+
+    const dto: AddPositionDTO = {
+      name: positionName.trim(),
+      iconUrl: positionIconUrl.trim() || null,
+    };
+
     try {
-      await onSubmit({
-        name: positionName.trim(),
-        iconUrl: positionIconUrl.trim() || null,
-      });
+      await onSubmit(dto);
       handleClose();
     } catch {}
   };

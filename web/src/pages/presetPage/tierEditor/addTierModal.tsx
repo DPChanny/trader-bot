@@ -3,10 +3,11 @@ import { Modal, ModalForm, ModalFooter } from "@/components/commons/modal";
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
+import type { AddTierDTO } from "@/dtos/tierDto";
 
 interface AddTierModalProps {
   onClose: () => void;
-  onSubmit: (input: { name: string; iconUrl: string | null }) => Promise<void>;
+  onSubmit: (dto: AddTierDTO) => Promise<void>;
   isPending: boolean;
   error?: any;
 }
@@ -30,11 +31,14 @@ export function AddTierModal({
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
     if (!tierName.trim()) return;
+
+    const dto: AddTierDTO = {
+      name: tierName.trim(),
+      iconUrl: tierIconUrl.trim() || null,
+    };
+
     try {
-      await onSubmit({
-        name: tierName.trim(),
-        iconUrl: tierIconUrl.trim() || null,
-      });
+      await onSubmit(dto);
       handleClose();
     } catch {}
   };

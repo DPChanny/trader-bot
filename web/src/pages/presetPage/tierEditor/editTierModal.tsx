@@ -3,12 +3,13 @@ import { Modal, ModalFooter, ModalForm } from "@/components/commons/modal";
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
-import type { TierDTO } from "@/dtos/tierDto";
+import type { TierDTO, UpdateTierDTO } from "@/dtos/tierDto";
+import { hasPatchFields, normalizeNullableText } from "@/utils/hook";
 
 interface EditTierModalProps {
   tier: TierDTO;
   onClose: () => void;
-  onSubmit: (name: string, iconUrl: string | null) => void;
+  onSubmit: (dto: UpdateTierDTO) => void;
   isPending: boolean;
   error?: any;
 }
@@ -28,6 +29,12 @@ export function EditTierModal({
     setIconUrl(tier.iconUrl ?? "");
   }, [tier.tierId, tier.name, tier.iconUrl]);
 
+  const normalizedName = name.trim();
+  const normalizedIconUrl = iconUrl.trim();
+  const hasChanges =
+    normalizedName !== tier.name ||
+    (normalizedIconUrl.length > 0 ? normalizedIconUrl : null) !== tier.iconUrl;
+
   const handleClose = () => {
     if (isPending) return;
     onClose();
@@ -36,7 +43,15 @@ export function EditTierModal({
   const handleSubmit = (e: Event) => {
     e.preventDefault();
     if (!name.trim()) return;
-    onSubmit(name.trim(), iconUrl.trim() || null);
+    if (!hasChanges) return;
+
+    const dto: UpdateTierDTO = {};
+    const iconUrl = normalizeNullableText(normalizedIconUrl);
+    if (normalizedName !== tier.name) dto.name = normalizedName;
+    if (iconUrl !== tier.iconUrl) dto.iconUrl = iconUrl;
+
+    if (!hasPatchFields(dto)) return;
+    onSubmit(dto);
   };
 
   return (
@@ -63,7 +78,10 @@ export function EditTierModal({
           <SecondaryButton onClick={handleClose} disabled={isPending}>
             취소
           </SecondaryButton>
-          <PrimaryButton type="submit" disabled={isPending || !name.trim()}>
+          <PrimaryButton
+            type="submit"
+            disabled={isPending || !name.trim() || !hasChanges}
+          >
             저장
           </PrimaryButton>
         </ModalFooter>

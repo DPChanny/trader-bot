@@ -17,7 +17,7 @@ import { DeleteTierModal } from "./deleteTierModal";
 import { TierCard } from "./tierCard";
 import styles from "@/styles/pages/presetPage/tierEditor/tierList.module.css";
 import { Section } from "@/components/commons/section";
-import type { TierDTO } from "@/dtos/tierDto";
+import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@/dtos/tierDto";
 
 interface TierEditorProps {
   guildId: string;
@@ -45,21 +45,18 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
     addTier.reset();
   };
 
-  const handleAddTier = async (input: {
-    name: string;
-    iconUrl: string | null;
-  }) => {
-    await addTier.mutateAsync({ guildId, presetId, dto: input });
+  const handleAddTier = async (dto: AddTierDTO) => {
+    await addTier.mutateAsync({ guildId, presetId, dto });
   };
 
-  const handleUpdateTier = async (name: string, iconUrl: string | null) => {
+  const handleUpdateTier = async (dto: UpdateTierDTO) => {
     if (!editingTier) return;
     try {
       await updateTier.mutateAsync({
         guildId,
         presetId,
         tierId: editingTier.tierId,
-        dto: { name, iconUrl },
+        dto,
       });
       setEditingTier(null);
       updateTier.reset();
