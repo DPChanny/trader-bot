@@ -16,6 +16,7 @@ dependencies = [
     "websockets",
     "asyncpg",
     "psycopg2-binary",
+    "boto3",
 ]
 
 [dependency-groups]

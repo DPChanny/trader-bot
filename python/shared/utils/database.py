@@ -1,26 +1,41 @@
 from collections.abc import AsyncGenerator
 
+import asyncpg
+import boto3
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from ..entities import BaseEntity
-from .env import get_db_host, get_db_name, get_db_password, get_db_port, get_db_user
+from .env import get_aws_region, get_db_host, get_db_name, get_db_port, get_db_user
 
 
-def _get_db_url() -> str:
-    user = get_db_user()
-    password = get_db_password()
-    host = get_db_host()
-    port = get_db_port()
-    name = get_db_name()
-    return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{name}"
+def _get_db_password() -> str:
+    client = boto3.client("rds", region_name=get_aws_region())
+    return client.generate_db_auth_token(
+        DBHostname=get_db_host(),
+        Port=int(get_db_port()),
+        DBUsername=get_db_user(),
+        Region=get_aws_region(),
+    )
+
+
+async def _create_connection() -> asyncpg.Connection:
+    return await asyncpg.connect(
+        host=get_db_host(),
+        port=int(get_db_port()),
+        user=get_db_user(),
+        password=_get_db_password(),
+        database=get_db_name(),
+        ssl="require",
+    )
 
 
 _engine = create_async_engine(
-    _get_db_url(),
+    "postgresql+asyncpg://",
+    async_creator=_create_connection,
     pool_pre_ping=True,
-    pool_recycle=3600,
+    pool_recycle=600,
     echo=False,
 )
 

@@ -44,15 +44,15 @@ def get_db_port() -> str:
 
 
 def get_db_user() -> str:
-    return os.getenv("DB_USER", "postgres")
-
-
-def get_db_password() -> str:
-    return os.getenv("DB_PASSWORD", "")
+    return os.getenv("DB_USER", "trader")
 
 
 def get_db_name() -> str:
     return os.getenv("DB_NAME", "trader")
+
+
+def get_aws_region() -> str:
+    return os.getenv("AWS_REGION", "ap-northeast-2")
 
 
 def get_log_level() -> str:
