@@ -55,7 +55,7 @@ async def add_preset_member_position_service(
         ) from None
 
     logger.info(
-        f"PresetMemberPosition created: id={preset_member_position.preset_member_position_id}"
+        f"PresetMemberPosition added: id={preset_member_position.preset_member_position_id}"
     )
     return PresetMemberPositionDTO.model_validate(preset_member_position)
 

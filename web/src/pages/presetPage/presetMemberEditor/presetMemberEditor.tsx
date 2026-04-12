@@ -150,19 +150,19 @@ export function PresetMemberEditor({
             </Error>
           ) : membersLoading ? (
             <Loading />
-          ) : canEdit ? (
+          ) : (
             <>
-              {createPresetMember.isError && (
+              {canEdit && createPresetMember.isError && (
                 <Error detail={createPresetMember.error?.message}>
                   멤버를 프리셋에 추가하는데 실패했습니다.
                 </Error>
               )}
               <MemberGrid
                 members={candidateMembers}
-                onMemberClick={handleAddMember}
+                onMemberClick={canEdit ? handleAddMember : undefined}
               />
             </>
-          ) : null}
+          )}
         </Section>
       </Section>
 

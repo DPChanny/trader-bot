@@ -23,6 +23,7 @@ import { Label } from "@/components/commons/label";
 import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
+import { DeletePresetMemberModal } from "./deletePresetMemberModal";
 import styles from "@/styles/pages/presetPage/presetMemberEditor/presetMemberPanel.module.css";
 
 interface PresetMemberPanelProps {
@@ -64,6 +65,8 @@ export function PresetMemberPanel({
   const [selectedPositionIds, setSelectedPositionIds] = useState<number[]>(
     presetMember.presetMemberPositions?.map((p) => p.positionId) || [],
   );
+  const [showDeletePresetMemberModal, setShowDeletePresetMemberModal] =
+    useState(false);
 
   useEffect(() => {
     setIsLeader(presetMember.isLeader);
@@ -148,6 +151,10 @@ export function PresetMemberPanel({
     setTierId((prev) => (prev === id ? null : id));
   };
 
+  const handleOpenDeletePresetMemberModal = () => {
+    setShowDeletePresetMemberModal(true);
+  };
+
   const handleRemoveMember = async () => {
     try {
       if (presetMember.memberId) addMemberIdToRemoving(presetMember.memberId);
@@ -156,6 +163,7 @@ export function PresetMemberPanel({
         presetId,
         presetMemberId: presetMember.presetMemberId,
       });
+      setShowDeletePresetMemberModal(false);
       setSelectedPresetMemberId(null);
     } catch (err) {
       console.error("Failed to remove preset member:", err);
@@ -321,17 +329,29 @@ export function PresetMemberPanel({
         </Section>
       </Section>
 
-      <Bar />
       {canEdit && (
-        <Section variantTone="ghost" variantIntent="secondary">
-          <DangerButton
-            variantSize="large"
-            onClick={handleRemoveMember}
-            disabled={removePresetMember.isPending}
-          >
-            멤버 제거
-          </DangerButton>
-        </Section>
+        <>
+          <Bar />
+          <Section variantTone="ghost" variantIntent="secondary">
+            <DangerButton
+              onClick={handleOpenDeletePresetMemberModal}
+              disabled={removePresetMember.isPending}
+            >
+              제거
+            </DangerButton>
+          </Section>
+        </>
+      )}
+
+      {showDeletePresetMemberModal && (
+        <DeletePresetMemberModal
+          onClose={() => setShowDeletePresetMemberModal(false)}
+          onConfirm={handleRemoveMember}
+          isPending={removePresetMember.isPending}
+          error={
+            removePresetMember.isError ? removePresetMember.error : undefined
+          }
+        />
       )}
     </Section>
   );

@@ -10,21 +10,26 @@
   white-space: nowrap;
 }
 
-.toggle:hover {
+.toggle:hover:not(:disabled) {
   background: var(--color-toggle-bg-hover);
 }
 
-.colorBlue:hover {
+.toggle:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.colorBlue:hover:not(:disabled) {
   background: var(--color-toggle-blue-bg-hover);
   border-color: var(--color-toggle-blue-border-hover);
 }
 
-.colorRed:hover {
+.colorRed:hover:not(:disabled) {
   background: var(--color-toggle-red-bg-hover);
   border-color: var(--color-toggle-red-border-hover);
 }
 
-.colorGold:hover {
+.colorGold:hover:not(:disabled) {
   background: var(--color-toggle-gold-bg-hover);
   border-color: var(--color-toggle-gold-border-hover);
 }

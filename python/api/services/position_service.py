@@ -72,7 +72,7 @@ async def add_position_service(
     )
     session.add(position)
     await session.flush()
-    logger.info(f"Position created: id={position.position_id}, name={dto.name}")
+    logger.info(f"Position added: id={position.position_id}, name={dto.name}")
     return PositionDTO.model_validate(position)
 
 

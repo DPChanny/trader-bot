@@ -25,7 +25,7 @@ async def get_preset_member_list_service(
     preset_id: int,
     session: AsyncSession,
 ) -> list[PresetMemberDetailDTO]:
-    await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.VIEWER)
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
@@ -44,7 +44,7 @@ async def get_preset_member_service(
     preset_member_id: int,
     session: AsyncSession,
 ) -> PresetMemberDetailDTO:
-    await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.VIEWER)
 
     preset_member_repo = PresetMemberRepository(session)
     preset_member = await preset_member_repo.get_detail_by_id(
@@ -93,7 +93,7 @@ async def add_preset_member_service(
     )
     if preset_member is None:
         raise HTTPException(status_code=404, detail="PresetMember not found")
-    logger.info(f"PresetMember created: id={preset_member.preset_member_id}")
+    logger.info(f"PresetMember added: id={preset_member.preset_member_id}")
     return PresetMemberDetailDTO.model_validate(preset_member)
 
 

@@ -77,11 +77,7 @@ export function PresetMemberCard({
             {member.alias || member.name || member.user.name}
           </h3>
           {presetMemberPositions?.length > 0 && (
-            <Section
-              variantTone="ghost"
-              variantIntent="tertiary"
-              className={styles.positions}
-            >
+            <div className={styles.positions}>
               {presetMemberPositions.slice(0, 3).map((pmp) => (
                 <Badge
                   key={pmp.positionId}
@@ -93,7 +89,7 @@ export function PresetMemberCard({
                   {pmp.position.name.charAt(0)}
                 </Badge>
               ))}
-            </Section>
+            </div>
           )}
         </Section>
       </Section>

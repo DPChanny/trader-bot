@@ -68,7 +68,7 @@ async def add_tier_service(
     tier = Tier(preset_id=preset_id, name=dto.name, icon_url=dto.icon_url)
     session.add(tier)
     await session.flush()
-    logger.info(f"Tier created: id={tier.tier_id}, name={dto.name}")
+    logger.info(f"Tier added: id={tier.tier_id}, name={dto.name}")
     return TierDTO.model_validate(tier)
 
 
