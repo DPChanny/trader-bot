@@ -2,8 +2,6 @@ from discord import Guild
 from discord.ext import commands
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.utils.logging import bind_target_func
-
 from ..services import (
     on_guild_join_service,
     on_guild_remove_service,
@@ -16,7 +14,6 @@ def include_guild_router(bot: commands.Bot) -> None:
     @bot.event
     @router
     async def on_ready(session: AsyncSession):
-        bind_target_func(on_ready, bot_user=str(bot.user)).info("")
         for guild in bot.guilds:
             await on_guild_join_service(guild, session)
 
@@ -27,11 +24,7 @@ def include_guild_router(bot: commands.Bot) -> None:
 
     @bot.event
     @router
-    async def on_guild_update(
-        before: Guild,
-        after: Guild,
-        session: AsyncSession,
-    ):
+    async def on_guild_update(before: Guild, after: Guild, session: AsyncSession):
         if before.owner_id == after.owner_id:
             return
         await on_guild_update_service(before, after, session)

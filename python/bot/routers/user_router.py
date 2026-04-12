@@ -9,11 +9,7 @@ from ..utils.router import router
 def include_user_router(bot: commands.Bot) -> None:
     @bot.event
     @router
-    async def on_user_update(
-        before: User,
-        after: User,
-        session: AsyncSession,
-    ):
+    async def on_user_update(before: User, after: User, session: AsyncSession):
         if (before.global_name or before.name) == (
             after.global_name or after.name
         ) and before.avatar == after.avatar:

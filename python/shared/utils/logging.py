@@ -3,6 +3,7 @@ import logging
 import sys
 import time
 from collections.abc import Callable
+from datetime import UTC
 from uuid import uuid4
 
 from loguru import logger
@@ -45,7 +46,10 @@ class LoguruHandler(logging.Handler):
 def _json_sink(message) -> None:
     record = message.record
     data: dict = {
-        "timestamp": record["time"].strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z",
+        "timestamp": record["time"]
+        .astimezone(UTC)
+        .strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
+        + "Z",
         "level": record["level"].name,
         "module": record["name"],
         "function": record["function"],
@@ -60,6 +64,32 @@ def _json_sink(message) -> None:
     print(json.dumps(data, ensure_ascii=False), flush=True)
 
 
+def _text_sink(message) -> None:
+    record = message.record
+    timestamp = record["time"].strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    extra = record["extra"]
+    parts = [
+        f"{timestamp} | {record['level'].name:<8} | {record['name']}:{record['function']}:{record['line']}",
+    ]
+
+    if extra:
+        parts.append(json.dumps(extra, ensure_ascii=False, default=str))
+
+    if record["message"]:
+        parts.append(record["message"])
+
+    output = " | ".join(parts)
+
+    if record["exception"]:
+        import traceback
+
+        output = (
+            f"{output}\n{''.join(traceback.format_exception(*record['exception']))}"
+        )
+
+    print(output, file=sys.stdout, flush=True)
+
+
 def setup_logging() -> None:
     from .env import get_log_format, get_log_level
 
@@ -70,12 +100,7 @@ def setup_logging() -> None:
     if log_format == "json":
         logger.add(_json_sink, level=log_level)
     else:
-        logger.add(
-            sys.stdout,
-            level=log_level,
-            format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} | {message}",
-            colorize=True,
-        )
+        logger.add(_text_sink, level=log_level)
 
     logging.root.handlers = [LoguruHandler()]
     logging.root.setLevel(logging.NOTSET)

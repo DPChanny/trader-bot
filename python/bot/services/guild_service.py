@@ -94,4 +94,4 @@ async def on_guild_update_service(
 @service
 async def on_guild_remove_service(guild: Guild, session: AsyncSession, logger) -> None:
     await delete_guild(guild.id, session)
-    logger.bind(discord_id=guild.id, name=guild.name)
+    logger.bind(discord_id=guild.id)

@@ -20,11 +20,7 @@ def include_member_router(bot: commands.Bot) -> None:
 
     @bot.event
     @router
-    async def on_member_update(
-        before: Member,
-        after: Member,
-        session: AsyncSession,
-    ):
+    async def on_member_update(before: Member, after: Member, session: AsyncSession):
         if after.bot:
             return
         if before.nick == after.nick and before.guild_avatar == after.guild_avatar:
