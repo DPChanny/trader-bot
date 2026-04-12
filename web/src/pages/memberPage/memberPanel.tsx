@@ -7,10 +7,14 @@ import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
 import { Toggle } from "@/components/commons/toggle";
-import type { MemberDetailDTO, UpdateMemberDTO } from "@/dtos/memberDto";
+import {
+  UpdateMemberSchema,
+  type MemberDetailDTO,
+  type UpdateMemberDTO,
+} from "@/dtos/memberDto";
 import { Role } from "@/dtos/memberDto";
 import { useVerifyRole } from "@/hooks/member";
-import { hasPatchFields, normalizeNullableText } from "@/utils/hook";
+import { buildPatchDto } from "@/utils/dto";
 
 import styles from "@/styles/pages/memberPage/memberPanel.module.css";
 
@@ -35,26 +39,26 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
   const canEdit = useVerifyRole(member.guildId, Role.EDITOR);
   const canEditRole = useVerifyRole(member.guildId, Role.ADMIN);
 
-  const hasChanges =
-    alias.trim() !== (member.alias ?? "") ||
-    infoUrl.trim() !== (member.infoUrl ?? "") ||
-    (canEditRole && role !== member.role && role !== Role.OWNER);
+  const parseResult = UpdateMemberSchema.safeParse({ alias, infoUrl });
+  const isFormValid = parseResult.success;
+  const basePatchDto = parseResult.success
+    ? buildPatchDto(
+        {
+          alias: parseResult.data.alias ?? null,
+          infoUrl: parseResult.data.infoUrl ?? null,
+        },
+        { alias: member.alias, infoUrl: member.infoUrl },
+      )
+    : null;
+  const roleChanged =
+    canEditRole && role !== member.role && role !== Role.OWNER;
+  const hasChanges = basePatchDto !== null || roleChanged;
 
   const handleSave = async () => {
+    if (!isFormValid) return;
     if (!hasChanges) return;
-
-    const dto: UpdateMemberDTO = {};
-    const normalizedAlias = normalizeNullableText(alias);
-    const normalizedInfoUrl = normalizeNullableText(infoUrl);
-
-    if (normalizedAlias !== member.alias) dto.alias = normalizedAlias;
-    if (normalizedInfoUrl !== member.infoUrl) dto.infoUrl = normalizedInfoUrl;
-    if (canEditRole && role !== member.role && role !== Role.OWNER) {
-      dto.role = role;
-    }
-
-    if (!hasPatchFields(dto)) return;
-
+    const dto: UpdateMemberDTO = { ...basePatchDto };
+    if (roleChanged) dto.role = role;
     try {
       await updateMember.mutateAsync({
         guildId: member.guildId,
@@ -83,7 +87,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
             {canEdit && (
               <SaveButton
                 onClick={handleSave}
-                disabled={updateMember.isPending || !hasChanges}
+                disabled={updateMember.isPending || !hasChanges || !isFormValid}
               />
             )}
             <CloseButton onClick={onClose} />

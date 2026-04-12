@@ -1,9 +1,9 @@
 import styles from "@/styles/components/header.module.css";
 import { Button, DangerButton } from "@/components/commons/button";
-import type { UserDetailDTO } from "@/dtos/userDto";
+import type { UserDTO } from "@/dtos/userDto";
 
 interface HeaderProps {
-  user?: UserDetailDTO;
+  user?: UserDTO;
   onLogout?: () => void;
   onLogin?: () => void;
 }

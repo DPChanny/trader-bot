@@ -8,11 +8,7 @@ import {
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
-import type { CreatePresetDTO } from "@/dtos/presetDto";
-import {
-  isPresetFormValid,
-  normalizeCreatePresetValues,
-} from "@/utils/presetValidation";
+import { CreatePresetSchema, type CreatePresetDTO } from "@/dtos/presetDto";
 
 interface CreatePresetModalProps {
   onClose: () => void;
@@ -33,14 +29,15 @@ export function CreatePresetModal({
   const [timer, setTimer] = useState("");
   const [teamSize, setTeamSize] = useState("");
 
-  const normalizedValues = normalizeCreatePresetValues({
+  const pointScaleNum = Number(pointScale) || 1;
+  const parseResult = CreatePresetSchema.safeParse({
     name,
-    points,
-    pointScale,
+    points: Math.trunc(Number(points) / pointScaleNum),
     timer,
     teamSize,
+    pointScale,
   });
-  const isFormValid = isPresetFormValid(normalizedValues);
+  const isFormValid = parseResult.success;
 
   const handleClose = () => {
     if (isPending) return;
@@ -54,18 +51,9 @@ export function CreatePresetModal({
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!isFormValid) return;
-
-    const dto: CreatePresetDTO = {
-      name: normalizedValues.name,
-      points: normalizedValues.points,
-      timer: normalizedValues.timer,
-      teamSize: normalizedValues.teamSize,
-      pointScale: normalizedValues.pointScale,
-    };
-
+    if (!parseResult.success) return;
     try {
-      await onSubmit(dto);
+      await onSubmit(parseResult.data);
       handleClose();
     } catch {}
   };

@@ -14,7 +14,8 @@
     "class-variance-authority": "latest",
     "clsx": "latest",
     "preact": "latest",
-    "preact-router": "latest"
+    "preact-router": "latest",
+    "zod": "latest"
   },
   "devDependencies": {
     "@preact/preset-vite": "latest",

@@ -3,8 +3,12 @@ import { Modal, ModalFooter, ModalForm } from "@/components/commons/modal";
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
-import type { TierDTO, UpdateTierDTO } from "@/dtos/tierDto";
-import { hasPatchFields, normalizeNullableText } from "@/utils/hook";
+import {
+  UpdateTierSchema,
+  type TierDTO,
+  type UpdateTierDTO,
+} from "@/dtos/tierDto";
+import { buildPatchDto } from "@/utils/dto";
 
 interface UpdateTierModalProps {
   tier: TierDTO;
@@ -29,11 +33,12 @@ export function UpdateTierModal({
     setIconUrl(tier.iconUrl ?? "");
   }, [tier.tierId, tier.name, tier.iconUrl]);
 
-  const normalizedName = name.trim();
-  const normalizedIconUrl = iconUrl.trim();
-  const hasChanges =
-    normalizedName !== tier.name ||
-    (normalizedIconUrl.length > 0 ? normalizedIconUrl : null) !== tier.iconUrl;
+  const parseResult = UpdateTierSchema.safeParse({ name, iconUrl });
+  const isFormValid = parseResult.success;
+  const patchDto = parseResult.success
+    ? buildPatchDto(parseResult.data, tier)
+    : null;
+  const hasChanges = patchDto !== null;
 
   const handleClose = () => {
     if (isPending) return;
@@ -42,16 +47,8 @@ export function UpdateTierModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
-    if (!name.trim()) return;
-    if (!hasChanges) return;
-
-    const dto: UpdateTierDTO = {};
-    const iconUrl = normalizeNullableText(normalizedIconUrl);
-    if (normalizedName !== tier.name) dto.name = normalizedName;
-    if (iconUrl !== tier.iconUrl) dto.iconUrl = iconUrl;
-
-    if (!hasPatchFields(dto)) return;
-    onSubmit(dto);
+    if (!patchDto) return;
+    onSubmit(patchDto);
   };
 
   return (
@@ -80,7 +77,7 @@ export function UpdateTierModal({
           </SecondaryButton>
           <PrimaryButton
             type="submit"
-            disabled={isPending || !name.trim() || !hasChanges}
+            disabled={isPending || !isFormValid || !hasChanges}
           >
             저장
           </PrimaryButton>

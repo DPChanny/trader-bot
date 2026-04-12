@@ -3,7 +3,7 @@ import { Modal, ModalFooter, ModalForm } from "@/components/commons/modal";
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
-import type { AddPositionDTO } from "@/dtos/positionDto";
+import { AddPositionSchema, type AddPositionDTO } from "@/dtos/positionDto";
 
 interface AddPositionModalProps {
   onClose: () => void;
@@ -20,6 +20,8 @@ export function AddPositionModal({
 }: AddPositionModalProps) {
   const [name, setName] = useState("");
   const [iconUrl, setIconUrl] = useState("");
+  const parseResult = AddPositionSchema.safeParse({ name, iconUrl });
+  const isFormValid = parseResult.success;
 
   const handleClose = () => {
     if (isPending) return;
@@ -30,15 +32,9 @@ export function AddPositionModal({
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!name.trim()) return;
-
-    const dto: AddPositionDTO = {
-      name: name.trim(),
-      iconUrl: iconUrl.trim() || null,
-    };
-
+    if (!parseResult.success) return;
     try {
-      await onSubmit(dto);
+      await onSubmit(parseResult.data);
       handleClose();
     } catch {}
   };
@@ -67,7 +63,7 @@ export function AddPositionModal({
           <SecondaryButton onClick={handleClose} disabled={isPending}>
             취소
           </SecondaryButton>
-          <PrimaryButton type="submit" disabled={isPending || !name.trim()}>
+          <PrimaryButton type="submit" disabled={isPending || !isFormValid}>
             추가
           </PrimaryButton>
         </ModalFooter>

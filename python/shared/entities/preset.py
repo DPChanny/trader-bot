@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, ForeignKey, String
+from sqlalchemy import BigInteger, ForeignKey, SmallInteger, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
@@ -24,10 +24,10 @@ class Preset(BaseEntity):
         ForeignKey("guild.discord_id", ondelete="CASCADE"),
     )
     name: Mapped[str] = mapped_column(String(256))
-    points: Mapped[int] = mapped_column()
-    timer: Mapped[int] = mapped_column()
-    team_size: Mapped[int] = mapped_column()
-    point_scale: Mapped[int] = mapped_column()
+    points: Mapped[int] = mapped_column(SmallInteger)
+    timer: Mapped[int] = mapped_column(SmallInteger)
+    team_size: Mapped[int] = mapped_column(SmallInteger)
+    point_scale: Mapped[int] = mapped_column(SmallInteger)
     guild: Mapped[Guild] = relationship("Guild", viewonly=True)
 
     tiers: Mapped[list[Tier]] = relationship("Tier", viewonly=True)

@@ -1,3 +1,45 @@
+import { z } from "zod";
+
+export const nameSchema = z.string().trim().min(1).max(256);
+
+export const nullableNameSchema = z
+  .string()
+  .trim()
+  .transform((v) => (v.length === 0 ? null : v))
+  .pipe(nameSchema.nullable());
+
+export const urlSchema = z
+  .string()
+  .trim()
+  .refine(
+    (v) => {
+      try {
+        const url = new URL(v);
+        return url.protocol === "http:" || url.protocol === "https:";
+      } catch {
+        return false;
+      }
+    },
+    { message: "Invalid URL" },
+  );
+
+export const nullableUrlSchema = z
+  .string()
+  .trim()
+  .transform((v) => (v.length === 0 ? null : v))
+  .pipe(urlSchema.nullable());
+
+export function buildPatchDto<T extends object>(
+  parsed: T,
+  original: { [K in keyof T]?: unknown },
+): Partial<T> | null {
+  const dto: Partial<T> = {};
+  for (const key of Object.keys(parsed) as (keyof T)[]) {
+    if (parsed[key] !== original[key]) dto[key] = parsed[key];
+  }
+  return Object.keys(dto).length > 0 ? dto : null;
+}
+
 export function toCamelCase<T = any>(obj: any): T {
   if (obj === null || obj === undefined) {
     return obj;

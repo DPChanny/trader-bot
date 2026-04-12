@@ -3,8 +3,12 @@ import { Modal, ModalFooter, ModalForm } from "@/components/commons/modal";
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
-import type { PositionDTO, UpdatePositionDTO } from "@/dtos/positionDto";
-import { hasPatchFields, normalizeNullableText } from "@/utils/hook";
+import {
+  UpdatePositionSchema,
+  type PositionDTO,
+  type UpdatePositionDTO,
+} from "@/dtos/positionDto";
+import { buildPatchDto } from "@/utils/dto";
 
 interface UpdatePositionModalProps {
   position: PositionDTO;
@@ -29,12 +33,12 @@ export function UpdatePositionModal({
     setIconUrl(position.iconUrl ?? "");
   }, [position.positionId, position.name, position.iconUrl]);
 
-  const normalizedName = name.trim();
-  const normalizedIconUrl = iconUrl.trim();
-  const hasChanges =
-    normalizedName !== position.name ||
-    (normalizedIconUrl.length > 0 ? normalizedIconUrl : null) !==
-      (position.iconUrl ?? null);
+  const parseResult = UpdatePositionSchema.safeParse({ name, iconUrl });
+  const isFormValid = parseResult.success;
+  const patchDto = parseResult.success
+    ? buildPatchDto(parseResult.data, position)
+    : null;
+  const hasChanges = patchDto !== null;
 
   const handleClose = () => {
     if (isPending) return;
@@ -43,16 +47,8 @@ export function UpdatePositionModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
-    if (!name.trim()) return;
-    if (!hasChanges) return;
-
-    const dto: UpdatePositionDTO = {};
-    const iconUrl = normalizeNullableText(normalizedIconUrl);
-    if (normalizedName !== position.name) dto.name = normalizedName;
-    if (iconUrl !== (position.iconUrl ?? null)) dto.iconUrl = iconUrl;
-
-    if (!hasPatchFields(dto)) return;
-    onSubmit(dto);
+    if (!patchDto) return;
+    onSubmit(patchDto);
   };
 
   return (
@@ -81,7 +77,7 @@ export function UpdatePositionModal({
           </SecondaryButton>
           <PrimaryButton
             type="submit"
-            disabled={isPending || !name.trim() || !hasChanges}
+            disabled={isPending || !isFormValid || !hasChanges}
           >
             저장
           </PrimaryButton>

@@ -24,6 +24,7 @@ import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
 import { DeletePresetMemberModal } from "./deletePresetMemberModal";
+import { buildPatchDto } from "@/utils/dto";
 import styles from "@/styles/pages/presetPage/presetMemberEditor/presetMemberPanel.module.css";
 
 interface PresetMemberPanelProps {
@@ -91,15 +92,19 @@ export function PresetMemberPanel({
 
   const handleSave = async () => {
     try {
-      if (
-        isLeader !== presetMember.isLeader ||
-        tierId !== presetMember.tierId
-      ) {
+      const memberDto = buildPatchDto(
+        { isLeader, tierId },
+        {
+          isLeader: presetMember.isLeader,
+          tierId: presetMember.tierId ?? null,
+        },
+      );
+      if (memberDto) {
         await updatePresetMember.mutateAsync({
           guildId,
           presetId,
           presetMemberId: presetMember.presetMemberId,
-          dto: { tierId, isLeader },
+          dto: memberDto,
         });
       }
 

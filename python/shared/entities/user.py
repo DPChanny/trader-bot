@@ -10,5 +10,5 @@ class User(BaseEntity):
     __tablename__ = "user"
 
     discord_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    name: Mapped[str] = mapped_column(String(256), nullable=False)
-    avatar_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    name: Mapped[str] = mapped_column(String(256))
+    avatar_hash: Mapped[str | None] = mapped_column(String(64))

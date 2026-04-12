@@ -1,4 +1,3 @@
-backend dto validation (string length, int range)
 query key refactor
 util 정리
 auth 검증 정리

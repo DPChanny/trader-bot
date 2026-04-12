@@ -1,3 +1,5 @@
+import { z } from "zod";
+import { nullableNameSchema, nullableUrlSchema } from "@/utils/dto";
 import type { UserDTO } from "./userDto";
 
 export enum Role {
@@ -23,8 +25,10 @@ export interface MemberDetailDTO extends MemberDTO {
   user: UserDTO;
 }
 
-export interface UpdateMemberDTO {
-  alias?: string | null;
-  infoUrl?: string | null;
-  role?: number;
-}
+export const UpdateMemberSchema = z.object({
+  alias: nullableNameSchema.optional(),
+  infoUrl: nullableUrlSchema.optional(),
+  role: z.number().int().optional(),
+});
+
+export type UpdateMemberDTO = z.infer<typeof UpdateMemberSchema>;

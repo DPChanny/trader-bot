@@ -6,8 +6,11 @@ from pydantic import (
     BaseModel,
     BeforeValidator,
     StringConstraints,
-    model_validator,
 )
+
+
+def _strip_str(v: object) -> object:
+    return v.strip() if isinstance(v, str) else v
 
 
 def _nullable_str(v: object) -> object:
@@ -29,20 +32,24 @@ def _validate_nullable_url(v: str | None) -> str | None:
     return _validate_url(v)
 
 
-NullableStr = Annotated[str | None, BeforeValidator(_nullable_str)]
-NameStr = Annotated[str, StringConstraints(min_length=1, max_length=256)]
+NameStr = Annotated[
+    str, BeforeValidator(_strip_str), StringConstraints(min_length=1, max_length=256)
+]
 NullableNameStr = Annotated[
     str | None,
-    StringConstraints(min_length=1, max_length=256),
+    BeforeValidator(_strip_str),
     BeforeValidator(_nullable_str),
+    StringConstraints(min_length=1, max_length=256),
 ]
 UrlStr = Annotated[
     str,
+    BeforeValidator(_strip_str),
     StringConstraints(min_length=1, max_length=2048),
     AfterValidator(_validate_url),
 ]
 NullableUrlStr = Annotated[
     str | None,
+    BeforeValidator(_strip_str),
     BeforeValidator(_nullable_str),
     StringConstraints(min_length=1, max_length=2048),
     AfterValidator(_validate_nullable_url),
@@ -51,12 +58,7 @@ DiscordId = Annotated[str, BeforeValidator(str)]
 
 
 class BaseDTO(BaseModel):
-    @model_validator(mode="before")
-    @classmethod
-    def strip_strings(cls, data: object) -> object:
-        if isinstance(data, dict):
-            return {k: v.strip() if isinstance(v, str) else v for k, v in data.items()}
-        return data
+    pass
 
 
 __all__ = [
@@ -64,7 +66,6 @@ __all__ = [
     "DiscordId",
     "NameStr",
     "NullableNameStr",
-    "NullableStr",
     "NullableUrlStr",
     "UrlStr",
 ]
