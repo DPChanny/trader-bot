@@ -1,19 +1,16 @@
 """
 Code ranges:
-  40xx  Auth
-  41xx  Not found
-  42xx  Role
-  43xx  Validation
-  44xx  Auction
-  45xx  Constraint violation
-  46xx  Discord
-  50xx  Server
+    40xx  Auth
+    41xx  Not found
+    42xx  Role
+    43xx  Validation
+    44xx  Auction
+    45xx  Constraint violation
+    46xx  Discord
+    50xx  Server
 """
 
-import functools
 from enum import Enum
-
-from shared.utils.logging import bind_target_func
 
 
 class _AppErrorCode(Enum):
@@ -104,30 +101,3 @@ class AppError(Exception):
         self.code: int = code.value
         self.status_code: int = code.http_status
         super().__init__(str(code.value))
-
-
-def service_error_handler(func):
-    @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
-        try:
-            return await func(*args, **kwargs)
-        except AppError as e:
-            if e.status_code < 500:
-                bind_target_func(
-                    func,
-                    error_code=e.code,
-                ).warning("")
-            else:
-                bind_target_func(
-                    func,
-                    error_code=e.code,
-                ).error("")
-            raise
-        except Exception as e:
-            bind_target_func(
-                func,
-                exception_type=type(e).__name__,
-            ).exception("")
-            raise AppError(Server.InternalError) from None
-
-    return wrapper

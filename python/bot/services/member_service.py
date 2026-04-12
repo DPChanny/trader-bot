@@ -1,20 +1,19 @@
 from discord import Member
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.error import service_error_handler
-from shared.utils.logging import bind_target_func
+from shared.decorator import service
 from shared.utils.user import upsert_user
 
 from ..utils.guild import upsert_guild
 from ..utils.member import delete_member, upsert_member
 
 
-@service_error_handler
+@service
 async def on_member_join_service(
     member: Member,
     session: AsyncSession,
+    logger,
 ) -> None:
-    log = bind_target_func(on_member_join_service)
     guild_entity = await upsert_guild(
         member.guild.id,
         member.guild.name,
@@ -34,16 +33,16 @@ async def on_member_join_service(
         name=member.nick,
         avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
     )
-    log.bind(**user.model_dump()).info("")
-    log.bind(**member_dto.model_dump()).info("")
+    logger.bind(**user.model_dump())
+    logger.bind(**member_dto.model_dump())
 
 
-@service_error_handler
+@service
 async def on_member_update_service(
     member: Member,
     session: AsyncSession,
+    logger,
 ) -> None:
-    log = bind_target_func(on_member_update_service)
     guild_entity = await upsert_guild(
         member.guild.id,
         member.guild.name,
@@ -63,16 +62,16 @@ async def on_member_update_service(
         name=member.nick,
         avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
     )
-    log.bind(**user.model_dump()).info("")
-    log.bind(**member_dto.model_dump()).info("")
+    logger.bind(**user.model_dump())
+    logger.bind(**member_dto.model_dump())
 
 
-@service_error_handler
+@service
 async def on_member_remove_service(
     member: Member,
     session: AsyncSession,
+    logger,
 ) -> None:
-    log = bind_target_func(on_member_remove_service)
     guild_entity = await upsert_guild(
         member.guild.id,
         member.guild.name,
@@ -80,8 +79,8 @@ async def on_member_remove_service(
         session,
     )
     await delete_member(guild_entity.discord_id, member.id, session)
-    log.bind(
+    logger.bind(
         guild_id=guild_entity.discord_id,
         user_id=member.id,
         name=member.name,
-    ).info("")
+    )

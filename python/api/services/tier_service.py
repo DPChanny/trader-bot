@@ -1,6 +1,6 @@
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.decorator import service
 from shared.dtos.tier_dto import (
     AddTierDTO,
     TierDTO,
@@ -8,17 +8,16 @@ from shared.dtos.tier_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.tier import Tier
-from shared.error import AppError, service_error_handler
+from shared.error import AppError
 from shared.error import Preset as PresetError
 from shared.error import Tier as TierError
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
-from shared.utils.logging import bind_target_func
 
 from ..utils.member import verify_role
 
 
-@service_error_handler
+@service
 async def get_tier_list_service(
     guild_id: int,
     user_id: int,
@@ -36,7 +35,7 @@ async def get_tier_list_service(
     return [TierDTO.model_validate(t) for t in tiers]
 
 
-@service_error_handler
+@service
 async def get_tier_service(
     guild_id: int,
     user_id: int,
@@ -53,15 +52,15 @@ async def get_tier_service(
     return TierDTO.model_validate(tier)
 
 
-@service_error_handler
+@service
 async def add_tier_service(
     guild_id: int,
     user_id: int,
     preset_id: int,
     dto: AddTierDTO,
     session: AsyncSession,
+    logger,
 ) -> TierDTO:
-    log = bind_target_func(add_tier_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
@@ -72,11 +71,11 @@ async def add_tier_service(
     session.add(tier)
     await session.flush()
     result = TierDTO.model_validate(tier)
-    log.bind(**result.model_dump()).info("")
+    logger.bind(**result.model_dump())
     return result
 
 
-@service_error_handler
+@service
 async def update_tier_service(
     guild_id: int,
     user_id: int,
@@ -84,8 +83,8 @@ async def update_tier_service(
     tier_id: int,
     dto: UpdateTierDTO,
     session: AsyncSession,
+    logger,
 ) -> TierDTO:
-    log = bind_target_func(update_tier_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     tier_repo = TierRepository(session)
@@ -97,15 +96,19 @@ async def update_tier_service(
         setattr(tier, key, value)
 
     result = TierDTO.model_validate(tier)
-    log.bind(**result.model_dump()).info("")
+    logger.bind(**result.model_dump())
     return result
 
 
-@service_error_handler
+@service
 async def delete_tier_service(
-    guild_id: int, user_id: int, preset_id: int, tier_id: int, session: AsyncSession
+    guild_id: int,
+    user_id: int,
+    preset_id: int,
+    tier_id: int,
+    session: AsyncSession,
+    logger,
 ) -> None:
-    log = bind_target_func(delete_tier_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     tier_repo = TierRepository(session)
@@ -114,4 +117,4 @@ async def delete_tier_service(
         raise AppError(TierError.NotFound)
 
     await session.delete(tier)
-    log.bind(tier_id=tier_id).info("")
+    logger.bind(tier_id=tier_id)

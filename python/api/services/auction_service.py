@@ -1,8 +1,8 @@
 import asyncio
 
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.decorator import service
 from shared.dtos.auction_dto import (
     AuctionDTO,
     CreateAuctionDTO,
@@ -11,26 +11,25 @@ from shared.dtos.auction_dto import (
 from shared.dtos.preset_dto import PresetDetailDTO
 from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
-from shared.error import AppError, Auction, service_error_handler
+from shared.error import AppError, Auction
 from shared.error import Preset as PresetError
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin
-from shared.utils.logging import bind_target_func
 
 from ..auction.auction_manager import auction_manager
 from ..utils.discord import send_message
 from ..utils.member import verify_role
 
 
-@service_error_handler
+@service
 async def create_auction_service(
     guild_id: int,
     user_id: int,
     preset_id: int,
     dto: CreateAuctionDTO,
     session: AsyncSession,
+    logger,
 ) -> AuctionDTO:
-    log = bind_target_func(create_auction_service)
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
@@ -77,7 +76,7 @@ async def create_auction_service(
     auction_id: str = auction.auction_id
 
     result = AuctionDTO(auction_id=auction_id)
-    log.bind(**result.model_dump(), member_count=len(member_ids)).info("")
+    logger.bind(**result.model_dump(), member_count=len(member_ids))
 
     app_origin = get_app_origin()
 

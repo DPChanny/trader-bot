@@ -1,6 +1,6 @@
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.decorator import service
 from shared.dtos.position_dto import (
     AddPositionDTO,
     PositionDTO,
@@ -8,17 +8,16 @@ from shared.dtos.position_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.position import Position
-from shared.error import AppError, service_error_handler
+from shared.error import AppError
 from shared.error import Position as PositionError
 from shared.error import Preset as PresetError
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
-from shared.utils.logging import bind_target_func
 
 from ..utils.member import verify_role
 
 
-@service_error_handler
+@service
 async def get_position_list_service(
     guild_id: int,
     user_id: int,
@@ -36,7 +35,7 @@ async def get_position_list_service(
     return [PositionDTO.model_validate(p) for p in positions]
 
 
-@service_error_handler
+@service
 async def get_position_service(
     guild_id: int,
     user_id: int,
@@ -53,15 +52,15 @@ async def get_position_service(
     return PositionDTO.model_validate(position)
 
 
-@service_error_handler
+@service
 async def add_position_service(
     guild_id: int,
     user_id: int,
     preset_id: int,
     dto: AddPositionDTO,
     session: AsyncSession,
+    logger,
 ) -> PositionDTO:
-    log = bind_target_func(add_position_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
@@ -76,11 +75,11 @@ async def add_position_service(
     session.add(position)
     await session.flush()
     result = PositionDTO.model_validate(position)
-    log.bind(**result.model_dump()).info("")
+    logger.bind(**result.model_dump())
     return result
 
 
-@service_error_handler
+@service
 async def update_position_service(
     guild_id: int,
     user_id: int,
@@ -88,8 +87,8 @@ async def update_position_service(
     position_id: int,
     dto: UpdatePositionDTO,
     session: AsyncSession,
+    logger,
 ) -> PositionDTO:
-    log = bind_target_func(update_position_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     position_repo = PositionRepository(session)
@@ -101,19 +100,19 @@ async def update_position_service(
         setattr(position, key, value)
 
     result = PositionDTO.model_validate(position)
-    log.bind(**result.model_dump()).info("")
+    logger.bind(**result.model_dump())
     return result
 
 
-@service_error_handler
+@service
 async def delete_position_service(
     guild_id: int,
     user_id: int,
     preset_id: int,
     position_id: int,
     session: AsyncSession,
+    logger,
 ) -> None:
-    log = bind_target_func(delete_position_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     position_repo = PositionRepository(session)
@@ -122,4 +121,4 @@ async def delete_position_service(
         raise AppError(PositionError.NotFound)
 
     await session.delete(position)
-    log.bind(position_id=position_id).info("")
+    logger.bind(position_id=position_id)

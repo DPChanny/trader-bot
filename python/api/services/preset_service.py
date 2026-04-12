@@ -1,6 +1,6 @@
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.decorator import service
 from shared.dtos.preset_dto import (
     CreatePresetDTO,
     PresetDTO,
@@ -8,15 +8,14 @@ from shared.dtos.preset_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.preset import Preset
-from shared.error import AppError, service_error_handler
+from shared.error import AppError
 from shared.error import Preset as PresetError
 from shared.repositories.preset_repository import PresetRepository
-from shared.utils.logging import bind_target_func
 
 from ..utils.member import verify_role
 
 
-@service_error_handler
+@service
 async def get_preset_service(
     guild_id: int, user_id: int, preset_id: int, session: AsyncSession
 ) -> PresetDTO:
@@ -29,11 +28,14 @@ async def get_preset_service(
     return PresetDTO.model_validate(preset)
 
 
-@service_error_handler
+@service
 async def create_preset_service(
-    guild_id: int, user_id: int, dto: CreatePresetDTO, session: AsyncSession
+    guild_id: int,
+    user_id: int,
+    dto: CreatePresetDTO,
+    session: AsyncSession,
+    logger,
 ) -> PresetDTO:
-    log = bind_target_func(create_preset_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset = Preset(
@@ -47,11 +49,11 @@ async def create_preset_service(
     session.add(preset)
     await session.flush()
     result = PresetDTO.model_validate(preset)
-    log.bind(**result.model_dump()).info("")
+    logger.bind(**result.model_dump())
     return result
 
 
-@service_error_handler
+@service
 async def get_preset_list_service(
     guild_id: int, user_id: int, session: AsyncSession
 ) -> list[PresetDTO]:
@@ -62,15 +64,15 @@ async def get_preset_list_service(
     return [PresetDTO.model_validate(p) for p in presets]
 
 
-@service_error_handler
+@service
 async def update_preset_service(
     guild_id: int,
     user_id: int,
     preset_id: int,
     dto: UpdatePresetDTO,
     session: AsyncSession,
+    logger,
 ) -> PresetDTO:
-    log = bind_target_func(update_preset_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_repo = PresetRepository(session)
@@ -82,15 +84,18 @@ async def update_preset_service(
         setattr(preset, key, value)
 
     result = PresetDTO.model_validate(preset)
-    log.bind(**result.model_dump()).info("")
+    logger.bind(**result.model_dump())
     return result
 
 
-@service_error_handler
+@service
 async def delete_preset_service(
-    guild_id: int, user_id: int, preset_id: int, session: AsyncSession
+    guild_id: int,
+    user_id: int,
+    preset_id: int,
+    session: AsyncSession,
+    logger,
 ) -> None:
-    log = bind_target_func(delete_preset_service)
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
@@ -99,4 +104,4 @@ async def delete_preset_service(
         raise AppError(PresetError.NotFound)
 
     await session.delete(preset)
-    log.bind(preset_id=preset_id).info("")
+    logger.bind(preset_id=preset_id)

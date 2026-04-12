@@ -1,19 +1,16 @@
 from discord import Guild
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.decorator import service
 from shared.entities.member import Role
-from shared.error import service_error_handler
-from shared.utils.logging import bind_target_func
 from shared.utils.user import upsert_user
 
 from ..utils.guild import delete_guild, upsert_guild
 from ..utils.member import upsert_member
 
 
-@service_error_handler
-async def on_guild_join_service(guild: Guild, session: AsyncSession) -> None:
-    log = bind_target_func(on_guild_join_service)
+@service
+async def on_guild_join_service(guild: Guild, session: AsyncSession, logger) -> None:
     owner_discord_id = guild.owner_id
     guild_entity = await upsert_guild(
         guild.id,
@@ -45,10 +42,10 @@ async def on_guild_join_service(guild: Guild, session: AsyncSession) -> None:
     owner_member = await upsert_member(
         guild_entity.discord_id, owner_discord_id, session
     )
-    log.bind(
+    logger.bind(
         **guild_entity.model_dump(),
         owner_discord_id=owner_discord_id,
-    ).info("")
+    )
 
     if Role(owner_member.role) < Role.OWNER:
         owner_member = await upsert_member(
@@ -57,27 +54,27 @@ async def on_guild_join_service(guild: Guild, session: AsyncSession) -> None:
             session,
             role=Role.OWNER,
         )
-        log.bind(**owner_member.model_dump()).info("")
+        logger.bind(**owner_member.model_dump())
 
 
-@service_error_handler
+@service
 async def on_guild_update_service(
     before: Guild,
     after: Guild,
     session: AsyncSession,
+    logger,
 ) -> None:
-    log = bind_target_func(on_guild_update_service)
     guild_entity = await upsert_guild(
         after.id,
         after.name,
         after.icon.key if after.icon else None,
         session,
     )
-    log.bind(
+    logger.bind(
         **guild_entity.model_dump(),
         old_owner_discord_id=before.owner_id,
         new_owner_discord_id=after.owner_id,
-    ).info("")
+    )
     old_owner_member = await upsert_member(
         guild_entity.discord_id,
         before.owner_id,
@@ -90,12 +87,11 @@ async def on_guild_update_service(
         session,
         role=Role.OWNER,
     )
-    log.bind(**old_owner_member.model_dump()).info("")
-    log.bind(**new_owner_member.model_dump()).info("")
+    logger.bind(**old_owner_member.model_dump())
+    logger.bind(**new_owner_member.model_dump())
 
 
-@service_error_handler
-async def on_guild_remove_service(guild: Guild, session: AsyncSession) -> None:
-    log = bind_target_func(on_guild_remove_service)
+@service
+async def on_guild_remove_service(guild: Guild, session: AsyncSession, logger) -> None:
     await delete_guild(guild.id, session)
-    log.bind(discord_id=guild.id, name=guild.name).info("")
+    logger.bind(discord_id=guild.id, name=guild.name)

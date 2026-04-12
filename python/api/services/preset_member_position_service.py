@@ -1,7 +1,7 @@
-from loguru import logger
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.decorator import service
 from shared.dtos.preset_member_position_dto import (
     AddPresetMemberPositionDTO,
     PresetMemberPositionDTO,
@@ -10,7 +10,6 @@ from shared.entities.member import Role
 from shared.entities.preset_member_position import PresetMemberPosition
 from shared.error import (
     AppError,
-    service_error_handler,
 )
 from shared.error import (
     Position as PositionError,
@@ -26,12 +25,11 @@ from shared.repositories.preset_member_position_repository import (
     PresetMemberPositionRepository,
 )
 from shared.repositories.preset_member_repository import PresetMemberRepository
-from shared.utils.logging import bind_target_func
 
 from ..utils.member import verify_role
 
 
-@service_error_handler
+@service
 async def add_preset_member_position_service(
     guild_id: int,
     user_id: int,
@@ -39,8 +37,8 @@ async def add_preset_member_position_service(
     preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
     session: AsyncSession,
+    logger,
 ) -> PresetMemberPositionDTO:
-    log = bind_target_func(add_preset_member_position_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(session)
@@ -65,11 +63,11 @@ async def add_preset_member_position_service(
         raise AppError(PresetMemberPositionError.Duplicated) from None
 
     result = PresetMemberPositionDTO.model_validate(preset_member_position)
-    log.bind(**result.model_dump()).info("")
+    logger.bind(**result.model_dump())
     return result
 
 
-@service_error_handler
+@service
 async def delete_preset_member_position_service(
     guild_id: int,
     user_id: int,
@@ -77,8 +75,8 @@ async def delete_preset_member_position_service(
     preset_member_id: int,
     preset_member_position_id: int,
     session: AsyncSession,
+    logger,
 ) -> None:
-    log = bind_target_func(delete_preset_member_position_service)
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     pmp_repo = PresetMemberPositionRepository(session)
@@ -89,4 +87,4 @@ async def delete_preset_member_position_service(
         raise AppError(PresetMemberPositionError.NotFound)
 
     await session.delete(preset_member_position)
-    log.bind(preset_member_position_id=preset_member_position_id).info("")
+    logger.bind(preset_member_position_id=preset_member_position_id)

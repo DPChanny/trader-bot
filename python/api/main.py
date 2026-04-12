@@ -4,12 +4,11 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from loguru import logger
 
 from shared.error import AppError, Server, Validation
 from shared.utils.database import setup_db
 from shared.utils.env import get_app_origin
-from shared.utils.logging import LoggingMiddleware, setup_logging
+from shared.utils.logging import LoggingMiddleware, bind_target_func, setup_logging
 
 from .routers import (
     auction_router,
@@ -50,7 +49,8 @@ async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
 async def validation_error_handler(
     _: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    logger.bind(
+    bind_target_func(
+        validation_error_handler,
         error_code=Validation.Error.value,
         exception_type=type(exc).__name__,
     ).warning("")
@@ -62,7 +62,8 @@ async def validation_error_handler(
 
 @app.exception_handler(Exception)
 async def global_exception_handler(_: Request, exc: Exception) -> JSONResponse:
-    logger.bind(
+    bind_target_func(
+        global_exception_handler,
         error_code=Server.InternalError.value,
         exception_type=type(exc).__name__,
     ).exception("")
