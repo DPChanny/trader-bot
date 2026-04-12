@@ -6,7 +6,7 @@ import { Error as ErrorMessage } from "@/components/commons/error";
 import type { TierDTO, UpdateTierDTO } from "@/dtos/tierDto";
 import { hasPatchFields, normalizeNullableText } from "@/utils/hook";
 
-interface EditTierModalProps {
+interface UpdateTierModalProps {
   tier: TierDTO;
   onClose: () => void;
   onSubmit: (dto: UpdateTierDTO) => void;
@@ -14,13 +14,13 @@ interface EditTierModalProps {
   error?: any;
 }
 
-export function EditTierModal({
+export function UpdateTierModal({
   tier,
   onClose,
   onSubmit,
   isPending,
   error,
-}: EditTierModalProps) {
+}: UpdateTierModalProps) {
   const [name, setName] = useState(tier.name);
   const [iconUrl, setIconUrl] = useState(tier.iconUrl ?? "");
 

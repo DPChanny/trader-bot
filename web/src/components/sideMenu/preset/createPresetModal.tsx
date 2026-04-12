@@ -9,6 +9,10 @@ import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
 import type { CreatePresetDTO } from "@/dtos/presetDto";
+import {
+  isPresetFormValid,
+  normalizeCreatePresetValues,
+} from "@/utils/presetValidation";
 
 interface CreatePresetModalProps {
   onClose: () => void;
@@ -29,6 +33,15 @@ export function CreatePresetModal({
   const [timer, setTimer] = useState("");
   const [teamSize, setTeamSize] = useState("");
 
+  const normalizedValues = normalizeCreatePresetValues({
+    name,
+    points,
+    pointScale,
+    timer,
+    teamSize,
+  });
+  const isFormValid = isPresetFormValid(normalizedValues);
+
   const handleClose = () => {
     if (isPending) return;
     setName("");
@@ -41,19 +54,14 @@ export function CreatePresetModal({
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!name.trim()) return;
-
-    const parsedPoints = Math.max(0, Number(points) || 1000);
-    const parsedPointScale = Math.max(1, Number(pointScale) || 5);
-    const parsedTimer = Math.max(1, Number(timer) || 15);
-    const parsedTeamSize = Math.max(1, Number(teamSize) || 5);
+    if (!isFormValid) return;
 
     const dto: CreatePresetDTO = {
-      name: name.trim(),
-      points: parsedPoints,
-      timer: parsedTimer,
-      teamSize: parsedTeamSize,
-      pointScale: parsedPointScale,
+      name: normalizedValues.name,
+      points: normalizedValues.points,
+      timer: normalizedValues.timer,
+      teamSize: normalizedValues.teamSize,
+      pointScale: normalizedValues.pointScale,
     };
 
     try {
@@ -112,7 +120,7 @@ export function CreatePresetModal({
           <SecondaryButton onClick={handleClose} disabled={isPending}>
             취소
           </SecondaryButton>
-          <PrimaryButton type="submit" disabled={isPending || !name.trim()}>
+          <PrimaryButton type="submit" disabled={isPending || !isFormValid}>
             추가
           </PrimaryButton>
         </ModalFooter>

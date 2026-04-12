@@ -1,4 +1,4 @@
-from . import BaseDTO, NullableStr
+from . import BaseDTO, NameStr, NullableNameStr, NullableUrlStr
 
 
 class PositionDTO(BaseDTO):
@@ -11,10 +11,10 @@ class PositionDTO(BaseDTO):
 
 
 class AddPositionDTO(BaseDTO):
-    name: str
-    icon_url: NullableStr
+    name: NameStr
+    icon_url: NullableUrlStr
 
 
 class UpdatePositionDTO(BaseDTO):
-    name: NullableStr = None
-    icon_url: NullableStr = None
+    name: NullableNameStr = None
+    icon_url: NullableUrlStr = None

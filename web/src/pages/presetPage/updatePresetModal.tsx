@@ -10,8 +10,24 @@ import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
 import type { PresetDTO, UpdatePresetDTO } from "@/dtos/presetDto";
 import { hasPatchFields } from "@/utils/hook";
+import {
+  PRESET_DISPLAY_POINTS_MAX,
+  PRESET_POINT_SCALE_MAX,
+  PRESET_POINT_SCALE_MIN,
+  PRESET_POINTS_MAX,
+  PRESET_POINTS_MIN,
+  PRESET_TEAM_SIZE_MAX,
+  PRESET_TEAM_SIZE_MIN,
+  PRESET_TIMER_MAX,
+  PRESET_TIMER_MIN,
+  isPresetFormValid,
+  normalizePresetName,
+  sanitizePresetInteger,
+  toDisplayPoints,
+  toStoredPoints,
+} from "@/utils/presetValidation";
 
-interface EditPresetModalProps {
+interface UpdatePresetModalProps {
   preset: PresetDTO;
   onClose: () => void;
   onSubmit: (dto: UpdatePresetDTO) => void;
@@ -19,22 +35,24 @@ interface EditPresetModalProps {
   error?: any;
 }
 
-export function EditPresetModal({
+export function UpdatePresetModal({
   preset,
   onClose,
   onSubmit,
   isPending,
   error,
-}: EditPresetModalProps) {
+}: UpdatePresetModalProps) {
   const [name, setName] = useState(preset.name);
-  const [points, setPoints] = useState(preset.points);
+  const [displayPoints, setDisplayPoints] = useState(
+    toDisplayPoints(preset.points, preset.pointScale),
+  );
   const [timer, setTimer] = useState(preset.timer);
   const [teamSize, setTeamSize] = useState(preset.teamSize);
   const [pointScale, setPointScale] = useState(preset.pointScale);
 
   useEffect(() => {
     setName(preset.name);
-    setPoints(preset.points);
+    setDisplayPoints(toDisplayPoints(preset.points, preset.pointScale));
     setTimer(preset.timer);
     setTeamSize(preset.teamSize);
     setPointScale(preset.pointScale);
@@ -47,19 +65,30 @@ export function EditPresetModal({
     preset.pointScale,
   ]);
 
+  const normalizedName = normalizePresetName(name);
+  const points = Math.min(
+    PRESET_POINTS_MAX,
+    Math.max(
+      PRESET_POINTS_MIN,
+      toStoredPoints(
+        displayPoints,
+        Math.max(pointScale, PRESET_POINT_SCALE_MIN),
+      ),
+    ),
+  );
+  const isFormValid = isPresetFormValid({
+    name: normalizedName,
+    points,
+    pointScale,
+    timer,
+    teamSize,
+  });
+
   const handleSubmit = (e: Event) => {
     e.preventDefault();
-    if (
-      !name.trim() ||
-      points < 0 ||
-      pointScale < 1 ||
-      timer < 1 ||
-      teamSize < 1
-    )
-      return;
+    if (!isFormValid) return;
 
     const dto: UpdatePresetDTO = {};
-    const normalizedName = name.trim();
     if (normalizedName !== preset.name) dto.name = normalizedName;
     if (points !== preset.points) dto.points = points;
     if (timer !== preset.timer) dto.timer = timer;
@@ -71,7 +100,7 @@ export function EditPresetModal({
   };
 
   const hasChanges =
-    name.trim() !== preset.name ||
+    normalizedName !== preset.name ||
     points !== preset.points ||
     timer !== preset.timer ||
     teamSize !== preset.teamSize ||
@@ -98,14 +127,32 @@ export function EditPresetModal({
           <LabelInput
             label="포인트"
             type="number"
-            value={points.toString()}
-            onChange={(value) => setPoints(Math.max(0, Number(value) || 0))}
+            value={displayPoints.toString()}
+            onChange={(value) =>
+              setDisplayPoints(
+                sanitizePresetInteger(
+                  value,
+                  displayPoints,
+                  PRESET_POINTS_MIN,
+                  PRESET_DISPLAY_POINTS_MAX,
+                ),
+              )
+            }
           />
           <LabelInput
             label="포인트 스케일"
             type="number"
             value={pointScale.toString()}
-            onChange={(value) => setPointScale(Math.max(1, Number(value) || 1))}
+            onChange={(value) =>
+              setPointScale(
+                sanitizePresetInteger(
+                  value,
+                  pointScale,
+                  PRESET_POINT_SCALE_MIN,
+                  PRESET_POINT_SCALE_MAX,
+                ),
+              )
+            }
           />
         </ModalRow>
 
@@ -114,13 +161,31 @@ export function EditPresetModal({
             label="타이머 (초)"
             type="number"
             value={timer.toString()}
-            onChange={(value) => setTimer(Math.max(1, Number(value) || 1))}
+            onChange={(value) =>
+              setTimer(
+                sanitizePresetInteger(
+                  value,
+                  timer,
+                  PRESET_TIMER_MIN,
+                  PRESET_TIMER_MAX,
+                ),
+              )
+            }
           />
           <LabelInput
             label="팀당 인원수"
             type="number"
             value={teamSize.toString()}
-            onChange={(value) => setTeamSize(Math.max(1, Number(value) || 1))}
+            onChange={(value) =>
+              setTeamSize(
+                sanitizePresetInteger(
+                  value,
+                  teamSize,
+                  PRESET_TEAM_SIZE_MIN,
+                  PRESET_TEAM_SIZE_MAX,
+                ),
+              )
+            }
           />
         </ModalRow>
 
@@ -134,15 +199,7 @@ export function EditPresetModal({
           </SecondaryButton>
           <PrimaryButton
             type="submit"
-            disabled={
-              isPending ||
-              !name.trim() ||
-              !hasChanges ||
-              points < 0 ||
-              pointScale < 1 ||
-              timer < 1 ||
-              teamSize < 1
-            }
+            disabled={isPending || !hasChanges || !isFormValid}
           >
             저장
           </PrimaryButton>

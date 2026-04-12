@@ -13,7 +13,7 @@ import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
 import { AddPositionModal } from "./addPositionModal";
-import { EditPositionModal } from "./editPositionModal";
+import { UpdatePositionModal } from "./updatePositionModal";
 import { DeletePositionModal } from "./deletePositionModal";
 import { PositionCard } from "./positionCard";
 import type {
@@ -31,7 +31,7 @@ interface PositionEditorProps {
 
 export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   const [showAddPositionModal, setShowAddPositionModal] = useState(false);
-  const [editingPosition, setEditingPosition] = useState<PositionDTO | null>(
+  const [updatingPosition, setUpdatingPosition] = useState<PositionDTO | null>(
     null,
   );
   const [showDeletePositionModal, setShowDeletePositionModal] = useState(false);
@@ -59,23 +59,23 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   };
 
   const handleUpdatePosition = async (dto: UpdatePositionDTO) => {
-    if (!editingPosition) return;
+    if (!updatingPosition) return;
     try {
       await updatePosition.mutateAsync({
         guildId,
         presetId,
-        positionId: editingPosition.positionId,
+        positionId: updatingPosition.positionId,
         dto,
       });
-      setEditingPosition(null);
+      setUpdatingPosition(null);
       updatePosition.reset();
     } catch (err) {
       console.error("Failed to update position:", err);
     }
   };
 
-  const handleCloseEditPositionModal = () => {
-    setEditingPosition(null);
+  const handleCloseUpdatePositionModal = () => {
+    setUpdatingPosition(null);
     updatePosition.reset();
   };
 
@@ -133,7 +133,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
               key={position.positionId}
               position={position}
               guildId={guildId}
-              onEdit={() => setEditingPosition(position)}
+              onEdit={() => setUpdatingPosition(position)}
               onDelete={() =>
                 handleOpenDeletePositionModal(position.positionId)
               }
@@ -152,10 +152,10 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
         />
       )}
 
-      {editingPosition && (
-        <EditPositionModal
-          position={editingPosition}
-          onClose={handleCloseEditPositionModal}
+      {updatingPosition && (
+        <UpdatePositionModal
+          position={updatingPosition}
+          onClose={handleCloseUpdatePositionModal}
           onSubmit={handleUpdatePosition}
           isPending={updatePosition.isPending}
           error={updatePosition.isError ? updatePosition.error : undefined}

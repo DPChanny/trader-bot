@@ -1,4 +1,4 @@
-from . import BaseDTO, NullableStr
+from . import BaseDTO, NameStr, NullableNameStr, NullableUrlStr
 
 
 class TierDTO(BaseDTO):
@@ -11,10 +11,10 @@ class TierDTO(BaseDTO):
 
 
 class AddTierDTO(BaseDTO):
-    name: str
-    icon_url: NullableStr
+    name: NameStr
+    icon_url: NullableUrlStr
 
 
 class UpdateTierDTO(BaseDTO):
-    name: NullableStr = None
-    icon_url: NullableStr = None
+    name: NullableNameStr = None
+    icon_url: NullableUrlStr = None

@@ -1,4 +1,6 @@
-from . import BaseDTO, DiscordId, NullableStr
+from pydantic import Field
+
+from . import BaseDTO, DiscordId, NameStr, NullableNameStr
 from .preset_member_dto import PresetMemberDetailDTO
 
 
@@ -19,16 +21,16 @@ class PresetDetailDTO(PresetDTO):
 
 
 class CreatePresetDTO(BaseDTO):
-    name: str
-    points: int
-    timer: int
-    team_size: int
-    point_scale: int
+    name: NameStr
+    points: int = Field(ge=0, le=1000)
+    timer: int = Field(ge=1, le=60)
+    team_size: int = Field(ge=1, le=10)
+    point_scale: int = Field(ge=1, le=10)
 
 
 class UpdatePresetDTO(BaseDTO):
-    name: NullableStr = None
-    points: int | None = None
-    timer: int | None = None
-    team_size: int | None = None
-    point_scale: int | None = None
+    name: NullableNameStr = None
+    points: int | None = Field(default=None, ge=0, le=1000)
+    timer: int | None = Field(default=None, ge=1, le=60)
+    team_size: int | None = Field(default=None, ge=1, le=10)
+    point_scale: int | None = Field(default=None, ge=1, le=10)

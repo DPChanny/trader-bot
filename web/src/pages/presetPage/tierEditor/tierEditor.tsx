@@ -12,7 +12,7 @@ import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
 import { AddTierModal } from "./addTierModal";
-import { EditTierModal } from "./editTierModal";
+import { UpdateTierModal } from "./updateTierModal";
 import { DeleteTierModal } from "./deleteTierModal";
 import { TierCard } from "./tierCard";
 import styles from "@/styles/pages/presetPage/tierEditor/tierList.module.css";
@@ -26,7 +26,7 @@ interface TierEditorProps {
 
 export function TierEditor({ guildId, presetId }: TierEditorProps) {
   const [showAddTierModal, setShowAddTierModal] = useState(false);
-  const [editingTier, setEditingTier] = useState<TierDTO | null>(null);
+  const [updatingTier, setUpdatingTier] = useState<TierDTO | null>(null);
   const [showDeleteTierModal, setShowDeleteTierModal] = useState(false);
   const [deletingTierId, setDeletingTierId] = useState<number | null>(null);
 
@@ -50,23 +50,23 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
   };
 
   const handleUpdateTier = async (dto: UpdateTierDTO) => {
-    if (!editingTier) return;
+    if (!updatingTier) return;
     try {
       await updateTier.mutateAsync({
         guildId,
         presetId,
-        tierId: editingTier.tierId,
+        tierId: updatingTier.tierId,
         dto,
       });
-      setEditingTier(null);
+      setUpdatingTier(null);
       updateTier.reset();
     } catch (err) {
       console.error("Failed to update tier:", err);
     }
   };
 
-  const handleCloseEditTierModal = () => {
-    setEditingTier(null);
+  const handleCloseUpdateTierModal = () => {
+    setUpdatingTier(null);
     updateTier.reset();
   };
 
@@ -122,7 +122,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
               key={tier.tierId}
               tier={tier}
               guildId={guildId}
-              onEdit={() => setEditingTier(tier)}
+              onEdit={() => setUpdatingTier(tier)}
               onDelete={() => handleOpenDeleteTierModal(tier.tierId)}
               isDeletePending={deleteTier.isPending}
             />
@@ -138,10 +138,10 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
           error={addTier.isError ? addTier.error : undefined}
         />
       )}
-      {editingTier && (
-        <EditTierModal
-          tier={editingTier}
-          onClose={handleCloseEditTierModal}
+      {updatingTier && (
+        <UpdateTierModal
+          tier={updatingTier}
+          onClose={handleCloseUpdateTierModal}
           onSubmit={handleUpdateTier}
           isPending={updateTier.isPending}
           error={updateTier.isError ? updateTier.error : undefined}

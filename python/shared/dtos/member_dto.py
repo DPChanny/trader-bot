@@ -1,7 +1,7 @@
 from pydantic import computed_field
 
 from ..entities.member import Role
-from . import BaseDTO, DiscordId, NullableStr
+from . import BaseDTO, DiscordId, NullableNameStr, NullableUrlStr
 from .user_dto import UserDTO
 
 
@@ -31,6 +31,6 @@ class MemberDetailDTO(MemberDTO):
 
 
 class UpdateMemberDTO(BaseDTO):
-    alias: NullableStr = None
-    info_url: NullableStr = None
+    alias: NullableNameStr = None
+    info_url: NullableUrlStr = None
     role: Role | None = None

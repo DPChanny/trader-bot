@@ -6,7 +6,7 @@ import { Error as ErrorMessage } from "@/components/commons/error";
 import type { PositionDTO, UpdatePositionDTO } from "@/dtos/positionDto";
 import { hasPatchFields, normalizeNullableText } from "@/utils/hook";
 
-interface EditPositionModalProps {
+interface UpdatePositionModalProps {
   position: PositionDTO;
   onClose: () => void;
   onSubmit: (dto: UpdatePositionDTO) => void;
@@ -14,13 +14,13 @@ interface EditPositionModalProps {
   error?: any;
 }
 
-export function EditPositionModal({
+export function UpdatePositionModal({
   position,
   onClose,
   onSubmit,
   isPending,
   error,
-}: EditPositionModalProps) {
+}: UpdatePositionModalProps) {
   const [name, setName] = useState(position.name);
   const [iconUrl, setIconUrl] = useState(position.iconUrl ?? "");
 

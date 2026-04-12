@@ -17,7 +17,7 @@ import {
   DeleteButton,
 } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
-import { EditPresetModal } from "./editPresetModal";
+import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionModal } from "./auctionModal";
@@ -32,7 +32,7 @@ interface PresetPageProps {
 }
 
 export function PresetPage({ guildId, presetId }: PresetPageProps) {
-  const [showEditPresetModal, setShowEditPresetModal] = useState(false);
+  const [showUpdatePresetModal, setShowUpdatePresetModal] = useState(false);
   const [showDeletePresetModal, setShowDeletePresetModal] = useState(false);
   const [showCreateAuctionModal, setShowCreateAuctionModal] = useState(false);
   const [createdAuctionId, setCreatedAuctionId] = useState<string | null>(null);
@@ -82,16 +82,16 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
         presetId: preset.presetId,
         dto,
       });
-      setShowEditPresetModal(false);
+      setShowUpdatePresetModal(false);
     } catch {}
   };
 
-  const handleOpenEditPresetModal = () => {
-    setShowEditPresetModal(true);
+  const handleOpenUpdatePresetModal = () => {
+    setShowUpdatePresetModal(true);
   };
 
-  const handleCloseEditPresetModal = () => {
-    setShowEditPresetModal(false);
+  const handleCloseUpdatePresetModal = () => {
+    setShowUpdatePresetModal(false);
     updatePreset.reset();
   };
 
@@ -144,7 +144,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
                 {canEdit && (
                   <EditButton
                     variantSize="medium"
-                    onClick={handleOpenEditPresetModal}
+                    onClick={handleOpenUpdatePresetModal}
                   />
                 )}
                 {canEdit && (
@@ -158,9 +158,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
             <Bar />
             <Section variantLayout="row" variantIntent="tertiary">
               <span>{teamSize} 명</span>
-              <span>
-                {preset.points}/{preset.pointScale} 포인트
-              </span>
+              <span>{preset.points * preset.pointScale} 포인트</span>
               <span>{preset.timer} 초</span>
             </Section>
 
@@ -182,10 +180,10 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
       <PresetMemberEditor guildId={guildId} presetId={presetId} />
 
-      {preset && showEditPresetModal && (
-        <EditPresetModal
+      {preset && showUpdatePresetModal && (
+        <UpdatePresetModal
           preset={preset}
-          onClose={handleCloseEditPresetModal}
+          onClose={handleCloseUpdatePresetModal}
           onSubmit={handleUpdate}
           isPending={updatePreset.isPending}
           error={updatePreset.error}
