@@ -34,6 +34,16 @@
   --color-button-danger-border-hover: rgb(248, 113, 113);
   --color-button-danger-border-active: rgb(220, 38, 38);
 
+  --color-button-warning-bg: rgb(217, 119, 6);
+  --color-button-warning-bg-hover: rgb(245, 158, 11);
+  --color-button-warning-bg-active: rgb(180, 83, 9);
+  --color-button-warning-text: rgb(255, 255, 255);
+  --color-button-warning-text-hover: rgb(255, 255, 255);
+  --color-button-warning-text-active: rgb(255, 255, 255);
+  --color-button-warning-border: rgb(217, 119, 6);
+  --color-button-warning-border-hover: rgb(245, 158, 11);
+  --color-button-warning-border-active: rgb(180, 83, 9);
+
   --color-section-primary-bg: rgb(22, 33, 62);
   --color-section-primary-border: rgba(255, 255, 255, 0.1);
   --color-section-primary-text: rgb(229, 231, 235);

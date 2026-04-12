@@ -75,6 +75,24 @@
   border-color: var(--color-button-danger-border-active);
 }
 
+.intentWarning {
+  background: var(--color-button-warning-bg);
+  color: var(--color-button-warning-text);
+  border-color: var(--color-button-warning-border);
+}
+
+.intentWarning:hover:not(:disabled) {
+  background: var(--color-button-warning-bg-hover);
+  color: var(--color-button-warning-text-hover);
+  border-color: var(--color-button-warning-border-hover);
+}
+
+.intentWarning:active:not(:disabled) {
+  background: var(--color-button-warning-bg-active);
+  color: var(--color-button-warning-text-active);
+  border-color: var(--color-button-warning-border-active);
+}
+
 .toneOutline {
   background-color: transparent;
   border: var(--border-width-default) solid;

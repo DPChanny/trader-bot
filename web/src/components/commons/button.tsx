@@ -10,6 +10,7 @@ const buttonVariants = cva(styles.button, {
       primary: styles.intentPrimary,
       secondary: styles.intentSecondary,
       danger: styles.intentDanger,
+      warning: styles.intentWarning,
     },
     variantTone: {
       solid: "",

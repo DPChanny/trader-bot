@@ -11,11 +11,7 @@ import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
 import { Section } from "@/components/commons/section";
 import { PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
-import {
-  PrimaryButton,
-  EditButton,
-  DeleteButton,
-} from "@/components/commons/button";
+import { EditButton, DeleteButton, Button } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
 import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
@@ -49,18 +45,24 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   const teamSize = preset?.teamSize ?? 0;
   const leaderCount = presetMembers?.filter((pm) => pm.isLeader).length ?? 0;
-  const memberCount = presetMembers?.length ?? 0;
-  const requiredMembers = leaderCount * teamSize;
+  const presetMemberCount = presetMembers?.length ?? 0;
+  const requiredPresetMembers = leaderCount * teamSize;
   const canStartAuction = !!presetMembers && leaderCount >= 2;
 
   let presetValidMessage = "";
   if (presetMembers) {
     if (leaderCount < 2) {
       presetValidMessage = `현재 팀장 인원(${leaderCount}명)이 최소 인원(2명)보다 적습니다.`;
-    } else if (memberCount < requiredMembers) {
-      presetValidMessage = `현재 인원(${memberCount}명)이 권장 인원(${requiredMembers}명, 팀당 ${teamSize}명)보다 적습니다.`;
+    } else if (presetMemberCount < requiredPresetMembers) {
+      presetValidMessage = `현재 전체 인원(${presetMemberCount}명)이 권장 인원(${requiredPresetMembers}명)보다 적습니다.`;
     }
   }
+
+  const auctionButtonIntent = !canStartAuction
+    ? "danger"
+    : presetValidMessage
+      ? "warning"
+      : "primary";
 
   const handleStartAuction = async (dto: CreateAuctionDTO) => {
     try {
@@ -162,14 +164,13 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
               <span>{preset.timer} 초</span>
             </Section>
 
-            {presetValidMessage && <Error>{presetValidMessage}</Error>}
             {canEdit && (
-              <PrimaryButton
+              <Button
+                variantIntent={auctionButtonIntent}
                 onClick={() => setShowCreateAuctionModal(true)}
-                disabled={!canStartAuction}
               >
                 경매 생성
-              </PrimaryButton>
+              </Button>
             )}
           </Section>
         )}
@@ -208,6 +209,8 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
           onSubmit={handleStartAuction}
           isPending={createAuction.isPending}
           error={createAuction.isError ? createAuction.error : undefined}
+          message={presetValidMessage || undefined}
+          isHardError={!canStartAuction}
         />
       )}
 

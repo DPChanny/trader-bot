@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import { Modal, ModalFooter } from "@/components/commons/modal";
 import { Toggle } from "@/components/commons/toggle";
 import { Label } from "@/components/commons/label";
-import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
+import { SecondaryButton, Button } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
 import { Section } from "@/components/commons/section";
 import type { CreateAuctionDTO } from "@/dtos/auctionDto";
@@ -12,6 +12,8 @@ interface CreateAuctionModalProps {
   onSubmit: (dto: CreateAuctionDTO) => Promise<void>;
   isPending: boolean;
   error?: any;
+  message?: string;
+  isHardError?: boolean;
 }
 
 export function CreateAuctionModal({
@@ -19,6 +21,8 @@ export function CreateAuctionModal({
   onSubmit,
   isPending,
   error,
+  message,
+  isHardError = false,
 }: CreateAuctionModalProps) {
   const [allowPublic, setAllowPublic] = useState(true);
   const [sendInvite, setSendInvite] = useState(true);
@@ -31,6 +35,7 @@ export function CreateAuctionModal({
   return (
     <Modal onClose={handleClose} title="경매 생성">
       <Section variantTone="ghost" variantIntent="secondary">
+        {message && <Error>{message}</Error>}
         {error && (
           <Error detail={error?.message}>경매 생성에 실패했습니다.</Error>
         )}
@@ -68,13 +73,13 @@ export function CreateAuctionModal({
           >
             취소
           </SecondaryButton>
-          <PrimaryButton
+          <Button
             type="button"
             onClick={() => onSubmit({ allowPublic, sendInvite })}
-            disabled={isPending}
+            disabled={isPending || isHardError}
           >
             {isPending ? "생성 중..." : "생성"}
-          </PrimaryButton>
+          </Button>
         </ModalFooter>
       </Section>
     </Modal>
