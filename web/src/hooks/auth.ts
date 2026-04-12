@@ -3,8 +3,8 @@ import { useEffect } from "preact/hooks";
 import { route } from "preact-router";
 import type {
   ExchangeTokenDTO,
+  JwtTokenDTO,
   RefreshTokenDTO,
-  TokenDTO,
 } from "@/dtos/authDto";
 import {
   setAccessToken,
@@ -67,7 +67,7 @@ export function useLoginCallback() {
         return;
       }
 
-      const data = (await response.json()) as TokenDTO;
+      const data = (await response.json()) as JwtTokenDTO;
       setAccessToken(data.access_token);
       setRefreshToken(data.refresh_token);
       queryClient.invalidateQueries({ queryKey: ["me"] });
@@ -78,7 +78,7 @@ export function useLoginCallback() {
   }, []);
 }
 
-async function useRefreshToken(): Promise<TokenDTO> {
+async function useRefreshToken(): Promise<JwtTokenDTO> {
   const refreshToken = getRefreshToken();
   if (!refreshToken) throw new Error("No refresh token available");
   const response = await fetch(`${AUTH_API_ENDPOINT}/token/refresh`, {

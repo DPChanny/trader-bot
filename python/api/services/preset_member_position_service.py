@@ -9,6 +9,7 @@ from shared.dtos.preset_member_position_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.preset_member_position import PresetMemberPosition
+from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_member_position_repository import (
     PresetMemberPositionRepository,
 )
@@ -36,13 +37,11 @@ async def add_preset_member_position_service(
     ):
         raise HTTPException(status_code=404, detail="PresetMember not found")
 
-    pmp_repo = PresetMemberPositionRepository(session)
-    if await pmp_repo.get_by_composite(preset_member_id, dto.position_id) is not None:
-        raise HTTPException(
-            status_code=400,
-            detail="PresetMemberPosition duplicated",
-        )
+    position_repo = PositionRepository(session)
+    if await position_repo.get_by_id(dto.position_id, preset_id, guild_id) is None:
+        raise HTTPException(status_code=404, detail="Position not found")
 
+    pmp_repo = PresetMemberPositionRepository(session)
     preset_member_position = PresetMemberPosition(
         preset_member_id=preset_member_id,
         position_id=dto.position_id,
@@ -67,6 +66,7 @@ async def add_preset_member_position_service(
 async def delete_preset_member_position_service(
     guild_id: int,
     user_id: int,
+    preset_id: int,
     preset_member_id: int,
     preset_member_position_id: int,
     session: AsyncSession,
@@ -75,7 +75,7 @@ async def delete_preset_member_position_service(
 
     pmp_repo = PresetMemberPositionRepository(session)
     preset_member_position = await pmp_repo.get_by_id(
-        preset_member_position_id, preset_member_id, guild_id
+        preset_member_position_id, preset_member_id, preset_id, guild_id
     )
     if preset_member_position is None:
         raise HTTPException(status_code=404, detail="PresetMemberPosition not found")

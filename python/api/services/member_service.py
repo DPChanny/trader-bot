@@ -55,9 +55,7 @@ async def update_member_service(
     member = await member_repo.get_by_id(member_id, guild_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
-    if member.role == Role.OWNER and dto.role is not None:
-        raise HTTPException(status_code=403, detail="Cannot modify an OWNER's role")
-    if dto.role == Role.OWNER:
+    if member.role == Role.OWNER or dto.role == Role.OWNER:
         raise HTTPException(status_code=403, detail="OWNER role is managed by the bot")
 
     for key, value in dto.model_dump(exclude_unset=True).items():

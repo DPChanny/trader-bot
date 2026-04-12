@@ -7,7 +7,6 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auth_dto import ExchangeTokenDTO, JwtTokenDTO, RefreshTokenDTO
-from shared.entities.user import User
 from shared.repositories.user_repository import UserRepository
 from shared.utils.env import get_app_origin
 from shared.utils.user import upsert_user
@@ -34,16 +33,12 @@ async def callback_service(
     avatar_hash = user_data.get("avatar")
 
     await upsert_user(discord_id, name, avatar_hash, session)
+    logger.info(f"User login: discord_id={discord_id}")
 
     user_repo = UserRepository(session)
     user = await user_repo.get_by_id(discord_id)
     if user is None:
-        logger.info(f"User added: discord_id={discord_id}")
-        user = User(discord_id=discord_id, name=name, avatar_hash=avatar_hash)
-        user_repo.add(user)
-        await user_repo.flush()
-    else:
-        logger.info(f"User login: discord_id={discord_id}")
+        raise HTTPException(status_code=500, detail="User not found after upsert")
 
     access_token, _ = AccessToken.create(user.discord_id)
     refresh_token, _ = RefreshToken.create(user.discord_id)

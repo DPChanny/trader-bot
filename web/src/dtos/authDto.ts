@@ -6,7 +6,7 @@ export interface RefreshTokenDTO {
   refresh_token: string;
 }
 
-export interface TokenDTO {
+export interface JwtTokenDTO {
   access_token: string;
   refresh_token: string;
 }

@@ -37,11 +37,17 @@ async def add_preset_member_position_route(
 @preset_member_position_router.delete("/{preset_member_position_id}", status_code=204)
 async def delete_preset_member_position_route(
     guild_id: int,
+    preset_id: int,
     preset_member_id: int,
     preset_member_position_id: int,
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),
 ):
     return await delete_preset_member_position_service(
-        guild_id, user_id, preset_member_id, preset_member_position_id, session
+        guild_id,
+        user_id,
+        preset_id,
+        preset_member_id,
+        preset_member_position_id,
+        session,
     )

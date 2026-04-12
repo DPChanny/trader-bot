@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import type {
   AddPresetMemberPositionDTO,
-  PresetMemberPositionDetailDTO,
+  PresetMemberPositionDTO,
 } from "@/dtos/presetMemberPositionDto";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
@@ -22,7 +22,7 @@ export function useAddPresetMemberPosition() {
       presetId: number;
       presetMemberId: number;
       dto: AddPresetMemberPositionDTO;
-    }): Promise<PresetMemberPositionDetailDTO> => {
+    }): Promise<PresetMemberPositionDTO> => {
       const response = await fetch(
         getPresetMemberPositionEndpoint(guildId, presetId, presetMemberId),
         {
@@ -33,7 +33,7 @@ export function useAddPresetMemberPosition() {
       );
       if (!response.ok) await handleHttpError(response);
       const json = await response.json();
-      return toCamelCase<PresetMemberPositionDetailDTO>(json);
+      return toCamelCase<PresetMemberPositionDTO>(json);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
