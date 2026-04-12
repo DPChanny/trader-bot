@@ -1,4 +1,6 @@
 api 에러 처리 방식 개선(에러 코드, 다국어)
+    discord upsert 최소화
+    우선 순위 반영 여부
     로그 개선
     error context 확인
     error code 개선
