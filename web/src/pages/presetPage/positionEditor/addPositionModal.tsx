@@ -18,23 +18,23 @@ export function AddPositionModal({
   isPending,
   error,
 }: AddPositionModalProps) {
-  const [positionName, setPositionName] = useState("");
-  const [positionIconUrl, setPositionIconUrl] = useState("");
+  const [name, setName] = useState("");
+  const [iconUrl, setIconUrl] = useState("");
 
   const handleClose = () => {
     if (isPending) return;
-    setPositionName("");
-    setPositionIconUrl("");
+    setName("");
+    setIconUrl("");
     onClose();
   };
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!positionName.trim()) return;
+    if (!name.trim()) return;
 
     const dto: AddPositionDTO = {
-      name: positionName.trim(),
-      iconUrl: positionIconUrl.trim() || null,
+      name: name.trim(),
+      iconUrl: iconUrl.trim() || null,
     };
 
     try {
@@ -54,23 +54,20 @@ export function AddPositionModal({
         <LabelInput
           label="포지션 이름"
           type="text"
-          value={positionName}
-          onChange={setPositionName}
+          value={name}
+          onChange={setName}
         />
         <LabelInput
           label="아이콘 URL (선택사항)"
           type="text"
-          value={positionIconUrl}
-          onChange={setPositionIconUrl}
+          value={iconUrl}
+          onChange={setIconUrl}
         />
         <ModalFooter>
           <SecondaryButton onClick={handleClose} disabled={isPending}>
             취소
           </SecondaryButton>
-          <PrimaryButton
-            type="submit"
-            disabled={isPending || !positionName.trim()}
-          >
+          <PrimaryButton type="submit" disabled={isPending || !name.trim()}>
             추가
           </PrimaryButton>
         </ModalFooter>

@@ -18,23 +18,23 @@ export function AddTierModal({
   isPending,
   error,
 }: AddTierModalProps) {
-  const [tierName, setTierName] = useState("");
-  const [tierIconUrl, setTierIconUrl] = useState("");
+  const [name, setName] = useState("");
+  const [iconUrl, setIconUrl] = useState("");
 
   const handleClose = () => {
     if (isPending) return;
-    setTierName("");
-    setTierIconUrl("");
+    setName("");
+    setIconUrl("");
     onClose();
   };
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!tierName.trim()) return;
+    if (!name.trim()) return;
 
     const dto: AddTierDTO = {
-      name: tierName.trim(),
-      iconUrl: tierIconUrl.trim() || null,
+      name: name.trim(),
+      iconUrl: iconUrl.trim() || null,
     };
 
     try {
@@ -54,20 +54,20 @@ export function AddTierModal({
         <LabelInput
           label="티어 이름"
           type="text"
-          value={tierName}
-          onChange={setTierName}
+          value={name}
+          onChange={setName}
         />
         <LabelInput
           label="아이콘 URL (선택사항)"
           type="text"
-          value={tierIconUrl}
-          onChange={setTierIconUrl}
+          value={iconUrl}
+          onChange={setIconUrl}
         />
         <ModalFooter>
           <SecondaryButton onClick={handleClose} disabled={isPending}>
             취소
           </SecondaryButton>
-          <PrimaryButton type="submit" disabled={isPending || !tierName.trim()}>
+          <PrimaryButton type="submit" disabled={isPending || !name.trim()}>
             추가
           </PrimaryButton>
         </ModalFooter>

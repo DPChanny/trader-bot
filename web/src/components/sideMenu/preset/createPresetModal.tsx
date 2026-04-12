@@ -23,7 +23,7 @@ export function CreatePresetModal({
   isPending,
   error,
 }: CreatePresetModalProps) {
-  const [presetName, setPresetName] = useState("");
+  const [name, setName] = useState("");
   const [points, setPoints] = useState("");
   const [pointScale, setPointScale] = useState("");
   const [timer, setTimer] = useState("");
@@ -31,7 +31,7 @@ export function CreatePresetModal({
 
   const handleClose = () => {
     if (isPending) return;
-    setPresetName("");
+    setName("");
     setPoints("");
     setPointScale("");
     setTimer("");
@@ -41,7 +41,7 @@ export function CreatePresetModal({
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!presetName.trim()) return;
+    if (!name.trim()) return;
 
     const parsedPoints = Math.max(0, Number(points) || 1000);
     const parsedPointScale = Math.max(1, Number(pointScale) || 5);
@@ -49,7 +49,7 @@ export function CreatePresetModal({
     const parsedTeamSize = Math.max(1, Number(teamSize) || 5);
 
     const dto: CreatePresetDTO = {
-      name: presetName.trim(),
+      name: name.trim(),
       points: parsedPoints,
       timer: parsedTimer,
       teamSize: parsedTeamSize,
@@ -73,8 +73,8 @@ export function CreatePresetModal({
         <LabelInput
           label="프리셋 이름"
           type="text"
-          value={presetName}
-          onChange={setPresetName}
+          value={name}
+          onChange={setName}
         />
         <ModalRow>
           <LabelInput
@@ -112,10 +112,7 @@ export function CreatePresetModal({
           <SecondaryButton onClick={handleClose} disabled={isPending}>
             취소
           </SecondaryButton>
-          <PrimaryButton
-            type="submit"
-            disabled={isPending || !presetName.trim()}
-          >
+          <PrimaryButton type="submit" disabled={isPending || !name.trim()}>
             추가
           </PrimaryButton>
         </ModalFooter>
