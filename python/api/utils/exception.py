@@ -1,6 +1,5 @@
 import functools
 
-from fastapi import HTTPException
 from loguru import logger
 
 from shared.error import AppError, Server
@@ -16,12 +15,6 @@ def service_exception_handler(func):
                 logger.bind(error_code=e.code).warning(f"{func.__name__}: [{e.code}]")
             else:
                 logger.bind(error_code=e.code).error(f"{func.__name__}: [{e.code}]")
-            raise
-        except HTTPException as e:
-            if e.status_code < 500:
-                logger.warning(f"{func.__name__}: {e.status_code} {e.detail}")
-            else:
-                logger.error(f"{func.__name__}: {e.status_code} {e.detail}")
             raise
         except Exception as e:
             logger.exception(f"Unhandled exception in {func.__name__}: {e}")

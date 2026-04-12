@@ -1,4 +1,3 @@
-from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +8,9 @@ from shared.dtos.tier_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.tier import Tier
+from shared.error import AppError
+from shared.error import Preset as PresetError
+from shared.error import Tier as TierError
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
 
@@ -27,7 +29,7 @@ async def get_tier_list_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPException(status_code=404, detail="Preset not found")
+        raise AppError(PresetError.NotFound)
 
     tier_repo = TierRepository(session)
     tiers = await tier_repo.get_list_by_preset_id(preset_id, guild_id)
@@ -47,7 +49,7 @@ async def get_tier_service(
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
-        raise HTTPException(status_code=404, detail="Tier not found")
+        raise AppError(TierError.NotFound)
     return TierDTO.model_validate(tier)
 
 
@@ -63,7 +65,7 @@ async def add_tier_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPException(status_code=404, detail="Preset not found")
+        raise AppError(PresetError.NotFound)
 
     tier = Tier(preset_id=preset_id, name=dto.name, icon_url=dto.icon_url)
     session.add(tier)
@@ -86,7 +88,7 @@ async def update_tier_service(
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
-        raise HTTPException(status_code=404, detail="Tier not found")
+        raise AppError(TierError.NotFound)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(tier, key, value)
@@ -105,7 +107,7 @@ async def delete_tier_service(
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
-        raise HTTPException(status_code=404, detail="Tier not found")
+        raise AppError(TierError.NotFound)
 
     await session.delete(tier)
     logger.info(f"Tier deleted: id={tier_id}")

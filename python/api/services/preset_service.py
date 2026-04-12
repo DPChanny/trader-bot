@@ -1,4 +1,3 @@
-from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +8,8 @@ from shared.dtos.preset_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.preset import Preset
+from shared.error import AppError
+from shared.error import Preset as PresetError
 from shared.repositories.preset_repository import PresetRepository
 
 from ..utils.exception import service_exception_handler
@@ -24,7 +25,7 @@ async def get_preset_service(
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
-        raise HTTPException(status_code=404, detail="Preset not found")
+        raise AppError(PresetError.NotFound)
     return PresetDTO.model_validate(preset)
 
 
@@ -72,7 +73,7 @@ async def update_preset_service(
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
-        raise HTTPException(status_code=404, detail="Preset not found")
+        raise AppError(PresetError.NotFound)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(preset, key, value)
@@ -90,6 +91,6 @@ async def delete_preset_service(
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
-        raise HTTPException(status_code=404, detail="Preset not found")
+        raise AppError(PresetError.NotFound)
 
     await session.delete(preset)

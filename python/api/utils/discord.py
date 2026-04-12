@@ -1,8 +1,8 @@
 import urllib.parse
 
 import httpx
-from fastapi import HTTPException
 
+from shared.error import AppError, Discord
 from shared.utils.env import (
     get_api_origin,
     get_discord_bot_token,
@@ -48,7 +48,7 @@ async def get_me(code: str) -> dict:
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
         if token_response.status_code != 200:
-            raise HTTPException(status_code=401, detail="Discord token exchange failed")
+            raise AppError(Discord.TokenExchangeFailed)
         access_token = token_response.json()["access_token"]
 
         me_response = await client.get(
@@ -56,7 +56,7 @@ async def get_me(code: str) -> dict:
             headers={"Authorization": f"Bearer {access_token}"},
         )
         if me_response.status_code != 200:
-            raise HTTPException(status_code=401, detail="Failed to fetch Discord user")
+            raise AppError(Discord.UserFetchFailed)
         return me_response.json()
 
 

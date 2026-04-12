@@ -5,6 +5,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction_dto import AuctionStatus, MessageType
+from shared.error import Auction as AuctionError, Auth, Validation
 from shared.repositories.preset_member_repository import PresetMemberRepository
 
 from ..auction import Auction, auction_manager
@@ -43,7 +44,7 @@ async def handle_websocket_connect(
         logger.warning(
             f"WebSocket connect failed: reason=auction_not_found, auction_id={auction_id}"
         )
-        await websocket.close(code=4004, reason="Auction not found")
+        await websocket.close(code=4000, reason=str(AuctionError.NotFound.value))
         return None, None, False, None
 
     await websocket.accept()
@@ -51,21 +52,21 @@ async def handle_websocket_connect(
     try:
         auth_message = json.loads(await websocket.receive_text())
     except Exception:
-        await websocket.close(code=4001, reason="Auth failed")
+        await websocket.close(code=4000, reason=str(Auth.Failed.value))
         return None, None, False, None
 
     if auth_message.get("type") != MessageType.AUTH.value:
-        await websocket.close(code=4001, reason="Auth failed")
+        await websocket.close(code=4000, reason=str(Auth.Failed.value))
         return None, None, False, None
 
     auth_data = auth_message.get("data")
     if not isinstance(auth_data, dict):
-        await websocket.close(code=4001, reason="Auth failed")
+        await websocket.close(code=4000, reason=str(Auth.Failed.value))
         return None, None, False, None
 
     token = auth_data.get("token")
     if token is not None and not isinstance(token, str):
-        await websocket.close(code=4001, reason="Auth failed")
+        await websocket.close(code=4000, reason=str(Auth.Failed.value))
         return None, None, False, None
 
     preset_id: int = auction.preset_snapshot["preset_id"]
@@ -83,7 +84,9 @@ async def handle_websocket_connect(
                 break
 
     if member_id is None and not auction.allow_public:
-        await websocket.close(code=4003, reason="Public access not allowed")
+        await websocket.close(
+            code=4000, reason=str(AuctionError.PublicAccessDenied.value)
+        )
         return None, None, False, None
 
     logger.info(f"WebSocket connected: member_id={member_id}, auction_id={auction_id}")
@@ -108,7 +111,7 @@ async def handle_websocket_message(
             await websocket.send_json(
                 {
                     "type": MessageType.ERROR,
-                    "data": {"error": "Bid rejected"},
+                    "data": {"code": AuctionError.BidNotLeader.value},
                 }
             )
             return
@@ -121,7 +124,7 @@ async def handle_websocket_message(
             await websocket.send_json(
                 {
                     "type": MessageType.ERROR,
-                    "data": {"error": "Bid rejected"},
+                    "data": {"code": Validation.Error.value},
                 }
             )
             return
@@ -130,11 +133,11 @@ async def handle_websocket_message(
         bid_result = await auction.place_bid(member_id, amount)
 
         if not bid_result.get("success"):
-            logger.warning(f"Bid failed: error={bid_result.get('error')}")
+            logger.warning(f"Bid failed: code={bid_result.get('code')}")
             await websocket.send_json(
                 {
                     "type": MessageType.ERROR,
-                    "data": {"error": bid_result.get("error", "Bid failed")},
+                    "data": {"code": bid_result.get("code")},
                 }
             )
 

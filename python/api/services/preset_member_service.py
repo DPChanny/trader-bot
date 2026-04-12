@@ -1,4 +1,3 @@
-from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +8,19 @@ from shared.dtos.preset_member_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
+from shared.error import (
+    AppError,
+    Member,
+)
+from shared.error import (
+    Preset as PresetError,
+)
+from shared.error import (
+    PresetMember as PresetMemberError,
+)
+from shared.error import (
+    Tier as TierError,
+)
 from shared.repositories.member_repository import MemberRepository
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.repositories.preset_repository import PresetRepository
@@ -29,7 +41,7 @@ async def get_preset_member_list_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPException(status_code=404, detail="Preset not found")
+        raise AppError(PresetError.NotFound)
 
     preset_member_repo = PresetMemberRepository(session)
     members = await preset_member_repo.get_list_detail_by_preset_id(preset_id, guild_id)
@@ -51,7 +63,7 @@ async def get_preset_member_service(
         preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
-        raise HTTPException(status_code=404, detail="PresetMember not found")
+        raise AppError(PresetMemberError.NotFound)
     return PresetMemberDetailDTO.model_validate(preset_member)
 
 
@@ -68,15 +80,15 @@ async def add_preset_member_service(
     member_repo = MemberRepository(session)
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPException(status_code=404, detail="Preset not found")
+        raise AppError(PresetError.NotFound)
 
     if await member_repo.get_by_id(dto.member_id, guild_id) is None:
-        raise HTTPException(status_code=404, detail="Member not found")
+        raise AppError(Member.NotFound)
 
     if dto.tier_id is not None:
         tier_repo = TierRepository(session)
         if await tier_repo.get_by_id(dto.tier_id, preset_id, guild_id) is None:
-            raise HTTPException(status_code=404, detail="Tier not found")
+            raise AppError(TierError.NotFound)
 
     preset_member_repo = PresetMemberRepository(session)
     preset_member = PresetMember(
@@ -92,7 +104,7 @@ async def add_preset_member_service(
         preset_member.preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
-        raise HTTPException(status_code=404, detail="PresetMember not found")
+        raise AppError(PresetMemberError.NotFound)
     logger.info(f"PresetMember added: id={preset_member.preset_member_id}")
     return PresetMemberDetailDTO.model_validate(preset_member)
 
@@ -113,14 +125,14 @@ async def update_preset_member_service(
         preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
-        raise HTTPException(status_code=404, detail="PresetMember not found")
+        raise AppError(PresetMemberError.NotFound)
 
     tier_repo = TierRepository(session)
     for key, value in dto.model_dump(exclude_unset=True).items():
         if key == "tier_id" and value is not None:
             tier = await tier_repo.get_by_id(value, preset_id, guild_id)
             if tier is None:
-                raise HTTPException(status_code=404, detail="Tier not found")
+                raise AppError(TierError.NotFound)
         setattr(preset_member, key, value)
 
     logger.info(f"PresetMember updated: id={preset_member_id}")
@@ -146,7 +158,7 @@ async def delete_preset_member_service(
         preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
-        raise HTTPException(status_code=404, detail="PresetMember not found")
+        raise AppError(PresetMemberError.NotFound)
 
     await session.delete(preset_member)
     logger.info(f"PresetMember deleted: id={preset_member_id}")

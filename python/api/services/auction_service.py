@@ -1,6 +1,5 @@
 import asyncio
 
-from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,6 +11,8 @@ from shared.dtos.auction_dto import (
 from shared.dtos.preset_dto import PresetDetailDTO
 from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
+from shared.error import AppError, Auction
+from shared.error import Preset as PresetError
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin
 
@@ -35,23 +36,18 @@ async def create_auction_service(
     preset = await preset_repo.get_detail_by_id(preset_id, guild_id)
 
     if preset is None:
-        raise HTTPException(
-            status_code=404, detail="Auction create failed: preset not found"
-        )
+        raise AppError(PresetError.NotFound)
 
     preset_members = preset.preset_members
     if not preset_members:
-        raise HTTPException(status_code=400, detail="Auction create failed: no members")
+        raise AppError(Auction.NoMembers)
 
     leaders = [pm for pm in preset_members if pm.is_leader]
     if not leaders:
-        raise HTTPException(status_code=400, detail="Auction create failed: no leaders")
+        raise AppError(Auction.NoLeaders)
 
     if len(leaders) < 2:
-        raise HTTPException(
-            status_code=400,
-            detail="Auction create failed: at least 2 leaders required",
-        )
+        raise AppError(Auction.TooFewLeaders)
 
     teams = []
     leader_member_ids: set[int] = set()

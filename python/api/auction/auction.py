@@ -20,6 +20,7 @@ from shared.dtos.auction_dto import (
     TimerMessageData,
     WebSocketMessage,
 )
+from shared.error import Auction as AuctionError
 
 
 class Auction:
@@ -382,33 +383,33 @@ class Auction:
         message: WebSocketMessage | None = None
         async with self._state_lock:
             if member_id not in self.connected_members:
-                return {"success": False, "error": "Not connected"}
+                return {"success": False, "code": AuctionError.BidNotLeader.value}
             if member_id not in self.leader_member_ids:
-                return {"success": False, "error": "Only leaders can place bids"}
+                return {"success": False, "code": AuctionError.BidNotLeader.value}
             team_id = self.member_to_team.get(member_id)
             if team_id is None:
-                return {"success": False, "error": "Team not found"}
+                return {"success": False, "code": AuctionError.BidTeamNotFound.value}
             if self.status != AuctionStatus.IN_PROGRESS:
-                return {"success": False, "error": "Auction not in progress"}
+                return {"success": False, "code": AuctionError.BidNotInProgress.value}
             if self.current_member_id is None:
-                return {"success": False, "error": "No member being auctioned"}
+                return {"success": False, "code": AuctionError.BidNoCurrentMember.value}
             if team_id not in self.teams:
-                return {"success": False, "error": "Team not found"}
+                return {"success": False, "code": AuctionError.BidTeamNotFound.value}
             team = self.teams[team_id]
             if len(team.member_id_list) >= self.team_size:
-                return {
-                    "success": False,
-                    "error": f"Team already has {self.team_size} members",
-                }
+                return {"success": False, "code": AuctionError.BidTeamFull.value}
             remaining_slots = self.team_size - len(team.member_id_list)
             max_allowed_bid = team.points - (remaining_slots - 1)
             if amount > max_allowed_bid:
-                return {"success": False, "error": "Bid too high."}
+                return {"success": False, "code": AuctionError.BidTooHigh.value}
             if team.points < amount:
-                return {"success": False, "error": "Insufficient points"}
+                return {
+                    "success": False,
+                    "code": AuctionError.BidInsufficientPoints.value,
+                }
             min_bid = (self.current_bid + 1) if self.current_bid else 1
             if amount < min_bid:
-                return {"success": False, "error": f"Bid must be at least {min_bid}"}
+                return {"success": False, "code": AuctionError.BidTooLow.value}
             self.current_bid = amount
             self.current_bidder = team_id
             message = WebSocketMessage(

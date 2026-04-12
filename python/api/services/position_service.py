@@ -1,4 +1,3 @@
-from fastapi import HTTPException
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +8,9 @@ from shared.dtos.position_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.position import Position
+from shared.error import AppError
+from shared.error import Position as PositionError
+from shared.error import Preset as PresetError
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 
@@ -27,7 +29,7 @@ async def get_position_list_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPException(status_code=404, detail="Preset not found")
+        raise AppError(PresetError.NotFound)
 
     position_repo = PositionRepository(session)
     positions = await position_repo.get_list_by_preset_id(preset_id, guild_id)
@@ -47,7 +49,7 @@ async def get_position_service(
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
-        raise HTTPException(status_code=404, detail="Position not found")
+        raise AppError(PositionError.NotFound)
     return PositionDTO.model_validate(position)
 
 
@@ -63,7 +65,7 @@ async def add_position_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPException(status_code=404, detail="Preset not found")
+        raise AppError(PresetError.NotFound)
 
     position = Position(
         preset_id=preset_id,
@@ -90,7 +92,7 @@ async def update_position_service(
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
-        raise HTTPException(status_code=404, detail="Position not found")
+        raise AppError(PositionError.NotFound)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(position, key, value)
@@ -113,7 +115,7 @@ async def delete_position_service(
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
-        raise HTTPException(status_code=404, detail="Position not found")
+        raise AppError(PositionError.NotFound)
 
     await session.delete(position)
     logger.info(f"Position deleted: id={position_id}")

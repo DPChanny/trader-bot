@@ -1,12 +1,12 @@
 import base64
 import urllib.parse
 
-from fastapi import HTTPException
 from fastapi.responses import RedirectResponse
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auth_dto import ExchangeTokenDTO, JwtTokenDTO, RefreshTokenDTO
+from shared.error import AppError, Auth, Server
 from shared.repositories.user_repository import UserRepository
 from shared.utils.env import get_app_origin
 from shared.utils.user import upsert_user
@@ -38,7 +38,7 @@ async def callback_service(
     user_repo = UserRepository(session)
     user = await user_repo.get_by_id(discord_id)
     if user is None:
-        raise HTTPException(status_code=500, detail="User not found after upsert")
+        raise AppError(Server.UserNotFoundAfterUpsert)
 
     access_token, _ = AccessToken.create(user.discord_id)
     refresh_token, _ = RefreshToken.create(user.discord_id)
@@ -61,7 +61,7 @@ async def callback_service(
 async def exchange_token_service(dto: ExchangeTokenDTO) -> JwtTokenDTO:
     token_pair = ExchangeToken.consume(dto.exchange_token)
     if token_pair is None:
-        raise HTTPException(status_code=401, detail="Invalid exchange token")
+        raise AppError(Auth.InvalidExchangeToken)
 
     token, refresh_token = token_pair
     return JwtTokenDTO(access_token=token, refresh_token=refresh_token)
