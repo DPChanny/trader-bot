@@ -6,7 +6,7 @@ from loguru import logger
 from sqlalchemy import select
 
 from bot.utils.guild import upsert_guild
-from bot.utils.member import set_role, upsert_member
+from bot.utils.member import upsert_member
 from shared.entities.member import Role
 from shared.entities.position import Position
 from shared.entities.preset import Preset
@@ -132,8 +132,14 @@ async def main() -> None:
                 role = _role_for_index(i)
 
                 await upsert_user(user_id, user_name, None, session)
-                await upsert_member(guild.discord_id, user_id, session, user_name, None)
-                await set_role(guild.discord_id, user_id, role, session)
+                await upsert_member(
+                    guild.discord_id,
+                    user_id,
+                    session,
+                    user_name,
+                    None,
+                    role,
+                )
 
             preset = await _upsert_preset(session, guild.discord_id)
             added_positions = await _upsert_positions(session, preset.preset_id)

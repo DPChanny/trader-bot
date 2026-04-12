@@ -5,7 +5,7 @@ import asyncio
 
 from loguru import logger
 
-from bot.utils.member import set_role, upsert_member
+from bot.utils.member import upsert_member
 from shared.entities.member import Role
 from shared.utils.database import get_session
 from shared.utils.logging import setup_logging
@@ -35,9 +35,8 @@ async def main() -> None:
                 session,
                 args.name,
                 args.avatar_hash,
+                role,
             )
-            if role is not None:
-                await set_role(args.guild_id, args.user_id, role, session)
             logger.info(
                 "upsert_member done: "
                 f"member_id={member.member_id} "
