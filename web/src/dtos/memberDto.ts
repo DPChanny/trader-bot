@@ -1,5 +1,12 @@
 import type { UserDTO } from "./userDto";
 
+export enum Role {
+  VIEWER = 0,
+  EDITOR = 1,
+  ADMIN = 2,
+  OWNER = 3,
+}
+
 export interface MemberDTO {
   memberId: number;
   guildId: string;

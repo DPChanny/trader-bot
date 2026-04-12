@@ -3,6 +3,8 @@ import { route } from "preact-router";
 import { useCreateAuction } from "@/hooks/auction";
 import { usePreset, useUpdatePreset, useDeletePreset } from "@/hooks/preset";
 import { usePresetMembers } from "@/hooks/presetMember";
+import { Role } from "@/dtos/memberDto";
+import { useHasRole } from "@/utils/member";
 import { TierEditor } from "./tierEditor/tierEditor";
 import { PositionEditor } from "./positionEditor/positionEditor";
 import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
@@ -43,6 +45,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
   const updatePreset = useUpdatePreset();
   const deletePreset = useDeletePreset();
   const { data: presetMembers } = usePresetMembers(guildId, presetId);
+  const canEdit = useHasRole(guildId, Role.EDITOR);
   const teamSize = preset?.teamSize ?? 0;
   const leaderCount = presetMembers?.filter((pm) => pm.isLeader).length ?? 0;
   const memberCount = presetMembers?.length ?? 0;
@@ -60,7 +63,11 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
   const handleStartAuction = async (dto: CreateAuctionDTO) => {
     try {
-      const result = await createAuction.mutateAsync({ guildId, presetId, dto });
+      const result = await createAuction.mutateAsync({
+        guildId,
+        presetId,
+        dto,
+      });
       setShowCreateAuctionModal(false);
       setCreatedAuctionId(result.auctionId);
     } catch {}
@@ -139,14 +146,18 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
                 variantLayout="row"
                 variantIntent="secondary"
               >
-                <EditButton
-                  variantSize="medium"
-                  onClick={handleOpenEditPresetModal}
-                />
-                <DeleteButton
-                  variantSize="medium"
-                  onClick={handleOpenDeletePresetModal}
-                />
+                {canEdit && (
+                  <EditButton
+                    variantSize="medium"
+                    onClick={handleOpenEditPresetModal}
+                  />
+                )}
+                {canEdit && (
+                  <DeleteButton
+                    variantSize="medium"
+                    onClick={handleOpenDeletePresetModal}
+                  />
+                )}
               </Section>
             </Section>
             <Bar />
@@ -157,12 +168,14 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
             </Section>
 
             {presetValidMessage && <Error>{presetValidMessage}</Error>}
-            <PrimaryButton
-              onClick={() => setShowCreateAuctionModal(true)}
-              disabled={!canStartAuction}
-            >
-              경매 생성
-            </PrimaryButton>
+            {canEdit && (
+              <PrimaryButton
+                onClick={() => setShowCreateAuctionModal(true)}
+                disabled={!canStartAuction}
+              >
+                경매 생성
+              </PrimaryButton>
+            )}
           </Section>
         )}
 

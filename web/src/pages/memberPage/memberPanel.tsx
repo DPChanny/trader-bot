@@ -8,16 +8,17 @@ import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
 import { Toggle } from "@/components/commons/toggle";
 import type { MemberDetailDTO } from "@/dtos/memberDto";
+import { Role } from "@/dtos/memberDto";
+import { useHasRole as useVerifyRole } from "@/utils/member";
 
 import styles from "@/styles/pages/memberPage/memberPanel.module.css";
 
 interface MemberPanelProps {
   member: MemberDetailDTO;
-  myRole: number;
   onClose: () => void;
 }
 
-export function MemberPanel({ member, myRole, onClose }: MemberPanelProps) {
+export function MemberPanel({ member, onClose }: MemberPanelProps) {
   const updateMember = useUpdateMember();
 
   const [alias, setAlias] = useState(member.alias ?? "");
@@ -30,7 +31,8 @@ export function MemberPanel({ member, myRole, onClose }: MemberPanelProps) {
     setRole(member.role);
   }, [member.memberId, member.alias, member.infoUrl, member.role]);
 
-  const canEditRole = myRole >= 2;
+  const canEdit = useVerifyRole(member.guildId, Role.EDITOR);
+  const canEditRole = useVerifyRole(member.guildId, Role.ADMIN);
 
   const hasChanges =
     alias !== (member.alias ?? "") ||
@@ -67,10 +69,12 @@ export function MemberPanel({ member, myRole, onClose }: MemberPanelProps) {
             variantLayout="row"
             variantIntent="secondary"
           >
-            <SaveButton
-              onClick={handleSave}
-              disabled={updateMember.isPending || !hasChanges}
-            />
+            {canEdit && (
+              <SaveButton
+                onClick={handleSave}
+                disabled={updateMember.isPending || !hasChanges}
+              />
+            )}
             <CloseButton onClick={onClose} />
           </Section>
         </Section>

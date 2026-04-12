@@ -3,10 +3,13 @@ import { Badge } from "@/components/commons/badge";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import type { PositionDTO } from "@/dtos/positionDto";
+import { Role } from "@/dtos/memberDto";
+import { useHasRole } from "@/utils/member";
 import styles from "@/styles/pages/presetPage/positionEditor/positionCard.module.css";
 
 interface PositionCardProps {
   position: PositionDTO;
+  guildId: string;
   onEdit: () => void;
   onDelete: () => void;
   isDeletePending: boolean;
@@ -14,10 +17,12 @@ interface PositionCardProps {
 
 export function PositionCard({
   position,
+  guildId,
   onEdit,
   onDelete,
   isDeletePending,
 }: PositionCardProps) {
+  const canEdit = useHasRole(guildId, Role.EDITOR);
   return (
     <Card variantLayout="row" variantIntent="tertiary">
       <Badge
@@ -30,14 +35,20 @@ export function PositionCard({
       </Badge>
       <span className={styles.name}>{position.name}</span>
 
-      <Section variantTone="ghost" variantLayout="row" variantIntent="tertiary">
-        <EditButton variantSize="small" onClick={onEdit} />
-        <DeleteButton
-          variantSize="small"
-          disabled={isDeletePending}
-          onClick={onDelete}
-        />
-      </Section>
+      {canEdit && (
+        <Section
+          variantTone="ghost"
+          variantLayout="row"
+          variantIntent="tertiary"
+        >
+          <EditButton variantSize="small" onClick={onEdit} />
+          <DeleteButton
+            variantSize="small"
+            disabled={isDeletePending}
+            onClick={onDelete}
+          />
+        </Section>
+      )}
     </Card>
   );
 }

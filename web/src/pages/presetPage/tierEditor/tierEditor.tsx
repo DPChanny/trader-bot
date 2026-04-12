@@ -5,6 +5,8 @@ import {
   useTiers,
   useUpdateTier,
 } from "@/hooks/tier";
+import { Role } from "@/dtos/memberDto";
+import { useHasRole } from "@/utils/member";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
@@ -32,6 +34,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
   const addTier = useAddTier();
   const updateTier = useUpdateTier();
   const deleteTier = useDeleteTier();
+  const canEdit = useHasRole(guildId, Role.EDITOR);
 
   const handleOpenAddTierModal = () => {
     setShowAddTierModal(true);
@@ -98,7 +101,9 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
     <Section variantIntent="secondary" className={styles.wrapper}>
       <Section variantTone="ghost" variantLayout="row">
         <h3>티어 목록</h3>
-        <PrimaryButton onClick={handleOpenAddTierModal}>추가</PrimaryButton>
+        {canEdit && (
+          <PrimaryButton onClick={handleOpenAddTierModal}>추가</PrimaryButton>
+        )}
       </Section>
       <Bar />
 
@@ -119,6 +124,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
             <TierCard
               key={tier.tierId}
               tier={tier}
+              guildId={guildId}
               onEdit={() => setEditingTier(tier)}
               onDelete={() => handleOpenDeleteTierModal(tier.tierId)}
               isDeletePending={deleteTier.isPending}

@@ -3,10 +3,13 @@ import { Badge } from "@/components/commons/badge";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import type { TierDTO } from "@/dtos/tierDto";
+import { Role } from "@/dtos/memberDto";
+import { useHasRole } from "@/utils/member";
 import styles from "@/styles/pages/presetPage/tierEditor/tierCard.module.css";
 
 interface TierCardProps {
   tier: TierDTO;
+  guildId: string;
   onEdit: () => void;
   onDelete: () => void;
   isDeletePending: boolean;
@@ -14,10 +17,12 @@ interface TierCardProps {
 
 export function TierCard({
   tier,
+  guildId,
   onEdit,
   onDelete,
   isDeletePending,
 }: TierCardProps) {
+  const canEdit = useHasRole(guildId, Role.EDITOR);
   return (
     <Card variantLayout="row" variantIntent="tertiary">
       <Badge
@@ -30,14 +35,20 @@ export function TierCard({
       </Badge>
       <span className={styles.name}>{tier.name}</span>
 
-      <Section variantTone="ghost" variantLayout="row" variantIntent="tertiary">
-        <EditButton variantSize="small" onClick={onEdit} />
-        <DeleteButton
-          variantSize="small"
-          disabled={isDeletePending}
-          onClick={onDelete}
-        />
-      </Section>
+      {canEdit && (
+        <Section
+          variantTone="ghost"
+          variantLayout="row"
+          variantIntent="tertiary"
+        >
+          <EditButton variantSize="small" onClick={onEdit} />
+          <DeleteButton
+            variantSize="small"
+            disabled={isDeletePending}
+            onClick={onDelete}
+          />
+        </Section>
+      )}
     </Card>
   );
 }

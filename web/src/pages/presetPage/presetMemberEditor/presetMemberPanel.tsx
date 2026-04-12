@@ -11,6 +11,8 @@ import {
 } from "@/hooks/presetMemberPosition";
 import { useTiers } from "@/hooks/tier";
 import { usePositions } from "@/hooks/position";
+import { Role } from "@/dtos/memberDto";
+import { useHasRole } from "@/utils/member";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 import {
   CloseButton,
@@ -44,6 +46,7 @@ export function PresetMemberPanel({
   const presetId = presetMember.presetId;
   const { data: tiers = [] } = useTiers(guildId, presetId);
   const { data: positions = [] } = usePositions(guildId, presetId);
+  const canEdit = useHasRole(guildId, Role.EDITOR);
 
   const tiersMap = useMemo(
     () => new Map(tiers.map((t) => [t.tierId, t])),
@@ -211,10 +214,12 @@ export function PresetMemberPanel({
             variantLayout="row"
             variantIntent="secondary"
           >
-            <SaveButton
-              onClick={handleSave}
-              disabled={updatePresetMember.isPending || !hasChanges}
-            />
+            {canEdit && (
+              <SaveButton
+                onClick={handleSave}
+                disabled={updatePresetMember.isPending || !hasChanges}
+              />
+            )}
             <CloseButton onClick={() => setSelectedPresetMemberId(null)} />
           </Section>
         </Section>
@@ -251,7 +256,8 @@ export function PresetMemberPanel({
             <Toggle
               isActive={isLeader}
               variantColor="gold"
-              onClick={() => setIsLeader(!isLeader)}
+              disabled={!canEdit}
+              onClick={() => canEdit && setIsLeader(!isLeader)}
             >
               팀장
             </Toggle>
@@ -266,7 +272,8 @@ export function PresetMemberPanel({
             <Toggle
               isActive={tierId === null}
               variantColor="red"
-              onClick={() => setTierId(null)}
+              disabled={!canEdit}
+              onClick={() => canEdit && setTierId(null)}
             >
               없음
             </Toggle>
@@ -275,7 +282,8 @@ export function PresetMemberPanel({
                 key={tier.tierId}
                 isActive={tierId === tier.tierId}
                 variantColor="red"
-                onClick={() => handleToggleTier(tier.tierId)}
+                disabled={!canEdit}
+                onClick={() => canEdit && handleToggleTier(tier.tierId)}
               >
                 {tier.name}
               </Toggle>
@@ -291,7 +299,8 @@ export function PresetMemberPanel({
             <Toggle
               isActive={selectedPositionIds.length === 0}
               variantColor="blue"
-              onClick={() => setSelectedPositionIds([])}
+              disabled={!canEdit}
+              onClick={() => canEdit && setSelectedPositionIds([])}
             >
               없음
             </Toggle>
@@ -300,7 +309,10 @@ export function PresetMemberPanel({
                 key={position.positionId}
                 isActive={selectedPositionIds.includes(position.positionId)}
                 variantColor="blue"
-                onClick={() => handleTogglePosition(position.positionId)}
+                disabled={!canEdit}
+                onClick={() =>
+                  canEdit && handleTogglePosition(position.positionId)
+                }
               >
                 {position.name}
               </Toggle>
@@ -310,15 +322,17 @@ export function PresetMemberPanel({
       </Section>
 
       <Bar />
-      <Section variantTone="ghost" variantIntent="secondary">
-        <DangerButton
-          variantSize="large"
-          onClick={handleRemoveMember}
-          disabled={removePresetMember.isPending}
-        >
-          멤버 제거
-        </DangerButton>
-      </Section>
+      {canEdit && (
+        <Section variantTone="ghost" variantIntent="secondary">
+          <DangerButton
+            variantSize="large"
+            onClick={handleRemoveMember}
+            disabled={removePresetMember.isPending}
+          >
+            멤버 제거
+          </DangerButton>
+        </Section>
+      )}
     </Section>
   );
 }

@@ -1,6 +1,4 @@
-gitignore
-uuid 전환 고려
-ROLE 기반 frontend
+create add log
 에러 처리 방식 개선(에러 코드, 다국어)
 로그 개선
 다국어 지원
@@ -10,3 +8,8 @@ auction api 개편
 auction web 개편
 home page
 publish
+모바일 대응
+auction 조회?
+result
+bot command
+shadow transition effect

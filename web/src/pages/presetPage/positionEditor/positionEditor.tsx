@@ -5,6 +5,8 @@ import {
   usePositions,
   useUpdatePosition,
 } from "@/hooks/position";
+import { Role } from "@/dtos/memberDto";
+import { useHasRole } from "@/utils/member";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
@@ -37,6 +39,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   const addPosition = useAddPosition();
   const updatePosition = useUpdatePosition();
   const deletePosition = useDeletePosition();
+  const canEdit = useHasRole(guildId, Role.EDITOR);
 
   const handleOpenAddPositionModal = () => {
     setShowAddPositionModal(true);
@@ -103,7 +106,11 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
     <Section variantIntent="secondary" className={styles.wrapper}>
       <Section variantTone="ghost" variantLayout="row">
         <h3>포지션 목록</h3>
-        <PrimaryButton onClick={handleOpenAddPositionModal}>추가</PrimaryButton>
+        {canEdit && (
+          <PrimaryButton onClick={handleOpenAddPositionModal}>
+            추가
+          </PrimaryButton>
+        )}
       </Section>
       <Bar />
 
@@ -124,6 +131,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
             <PositionCard
               key={position.positionId}
               position={position}
+              guildId={guildId}
               onEdit={() => setEditingPosition(position)}
               onDelete={() =>
                 handleOpenDeletePositionModal(position.positionId)

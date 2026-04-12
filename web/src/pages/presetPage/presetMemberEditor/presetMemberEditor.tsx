@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { useMembers } from "@/hooks/member";
+import { Role } from "@/dtos/memberDto";
+import { useHasRole } from "@/utils/member";
 import { useCreatePresetMember, usePresetMembers } from "@/hooks/presetMember";
 import { MemberGrid } from "@/components/memberGrid";
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
@@ -63,6 +65,7 @@ export function PresetMemberEditor({
   } = useMembers(guildId);
 
   const createPresetMember = useCreatePresetMember();
+  const canEdit = useHasRole(guildId, Role.EDITOR);
 
   const presetMemberIds = useMemo(
     () => new Set(presetMembers?.map((pm) => pm.memberId) ?? []),
@@ -147,7 +150,7 @@ export function PresetMemberEditor({
             </Error>
           ) : membersLoading ? (
             <Loading />
-          ) : (
+          ) : canEdit ? (
             <>
               {createPresetMember.isError && (
                 <Error detail={createPresetMember.error?.message}>
@@ -159,7 +162,7 @@ export function PresetMemberEditor({
                 onMemberClick={handleAddMember}
               />
             </>
-          )}
+          ) : null}
         </Section>
       </Section>
 

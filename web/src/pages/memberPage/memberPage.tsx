@@ -1,5 +1,5 @@
 import { useMemo, useState } from "preact/hooks";
-import { useMembers, useMyMember } from "@/hooks/member";
+import { useMembers } from "@/hooks/member";
 import { MemberGrid } from "@/components/memberGrid";
 import { Section } from "@/components/commons/section";
 import { PageLayout } from "@/components/commons/page";
@@ -19,7 +19,6 @@ export function MemberPage({ guildId }: MemberPageProps) {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
 
   const { data: members, isLoading, error } = useMembers(guildId);
-  const { data: myMember } = useMyMember(guildId);
 
   const sortedMembers = useMemo(
     () =>
@@ -66,7 +65,6 @@ export function MemberPage({ guildId }: MemberPageProps) {
       {selectedMember && (
         <MemberPanel
           member={selectedMember}
-          myRole={myMember?.role ?? 0}
           onClose={() => setSelectedMemberId(null)}
         />
       )}
