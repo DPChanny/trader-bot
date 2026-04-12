@@ -38,11 +38,15 @@ def service(func):
                 logger.bind(error_code=error.code).warning("")
             else:
                 logger.bind(error_code=error.code).error("")
+            error.logged = True
             raise
         except Exception as error:
             logger.bind(
+                error_code=Server.InternalError.value,
                 exception_type=type(error).__name__,
             ).exception("")
-            raise AppError(Server.InternalError) from None
+            app_error = AppError(Server.InternalError)
+            app_error.logged = True
+            raise app_error from None
 
     return wrapper

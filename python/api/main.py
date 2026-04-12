@@ -39,6 +39,13 @@ app = FastAPI(title="Trader API", version="1.0.0", lifespan=lifespan)
 
 @app.exception_handler(AppError)
 async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
+    if not exc.logged:
+        log = bind_target_func(app_error_handler, error_code=exc.code)
+        if exc.status_code < 500:
+            log.warning("")
+        else:
+            log.error("")
+
     return JSONResponse(
         status_code=exc.status_code,
         content={"code": exc.code},

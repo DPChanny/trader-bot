@@ -45,18 +45,20 @@ class LoguruHandler(logging.Handler):
 
 def _json_sink(message) -> None:
     record = message.record
+    extra = dict(record["extra"])
+    target_func = extra.pop("target_func", None)
     data: dict = {
         "timestamp": record["time"]
         .astimezone(UTC)
         .strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
         + "Z",
         "level": record["level"].name,
-        "module": record["name"],
-        "function": record["function"],
-        "line": record["line"],
+        "module": None if target_func else record["name"],
+        "function": target_func or record["function"],
+        "line": None if target_func else record["line"],
         "message": record["message"],
     }
-    data.update(record["extra"])
+    data.update(extra)
     if record["exception"]:
         import traceback
 
@@ -67,9 +69,11 @@ def _json_sink(message) -> None:
 def _text_sink(message) -> None:
     record = message.record
     timestamp = record["time"].strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-    extra = record["extra"]
+    extra = dict(record["extra"])
+    target_func = extra.pop("target_func", None)
+    source = target_func or f"{record['name']}:{record['function']}:{record['line']}"
     parts = [
-        f"{timestamp} | {record['level'].name:<8} | {record['name']}:{record['function']}:{record['line']}",
+        f"{timestamp} | {record['level'].name:<8} | {source}",
     ]
 
     if extra:

@@ -100,4 +100,5 @@ class AppError(Exception):
     def __init__(self, code: _AppErrorCode) -> None:
         self.code: int = code.value
         self.status_code: int = code.http_status
+        self.logged = False
         super().__init__(str(code.value))
