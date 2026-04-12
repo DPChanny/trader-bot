@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/preact-query";
+import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { useEffect } from "preact/hooks";
 import { route } from "preact-router";
 import type {
@@ -17,7 +17,6 @@ import {
 } from "@/utils/auth";
 import { AUTH_API_ENDPOINT } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
-import { queryClient } from "@/utils/query";
 
 export function useLogin(redirect?: string) {
   return () => {
@@ -30,6 +29,7 @@ export function useLogin(redirect?: string) {
 }
 
 export function useLogout(redirect?: string) {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (): Promise<void> => {},
     onSettled: () => {
@@ -42,6 +42,7 @@ export function useLogout(redirect?: string) {
 }
 
 export function useLoginCallback() {
+  const queryClient = useQueryClient();
   useEffect(() => {
     async function handleLoginCallback() {
       const params = new URLSearchParams(window.location.search);
@@ -95,6 +96,7 @@ async function useRefreshToken(): Promise<JwtTokenDTO> {
 }
 
 export function useAutoRefreshToken() {
+  const queryClient = useQueryClient();
   useEffect(() => {
     async function tryRefresh() {
       if (!isAuthenticated()) return;

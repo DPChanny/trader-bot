@@ -139,6 +139,14 @@ export function useDeletePosition() {
       queryClient.invalidateQueries({
         queryKey: ["positions", variables.guildId, variables.presetId],
       });
+      queryClient.removeQueries({
+        queryKey: [
+          "position",
+          variables.guildId,
+          variables.presetId,
+          variables.positionId,
+        ],
+      });
       queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });

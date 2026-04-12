@@ -131,6 +131,24 @@ export function useDeletePreset() {
       queryClient.removeQueries({
         queryKey: ["preset", variables.guildId, variables.presetId],
       });
+      queryClient.removeQueries({
+        queryKey: ["presetMembers", variables.guildId, variables.presetId],
+      });
+      queryClient.removeQueries({
+        queryKey: ["presetMember", variables.guildId, variables.presetId],
+      });
+      queryClient.removeQueries({
+        queryKey: ["tiers", variables.guildId, variables.presetId],
+      });
+      queryClient.removeQueries({
+        queryKey: ["tier", variables.guildId, variables.presetId],
+      });
+      queryClient.removeQueries({
+        queryKey: ["positions", variables.guildId, variables.presetId],
+      });
+      queryClient.removeQueries({
+        queryKey: ["position", variables.guildId, variables.presetId],
+      });
     },
   });
 }

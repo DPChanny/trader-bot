@@ -12,8 +12,8 @@ from loguru import logger
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 
 
-_ACCESS_TOKEN_EXPIRATION_MINUTES = 5
-_REFRESH_TOKEN_EXPIRATION_DAYS = 7
+_ACCESS_TOKEN_EXPIRATION_MINUTES = 15
+_REFRESH_TOKEN_EXPIRATION_DAYS = 15
 _EXCHANGE_TOKEN_EXPIRATION_SECONDS = 60
 
 

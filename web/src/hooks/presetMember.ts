@@ -133,6 +133,14 @@ export function useDeletePresetMember() {
       queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
+      queryClient.removeQueries({
+        queryKey: [
+          "presetMember",
+          variables.guildId,
+          variables.presetId,
+          variables.presetMemberId,
+        ],
+      });
     },
   });
 }

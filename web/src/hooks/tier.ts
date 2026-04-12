@@ -133,6 +133,14 @@ export function useDeleteTier() {
       queryClient.invalidateQueries({
         queryKey: ["tiers", variables.guildId, variables.presetId],
       });
+      queryClient.removeQueries({
+        queryKey: [
+          "tier",
+          variables.guildId,
+          variables.presetId,
+          variables.tierId,
+        ],
+      });
       queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],
       });
