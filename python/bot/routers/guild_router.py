@@ -1,6 +1,5 @@
 from discord import Guild
 from discord.ext import commands
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.utils.logging import bind_target_func
@@ -10,27 +9,24 @@ from ..services import (
     on_guild_remove_service,
     on_guild_update_service,
 )
-from ..utils.decorators import with_error_handler, with_session
+from ..utils.router import router
 
 
-def register_guild_router(bot: commands.Bot) -> None:
+def include_guild_router(bot: commands.Bot) -> None:
     @bot.event
-    @with_error_handler
-    @with_session
+    @router
     async def on_ready(session: AsyncSession):
         bind_target_func(on_ready, bot_user=str(bot.user)).info("")
         for guild in bot.guilds:
             await on_guild_join_service(guild, session)
 
     @bot.event
-    @with_error_handler
-    @with_session
+    @router
     async def on_guild_join(guild: Guild, session: AsyncSession):
         await on_guild_join_service(guild, session)
 
     @bot.event
-    @with_error_handler
-    @with_session
+    @router
     async def on_guild_update(
         before: Guild,
         after: Guild,
@@ -41,7 +37,6 @@ def register_guild_router(bot: commands.Bot) -> None:
         await on_guild_update_service(before, after, session)
 
     @bot.event
-    @with_error_handler
-    @with_session
+    @router
     async def on_guild_remove(guild: Guild, session: AsyncSession):
         await on_guild_remove_service(guild, session)

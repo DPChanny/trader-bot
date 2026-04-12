@@ -1,6 +1,9 @@
 {
   "python-envs.defaultEnvManager": "ms-python.python:venv",
   "python-envs.defaultPackageManager": "ms-python.python:pip",
+  "python.defaultInterpreterPath": "${workspaceFolder}/python/.venv/Scripts/python.exe",
+  "python.analysis.extraPaths": ["${workspaceFolder}/python"],
+  "python.autoComplete.extraPaths": ["${workspaceFolder}/python"],
 
   "files.exclude": {
     "**/*.css.d.ts": true,

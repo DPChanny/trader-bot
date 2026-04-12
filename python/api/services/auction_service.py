@@ -2,7 +2,6 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.decorator import service
 from shared.dtos.auction_dto import (
     AuctionDTO,
     CreateAuctionDTO,
@@ -11,10 +10,11 @@ from shared.dtos.auction_dto import (
 from shared.dtos.preset_dto import PresetDetailDTO
 from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
-from shared.error import AppError, Auction
-from shared.error import Preset as PresetError
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin
+from shared.utils.error import AppError, Auction
+from shared.utils.error import Preset as PresetError
+from shared.utils.service import service
 
 from ..auction.auction_manager import auction_manager
 from ..utils.discord import send_message

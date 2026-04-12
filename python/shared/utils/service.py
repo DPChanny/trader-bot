@@ -2,7 +2,7 @@ import functools
 import inspect
 
 from .error import AppError, Server
-from .utils.logging import bind_target_func
+from .logging import bind_target_func
 
 
 class _ServiceLogger:

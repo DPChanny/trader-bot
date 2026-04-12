@@ -86,19 +86,19 @@ def setup_logging() -> None:
         log.propagate = True
 
 
-class LoggingMiddleware(BaseHTTPMiddleware):
+class LoguruMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         request_id = str(uuid4())
         start = time.perf_counter()
 
         with logger.contextualize(request_id=request_id):
             response = await call_next(request)
-            duration_ms = round((time.perf_counter() - start) * 1000)
+            duration = round((time.perf_counter() - start) * 1000)
             logger.bind(
                 method=request.method,
-                path=request.url.path,
-                status_code=response.status_code,
-                duration_ms=duration_ms,
+                route=request.url.path,
+                response=response.status_code,
+                duration=duration,
             ).info("")
             response.headers["X-Request-ID"] = request_id
             return response

@@ -1,10 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.decorator import service
-from shared.dtos.member_dto import MemberDTO, MemberDetailDTO
+from shared.dtos.member_dto import MemberDetailDTO, MemberDTO
 from shared.entities.member import Role
-from shared.error import AppError, Member
 from shared.repositories.member_repository import MemberRepository
+from shared.utils.error import AppError, Member
+from shared.utils.service import service
 
 from ..utils.member import verify_role
 

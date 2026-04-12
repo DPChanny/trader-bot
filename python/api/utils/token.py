@@ -8,8 +8,8 @@ from typing import ClassVar
 import jwt
 from fastapi import Header
 
-from shared.error import AppError, Auth
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
+from shared.utils.error import AppError, Auth
 
 
 _ACCESS_TOKEN_EXPIRATION_MINUTES = 15

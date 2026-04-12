@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.decorator import service
 from shared.dtos.guild_dto import GuildDetailDTO
-from shared.error import AppError, Guild
 from shared.repositories.guild_repository import GuildRepository
+from shared.utils.error import AppError, Guild
+from shared.utils.service import service
 
 from ..utils.member import verify_role
 

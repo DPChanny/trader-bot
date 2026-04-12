@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.decorator import service
 from shared.dtos.tier_dto import (
     AddTierDTO,
     TierDTO,
@@ -8,11 +7,12 @@ from shared.dtos.tier_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.tier import Tier
-from shared.error import AppError
-from shared.error import Preset as PresetError
-from shared.error import Tier as TierError
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
+from shared.utils.error import AppError
+from shared.utils.error import Preset as PresetError
+from shared.utils.error import Tier as TierError
+from shared.utils.service import service
 
 from ..utils.member import verify_role
 

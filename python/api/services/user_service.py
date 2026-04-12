@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.decorator import service
 from shared.dtos.user_dto import UserDetailDTO
-from shared.error import AppError, User
 from shared.repositories.user_repository import UserRepository
+from shared.utils.error import AppError, User
+from shared.utils.service import service
 
 
 @service

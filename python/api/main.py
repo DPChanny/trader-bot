@@ -5,10 +5,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from shared.error import AppError, Server, Validation
 from shared.utils.database import setup_db
 from shared.utils.env import get_app_origin
-from shared.utils.logging import LoggingMiddleware, bind_target_func, setup_logging
+from shared.utils.error import AppError, Server, Validation
+from shared.utils.logging import LoguruMiddleware, bind_target_func, setup_logging
 
 from .routers import (
     auction_router,
@@ -73,7 +73,7 @@ async def global_exception_handler(_: Request, exc: Exception) -> JSONResponse:
     )
 
 
-app.add_middleware(LoggingMiddleware)
+app.add_middleware(LoguruMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[get_app_origin()],

@@ -20,7 +20,7 @@ from shared.dtos.auction_dto import (
     TimerMessageData,
     WebSocketMessage,
 )
-from shared.error import Auction as AuctionError
+from shared.utils.error import Auction as AuctionError
 
 
 class Auction:

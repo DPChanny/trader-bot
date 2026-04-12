@@ -1,30 +1,30 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.decorator import service
 from shared.dtos.preset_member_position_dto import (
     AddPresetMemberPositionDTO,
     PresetMemberPositionDTO,
 )
 from shared.entities.member import Role
 from shared.entities.preset_member_position import PresetMemberPosition
-from shared.error import (
-    AppError,
-)
-from shared.error import (
-    Position as PositionError,
-)
-from shared.error import (
-    PresetMember as PresetMemberError,
-)
-from shared.error import (
-    PresetMemberPosition as PresetMemberPositionError,
-)
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_member_position_repository import (
     PresetMemberPositionRepository,
 )
 from shared.repositories.preset_member_repository import PresetMemberRepository
+from shared.utils.error import (
+    AppError,
+)
+from shared.utils.error import (
+    Position as PositionError,
+)
+from shared.utils.error import (
+    PresetMember as PresetMemberError,
+)
+from shared.utils.error import (
+    PresetMemberPosition as PresetMemberPositionError,
+)
+from shared.utils.service import service
 
 from ..utils.member import verify_role
 

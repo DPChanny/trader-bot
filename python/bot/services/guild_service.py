@@ -1,8 +1,8 @@
 from discord import Guild
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.decorator import service
 from shared.entities.member import Role
+from shared.utils.service import service
 from shared.utils.user import upsert_user
 
 from ..utils.guild import delete_guild, upsert_guild

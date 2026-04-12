@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.decorator import service
 from shared.dtos.position_dto import (
     AddPositionDTO,
     PositionDTO,
@@ -8,11 +7,12 @@ from shared.dtos.position_dto import (
 )
 from shared.entities.member import Role
 from shared.entities.position import Position
-from shared.error import AppError
-from shared.error import Position as PositionError
-from shared.error import Preset as PresetError
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
+from shared.utils.error import AppError
+from shared.utils.error import Position as PositionError
+from shared.utils.error import Preset as PresetError
+from shared.utils.service import service
 
 from ..utils.member import verify_role
 

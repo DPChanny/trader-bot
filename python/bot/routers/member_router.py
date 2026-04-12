@@ -7,21 +7,19 @@ from ..services import (
     on_member_remove_service,
     on_member_update_service,
 )
-from ..utils.decorators import with_error_handler, with_session
+from ..utils.router import router
 
 
-def register_member_router(bot: commands.Bot) -> None:
+def include_member_router(bot: commands.Bot) -> None:
     @bot.event
-    @with_error_handler
-    @with_session
+    @router
     async def on_member_join(member: Member, session: AsyncSession):
         if member.bot:
             return
         await on_member_join_service(member, session)
 
     @bot.event
-    @with_error_handler
-    @with_session
+    @router
     async def on_member_update(
         before: Member,
         after: Member,
@@ -34,8 +32,7 @@ def register_member_router(bot: commands.Bot) -> None:
         await on_member_update_service(after, session)
 
     @bot.event
-    @with_error_handler
-    @with_session
+    @router
     async def on_member_remove(member: Member, session: AsyncSession):
         if member.bot:
             return

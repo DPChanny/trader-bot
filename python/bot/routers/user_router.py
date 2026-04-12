@@ -3,13 +3,12 @@ from discord.ext import commands
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..services import on_user_update_service
-from ..utils.decorators import with_error_handler, with_session
+from ..utils.router import router
 
 
-def register_user_router(bot: commands.Bot) -> None:
+def include_user_router(bot: commands.Bot) -> None:
     @bot.event
-    @with_error_handler
-    @with_session
+    @router
     async def on_user_update(
         before: User,
         after: User,

@@ -2,13 +2,13 @@ import urllib.parse
 
 import httpx
 
-from shared.error import AppError, Discord
 from shared.utils.env import (
     get_api_origin,
     get_discord_bot_token,
     get_discord_client_id,
     get_discord_client_secret,
 )
+from shared.utils.error import AppError, Discord
 
 
 DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize"

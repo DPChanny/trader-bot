@@ -1,7 +1,7 @@
 from discord import Member
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.decorator import service
+from shared.utils.service import service
 from shared.utils.user import upsert_user
 
 from ..utils.guild import upsert_guild

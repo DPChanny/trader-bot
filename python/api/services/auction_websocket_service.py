@@ -5,9 +5,9 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction_dto import AuctionStatus, MessageType
-from shared.error import Auction as AuctionError
-from shared.error import Auth, Validation
 from shared.repositories.preset_member_repository import PresetMemberRepository
+from shared.utils.error import Auction as AuctionError
+from shared.utils.error import Auth, Validation
 
 from ..auction import Auction, auction_manager
 from ..utils.token import AccessToken
