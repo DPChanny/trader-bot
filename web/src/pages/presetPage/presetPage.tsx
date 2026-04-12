@@ -160,7 +160,9 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
             <Bar />
             <Section variantLayout="row" variantIntent="tertiary">
               <span>{teamSize} 명</span>
-              <span>{preset.points * preset.pointScale} 포인트</span>
+              <span>
+                {preset.points * preset.pointScale} / {preset.pointScale} 포인트
+              </span>
               <span>{preset.timer} 초</span>
             </Section>
 

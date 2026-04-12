@@ -123,11 +123,13 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
             value={alias}
             onChange={setAlias}
             placeholder={member.alias || member.name || member.user.name}
+            disabled={!canEdit}
           />
           <LabelInput
             label="프로필 링크"
             value={infoUrl}
             onChange={setInfoUrl}
+            disabled={!canEdit}
           />
           {infoUrl && (
             <a href={infoUrl} target="_blank" rel="noopener noreferrer">
