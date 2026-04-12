@@ -9,14 +9,6 @@ import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
 
-const INITIAL_STATE = {
-  presetName: "",
-  points: 1000,
-  pointScale: 1,
-  timer: 30,
-  teamSize: 5,
-};
-
 interface CreatePresetModalProps {
   onClose: () => void;
   onSubmit: (input: {
@@ -36,32 +28,38 @@ export function CreatePresetModal({
   isPending,
   error,
 }: CreatePresetModalProps) {
-  const [presetName, setPresetName] = useState(INITIAL_STATE.presetName);
-  const [points, setPoints] = useState(INITIAL_STATE.points);
-  const [pointScale, setPointScale] = useState(INITIAL_STATE.pointScale);
-  const [timer, setTimer] = useState(INITIAL_STATE.timer);
-  const [teamSize, setTeamSize] = useState(INITIAL_STATE.teamSize);
+  const [presetName, setPresetName] = useState("");
+  const [points, setPoints] = useState("");
+  const [pointScale, setPointScale] = useState("");
+  const [timer, setTimer] = useState("");
+  const [teamSize, setTeamSize] = useState("");
 
   const handleClose = () => {
     if (isPending) return;
-    setPresetName(INITIAL_STATE.presetName);
-    setPoints(INITIAL_STATE.points);
-    setPointScale(INITIAL_STATE.pointScale);
-    setTimer(INITIAL_STATE.timer);
-    setTeamSize(INITIAL_STATE.teamSize);
+    setPresetName("");
+    setPoints("");
+    setPointScale("");
+    setTimer("");
+    setTeamSize("");
     onClose();
   };
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!presetName.trim() || pointScale <= 0 || points < 0) return;
+    if (!presetName.trim()) return;
+
+    const parsedPoints = Math.max(0, Number(points) || 1000);
+    const parsedPointScale = Math.max(1, Number(pointScale) || 5);
+    const parsedTimer = Math.max(1, Number(timer) || 15);
+    const parsedTeamSize = Math.max(1, Number(teamSize) || 5);
+
     try {
       await onSubmit({
         name: presetName.trim(),
-        points,
-        timer,
-        teamSize,
-        pointScale,
+        points: parsedPoints,
+        timer: parsedTimer,
+        teamSize: parsedTeamSize,
+        pointScale: parsedPointScale,
       });
       handleClose();
     } catch {}
@@ -85,28 +83,32 @@ export function CreatePresetModal({
           <LabelInput
             label="포인트"
             type="number"
-            value={points.toString()}
-            onChange={(v) => setPoints(Math.max(0, Number(v) || 0))}
+            value={points}
+            placeholder="1000"
+            onChange={setPoints}
           />
           <LabelInput
             label="포인트 스케일"
             type="number"
-            value={pointScale.toString()}
-            onChange={(v) => setPointScale(parseInt(v) || 1)}
+            value={pointScale}
+            placeholder="5"
+            onChange={setPointScale}
           />
         </ModalRow>
         <ModalRow>
           <LabelInput
             label="경매 타이머 (초)"
             type="number"
-            value={timer.toString()}
-            onChange={(v) => setTimer(parseInt(v) || 30)}
+            value={timer}
+            placeholder="15"
+            onChange={setTimer}
           />
           <LabelInput
             label="팀당 인원수"
             type="number"
-            value={teamSize.toString()}
-            onChange={(v) => setTeamSize(parseInt(v) || 5)}
+            value={teamSize}
+            placeholder="5"
+            onChange={setTeamSize}
           />
         </ModalRow>
         <ModalFooter>
@@ -115,9 +117,7 @@ export function CreatePresetModal({
           </SecondaryButton>
           <PrimaryButton
             type="submit"
-            disabled={
-              isPending || !presetName.trim() || pointScale <= 0 || points < 0
-            }
+            disabled={isPending || !presetName.trim()}
           >
             추가
           </PrimaryButton>

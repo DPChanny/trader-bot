@@ -113,7 +113,6 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
             label="프로필 링크"
             value={infoUrl}
             onChange={setInfoUrl}
-            placeholder="https://op.gg/..."
           />
           {infoUrl && (
             <a href={infoUrl} target="_blank" rel="noopener noreferrer">

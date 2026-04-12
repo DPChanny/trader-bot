@@ -54,7 +54,14 @@ export function EditPresetModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
-    if (!name.trim() || pointScale <= 0 || points < 0) return;
+    if (
+      !name.trim() ||
+      points < 0 ||
+      pointScale < 1 ||
+      timer < 1 ||
+      teamSize < 1
+    )
+      return;
     onSubmit(name.trim(), points, timer, teamSize, pointScale);
   };
 
@@ -79,34 +86,30 @@ export function EditPresetModal({
         <LabelInput
           label="프리셋 이름"
           value={name}
-          onChange={(value) => setName(value)}
+          onChange={setName}
           autoFocus
         />
-        <div>
-          <ModalRow>
-            <LabelInput
-              label="포인트"
-              type="number"
-              value={points.toString()}
-              onChange={(value) => setPoints(Math.max(0, Number(value) || 0))}
-            />
-            <LabelInput
-              label="포인트 스케일"
-              type="number"
-              value={pointScale.toString()}
-              onChange={(value) =>
-                setPointScale(Math.max(1, Number(value) || 1))
-              }
-            />
-          </ModalRow>
-        </div>
+        <ModalRow>
+          <LabelInput
+            label="포인트"
+            type="number"
+            value={points.toString()}
+            onChange={(value) => setPoints(Math.max(0, Number(value) || 0))}
+          />
+          <LabelInput
+            label="포인트 스케일"
+            type="number"
+            value={pointScale.toString()}
+            onChange={(value) => setPointScale(Math.max(1, Number(value) || 1))}
+          />
+        </ModalRow>
 
         <ModalRow>
           <LabelInput
             label="타이머 (초)"
             type="number"
             value={timer.toString()}
-            onChange={(value) => setTimer(Number(value) || 0)}
+            onChange={(value) => setTimer(Math.max(1, Number(value) || 1))}
           />
           <LabelInput
             label="팀당 인원수"
@@ -126,7 +129,15 @@ export function EditPresetModal({
           </SecondaryButton>
           <PrimaryButton
             type="submit"
-            disabled={isPending || !name.trim() || !hasChanges || points < 0}
+            disabled={
+              isPending ||
+              !name.trim() ||
+              !hasChanges ||
+              points < 0 ||
+              pointScale < 1 ||
+              timer < 1 ||
+              teamSize < 1
+            }
           >
             저장
           </PrimaryButton>

@@ -4,8 +4,6 @@ import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
 
-const INITIAL_STATE = { tierName: "", tierIconUrl: "" };
-
 interface AddTierModalProps {
   onClose: () => void;
   onSubmit: (input: { name: string; iconUrl: string | null }) => Promise<void>;
@@ -19,13 +17,13 @@ export function AddTierModal({
   isPending,
   error,
 }: AddTierModalProps) {
-  const [tierName, setTierName] = useState(INITIAL_STATE.tierName);
-  const [tierIconUrl, setTierIconUrl] = useState(INITIAL_STATE.tierIconUrl);
+  const [tierName, setTierName] = useState("");
+  const [tierIconUrl, setTierIconUrl] = useState("");
 
   const handleClose = () => {
     if (isPending) return;
-    setTierName(INITIAL_STATE.tierName);
-    setTierIconUrl(INITIAL_STATE.tierIconUrl);
+    setTierName("");
+    setTierIconUrl("");
     onClose();
   };
 

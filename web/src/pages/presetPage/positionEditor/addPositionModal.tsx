@@ -4,8 +4,6 @@ import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
 
-const INITIAL_STATE = { positionName: "", positionIconUrl: "" };
-
 interface AddPositionModalProps {
   onClose: () => void;
   onSubmit: (input: { name: string; iconUrl: string | null }) => Promise<void>;
@@ -19,15 +17,13 @@ export function AddPositionModal({
   isPending,
   error,
 }: AddPositionModalProps) {
-  const [positionName, setPositionName] = useState(INITIAL_STATE.positionName);
-  const [positionIconUrl, setPositionIconUrl] = useState(
-    INITIAL_STATE.positionIconUrl,
-  );
+  const [positionName, setPositionName] = useState("");
+  const [positionIconUrl, setPositionIconUrl] = useState("");
 
   const handleClose = () => {
     if (isPending) return;
-    setPositionName(INITIAL_STATE.positionName);
-    setPositionIconUrl(INITIAL_STATE.positionIconUrl);
+    setPositionName("");
+    setPositionIconUrl("");
     onClose();
   };
 
