@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { useEffect } from "preact/hooks";
 import { route } from "preact-router";
-import type {
-  ExchangeTokenDTO,
-  JwtTokenDTO,
-  RefreshTokenDTO,
-} from "@/dtos/authDto";
+import type { JwtTokenDTO } from "@/dtos/authDto";
+import {
+  exchangeToken as exchangeAuthToken,
+  refreshToken as refreshAuthToken,
+} from "@/apis/auth";
 import {
   setAccessToken,
   getAccessToken,
@@ -16,7 +16,6 @@ import {
   removeRefreshToken,
 } from "@/utils/auth";
 import { AUTH_API_ENDPOINT } from "@/utils/env";
-import { handleHttpError } from "@/utils/hook";
 
 export function useLogin(redirect?: string) {
   return () => {
@@ -54,21 +53,10 @@ export function useLoginCallback() {
         return;
       }
 
-      const response = await fetch(`${AUTH_API_ENDPOINT}/token/exchange`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          exchange_token: exchangeToken,
-        } satisfies ExchangeTokenDTO),
+      const data = await exchangeAuthToken({
+        exchange_token: exchangeToken,
       });
-      if (!response.ok) {
-        await handleHttpError(response);
-        return;
-      }
 
-      const data = (await response.json()) as JwtTokenDTO;
       setAccessToken(data.access_token);
       setRefreshToken(data.refresh_token);
       queryClient.invalidateQueries({ queryKey: ["me"] });
@@ -82,17 +70,7 @@ export function useLoginCallback() {
 async function useRefreshToken(): Promise<JwtTokenDTO> {
   const refreshToken = getRefreshToken();
   if (!refreshToken) throw new Error("No refresh token available");
-  const response = await fetch(`${AUTH_API_ENDPOINT}/token/refresh`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      refresh_token: refreshToken,
-    } satisfies RefreshTokenDTO),
-  });
-  if (!response.ok) await handleHttpError(response);
-  return response.json();
+  return refreshAuthToken({ refresh_token: refreshToken });
 }
 
 export function useAutoRefreshToken() {

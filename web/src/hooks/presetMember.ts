@@ -1,25 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
-import type {
-  AddPresetMemberDTO,
-  PresetMemberDetailDTO,
-  UpdatePresetMemberDTO,
-} from "@/dtos/presetMemberDto";
-import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
-import { toCamelCase, toSnakeCase } from "@/utils/dto";
-import { getPresetMemberEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/hook";
+import {
+  getPresetMembers,
+  getPresetMember,
+  postPresetMember,
+  patchPresetMember,
+  deletePresetMember,
+} from "@/apis/presetMember";
 
 export function usePresetMembers(guildId: string, presetId: number) {
   return useQuery({
     queryKey: ["presetMembers", guildId, presetId],
-    queryFn: async (): Promise<PresetMemberDetailDTO[]> => {
-      const response = await fetch(getPresetMemberEndpoint(guildId, presetId), {
-        headers: getAuthHeaders(),
-      });
-      if (!response.ok) await handleHttpError(response);
-      const json = await response.json();
-      return toCamelCase<PresetMemberDetailDTO[]>(json);
-    },
+    queryFn: () => getPresetMembers(guildId, presetId),
   });
 }
 
@@ -30,15 +21,7 @@ export function usePresetMember(
 ) {
   return useQuery({
     queryKey: ["presetMember", guildId, presetId, presetMemberId],
-    queryFn: async (): Promise<PresetMemberDetailDTO> => {
-      const response = await fetch(
-        `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
-        { headers: getAuthHeaders() },
-      );
-      if (!response.ok) await handleHttpError(response);
-      const json = await response.json();
-      return toCamelCase<PresetMemberDetailDTO>(json);
-    },
+    queryFn: () => getPresetMember(guildId, presetId, presetMemberId),
   });
 }
 
@@ -46,24 +29,7 @@ export function useAddPresetMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      guildId,
-      presetId,
-      dto,
-    }: {
-      guildId: string;
-      presetId: number;
-      dto: AddPresetMemberDTO;
-    }): Promise<PresetMemberDetailDTO> => {
-      const response = await fetch(getPresetMemberEndpoint(guildId, presetId), {
-        method: "POST",
-        headers: getAuthHeadersForMutation(),
-        body: JSON.stringify(toSnakeCase(dto)),
-      });
-      if (!response.ok) await handleHttpError(response);
-      const json = await response.json();
-      return toCamelCase<PresetMemberDetailDTO>(json);
-    },
+    mutationFn: postPresetMember,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],
@@ -76,29 +42,7 @@ export function useUpdatePresetMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      guildId,
-      presetId,
-      presetMemberId,
-      dto,
-    }: {
-      guildId: string;
-      presetId: number;
-      presetMemberId: number;
-      dto: UpdatePresetMemberDTO;
-    }): Promise<PresetMemberDetailDTO> => {
-      const response = await fetch(
-        `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
-        {
-          method: "PATCH",
-          headers: getAuthHeadersForMutation(),
-          body: JSON.stringify(toSnakeCase(dto)),
-        },
-      );
-      if (!response.ok) await handleHttpError(response);
-      const json = await response.json();
-      return toCamelCase<PresetMemberDetailDTO>(json);
-    },
+    mutationFn: patchPresetMember,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],
@@ -111,24 +55,7 @@ export function useDeletePresetMember() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      guildId,
-      presetId,
-      presetMemberId,
-    }: {
-      guildId: string;
-      presetId: number;
-      presetMemberId: number;
-    }) => {
-      const response = await fetch(
-        `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
-        {
-          method: "DELETE",
-          headers: getAuthHeadersForMutation(),
-        },
-      );
-      if (!response.ok) await handleHttpError(response);
-    },
+    mutationFn: deletePresetMember,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],
