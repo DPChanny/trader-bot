@@ -34,7 +34,6 @@ async def create_preset_service(
 ) -> PresetDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
-    preset_repo = PresetRepository(session)
     preset = Preset(
         guild_id=guild_id,
         name=dto.name,
@@ -45,7 +44,6 @@ async def create_preset_service(
     )
     session.add(preset)
     await session.flush()
-    await session.refresh(preset)
     logger.info(f"Preset created: id={preset.preset_id}, name={dto.name}")
     return PresetDTO.model_validate(preset)
 
@@ -80,9 +78,6 @@ async def update_preset_service(
         setattr(preset, key, value)
 
     logger.info(f"Preset updated: id={preset_id}")
-
-    await session.flush()
-    await session.refresh(preset)
     return PresetDTO.model_validate(preset)
 
 

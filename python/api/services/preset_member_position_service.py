@@ -41,7 +41,6 @@ async def add_preset_member_position_service(
     if await position_repo.get_by_id(dto.position_id, preset_id, guild_id) is None:
         raise HTTPException(status_code=404, detail="Position not found")
 
-    pmp_repo = PresetMemberPositionRepository(session)
     preset_member_position = PresetMemberPosition(
         preset_member_id=preset_member_id,
         position_id=dto.position_id,
@@ -55,7 +54,6 @@ async def add_preset_member_position_service(
             detail="PresetMemberPosition duplicated",
         ) from None
 
-    await session.refresh(preset_member_position)
     logger.info(
         f"PresetMemberPosition created: id={preset_member_position.preset_member_position_id}"
     )

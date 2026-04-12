@@ -65,7 +65,6 @@ async def add_position_service(
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
         raise HTTPException(status_code=404, detail="Preset not found")
 
-    position_repo = PositionRepository(session)
     position = Position(
         preset_id=preset_id,
         name=dto.name,
@@ -73,7 +72,6 @@ async def add_position_service(
     )
     session.add(position)
     await session.flush()
-    await session.refresh(position)
     logger.info(f"Position created: id={position.position_id}, name={dto.name}")
     return PositionDTO.model_validate(position)
 
@@ -97,8 +95,6 @@ async def update_position_service(
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(position, key, value)
 
-    await session.flush()
-    await session.refresh(position)
     logger.info(f"Position updated: id={position_id}")
 
     return PositionDTO.model_validate(position)
