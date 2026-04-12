@@ -14,16 +14,11 @@ import { usePositions } from "@/hooks/position";
 import { Role } from "@/dtos/memberDto";
 import { useVerifyRole } from "@/hooks/member";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
-import {
-  CloseButton,
-  DangerButton,
-  SaveButton,
-} from "@/components/commons/button";
+import { CloseButton, SaveButton, Button } from "@/components/commons/button";
 import { Label } from "@/components/commons/label";
 import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import { Section } from "@/components/commons/section";
-import { DeletePresetMemberModal } from "./deletePresetMemberModal";
 import { buildPatchDto } from "@/utils/dto";
 import styles from "@/styles/pages/presetPage/presetMemberEditor/presetMemberPanel.module.css";
 
@@ -66,9 +61,6 @@ export function PresetMemberPanel({
   const [selectedPositionIds, setSelectedPositionIds] = useState<number[]>(
     presetMember.presetMemberPositions?.map((p) => p.positionId) || [],
   );
-  const [showDeletePresetMemberModal, setShowDeletePresetMemberModal] =
-    useState(false);
-
   useEffect(() => {
     setIsLeader(presetMember.isLeader);
     setTierId(presetMember.tierId || null);
@@ -156,10 +148,6 @@ export function PresetMemberPanel({
     setTierId((prev) => (prev === id ? null : id));
   };
 
-  const handleOpenDeletePresetMemberModal = () => {
-    setShowDeletePresetMemberModal(true);
-  };
-
   const handleRemoveMember = async () => {
     try {
       if (presetMember.memberId) addMemberIdToRemoving(presetMember.memberId);
@@ -168,7 +156,6 @@ export function PresetMemberPanel({
         presetId,
         presetMemberId: presetMember.presetMemberId,
       });
-      setShowDeletePresetMemberModal(false);
       setSelectedPresetMemberId(null);
     } catch (err) {
       console.error("Failed to remove preset member:", err);
@@ -338,25 +325,15 @@ export function PresetMemberPanel({
         <>
           <Bar />
           <Section variantTone="ghost" variantIntent="secondary">
-            <DangerButton
-              onClick={handleOpenDeletePresetMemberModal}
+            <Button
+              variantIntent="warning"
+              onClick={handleRemoveMember}
               disabled={removePresetMember.isPending}
             >
               제거
-            </DangerButton>
+            </Button>
           </Section>
         </>
-      )}
-
-      {showDeletePresetMemberModal && (
-        <DeletePresetMemberModal
-          onClose={() => setShowDeletePresetMemberModal(false)}
-          onConfirm={handleRemoveMember}
-          isPending={removePresetMember.isPending}
-          error={
-            removePresetMember.isError ? removePresetMember.error : undefined
-          }
-        />
       )}
     </Section>
   );

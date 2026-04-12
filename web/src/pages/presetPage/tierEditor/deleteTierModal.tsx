@@ -35,7 +35,7 @@ export function DeleteTierModal({
             취소
           </SecondaryButton>
           <PrimaryButton type="button" onClick={onConfirm} disabled={isPending}>
-            {isPending ? "삭제 중..." : "삭제"}
+            삭제
           </PrimaryButton>
         </ModalFooter>
       </Section>

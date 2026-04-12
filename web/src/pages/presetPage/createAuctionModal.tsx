@@ -78,7 +78,7 @@ export function CreateAuctionModal({
             onClick={() => onSubmit({ allowPublic, sendInvite })}
             disabled={isPending || isHardError}
           >
-            {isPending ? "생성 중..." : "생성"}
+            생성
           </Button>
         </ModalFooter>
       </Section>

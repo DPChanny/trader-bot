@@ -35,7 +35,7 @@ export function DeletePresetMemberModal({
             취소
           </SecondaryButton>
           <PrimaryButton type="button" onClick={onConfirm} disabled={isPending}>
-            {isPending ? "제거 중..." : "제거"}
+            제거
           </PrimaryButton>
         </ModalFooter>
       </Section>
