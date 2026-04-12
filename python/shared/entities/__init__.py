@@ -11,7 +11,6 @@ from .position import Position
 from .preset import Preset
 from .preset_member import PresetMember
 from .preset_member_position import PresetMemberPosition
-from .session import Session
 from .tier import Tier
 from .user import User
 
@@ -24,7 +23,6 @@ __all__ = [
     "Preset",
     "PresetMember",
     "PresetMemberPosition",
-    "Session",
     "Tier",
     "User",
 ]

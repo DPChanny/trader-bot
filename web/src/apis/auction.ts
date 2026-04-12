@@ -1,17 +1,17 @@
-import type { AddAuctionDTO, AuctionDTO } from "@/dtos/auctionDto";
+import type { CreateAuctionDTO, AuctionDTO } from "@/dtos/auctionDto";
 import { getAuthHeadersForMutation } from "@/utils/auth";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getAuctionEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
-export async function postAuction({
+export async function createAuction({
   guildId,
   presetId,
   dto,
 }: {
   guildId: string;
   presetId: number;
-  dto: AddAuctionDTO;
+  dto: CreateAuctionDTO;
 }): Promise<AuctionDTO> {
   const response = await fetch(getAuctionEndpoint(guildId, presetId), {
     method: "POST",

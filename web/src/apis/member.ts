@@ -34,7 +34,7 @@ export async function getMember(
   return toCamelCase<MemberDetailDTO>(json);
 }
 
-export async function patchMember({
+export async function updateMember({
   guildId,
   memberId,
   dto,

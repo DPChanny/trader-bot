@@ -17,7 +17,7 @@ const INITIAL_STATE = {
   teamSize: 5,
 };
 
-interface AddPresetModalProps {
+interface CreatePresetModalProps {
   onClose: () => void;
   onSubmit: (input: {
     name: string;
@@ -30,12 +30,12 @@ interface AddPresetModalProps {
   error?: any;
 }
 
-export function AddPresetModal({
+export function CreatePresetModal({
   onClose,
   onSubmit,
   isPending,
   error,
-}: AddPresetModalProps) {
+}: CreatePresetModalProps) {
   const [presetName, setPresetName] = useState(INITIAL_STATE.presetName);
   const [inputPoints, setInputPoints] = useState(INITIAL_STATE.inputPoints);
   const [pointScale, setPointScale] = useState(INITIAL_STATE.pointScale);

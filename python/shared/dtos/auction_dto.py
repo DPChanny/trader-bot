@@ -50,7 +50,7 @@ class AuctionDTO(BaseDTO):
     auction_id: str
 
 
-class AddAuctionDTO(BaseDTO):
+class CreateAuctionDTO(BaseDTO):
     allow_public: bool = True
     send_invite: bool = True
 

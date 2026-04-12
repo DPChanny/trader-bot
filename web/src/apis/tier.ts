@@ -30,7 +30,7 @@ export async function getTier(
   return toCamelCase<TierDTO>(json);
 }
 
-export async function postTier({
+export async function addTier({
   guildId,
   presetId,
   dto,
@@ -49,7 +49,7 @@ export async function postTier({
   return toCamelCase<TierDTO>(json);
 }
 
-export async function patchTier({
+export async function updateTier({
   guildId,
   presetId,
   tierId,

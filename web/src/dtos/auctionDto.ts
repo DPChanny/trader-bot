@@ -8,7 +8,7 @@ export interface AuctionDTO {
   auctionId: string;
 }
 
-export interface AddAuctionDTO {
+export interface CreateAuctionDTO {
   allowPublic: boolean;
   sendInvite: boolean;
 }

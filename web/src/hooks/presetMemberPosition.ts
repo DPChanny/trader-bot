@@ -1,14 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import {
-  postPresetMemberPosition,
+  createPresetMemberPosition,
   deletePresetMemberPosition,
 } from "@/apis/presetMemberPosition";
 
-export function useAddPresetMemberPosition() {
+export function useCreatePresetMemberPosition() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: postPresetMemberPosition,
+    mutationFn: createPresetMemberPosition,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["presetMembers", variables.guildId, variables.presetId],

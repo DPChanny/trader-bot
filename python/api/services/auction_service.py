@@ -5,8 +5,8 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction_dto import (
-    AddAuctionDTO,
     AuctionDTO,
+    CreateAuctionDTO,
     Team,
 )
 from shared.dtos.preset_dto import PresetDetailDTO
@@ -22,11 +22,11 @@ from ..utils.member import verify_role
 
 
 @service_exception_handler
-async def add_auction_service(
+async def create_auction_service(
     guild_id: int,
     user_id: int,
     preset_id: int,
-    dto: AddAuctionDTO,
+    dto: CreateAuctionDTO,
     session: AsyncSession,
 ) -> AuctionDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
@@ -68,7 +68,7 @@ async def add_auction_service(
     member_ids = [pm.member_id for pm in preset_members]
     preset_snapshot = PresetDetailDTO.model_validate(preset).model_dump(mode="json")
 
-    auction = auction_manager.add_auction(
+    auction = auction_manager.create_auction(
         teams=teams,
         member_ids=member_ids,
         leader_member_ids=leader_member_ids,

@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import {
   getPositions,
   getPosition,
-  postPosition,
-  patchPosition,
+  addPosition,
+  updatePosition,
   deletePosition,
 } from "@/apis/position";
 
@@ -29,7 +29,7 @@ export function useAddPosition() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: postPosition,
+    mutationFn: addPosition,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["positions", variables.guildId, variables.presetId],
@@ -45,7 +45,7 @@ export function useUpdatePosition() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: patchPosition,
+    mutationFn: updatePosition,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["positions", variables.guildId, variables.presetId],

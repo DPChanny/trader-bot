@@ -8,7 +8,7 @@ export interface PresetDTO {
   pointScale: number;
 }
 
-export interface AddPresetDTO {
+export interface CreatePresetDTO {
   name: string;
   points: number;
   timer: number;

@@ -36,7 +36,7 @@ export async function getPosition(
   return toCamelCase<PositionDTO>(json);
 }
 
-export async function postPosition({
+export async function addPosition({
   guildId,
   presetId,
   dto,
@@ -55,7 +55,7 @@ export async function postPosition({
   return toCamelCase<PositionDTO>(json);
 }
 
-export async function patchPosition({
+export async function updatePosition({
   guildId,
   presetId,
   positionId,

@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import {
   getTiers,
   getTier,
-  postTier,
-  patchTier,
+  addTier,
+  updateTier,
   deleteTier,
 } from "@/apis/tier";
 
@@ -25,7 +25,7 @@ export function useAddTier() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: postTier,
+    mutationFn: addTier,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["tiers", variables.guildId, variables.presetId],
@@ -41,7 +41,7 @@ export function useUpdateTier() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: patchTier,
+    mutationFn: updateTier,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["tiers", variables.guildId, variables.presetId],

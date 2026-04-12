@@ -1,6 +1,6 @@
 import type {
   PresetDTO,
-  AddPresetDTO,
+  CreatePresetDTO,
   UpdatePresetDTO,
 } from "@/dtos/presetDto";
 import { getAuthHeaders, getAuthHeadersForMutation } from "@/utils/auth";
@@ -29,12 +29,12 @@ export async function getPreset(
   return toCamelCase<PresetDTO>(json);
 }
 
-export async function postPreset({
+export async function createPreset({
   guildId,
   dto,
 }: {
   guildId: string;
-  dto: AddPresetDTO;
+  dto: CreatePresetDTO;
 }): Promise<PresetDTO> {
   const response = await fetch(getPresetEndpoint(guildId), {
     method: "POST",
@@ -46,7 +46,7 @@ export async function postPreset({
   return toCamelCase<PresetDTO>(json);
 }
 
-export async function patchPreset({
+export async function updatePreset({
   guildId,
   presetId,
   dto,

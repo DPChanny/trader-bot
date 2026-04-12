@@ -7,7 +7,7 @@ import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetMemberPositionEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/hook";
 
-export async function postPresetMemberPosition({
+export async function createPresetMemberPosition({
   guildId,
   presetId,
   presetMemberId,

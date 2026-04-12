@@ -18,7 +18,7 @@ class PresetDetailDTO(PresetDTO):
     preset_members: list[PresetMemberDetailDTO]
 
 
-class AddPresetDTO(BaseDTO):
+class CreatePresetDTO(BaseDTO):
     name: str
     points: int
     timer: int

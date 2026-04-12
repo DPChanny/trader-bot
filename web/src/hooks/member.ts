@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import type { MemberDetailDTO, UpdateMemberDTO } from "@/dtos/memberDto";
-import { getMember, getMembers, getMyMember, patchMember } from "@/apis/member";
+import { getMember, getMembers, getMyMember, updateMember } from "@/apis/member";
 
 export function useMyMember(guildId: string) {
   return useQuery({
@@ -35,7 +35,7 @@ export function useUpdateMember() {
       guildId: string;
       memberId: number;
       dto: UpdateMemberDTO;
-    }): Promise<MemberDetailDTO> => patchMember({ guildId, memberId, dto }),
+    }): Promise<MemberDetailDTO> => updateMember({ guildId, memberId, dto }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["members", variables.guildId],

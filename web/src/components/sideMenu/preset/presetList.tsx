@@ -2,9 +2,9 @@ import { useState } from "preact/hooks";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
 import { PrimaryButton } from "@/components/commons/button";
-import { AddPresetModal } from "./addPresetModal";
+import { CreatePresetModal } from "./createPresetModal";
 import { PresetCard } from "./presetCard";
-import { useAddPreset, usePresets } from "@/hooks/preset";
+import { useCreatePreset, usePresets } from "@/hooks/preset";
 import styles from "@/styles/components/sideMenu/preset/presetList.module.css";
 
 interface PresetListProps {
@@ -13,28 +13,28 @@ interface PresetListProps {
 }
 
 export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
-  const [showAddPresetModal, setShowAddPresetModal] = useState(false);
+  const [showCreatePresetModal, setShowCreatePresetModal] = useState(false);
 
   const { data: presets = [] } = usePresets(guildId);
-  const addPreset = useAddPreset();
+  const createPreset = useCreatePreset();
 
-  const handleOpenAddPresetModal = () => {
-    setShowAddPresetModal(true);
+  const handleOpenCreatePresetModal = () => {
+    setShowCreatePresetModal(true);
   };
 
-  const handleCloseAddPresetModal = () => {
-    setShowAddPresetModal(false);
-    addPreset.reset();
+  const handleCloseCreatePresetModal = () => {
+    setShowCreatePresetModal(false);
+    createPreset.reset();
   };
 
-  const handleAddPreset = async (input: {
+  const handleCreatePreset = async (input: {
     name: string;
     points: number;
     timer: number;
     teamSize: number;
     pointScale: number;
   }) => {
-    await addPreset.mutateAsync({ guildId, dto: input });
+    await createPreset.mutateAsync({ guildId, dto: input });
   };
 
   return (
@@ -42,7 +42,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
       <Section variantIntent="secondary" className={styles.wrapper}>
         <Section variantTone="ghost" variantLayout="row">
           <h3>프리셋 관리</h3>
-          <PrimaryButton onClick={handleOpenAddPresetModal}>추가</PrimaryButton>
+          <PrimaryButton onClick={handleOpenCreatePresetModal}>추가</PrimaryButton>
         </Section>
         <Bar />
         <Section variantTone="ghost" variantIntent="tertiary">
@@ -57,12 +57,12 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
         </Section>
       </Section>
 
-      {showAddPresetModal && (
-        <AddPresetModal
-          onClose={handleCloseAddPresetModal}
-          onSubmit={handleAddPreset}
-          isPending={addPreset.isPending}
-          error={addPreset.isError ? addPreset.error : undefined}
+      {showCreatePresetModal && (
+        <CreatePresetModal
+          onClose={handleCloseCreatePresetModal}
+          onSubmit={handleCreatePreset}
+          isPending={createPreset.isPending}
+          error={createPreset.isError ? createPreset.error : undefined}
         />
       )}
     </>

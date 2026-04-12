@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { useMembers } from "@/hooks/member";
-import { useAddPresetMember, usePresetMembers } from "@/hooks/presetMember";
+import { useCreatePresetMember, usePresetMembers } from "@/hooks/presetMember";
 import { MemberGrid } from "@/components/memberGrid";
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import { PresetMemberPanel } from "./presetMemberPanel";
@@ -62,7 +62,7 @@ export function PresetMemberEditor({
     error: membersError,
   } = useMembers(guildId);
 
-  const addPresetMember = useAddPresetMember();
+  const createPresetMember = useCreatePresetMember();
 
   const presetMemberIds = useMemo(
     () => new Set(presetMembers?.map((pm) => pm.memberId) ?? []),
@@ -102,7 +102,7 @@ export function PresetMemberEditor({
   const handleAddMember = async (memberId: number) => {
     addMemberIdToAdding(memberId);
     try {
-      await addPresetMember.mutateAsync({
+      await createPresetMember.mutateAsync({
         guildId,
         presetId,
         dto: { memberId, tierId: null, isLeader: false },
@@ -149,8 +149,8 @@ export function PresetMemberEditor({
             <Loading />
           ) : (
             <>
-              {addPresetMember.isError && (
-                <Error detail={addPresetMember.error?.message}>
+              {createPresetMember.isError && (
+                <Error detail={createPresetMember.error?.message}>
                   멤버를 프리셋에 추가하는데 실패했습니다.
                 </Error>
               )}

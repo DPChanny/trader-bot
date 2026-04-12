@@ -3,7 +3,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.preset_dto import (
-    AddPresetDTO,
+    CreatePresetDTO,
     PresetDTO,
     UpdatePresetDTO,
 )
@@ -29,8 +29,8 @@ async def get_preset_service(
 
 
 @service_exception_handler
-async def add_preset_service(
-    guild_id: int, user_id: int, dto: AddPresetDTO, session: AsyncSession
+async def create_preset_service(
+    guild_id: int, user_id: int, dto: CreatePresetDTO, session: AsyncSession
 ) -> PresetDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 

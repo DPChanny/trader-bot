@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
 import {
   getPresets,
   getPreset,
-  postPreset,
-  patchPreset,
+  createPreset,
+  updatePreset,
   deletePreset,
 } from "@/apis/preset";
 
@@ -21,11 +21,11 @@ export function usePreset(guildId: string, presetId: number) {
   });
 }
 
-export function useAddPreset() {
+export function useCreatePreset() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: postPreset,
+    mutationFn: createPreset,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["presets", variables.guildId],
@@ -38,7 +38,7 @@ export function useUpdatePreset() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: patchPreset,
+    mutationFn: updatePreset,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["presets", variables.guildId],

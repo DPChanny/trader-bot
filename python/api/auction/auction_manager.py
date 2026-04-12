@@ -7,7 +7,7 @@ class AuctionManager:
     def __init__(self):
         self.auctions: dict[str, Auction] = {}
 
-    def add_auction(
+    def create_auction(
         self,
         teams,
         member_ids: list[int],

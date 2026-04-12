@@ -6,7 +6,7 @@ import {
   useUpdatePresetMember,
 } from "@/hooks/presetMember";
 import {
-  useAddPresetMemberPosition,
+  useCreatePresetMemberPosition,
   useDeletePresetMemberPosition,
 } from "@/hooks/presetMemberPosition";
 import { useTiers } from "@/hooks/tier";
@@ -38,7 +38,7 @@ export function PresetMemberPanel({
 }: PresetMemberPanelProps) {
   const updatePresetMember = useUpdatePresetMember();
   const removePresetMember = useDeletePresetMember();
-  const addPresetMemberPosition = useAddPresetMemberPosition();
+  const createPresetMemberPosition = useCreatePresetMemberPosition();
   const deletePresetMemberPosition = useDeletePresetMemberPosition();
   const guildId = presetMember.member.guildId;
   const presetId = presetMember.presetId;
@@ -119,7 +119,7 @@ export function PresetMemberPanel({
       }
 
       for (const positionId of positionIdsToAdd) {
-        await addPresetMemberPosition.mutateAsync({
+        await createPresetMemberPosition.mutateAsync({
           guildId,
           presetId,
           presetMemberId: presetMember.presetMemberId,
@@ -163,7 +163,7 @@ export function PresetMemberPanel({
 
   const hasError =
     updatePresetMember.isError ||
-    addPresetMemberPosition.isError ||
+    createPresetMemberPosition.isError ||
     deletePresetMemberPosition.isError ||
     removePresetMember.isError;
 
@@ -223,7 +223,7 @@ export function PresetMemberPanel({
             detail={
               (
                 updatePresetMember.error ||
-                addPresetMemberPosition.error ||
+                createPresetMemberPosition.error ||
                 deletePresetMemberPosition.error ||
                 removePresetMember.error
               )?.message

@@ -34,7 +34,7 @@ export async function getPresetMember(
   return toCamelCase<PresetMemberDetailDTO>(json);
 }
 
-export async function postPresetMember({
+export async function createPresetMember({
   guildId,
   presetId,
   dto,
@@ -53,7 +53,7 @@ export async function postPresetMember({
   return toCamelCase<PresetMemberDetailDTO>(json);
 }
 
-export async function patchPresetMember({
+export async function updatePresetMember({
   guildId,
   presetId,
   presetMemberId,

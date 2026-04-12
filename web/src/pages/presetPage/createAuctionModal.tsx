@@ -5,21 +5,21 @@ import { Label } from "@/components/commons/label";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
 import { Section } from "@/components/commons/section";
-import type { AddAuctionDTO } from "@/dtos/auctionDto";
+import type { CreateAuctionDTO } from "@/dtos/auctionDto";
 
-interface AddAuctionModalProps {
+interface CreateAuctionModalProps {
   onClose: () => void;
-  onSubmit: (dto: AddAuctionDTO) => Promise<void>;
+  onSubmit: (dto: CreateAuctionDTO) => Promise<void>;
   isPending: boolean;
   error?: any;
 }
 
-export function AddAuctionModal({
+export function CreateAuctionModal({
   onClose,
   onSubmit,
   isPending,
   error,
-}: AddAuctionModalProps) {
+}: CreateAuctionModalProps) {
   const [allowPublic, setAllowPublic] = useState(true);
   const [sendInvite, setSendInvite] = useState(true);
 

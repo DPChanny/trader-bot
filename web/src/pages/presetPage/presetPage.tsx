@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
 import { route } from "preact-router";
-import { useAddAuction } from "@/hooks/auction";
+import { useCreateAuction } from "@/hooks/auction";
 import { usePreset, useUpdatePreset, useDeletePreset } from "@/hooks/preset";
 import { usePresetMembers } from "@/hooks/presetMember";
 import { TierEditor } from "./tierEditor/tierEditor";
@@ -17,9 +17,9 @@ import {
 import { Error } from "@/components/commons/error";
 import { EditPresetModal } from "./editPresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
-import { AddAuctionModal } from "./addAuctionModal";
+import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionModal } from "./auctionModal";
-import type { AddAuctionDTO } from "@/dtos/auctionDto";
+import type { CreateAuctionDTO } from "@/dtos/auctionDto";
 import styles from "@/styles/pages/presetPage/presetPage.module.css";
 import { Bar } from "@/components/commons/bar";
 
@@ -31,10 +31,10 @@ interface PresetPageProps {
 export function PresetPage({ guildId, presetId }: PresetPageProps) {
   const [showEditPresetModal, setShowEditPresetModal] = useState(false);
   const [showDeletePresetModal, setShowDeletePresetModal] = useState(false);
-  const [showAddAuctionModal, setShowAddAuctionModal] = useState(false);
+  const [showCreateAuctionModal, setShowCreateAuctionModal] = useState(false);
   const [createdAuctionId, setCreatedAuctionId] = useState<string | null>(null);
 
-  const addAuction = useAddAuction();
+  const createAuction = useCreateAuction();
   const {
     data: preset,
     isLoading: isPresetLoading,
@@ -58,10 +58,10 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
     }
   }
 
-  const handleStartAuction = async (dto: AddAuctionDTO) => {
+  const handleStartAuction = async (dto: CreateAuctionDTO) => {
     try {
-      const result = await addAuction.mutateAsync({ guildId, presetId, dto });
-      setShowAddAuctionModal(false);
+      const result = await createAuction.mutateAsync({ guildId, presetId, dto });
+      setShowCreateAuctionModal(false);
       setCreatedAuctionId(result.auctionId);
     } catch {}
   };
@@ -158,7 +158,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
             {presetValidMessage && <Error>{presetValidMessage}</Error>}
             <PrimaryButton
-              onClick={() => setShowAddAuctionModal(true)}
+              onClick={() => setShowCreateAuctionModal(true)}
               disabled={!canStartAuction}
             >
               경매 생성
@@ -191,15 +191,15 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
         />
       )}
 
-      {showAddAuctionModal && (
-        <AddAuctionModal
+      {showCreateAuctionModal && (
+        <CreateAuctionModal
           onClose={() => {
-            setShowAddAuctionModal(false);
-            addAuction.reset();
+            setShowCreateAuctionModal(false);
+            createAuction.reset();
           }}
           onSubmit={handleStartAuction}
-          isPending={addAuction.isPending}
-          error={addAuction.isError ? addAuction.error : undefined}
+          isPending={createAuction.isPending}
+          error={createAuction.isError ? createAuction.error : undefined}
         />
       )}
 

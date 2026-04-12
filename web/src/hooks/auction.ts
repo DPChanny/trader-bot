@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/preact-query";
-import { postAuction } from "@/apis/auction";
+import { createAuction } from "@/apis/auction";
 
-export function useAddAuction() {
+export function useCreateAuction() {
   return useMutation({
-    mutationFn: postAuction,
+    mutationFn: createAuction,
   });
 }
