@@ -11,7 +11,7 @@ import { Error as ErrorMessage } from "@/components/commons/error";
 
 const INITIAL_STATE = {
   presetName: "",
-  inputPoints: 1000,
+  points: 1000,
   pointScale: 1,
   timer: 30,
   teamSize: 5,
@@ -37,17 +37,15 @@ export function CreatePresetModal({
   error,
 }: CreatePresetModalProps) {
   const [presetName, setPresetName] = useState(INITIAL_STATE.presetName);
-  const [inputPoints, setInputPoints] = useState(INITIAL_STATE.inputPoints);
+  const [points, setPoints] = useState(INITIAL_STATE.points);
   const [pointScale, setPointScale] = useState(INITIAL_STATE.pointScale);
   const [timer, setTimer] = useState(INITIAL_STATE.timer);
   const [teamSize, setTeamSize] = useState(INITIAL_STATE.teamSize);
 
-  const isDivisible = inputPoints % pointScale === 0;
-
   const handleClose = () => {
     if (isPending) return;
     setPresetName(INITIAL_STATE.presetName);
-    setInputPoints(INITIAL_STATE.inputPoints);
+    setPoints(INITIAL_STATE.points);
     setPointScale(INITIAL_STATE.pointScale);
     setTimer(INITIAL_STATE.timer);
     setTeamSize(INITIAL_STATE.teamSize);
@@ -56,12 +54,11 @@ export function CreatePresetModal({
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!presetName.trim() || pointScale <= 0 || !isDivisible) return;
-    const actualPoints = inputPoints / pointScale;
+    if (!presetName.trim() || pointScale <= 0 || points < 0) return;
     try {
       await onSubmit({
         name: presetName.trim(),
-        points: actualPoints,
+        points,
         timer,
         teamSize,
         pointScale,
@@ -88,8 +85,8 @@ export function CreatePresetModal({
           <LabelInput
             label="포인트"
             type="number"
-            value={inputPoints.toString()}
-            onChange={(v) => setInputPoints(parseInt(v) || 1000)}
+            value={points.toString()}
+            onChange={(v) => setPoints(Math.max(0, Number(v) || 0))}
           />
           <LabelInput
             label="포인트 스케일"
@@ -98,11 +95,6 @@ export function CreatePresetModal({
             onChange={(v) => setPointScale(parseInt(v) || 1)}
           />
         </ModalRow>
-        {!isDivisible ? (
-          <ErrorMessage>
-            포인트는 포인트 스케일로 나뉘어떨어져야 합니다.
-          </ErrorMessage>
-        ) : null}
         <ModalRow>
           <LabelInput
             label="경매 타이머 (초)"
@@ -124,7 +116,7 @@ export function CreatePresetModal({
           <PrimaryButton
             type="submit"
             disabled={
-              isPending || !presetName.trim() || !isDivisible || pointScale <= 0
+              isPending || !presetName.trim() || pointScale <= 0 || points < 0
             }
           >
             추가

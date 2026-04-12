@@ -1,3 +1,4 @@
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.entities.member import Member, Role
@@ -23,9 +24,11 @@ async def upsert_member(
         )
         session.add(entity)
         await session.flush()
+        logger.info(f"Member added: guild_id={guild_id}, user_id={user_id}")
     else:
         entity.name = name
         entity.avatar_hash = avatar_hash
+        logger.info(f"Member updated: guild_id={guild_id}, user_id={user_id}")
     return entity
 
 
@@ -39,6 +42,9 @@ async def set_role(
     entity = await repo.get_by_user_id(user_id, guild_id)
     if entity is not None:
         entity.role = role
+        logger.info(
+            f"Member role updated: guild_id={guild_id}, user_id={user_id}, role={role.name}"
+        )
 
 
 async def update_member(
@@ -53,6 +59,7 @@ async def update_member(
     if entity is not None:
         entity.name = name
         entity.avatar_hash = avatar_hash
+        logger.info(f"Member updated: guild_id={guild_id}, user_id={user_id}")
 
 
 async def delete_member(
@@ -64,3 +71,4 @@ async def delete_member(
     entity = await repo.get_by_user_id(user_id, guild_id)
     if entity is not None:
         await session.delete(entity)
+        logger.info(f"Member deleted: guild_id={guild_id}, user_id={user_id}")

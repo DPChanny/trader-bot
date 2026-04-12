@@ -73,7 +73,6 @@ async def main() -> None:
                             Role.OWNER,
                             session,
                         )
-                logger.info(f"Synced {len(bot.guilds)} guild(s) on ready")
         except Exception as e:
             logger.exception(f"on_ready sync error: {e}")
 
@@ -111,9 +110,6 @@ async def main() -> None:
                 await session.flush()
                 await set_role(
                     guild_entity.discord_id, owner_discord_id, Role.OWNER, session
-                )
-                logger.info(
-                    f"Guild synced: {guild.name}, owner={owner_discord_id}, members={guild.member_count}"
                 )
         except Exception as e:
             logger.exception(f"on_guild_join error: {e}")

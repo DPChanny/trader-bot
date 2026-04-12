@@ -32,16 +32,14 @@ export function EditPresetModal({
   error,
 }: EditPresetModalProps) {
   const [name, setName] = useState(preset.name);
-  const [inputPoints, setInputPoints] = useState(
-    preset.points * preset.pointScale,
-  );
+  const [points, setPoints] = useState(preset.points);
   const [timer, setTimer] = useState(preset.timer);
   const [teamSize, setTeamSize] = useState(preset.teamSize);
   const [pointScale, setPointScale] = useState(preset.pointScale);
 
   useEffect(() => {
     setName(preset.name);
-    setInputPoints(preset.points * preset.pointScale);
+    setPoints(preset.points);
     setTimer(preset.timer);
     setTeamSize(preset.teamSize);
     setPointScale(preset.pointScale);
@@ -54,18 +52,15 @@ export function EditPresetModal({
     preset.pointScale,
   ]);
 
-  const isDivisible = inputPoints % pointScale === 0;
-
   const handleSubmit = (e: Event) => {
     e.preventDefault();
-    if (!name.trim() || pointScale <= 0 || !isDivisible) return;
-    const actualPoints = inputPoints / pointScale;
-    onSubmit(name.trim(), actualPoints, timer, teamSize, pointScale);
+    if (!name.trim() || pointScale <= 0 || points < 0) return;
+    onSubmit(name.trim(), points, timer, teamSize, pointScale);
   };
 
   const hasChanges =
     name !== preset.name ||
-    inputPoints !== preset.points * preset.pointScale ||
+    points !== preset.points ||
     timer !== preset.timer ||
     teamSize !== preset.teamSize ||
     pointScale !== preset.pointScale;
@@ -92,9 +87,8 @@ export function EditPresetModal({
             <LabelInput
               label="포인트"
               type="number"
-              value={inputPoints.toString()}
-              onChange={(value) => setInputPoints(Number(value) || 0)}
-              variantIntent={isDivisible ? "default" : "error"}
+              value={points.toString()}
+              onChange={(value) => setPoints(Math.max(0, Number(value) || 0))}
             />
             <LabelInput
               label="포인트 스케일"
@@ -105,9 +99,6 @@ export function EditPresetModal({
               }
             />
           </ModalRow>
-          {!isDivisible && (
-            <Error>포인트는 포인트 스케일로 나뉘어떨어져야 합니다.</Error>
-          )}
         </div>
 
         <ModalRow>
@@ -135,7 +126,7 @@ export function EditPresetModal({
           </SecondaryButton>
           <PrimaryButton
             type="submit"
-            disabled={isPending || !name.trim() || !hasChanges || !isDivisible}
+            disabled={isPending || !name.trim() || !hasChanges || points < 0}
           >
             저장
           </PrimaryButton>

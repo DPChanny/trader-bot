@@ -1,3 +1,4 @@
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..entities.user import User
@@ -15,6 +16,8 @@ async def upsert_user(
     if entity is None:
         session.add(User(discord_id=discord_id, name=name, avatar_hash=avatar_hash))
         await session.flush()
+        logger.info(f"User added: id={discord_id}, name={name}")
     else:
         entity.name = name
         entity.avatar_hash = avatar_hash
+        logger.info(f"User updated: id={discord_id}, name={name}")
