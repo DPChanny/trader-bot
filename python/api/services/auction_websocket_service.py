@@ -8,7 +8,7 @@ from shared.dtos.auction_dto import AuctionStatus, MessageType
 from shared.repositories.preset_member_repository import PresetMemberRepository
 
 from ..auction import Auction, auction_manager
-from ..utils.token import decode_token
+from ..utils.token import decode_access_token
 
 
 async def _resolve_member(
@@ -21,13 +21,11 @@ async def _resolve_member(
         return None, False, None
 
     try:
-        discord_id = decode_token(token)
+        discord_id = decode_access_token(token)
     except Exception:
         return None, False, None
 
-    pm = await preset_member_repo.get_by_discord_user_id(
-        discord_id, preset_id, guild_id
-    )
+    pm = await preset_member_repo.get_by_user_id(discord_id, preset_id, guild_id)
     if pm is None:
         return None, False, None
 

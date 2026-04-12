@@ -61,7 +61,7 @@ export function MemberPanel({ member, myRole, onClose }: MemberPanelProps) {
           variantLayout="row"
           variantIntent="secondary"
         >
-          <h3>{member.alias || member.discordUser.name}</h3>
+          <h3>{member.alias || member.user.name}</h3>
           <Section
             variantTone="ghost"
             variantLayout="row"
@@ -103,7 +103,7 @@ export function MemberPanel({ member, myRole, onClose }: MemberPanelProps) {
             label="별칭 (Alias)"
             value={alias}
             onChange={setAlias}
-            placeholder={member.alias || member.name || member.discordUser.name}
+            placeholder={member.alias || member.name || member.user.name}
           />
           <LabelInput
             label="프로필 링크"

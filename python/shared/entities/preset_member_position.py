@@ -27,11 +27,9 @@ class PresetMemberPosition(BaseEntity):
     )
     preset_member_id: Mapped[int] = mapped_column(
         ForeignKey("preset_member.preset_member_id", ondelete="CASCADE"),
-        nullable=False,
     )
     position_id: Mapped[int] = mapped_column(
         ForeignKey("position.position_id", ondelete="CASCADE"),
-        nullable=False,
     )
 
     position: Mapped[Position] = relationship("Position", viewonly=True)

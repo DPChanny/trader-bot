@@ -118,7 +118,7 @@ async def add_auction_service(
                 ],
             }
         ]
-        await send_message(member.discord_user_id, embed)
+        await send_message(member.user_id, embed)
 
     if dto.send_invite:
         await asyncio.gather(

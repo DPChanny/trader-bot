@@ -24,8 +24,8 @@ export interface MemberCardProps {
 }
 
 export function MemberCard({ member, isActive }: MemberCardProps) {
-  const displayName = member.alias || member.name || member.discordUser.name;
-  const avatarUrl = member.avatarUrl || member.discordUser.avatarUrl;
+  const displayName = member.alias || member.name || member.user.name;
+  const avatarUrl = member.avatarUrl || member.user.avatarUrl;
   const roleLabel = ROLE_LABEL[member.role];
   const roleColor = ROLE_COLOR[member.role];
   return (

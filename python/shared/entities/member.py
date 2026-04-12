@@ -10,9 +10,9 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
-    from .discord_user import DiscordUser
     from .guild import Guild
     from .preset_member import PresetMember
+    from .user import User
 
 
 class Role(enum.IntEnum):
@@ -24,26 +24,24 @@ class Role(enum.IntEnum):
 
 class Member(BaseEntity):
     __tablename__ = "member"
-    __table_args__ = (UniqueConstraint("guild_id", "discord_user_id"),)
+    __table_args__ = (UniqueConstraint("guild_id", "user_id"),)
 
     member_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     guild_id: Mapped[int] = mapped_column(
         BigInteger,
         ForeignKey("guild.discord_id", ondelete="CASCADE"),
-        nullable=False,
     )
-    discord_user_id: Mapped[int] = mapped_column(
+    user_id: Mapped[int] = mapped_column(
         BigInteger,
-        ForeignKey("discord_user.discord_id", ondelete="RESTRICT"),
-        nullable=False,
+        ForeignKey("user.discord_id", ondelete="CASCADE"),
     )
-    name: Mapped[str | None] = mapped_column(String(256), nullable=True)
-    alias: Mapped[str | None] = mapped_column(String(256), nullable=True)
-    avatar_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    info_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
-    role: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    name: Mapped[str | None] = mapped_column(String(256))
+    alias: Mapped[str | None] = mapped_column(String(256))
+    avatar_hash: Mapped[str | None] = mapped_column(String(64))
+    info_url: Mapped[str | None] = mapped_column(String(2048))
+    role: Mapped[int] = mapped_column(SmallInteger)
 
-    discord_user: Mapped[DiscordUser] = relationship("DiscordUser", viewonly=True)
+    user: Mapped[User] = relationship("User", viewonly=True)
     guild: Mapped[Guild] = relationship("Guild", viewonly=True)
     preset_members: Mapped[list[PresetMember]] = relationship(
         "PresetMember", viewonly=True

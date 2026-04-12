@@ -9,10 +9,11 @@ from ..services.auth_service import (
     callback_service,
     exchange_token_service,
     login_service,
+    logout_all_service,
     logout_service,
     refresh_token_service,
 )
-from ..utils.token import verify_token
+from ..utils.token import verify_access_token
 
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
@@ -49,7 +50,16 @@ async def refresh_token_route(
 
 @auth_router.post("/logout", status_code=204)
 async def logout_route(
+    dto: RefreshTokenDTO,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_token),
+    discord_id: int = Depends(verify_access_token),
 ) -> None:
-    return await logout_service(discord_id, session)
+    return await logout_service(dto, session)
+
+
+@auth_router.post("/logout-all", status_code=204)
+async def logout_all_route(
+    session: AsyncSession = Depends(get_session),
+    user_id: int = Depends(verify_access_token),
+) -> None:
+    return await logout_all_service(user_id, session)

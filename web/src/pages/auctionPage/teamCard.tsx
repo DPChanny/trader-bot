@@ -23,7 +23,7 @@ export function TeamCard({
 }: TeamCardProps) {
   const leader = members.find((member) => member.isLeader);
   const teamName = leader
-    ? `${leader.member.alias ?? leader.member.name ?? leader.member.discordUser.name} 팀`
+    ? `${leader.member.alias ?? leader.member.name ?? leader.member.user.name} 팀`
     : `Team ${team.teamId}`;
   const isFull = members.length === 5;
   const variantColor = isFull ? "green" : "blue";

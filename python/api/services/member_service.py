@@ -14,7 +14,7 @@ async def get_my_member_service(
     guild_id: int, discord_id: int, session: AsyncSession
 ) -> MemberDetailDTO:
     member_repo = MemberRepository(session)
-    member = await member_repo.get_detail_by_discord_user_id(discord_id, guild_id)
+    member = await member_repo.get_detail_by_user_id(discord_id, guild_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
     return MemberDetailDTO.model_validate(member)

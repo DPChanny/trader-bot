@@ -20,17 +20,14 @@ class PresetMember(BaseEntity):
     preset_member_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     preset_id: Mapped[int] = mapped_column(
         ForeignKey("preset.preset_id", ondelete="CASCADE"),
-        nullable=False,
     )
     member_id: Mapped[int] = mapped_column(
         ForeignKey("member.member_id", ondelete="CASCADE"),
-        nullable=False,
     )
     tier_id: Mapped[int | None] = mapped_column(
         ForeignKey("tier.tier_id", ondelete="SET NULL"),
-        nullable=True,
     )
-    is_leader: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    is_leader: Mapped[bool] = mapped_column(Boolean)
 
     member: Mapped[Member] = relationship("Member", viewonly=True)
     tier: Mapped[Tier | None] = relationship("Tier", viewonly=True)

@@ -20,14 +20,14 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
         <div className={styles.headerUser}>
           {user ? (
             <>
-              {user.discordUser.avatarUrl && (
+              {user.avatarUrl && (
                 <img
                   className={styles.userAvatar}
-                  src={user.discordUser.avatarUrl}
-                  alt={user.discordUser.name}
+                  src={user.avatarUrl}
+                  alt={user.name}
                 />
               )}
-              <span className={styles.userName}>{user.discordUser.name}</span>
+              <span className={styles.userName}>{user.name}</span>
               {onLogout && (
                 <DangerButton variantSize="small" onClick={onLogout}>
                   로그아웃

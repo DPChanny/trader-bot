@@ -22,13 +22,12 @@ class Preset(BaseEntity):
     guild_id: Mapped[int] = mapped_column(
         BigInteger,
         ForeignKey("guild.discord_id", ondelete="CASCADE"),
-        nullable=False,
     )
-    name: Mapped[str] = mapped_column(String(256), nullable=False)
-    points: Mapped[int] = mapped_column(nullable=False)
-    timer: Mapped[int] = mapped_column(nullable=False)
-    team_size: Mapped[int] = mapped_column(nullable=False)
-    point_scale: Mapped[int] = mapped_column(nullable=False)
+    name: Mapped[str] = mapped_column(String(256))
+    points: Mapped[int] = mapped_column()
+    timer: Mapped[int] = mapped_column()
+    team_size: Mapped[int] = mapped_column()
+    point_scale: Mapped[int] = mapped_column()
     guild: Mapped[Guild] = relationship("Guild", viewonly=True)
 
     tiers: Mapped[list[Tier]] = relationship("Tier", viewonly=True)

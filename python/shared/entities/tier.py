@@ -12,7 +12,6 @@ class Tier(BaseEntity):
     tier_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     preset_id: Mapped[int] = mapped_column(
         ForeignKey("preset.preset_id", ondelete="CASCADE"),
-        nullable=False,
     )
-    name: Mapped[str] = mapped_column(String(256), nullable=False)
-    icon_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    name: Mapped[str] = mapped_column(String(256))
+    icon_url: Mapped[str | None] = mapped_column(String(2048))

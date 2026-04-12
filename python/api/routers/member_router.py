@@ -10,7 +10,7 @@ from ..services.member_service import (
     get_my_member_service,
     update_member_service,
 )
-from ..utils.token import verify_token
+from ..utils.token import verify_access_token
 
 
 member_router = APIRouter(prefix="/guild/{guild_id}/member", tags=["member"])
@@ -20,7 +20,7 @@ member_router = APIRouter(prefix="/guild/{guild_id}/member", tags=["member"])
 async def get_my_member_route(
     guild_id: int,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_token),
+    discord_id: int = Depends(verify_access_token),
 ):
     return await get_my_member_service(guild_id, discord_id, session)
 
@@ -29,7 +29,7 @@ async def get_my_member_route(
 async def get_member_list_route(
     guild_id: int,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_token),
+    discord_id: int = Depends(verify_access_token),
 ):
     return await get_member_list_service(guild_id, discord_id, session)
 
@@ -39,7 +39,7 @@ async def get_member_route(
     guild_id: int,
     member_id: int,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_token),
+    discord_id: int = Depends(verify_access_token),
 ):
     return await get_member_service(guild_id, discord_id, member_id, session)
 
@@ -50,6 +50,6 @@ async def update_member_route(
     member_id: int,
     dto: UpdateMemberDTO,
     session: AsyncSession = Depends(get_session),
-    discord_id: int = Depends(verify_token),
+    discord_id: int = Depends(verify_access_token),
 ):
     return await update_member_service(guild_id, discord_id, member_id, dto, session)

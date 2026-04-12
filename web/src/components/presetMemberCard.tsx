@@ -50,10 +50,10 @@ export function PresetMemberCard({
 
       <Section variantTone="ghost" variantIntent="secondary">
         <div class={styles.profile}>
-          {member.avatarUrl || member.discordUser.avatarUrl ? (
+          {member.avatarUrl || member.user.avatarUrl ? (
             <img
-              src={(member.avatarUrl || member.discordUser.avatarUrl)!}
-              alt={member.alias || member.name || member.discordUser.name}
+              src={(member.avatarUrl || member.user.avatarUrl)!}
+              alt={member.alias || member.name || member.user.name}
             />
           ) : (
             <svg
@@ -74,7 +74,7 @@ export function PresetMemberCard({
 
         <Section variantTone="ghost" variantIntent="tertiary">
           <h3 class={styles.name}>
-            {member.alias || member.name || member.discordUser.name}
+            {member.alias || member.name || member.user.name}
           </h3>
           {presetMemberPositions?.length > 0 && (
             <Section

@@ -6,9 +6,9 @@ from loguru import logger
 
 from shared.entities.member import Role
 from shared.utils.database import get_session, setup_db
-from shared.utils.discord_user import upsert_discord_user
 from shared.utils.env import get_discord_bot_token
 from shared.utils.logging import setup_logging
+from shared.utils.user import upsert_user
 
 from .utils.guild import delete_guild, upsert_guild
 from .utils.member import (
@@ -47,7 +47,7 @@ async def main() -> None:
                     async for member in guild.fetch_members():
                         if member.bot:
                             continue
-                        await upsert_discord_user(
+                        await upsert_user(
                             member.id,
                             member.global_name or member.name,
                             member.avatar.key if member.avatar else None,
@@ -95,7 +95,7 @@ async def main() -> None:
                     if member.bot:
                         continue
 
-                    await upsert_discord_user(
+                    await upsert_user(
                         member.id,
                         member.global_name or member.name,
                         member.avatar.key if member.avatar else None,
@@ -137,7 +137,7 @@ async def main() -> None:
                     member.guild.icon.key if member.guild.icon else None,
                     session,
                 )
-                await upsert_discord_user(
+                await upsert_user(
                     member.id,
                     member.global_name or member.name,
                     member.avatar.key if member.avatar else None,
@@ -174,7 +174,7 @@ async def main() -> None:
                     after.guild.icon.key if after.guild.icon else None,
                     session,
                 )
-                await upsert_discord_user(
+                await upsert_user(
                     after.id,
                     after.global_name or after.name,
                     after.avatar.key if after.avatar else None,
@@ -201,7 +201,7 @@ async def main() -> None:
         logger.info(f"User global profile updated: {after.name} ({after.id})")
         async for session in get_session():
             try:
-                await upsert_discord_user(
+                await upsert_user(
                     after.id,
                     after.global_name or after.name,
                     after.avatar.key if after.avatar else None,

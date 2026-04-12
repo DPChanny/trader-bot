@@ -1,9 +1,8 @@
-import type { DiscordUserDTO } from "./discordUserDto";
-
 export interface UserDTO {
   discordId: string;
+  name: string;
+  avatarHash: string | null;
+  avatarUrl?: string | null;
 }
 
-export interface UserDetailDTO extends UserDTO {
-  discordUser: DiscordUserDTO;
-}
+export type UserDetailDTO = UserDTO;

@@ -204,7 +204,7 @@ export function PresetMemberPanel({
           <h3>
             {presetMember.member.alias ||
               presetMember.member.name ||
-              presetMember.member.discordUser.name}
+              presetMember.member.user.name}
           </h3>
           <Section
             variantTone="ghost"

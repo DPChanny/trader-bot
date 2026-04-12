@@ -1,9 +1,9 @@
-import type { DiscordUserDTO } from "./discordUserDto";
+import type { UserDTO } from "./userDto";
 
 export interface MemberDTO {
   memberId: number;
   guildId: string;
-  discordUserId: string;
+  userId: string;
   role: number;
   name: string | null;
   alias: string | null;
@@ -13,7 +13,7 @@ export interface MemberDTO {
 }
 
 export interface MemberDetailDTO extends MemberDTO {
-  discordUser: DiscordUserDTO;
+  user: UserDTO;
 }
 
 export interface UpdateMemberDTO {
