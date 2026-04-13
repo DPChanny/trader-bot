@@ -1,14 +1,23 @@
-bid placed 최적화
+auction 필요없음 로직 정리
+
+type CreatePresetVariables = Parameters<typeof createPreset>[0];
+type CreatePresetResult = Awaited<ReturnType<typeof createPreset>>;
+type UpdatePresetVariables = Parameters<typeof updatePreset>[0];
+type UpdatePresetResult = Awaited<ReturnType<typeof updatePreset>>;
+type DeletePresetVariables = Parameters<typeof deletePreset>[0];
+???????
+
+bid placed 최적화 이상한 거 있음 ㅇㅇ
 api detail override
 purge 부하
 auction web 개편
 home page
 publish
-web 다국어 지원
-code layout
 section div 역할 분리
 모바일 대응
-auction 조회?
+web 다국어 지원
+code layout
+auction 조회
 result
 bot command
 shadow transition effect

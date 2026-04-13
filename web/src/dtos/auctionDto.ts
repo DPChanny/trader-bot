@@ -10,12 +10,12 @@ export interface AuctionDTO {
   presetId: number;
   status: AuctionStatus;
   currentMemberId: number | null;
-  currentBid: AuctionBidDTO | null;
+  currentBid: BidDTO | null;
   timer: number;
 }
 
 export interface AuctionDetailDTO extends AuctionDTO {
-  teams: AuctionTeamDTO[];
+  teams: TeamDTO[];
   auctionQueue: number[];
   unsoldQueue: number[];
   connectedMemberIds: number[];
@@ -54,19 +54,17 @@ export interface AuctionMessageDTO<TDto = unknown> {
 
 export type WebSocketMessage = AuctionMessageDTO;
 
-export interface AuctionTeamDTO {
+export interface TeamDTO {
   teamId: number;
   leaderId: number;
   memberIds: number[];
   points: number;
 }
 
-export interface AuctionBidDTO {
+export interface BidDTO {
   amount: number;
   leaderId: number;
 }
-
-export type AuctionInitDTO = InitDTO;
 
 export interface StatusMessageDTO {
   status: AuctionStatus;
@@ -84,7 +82,7 @@ export interface NextMemberMessageDTO {
 }
 
 export interface MemberSoldMessageDTO {
-  teams: AuctionTeamDTO[];
+  teams: TeamDTO[];
   auctionQueue: number[];
   unsoldQueue: number[];
 }

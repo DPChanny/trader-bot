@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { MessageType } from "@/dtos/auctionDto";
 import type {
   AuctionMessageDTO,
-  AuctionInitDTO,
+  InitDTO,
   BidPlacedMessageDTO,
   ErrorMessageDTO,
   MemberConnectedMessageDTO,
@@ -21,38 +21,19 @@ function getMessagePayload(message: AuctionMessageDTO): unknown {
   return message.dto;
 }
 
-function getCurrentBidTeamId(state: AuctionInitDTO | null): number | null {
-  if (!state?.currentBid) return null;
-  return (
-    state.teams.find((team) => team.leaderId === state.currentBid!.leaderId)
-      ?.teamId ?? null
-  );
-}
-
 interface AuctionWebSocketHook {
+  state: InitDTO | null;
+  connect: (auctionId: string) => void;
+  placeBid: (amount: number) => void;
   isConnected: boolean;
   wasConnected: boolean;
-  connect: (auctionId: string) => void;
-  disconnect: () => void;
-  placeBid: (amount: number) => void;
-  state: AuctionInitDTO | null;
-  isLeader: boolean;
-  currentBidTeamId: number | null;
-  memberId: number | null;
-  teamId: number | null;
-  connectedMemberIds: number[];
   closeReason: string | null;
 }
 
 export function useAuctionWebSocket(): AuctionWebSocketHook {
   const [isConnected, setIsConnected] = useState(false);
   const [wasConnected, setWasConnected] = useState(false);
-  const [state, setState] = useState<AuctionInitDTO | null>(null);
-  const [isLeader, setIsLeader] = useState(false);
-  const [currentBidTeamId, setCurrentBidTeamId] = useState<number | null>(null);
-  const [memberId, setMemberId] = useState<number | null>(null);
-  const [teamId, setTeamId] = useState<number | null>(null);
-  const [connectedMemberIds, setConnectedMemberIds] = useState<number[]>([]);
+  const [state, setState] = useState<InitDTO | null>(null);
   const [closeReason, setCloseReason] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const mountedRef = useRef(true);
@@ -61,13 +42,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     switch (message.type) {
       case MessageType.INIT: {
         const rawData = getMessagePayload(message);
-        const nextState = toCamelCase<AuctionInitDTO>(rawData);
-
-        setIsLeader(nextState.teamId !== null);
-        setMemberId(nextState.memberId);
-        setTeamId(nextState.teamId);
-        setConnectedMemberIds(nextState.connectedMemberIds);
-        setCurrentBidTeamId(getCurrentBidTeamId(nextState));
+        const nextState = toCamelCase<InitDTO>(rawData);
         setState(nextState);
         break;
       }
@@ -75,10 +50,6 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         const rawData = getMessagePayload(message);
         const data = toCamelCase<MemberConnectedMessageDTO>(rawData);
         const connectedMemberId = data.memberId;
-        setConnectedMemberIds((prev) => {
-          if (prev.includes(connectedMemberId)) return prev;
-          return [...prev, connectedMemberId];
-        });
         setState((prev) =>
           prev
             ? {
@@ -97,9 +68,6 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         const rawData = getMessagePayload(message);
         const data = toCamelCase<MemberDisconnectedMessageDTO>(rawData);
         const connectedMemberId = data.memberId;
-        setConnectedMemberIds((prev) =>
-          prev.filter((id) => id !== connectedMemberId),
-        );
         setState((prev) =>
           prev
             ? {
@@ -117,7 +85,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         const rawData = getMessagePayload(message);
         const data = toCamelCase<NextMemberMessageDTO>(rawData);
         setState((prev) => {
-          const nextState = prev
+          return prev
             ? {
                 ...prev,
                 currentMemberId: data.memberId,
@@ -126,8 +94,6 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
                 unsoldQueue: data.unsoldQueue,
               }
             : prev;
-          setCurrentBidTeamId(getCurrentBidTeamId(nextState));
-          return nextState;
         });
         break;
       }
@@ -136,7 +102,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         const rawData = getMessagePayload(message);
         const data = toCamelCase<MemberSoldMessageDTO>(rawData);
         setState((prev) => {
-          const nextState = prev
+          return prev
             ? {
                 ...prev,
                 teams: data.teams,
@@ -144,8 +110,6 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
                 unsoldQueue: data.unsoldQueue,
               }
             : prev;
-          setCurrentBidTeamId(getCurrentBidTeamId(nextState));
-          return nextState;
         });
         break;
       }
@@ -162,10 +126,6 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         const data = toCamelCase<BidPlacedMessageDTO>(rawData);
         setState((prev) => {
           if (!prev) return prev;
-          setCurrentBidTeamId(
-            prev.teams.find((team) => team.leaderId === data.leaderId)
-              ?.teamId ?? null,
-          );
           return {
             ...prev,
             currentBid: {
@@ -206,19 +166,15 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     }
   };
 
-  const disconnect = () => {
+  const cleanupConnection = () => {
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
-      setIsConnected(false);
-      setState(null);
-      setCurrentBidTeamId(null);
-      setCloseReason(null);
     }
   };
 
   const connect = (auctionId: string) => {
-    disconnect();
+    cleanupConnection();
     setCloseReason(null);
 
     const token = getAccessToken();
@@ -293,22 +249,16 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
-      disconnect();
+      cleanupConnection();
     };
   }, []);
 
   return {
+    state,
+    connect,
+    placeBid,
     isConnected,
     wasConnected,
-    connect,
-    disconnect,
-    placeBid,
-    state,
-    isLeader,
-    currentBidTeamId,
-    memberId,
-    teamId,
     closeReason,
-    connectedMemberIds,
   };
 }

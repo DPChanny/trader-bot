@@ -1,31 +1,33 @@
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
-import type { Team } from "@/dtos/auctionDto";
+import type { TeamDTO } from "@/dtos/auctionDto";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
 import styles from "@/styles/pages/auctionPage/teamCard.module.css";
 
 interface TeamCardProps {
-  team: Team;
+  team: TeamDTO;
   members: PresetMemberDetailDTO[];
+  teamSize: number;
   pointScale: number;
-  connectedUsers?: number[];
+  connectedMemberIds?: number[];
   clientMemberId?: number;
 }
 
 export function TeamCard({
   team,
   members,
+  teamSize,
   pointScale,
-  connectedUsers,
+  connectedMemberIds,
   clientMemberId,
 }: TeamCardProps) {
   const leader = members.find((member) => member.isLeader);
   const teamName = leader
     ? `${leader.member.alias ?? leader.member.name ?? leader.member.user.name} 팀`
     : `Team ${team.teamId}`;
-  const isFull = members.length === 5;
+  const isFull = members.length >= teamSize;
   const variantColor = isFull ? "green" : "blue";
 
   return (
@@ -39,7 +41,7 @@ export function TeamCard({
         className={styles.membersGrid}
         presetMembers={members}
         onMemberClick={() => {}}
-        connectedUsers={connectedUsers}
+        connectedMemberIds={connectedMemberIds}
         clientMemberId={clientMemberId}
       />
     </Card>

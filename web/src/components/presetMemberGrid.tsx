@@ -9,7 +9,7 @@ interface PresetMemberGridProps {
   selectedMemberId?: number | null;
   onMemberClick: (presetMemberId: number) => void;
   className?: string;
-  connectedUsers?: number[];
+  connectedMemberIds?: number[];
   clientMemberId?: number;
 }
 
@@ -18,7 +18,7 @@ export function PresetMemberGrid({
   selectedMemberId,
   onMemberClick,
   className,
-  connectedUsers,
+  connectedMemberIds,
   clientMemberId,
 }: PresetMemberGridProps) {
   const leaders = presetMembers.filter((pm) => pm.isLeader);
@@ -41,8 +41,8 @@ export function PresetMemberGrid({
             presetMember={presetMember}
             isActive={selectedMemberId === presetMember.presetMemberId}
             isConnected={
-              connectedUsers
-                ? connectedUsers.includes(presetMember.memberId)
+              connectedMemberIds
+                ? connectedMemberIds.includes(presetMember.memberId)
                 : undefined
             }
             isClientMember={

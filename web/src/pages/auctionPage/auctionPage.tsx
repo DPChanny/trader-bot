@@ -26,25 +26,19 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   const [bidAmount, setBidAmount] = useState<string>("");
   const reconnectedRef = useRef(false);
 
-  const {
-    isConnected,
-    wasConnected,
-    connect,
-    placeBid,
-    state,
-    isLeader,
-    currentBidTeamId,
-    teamId,
-    connectedMemberIds,
-    memberId,
-    closeReason,
-  } = useAuctionWebSocket();
+  const { state, connect, placeBid, isConnected, wasConnected, closeReason } =
+    useAuctionWebSocket();
 
   useEffect(() => {
     if (auctionId !== undefined) {
       connect(auctionId);
     }
   }, []);
+
+  const memberId = state?.memberId ?? null;
+  const teamId = state?.teamId ?? null;
+  const isLeader = teamId !== null;
+  const connectedMemberIds = state?.connectedMemberIds ?? [];
 
   useEffect(() => {
     if (
@@ -90,29 +84,31 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
   const snapshot = state!.presetSnapshot as {
     presetMembers: PresetMemberDetailDTO[];
+    teamSize: number;
     pointScale: number;
   } | null;
 
   const presetMembers: PresetMemberDetailDTO[] = snapshot?.presetMembers ?? [];
+  const teamSize: number = snapshot?.teamSize ?? 5;
   const pointScale: number = snapshot?.pointScale ?? 1;
 
   const presetMemberMap = new Map<number, PresetMemberDetailDTO>(
     presetMembers.map((pm) => [pm.memberId, pm]),
   );
 
-  const auctionQueueMembers = state!.auctionQueue
+  const auctionQueuePresetMembers = state!.auctionQueue
     .map((memberId) => presetMemberMap.get(memberId))
     .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
-  const unsoldQueueMembers = state!.unsoldQueue
+  const unsoldQueuePresetMembers = state!.unsoldQueue
     .map((memberId) => presetMemberMap.get(memberId))
     .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
-  const currentTeam = teamId
+  const clientTeam = teamId
     ? state.teams.find((t) => t.teamId === teamId)
     : null;
-  const teamMemberCount = currentTeam ? currentTeam.memberIds.length : 0;
-  const isTeamFull = teamMemberCount >= 5;
+  const clientTeamSize = clientTeam ? clientTeam.memberIds.length : 0;
+  const isClientTeamFull = clientTeamSize >= teamSize;
 
   const getStatusText = (status: AuctionStatus) => {
     if (wasConnected && !isConnected && status !== AuctionStatus.COMPLETED)
@@ -127,12 +123,9 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     ? presetMemberMap.get(state.currentMemberId)
     : null;
 
-  const bidderTeam = currentBidTeamId
-    ? state.teams.find((t) => t.teamId === currentBidTeamId)
-    : null;
-  const leaderMemberId = bidderTeam?.leaderId;
-  const bidderLeader = leaderMemberId
-    ? presetMemberMap.get(leaderMemberId)
+  const currentBidLeaderId = state.currentBid?.leaderId;
+  const currentBidLeader = currentBidLeaderId
+    ? presetMemberMap.get(currentBidLeaderId)
     : null;
 
   const handlePlaceBid = () => {
@@ -152,9 +145,10 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
         <TeamList
           teams={state.teams}
           presetMemberMap={presetMemberMap}
+          teamSize={teamSize}
           pointScale={pointScale}
           clientMemberId={memberId ?? undefined}
-          connectedUsers={connectedMemberIds}
+          connectedMemberIds={connectedMemberIds}
         />
       </Section>
 
@@ -198,13 +192,13 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
               />
             </Section>
             <InfoCard label="입찰 팀장" value="">
-              {state.status !== AuctionStatus.COMPLETED && bidderLeader && (
-                <PresetMemberCard presetMember={bidderLeader} />
+              {state.status !== AuctionStatus.COMPLETED && currentBidLeader && (
+                <PresetMemberCard presetMember={currentBidLeader} />
               )}
             </InfoCard>
           </Section>
 
-          {isLeader && !isTeamFull && (
+          {isLeader && !isClientTeamFull && (
             <Section
               variantTone="ghost"
               variantLayout="row"
@@ -239,10 +233,10 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
           <Bar />
           <Section variantTone="ghost" className={styles.queueGrid}>
             <PresetMemberGrid
-              presetMembers={auctionQueueMembers}
+              presetMembers={auctionQueuePresetMembers}
               onMemberClick={() => {}}
               clientMemberId={memberId ?? undefined}
-              connectedUsers={connectedMemberIds}
+              connectedMemberIds={connectedMemberIds}
             />
           </Section>
         </Section>
@@ -252,10 +246,10 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
           <Bar />
           <Section variantTone="ghost" className={styles.queueGrid}>
             <PresetMemberGrid
-              presetMembers={unsoldQueueMembers}
+              presetMembers={unsoldQueuePresetMembers}
               onMemberClick={() => {}}
-              connectedUsers={connectedMemberIds}
               clientMemberId={memberId ?? undefined}
+              connectedMemberIds={connectedMemberIds}
             />
           </Section>
         </Section>
