@@ -29,10 +29,10 @@ class Auction:
         self,
         auction_id: int,
         preset_snapshot: PresetDetailDTO,
-        allow_public: bool = True,
+        is_public: bool,
     ):
         self.auction_id = auction_id
-        self.allow_public = allow_public
+        self.allow_public = is_public
         self.status: AuctionStatus = AuctionStatus.WAITING
         self.preset_snapshot = preset_snapshot
 

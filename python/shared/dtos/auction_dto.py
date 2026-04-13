@@ -51,8 +51,8 @@ class AuctionDTO(BaseDTO):
 
 
 class CreateAuctionDTO(BaseDTO):
-    allow_public: bool = True
-    send_invite: bool = True
+    is_public: bool
+    send_invite: bool
 
 
 class TimerMessageData(BaseDTO):

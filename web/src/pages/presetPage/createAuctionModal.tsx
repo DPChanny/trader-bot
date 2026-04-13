@@ -24,7 +24,7 @@ export function CreateAuctionModal({
   message,
   isHardError = false,
 }: CreateAuctionModalProps) {
-  const [allowPublic, setAllowPublic] = useState(true);
+  const [isPublic, setIsPublic] = useState(true);
   const [sendInvite, setSendInvite] = useState(true);
 
   const handleClose = () => {
@@ -45,11 +45,8 @@ export function CreateAuctionModal({
           variantIntent="secondary"
         >
           <Label>퍼블릭 허용</Label>
-          <Toggle
-            isActive={allowPublic}
-            onClick={() => setAllowPublic((v) => !v)}
-          >
-            {allowPublic ? "허용" : "비허용"}
+          <Toggle isActive={isPublic} onClick={() => setIsPublic((v) => !v)}>
+            {isPublic ? "허용" : "비허용"}
           </Toggle>
         </Section>
         <Section
@@ -75,7 +72,7 @@ export function CreateAuctionModal({
           </SecondaryButton>
           <Button
             type="button"
-            onClick={() => onSubmit({ allowPublic, sendInvite })}
+            onClick={() => onSubmit({ isPublic, sendInvite })}
             disabled={isPending || isHardError}
           >
             생성

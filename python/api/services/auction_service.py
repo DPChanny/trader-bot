@@ -45,7 +45,7 @@ async def create_auction_service(
     preset_snapshot = PresetDetailDTO.model_validate(preset)
     auction = auction_manager.create_auction(
         preset_snapshot=preset_snapshot,
-        allow_public=dto.allow_public,
+        is_public=dto.is_public,
     )
     auction_id: int = auction.auction_id
 
@@ -58,44 +58,44 @@ async def create_auction_service(
     app_origin = get_app_origin()
 
     async def _send_invite(pm: PresetMember):
-        member = pm.member
-        if member is None:
-            return
-        role = "팀장" if pm.is_leader else "선수"
-        auction_url = f"{app_origin}/auction/{auction_id}"
-        embed = [
-            {
-                "title": "Trader 경매",
-                "fields": [
-                    {
-                        "name": "서버",
-                        "value": preset.guild.name,
-                        "inline": True,
-                    },
-                    {
-                        "name": "프리셋",
-                        "value": preset.name,
-                        "inline": True,
-                    },
-                    {
-                        "name": "역할",
-                        "value": role,
-                        "inline": True,
-                    },
-                    {
-                        "name": "참가 링크",
-                        "value": auction_url,
-                        "inline": False,
-                    },
-                ],
-            }
-        ]
-        await send_message(member.user_id, embed)
+        try:
+            member = pm.member
+            role = "팀장" if pm.is_leader else "선수"
+            auction_url = f"{app_origin}/auction/{auction_id}"
+            embed = [
+                {
+                    "title": "Trader 경매",
+                    "fields": [
+                        {
+                            "name": "길드",
+                            "value": preset.guild.name,
+                            "inline": True,
+                        },
+                        {
+                            "name": "프리셋",
+                            "value": preset.name,
+                            "inline": True,
+                        },
+                        {
+                            "name": "역할",
+                            "value": role,
+                            "inline": True,
+                        },
+                        {
+                            "name": "참가 링크",
+                            "value": auction_url,
+                            "inline": False,
+                        },
+                    ],
+                }
+            ]
+            await send_message(member.user_id, embed)
+        except Exception:
+            pass
 
     if dto.send_invite:
         await asyncio.gather(
             *[_send_invite(pm) for pm in preset_members],
-            return_exceptions=True,
         )
 
     return result

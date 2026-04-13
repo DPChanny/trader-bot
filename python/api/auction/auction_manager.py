@@ -12,13 +12,13 @@ class AuctionManager:
     def create_auction(
         self,
         preset_snapshot: PresetDetailDTO,
-        allow_public: bool = True,
+        is_public: bool,
     ) -> Auction:
         auction_id = uuid.uuid4().int
         auction = Auction(
             auction_id=auction_id,
             preset_snapshot=preset_snapshot,
-            allow_public=allow_public,
+            is_public=is_public,
         )
         self.auctions[auction_id] = auction
         return auction

@@ -60,20 +60,20 @@ async def get_me(code: str) -> dict:
         return me_response.json()
 
 
-async def send_message(user_id: int, embeds: list[dict]) -> bool:
+async def send_message(user_id: int, embeds: list[dict]) -> None:
     headers = {
         "Authorization": f"Bot {get_discord_bot_token()}",
         "Content-Type": "application/json",
     }
 
-    async with httpx.AsyncClient(timeout=10.0) as client:
+    async with httpx.AsyncClient() as client:
         ch_response = await client.post(
             f"{DISCORD_USERS_URL}/@me/channels",
             headers=headers,
             json={"recipient_id": str(user_id)},
         )
         if ch_response.status_code != 200:
-            return False
+            raise AppError(DiscordErrorCode.FetchFailed)
 
         channel_id = ch_response.json()["id"]
         msg_response = await client.post(
@@ -81,4 +81,5 @@ async def send_message(user_id: int, embeds: list[dict]) -> bool:
             headers=headers,
             json={"embeds": embeds},
         )
-        return msg_response.status_code == 200
+        if msg_response.status_code != 200:
+            raise AppError(DiscordErrorCode.FetchFailed)

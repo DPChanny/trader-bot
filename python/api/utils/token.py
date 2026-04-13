@@ -29,10 +29,10 @@ class JWTToken:
 
     @classmethod
     def create(cls, user_id: int) -> tuple[str, "JWTToken.Payload"]:
-        expiration = datetime.now(UTC) + cls._exp_delta
+        exp = datetime.now(UTC) + cls._exp_delta
         payload = cls.Payload(
             user_id=user_id,
-            exp=int(expiration.timestamp()),
+            exp=int(exp.timestamp()),
             type=cls._type,
         )
         token = jwt.encode(
@@ -41,10 +41,10 @@ class JWTToken:
         return token, payload
 
     @classmethod
-    def decode(cls, token: str) -> "JWTToken.Payload":
+    def decode(cls, jwt_token: str) -> "JWTToken.Payload":
         try:
             data = jwt.decode(
-                token,
+                jwt_token,
                 get_jwt_secret(),
                 algorithms=[get_jwt_algorithm()],
             )
@@ -74,30 +74,30 @@ class ExchangeToken:
         refresh_token: str
         exp: float
 
-    _store: dict[str, "ExchangeToken.Payload"] = {}
+    _exchange_tokens: dict[str, "ExchangeToken.Payload"] = {}
 
     @classmethod
     def _purge(cls) -> None:
         now = time()
-        expired = [k for k, v in cls._store.items() if v.exp <= now]
+        expired = [k for k, v in cls._exchange_tokens.items() if v.exp <= now]
         for k in expired:
-            cls._store.pop(k, None)
+            cls._exchange_tokens.pop(k, None)
 
     @classmethod
-    def create(cls, token: str, refresh_token: str) -> str:
+    def create(cls, access_token: str, refresh_token: str) -> str:
         cls._purge()
         code = token_urlsafe(32)
-        cls._store[code] = ExchangeToken.Payload(
-            access_token=token,
+        cls._exchange_tokens[code] = ExchangeToken.Payload(
+            access_token=access_token,
             refresh_token=refresh_token,
             exp=time() + _EXCHANGE_TOKEN_EXPIRATION_SECONDS,
         )
         return code
 
     @classmethod
-    def consume(cls, code: str) -> tuple[str, str] | None:
+    def consume(cls, exchange_token: str) -> tuple[str, str] | None:
         cls._purge()
-        entry = cls._store.pop(code, None)
+        entry = cls._exchange_tokens.pop(exchange_token, None)
         if entry is None:
             return None
         return entry.access_token, entry.refresh_token
