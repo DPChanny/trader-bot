@@ -3,8 +3,8 @@ from __future__ import annotations
 import asyncio
 import random
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import IntEnum
-from time import time
 
 from fastapi import WebSocket
 
@@ -22,7 +22,7 @@ from shared.dtos.preset_dto import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, WebSocketError
 
 
-_AUCTION_EXPIRATION_SECONDS = 10 * 60
+_AUCTION_EXPIRATION_MINUTES = 10
 
 
 class AuctionStatus(IntEnum):
@@ -46,6 +46,8 @@ class Bid:
 
 
 class Auction:
+    _exp_delta = timedelta(minutes=_AUCTION_EXPIRATION_MINUTES)
+
     def __init__(
         self,
         auction_id: int,
@@ -99,13 +101,15 @@ class Auction:
         self._was_in_progress: bool = False
         self._state_lock = asyncio.Lock()
         self._broadcast_lock = asyncio.Lock()
-        self.exp: float = time() + _AUCTION_EXPIRATION_SECONDS
+        self.exp: datetime = datetime.now() + self._exp_delta
 
     @property
     def connected_member_ids(self) -> list[int]:
         return list(self._member_id_to_ws_set.keys())
 
     async def connect(self, websocket: WebSocket, member_id: int | None) -> None:
+        if self.status == AuctionStatus.COMPLETED:
+            return
         if member_id is None:
             self._public_websockets.add(websocket)
             return
@@ -151,6 +155,9 @@ class Auction:
             return
 
         del self._member_id_to_ws_set[member_id]
+        if self.status == AuctionStatus.COMPLETED:
+            return
+
         await self._broadcast(
             MessageType.MEMBER_DISCONNECTED,
             MemberConnectionDTO(member_id=member_id),
@@ -162,7 +169,7 @@ class Auction:
     def _can_progress(self) -> bool:
         return self._leader_member_ids.issubset(self._member_id_to_ws_set.keys())
 
-    async def _broadcast(self, type: MessageType, data: BaseDTO) -> None:
+    async def _broadcast(self, message_type: MessageType, dto: BaseDTO) -> None:
         websockets: list[WebSocket] = []
         async with self._broadcast_lock:
             for member_websockets in self._member_id_to_ws_set.values():
@@ -170,7 +177,7 @@ class Auction:
             websockets.extend(self._public_websockets)
 
         disconnected_websockets: list[WebSocket] = []
-        message = {"type": type, "dto": data.model_dump()}
+        message = {"type": message_type, "dto": dto.model_dump()}
         for websocket in websockets:
             try:
                 await websocket.send_json(message)
@@ -201,7 +208,7 @@ class Auction:
                         self.timer = self.preset_snapshot.timer
 
                 self._stop_timer()
-                self.exp = time() + _AUCTION_EXPIRATION_SECONDS
+                self.exp = datetime.now() + self._exp_delta
 
             elif new_status == AuctionStatus.RUNNING:
                 if self.status == AuctionStatus.WAITING:
@@ -310,7 +317,8 @@ class Auction:
             message: tuple[MessageType, BaseDTO] | None = None
             async with self._state_lock:
                 if self.current_bid is None:
-                    self.unsold_queue.append(self.current_member_id)
+                    if self.current_member_id is not None:
+                        self.unsold_queue.append(self.current_member_id)
                 else:
                     team = self._member_id_to_team[self.current_bid.leader_id]
                     team.points -= self.current_bid.amount

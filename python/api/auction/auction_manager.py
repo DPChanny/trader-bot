@@ -1,6 +1,6 @@
 import asyncio
 import uuid
-from time import time
+from datetime import datetime
 
 from shared.dtos.preset_dto import PresetDetailDTO
 
@@ -12,7 +12,7 @@ class AuctionManager:
         self.auctions: dict[int, Auction] = {}
 
     def _purge(self) -> None:
-        now = time()
+        now = datetime.now()
         for auction_id, auction in list(self.auctions.items()):
             if auction.status == AuctionStatus.COMPLETED:
                 del self.auctions[auction_id]
