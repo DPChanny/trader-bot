@@ -14,7 +14,7 @@ from shared.dtos.auction_dto import AuctionDetailDTO, AuctionInitDTO, MessageTyp
 from shared.utils.database import get_session
 from shared.utils.error import WebSocketError
 
-from ..auction import AuctionStatus
+from ..auction import Auction
 from ..services.auction_websocket_service import (
     handle_websocket_connect,
     handle_websocket_disconnect,
@@ -55,7 +55,7 @@ async def auction_websocket(
                 websocket, auction, member_id, message, is_leader
             )
 
-            if auction.status == AuctionStatus.COMPLETED:
+            if auction.status == Auction.Status.COMPLETED:
                 break
 
     except WebSocketDisconnect:

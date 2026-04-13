@@ -1,4 +1,8 @@
 auction api 개편
+    auction router
+    auction service
+    auction __init__.py
+    auth validation
 약어 통일
 web api hook 검토
 web error 개편

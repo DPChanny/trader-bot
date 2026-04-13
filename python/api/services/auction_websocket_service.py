@@ -13,7 +13,7 @@ from shared.utils.error import (
     WebSocketError,
 )
 
-from ..auction import Auction, auction_manager
+from ..auction import Auction, AuctionManager
 from ..utils.token import AccessToken
 
 
@@ -49,7 +49,7 @@ async def handle_websocket_connect(
     auction_id: int,
     session: AsyncSession,
 ) -> tuple[Auction, int | None, bool, int | None]:
-    auction = auction_manager.get_auction(auction_id)
+    auction = AuctionManager.get_auction(auction_id)
 
     if not auction:
         logger.bind(

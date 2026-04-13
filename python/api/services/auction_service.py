@@ -14,7 +14,7 @@ from shared.utils.env import get_app_origin
 from shared.utils.error import AuctionErrorCode, HTTPError, PresetErrorCode
 from shared.utils.service import service
 
-from ..auction.auction_manager import auction_manager
+from ..auction import AuctionManager
 from ..utils.discord import send_message
 from ..utils.member import verify_role
 
@@ -43,7 +43,7 @@ async def create_auction_service(
         raise HTTPError(AuctionErrorCode.InsufficientLeaders)
 
     preset_snapshot = PresetDetailDTO.model_validate(preset)
-    auction = auction_manager.create_auction(
+    auction = AuctionManager.create_auction(
         preset_snapshot=preset_snapshot,
         is_public=dto.is_public,
     )

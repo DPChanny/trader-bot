@@ -17,6 +17,7 @@ class AuctionErrorCode(IntEnum):
     BidTooHighAmount = 4005
     BidInsufficientPoints = 4006
     BidTooLowAmount = 4007
+    TeamNotFound = 4008
     Forbidden = 4301
     BidNotLeader = 4302
     NotFound = 4401

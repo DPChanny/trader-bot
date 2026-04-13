@@ -25,12 +25,6 @@ from shared.utils.error import AuctionErrorCode, WebSocketError
 _AUCTION_EXPIRATION_MINUTES = 10
 
 
-class AuctionStatus(IntEnum):
-    WAITING = 0
-    RUNNING = 1
-    COMPLETED = 2
-
-
 @dataclass
 class Team:
     team_id: int
@@ -46,6 +40,11 @@ class Bid:
 
 
 class Auction:
+    class Status(IntEnum):
+        WAITING = 0
+        RUNNING = 1
+        COMPLETED = 2
+
     _exp_delta = timedelta(minutes=_AUCTION_EXPIRATION_MINUTES)
 
     def __init__(
@@ -61,7 +60,7 @@ class Auction:
         self.guild_id = self.preset_snapshot.guild_id
         self.preset_id = self.preset_snapshot.preset_id
         self.team_size = self.preset_snapshot.team_size
-        self.status = AuctionStatus.WAITING
+        self.status = Auction.Status.WAITING
 
         preset_members = self.preset_snapshot.preset_members
         leaders = [pm for pm in preset_members if pm.is_leader]
@@ -108,7 +107,7 @@ class Auction:
         return list(self._member_id_to_ws_set.keys())
 
     async def connect(self, websocket: WebSocket, member_id: int | None) -> None:
-        if self.status == AuctionStatus.COMPLETED:
+        if self.status == Auction.Status.COMPLETED:
             return
         if member_id is None:
             self._public_websockets.add(websocket)
@@ -127,10 +126,10 @@ class Auction:
 
             if (
                 member_id in self._leader_member_ids
-                and self.status == AuctionStatus.WAITING
+                and self.status == Auction.Status.WAITING
                 and self._can_progress()
             ):
-                await self.set_status(AuctionStatus.RUNNING)
+                await self.set_status(Auction.Status.RUNNING)
 
     async def disconnect(self, websocket: WebSocket, member_id: int | None) -> None:
         if member_id is None:
@@ -155,7 +154,7 @@ class Auction:
             return
 
         del self._member_id_to_ws_set[member_id]
-        if self.status == AuctionStatus.COMPLETED:
+        if self.status == Auction.Status.COMPLETED:
             return
 
         await self._broadcast(
@@ -163,8 +162,8 @@ class Auction:
             MemberConnectionDTO(member_id=member_id),
         )
 
-        if self.status == AuctionStatus.RUNNING and not self._can_progress():
-            await self.set_status(AuctionStatus.WAITING)
+        if self.status == Auction.Status.RUNNING and not self._can_progress():
+            await self.set_status(Auction.Status.WAITING)
 
     def _can_progress(self) -> bool:
         return self._leader_member_ids.issubset(self._member_id_to_ws_set.keys())
@@ -187,18 +186,18 @@ class Auction:
         for websocket in disconnected_websockets:
             await self.disconnect(websocket, None)
 
-    async def set_status(self, new_status: AuctionStatus):
+    async def set_status(self, new_status: Auction.Status):
         next_member = False
 
         async with self._state_lock:
-            if self.status == AuctionStatus.COMPLETED:
+            if self.status == Auction.Status.COMPLETED:
                 return
 
             if self.status == new_status:
                 return
 
-            if new_status == AuctionStatus.WAITING:
-                if self.status == AuctionStatus.RUNNING:
+            if new_status == Auction.Status.WAITING:
+                if self.status == Auction.Status.RUNNING:
                     self._was_in_progress = True
                     if not (
                         self._timer_task
@@ -210,27 +209,25 @@ class Auction:
                 self._stop_timer()
                 self.exp = datetime.now() + self._exp_delta
 
-            elif new_status == AuctionStatus.RUNNING:
-                if self.status == AuctionStatus.WAITING:
+            elif new_status == Auction.Status.RUNNING:
+                if self.status == Auction.Status.WAITING:
                     if self._was_in_progress:
                         self._was_in_progress = False
                         self._start_timer()
                     else:
                         next_member = True
 
-            elif new_status == AuctionStatus.COMPLETED:
+            elif new_status == Auction.Status.COMPLETED:
                 self.current_member_id = None
                 self.current_bid = None
                 self._stop_timer()
 
             self.status = new_status
 
+        await self._broadcast(MessageType.STATUS, StatusDTO(status=int(self.status)))
+
         if next_member:
             await self._next_member()
-            if self.status != new_status:
-                return
-
-        await self._broadcast(MessageType.STATUS, StatusDTO(status=int(self.status)))
 
     def _stop_timer(self):
         if self._timer_task and not self._timer_task.done():
@@ -300,7 +297,7 @@ class Auction:
             await self._broadcast(*message)
 
         if completed:
-            await self.set_status(AuctionStatus.COMPLETED)
+            await self.set_status(Auction.Status.COMPLETED)
             return
 
         if start_timer:
@@ -342,25 +339,21 @@ class Auction:
     async def place_bid(self, member_id: int, amount: int) -> None:
         message: tuple[MessageType, BaseDTO] | None = None
         async with self._state_lock:
-            if self.status != AuctionStatus.RUNNING:
+            if self.status != Auction.Status.RUNNING:
                 return
             if self.current_member_id is None:
                 return
-            if member_id not in self._member_id_to_ws_set:
-                raise WebSocketError(AuctionErrorCode.BidNotLeader)
             if member_id not in self._leader_member_ids:
                 raise WebSocketError(AuctionErrorCode.BidNotLeader)
             team = self._member_id_to_team.get(member_id)
             if team is None:
-                raise WebSocketError(AuctionErrorCode.BidNotLeader)
+                raise WebSocketError(AuctionErrorCode.TeamNotFound)
             if len(team.member_ids) >= self.team_size:
                 raise WebSocketError(AuctionErrorCode.BidTeamFull)
-            required_members = self.team_size - len(team.member_ids)
-            max_allowed_bid = team.points - (required_members - 1)
-            if amount > max_allowed_bid:
+            remaining_slots = self.team_size - len(team.member_ids)
+            max_bid_amount = team.points - (remaining_slots - 1)
+            if amount > max_bid_amount:
                 raise WebSocketError(AuctionErrorCode.BidTooHighAmount)
-            if team.points < amount:
-                raise WebSocketError(AuctionErrorCode.BidInsufficientPoints)
             min_bid = (self.current_bid.amount + 1) if self.current_bid else 1
             if amount < min_bid:
                 raise WebSocketError(AuctionErrorCode.BidTooLowAmount)

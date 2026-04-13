@@ -1,42 +1,42 @@
 import asyncio
 import uuid
 from datetime import datetime
+from typing import ClassVar
 
 from shared.dtos.preset_dto import PresetDetailDTO
 
-from .auction import Auction, AuctionStatus
+from .auction import Auction
 
 
 class AuctionManager:
-    def __init__(self):
-        self.auctions: dict[int, Auction] = {}
+    _auctions: ClassVar[dict[int, Auction]] = {}
 
-    def _purge(self) -> None:
+    @classmethod
+    def _purge(cls) -> None:
         now = datetime.now()
-        for auction_id, auction in list(self.auctions.items()):
-            if auction.status == AuctionStatus.COMPLETED:
-                del self.auctions[auction_id]
-            elif auction.status == AuctionStatus.WAITING and now > auction.exp:
-                del self.auctions[auction_id]
-                asyncio.create_task(auction.set_status(AuctionStatus.COMPLETED))
+        for auction_id, auction in list(cls._auctions.items()):
+            if auction.status == Auction.Status.COMPLETED:
+                del cls._auctions[auction_id]
+            elif auction.status == Auction.Status.WAITING and now > auction.exp:
+                del cls._auctions[auction_id]
+                asyncio.create_task(auction.set_status(Auction.Status.COMPLETED))
 
+    @classmethod
     def create_auction(
-        self,
+        cls,
         preset_snapshot: PresetDetailDTO,
         is_public: bool,
     ) -> Auction:
-        self._purge()
+        cls._purge()
         auction_id = uuid.uuid4().int
         auction = Auction(
             auction_id=auction_id,
             preset_snapshot=preset_snapshot,
             is_public=is_public,
         )
-        self.auctions[auction_id] = auction
+        cls._auctions[auction_id] = auction
         return auction
 
-    def get_auction(self, auction_id: int) -> Auction | None:
-        return self.auctions.get(auction_id)
-
-
-auction_manager = AuctionManager()
+    @classmethod
+    def get_auction(cls, auction_id: int) -> Auction | None:
+        return cls._auctions.get(auction_id)
