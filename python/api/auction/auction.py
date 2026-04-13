@@ -158,25 +158,21 @@ class Auction:
             self.public_websockets.discard(websocket)
             return
 
-        disconnected_member_ids: list[int] = []
         member_websockets = self.member_id_to_ws_set.get(member_id)
-        if member_websockets is not None:
-            member_websockets.discard(websocket)
-            if not member_websockets:
-                del self.member_id_to_ws_set[member_id]
-                disconnected_member_ids.append(member_id)
+        if member_websockets is None:
+            return
 
-        for member_id in disconnected_member_ids:
-            await self.broadcast(
-                MessageType.MEMBER_DISCONNECTED,
-                MemberConnectionDTO(member_id=member_id),
-            )
+        member_websockets.discard(websocket)
+        if member_websockets:
+            return
 
-        if (
-            disconnected_member_ids
-            and self.status == AuctionStatus.RUNNING
-            and not self._can_progress()
-        ):
+        del self.member_id_to_ws_set[member_id]
+        await self.broadcast(
+            MessageType.MEMBER_DISCONNECTED,
+            MemberConnectionDTO(member_id=member_id),
+        )
+
+        if self.status == AuctionStatus.RUNNING and not self._can_progress():
             await self._set_status(AuctionStatus.WAITING)
 
     def _can_progress(self) -> bool:
