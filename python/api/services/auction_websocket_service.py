@@ -4,7 +4,7 @@ from fastapi import WebSocket
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auction_dto import AuctionStatus, MessageType
+from api.auction.auction import AuctionStatus
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.utils.error import AuctionErrorCode, AuthErrorCode, ValidationErrorCode
 
@@ -83,8 +83,8 @@ async def handle_websocket_connect(
         await websocket.close(code=4000, reason=str(AuthErrorCode.Unauthorized.value))
         return None, None, False, None
 
-    preset_id: int = auction.preset_snapshot.preset_id
-    guild_id: int = auction.preset_snapshot.guild_id
+    preset_id: int = auction.preset_id
+    guild_id: int = auction.guild_id
     preset_member_repo = PresetMemberRepository(session)
     member_id, is_leader, _ = await _resolve_member(
         token, preset_id, guild_id, preset_member_repo
@@ -92,12 +92,12 @@ async def handle_websocket_connect(
 
     team_id: int | None = None
     if member_id is not None and is_leader:
-        for tid, team in auction.teams.items():
+        for tid, team in auction.team_ids.items():
             if team.leader_id == member_id:
                 team_id = tid
                 break
 
-    if member_id is None and not auction.allow_public:
+    if member_id is None and not auction.is_public:
         logger.bind(
             action="connect_failed",
             auction_id=auction_id,

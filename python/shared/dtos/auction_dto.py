@@ -1,12 +1,8 @@
-from enum import IntEnum, StrEnum
+from enum import StrEnum
+
+from shared.dtos.preset_dto import PresetDetailDTO
 
 from . import BaseDTO, BigInt
-
-
-class AuctionStatus(IntEnum):
-    WAITING = 0
-    IN_PROGRESS = 1
-    COMPLETED = 2
 
 
 class MessageType(StrEnum):
@@ -25,29 +21,30 @@ class MessageType(StrEnum):
     USER_DISCONNECTED = "user_disconnected"
 
 
-class Team(BaseDTO):
+class TeamDTO(BaseDTO):
     team_id: int
     leader_id: int
     member_id_list: list[int]
     points: int
 
 
-class AuctionStateDTO(BaseDTO):
+class AuctionDTO(BaseDTO):
     auction_id: BigInt
-    status: AuctionStatus
+    guild_id: int
+    preset_id: int
+    status: int
     current_member_id: int | None
     current_bid: int | None
     current_bidder: int | None
     timer: int
-    teams: list[Team]
+
+
+class AuctionDetailDTO(AuctionDTO):
+    teams: list[TeamDTO]
     auction_queue: list[int]
     unsold_queue: list[int]
     connected_users: list[int]
-    preset_snapshot: dict | None
-
-
-class AuctionDTO(BaseDTO):
-    auction_id: BigInt
+    preset_snapshot: PresetDetailDTO | None
 
 
 class CreateAuctionDTO(BaseDTO):
@@ -73,7 +70,7 @@ class QueueUpdateMessageData(BaseDTO):
 
 
 class MemberSoldMessageData(BaseDTO):
-    teams: list[Team]
+    teams: list[TeamDTO]
 
 
 class BidPlacedMessageData(BaseDTO):

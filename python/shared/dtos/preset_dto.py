@@ -13,8 +13,6 @@ class PresetDTO(BaseDTO):
     team_size: int
     point_scale: int
 
-    model_config = {"from_attributes": True}
-
 
 class PresetDetailDTO(PresetDTO):
     preset_members: list[PresetMemberDetailDTO]

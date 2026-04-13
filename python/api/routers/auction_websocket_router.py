@@ -9,7 +9,8 @@ from fastapi import (
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auction_dto import AuctionStatus, MessageType
+from api.auction.auction import AuctionStatus
+from shared.dtos.auction_dto import AuctionDetailDTO, MessageType
 from shared.utils.database import get_session
 
 from ..services.auction_websocket_service import (
@@ -36,7 +37,7 @@ async def auction_websocket(
         return
 
     try:
-        state = auction.get_state().model_dump()
+        state = AuctionDetailDTO.model_validate(auction).model_dump()
         init = {
             **state,
             "team_id": team_id,
@@ -61,7 +62,7 @@ async def auction_websocket(
             connected_count = sum(
                 1
                 for lid in auction.leader_member_ids
-                if lid in auction.connected_members
+                if lid in auction.connected_member_ids
             )
             logger.bind(
                 action="leader_joined",

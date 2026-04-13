@@ -7,8 +7,6 @@ class TierDTO(BaseDTO):
     name: str
     icon_url: str | None
 
-    model_config = {"from_attributes": True}
-
 
 class AddTierDTO(BaseDTO):
     name: NameStr

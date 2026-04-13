@@ -7,8 +7,6 @@ class PresetMemberPositionDTO(BaseDTO):
     preset_member_id: int
     position_id: int
 
-    model_config = {"from_attributes": True}
-
 
 class PresetMemberPositionDetailDTO(PresetMemberPositionDTO):
     position: PositionDTO

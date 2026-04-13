@@ -7,8 +7,6 @@ class PositionDTO(BaseDTO):
     name: str
     icon_url: str | None
 
-    model_config = {"from_attributes": True}
-
 
 class AddPositionDTO(BaseDTO):
     name: NameStr

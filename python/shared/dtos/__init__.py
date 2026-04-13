@@ -5,6 +5,7 @@ from pydantic import (
     AfterValidator,
     BaseModel,
     BeforeValidator,
+    ConfigDict,
     PlainSerializer,
     StringConstraints,
 )
@@ -59,7 +60,7 @@ BigInt = Annotated[int, BeforeValidator(int), PlainSerializer(str)]
 
 
 class BaseDTO(BaseModel):
-    pass
+    model_config = ConfigDict(from_attributes=True)
 
 
 __all__ = [

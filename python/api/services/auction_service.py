@@ -47,21 +47,17 @@ async def create_auction_service(
         preset_snapshot=preset_snapshot,
         is_public=dto.is_public,
     )
-    auction_id: int = auction.auction_id
 
-    result = AuctionDTO(auction_id=auction_id)
-    event |= result.model_dump() | {
-        "preset_id": preset_snapshot.preset_id,
-        "guild_id": preset_snapshot.guild_id,
-    }
+    result = AuctionDTO.model_validate(auction)
+    event |= result.model_dump()
 
     app_origin = get_app_origin()
+    auction_url = f"{app_origin}/auction/{result.auction_id}"
 
     async def _send_invite(pm: PresetMember):
         try:
             member = pm.member
             role = "팀장" if pm.is_leader else "선수"
-            auction_url = f"{app_origin}/auction/{auction_id}"
             embed = [
                 {
                     "title": "Trader 경매",

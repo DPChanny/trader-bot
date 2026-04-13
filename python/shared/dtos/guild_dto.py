@@ -8,8 +8,6 @@ class GuildDTO(BaseDTO):
     name: str
     icon_hash: str | None
 
-    model_config = {"from_attributes": True}
-
 
 class GuildDetailDTO(GuildDTO):
     @computed_field

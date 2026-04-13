@@ -8,8 +8,6 @@ class UserDTO(BaseDTO):
     name: str
     avatar_hash: str | None
 
-    model_config = {"from_attributes": True}
-
 
 class UserDetailDTO(UserDTO):
     @computed_field

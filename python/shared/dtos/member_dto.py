@@ -15,8 +15,6 @@ class MemberDTO(BaseDTO):
     avatar_hash: str | None
     info_url: str | None
 
-    model_config = {"from_attributes": True}
-
 
 class MemberDetailDTO(MemberDTO):
     user: UserDetailDTO
