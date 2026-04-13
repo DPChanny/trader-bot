@@ -9,7 +9,7 @@ import jwt
 from fastapi import Header
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
-from shared.utils.error import AuthErrorCode, HTTPError, TokenError, ValidationErrorCode
+from shared.utils.error import AuthErrorCode, HTTPError, TokenError
 
 
 _ACCESS_TOKEN_EXPIRATION_MINUTES = 15
@@ -54,7 +54,7 @@ class JWTToken:
         except jwt.ExpiredSignatureError:
             raise TokenError(AuthErrorCode.ExpiredJWTToken) from None
         except jwt.InvalidTokenError:
-            raise TokenError(ValidationErrorCode.Invalid) from None
+            raise TokenError(AuthErrorCode.IncorrectJWTToken) from None
 
 
 class AccessToken(JWTToken):

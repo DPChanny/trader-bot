@@ -14,7 +14,7 @@ async def verify_role(
     member_repo = MemberRepository(db)
     member = await member_repo.get_by_user_id(user_id, guild_id)
     if member is None:
-        raise HTTPError(MemberErrorCode.NotFound)
+        raise HTTPError(MemberErrorCode.NotMember)
     if Role(member.role) < min_role:
         raise HTTPError(MemberErrorCode.InsufficientRole)
     return Role(member.role)

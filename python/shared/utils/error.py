@@ -16,6 +16,7 @@ class AuctionErrorCode(IntEnum):
     BidTeamFull = 4002
     BidTooHigh = 4003
     BidTooLow = 4004
+    Invalid = 4202
     ForbiddenAccess = 4301
     BidNotLeader = 4302
     NotFound = 4401
@@ -30,7 +31,6 @@ class AuthErrorCode(IntEnum):
 
 class ValidationErrorCode(IntEnum):
     Invalid = 4201
-    Duplicated = 4202
 
 
 class DiscordErrorCode(IntEnum):
@@ -53,6 +53,7 @@ class GuildErrorCode(IntEnum):
 class MemberErrorCode(IntEnum):
     InsufficientRole = 4303
     ForbiddenRole = 4304
+    NotMember = 4305
     NotFound = 4404
 
 
@@ -73,6 +74,7 @@ class PresetMemberErrorCode(IntEnum):
 
 
 class PresetMemberPositionErrorCode(IntEnum):
+    Duplicated = 4203
     NotFound = 4409
 
 

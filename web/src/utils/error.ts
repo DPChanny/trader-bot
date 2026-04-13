@@ -7,6 +7,7 @@ export const AuctionErrorCode = {
   BidTeamFull: 4002,
   BidTooHigh: 4003,
   BidTooLow: 4004,
+  Invalid: 4202,
   ForbiddenAccess: 4301,
   BidNotLeader: 4302,
   NotFound: 4401,
@@ -21,7 +22,6 @@ export const AuthErrorCode = {
 
 export const ValidationErrorCode = {
   Invalid: 4201,
-  Duplicated: 4202,
 } as const;
 
 export const DiscordErrorCode = {
@@ -40,6 +40,7 @@ export const GuildErrorCode = {
 export const MemberErrorCode = {
   InsufficientRole: 4303,
   ForbiddenRole: 4304,
+  NotMember: 4305,
   NotFound: 4404,
 } as const;
 
@@ -60,6 +61,7 @@ export const PresetMemberErrorCode = {
 } as const;
 
 export const PresetMemberPositionErrorCode = {
+  Duplicated: 4203,
   NotFound: 4409,
 } as const;
 
@@ -77,6 +79,8 @@ export function getErrorMessage(code: number): string {
       return "입찰 금액이 보유 포인트를 초과합니다.";
     case AuctionErrorCode.BidTooLow:
       return "입찰 금액이 최솟값보다 낮습니다.";
+    case AuctionErrorCode.Invalid:
+      return "유효하지 않은 경매 요청입니다.";
     case AuctionErrorCode.ForbiddenAccess:
       return "경매에 접근 권한이 없습니다.";
     case AuctionErrorCode.BidNotLeader:
@@ -95,18 +99,18 @@ export function getErrorMessage(code: number): string {
 
     case ValidationErrorCode.Invalid:
       return "유효하지 않은 입력입니다.";
-    case ValidationErrorCode.Duplicated:
-      return "이미 존재하는 항목입니다.";
 
     case MemberErrorCode.InsufficientRole:
       return "권한이 부족합니다.";
     case MemberErrorCode.ForbiddenRole:
       return "해당 역할을 부여할 수 없습니다.";
+    case MemberErrorCode.NotMember:
+      return "길드의 멤버가 아닙니다.";
 
     case UserErrorCode.NotFound:
       return "사용자를 찾을 수 없습니다.";
     case GuildErrorCode.NotFound:
-      return "서버를 찾을 수 없습니다.";
+      return "길드를 찾을 수 없습니다.";
     case MemberErrorCode.NotFound:
       return "멤버를 찾을 수 없습니다.";
     case PresetErrorCode.NotFound:
@@ -119,6 +123,8 @@ export function getErrorMessage(code: number): string {
       return "프리셋 멤버를 찾을 수 없습니다.";
     case PresetMemberPositionErrorCode.NotFound:
       return "프리셋 멤버 포지션을 찾을 수 없습니다.";
+    case PresetMemberPositionErrorCode.Duplicated:
+      return "이미 존재하는 프리셋 멤버 포지션입니다.";
 
     case DiscordErrorCode.ExchangeFailed:
       return "Discord 인증에 실패했습니다.";

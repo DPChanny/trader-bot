@@ -17,7 +17,6 @@ from shared.utils.error import (
     PositionErrorCode,
     PresetMemberErrorCode,
     PresetMemberPositionErrorCode,
-    ValidationErrorCode,
 )
 from shared.utils.service import http_service
 
@@ -55,7 +54,7 @@ async def add_preset_member_position_service(
     try:
         await session.flush()
     except IntegrityError:
-        raise HTTPError(ValidationErrorCode.Duplicated) from None
+        raise HTTPError(PresetMemberPositionErrorCode.Duplicated) from None
 
     result = PresetMemberPositionDTO.model_validate(preset_member_position)
     event |= result.model_dump()

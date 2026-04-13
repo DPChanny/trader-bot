@@ -10,7 +10,6 @@ from shared.utils.error import (
     AuctionErrorCode,
     AuthErrorCode,
     TokenError,
-    ValidationErrorCode,
     WSError,
 )
 from shared.utils.service import ws_service
@@ -95,14 +94,14 @@ async def handle_auction_ws_service(
         try:
             bid_dto = PlaceBidDTO.model_validate(bid_data)
         except Exception:
-            raise WSError(ValidationErrorCode.Invalid) from None
+            raise WSError(AuctionErrorCode.Invalid) from None
 
         await auction.place_bid(member_id, bid_dto.amount)
 
         event |= {"member_id": member_id, "amount": bid_dto.amount}
 
     else:
-        raise WSError(ValidationErrorCode.Invalid)
+        raise WSError(AuctionErrorCode.Invalid)
 
 
 @ws_service
