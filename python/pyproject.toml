@@ -6,7 +6,7 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]",
     "loguru",
-    "sqlalchemy",
+    "sqlalchemy[asyncio]",
     "pydantic",
     "python-dotenv",
     "pyjwt",
