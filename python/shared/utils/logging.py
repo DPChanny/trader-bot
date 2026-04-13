@@ -12,7 +12,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 
-_pending_event: ContextVar[dict | None] = ContextVar("_pending_event", default=None)
+_pending_extra: ContextVar[dict | None] = ContextVar("_pending_extra", default=None)
 
 
 class _LoguruHandler(logging.Handler):
@@ -50,16 +50,18 @@ def _json_sink(message) -> None:
         data["message"] = record["message"]
     event = extra.pop("event", None)
     request = extra.pop("request", None)
-    pending = _pending_event.get()
-    if event is not None and pending is not None and not request:
+    pending_extra = _pending_extra.get()
+    if pending_extra is not None and not request:
         if function:
-            pending["function"] = function
-        pending["event"] = event
+            pending_extra["function"] = function
+        if event is not None:
+            pending_extra["event"] = event
+        pending_extra.update(extra)
         return
     if event:
         data["event"] = event
     if request:
-        data["request"] = {**request, **pending} if pending else request
+        data["request"] = {**request, **pending_extra} if pending_extra else request
     if extra:
         data.update(extra)
     if record["exception"]:
@@ -77,11 +79,13 @@ def _text_sink(message) -> None:
     source = function or f"{record['name']}:{record['function']}:{record['line']}"
     event = extra.pop("event", None)
     request = extra.pop("request", None)
-    pending = _pending_event.get()
-    if event is not None and pending is not None and not request:
+    pending_extra = _pending_extra.get()
+    if pending_extra is not None and not request:
         if function:
-            pending["function"] = function
-        pending["event"] = event
+            pending_extra["function"] = function
+        if event is not None:
+            pending_extra["event"] = event
+        pending_extra.update(extra)
         return
     parts = [
         f"{timestamp} | {record['level'].name:<8} | {source}",
@@ -98,7 +102,7 @@ def _text_sink(message) -> None:
     if event:
         output += "\n" + json.dumps(event, ensure_ascii=False, indent=2, default=str)
     if request:
-        merged = {**request, **pending} if pending else request
+        merged = {**request, **pending_extra} if pending_extra else request
         output += "\n" + json.dumps(merged, ensure_ascii=False, indent=2, default=str)
 
     if record["exception"]:
@@ -139,7 +143,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         request_id = str(uuid4())
         start = time.perf_counter()
 
-        token = _pending_event.set({})
+        token = _pending_extra.set({})
         try:
             with logger.contextualize(request_id=request_id):
                 response = await call_next(request)
@@ -155,4 +159,4 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 response.headers["X-Request-ID"] = request_id
                 return response
         finally:
-            _pending_event.reset(token)
+            _pending_extra.reset(token)
