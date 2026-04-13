@@ -3,19 +3,13 @@ from __future__ import annotations
 import argparse
 import asyncio
 
-from loguru import logger
-
 from bot.utils.member import upsert_member
 from shared.entities.member import Role
 from shared.utils.database import get_session
-from shared.utils.logging import setup_logging
-
-
-setup_logging()
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Upsert one test member")
+    parser = argparse.ArgumentParser(description="Upsert test member")
     parser.add_argument("guild_id", type=int)
     parser.add_argument("user_id", type=int)
     parser.add_argument("--name", type=str, default=None)
@@ -29,7 +23,7 @@ async def main() -> None:
     role = Role(args.role) if args.role is not None else None
     try:
         async for session in get_session():
-            member = await upsert_member(
+            await upsert_member(
                 args.guild_id,
                 args.user_id,
                 session,
@@ -37,13 +31,7 @@ async def main() -> None:
                 args.avatar_hash,
                 role,
             )
-            logger.info(
-                "upsert_member done: "
-                f"member_id={member.member_id} "
-                f"guild_id={member.guild_id} user_id={member.user_id}"
-            )
-    except Exception as e:
-        logger.exception(f"upsert_member error: {e}")
+    except Exception:
         raise
 
 
