@@ -11,15 +11,17 @@ from fastapi import WebSocket
 from shared.dtos import BaseDTO
 from shared.dtos.auction_dto import (
     BidPlacedDTO,
-    MemberConnectionDTO,
+    MemberConnectedDTO,
+    MemberDisconnectedDTO,
     MemberSoldDTO,
+    MemberUnsoldDTO,
     MessageType,
     NextMemberDTO,
     StatusDTO,
     TimerDTO,
 )
 from shared.dtos.preset_dto import PresetDetailDTO
-from shared.utils.error import AuctionErrorCode, WSError
+from shared.utils.error import AuctionErrorCode, UnexpectedErrorCode, WSError
 
 
 _AUCTION_EXPIRATION_MINUTES = 10
@@ -95,6 +97,7 @@ class Auction:
 
         self._member_id_to_ws_sets: dict[int, set[WebSocket]] = {}
         self._public_ws_set: set[WebSocket] = set()
+        self._bid_placed: dict[int, float] = {}
 
         self._timer_task: asyncio.Task | None = None
         self._was_in_progress: bool = False
@@ -121,7 +124,7 @@ class Auction:
         if is_new:
             await self._broadcast(
                 MessageType.MEMBER_CONNECTED,
-                MemberConnectionDTO(member_id=member_id),
+                MemberConnectedDTO(member_id=member_id),
             )
 
             if (
@@ -159,7 +162,7 @@ class Auction:
 
         await self._broadcast(
             MessageType.MEMBER_DISCONNECTED,
-            MemberConnectionDTO(member_id=member_id),
+            MemberDisconnectedDTO(member_id=member_id),
         )
 
         if self.status == Auction.Status.RUNNING and not self._can_progress():
@@ -316,6 +319,10 @@ class Auction:
                 if self.current_bid is None:
                     if self.current_member_id is not None:
                         self.unsold_queue.append(self.current_member_id)
+                        message = (
+                            MessageType.MEMBER_UNSOLD,
+                            MemberUnsoldDTO(member_id=self.current_member_id),
+                        )
                 else:
                     team = self._member_id_to_team[self.current_bid.leader_id]
                     team.points -= self.current_bid.amount
@@ -343,20 +350,24 @@ class Auction:
                 return
             if self.current_member_id is None:
                 return
+            now = asyncio.get_event_loop().time()
+            if now - self._bid_placed.get(member_id, 0) < 1.0:
+                return
+            self._bid_placed[member_id] = now
             if member_id not in self._leader_member_ids:
                 raise WSError(AuctionErrorCode.BidNotLeader)
             team = self._member_id_to_team.get(member_id)
             if team is None:
-                raise WSError(AuctionErrorCode.TeamNotFound)
+                raise WSError(UnexpectedErrorCode.Internal)
             if len(team.member_ids) >= self.team_size:
                 raise WSError(AuctionErrorCode.BidTeamFull)
             remaining_slots = self.team_size - len(team.member_ids)
             max_bid_amount = team.points - (remaining_slots - 1)
             if amount > max_bid_amount:
-                raise WSError(AuctionErrorCode.BidTooHighAmount)
+                raise WSError(AuctionErrorCode.BidTooHigh)
             min_bid = (self.current_bid.amount + 1) if self.current_bid else 1
             if amount < min_bid:
-                raise WSError(AuctionErrorCode.BidTooLowAmount)
+                raise WSError(AuctionErrorCode.BidTooLow)
             self.current_bid = Bid(amount=amount, leader_id=member_id)
             message = (
                 MessageType.BID_PLACED,

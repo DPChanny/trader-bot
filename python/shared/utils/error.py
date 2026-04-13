@@ -12,13 +12,11 @@ from enum import IntEnum
 
 
 class AuctionErrorCode(IntEnum):
-    InsufficientLeaders = 4003
-    BidTeamFull = 4004
-    BidTooHighAmount = 4005
-    BidInsufficientPoints = 4006
-    BidTooLowAmount = 4007
-    TeamNotFound = 4008
-    Forbidden = 4301
+    InsufficientLeaders = 4001
+    BidTeamFull = 4002
+    BidTooHigh = 4003
+    BidTooLow = 4004
+    ForbiddenAccess = 4301
     BidNotLeader = 4302
     NotFound = 4401
 
@@ -45,37 +43,37 @@ class UnexpectedErrorCode(IntEnum):
 
 
 class UserErrorCode(IntEnum):
-    NotFound = 4404
+    NotFound = 4402
 
 
 class GuildErrorCode(IntEnum):
-    NotFound = 4405
+    NotFound = 4403
 
 
 class MemberErrorCode(IntEnum):
     InsufficientRole = 4303
     ForbiddenRole = 4304
-    NotFound = 4406
+    NotFound = 4404
 
 
 class PresetErrorCode(IntEnum):
-    NotFound = 4407
+    NotFound = 4405
 
 
 class TierErrorCode(IntEnum):
-    NotFound = 4408
+    NotFound = 4406
 
 
 class PositionErrorCode(IntEnum):
-    NotFound = 4409
+    NotFound = 4407
 
 
 class PresetMemberErrorCode(IntEnum):
-    NotFound = 4410
+    NotFound = 4408
 
 
 class PresetMemberPositionErrorCode(IntEnum):
-    NotFound = 4411
+    NotFound = 4409
 
 
 class TokenError(Exception):

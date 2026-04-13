@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 from fastapi import WebSocket
@@ -19,7 +20,7 @@ from ..utils.token import AccessToken
 
 
 @ws_service
-async def handle_connect_auction_ws_service(
+async def connect_auction_ws_service(
     ws: WebSocket,
     auction_id: int,
     session: AsyncSession,
@@ -33,7 +34,7 @@ async def handle_connect_auction_ws_service(
     await ws.accept()
 
     try:
-        auth_message = json.loads(await ws.receive_text())
+        auth_message = json.loads(await asyncio.wait_for(ws.receive_text(), timeout=10))
     except Exception:
         raise WSError(AuthErrorCode.Unauthorized) from None
 
@@ -68,7 +69,7 @@ async def handle_connect_auction_ws_service(
                 break
 
     if member_id is None and not auction.is_public:
-        raise WSError(AuctionErrorCode.Forbidden)
+        raise WSError(AuctionErrorCode.ForbiddenAccess)
 
     event |= {"auction_id": auction_id, "member_id": member_id}
 
@@ -78,7 +79,7 @@ async def handle_connect_auction_ws_service(
 
 
 @ws_service
-async def handle_auction_message_ws_service(
+async def handle_auction_ws_service(
     auction: Auction,
     member_id: int | None,
     message: dict,
@@ -88,7 +89,7 @@ async def handle_auction_message_ws_service(
 
     if message_type == MessageType.PLACE_BID.value:
         if member_id is None:
-            raise WSError(AuctionErrorCode.BidNotLeader)
+            raise WSError(AuthErrorCode.Unauthorized)
 
         bid_data = message.get("dto", {})
         try:
@@ -105,7 +106,7 @@ async def handle_auction_message_ws_service(
 
 
 @ws_service
-async def handle_disconnect_auction_ws_service(
+async def disconnect_auction_ws_service(
     auction: Auction,
     member_id: int | None,
     ws: WebSocket,

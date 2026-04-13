@@ -1,7 +1,3 @@
-auction api 개편
-    auction router
-    auction service
-    auth validation
 pretty logging
 web 약어 통일
 web api hook 검토

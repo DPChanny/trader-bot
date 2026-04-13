@@ -7,16 +7,17 @@ from . import BaseDTO, BigInt
 
 class MessageType(IntEnum):
     AUTH = 0
-    TIMER = 1
-    PLACE_BID = 2
-    BID_PLACED = 3
-    MEMBER_SOLD = 4
-    NEXT_MEMBER = 5
-    INIT = 6
-    STATUS = 7
-    ERROR = 8
+    INIT = 1
+    ERROR = 2
+    TIMER = 3
+    STATUS = 4
+    PLACE_BID = 5
+    BID_PLACED = 6
+    MEMBER_SOLD = 7
+    MEMBER_UNSOLD = 8
     MEMBER_CONNECTED = 9
     MEMBER_DISCONNECTED = 10
+    NEXT_MEMBER = 11
 
 
 class TeamDTO(BaseDTO):
@@ -49,7 +50,7 @@ class AuctionDetailDTO(AuctionDTO):
     preset_snapshot: PresetDetailDTO | None
 
 
-class AuctionInitDTO(AuctionDetailDTO):
+class InitDTO(AuctionDetailDTO):
     team_id: int | None
     member_id: int | None
 
@@ -79,6 +80,10 @@ class MemberSoldDTO(BaseDTO):
     unsold_queue: list[int]
 
 
+class MemberUnsoldDTO(BaseDTO):
+    member_id: int
+
+
 class PlaceBidDTO(BaseDTO):
     amount: int
 
@@ -89,7 +94,11 @@ class BidPlacedDTO(BaseDTO):
     amount: int
 
 
-class MemberConnectionDTO(BaseDTO):
+class MemberConnectedDTO(BaseDTO):
+    member_id: int
+
+
+class MemberDisconnectedDTO(BaseDTO):
     member_id: int
 
 

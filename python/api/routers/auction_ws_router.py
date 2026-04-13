@@ -11,18 +11,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction_dto import (
     AuctionDetailDTO,
-    AuctionInitDTO,
+    InitDTO,
     ErrorDTO,
     MessageType,
 )
 from shared.utils.database import get_session
-from shared.utils.error import WSError
+from shared.utils.error import ValidationErrorCode, WSError
 
 from ..auction import Auction
 from ..services.auction_ws_service import (
-    handle_auction_message_ws_service,
-    handle_connect_auction_ws_service,
-    handle_disconnect_auction_ws_service,
+    connect_auction_ws_service,
+    disconnect_auction_ws_service,
+    handle_auction_ws_service,
 )
 
 
@@ -44,12 +44,12 @@ async def auction_ws(
     member_id: int | None = None
     auction = None
     try:
-        auction, member_id, team_id = await handle_connect_auction_ws_service(
+        auction, member_id, team_id = await connect_auction_ws_service(
             ws, auction_id, session
         )
 
         detail = AuctionDetailDTO.model_validate(auction)
-        init = AuctionInitDTO(
+        init = InitDTO(
             **detail.model_dump(),
             team_id=team_id,
             member_id=member_id,
@@ -58,10 +58,17 @@ async def auction_ws(
 
         while True:
             data = await ws.receive_text()
-            message = json.loads(data)
+            if len(data) > 1024:
+                await _send_error(ws, ValidationErrorCode.Invalid)
+                continue
+            try:
+                message = json.loads(data)
+            except Exception:
+                await _send_error(ws, ValidationErrorCode.Invalid)
+                continue
 
             try:
-                await handle_auction_message_ws_service(auction, member_id, message)
+                await handle_auction_ws_service(auction, member_id, message)
             except WSError as e:
                 await _send_error(ws, e.code)
 
@@ -70,14 +77,16 @@ async def auction_ws(
 
     except WebSocketDisconnect:
         if auction is not None:
-            await handle_disconnect_auction_ws_service(auction, member_id, ws)
+            await disconnect_auction_ws_service(auction, member_id, ws)
 
     except WSError as e:
+        with contextlib.suppress(Exception):
+            await _send_error(ws, e.code)
         with contextlib.suppress(Exception):
             await ws.close(code=4000, reason=str(e.code))
 
     except Exception:
         if auction is not None:
-            await handle_disconnect_auction_ws_service(auction, member_id, ws)
+            await disconnect_auction_ws_service(auction, member_id, ws)
         with contextlib.suppress(Exception):
             await ws.close()
