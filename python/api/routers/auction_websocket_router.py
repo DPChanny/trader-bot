@@ -11,7 +11,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auction.auction import AuctionStatus
-from shared.dtos.auction_dto import AuctionDetailDTO, MessageType
+from shared.dtos.auction_dto import AuctionDetailDTO, AuctionInitDTO, MessageType
 from shared.utils.database import get_session
 from shared.utils.error import WebSocketError
 
@@ -38,21 +38,16 @@ async def auction_websocket(
             websocket, auction_id, session
         )
 
-        state = AuctionDetailDTO.model_validate(auction).model_dump()
-        init = {
-            **state,
-            "team_id": team_id,
-            "member_id": member_id,
-            "is_leader": is_leader,
-        }
-        await websocket.send_json(
-            {
-                "type": MessageType.INIT,
-                "data": init,
-            }
+        detail = AuctionDetailDTO.model_validate(auction)
+        init = AuctionInitDTO(
+            **detail.model_dump(),
+            team_id=team_id,
+            member_id=member_id,
+            is_leader=is_leader,
         )
+        await websocket.send_json({"type": MessageType.INIT, "dto": init.model_dump()})
 
-        if is_leader and auction.are_all_leaders_connected():
+        if is_leader and auction.can_progress():
             logger.bind(
                 action="starting",
                 auction_id=auction_id,
@@ -64,7 +59,7 @@ async def auction_websocket(
             connected_count = sum(
                 1
                 for lid in auction.leader_member_ids
-                if lid in auction.member_websockets
+                if lid in auction.member_id_to_ws_set
             )
             logger.bind(
                 action="leader_joined",

@@ -5,7 +5,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auction.auction import AuctionStatus
-from shared.dtos.auction_dto import MessageType
+from shared.dtos.auction_dto import ErrorDTO, MessageType
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.utils.error import (
     AuctionErrorCode,
@@ -16,6 +16,12 @@ from shared.utils.error import (
 
 from ..auction import Auction, auction_manager
 from ..utils.token import AccessToken
+
+
+async def _send_error(websocket: WebSocket, code: int) -> None:
+    await websocket.send_json(
+        {"type": MessageType.ERROR, "dto": ErrorDTO(code=code).model_dump()}
+    )
 
 
 async def _resolve_member(
@@ -141,12 +147,7 @@ async def handle_websocket_message(
                 member_id=member_id,
                 error_code=AuctionErrorCode.BidNotLeader.value,
             ).warning("")
-            await websocket.send_json(
-                {
-                    "type": MessageType.ERROR,
-                    "data": {"code": AuctionErrorCode.BidNotLeader.value},
-                }
-            )
+            await _send_error(websocket, AuctionErrorCode.BidNotLeader.value)
             return
 
         bid_data = message.get("data", {})
@@ -158,12 +159,7 @@ async def handle_websocket_message(
                 member_id=member_id,
                 error_code=ValidationErrorCode.Invalid.value,
             ).warning("")
-            await websocket.send_json(
-                {
-                    "type": MessageType.ERROR,
-                    "data": {"code": ValidationErrorCode.Invalid.value},
-                }
-            )
+            await _send_error(websocket, ValidationErrorCode.Invalid.value)
             return
 
         logger.bind(action="bid_placing", member_id=member_id, amount=amount).info("")
@@ -175,12 +171,7 @@ async def handle_websocket_message(
                 member_id=member_id,
                 error_code=e.code,
             ).warning("")
-            await websocket.send_json(
-                {
-                    "type": MessageType.ERROR,
-                    "data": {"code": e.code},
-                }
-            )
+            await _send_error(websocket, e.code)
 
 
 async def handle_websocket_disconnect(
@@ -191,10 +182,7 @@ async def handle_websocket_disconnect(
     await auction.disconnect(websocket, member_id)
     logger.bind(action="disconnected", member_id=member_id).info("")
 
-    if (
-        auction.status == AuctionStatus.RUNNING
-        and not auction.are_all_leaders_connected()
-    ):
+    if auction.status == AuctionStatus.RUNNING and not auction.can_progress():
         logger.bind(
             action="paused", reason="leader_disconnected", member_id=member_id
         ).warning("")

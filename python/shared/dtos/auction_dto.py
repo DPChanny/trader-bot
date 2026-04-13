@@ -1,23 +1,22 @@
-from enum import StrEnum
+from enum import IntEnum
 
 from shared.dtos.preset_dto import PresetDetailDTO
 
 from . import BaseDTO, BigInt
 
 
-class MessageType(StrEnum):
-    AUTH = "auth"
-    TIMER = "timer"
-    PLACE_BID = "place_bid"
-    BID_PLACED = "bid_placed"
-    MEMBER_SOLD = "member_sold"
-    NEXT_MEMBER = "next_member"
-    QUEUE_UPDATE = "queue_update"
-    INIT = "init"
-    STATUS = "status"
-    ERROR = "error"
-    USER_CONNECTED = "user_connected"
-    USER_DISCONNECTED = "user_disconnected"
+class MessageType(IntEnum):
+    AUTH = 0
+    TIMER = 1
+    PLACE_BID = 2
+    BID_PLACED = 3
+    MEMBER_SOLD = 4
+    NEXT_MEMBER = 5
+    INIT = 6
+    STATUS = 7
+    ERROR = 8
+    MEMBER_CONNECTED = 9
+    MEMBER_DISCONNECTED = 10
 
 
 class TeamDTO(BaseDTO):
@@ -50,38 +49,46 @@ class AuctionDetailDTO(AuctionDTO):
     preset_snapshot: PresetDetailDTO | None
 
 
+class AuctionInitDTO(AuctionDetailDTO):
+    team_id: int | None
+    member_id: int | None
+    is_leader: bool
+
+
 class CreateAuctionDTO(BaseDTO):
     is_public: bool
     send_invite: bool
 
 
-class TimerMessageData(BaseDTO):
+class TimerDTO(BaseDTO):
     timer: int
 
 
-class StatusMessageData(BaseDTO):
+class StatusDTO(BaseDTO):
     status: int
 
 
-class NextMemberMessageData(BaseDTO):
+class NextMemberDTO(BaseDTO):
     member_id: int
-
-
-class QueueUpdateMessageData(BaseDTO):
     auction_queue: list[int]
     unsold_queue: list[int]
 
 
-class MemberSoldMessageData(BaseDTO):
+class MemberSoldDTO(BaseDTO):
     teams: list[TeamDTO]
+    auction_queue: list[int]
+    unsold_queue: list[int]
 
 
-class BidPlacedMessageData(BaseDTO):
+class BidPlacedDTO(BaseDTO):
     team_id: int
     leader_id: int
     amount: int
 
 
-class WebSocketMessage(BaseDTO):
-    type: str
-    data: dict
+class MemberConnectionDTO(BaseDTO):
+    member_id: int
+
+
+class ErrorDTO(BaseDTO):
+    code: int
