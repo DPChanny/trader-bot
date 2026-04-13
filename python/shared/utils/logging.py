@@ -2,6 +2,7 @@ import json
 import logging
 import sys
 import time
+from contextvars import ContextVar
 from datetime import UTC
 from uuid import uuid4
 
@@ -9,6 +10,9 @@ from loguru import logger
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
+
+
+_pending_event: ContextVar[dict | None] = ContextVar("_pending_event", default=None)
 
 
 class _LoguruHandler(logging.Handler):
@@ -46,10 +50,16 @@ def _json_sink(message) -> None:
         data["message"] = record["message"]
     event = extra.pop("event", None)
     request = extra.pop("request", None)
+    pending = _pending_event.get()
+    if event is not None and pending is not None and not request:
+        if function:
+            pending["function"] = function
+        pending["event"] = event
+        return
     if event:
         data["event"] = event
     if request:
-        data["request"] = request
+        data["request"] = {**request, **pending} if pending else request
     if extra:
         data.update(extra)
     if record["exception"]:
@@ -67,6 +77,12 @@ def _text_sink(message) -> None:
     source = function or f"{record['name']}:{record['function']}:{record['line']}"
     event = extra.pop("event", None)
     request = extra.pop("request", None)
+    pending = _pending_event.get()
+    if event is not None and pending is not None and not request:
+        if function:
+            pending["function"] = function
+        pending["event"] = event
+        return
     parts = [
         f"{timestamp} | {record['level'].name:<8} | {source}",
     ]
@@ -82,7 +98,8 @@ def _text_sink(message) -> None:
     if event:
         output += "\n" + json.dumps(event, ensure_ascii=False, indent=2, default=str)
     if request:
-        output += "\n" + json.dumps(request, ensure_ascii=False, indent=2, default=str)
+        merged = {**request, **pending} if pending else request
+        output += "\n" + json.dumps(merged, ensure_ascii=False, indent=2, default=str)
 
     if record["exception"]:
         import traceback
@@ -122,16 +139,20 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         request_id = str(uuid4())
         start = time.perf_counter()
 
-        with logger.contextualize(request_id=request_id):
-            response = await call_next(request)
-            duration = round((time.perf_counter() - start) * 1000)
-            logger.bind(
-                request={
-                    "method": request.method,
-                    "route": request.url.path,
-                    "status_code": response.status_code,
-                    "duration": duration,
-                }
-            ).info("")
-            response.headers["X-Request-ID"] = request_id
-            return response
+        token = _pending_event.set({})
+        try:
+            with logger.contextualize(request_id=request_id):
+                response = await call_next(request)
+                duration = round((time.perf_counter() - start) * 1000)
+                logger.bind(
+                    request={
+                        "method": request.method,
+                        "route": request.url.path,
+                        "status_code": response.status_code,
+                        "duration": duration,
+                    }
+                ).info("")
+                response.headers["X-Request-ID"] = request_id
+                return response
+        finally:
+            _pending_event.reset(token)
