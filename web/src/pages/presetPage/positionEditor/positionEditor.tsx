@@ -122,9 +122,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
         className={styles.positionList}
       >
         {error ? (
-          <Error detail={error?.message}>
-            포지션 목록을 불러오는데 실패했습니다.
-          </Error>
+          <Error error={error}>포지션 목록을 불러오는데 실패했습니다.</Error>
         ) : isLoading ? (
           <Loading />
         ) : (

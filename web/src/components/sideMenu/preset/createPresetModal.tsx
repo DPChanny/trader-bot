@@ -62,15 +62,14 @@ export function CreatePresetModal({
     <Modal onClose={handleClose} title="프리셋 추가">
       <ModalForm onSubmit={handleSubmit}>
         {error ? (
-          <ErrorMessage detail={error?.message}>
-            프리셋 추가에 실패했습니다.
-          </ErrorMessage>
+          <ErrorMessage error={error}>프리셋 추가에 실패했습니다.</ErrorMessage>
         ) : null}
         <LabelInput
           label="프리셋 이름"
           type="text"
           value={name}
           onChange={setName}
+          required
         />
         <ModalRow>
           <LabelInput
@@ -79,6 +78,7 @@ export function CreatePresetModal({
             value={points}
             placeholder="1000"
             onChange={setPoints}
+            required
           />
           <LabelInput
             label="포인트 스케일"
@@ -86,6 +86,7 @@ export function CreatePresetModal({
             value={pointScale}
             placeholder="5"
             onChange={setPointScale}
+            required
           />
         </ModalRow>
         <ModalRow>
@@ -95,13 +96,15 @@ export function CreatePresetModal({
             value={timer}
             placeholder="15"
             onChange={setTimer}
+            required
           />
           <LabelInput
-            label="팀당 인원수"
+            label="팀 크기"
             type="number"
             value={teamSize}
             placeholder="5"
             onChange={setTeamSize}
+            required
           />
         </ModalRow>
         <ModalFooter>

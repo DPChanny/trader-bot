@@ -13,6 +13,7 @@ import type {
 import { toCamelCase } from "@/utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@/utils/env";
 import { getAccessToken } from "@/utils/auth";
+import { getWsErrorMessage } from "@/utils/error";
 
 interface AuctionWebSocketHook {
   isConnected: boolean;
@@ -144,8 +145,13 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
 
-      case "error":
+      case "error": {
+        const code = message.data?.code;
+        if (typeof code === "number" && mountedRef.current) {
+          setCloseReason(getWsErrorMessage(code));
+        }
         break;
+      }
 
       default:
         break;

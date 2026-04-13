@@ -47,9 +47,7 @@ export function MemberPage({ guildId }: MemberPageProps) {
         <Bar />
         <Section variantTone="ghost" variantIntent="secondary">
           {error ? (
-            <Error detail={error?.message}>
-              멤버 목록을 불러오는데 실패했습니다.
-            </Error>
+            <Error error={error}>멤버 목록을 불러오는데 실패했습니다.</Error>
           ) : isLoading ? (
             <Loading />
           ) : (

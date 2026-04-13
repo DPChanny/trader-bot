@@ -1,12 +1,8 @@
 import type { CreateAuctionDTO, AuctionDTO } from "@/dtos/auctionDto";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getAuctionEndpoint } from "@/utils/env";
-import {
-  handleHttpError,
-  getAuthHeader,
-  getJsonHeader,
-  getHeaders,
-} from "@/utils/api";
+import { handleHttpError } from "@/utils/error";
+import { getAuthHeader, getJsonHeader, getHeaders } from "@/utils/api";
 
 export async function createAuction({
   guildId,

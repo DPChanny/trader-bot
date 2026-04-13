@@ -225,16 +225,14 @@ export function PresetMemberPanel({
         </Section>
         {hasError && (
           <Error
-            detail={
-              (
-                updatePresetMember.error ||
-                createPresetMemberPosition.error ||
-                deletePresetMemberPosition.error ||
-                removePresetMember.error
-              )?.message
+            error={
+              updatePresetMember.error ||
+              createPresetMemberPosition.error ||
+              deletePresetMemberPosition.error ||
+              removePresetMember.error
             }
           >
-            프리셋 멤버 정보 저장에 실패했습니다.
+            프리셋 멤버 수정에 실패했습니다.
           </Error>
         )}
       </Section>

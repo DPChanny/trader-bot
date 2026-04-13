@@ -1,6 +1,7 @@
 web 약어 통일
 web api hook 검토
-web error 개편
+api detail override
+web error 개편 (context별 error message)
 auction web 개편
 home page
 publish

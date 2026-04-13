@@ -125,7 +125,7 @@ export function PresetMemberEditor({
       >
         <Section variantIntent="secondary" className={styles.gridSection}>
           {presetMembersError ? (
-            <Error detail={presetMembersError?.message}>
+            <Error error={presetMembersError}>
               프리셋 멤버 목록을 불러오는데 실패했습니다.
             </Error>
           ) : presetMembersLoading ? (
@@ -145,7 +145,7 @@ export function PresetMemberEditor({
 
         <Section variantIntent="secondary" className={styles.gridSection}>
           {membersError ? (
-            <Error detail={membersError?.message}>
+            <Error error={membersError}>
               멤버 목록을 불러오는데 실패했습니다.
             </Error>
           ) : membersLoading ? (
@@ -153,8 +153,8 @@ export function PresetMemberEditor({
           ) : (
             <>
               {canEdit && createPresetMember.isError && (
-                <Error detail={createPresetMember.error?.message}>
-                  멤버를 프리셋에 추가하는데 실패했습니다.
+                <Error error={createPresetMember.error}>
+                  프리셋 멤버 추가에 실패했습니다.
                 </Error>
               )}
               <MemberGrid

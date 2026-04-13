@@ -12,16 +12,13 @@
   gap: var(--gap-xs);
 }
 
-.detailToggle {
-  color: var(--color-error-text);
-  font-size: var(--font-size-xs);
-  text-decoration: underline;
+.toggle {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
   cursor: pointer;
-  opacity: 0.75;
-}
-
-.detailToggle:hover {
-  opacity: 1;
+  padding: 0;
 }
 
 .detail {

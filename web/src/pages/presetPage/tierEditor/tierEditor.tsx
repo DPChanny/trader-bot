@@ -111,9 +111,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
         className={styles.tierList}
       >
         {error ? (
-          <Error detail={error?.message}>
-            티어 목록을 불러오는데 실패했습니다.
-          </Error>
+          <Error error={error}>티어 목록을 불러오는데 실패했습니다.</Error>
         ) : isLoading ? (
           <Loading />
         ) : (

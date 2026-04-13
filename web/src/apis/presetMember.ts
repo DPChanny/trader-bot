@@ -5,12 +5,8 @@ import type {
 } from "@/dtos/presetMemberDto";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetMemberEndpoint } from "@/utils/env";
-import {
-  handleHttpError,
-  getAuthHeader,
-  getJsonHeader,
-  getHeaders,
-} from "@/utils/api";
+import { handleHttpError } from "@/utils/error";
+import { getAuthHeader, getJsonHeader, getHeaders } from "@/utils/api";
 
 export async function getPresetMembers(
   guildId: string,

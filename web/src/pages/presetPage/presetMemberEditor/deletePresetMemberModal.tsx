@@ -25,7 +25,7 @@ export function DeletePresetMemberModal({
     <Modal onClose={handleClose} title="프리셋 멤버 제거">
       <Section variantTone="ghost" variantIntent="secondary">
         정말 이 멤버를 프리셋에서 제거하시겠습니까?
-        {error && <Error detail={error?.message}>제거에 실패했습니다.</Error>}
+        {error && <Error error={error}>프리셋 멤버 제거에 실패했습니다.</Error>}
         <ModalFooter>
           <SecondaryButton
             type="button"

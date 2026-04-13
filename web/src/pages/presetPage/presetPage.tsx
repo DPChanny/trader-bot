@@ -122,9 +122,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
           </Section>
         ) : presetError ? (
           <Section variantIntent="secondary">
-            <Error detail={presetError.message}>
-              프리셋을 불러오는데 실패했습니다.
-            </Error>
+            <Error error={presetError}>프리셋을 불러오는데 실패했습니다.</Error>
           </Section>
         ) : !preset ? (
           <Section variantIntent="secondary">

@@ -94,9 +94,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
           </Section>
         </Section>
         {updateMember.isError && (
-          <Error detail={updateMember.error?.message}>
-            멤버 정보 수정에 실패했습니다.
-          </Error>
+          <Error error={updateMember.error}>멤버 수정에 실패했습니다.</Error>
         )}
       </Section>
 
@@ -119,7 +117,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
           </Section>
 
           <LabelInput
-            label="별칭 (Alias)"
+            label="별칭"
             value={alias}
             onChange={setAlias}
             placeholder={member.alias || member.name || member.user.name}

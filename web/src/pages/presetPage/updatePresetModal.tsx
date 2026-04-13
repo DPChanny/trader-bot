@@ -81,14 +81,13 @@ export function UpdatePresetModal({
   return (
     <Modal onClose={handleClose} title="프리셋 수정">
       <ModalForm onSubmit={handleSubmit}>
-        {error && (
-          <Error detail={error?.message}>프리셋 수정에 실패했습니다.</Error>
-        )}
+        {error && <Error error={error}>프리셋 수정에 실패했습니다.</Error>}
         <LabelInput
           label="프리셋 이름"
           value={name}
           onChange={setName}
           autoFocus
+          required
         />
         <ModalRow>
           <LabelInput
@@ -96,12 +95,14 @@ export function UpdatePresetModal({
             type="number"
             value={displayPoints}
             onChange={setDisplayPoints}
+            required
           />
           <LabelInput
             label="포인트 스케일"
             type="number"
             value={pointScale}
             onChange={setPointScale}
+            required
           />
         </ModalRow>
 
@@ -111,12 +112,14 @@ export function UpdatePresetModal({
             type="number"
             value={timer}
             onChange={setTimer}
+            required
           />
           <LabelInput
-            label="팀당 인원수"
+            label="팀 크기"
             type="number"
             value={teamSize}
             onChange={setTeamSize}
+            required
           />
         </ModalRow>
 

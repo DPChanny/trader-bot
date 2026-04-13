@@ -25,7 +25,7 @@ export function DeletePositionModal({
     <Modal onClose={handleClose} title="포지션 삭제">
       <Section variantTone="ghost" variantIntent="secondary">
         정말 이 포지션을 삭제하시겠습니까?
-        {error && <Error detail={error?.message}>삭제에 실패했습니다.</Error>}
+        {error && <Error error={error}>포지션 삭제에 실패했습니다.</Error>}
         <ModalFooter>
           <SecondaryButton
             type="button"

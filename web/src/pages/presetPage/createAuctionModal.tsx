@@ -36,9 +36,7 @@ export function CreateAuctionModal({
     <Modal onClose={handleClose} title="경매 생성">
       <Section variantTone="ghost" variantIntent="secondary">
         {message && <Error>{message}</Error>}
-        {error && (
-          <Error detail={error?.message}>경매 생성에 실패했습니다.</Error>
-        )}
+        {error && <Error error={error}>경매 생성에 실패했습니다.</Error>}
         <Section
           variantTone="ghost"
           variantLayout="row"

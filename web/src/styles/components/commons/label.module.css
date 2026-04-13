@@ -4,3 +4,8 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
 }
+
+.required {
+  color: var(--color-error-text);
+  font-weight: var(--font-weight-medium);
+}

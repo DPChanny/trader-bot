@@ -4,12 +4,8 @@ import type {
 } from "@/dtos/presetMemberPositionDto";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetMemberPositionEndpoint } from "@/utils/env";
-import {
-  handleHttpError,
-  getAuthHeader,
-  getJsonHeader,
-  getHeaders,
-} from "@/utils/api";
+import { handleHttpError } from "@/utils/error";
+import { getAuthHeader, getJsonHeader, getHeaders } from "@/utils/api";
 
 export async function createPresetMemberPosition({
   guildId,

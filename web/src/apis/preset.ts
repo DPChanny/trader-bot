@@ -5,12 +5,8 @@ import type {
 } from "@/dtos/presetDto";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetEndpoint } from "@/utils/env";
-import {
-  handleHttpError,
-  getAuthHeader,
-  getJsonHeader,
-  getHeaders,
-} from "@/utils/api";
+import { handleHttpError } from "@/utils/error";
+import { getAuthHeader, getJsonHeader, getHeaders } from "@/utils/api";
 
 export async function getPresets(guildId: string): Promise<PresetDTO[]> {
   const response = await fetch(getPresetEndpoint(guildId), {
