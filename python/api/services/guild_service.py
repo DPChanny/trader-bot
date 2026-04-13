@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild_dto import GuildDetailDTO
 from shared.repositories.guild_repository import GuildRepository
-from shared.utils.error import AppError, Guild
+from shared.utils.error import AppError, GuildErrorCode
 from shared.utils.service import service
 
 from ..utils.member import verify_role
@@ -26,6 +26,6 @@ async def get_guild_service(
     guild_repo = GuildRepository(session)
     guild = await guild_repo.get_by_id(guild_id)
     if guild is None:
-        raise AppError(Guild.NotFound)
+        raise AppError(GuildErrorCode.NotFound)
 
     return GuildDetailDTO.model_validate(guild)

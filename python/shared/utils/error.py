@@ -13,25 +13,11 @@ Code ranges:
 from enum import IntEnum
 
 
-_STATUS_MAP = {
-    40: 401,
-    41: 404,
-    42: 403,
-    43: 422,
-    44: 400,
-    45: 409,
-    46: 401,
-    50: 500,
-}
-
-
 class _AppErrorCode(IntEnum):
-    @property
-    def http_status(self) -> int:
-        return _STATUS_MAP[self.value // 100]
+    pass
 
 
-class Auth(_AppErrorCode):
+class AuthErrorCode(_AppErrorCode):
     InvalidTokenType = 4001
     TokenExpired = 4002
     InvalidToken = 4003
@@ -39,46 +25,46 @@ class Auth(_AppErrorCode):
     InvalidExchangeToken = 4005
 
 
-class User(_AppErrorCode):
+class UserErrorCode(_AppErrorCode):
     NotFound = 4101
 
 
-class Member(_AppErrorCode):
+class MemberErrorCode(_AppErrorCode):
     NotFound = 4102
     InsufficientRole = 4201
     InvalidRole = 4202
 
 
-class Preset(_AppErrorCode):
+class PresetErrorCode(_AppErrorCode):
     NotFound = 4103
 
 
-class Tier(_AppErrorCode):
+class TierErrorCode(_AppErrorCode):
     NotFound = 4104
 
 
-class Position(_AppErrorCode):
+class PositionErrorCode(_AppErrorCode):
     NotFound = 4105
 
 
-class PresetMember(_AppErrorCode):
+class PresetMemberErrorCode(_AppErrorCode):
     NotFound = 4106
 
 
-class PresetMemberPosition(_AppErrorCode):
+class PresetMemberPositionErrorCode(_AppErrorCode):
     NotFound = 4107
     Duplicated = 4501
 
 
-class Guild(_AppErrorCode):
+class GuildErrorCode(_AppErrorCode):
     NotFound = 4108
 
 
-class Validation(_AppErrorCode):
+class ValidationErrorCode(_AppErrorCode):
     Error = 4301
 
 
-class Auction(_AppErrorCode):
+class AuctionErrorCode(_AppErrorCode):
     # creation
     NoMembers = 4401
     NoLeaders = 4402
@@ -97,18 +83,30 @@ class Auction(_AppErrorCode):
     BidTooLow = 4409
 
 
-class Discord(_AppErrorCode):
+class DiscordErrorCode(_AppErrorCode):
     TokenExchangeFailed = 4601
     UserFetchFailed = 4602
 
 
-class Server(_AppErrorCode):
+class ServerErrorCode(_AppErrorCode):
     InternalError = 5001
+
+
+_STATUS_MAP = {
+    40: 401,
+    41: 404,
+    42: 403,
+    43: 422,
+    44: 400,
+    45: 409,
+    46: 401,
+    50: 500,
+}
 
 
 class AppError(Exception):
     def __init__(self, code: _AppErrorCode) -> None:
         self.code: int = code.value
-        self.status_code: int = code.http_status
+        self.status_code: int = _STATUS_MAP[code.value // 100]
         self.function: str | None = None
         super().__init__(str(code.value))

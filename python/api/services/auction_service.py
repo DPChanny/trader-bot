@@ -12,8 +12,7 @@ from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin
-from shared.utils.error import AppError, Auction
-from shared.utils.error import Preset as PresetError
+from shared.utils.error import AppError, AuctionErrorCode, PresetErrorCode
 from shared.utils.service import service
 
 from ..auction.auction_manager import auction_manager
@@ -36,18 +35,18 @@ async def create_auction_service(
     preset = await preset_repo.get_detail_by_id(preset_id, guild_id)
 
     if preset is None:
-        raise AppError(PresetError.NotFound)
+        raise AppError(PresetErrorCode.NotFound)
 
     preset_members = preset.preset_members
     if not preset_members:
-        raise AppError(Auction.NoMembers)
+        raise AppError(AuctionErrorCode.NoMembers)
 
     leaders = [pm for pm in preset_members if pm.is_leader]
     if not leaders:
-        raise AppError(Auction.NoLeaders)
+        raise AppError(AuctionErrorCode.NoLeaders)
 
     if len(leaders) < 2:
-        raise AppError(Auction.TooFewLeaders)
+        raise AppError(AuctionErrorCode.TooFewLeaders)
 
     teams = []
     leader_member_ids: set[int] = set()

@@ -8,8 +8,7 @@ from shared.dtos.preset_dto import (
 from shared.entities.member import Role
 from shared.entities.preset import Preset
 from shared.repositories.preset_repository import PresetRepository
-from shared.utils.error import AppError
-from shared.utils.error import Preset as PresetError
+from shared.utils.error import AppError, PresetErrorCode
 from shared.utils.service import service
 
 from ..utils.member import verify_role
@@ -24,7 +23,7 @@ async def get_preset_service(
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
-        raise AppError(PresetError.NotFound)
+        raise AppError(PresetErrorCode.NotFound)
     return PresetDTO.model_validate(preset)
 
 
@@ -78,7 +77,7 @@ async def update_preset_service(
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
-        raise AppError(PresetError.NotFound)
+        raise AppError(PresetErrorCode.NotFound)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(preset, key, value)
@@ -101,7 +100,7 @@ async def delete_preset_service(
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
-        raise AppError(PresetError.NotFound)
+        raise AppError(PresetErrorCode.NotFound)
 
     await session.delete(preset)
     logger.bind(preset_id=preset_id)

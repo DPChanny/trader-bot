@@ -9,9 +9,7 @@ from shared.entities.member import Role
 from shared.entities.position import Position
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
-from shared.utils.error import AppError
-from shared.utils.error import Position as PositionError
-from shared.utils.error import Preset as PresetError
+from shared.utils.error import AppError, PositionErrorCode, PresetErrorCode
 from shared.utils.service import service
 
 from ..utils.member import verify_role
@@ -28,7 +26,7 @@ async def get_position_list_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise AppError(PresetError.NotFound)
+        raise AppError(PresetErrorCode.NotFound)
 
     position_repo = PositionRepository(session)
     positions = await position_repo.get_list_by_preset_id(preset_id, guild_id)
@@ -48,7 +46,7 @@ async def get_position_service(
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
-        raise AppError(PositionError.NotFound)
+        raise AppError(PositionErrorCode.NotFound)
     return PositionDTO.model_validate(position)
 
 
@@ -65,7 +63,7 @@ async def add_position_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise AppError(PresetError.NotFound)
+        raise AppError(PresetErrorCode.NotFound)
 
     position = Position(
         preset_id=preset_id,
@@ -94,7 +92,7 @@ async def update_position_service(
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
-        raise AppError(PositionError.NotFound)
+        raise AppError(PositionErrorCode.NotFound)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(position, key, value)
@@ -118,7 +116,7 @@ async def delete_position_service(
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
-        raise AppError(PositionError.NotFound)
+        raise AppError(PositionErrorCode.NotFound)
 
     await session.delete(position)
     logger.bind(position_id=position_id)

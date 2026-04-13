@@ -8,7 +8,7 @@ from shared.utils.env import (
     get_discord_client_id,
     get_discord_client_secret,
 )
-from shared.utils.error import AppError, Discord
+from shared.utils.error import AppError, DiscordErrorCode
 
 
 DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize"
@@ -48,7 +48,7 @@ async def get_me(code: str) -> dict:
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
         if token_response.status_code != 200:
-            raise AppError(Discord.TokenExchangeFailed)
+            raise AppError(DiscordErrorCode.TokenExchangeFailed)
         access_token = token_response.json()["access_token"]
 
         me_response = await client.get(
@@ -56,7 +56,7 @@ async def get_me(code: str) -> dict:
             headers={"Authorization": f"Bearer {access_token}"},
         )
         if me_response.status_code != 200:
-            raise AppError(Discord.UserFetchFailed)
+            raise AppError(DiscordErrorCode.UserFetchFailed)
         return me_response.json()
 
 

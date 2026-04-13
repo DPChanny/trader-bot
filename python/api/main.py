@@ -8,7 +8,7 @@ from loguru import logger
 
 from shared.utils.database import setup_db
 from shared.utils.env import get_app_origin
-from shared.utils.error import AppError, Server, Validation
+from shared.utils.error import AppError, ServerErrorCode, ValidationErrorCode
 from shared.utils.logging import LoguruMiddleware, setup_logging
 
 from .routers import (
@@ -58,7 +58,7 @@ async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
 async def validation_error_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    app_error = AppError(Validation.Error)
+    app_error = AppError(ValidationErrorCode.Error)
     app_error.function = validation_error_handler.__name__
     app_error.__cause__ = exc
     return await app_error_handler(request, app_error)
@@ -66,7 +66,7 @@ async def validation_error_handler(
 
 @app.exception_handler(Exception)
 async def exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    app_error = AppError(Server.InternalError)
+    app_error = AppError(ServerErrorCode.InternalError)
     app_error.function = exception_handler.__name__
     app_error.__cause__ = exc
     return await app_error_handler(request, app_error)

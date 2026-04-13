@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.entities.member import Role
 from shared.repositories.member_repository import MemberRepository
-from shared.utils.error import AppError, Member
+from shared.utils.error import AppError, MemberErrorCode
 
 
 async def verify_role(
@@ -14,7 +14,7 @@ async def verify_role(
     member_repo = MemberRepository(db)
     member = await member_repo.get_by_user_id(user_id, guild_id)
     if member is None:
-        raise AppError(Member.NotFound)
+        raise AppError(MemberErrorCode.NotFound)
     if Role(member.role) < min_role:
-        raise AppError(Member.InsufficientRole)
+        raise AppError(MemberErrorCode.InsufficientRole)
     return Role(member.role)

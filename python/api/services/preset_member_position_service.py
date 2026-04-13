@@ -14,15 +14,9 @@ from shared.repositories.preset_member_position_repository import (
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.utils.error import (
     AppError,
-)
-from shared.utils.error import (
-    Position as PositionError,
-)
-from shared.utils.error import (
-    PresetMember as PresetMemberError,
-)
-from shared.utils.error import (
-    PresetMemberPosition as PresetMemberPositionError,
+    PositionErrorCode,
+    PresetMemberErrorCode,
+    PresetMemberPositionErrorCode,
 )
 from shared.utils.service import service
 
@@ -46,11 +40,11 @@ async def add_preset_member_position_service(
         await preset_member_repo.get_by_id(preset_member_id, preset_id, guild_id)
         is None
     ):
-        raise AppError(PresetMemberError.NotFound)
+        raise AppError(PresetMemberErrorCode.NotFound)
 
     position_repo = PositionRepository(session)
     if await position_repo.get_by_id(dto.position_id, preset_id, guild_id) is None:
-        raise AppError(PositionError.NotFound)
+        raise AppError(PositionErrorCode.NotFound)
 
     preset_member_position = PresetMemberPosition(
         preset_member_id=preset_member_id,
@@ -60,7 +54,7 @@ async def add_preset_member_position_service(
     try:
         await session.flush()
     except IntegrityError:
-        raise AppError(PresetMemberPositionError.Duplicated) from None
+        raise AppError(PresetMemberPositionErrorCode.Duplicated) from None
 
     result = PresetMemberPositionDTO.model_validate(preset_member_position)
     logger.bind(**result.model_dump())
@@ -84,7 +78,7 @@ async def delete_preset_member_position_service(
         preset_member_position_id, preset_member_id, preset_id, guild_id
     )
     if preset_member_position is None:
-        raise AppError(PresetMemberPositionError.NotFound)
+        raise AppError(PresetMemberPositionErrorCode.NotFound)
 
     await session.delete(preset_member_position)
     logger.bind(preset_member_position_id=preset_member_position_id)

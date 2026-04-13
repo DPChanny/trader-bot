@@ -9,9 +9,7 @@ from shared.entities.member import Role
 from shared.entities.tier import Tier
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
-from shared.utils.error import AppError
-from shared.utils.error import Preset as PresetError
-from shared.utils.error import Tier as TierError
+from shared.utils.error import AppError, PresetErrorCode, TierErrorCode
 from shared.utils.service import service
 
 from ..utils.member import verify_role
@@ -28,7 +26,7 @@ async def get_tier_list_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise AppError(PresetError.NotFound)
+        raise AppError(PresetErrorCode.NotFound)
 
     tier_repo = TierRepository(session)
     tiers = await tier_repo.get_list_by_preset_id(preset_id, guild_id)
@@ -48,7 +46,7 @@ async def get_tier_service(
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
-        raise AppError(TierError.NotFound)
+        raise AppError(TierErrorCode.NotFound)
     return TierDTO.model_validate(tier)
 
 
@@ -65,7 +63,7 @@ async def add_tier_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise AppError(PresetError.NotFound)
+        raise AppError(PresetErrorCode.NotFound)
 
     tier = Tier(preset_id=preset_id, name=dto.name, icon_url=dto.icon_url)
     session.add(tier)
@@ -90,7 +88,7 @@ async def update_tier_service(
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
-        raise AppError(TierError.NotFound)
+        raise AppError(TierErrorCode.NotFound)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(tier, key, value)
@@ -114,7 +112,7 @@ async def delete_tier_service(
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
-        raise AppError(TierError.NotFound)
+        raise AppError(TierErrorCode.NotFound)
 
     await session.delete(tier)
     logger.bind(tier_id=tier_id)
