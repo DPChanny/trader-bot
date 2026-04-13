@@ -3,7 +3,7 @@ import inspect
 
 from loguru import logger
 
-from .error import AppError, ServerErrorCode
+from .error import AppError, UnexpectedErrorCode
 
 
 class _ServiceLogger:
@@ -37,7 +37,7 @@ def service(func):
             error.function = func.__name__
             raise
         except Exception as error:
-            app_error = AppError(ServerErrorCode.InternalError)
+            app_error = AppError(UnexpectedErrorCode.Internal)
             app_error.function = func.__name__
             raise app_error from error
 

@@ -54,7 +54,7 @@ async def callback_service(
 async def exchange_token_service(dto: ExchangeTokenDTO) -> JwtTokenDTO:
     token_pair = ExchangeToken.consume(dto.exchange_token)
     if token_pair is None:
-        raise AppError(AuthErrorCode.InvalidExchangeToken)
+        raise AppError(AuthErrorCode.ExchangeFailed)
 
     token, refresh_token = token_pair
     return JwtTokenDTO(access_token=token, refresh_token=refresh_token)

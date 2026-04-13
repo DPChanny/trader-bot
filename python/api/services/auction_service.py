@@ -46,7 +46,7 @@ async def create_auction_service(
         raise AppError(AuctionErrorCode.NoLeaders)
 
     if len(leaders) < 2:
-        raise AppError(AuctionErrorCode.TooFewLeaders)
+        raise AppError(AuctionErrorCode.InsufficientLeaders)
 
     teams = []
     leader_member_ids: set[int] = set()

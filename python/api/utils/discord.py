@@ -42,21 +42,21 @@ async def get_me(code: str) -> dict:
         "redirect_uri": _get_login_callback_url(),
     }
     async with httpx.AsyncClient() as client:
-        token_response = await client.post(
+        access_token_response = await client.post(
             DISCORD_TOKEN_URL,
             data=data,
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
-        if token_response.status_code != 200:
-            raise AppError(DiscordErrorCode.TokenExchangeFailed)
-        access_token = token_response.json()["access_token"]
+        if access_token_response.status_code != 200:
+            raise AppError(DiscordErrorCode.ExchangeFailed)
+        access_token = access_token_response.json()["access_token"]
 
         me_response = await client.get(
             f"{DISCORD_USERS_URL}/@me",
             headers={"Authorization": f"Bearer {access_token}"},
         )
         if me_response.status_code != 200:
-            raise AppError(DiscordErrorCode.UserFetchFailed)
+            raise AppError(DiscordErrorCode.FetchFailed)
         return me_response.json()
 
 

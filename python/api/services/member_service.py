@@ -57,7 +57,7 @@ async def update_member_service(
     if member is None:
         raise AppError(MemberErrorCode.NotFound)
     if member.role == Role.OWNER or dto.role == Role.OWNER:
-        raise AppError(MemberErrorCode.InvalidRole)
+        raise AppError(MemberErrorCode.ForbiddenRole)
 
     for key, value in dto.model_dump(exclude_unset=True).items():
         setattr(member, key, value)

@@ -54,25 +54,33 @@ async def handle_websocket_connect(
     try:
         auth_message = json.loads(await websocket.receive_text())
     except Exception:
-        logger.bind(action="auth_failed", error_code=AuthErrorCode.Failed.value).warning("")
-        await websocket.close(code=4000, reason=str(AuthErrorCode.Failed.value))
+        logger.bind(
+            action="auth_failed", error_code=AuthErrorCode.Unauthorized.value
+        ).warning("")
+        await websocket.close(code=4000, reason=str(AuthErrorCode.Unauthorized.value))
         return None, None, False, None
 
     if auth_message.get("type") != MessageType.AUTH.value:
-        logger.bind(action="auth_failed", error_code=AuthErrorCode.Failed.value).warning("")
-        await websocket.close(code=4000, reason=str(AuthErrorCode.Failed.value))
+        logger.bind(
+            action="auth_failed", error_code=AuthErrorCode.Unauthorized.value
+        ).warning("")
+        await websocket.close(code=4000, reason=str(AuthErrorCode.Unauthorized.value))
         return None, None, False, None
 
     auth_data = auth_message.get("data")
     if not isinstance(auth_data, dict):
-        logger.bind(action="auth_failed", error_code=AuthErrorCode.Failed.value).warning("")
-        await websocket.close(code=4000, reason=str(AuthErrorCode.Failed.value))
+        logger.bind(
+            action="auth_failed", error_code=AuthErrorCode.Unauthorized.value
+        ).warning("")
+        await websocket.close(code=4000, reason=str(AuthErrorCode.Unauthorized.value))
         return None, None, False, None
 
     token = auth_data.get("token")
     if token is not None and not isinstance(token, str):
-        logger.bind(action="auth_failed", error_code=AuthErrorCode.Failed.value).warning("")
-        await websocket.close(code=4000, reason=str(AuthErrorCode.Failed.value))
+        logger.bind(
+            action="auth_failed", error_code=AuthErrorCode.Unauthorized.value
+        ).warning("")
+        await websocket.close(code=4000, reason=str(AuthErrorCode.Unauthorized.value))
         return None, None, False, None
 
     preset_id: int = auction.preset_snapshot["preset_id"]
@@ -93,11 +101,9 @@ async def handle_websocket_connect(
         logger.bind(
             action="connect_failed",
             auction_id=auction_id,
-            error_code=AuctionErrorCode.PublicAccessDenied.value,
+            error_code=AuctionErrorCode.Forbidden.value,
         ).warning("")
-        await websocket.close(
-            code=4000, reason=str(AuctionErrorCode.PublicAccessDenied.value)
-        )
+        await websocket.close(code=4000, reason=str(AuctionErrorCode.Forbidden.value))
         return None, None, False, None
 
     logger.bind(
@@ -142,12 +148,12 @@ async def handle_websocket_message(
             logger.bind(
                 action="bid_rejected",
                 member_id=member_id,
-                error_code=ValidationErrorCode.Error.value,
+                error_code=ValidationErrorCode.Invalid.value,
             ).warning("")
             await websocket.send_json(
                 {
                     "type": MessageType.ERROR,
-                    "data": {"code": ValidationErrorCode.Error.value},
+                    "data": {"code": ValidationErrorCode.Invalid.value},
                 }
             )
             return

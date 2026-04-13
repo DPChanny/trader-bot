@@ -5,7 +5,7 @@ from typing import ParamSpec, TypeVar
 from loguru import logger
 
 from shared.utils.database import get_session
-from shared.utils.error import AppError, ServerErrorCode
+from shared.utils.error import AppError, UnexpectedErrorCode
 
 
 P = ParamSpec("P")
@@ -34,7 +34,7 @@ def router[**P, T](
         except Exception as e:
             logger.opt(exception=e).bind(
                 function=func.__name__,
-                error_code=ServerErrorCode.InternalError.value,
+                error_code=UnexpectedErrorCode.Internal.value,
             ).error("")
             return None
 

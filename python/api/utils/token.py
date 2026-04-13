@@ -49,12 +49,12 @@ class JwtToken:
                 algorithms=[get_jwt_algorithm()],
             )
             if data.get("type") != cls._type:
-                raise AppError(AuthErrorCode.InvalidTokenType)
+                raise AppError(AuthErrorCode.InvalidJwtToken)
             return cls.Payload(**data)
         except jwt.ExpiredSignatureError:
-            raise AppError(AuthErrorCode.TokenExpired) from None
+            raise AppError(AuthErrorCode.ExpiredJwtToken) from None
         except jwt.InvalidTokenError:
-            raise AppError(AuthErrorCode.InvalidToken) from None
+            raise AppError(AuthErrorCode.InvalidJwtToken) from None
 
 
 class AccessToken(JwtToken):
@@ -106,9 +106,9 @@ class ExchangeToken:
 async def verify_access_token(authorization: str = Header(None)) -> int:
     try:
         if not authorization:
-            raise AppError(AuthErrorCode.Failed)
+            raise AppError(AuthErrorCode.Unauthorized)
         if not authorization.startswith("Bearer "):
-            raise AppError(AuthErrorCode.Failed)
+            raise AppError(AuthErrorCode.Unauthorized)
         token = authorization.removeprefix("Bearer ")
         return AccessToken.decode(token).user_id
     except AppError as e:
