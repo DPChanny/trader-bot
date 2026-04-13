@@ -55,7 +55,7 @@ NullableUrlStr = Annotated[
     StringConstraints(min_length=1, max_length=2048),
     AfterValidator(_validate_nullable_url),
 ]
-DiscordId = Annotated[int, BeforeValidator(int), PlainSerializer(str)]
+BigInt = Annotated[int, BeforeValidator(int), PlainSerializer(str)]
 
 
 class BaseDTO(BaseModel):
@@ -63,8 +63,8 @@ class BaseDTO(BaseModel):
 
 
 __all__ = [
+    "BigInt",
     "BaseDTO",
-    "DiscordId",
     "NameStr",
     "NullableNameStr",
     "NullableUrlStr",

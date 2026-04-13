@@ -72,7 +72,7 @@ async def create_auction_service(
         team_size=preset.team_size,
         allow_public=dto.allow_public,
     )
-    auction_id: str = auction.auction_id
+    auction_id: int = auction.auction_id
 
     result = AuctionDTO(auction_id=auction_id)
     event |= result.model_dump() | {"member_count": len(member_ids)}

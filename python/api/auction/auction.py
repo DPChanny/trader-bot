@@ -26,7 +26,7 @@ from shared.utils.error import AuctionErrorCode
 class Auction:
     def __init__(
         self,
-        auction_id: str,
+        auction_id: int,
         teams: list[Team],
         member_ids: list[int],
         leader_member_ids: set[int],

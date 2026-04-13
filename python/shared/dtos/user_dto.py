@@ -1,10 +1,10 @@
 from pydantic import computed_field
 
-from . import BaseDTO, DiscordId
+from . import BaseDTO, BigInt
 
 
 class UserDTO(BaseDTO):
-    discord_id: DiscordId
+    discord_id: BigInt
     name: str
     avatar_hash: str | None
 

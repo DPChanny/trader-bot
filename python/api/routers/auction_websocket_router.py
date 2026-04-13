@@ -25,7 +25,7 @@ auction_websocket_router = APIRouter(prefix="/auction", tags=["auction_websocket
 @auction_websocket_router.websocket("/{auction_id}")
 async def auction_websocket(
     websocket: WebSocket,
-    auction_id: str,
+    auction_id: int,
     session: AsyncSession = Depends(get_session),
 ):
     auction, member_id, is_leader, team_id = await handle_websocket_connect(

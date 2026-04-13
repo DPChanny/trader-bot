@@ -1,14 +1,14 @@
 from pydantic import computed_field
 
 from ..entities.member import Role
-from . import BaseDTO, DiscordId, NullableNameStr, NullableUrlStr
+from . import BaseDTO, BigInt, NullableNameStr, NullableUrlStr
 from .user_dto import UserDetailDTO
 
 
 class MemberDTO(BaseDTO):
     member_id: int
-    guild_id: DiscordId
-    user_id: DiscordId
+    guild_id: BigInt
+    user_id: BigInt
     role: Role
     name: str | None
     alias: str | None

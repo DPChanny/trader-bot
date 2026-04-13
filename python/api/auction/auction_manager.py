@@ -5,7 +5,7 @@ from .auction import Auction
 
 class AuctionManager:
     def __init__(self):
-        self.auctions: dict[str, Auction] = {}
+        self.auctions: dict[int, Auction] = {}
 
     def create_auction(
         self,
@@ -17,7 +17,7 @@ class AuctionManager:
         team_size: int,
         allow_public: bool = True,
     ) -> Auction:
-        auction_id = str(uuid.uuid4())
+        auction_id = uuid.uuid4().int
         auction = Auction(
             auction_id=auction_id,
             teams=teams,
@@ -31,10 +31,10 @@ class AuctionManager:
         self.auctions[auction_id] = auction
         return auction
 
-    def get_auction(self, auction_id: str) -> Auction | None:
+    def get_auction(self, auction_id: int) -> Auction | None:
         return self.auctions.get(auction_id)
 
-    def remove_auction(self, auction_id: str):
+    def remove_auction(self, auction_id: int):
         if auction_id in self.auctions:
             del self.auctions[auction_id]
 

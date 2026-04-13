@@ -35,7 +35,7 @@ async def _resolve_member(
 
 async def handle_websocket_connect(
     websocket: WebSocket,
-    auction_id: str,
+    auction_id: int,
     session: AsyncSession,
 ) -> tuple[Auction | None, int | None, bool, int | None]:
     auction = auction_manager.get_auction(auction_id)

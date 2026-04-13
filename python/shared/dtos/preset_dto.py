@@ -1,12 +1,12 @@
 from pydantic import Field
 
-from . import BaseDTO, DiscordId, NameStr
+from . import BaseDTO, BigInt, NameStr
 from .preset_member_dto import PresetMemberDetailDTO
 
 
 class PresetDTO(BaseDTO):
     preset_id: int
-    guild_id: DiscordId
+    guild_id: BigInt
     name: str
     points: int
     timer: int
