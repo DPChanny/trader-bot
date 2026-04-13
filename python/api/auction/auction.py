@@ -181,7 +181,7 @@ class Auction:
 
         disconnected_websockets: list[WebSocket] = []
         message = AuctionMessageDTO(
-            type=message_type, dto=dto.model_dump()
+            type=message_type, data=dto.model_dump()
         ).model_dump()
         for ws in ws_list:
             try:
@@ -346,7 +346,7 @@ class Auction:
         except asyncio.CancelledError:
             pass
 
-    async def place_bid(self, member_id: int, amount: int) -> None:
+    async def place_bid(self, leader_id: int, amount: int) -> None:
         message: tuple[MessageType, BaseDTO] | None = None
         async with self._state_lock:
             if self.status != Auction.Status.RUNNING:
@@ -354,12 +354,12 @@ class Auction:
             if self.current_member_id is None:
                 return
             now = asyncio.get_event_loop().time()
-            if now - self._bid_placed.get(member_id, 0) < 1.0:
+            if now - self._bid_placed.get(leader_id, 0) < 1.0:
                 return
-            self._bid_placed[member_id] = now
-            if member_id not in self._leader_member_ids:
+            self._bid_placed[leader_id] = now
+            if leader_id not in self._leader_member_ids:
                 raise WSError(AuctionErrorCode.BidNotLeader)
-            team = self._member_id_to_team.get(member_id)
+            team = self._member_id_to_team.get(leader_id)
             if team is None:
                 raise WSError(UnexpectedErrorCode.Internal)
             if len(team.member_ids) >= self.team_size:
@@ -371,11 +371,11 @@ class Auction:
             min_bid = (self.current_bid.amount + 1) if self.current_bid else 1
             if amount < min_bid:
                 raise WSError(AuctionErrorCode.BidTooLow)
-            self.current_bid = Bid(amount=amount, leader_id=member_id)
+            self.current_bid = Bid(amount=amount, leader_id=leader_id)
             message = (
                 MessageType.BID_PLACED,
                 BidPlacedDTO(
-                    leader_id=team.leader_id,
+                    leader_id=leader_id,
                     amount=amount,
                 ),
             )

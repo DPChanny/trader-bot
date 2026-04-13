@@ -39,4 +39,5 @@ class AuctionManager:
 
     @classmethod
     def get_auction(cls, auction_id: int) -> Auction | None:
+        cls._purge()
         return cls._auctions.get(auction_id)

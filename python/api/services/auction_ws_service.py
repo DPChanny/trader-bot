@@ -43,7 +43,7 @@ async def connect_auction_ws_service(
     if auth_message.type != MessageType.AUTH:
         raise WSError(AuthErrorCode.Unauthorized)
 
-    auth_data = auth_message.dto
+    auth_data = auth_message.data
     if not isinstance(auth_data, dict):
         raise WSError(AuthErrorCode.Unauthorized)
 
@@ -98,7 +98,7 @@ async def handle_auction_ws_service(
         if member_id is None:
             raise WSError(AuthErrorCode.Unauthorized)
 
-        bid_data = parsed_message.dto or {}
+        bid_data = parsed_message.data or {}
         try:
             bid_dto = PlaceBidDTO.model_validate(bid_data)
         except Exception:

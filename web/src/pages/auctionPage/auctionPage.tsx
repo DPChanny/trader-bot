@@ -33,7 +33,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     if (auctionId !== undefined) {
       connect(auctionId);
     }
-  }, []);
+  }, [auctionId]);
 
   const memberId = state?.memberId ?? null;
   const teamId = state?.teamId ?? null;
@@ -52,7 +52,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
       reconnectedRef.current = true;
       connect(auctionId);
     }
-  }, [state, memberId, isConnected]);
+  }, [state, memberId, isConnected, auctionId]);
 
   const isCompleted = state?.status === AuctionStatus.COMPLETED;
 
@@ -104,9 +104,8 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     .map((memberId) => presetMemberMap.get(memberId))
     .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
-  const clientTeam = teamId
-    ? state.teams.find((t) => t.teamId === teamId)
-    : null;
+  const clientTeam =
+    teamId !== null ? state.teams.find((t) => t.teamId === teamId) : null;
   const clientTeamSize = clientTeam ? clientTeam.memberIds.length : 0;
   const isClientTeamFull = clientTeamSize >= teamSize;
 
@@ -124,9 +123,10 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     : null;
 
   const currentBidLeaderId = state.currentBid?.leaderId;
-  const currentBidLeader = currentBidLeaderId
-    ? presetMemberMap.get(currentBidLeaderId)
-    : null;
+  const currentBidLeader =
+    currentBidLeaderId !== null && currentBidLeaderId !== undefined
+      ? presetMemberMap.get(currentBidLeaderId)
+      : null;
 
   const handlePlaceBid = () => {
     const displayAmount = parseInt(bidAmount);

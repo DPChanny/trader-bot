@@ -38,10 +38,9 @@ NameStr = Annotated[
     str, BeforeValidator(_strip_str), StringConstraints(min_length=1, max_length=256)
 ]
 NullableNameStr = Annotated[
-    str | None,
+    Annotated[str, StringConstraints(min_length=1, max_length=256)] | None,
     BeforeValidator(_strip_str),
     BeforeValidator(_nullable_str),
-    StringConstraints(min_length=1, max_length=256),
 ]
 UrlStr = Annotated[
     str,
@@ -50,10 +49,9 @@ UrlStr = Annotated[
     AfterValidator(_validate_url),
 ]
 NullableUrlStr = Annotated[
-    str | None,
+    Annotated[str, StringConstraints(min_length=1, max_length=2048)] | None,
     BeforeValidator(_strip_str),
     BeforeValidator(_nullable_str),
-    StringConstraints(min_length=1, max_length=2048),
     AfterValidator(_validate_nullable_url),
 ]
 BigInt = Annotated[int, BeforeValidator(int), PlainSerializer(str)]

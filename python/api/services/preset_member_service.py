@@ -101,7 +101,7 @@ async def add_preset_member_service(
     if preset_member is None:
         raise HTTPError(PresetMemberErrorCode.NotFound)
     result = PresetMemberDetailDTO.model_validate(preset_member)
-    event |= PresetMemberDTO.model_validate(result).model_dump()
+    event |= PresetMemberDTO.model_validate(result.model_dump()).model_dump()
     return result
 
 
@@ -136,7 +136,7 @@ async def update_preset_member_service(
         preset_member_id, preset_id, guild_id
     )
     result = PresetMemberDetailDTO.model_validate(preset_member)
-    event |= PresetMemberDTO.model_validate(result).model_dump()
+    event |= PresetMemberDTO.model_validate(result.model_dump()).model_dump()
     return result
 
 

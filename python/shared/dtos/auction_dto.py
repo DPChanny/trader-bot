@@ -108,4 +108,4 @@ class ErrorDTO(BaseDTO):
 
 class AuctionMessageDTO(BaseDTO):
     type: MessageType
-    dto: dict[str, Any] | None = None
+    data: dict[str, Any] | None = None

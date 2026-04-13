@@ -35,7 +35,7 @@ async def _send_error(ws: WebSocket, code: int) -> None:
     await ws.send_json(
         AuctionMessageDTO(
             type=MessageType.ERROR,
-            dto=ErrorDTO(code=code).model_dump(),
+            data=ErrorDTO(code=code).model_dump(),
         ).model_dump()
     )
 
@@ -60,7 +60,7 @@ async def auction_ws(
             member_id=member_id,
         )
         await ws.send_json(
-            AuctionMessageDTO(type=MessageType.INIT, dto=init.model_dump()).model_dump()
+            AuctionMessageDTO(type=MessageType.INIT, data=init.model_dump()).model_dump()
         )
 
         while True:

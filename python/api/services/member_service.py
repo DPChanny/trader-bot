@@ -66,5 +66,5 @@ async def update_member_service(
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
     result = MemberDetailDTO.model_validate(member)
-    event |= MemberDTO.model_validate(result).model_dump()
+    event |= MemberDTO.model_validate(result.model_dump()).model_dump()
     return result

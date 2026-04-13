@@ -47,12 +47,10 @@ export enum MessageType {
   NEXT_MEMBER = 11,
 }
 
-export interface AuctionMessageDTO<TDto = unknown> {
+export interface AuctionMessageDTO<TData = unknown> {
   type: MessageType;
-  dto: TDto;
+  data: TData;
 }
-
-export type WebSocketMessage = AuctionMessageDTO;
 
 export interface TeamDTO {
   teamId: number;
