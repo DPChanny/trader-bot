@@ -122,54 +122,62 @@ class Auction:
             auction_manager.remove_auction(self.auction_id)
 
     async def connect(self, websocket: WebSocket, member_id: int | None) -> None:
-        if member_id is not None:
-            is_new = member_id not in self.member_id_to_ws_set
-            if is_new:
-                self.member_id_to_ws_set[member_id] = set()
-            self.member_id_to_ws_set[member_id].add(websocket)
-
-            if is_new:
-                await self.broadcast(
-                    MessageType.MEMBER_CONNECTED,
-                    MemberConnectionDTO(member_id=member_id),
-                )
-
-                if (
-                    member_id in self.leader_member_ids
-                    and self.status == AuctionStatus.WAITING
-                    and self._can_progress()
-                ):
-                    await self._set_status(AuctionStatus.RUNNING)
-        else:
+        if member_id is None:
             self.public_websockets.add(websocket)
+            return
 
-    async def _handle_disconnected_members(self, member_ids: list[int]) -> None:
-        for member_id in member_ids:
+        is_new = member_id not in self.member_id_to_ws_set
+        if is_new:
+            self.member_id_to_ws_set[member_id] = set()
+        self.member_id_to_ws_set[member_id].add(websocket)
+
+        if is_new:
+            await self.broadcast(
+                MessageType.MEMBER_CONNECTED,
+                MemberConnectionDTO(member_id=member_id),
+            )
+
+            if (
+                member_id in self.leader_member_ids
+                and self.status == AuctionStatus.WAITING
+                and self._can_progress()
+            ):
+                await self._set_status(AuctionStatus.RUNNING)
+
+    async def disconnect(self, websocket: WebSocket, member_id: int | None) -> None:
+        if member_id is None:
+            for (
+                connected_member_id,
+                member_websockets,
+            ) in self.member_id_to_ws_set.items():
+                if websocket in member_websockets:
+                    member_id = connected_member_id
+                    break
+
+        if member_id is None:
+            self.public_websockets.discard(websocket)
+            return
+
+        disconnected_member_ids: list[int] = []
+        member_websockets = self.member_id_to_ws_set.get(member_id)
+        if member_websockets is not None:
+            member_websockets.discard(websocket)
+            if not member_websockets:
+                del self.member_id_to_ws_set[member_id]
+                disconnected_member_ids.append(member_id)
+
+        for member_id in disconnected_member_ids:
             await self.broadcast(
                 MessageType.MEMBER_DISCONNECTED,
                 MemberConnectionDTO(member_id=member_id),
             )
 
         if (
-            member_ids
+            disconnected_member_ids
             and self.status == AuctionStatus.RUNNING
             and not self._can_progress()
         ):
             await self._set_status(AuctionStatus.WAITING)
-
-    async def disconnect(self, websocket: WebSocket, member_id: int | None) -> None:
-        disconnected_member_ids: list[int] = []
-        if member_id is not None:
-            member_websockets = self.member_id_to_ws_set.get(member_id)
-            if member_websockets is not None:
-                member_websockets.discard(websocket)
-                if not member_websockets:
-                    del self.member_id_to_ws_set[member_id]
-                    disconnected_member_ids.append(member_id)
-        else:
-            self.public_websockets.discard(websocket)
-
-        await self._handle_disconnected_members(disconnected_member_ids)
 
     def _can_progress(self) -> bool:
         return self.leader_member_ids.issubset(self.member_id_to_ws_set.keys())
@@ -189,20 +197,8 @@ class Auction:
             except Exception:
                 disconnected_websockets.append(websocket)
 
-        disconnected_member_ids: list[int] = []
-        if disconnected_websockets:
-            async with self._broadcast_lock:
-                for websocket in disconnected_websockets:
-                    for member_id, member_websockets in list(
-                        self.member_id_to_ws_set.items()
-                    ):
-                        member_websockets.discard(websocket)
-                        if not member_websockets:
-                            del self.member_id_to_ws_set[member_id]
-                            disconnected_member_ids.append(member_id)
-                    self.public_websockets.discard(websocket)
-
-        await self._handle_disconnected_members(disconnected_member_ids)
+        for websocket in disconnected_websockets:
+            await self.disconnect(websocket, None)
 
     async def _set_status(self, new_status: AuctionStatus):
         next_member = False
