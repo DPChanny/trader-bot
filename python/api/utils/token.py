@@ -104,9 +104,13 @@ class ExchangeToken:
 
 
 async def verify_access_token(authorization: str = Header(None)) -> int:
-    if not authorization:
-        raise AppError(AuthErrorCode.Failed)
-    if not authorization.startswith("Bearer "):
-        raise AppError(AuthErrorCode.Failed)
-    token = authorization.removeprefix("Bearer ")
-    return AccessToken.decode(token).user_id
+    try:
+        if not authorization:
+            raise AppError(AuthErrorCode.Failed)
+        if not authorization.startswith("Bearer "):
+            raise AppError(AuthErrorCode.Failed)
+        token = authorization.removeprefix("Bearer ")
+        return AccessToken.decode(token).user_id
+    except AppError as e:
+        e.function = verify_access_token.__name__
+        raise

@@ -7,16 +7,13 @@ dependencies = [
     "uvicorn[standard]",
     "loguru",
     "sqlalchemy",
-    "pydantic[email]",
-    "pydantic-settings",
+    "pydantic",
     "python-dotenv",
     "pyjwt",
     "discord.py",
     "httpx",
-    "websockets",
     "asyncpg",
-    "psycopg2-binary",
-    "boto3",
+    "aioboto3",
 ]
 
 [dependency-groups]
