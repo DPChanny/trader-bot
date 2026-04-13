@@ -32,7 +32,7 @@
     },
     {
       "label": "Run All Dev",
-      "dependsOn": ["Run Web Dev", "Run Api Dev", "Run Bot Dev"],
+      "dependsOn": ["Run Web Dev", "Run API Dev", "Run Bot Dev"],
       "dependsOrder": "parallel",
       "group": { "kind": "build", "isDefault": true }
     }
