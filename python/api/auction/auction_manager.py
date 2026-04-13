@@ -1,5 +1,7 @@
 import uuid
 
+from shared.dtos.preset_dto import PresetDetailDTO
+
 from .auction import Auction
 
 
@@ -9,23 +11,13 @@ class AuctionManager:
 
     def create_auction(
         self,
-        teams,
-        member_ids: list[int],
-        leader_member_ids: set[int],
-        preset_snapshot: dict,
-        timer: int,
-        team_size: int,
+        preset_snapshot: PresetDetailDTO,
         allow_public: bool = True,
     ) -> Auction:
         auction_id = uuid.uuid4().int
         auction = Auction(
             auction_id=auction_id,
-            teams=teams,
-            member_ids=member_ids,
-            leader_member_ids=leader_member_ids,
             preset_snapshot=preset_snapshot,
-            timer=timer,
-            team_size=team_size,
             allow_public=allow_public,
         )
         self.auctions[auction_id] = auction

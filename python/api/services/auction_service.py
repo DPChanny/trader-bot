@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.auction_dto import (
     AuctionDTO,
     CreateAuctionDTO,
-    Team,
 )
 from shared.dtos.preset_dto import PresetDetailDTO
 from shared.entities.member import Role
@@ -38,52 +37,31 @@ async def create_auction_service(
         raise AppError(PresetErrorCode.NotFound)
 
     preset_members = preset.preset_members
-    if not preset_members:
-        raise AppError(AuctionErrorCode.NoMembers)
-
     leaders = [pm for pm in preset_members if pm.is_leader]
-    if not leaders:
-        raise AppError(AuctionErrorCode.NoLeaders)
 
     if len(leaders) < 2:
         raise AppError(AuctionErrorCode.InsufficientLeaders)
 
-    teams = []
-    leader_member_ids: set[int] = set()
-    for idx, leader in enumerate(leaders):
-        team = Team(
-            team_id=idx + 1,
-            leader_id=leader.member_id,
-            member_id_list=[leader.member_id],
-            points=preset.points,
-        )
-        teams.append(team)
-        leader_member_ids.add(leader.member_id)
-
-    member_ids = [pm.member_id for pm in preset_members]
-    preset_snapshot = PresetDetailDTO.model_validate(preset).model_dump(mode="json")
-
+    preset_snapshot = PresetDetailDTO.model_validate(preset)
     auction = auction_manager.create_auction(
-        teams=teams,
-        member_ids=member_ids,
-        leader_member_ids=leader_member_ids,
         preset_snapshot=preset_snapshot,
-        timer=preset.timer,
-        team_size=preset.team_size,
         allow_public=dto.allow_public,
     )
     auction_id: int = auction.auction_id
 
     result = AuctionDTO(auction_id=auction_id)
-    event |= result.model_dump() | {"member_count": len(member_ids)}
+    event |= result.model_dump() | {
+        "preset_id": preset_snapshot.preset_id,
+        "guild_id": preset_snapshot.guild_id,
+    }
 
     app_origin = get_app_origin()
 
-    async def _send_dm(pm: PresetMember):
+    async def _send_invite(pm: PresetMember):
         member = pm.member
         if member is None:
             return
-        role_label = "팀장" if pm.is_leader else "선수"
+        role = "팀장" if pm.is_leader else "선수"
         auction_url = f"{app_origin}/auction/{auction_id}"
         embed = [
             {
@@ -101,7 +79,7 @@ async def create_auction_service(
                     },
                     {
                         "name": "역할",
-                        "value": role_label,
+                        "value": role,
                         "inline": True,
                     },
                     {
@@ -116,7 +94,7 @@ async def create_auction_service(
 
     if dto.send_invite:
         await asyncio.gather(
-            *[_send_dm(pm) for pm in preset_members],
+            *[_send_invite(pm) for pm in preset_members],
             return_exceptions=True,
         )
 

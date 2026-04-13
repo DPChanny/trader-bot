@@ -12,8 +12,6 @@ from enum import IntEnum
 
 
 class AuctionErrorCode(IntEnum):
-    NoMembers = 4001
-    NoLeaders = 4002
     InsufficientLeaders = 4003
     BidTeamFull = 4004
     BidTooHighAmount = 4005
@@ -28,7 +26,7 @@ class AuctionErrorCode(IntEnum):
 
 class AuthErrorCode(IntEnum):
     Unauthorized = 4101
-    InvalidJWTToken = 4102
+    IncorrectJWTToken = 4102
     ExpiredJWTToken = 4103
     ExchangeFailed = 4104
 

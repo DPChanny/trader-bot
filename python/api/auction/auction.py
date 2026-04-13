@@ -20,6 +20,7 @@ from shared.dtos.auction_dto import (
     TimerMessageData,
     WebSocketMessage,
 )
+from shared.dtos.preset_dto import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode
 
 
@@ -27,20 +28,30 @@ class Auction:
     def __init__(
         self,
         auction_id: int,
-        teams: list[Team],
-        member_ids: list[int],
-        leader_member_ids: set[int],
-        preset_snapshot: dict,
-        timer: int,
-        team_size: int,
+        preset_snapshot: PresetDetailDTO,
         allow_public: bool = True,
     ):
         self.auction_id = auction_id
         self.allow_public = allow_public
         self.status: AuctionStatus = AuctionStatus.WAITING
+        self.preset_snapshot = preset_snapshot
+
+        preset_members = preset_snapshot.preset_members
+        leaders = [pm for pm in preset_members if pm.is_leader]
+        leader_member_ids = {pm.member_id for pm in leaders}
+
+        teams = [
+            Team(
+                team_id=idx + 1,
+                leader_id=leader.member_id,
+                member_id_list=[leader.member_id],
+                points=preset_snapshot.points,
+            )
+            for idx, leader in enumerate(leaders)
+        ]
+
         self.teams = {team.team_id: team for team in teams}
         self.leader_member_ids = leader_member_ids
-        self.preset_snapshot = preset_snapshot
 
         self.member_to_team: dict[int, int] = {}
         for team in teams:
@@ -50,7 +61,10 @@ class Auction:
         self.connected_members: dict[int, set[WebSocket]] = {}
         self.public_connections: dict[str, WebSocket] = {}
 
-        auction_members = [mid for mid in member_ids if mid not in leader_member_ids]
+        all_member_ids = [pm.member_id for pm in preset_members]
+        auction_members = [
+            mid for mid in all_member_ids if mid not in leader_member_ids
+        ]
         shuffled = auction_members.copy()
         random.shuffle(shuffled)
         self.auction_queue = shuffled
@@ -59,9 +73,9 @@ class Auction:
         self.current_member_id: int | None = None
         self.current_bid: int | None = None
         self.current_bidder: int | None = None
-        self.initial_timer = timer
-        self.timer = timer
-        self.team_size = team_size
+        self.initial_timer = preset_snapshot.timer
+        self.timer = preset_snapshot.timer
+        self.team_size = preset_snapshot.team_size
         self.timer_task: asyncio.Task | None = None
         self.auto_delete_task: asyncio.Task | None = None
         self.terminate_task: asyncio.Task | None = None
@@ -188,7 +202,7 @@ class Auction:
             auction_queue=self.auction_queue,
             unsold_queue=self.unsold_queue,
             connected_users=list(self.connected_members.keys()),
-            preset_snapshot=self.preset_snapshot,
+            preset_snapshot=self.preset_snapshot.model_dump(mode="json"),
         )
 
     async def set_status(self, new_status: AuctionStatus):

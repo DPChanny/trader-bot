@@ -9,7 +9,7 @@ import jwt
 from fastapi import Header
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
-from shared.utils.error import AppError, AuthErrorCode
+from shared.utils.error import AppError, AuthErrorCode, ValidationErrorCode
 
 
 _ACCESS_TOKEN_EXPIRATION_MINUTES = 15
@@ -49,12 +49,12 @@ class JWTToken:
                 algorithms=[get_jwt_algorithm()],
             )
             if data.get("type") != cls._type:
-                raise AppError(AuthErrorCode.InvalidJWTToken)
+                raise AppError(AuthErrorCode.IncorrectJWTToken)
             return cls.Payload(**data)
         except jwt.ExpiredSignatureError:
             raise AppError(AuthErrorCode.ExpiredJWTToken) from None
         except jwt.InvalidTokenError:
-            raise AppError(AuthErrorCode.InvalidJWTToken) from None
+            raise AppError(ValidationErrorCode.Invalid) from None
 
 
 class AccessToken(JWTToken):
