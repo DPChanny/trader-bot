@@ -19,12 +19,12 @@ from shared.utils.error import (
     PresetMemberErrorCode,
     TierErrorCode,
 )
-from shared.utils.service import service
+from shared.utils.service import http_service
 
 from ..utils.member import verify_role
 
 
-@service
+@http_service
 async def get_preset_member_list_service(
     guild_id: int,
     user_id: int,
@@ -42,7 +42,7 @@ async def get_preset_member_list_service(
     return [PresetMemberDetailDTO.model_validate(m) for m in members]
 
 
-@service
+@http_service
 async def get_preset_member_service(
     guild_id: int,
     user_id: int,
@@ -61,7 +61,7 @@ async def get_preset_member_service(
     return PresetMemberDetailDTO.model_validate(preset_member)
 
 
-@service
+@http_service
 async def add_preset_member_service(
     guild_id: int,
     user_id: int,
@@ -105,7 +105,7 @@ async def add_preset_member_service(
     return result
 
 
-@service
+@http_service
 async def update_preset_member_service(
     guild_id: int,
     user_id: int,
@@ -140,7 +140,7 @@ async def update_preset_member_service(
     return result
 
 
-@service
+@http_service
 async def delete_preset_member_service(
     guild_id: int,
     user_id: int,

@@ -7,20 +7,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.auth_dto import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
 from shared.utils.env import get_app_origin
 from shared.utils.error import AuthErrorCode, HTTPError
-from shared.utils.service import service
+from shared.utils.service import http_service
 from shared.utils.user import upsert_user
 
 from ..utils.discord import get_login_url, get_me
 from ..utils.token import AccessToken, ExchangeToken, RefreshToken
 
 
-@service
+@http_service
 async def login_service(redirect: str | None = None) -> RedirectResponse:
     state = base64.urlsafe_b64encode(redirect.encode()).decode() if redirect else None
     return RedirectResponse(url=get_login_url(state))
 
 
-@service
+@http_service
 async def callback_service(
     code: str, state: str | None, session: AsyncSession, event
 ) -> RedirectResponse:
@@ -50,7 +50,7 @@ async def callback_service(
     return RedirectResponse(url=redirect_url)
 
 
-@service
+@http_service
 async def exchange_token_service(dto: ExchangeTokenDTO) -> JWTTokenDTO:
     token_pair = ExchangeToken.consume(dto.exchange_token)
     if token_pair is None:
@@ -60,7 +60,7 @@ async def exchange_token_service(dto: ExchangeTokenDTO) -> JWTTokenDTO:
     return JWTTokenDTO(access_token=token, refresh_token=refresh_token)
 
 
-@service
+@http_service
 async def refresh_token_service(dto: RefreshTokenDTO, event) -> JWTTokenDTO:
     rt_payload = RefreshToken.decode(dto.refresh_token)
     access_token, _ = AccessToken.create(rt_payload.user_id)

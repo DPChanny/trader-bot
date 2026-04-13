@@ -2,14 +2,14 @@ from discord import Guild
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.entities.member import Role
-from shared.utils.service import service
+from shared.utils.service import http_service
 from shared.utils.user import upsert_user
 
 from ..utils.guild import delete_guild, upsert_guild
 from ..utils.member import update_member_role, upsert_member
 
 
-@service
+@http_service
 async def on_guild_join_service(guild: Guild, session: AsyncSession, event) -> None:
     owner_discord_id = guild.owner_id
     guild_id = guild.id
@@ -50,7 +50,7 @@ async def on_guild_join_service(guild: Guild, session: AsyncSession, event) -> N
     event |= guild_entity.model_dump() | owner_member.model_dump()
 
 
-@service
+@http_service
 async def on_guild_update_service(
     before: Guild,
     after: Guild,
@@ -82,7 +82,7 @@ async def on_guild_update_service(
     }
 
 
-@service
+@http_service
 async def on_guild_remove_service(guild: Guild, session: AsyncSession, event) -> None:
     guild_dto = await delete_guild(guild.id, session)
     event |= guild_dto.model_dump()

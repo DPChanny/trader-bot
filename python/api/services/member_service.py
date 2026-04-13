@@ -4,12 +4,12 @@ from shared.dtos.member_dto import MemberDetailDTO, MemberDTO
 from shared.entities.member import Role
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import HTTPError, MemberErrorCode
-from shared.utils.service import service
+from shared.utils.service import http_service
 
 from ..utils.member import verify_role
 
 
-@service
+@http_service
 async def get_my_member_service(
     guild_id: int, user_id: int, session: AsyncSession
 ) -> MemberDetailDTO:
@@ -20,7 +20,7 @@ async def get_my_member_service(
     return MemberDetailDTO.model_validate(member)
 
 
-@service
+@http_service
 async def get_member_service(
     guild_id: int, user_id: int, member_id: int, session: AsyncSession
 ) -> MemberDetailDTO:
@@ -32,7 +32,7 @@ async def get_member_service(
     return MemberDetailDTO.model_validate(member)
 
 
-@service
+@http_service
 async def get_member_list_service(
     guild_id: int, user_id: int, session: AsyncSession
 ) -> list[MemberDetailDTO]:
@@ -42,7 +42,7 @@ async def get_member_list_service(
     return [MemberDetailDTO.model_validate(m) for m in members]
 
 
-@service
+@http_service
 async def update_member_service(
     guild_id: int,
     user_id: int,

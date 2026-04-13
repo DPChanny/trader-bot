@@ -9,12 +9,12 @@ from shared.entities.member import Role
 from shared.entities.preset import Preset
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PresetErrorCode
-from shared.utils.service import service
+from shared.utils.service import http_service
 
 from ..utils.member import verify_role
 
 
-@service
+@http_service
 async def get_preset_service(
     guild_id: int, user_id: int, preset_id: int, session: AsyncSession
 ) -> PresetDTO:
@@ -27,7 +27,7 @@ async def get_preset_service(
     return PresetDTO.model_validate(preset)
 
 
-@service
+@http_service
 async def create_preset_service(
     guild_id: int,
     user_id: int,
@@ -52,7 +52,7 @@ async def create_preset_service(
     return result
 
 
-@service
+@http_service
 async def get_preset_list_service(
     guild_id: int, user_id: int, session: AsyncSession
 ) -> list[PresetDTO]:
@@ -63,7 +63,7 @@ async def get_preset_list_service(
     return [PresetDTO.model_validate(p) for p in presets]
 
 
-@service
+@http_service
 async def update_preset_service(
     guild_id: int,
     user_id: int,
@@ -87,7 +87,7 @@ async def update_preset_service(
     return result
 
 
-@service
+@http_service
 async def delete_preset_service(
     guild_id: int,
     user_id: int,

@@ -19,12 +19,12 @@ from shared.utils.error import (
     PresetMemberPositionErrorCode,
     ValidationErrorCode,
 )
-from shared.utils.service import service
+from shared.utils.service import http_service
 
 from ..utils.member import verify_role
 
 
-@service
+@http_service
 async def add_preset_member_position_service(
     guild_id: int,
     user_id: int,
@@ -62,7 +62,7 @@ async def add_preset_member_position_service(
     return result
 
 
-@service
+@http_service
 async def delete_preset_member_position_service(
     guild_id: int,
     user_id: int,

@@ -10,12 +10,12 @@ from shared.entities.tier import Tier
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
 from shared.utils.error import HTTPError, PresetErrorCode, TierErrorCode
-from shared.utils.service import service
+from shared.utils.service import http_service
 
 from ..utils.member import verify_role
 
 
-@service
+@http_service
 async def get_tier_list_service(
     guild_id: int,
     user_id: int,
@@ -33,7 +33,7 @@ async def get_tier_list_service(
     return [TierDTO.model_validate(t) for t in tiers]
 
 
-@service
+@http_service
 async def get_tier_service(
     guild_id: int,
     user_id: int,
@@ -50,7 +50,7 @@ async def get_tier_service(
     return TierDTO.model_validate(tier)
 
 
-@service
+@http_service
 async def add_tier_service(
     guild_id: int,
     user_id: int,
@@ -73,7 +73,7 @@ async def add_tier_service(
     return result
 
 
-@service
+@http_service
 async def update_tier_service(
     guild_id: int,
     user_id: int,
@@ -98,7 +98,7 @@ async def update_tier_service(
     return result
 
 
-@service
+@http_service
 async def delete_tier_service(
     guild_id: int,
     user_id: int,

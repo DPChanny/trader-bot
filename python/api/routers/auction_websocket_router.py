@@ -7,7 +7,6 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
 )
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction_dto import (
@@ -64,9 +63,6 @@ async def auction_websocket(
             try:
                 await handle_websocket_message(auction, member_id, message)
             except WebSocketError as e:
-                logger.bind(
-                    function=e.function, code=e.code, member_id=member_id
-                ).warning("")
                 await _send_error(websocket, e.code)
 
             if auction.status == Auction.Status.COMPLETED:
@@ -81,11 +77,6 @@ async def auction_websocket(
             await websocket.close(code=4000, reason=str(e.code))
 
     except Exception:
-        logger.bind(
-            function=auction_websocket.__name__,
-            auction_id=auction_id,
-            member_id=member_id,
-        ).exception("")
         if auction is not None:
             await handle_websocket_disconnect(auction, member_id, websocket)
         with contextlib.suppress(Exception):

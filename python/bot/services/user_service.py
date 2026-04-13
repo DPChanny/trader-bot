@@ -1,11 +1,11 @@
 from discord import User
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.utils.service import service
+from shared.utils.service import http_service
 from shared.utils.user import upsert_user
 
 
-@service
+@http_service
 async def on_user_update_service(
     user: User,
     session: AsyncSession,

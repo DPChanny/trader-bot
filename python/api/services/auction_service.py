@@ -12,14 +12,14 @@ from shared.entities.preset_member import PresetMember
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin
 from shared.utils.error import AuctionErrorCode, HTTPError, PresetErrorCode
-from shared.utils.service import service
+from shared.utils.service import http_service
 
 from ..auction import AuctionManager
 from ..utils.discord import send_message
 from ..utils.member import verify_role
 
 
-@service
+@http_service
 async def create_auction_service(
     guild_id: int,
     user_id: int,

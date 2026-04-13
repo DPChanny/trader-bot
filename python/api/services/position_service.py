@@ -10,12 +10,12 @@ from shared.entities.position import Position
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PositionErrorCode, PresetErrorCode
-from shared.utils.service import service
+from shared.utils.service import http_service
 
 from ..utils.member import verify_role
 
 
-@service
+@http_service
 async def get_position_list_service(
     guild_id: int,
     user_id: int,
@@ -33,7 +33,7 @@ async def get_position_list_service(
     return [PositionDTO.model_validate(p) for p in positions]
 
 
-@service
+@http_service
 async def get_position_service(
     guild_id: int,
     user_id: int,
@@ -50,7 +50,7 @@ async def get_position_service(
     return PositionDTO.model_validate(position)
 
 
-@service
+@http_service
 async def add_position_service(
     guild_id: int,
     user_id: int,
@@ -77,7 +77,7 @@ async def add_position_service(
     return result
 
 
-@service
+@http_service
 async def update_position_service(
     guild_id: int,
     user_id: int,
@@ -102,7 +102,7 @@ async def update_position_service(
     return result
 
 
-@service
+@http_service
 async def delete_position_service(
     guild_id: int,
     user_id: int,
