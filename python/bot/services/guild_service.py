@@ -46,6 +46,7 @@ async def on_guild_join_service(guild: Guild, session: AsyncSession, event) -> N
         Role.OWNER,
         session,
     )
+
     event |= guild_entity.model_dump() | owner_member.model_dump()
 
 
