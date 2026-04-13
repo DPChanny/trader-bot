@@ -99,6 +99,6 @@ class Server(_AppErrorCode):
 class AppError(Exception):
     def __init__(self, code: _AppErrorCode) -> None:
         self.code: int = code.value
-        self.status_code: int = code.http_status
-        self.logged = False
+        self.status: int = code.http_status
+        self.function: str | None = None
         super().__init__(str(code.value))

@@ -2,9 +2,10 @@ import functools
 from collections.abc import Awaitable, Callable
 from typing import ParamSpec, TypeVar
 
+from loguru import logger
+
 from shared.utils.database import get_session
 from shared.utils.error import AppError, Server
-from shared.utils.logging import bind_target_func
 
 
 P = ParamSpec("P")
@@ -22,19 +23,19 @@ def router[**P, T](
 
             raise RuntimeError("No Session")
         except AppError as error:
-            if not error.logged:
-                log = bind_target_func(func, error_code=error.code)
-                if error.status_code < 500:
-                    log.warning("")
-                else:
-                    log.error("")
+            function = error.function or func.__name__
+            if error.status < 500:
+                logger.bind(function=function, error_code=error.code).warning("")
+            else:
+                logger.opt(exception=error.__cause__).bind(
+                    function=function, error_code=error.code
+                ).error("")
             return None
         except Exception as e:
-            bind_target_func(
-                func,
-                error_code=Server.InternalError.value,
-                exception_type=type(e).__name__,
-            ).exception("")
-            return None
+            if not isinstance(e, AppError):
+                app_error = AppError(Server.InternalError)
+                app_error.function = func.__name__
+                raise app_error from e
+            raise
 
     return wrapper

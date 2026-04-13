@@ -2,7 +2,6 @@ import json
 import logging
 import sys
 import time
-from collections.abc import Callable
 from datetime import UTC
 from uuid import uuid4
 
@@ -10,20 +9,6 @@ from loguru import logger
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
-
-
-def bind_target_func(
-    target_func: str | Callable[..., object],
-    **kwargs,
-):
-    _target_func = target_func
-    if not isinstance(target_func, str):
-        _target_func = target_func.__name__
-
-    return logger.bind(
-        target_func=_target_func,
-        **kwargs,
-    )
 
 
 class LoguruHandler(logging.Handler):
@@ -46,16 +31,16 @@ class LoguruHandler(logging.Handler):
 def _json_sink(message) -> None:
     record = message.record
     extra = dict(record["extra"])
-    target_func = extra.pop("target_func", None)
+    function = extra.pop("function", None)
     data: dict = {
         "timestamp": record["time"]
         .astimezone(UTC)
         .strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
         + "Z",
         "level": record["level"].name,
-        "module": None if target_func else record["name"],
-        "function": target_func or record["function"],
-        "line": None if target_func else record["line"],
+        "module": None if function else record["name"],
+        "function": function or record["function"],
+        "line": None if function else record["line"],
         "message": record["message"],
     }
     data.update(extra)
@@ -70,8 +55,8 @@ def _text_sink(message) -> None:
     record = message.record
     timestamp = record["time"].strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
     extra = dict(record["extra"])
-    target_func = extra.pop("target_func", None)
-    source = target_func or f"{record['name']}:{record['function']}:{record['line']}"
+    function = extra.pop("function", None)
+    source = function or f"{record['name']}:{record['function']}:{record['line']}"
     parts = [
         f"{timestamp} | {record['level'].name:<8} | {source}",
     ]

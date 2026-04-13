@@ -4,11 +4,12 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from loguru import logger
 
 from shared.utils.database import setup_db
 from shared.utils.env import get_app_origin
 from shared.utils.error import AppError, Server, Validation
-from shared.utils.logging import LoguruMiddleware, bind_target_func, setup_logging
+from shared.utils.logging import LoguruMiddleware, setup_logging
 
 from .routers import (
     auction_router,
@@ -39,15 +40,16 @@ app = FastAPI(title="Trader API", version="1.0.0", lifespan=lifespan)
 
 @app.exception_handler(AppError)
 async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
-    if not exc.logged:
-        log = bind_target_func(app_error_handler, error_code=exc.code)
-        if exc.status_code < 500:
-            log.warning("")
-        else:
-            log.error("")
+    function = exc.function or app_error_handler.__name__
+    if exc.status < 500:
+        logger.bind(function=function, error_code=exc.code).warning("")
+    else:
+        logger.opt(exception=exc.__cause__).bind(
+            function=function, error_code=exc.code
+        ).error("")
 
     return JSONResponse(
-        status_code=exc.status_code,
+        status_code=exc.status,
         content={"code": exc.code},
     )
 
@@ -56,10 +58,9 @@ async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
 async def validation_error_handler(
     _: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    bind_target_func(
-        validation_error_handler,
+    logger.opt(exception=exc).bind(
+        function=validation_error_handler.__name__,
         error_code=Validation.Error.value,
-        exception_type=type(exc).__name__,
     ).warning("")
     return JSONResponse(
         status_code=422,
@@ -69,11 +70,10 @@ async def validation_error_handler(
 
 @app.exception_handler(Exception)
 async def global_exception_handler(_: Request, exc: Exception) -> JSONResponse:
-    bind_target_func(
-        global_exception_handler,
+    logger.opt(exception=exc).bind(
+        function=global_exception_handler.__name__,
         error_code=Server.InternalError.value,
-        exception_type=type(exc).__name__,
-    ).exception("")
+    ).error("")
     return JSONResponse(
         status_code=500,
         content={"code": Server.InternalError.value},

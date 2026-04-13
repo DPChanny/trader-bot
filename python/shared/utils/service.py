@@ -1,8 +1,9 @@
 import functools
 import inspect
 
+from loguru import logger
+
 from .error import AppError, Server
-from .logging import bind_target_func
 
 
 class _ServiceLogger:
@@ -20,7 +21,6 @@ def service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        logger = bind_target_func(func)
         service_logger = _ServiceLogger()
         if accepts_logger and "logger" not in kwargs:
             kwargs["logger"] = service_logger
@@ -29,24 +29,16 @@ def service(func):
             result = await func(*args, **kwargs)
             if accepts_logger and service_logger.entries:
                 for entry in service_logger.entries:
-                    logger.bind(**entry).info("")
+                    logger.bind(function=func.__name__, **entry).info("")
             elif accepts_logger:
-                logger.info("")
+                logger.bind(function=func.__name__).info("")
             return result
         except AppError as error:
-            if error.status_code < 500:
-                logger.bind(error_code=error.code).warning("")
-            else:
-                logger.bind(error_code=error.code).error("")
-            error.logged = True
+            error.function = func.__name__
             raise
         except Exception as error:
-            logger.bind(
-                error_code=Server.InternalError.value,
-                exception_type=type(error).__name__,
-            ).exception("")
             app_error = AppError(Server.InternalError)
-            app_error.logged = True
-            raise app_error from None
+            app_error.function = func.__name__
+            raise app_error from error
 
     return wrapper
