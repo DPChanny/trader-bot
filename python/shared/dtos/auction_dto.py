@@ -11,7 +11,6 @@ class MessageType(StrEnum):
     PLACE_BID = "place_bid"
     BID_PLACED = "bid_placed"
     MEMBER_SOLD = "member_sold"
-    MEMBER_UNSOLD = "member_unsold"
     NEXT_MEMBER = "next_member"
     QUEUE_UPDATE = "queue_update"
     INIT = "init"
@@ -47,7 +46,7 @@ class AuctionDetailDTO(AuctionDTO):
     teams: list[TeamDTO]
     auction_queue: list[int]
     unsold_queue: list[int]
-    connected_preset_member_ids: list[int]
+    connected_member_ids: list[int]
     preset_snapshot: PresetDetailDTO | None
 
 
@@ -61,7 +60,7 @@ class TimerMessageData(BaseDTO):
 
 
 class StatusMessageData(BaseDTO):
-    status: str
+    status: int
 
 
 class NextMemberMessageData(BaseDTO):

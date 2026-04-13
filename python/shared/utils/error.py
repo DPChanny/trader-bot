@@ -20,8 +20,6 @@ class AuctionErrorCode(IntEnum):
     Forbidden = 4301
     BidNotLeader = 4302
     NotFound = 4401
-    BidTeamNotFound = 4402
-    BidMemberNotFound = 4403
 
 
 class AuthErrorCode(IntEnum):
@@ -92,4 +90,10 @@ class HTTPError(Exception):
             50: 500,
         }[code.value // 100]
         self.function: str | None = None
+        super().__init__(str(code.value))
+
+
+class WebSocketError(Exception):
+    def __init__(self, code: IntEnum) -> None:
+        self.code: int = code.value
         super().__init__(str(code.value))

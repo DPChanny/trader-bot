@@ -54,7 +54,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
       case "user_connected": {
-        const connectedMemberId = message.data.user_id;
+        const connectedMemberId = message.data.member_id;
         setConnectedUsers((prev) => {
           if (prev.includes(connectedMemberId)) return prev;
           return [...prev, connectedMemberId];
@@ -62,7 +62,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
       case "user_disconnected": {
-        const connectedMemberId = message.data.user_id;
+        const connectedMemberId = message.data.member_id;
         setConnectedUsers((prev) =>
           prev.filter((id) => id !== connectedMemberId),
         );
@@ -131,17 +131,13 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
 
-      case "member_unsold": {
-        break;
-      }
-
       case "status": {
         const data = toCamelCase<StatusMessageData>(message.data);
         setState((prev) =>
           prev
             ? {
                 ...prev,
-                status: parseInt(data.status) as AuctionStatus,
+                status: data.status as AuctionStatus,
               }
             : null,
         );

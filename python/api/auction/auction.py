@@ -21,7 +21,7 @@ from shared.dtos.auction_dto import (
     WebSocketMessage,
 )
 from shared.dtos.preset_dto import PresetDetailDTO
-from shared.utils.error import AuctionErrorCode
+from shared.utils.error import AuctionErrorCode, WebSocketError
 
 
 class AuctionStatus(IntEnum):
@@ -52,16 +52,15 @@ class Auction:
         is_public: bool,
     ):
         self.auction_id = auction_id
-        self.guild_id = preset_snapshot.guild_id
-        self.preset_id = preset_snapshot.preset_id
-        self.initial_timer = preset_snapshot.timer
-        self.timer = preset_snapshot.timer
-        self.team_size = preset_snapshot.team_size
-        self.is_public = is_public
-        self.status: AuctionStatus = AuctionStatus.WAITING
         self.preset_snapshot = preset_snapshot
+        self.is_public = is_public
 
-        preset_members = preset_snapshot.preset_members
+        self.guild_id = self.preset_snapshot.guild_id
+        self.preset_id = self.preset_snapshot.preset_id
+        self.team_size = self.preset_snapshot.team_size
+        self.status = AuctionStatus.WAITING
+
+        preset_members = self.preset_snapshot.preset_members
         leaders = [pm for pm in preset_members if pm.is_leader]
         self.leader_member_ids = {pm.member_id for pm in leaders}
 
@@ -70,7 +69,7 @@ class Auction:
                 team_id=team_id,
                 leader_id=leader.member_id,
                 member_ids=[leader.member_id],
-                points=preset_snapshot.points,
+                points=self.preset_snapshot.points,
             )
             for team_id, leader in enumerate(leaders)
         ]
@@ -80,36 +79,33 @@ class Auction:
             for member_id in team.member_ids:
                 self.member_id_to_team[member_id] = team
 
-        self.preset_member_websockets: dict[int, set[WebSocket]] = {}
-        self.public_websockets: dict[str, WebSocket] = {}
-
-        all_member_ids = [pm.member_id for pm in preset_members]
         auction_members = [
-            mid for mid in all_member_ids if mid not in self.leader_member_ids
+            pm.member_id
+            for pm in preset_members
+            if pm.member_id not in self.leader_member_ids
         ]
-        shuffled = auction_members.copy()
-        random.shuffle(shuffled)
-        self.auction_queue = shuffled
-
+        random.shuffle(auction_members)
+        self.auction_queue: list[int] = auction_members
         self.unsold_queue: list[int] = []
         self.current_member_id: int | None = None
         self.current_bid: Bid | None = None
+        self.timer = self.preset_snapshot.timer
+
+        self.member_websockets: dict[int, set[WebSocket]] = {}
+        self.public_websockets: dict[str, WebSocket] = {}
 
         self.timer_task: asyncio.Task | None = None
         self.auto_delete_task: asyncio.Task | None = None
         self.terminate_task: asyncio.Task | None = None
-
-        self.paused_timer: int | None = None
         self.was_in_progress: bool = False
-
         self._state_lock = asyncio.Lock()
         self._broadcast_lock = asyncio.Lock()
 
         self._start_auto_delete_task()
 
     @property
-    def connected_preset_member_ids(self) -> list[int]:
-        return list(self.preset_member_websockets.keys())
+    def connected_member_ids(self) -> list[int]:
+        return list(self.member_websockets.keys())
 
     def _start_auto_delete_task(self):
         self._cancel_auto_delete_task()
@@ -128,48 +124,35 @@ class Auction:
 
             auction_manager.remove_auction(self.auction_id)
 
-    async def connect(
-        self,
-        websocket: WebSocket,
-        preset_member_id: int | None,
-    ) -> dict:
-        if preset_member_id is not None:
-            is_new = preset_member_id not in self.preset_member_websockets
+    async def connect(self, websocket: WebSocket, member_id: int | None) -> None:
+        if member_id is not None:
+            is_new = member_id not in self.member_websockets
             if is_new:
-                self.preset_member_websockets[preset_member_id] = set()
-            self.preset_member_websockets[preset_member_id].add(websocket)
+                self.member_websockets[member_id] = set()
+            self.member_websockets[member_id].add(websocket)
 
             if is_new:
                 await self.broadcast(
                     WebSocketMessage(
                         type=MessageType.USER_CONNECTED,
-                        data={"user_id": preset_member_id},
+                        data={"member_id": member_id},
                     )
                 )
         else:
             public_id = str(uuid.uuid4())
             self.public_websockets[public_id] = websocket
 
-        return {
-            "success": True,
-            "member_id": preset_member_id,
-        }
-
-    async def disconnect(
-        self,
-        websocket: WebSocket,
-        preset_member_id: int | None,
-    ) -> int | None:
-        if preset_member_id is not None:
-            ws_set = self.preset_member_websockets.get(preset_member_id)
+    async def disconnect(self, websocket: WebSocket, member_id: int | None) -> None:
+        if member_id is not None:
+            ws_set = self.member_websockets.get(member_id)
             if ws_set is not None:
                 ws_set.discard(websocket)
                 if not ws_set:
-                    del self.preset_member_websockets[preset_member_id]
+                    del self.member_websockets[member_id]
                     await self.broadcast(
                         WebSocketMessage(
                             type=MessageType.USER_DISCONNECTED,
-                            data={"user_id": preset_member_id},
+                            data={"member_id": member_id},
                         )
                     )
         else:
@@ -180,15 +163,13 @@ class Auction:
             if key:
                 del self.public_websockets[key]
 
-        return preset_member_id
-
     def are_all_leaders_connected(self) -> bool:
-        return self.leader_member_ids.issubset(self.preset_member_websockets.keys())
+        return self.leader_member_ids.issubset(self.member_websockets.keys())
 
     async def broadcast(self, message: WebSocketMessage):
         all_connections: list[WebSocket] = []
         async with self._broadcast_lock:
-            for ws_set in self.preset_member_websockets.values():
+            for ws_set in self.member_websockets.values():
                 all_connections.extend(ws_set)
             all_connections.extend(self.public_websockets.values())
 
@@ -203,7 +184,7 @@ class Auction:
         if disconnected:
             async with self._broadcast_lock:
                 for ws in disconnected:
-                    for ws_set in self.preset_member_websockets.values():
+                    for ws_set in self.member_websockets.values():
                         ws_set.discard(ws)
                     for k, v in list(self.public_websockets.items()):
                         if v is ws:
@@ -227,7 +208,8 @@ class Auction:
                         and not self.timer_task.done()
                         and not self.timer_task.cancelled()
                     )
-                    self.paused_timer = self.timer if is_timer_running else None
+                    if not is_timer_running:
+                        self.timer = self.preset_snapshot.timer
 
                 self._stop_timer()
                 self._start_auto_delete_task()
@@ -257,7 +239,7 @@ class Auction:
         await self.broadcast(
             WebSocketMessage(
                 type=MessageType.STATUS,
-                data=StatusMessageData(status=str(int(self.status))).model_dump(),
+                data=StatusMessageData(status=int(self.status)).model_dump(),
             )
         )
 
@@ -268,13 +250,6 @@ class Auction:
 
     def _start_timer(self):
         self._stop_timer()
-
-        if self.paused_timer is not None:
-            self.timer = self.paused_timer
-            self.paused_timer = None
-        else:
-            self.timer = self.initial_timer
-
         self.timer_task = asyncio.create_task(self._timer())
 
     async def _next_user(self):
@@ -291,12 +266,14 @@ class Auction:
 
             if len(incomplete_teams) == 1:
                 incomplete_team = incomplete_teams[0]
-                for user_id in self.auction_queue + self.unsold_queue:
+                remaining = self.auction_queue + self.unsold_queue
+                self.auction_queue = []
+                self.unsold_queue = []
+                for user_id in remaining:
                     if len(incomplete_team.member_ids) < self.team_size:
                         incomplete_team.member_ids.append(user_id)
                     else:
                         self.unsold_queue.append(user_id)
-                self.auction_queue = []
                 messages.append(
                     WebSocketMessage(
                         type=MessageType.MEMBER_SOLD,
@@ -323,7 +300,7 @@ class Auction:
                 if self.auction_queue:
                     self.current_member_id = self.auction_queue.pop(0)
                     self.current_bid = None
-                    self.timer = self.initial_timer
+                    self.timer = self.preset_snapshot.timer
                     messages.append(
                         WebSocketMessage(
                             type=MessageType.NEXT_MEMBER,
@@ -378,7 +355,7 @@ class Auction:
         async with self._state_lock:
             if self.current_bid is None:
                 self.unsold_queue.append(self.current_member_id)
-                message = WebSocketMessage(type=MessageType.MEMBER_UNSOLD, data={})
+                message = None
             else:
                 team = self.member_id_to_team[self.current_bid.leader_id]
                 team.points -= self.current_bid.amount
@@ -390,49 +367,35 @@ class Auction:
                     ).model_dump(),
                 )
 
-        await self.broadcast(message)
+        if message is not None:
+            await self.broadcast(message)
         await self._next_user()
 
-    async def place_bid(self, member_id: int, amount: int) -> dict:
+    async def place_bid(self, member_id: int, amount: int) -> None:
         message: WebSocketMessage | None = None
         async with self._state_lock:
-            if member_id not in self.preset_member_websockets:
-                return {"success": False, "code": AuctionErrorCode.BidNotLeader.value}
+            if member_id not in self.member_websockets:
+                raise WebSocketError(AuctionErrorCode.BidNotLeader)
             if member_id not in self.leader_member_ids:
-                return {"success": False, "code": AuctionErrorCode.BidNotLeader.value}
+                raise WebSocketError(AuctionErrorCode.BidNotLeader)
             team = self.member_id_to_team.get(member_id)
             if team is None:
-                return {
-                    "success": False,
-                    "code": AuctionErrorCode.BidTeamNotFound.value,
-                }
+                raise WebSocketError(AuctionErrorCode.BidNotLeader)
             if self.status != AuctionStatus.RUNNING:
-                return {"success": True}
+                return
             if self.current_member_id is None:
-                return {
-                    "success": False,
-                    "code": AuctionErrorCode.BidMemberNotFound.value,
-                }
+                return
             if len(team.member_ids) >= self.team_size:
-                return {"success": False, "code": AuctionErrorCode.BidTeamFull.value}
-            remaining_slots = self.team_size - len(team.member_ids)
-            max_allowed_bid = team.points - (remaining_slots - 1)
+                raise WebSocketError(AuctionErrorCode.BidTeamFull)
+            required_members = self.team_size - len(team.member_ids)
+            max_allowed_bid = team.points - (required_members - 1)
             if amount > max_allowed_bid:
-                return {
-                    "success": False,
-                    "code": AuctionErrorCode.BidTooHighAmount.value,
-                }
+                raise WebSocketError(AuctionErrorCode.BidTooHighAmount)
             if team.points < amount:
-                return {
-                    "success": False,
-                    "code": AuctionErrorCode.BidInsufficientPoints.value,
-                }
+                raise WebSocketError(AuctionErrorCode.BidInsufficientPoints)
             min_bid = (self.current_bid.amount + 1) if self.current_bid else 1
             if amount < min_bid:
-                return {
-                    "success": False,
-                    "code": AuctionErrorCode.BidTooLowAmount.value,
-                }
+                raise WebSocketError(AuctionErrorCode.BidTooLowAmount)
             self.current_bid = Bid(amount=amount, leader_id=member_id)
             message = WebSocketMessage(
                 type=MessageType.BID_PLACED,
@@ -444,21 +407,21 @@ class Auction:
             )
 
         await self.broadcast(message)
+        self.timer = self.preset_snapshot.timer
         self._start_timer()
-        return {"success": True}
 
     async def terminate_auction(self):
         self._stop_timer()
 
         all_ws: list[WebSocket] = []
-        for ws_set in self.preset_member_websockets.values():
+        for ws_set in self.member_websockets.values():
             all_ws.extend(ws_set)
         all_ws.extend(self.public_websockets.values())
         for ws in all_ws:
             with contextlib.suppress(Exception):
                 await ws.close()
 
-        self.preset_member_websockets.clear()
+        self.member_websockets.clear()
         self.public_websockets.clear()
 
     async def _delayed_terminate(self):

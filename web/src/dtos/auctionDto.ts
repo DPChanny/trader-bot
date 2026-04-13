@@ -19,7 +19,6 @@ export type MessageType =
   | "place_bid"
   | "bid_placed"
   | "member_sold"
-  | "member_unsold"
   | "next_member"
   | "queue_update"
   | "init"
@@ -41,7 +40,7 @@ export interface Team {
 }
 
 export interface StatusMessageData {
-  status: string;
+  status: number;
 }
 
 export interface AuctionInitDTO {

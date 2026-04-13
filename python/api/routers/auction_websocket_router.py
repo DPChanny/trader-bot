@@ -1,3 +1,4 @@
+import contextlib
 import json
 
 from fastapi import (
@@ -12,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.auction.auction import AuctionStatus
 from shared.dtos.auction_dto import AuctionDetailDTO, MessageType
 from shared.utils.database import get_session
+from shared.utils.error import WebSocketError
 
 from ..services.auction_websocket_service import (
     handle_websocket_connect,
@@ -29,14 +31,13 @@ async def auction_websocket(
     auction_id: int,
     session: AsyncSession = Depends(get_session),
 ):
-    auction, member_id, is_leader, team_id = await handle_websocket_connect(
-        websocket, auction_id, session
-    )
-
-    if not auction:
-        return
-
+    member_id: int | None = None
+    auction = None
     try:
+        auction, member_id, is_leader, team_id = await handle_websocket_connect(
+            websocket, auction_id, session
+        )
+
         state = AuctionDetailDTO.model_validate(auction).model_dump()
         init = {
             **state,
@@ -54,6 +55,7 @@ async def auction_websocket(
         if is_leader and auction.are_all_leaders_connected():
             logger.bind(
                 action="starting",
+                auction_id=auction_id,
                 leader_count=len(auction.leader_member_ids),
             ).info("")
             if auction.status == AuctionStatus.WAITING:
@@ -62,10 +64,11 @@ async def auction_websocket(
             connected_count = sum(
                 1
                 for lid in auction.leader_member_ids
-                if lid in auction.preset_member_websockets
+                if lid in auction.member_websockets
             )
             logger.bind(
                 action="leader_joined",
+                auction_id=auction_id,
                 connected=connected_count,
                 total=len(auction.leader_member_ids),
             ).info("")
@@ -79,11 +82,18 @@ async def auction_websocket(
             )
 
     except WebSocketDisconnect:
-        await handle_websocket_disconnect(auction, member_id, websocket)
+        if auction is not None:
+            await handle_websocket_disconnect(auction, member_id, websocket)
+
+    except WebSocketError as e:
+        with contextlib.suppress(Exception):
+            await websocket.close(code=4000, reason=str(e.code))
 
     except Exception:
         logger.bind(
             action="error", auction_id=auction_id, member_id=member_id
         ).exception("")
-        await handle_websocket_disconnect(auction, member_id, websocket)
-        await websocket.close()
+        if auction is not None:
+            await handle_websocket_disconnect(auction, member_id, websocket)
+        with contextlib.suppress(Exception):
+            await websocket.close()
