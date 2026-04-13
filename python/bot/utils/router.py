@@ -24,7 +24,7 @@ def router[**P, T](
             raise RuntimeError("No Session")
         except AppError as error:
             function = error.function or func.__name__
-            if error.status < 500:
+            if error.status_code < 500:
                 logger.bind(function=function, error_code=error.code).warning("")
             else:
                 logger.opt(exception=error.__cause__).bind(
@@ -32,10 +32,10 @@ def router[**P, T](
                 ).error("")
             return None
         except Exception as e:
-            if not isinstance(e, AppError):
-                app_error = AppError(Server.InternalError)
-                app_error.function = func.__name__
-                raise app_error from e
-            raise
+            logger.opt(exception=e).bind(
+                function=func.__name__,
+                error_code=Server.InternalError.value,
+            ).error("")
+            return None
 
     return wrapper

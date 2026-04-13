@@ -41,7 +41,7 @@ app = FastAPI(title="Trader API", version="1.0.0", lifespan=lifespan)
 @app.exception_handler(AppError)
 async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
     function = exc.function or app_error_handler.__name__
-    if exc.status < 500:
+    if exc.status_code < 500:
         logger.bind(function=function, error_code=exc.code).warning("")
     else:
         logger.opt(exception=exc.__cause__).bind(
@@ -49,35 +49,27 @@ async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
         ).error("")
 
     return JSONResponse(
-        status_code=exc.status,
+        status_code=exc.status_code,
         content={"code": exc.code},
     )
 
 
 @app.exception_handler(RequestValidationError)
 async def validation_error_handler(
-    _: Request, exc: RequestValidationError
+    request: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    logger.opt(exception=exc).bind(
-        function=validation_error_handler.__name__,
-        error_code=Validation.Error.value,
-    ).warning("")
-    return JSONResponse(
-        status_code=422,
-        content={"code": Validation.Error.value},
-    )
+    app_error = AppError(Validation.Error)
+    app_error.function = validation_error_handler.__name__
+    app_error.__cause__ = exc
+    return await app_error_handler(request, app_error)
 
 
 @app.exception_handler(Exception)
-async def global_exception_handler(_: Request, exc: Exception) -> JSONResponse:
-    logger.opt(exception=exc).bind(
-        function=global_exception_handler.__name__,
-        error_code=Server.InternalError.value,
-    ).error("")
-    return JSONResponse(
-        status_code=500,
-        content={"code": Server.InternalError.value},
-    )
+async def exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    app_error = AppError(Server.InternalError)
+    app_error.function = exception_handler.__name__
+    app_error.__cause__ = exc
+    return await app_error_handler(request, app_error)
 
 
 app.add_middleware(LoguruMiddleware)
