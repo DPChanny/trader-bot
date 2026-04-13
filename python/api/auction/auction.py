@@ -139,7 +139,7 @@ class Auction:
                     and self.status == AuctionStatus.WAITING
                     and self._can_progress()
                 ):
-                    await self.set_status(AuctionStatus.RUNNING)
+                    await self._set_status(AuctionStatus.RUNNING)
         else:
             self.public_websockets.add(websocket)
 
@@ -155,7 +155,7 @@ class Auction:
             and self.status == AuctionStatus.RUNNING
             and not self._can_progress()
         ):
-            await self.set_status(AuctionStatus.WAITING)
+            await self._set_status(AuctionStatus.WAITING)
 
     async def disconnect(self, websocket: WebSocket, member_id: int | None) -> None:
         disconnected_member_ids: list[int] = []
@@ -204,7 +204,7 @@ class Auction:
 
         await self._handle_disconnected_members(disconnected_member_ids)
 
-    async def set_status(self, new_status: AuctionStatus):
+    async def _set_status(self, new_status: AuctionStatus):
         next_member = False
 
         async with self._state_lock:
@@ -326,7 +326,7 @@ class Auction:
             await self.broadcast(*message)
 
         if completed:
-            await self.set_status(AuctionStatus.COMPLETED)
+            await self._set_status(AuctionStatus.COMPLETED)
             return
 
         if start_timer:
