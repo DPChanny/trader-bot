@@ -2,21 +2,21 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Run Frontend",
+      "label": "Run Web Dev",
       "type": "shell",
       "command": "npm run dev",
       "options": { "cwd": "${workspaceFolder}/web" },
       "presentation": { "panel": "dedicated" }
     },
     {
-      "label": "Run Backend",
+      "label": "Run API Dev",
       "type": "shell",
       "command": "uv run python -m uvicorn api.main:app --reload --host localhost --port 8000",
       "options": { "cwd": "${workspaceFolder}/python" },
       "presentation": { "panel": "dedicated" }
     },
     {
-      "label": "Run Bot",
+      "label": "Run Bot Dev",
       "type": "shell",
       "command": "uv run python -m bot.main",
       "options": { "cwd": "${workspaceFolder}/python" },
@@ -31,8 +31,8 @@
       "presentation": { "reveal": "silent", "panel": "shared" }
     },
     {
-      "label": "Run All",
-      "dependsOn": ["Run Frontend", "Run Backend", "Run Bot"],
+      "label": "Run All Dev",
+      "dependsOn": ["Run Web Dev", "Run Api Dev", "Run Bot Dev"],
       "dependsOrder": "parallel",
       "group": { "kind": "build", "isDefault": true }
     }

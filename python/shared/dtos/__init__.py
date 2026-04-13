@@ -5,6 +5,7 @@ from pydantic import (
     AfterValidator,
     BaseModel,
     BeforeValidator,
+    PlainSerializer,
     StringConstraints,
 )
 
@@ -54,7 +55,7 @@ NullableUrlStr = Annotated[
     StringConstraints(min_length=1, max_length=2048),
     AfterValidator(_validate_nullable_url),
 ]
-DiscordId = Annotated[str, BeforeValidator(str)]
+DiscordId = Annotated[int, BeforeValidator(int), PlainSerializer(str)]
 
 
 class BaseDTO(BaseModel):

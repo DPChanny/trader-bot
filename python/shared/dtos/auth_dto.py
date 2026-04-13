@@ -9,6 +9,6 @@ class RefreshTokenDTO(BaseDTO):
     refresh_token: str
 
 
-class JwtTokenDTO(BaseDTO):
+class JWTTokenDTO(BaseDTO):
     access_token: str
     refresh_token: str

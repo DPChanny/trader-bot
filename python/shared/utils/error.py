@@ -28,8 +28,8 @@ class AuctionErrorCode(IntEnum):
 
 class AuthErrorCode(IntEnum):
     Unauthorized = 4101
-    InvalidJwtToken = 4102
-    ExpiredJwtToken = 4103
+    InvalidJWTToken = 4102
+    ExpiredJWTToken = 4103
     ExchangeFailed = 4104
 
 

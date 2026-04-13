@@ -17,7 +17,7 @@ _REFRESH_TOKEN_EXPIRATION_DAYS = 15
 _EXCHANGE_TOKEN_EXPIRATION_SECONDS = 60
 
 
-class JwtToken:
+class JWTToken:
     @dataclass
     class Payload:
         user_id: int
@@ -28,7 +28,7 @@ class JwtToken:
     _exp_delta: ClassVar[timedelta]
 
     @classmethod
-    def create(cls, user_id: int) -> tuple[str, "JwtToken.Payload"]:
+    def create(cls, user_id: int) -> tuple[str, "JWTToken.Payload"]:
         expiration = datetime.now(UTC) + cls._exp_delta
         payload = cls.Payload(
             user_id=user_id,
@@ -41,7 +41,7 @@ class JwtToken:
         return token, payload
 
     @classmethod
-    def decode(cls, token: str) -> "JwtToken.Payload":
+    def decode(cls, token: str) -> "JWTToken.Payload":
         try:
             data = jwt.decode(
                 token,
@@ -49,20 +49,20 @@ class JwtToken:
                 algorithms=[get_jwt_algorithm()],
             )
             if data.get("type") != cls._type:
-                raise AppError(AuthErrorCode.InvalidJwtToken)
+                raise AppError(AuthErrorCode.InvalidJWTToken)
             return cls.Payload(**data)
         except jwt.ExpiredSignatureError:
-            raise AppError(AuthErrorCode.ExpiredJwtToken) from None
+            raise AppError(AuthErrorCode.ExpiredJWTToken) from None
         except jwt.InvalidTokenError:
-            raise AppError(AuthErrorCode.InvalidJwtToken) from None
+            raise AppError(AuthErrorCode.InvalidJWTToken) from None
 
 
-class AccessToken(JwtToken):
+class AccessToken(JWTToken):
     _type = "access"
     _exp_delta = timedelta(minutes=_ACCESS_TOKEN_EXPIRATION_MINUTES)
 
 
-class RefreshToken(JwtToken):
+class RefreshToken(JWTToken):
     _type = "refresh"
     _exp_delta = timedelta(days=_REFRESH_TOKEN_EXPIRATION_DAYS)
 
