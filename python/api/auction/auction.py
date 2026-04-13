@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import asyncio
-import contextlib
 import random
 from dataclasses import dataclass
 from enum import IntEnum
+from time import time
 
 from fastapi import WebSocket
 
@@ -20,6 +20,9 @@ from shared.dtos.auction_dto import (
 )
 from shared.dtos.preset_dto import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, WebSocketError
+
+
+_AUCTION_EXPIRATION_SECONDS = 10 * 60
 
 
 class AuctionStatus(IntEnum):
@@ -93,33 +96,14 @@ class Auction:
         self._public_websockets: set[WebSocket] = set()
 
         self._timer_task: asyncio.Task | None = None
-        self._auto_delete_task: asyncio.Task | None = None
         self._was_in_progress: bool = False
         self._state_lock = asyncio.Lock()
         self._broadcast_lock = asyncio.Lock()
-
-        self._start_auto_delete_task()
+        self.exp: float = time() + _AUCTION_EXPIRATION_SECONDS
 
     @property
     def connected_member_ids(self) -> list[int]:
         return list(self._member_id_to_ws_set.keys())
-
-    def _start_auto_delete_task(self):
-        self._cancel_auto_delete_task()
-        self._auto_delete_task = asyncio.create_task(self._auto_delete())
-
-    def _cancel_auto_delete_task(self):
-        if self._auto_delete_task and not self._auto_delete_task.done():
-            self._auto_delete_task.cancel()
-        self._auto_delete_task = None
-
-    async def _auto_delete(self):
-        await asyncio.sleep(300)
-        if self.status == AuctionStatus.WAITING:
-            await self._terminate()
-            from .auction_manager import auction_manager
-
-            auction_manager.remove_auction(self.auction_id)
 
     async def connect(self, websocket: WebSocket, member_id: int | None) -> None:
         if member_id is None:
@@ -142,7 +126,7 @@ class Auction:
                 and self.status == AuctionStatus.WAITING
                 and self._can_progress()
             ):
-                await self._set_status(AuctionStatus.RUNNING)
+                await self.set_status(AuctionStatus.RUNNING)
 
     async def disconnect(self, websocket: WebSocket, member_id: int | None) -> None:
         if member_id is None:
@@ -173,7 +157,7 @@ class Auction:
         )
 
         if self.status == AuctionStatus.RUNNING and not self._can_progress():
-            await self._set_status(AuctionStatus.WAITING)
+            await self.set_status(AuctionStatus.WAITING)
 
     def _can_progress(self) -> bool:
         return self._leader_member_ids.issubset(self._member_id_to_ws_set.keys())
@@ -196,7 +180,7 @@ class Auction:
         for websocket in disconnected_websockets:
             await self.disconnect(websocket, None)
 
-    async def _set_status(self, new_status: AuctionStatus):
+    async def set_status(self, new_status: AuctionStatus):
         next_member = False
 
         async with self._state_lock:
@@ -217,11 +201,9 @@ class Auction:
                         self.timer = self.preset_snapshot.timer
 
                 self._stop_timer()
-                self._start_auto_delete_task()
+                self.exp = time() + _AUCTION_EXPIRATION_SECONDS
 
             elif new_status == AuctionStatus.RUNNING:
-                self._cancel_auto_delete_task()
-
                 if self.status == AuctionStatus.WAITING:
                     if self._was_in_progress:
                         self._was_in_progress = False
@@ -233,7 +215,6 @@ class Auction:
                 self.current_member_id = None
                 self.current_bid = None
                 self._stop_timer()
-                self._cancel_auto_delete_task()
 
             self.status = new_status
 
@@ -243,12 +224,6 @@ class Auction:
                 return
 
         await self._broadcast(MessageType.STATUS, StatusDTO(status=int(self.status)))
-
-        if new_status == AuctionStatus.COMPLETED:
-            await self._terminate()
-            from .auction_manager import auction_manager
-
-            auction_manager.remove_auction(self.auction_id)
 
     def _stop_timer(self):
         if self._timer_task and not self._timer_task.done():
@@ -318,7 +293,7 @@ class Auction:
             await self._broadcast(*message)
 
         if completed:
-            await self._set_status(AuctionStatus.COMPLETED)
+            await self.set_status(AuctionStatus.COMPLETED)
             return
 
         if start_timer:
@@ -359,6 +334,10 @@ class Auction:
     async def place_bid(self, member_id: int, amount: int) -> None:
         message: tuple[MessageType, BaseDTO] | None = None
         async with self._state_lock:
+            if self.status != AuctionStatus.RUNNING:
+                return
+            if self.current_member_id is None:
+                return
             if member_id not in self._member_id_to_ws_set:
                 raise WebSocketError(AuctionErrorCode.BidNotLeader)
             if member_id not in self._leader_member_ids:
@@ -366,10 +345,6 @@ class Auction:
             team = self._member_id_to_team.get(member_id)
             if team is None:
                 raise WebSocketError(AuctionErrorCode.BidNotLeader)
-            if self.status != AuctionStatus.RUNNING:
-                return
-            if self.current_member_id is None:
-                return
             if len(team.member_ids) >= self.team_size:
                 raise WebSocketError(AuctionErrorCode.BidTeamFull)
             required_members = self.team_size - len(team.member_ids)
@@ -394,17 +369,3 @@ class Auction:
         await self._broadcast(*message)
         self.timer = self.preset_snapshot.timer
         self._start_timer()
-
-    async def _terminate(self):
-        self._stop_timer()
-
-        websockets = []
-        for member_websockets in self._member_id_to_ws_set.values():
-            websockets.extend(member_websockets)
-        websockets.extend(self._public_websockets)
-        for websocket in websockets:
-            with contextlib.suppress(Exception):
-                await websocket.close()
-
-        self._member_id_to_ws_set.clear()
-        self._public_websockets.clear()
