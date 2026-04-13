@@ -101,7 +101,7 @@ async def add_preset_member_service(
     if preset_member is None:
         raise AppError(PresetMemberErrorCode.NotFound)
     result = PresetMemberDetailDTO.model_validate(preset_member)
-    event.bind(**PresetMemberDTO.model_validate(result).model_dump())
+    event |= PresetMemberDTO.model_validate(result).model_dump()
     return result
 
 
@@ -136,7 +136,7 @@ async def update_preset_member_service(
         preset_member_id, preset_id, guild_id
     )
     result = PresetMemberDetailDTO.model_validate(preset_member)
-    event.bind(**PresetMemberDTO.model_validate(result).model_dump())
+    event |= PresetMemberDTO.model_validate(result).model_dump()
     return result
 
 
@@ -159,4 +159,4 @@ async def delete_preset_member_service(
         raise AppError(PresetMemberErrorCode.NotFound)
 
     await session.delete(preset_member)
-    event.bind(preset_member_id=preset_member_id)
+    event |= PresetMemberDTO.model_validate(preset_member).model_dump()

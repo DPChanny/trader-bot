@@ -69,7 +69,7 @@ async def add_tier_service(
     session.add(tier)
     await session.flush()
     result = TierDTO.model_validate(tier)
-    event.bind(**result.model_dump())
+    event |= result.model_dump()
     return result
 
 
@@ -94,7 +94,7 @@ async def update_tier_service(
         setattr(tier, key, value)
 
     result = TierDTO.model_validate(tier)
-    event.bind(**result.model_dump())
+    event |= result.model_dump()
     return result
 
 
@@ -115,4 +115,4 @@ async def delete_tier_service(
         raise AppError(TierErrorCode.NotFound)
 
     await session.delete(tier)
-    event.bind(tier_id=tier_id)
+    event |= TierDTO.model_validate(tier).model_dump()

@@ -31,7 +31,7 @@ async def callback_service(
     avatar_hash = user_data.get("avatar")
 
     user = await upsert_user(discord_id, name, avatar_hash, session)
-    event.bind(**user.model_dump())
+    event |= user.model_dump()
 
     access_token, _ = AccessToken.create(user.discord_id)
     refresh_token, _ = RefreshToken.create(user.discord_id)
@@ -65,5 +65,5 @@ async def refresh_token_service(dto: RefreshTokenDTO, event) -> JwtTokenDTO:
     rt_payload = RefreshToken.decode(dto.refresh_token)
     access_token, _ = AccessToken.create(rt_payload.user_id)
     new_refresh_token, _ = RefreshToken.create(rt_payload.user_id)
-    event.bind(discord_id=rt_payload.user_id)
+    event |= {"discord_id": rt_payload.user_id}
     return JwtTokenDTO(access_token=access_token, refresh_token=new_refresh_token)

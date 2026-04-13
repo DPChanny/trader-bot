@@ -52,8 +52,11 @@ async def delete_member(
     guild_id: int,
     user_id: int,
     session: AsyncSession,
-) -> None:
+) -> MemberDTO:
     repo = MemberRepository(session)
     entity = await repo.get_by_user_id(user_id, guild_id)
-    if entity is not None:
-        await session.delete(entity)
+    if entity is None:
+        raise AppError(MemberErrorCode.NotFound)
+    dto = MemberDTO.model_validate(entity)
+    await session.delete(entity)
+    return dto

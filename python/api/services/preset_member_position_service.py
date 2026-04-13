@@ -58,7 +58,7 @@ async def add_preset_member_position_service(
         raise AppError(ValidationErrorCode.Duplicated) from None
 
     result = PresetMemberPositionDTO.model_validate(preset_member_position)
-    event.bind(**result.model_dump())
+    event |= result.model_dump()
     return result
 
 
@@ -82,4 +82,4 @@ async def delete_preset_member_position_service(
         raise AppError(PresetMemberPositionErrorCode.NotFound)
 
     await session.delete(preset_member_position)
-    event.bind(preset_member_position_id=preset_member_position_id)
+    event |= PresetMemberPositionDTO.model_validate(preset_member_position).model_dump()

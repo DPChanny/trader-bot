@@ -75,7 +75,7 @@ async def create_auction_service(
     auction_id: str = auction.auction_id
 
     result = AuctionDTO(auction_id=auction_id)
-    event.bind(**result.model_dump(), member_count=len(member_ids))
+    event |= result.model_dump() | {"member_count": len(member_ids)}
 
     app_origin = get_app_origin()
 

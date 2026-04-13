@@ -24,28 +24,21 @@ async def on_guild_join_service(guild: Guild, session: AsyncSession, event) -> N
         if member.bot:
             continue
 
-        user = await upsert_user(
+        await upsert_user(
             member.id,
             member.global_name or member.name,
             member.avatar.key if member.avatar else None,
             session,
         )
-        member_dto = await upsert_member(
+        await upsert_member(
             guild_id,
             member.id,
             session,
             name=member.nick,
             avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
         )
-        event.bind(**user.model_dump())
-        if member.id != owner_discord_id:
-            event.bind(**member_dto.model_dump())
 
     await session.flush()
-
-    event.bind(
-        **guild_entity.model_dump(),
-    )
 
     owner_member = await update_member_role(
         guild_id,
@@ -53,7 +46,7 @@ async def on_guild_join_service(guild: Guild, session: AsyncSession, event) -> N
         Role.OWNER,
         session,
     )
-    event.bind(**owner_member.model_dump())
+    event |= guild_entity.model_dump() | owner_member.model_dump()
 
 
 @service
@@ -70,28 +63,25 @@ async def on_guild_update_service(
         after.icon.key if after.icon else None,
         session,
     )
-    event.bind(
-        **guild_entity.model_dump(),
-        old_owner_discord_id=before.owner_id,
-        new_owner_discord_id=after.owner_id,
-    )
-    old_owner_member = await update_member_role(
+    await update_member_role(
         guild_id,
         before.owner_id,
         Role.ADMIN,
         session,
     )
-    new_owner_member = await update_member_role(
+    await update_member_role(
         guild_id,
         after.owner_id,
         Role.OWNER,
         session,
     )
-    event.bind(**old_owner_member.model_dump())
-    event.bind(**new_owner_member.model_dump())
+    event |= guild_entity.model_dump() | {
+        "old_owner_discord_id": before.owner_id,
+        "new_owner_discord_id": after.owner_id,
+    }
 
 
 @service
 async def on_guild_remove_service(guild: Guild, session: AsyncSession, event) -> None:
-    await delete_guild(guild.id, session)
-    event.bind(discord_id=guild.id)
+    guild_dto = await delete_guild(guild.id, session)
+    event |= guild_dto.model_dump()

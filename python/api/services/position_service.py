@@ -73,7 +73,7 @@ async def add_position_service(
     session.add(position)
     await session.flush()
     result = PositionDTO.model_validate(position)
-    logger.bind(**result.model_dump())
+    event |= result.model_dump()
     return result
 
 
@@ -98,7 +98,7 @@ async def update_position_service(
         setattr(position, key, value)
 
     result = PositionDTO.model_validate(position)
-    logger.bind(**result.model_dump())
+    event |= result.model_dump()
     return result
 
 
@@ -119,4 +119,4 @@ async def delete_position_service(
         raise AppError(PositionErrorCode.NotFound)
 
     await session.delete(position)
-    logger.bind(position_id=position_id)
+    event |= PositionDTO.model_validate(position).model_dump()

@@ -17,4 +17,4 @@ async def on_user_update_service(
         user.avatar.key if user.avatar else None,
         session,
     )
-    event.bind(**user_dto.model_dump())
+    event |= user_dto.model_dump()

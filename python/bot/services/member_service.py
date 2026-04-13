@@ -13,7 +13,7 @@ async def on_member_join_service(
     session: AsyncSession,
     event,
 ) -> None:
-    user = await upsert_user(
+    await upsert_user(
         member.id,
         member.global_name or member.name,
         member.avatar.key if member.avatar else None,
@@ -26,8 +26,7 @@ async def on_member_join_service(
         name=member.nick,
         avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
     )
-    event.bind(**user.model_dump())
-    event.bind(**member_dto.model_dump())
+    event |= member_dto.model_dump()
 
 
 @service
@@ -36,6 +35,12 @@ async def on_member_update_service(
     session: AsyncSession,
     event,
 ) -> None:
+    await upsert_user(
+        member.id,
+        member.global_name or member.name,
+        member.avatar.key if member.avatar else None,
+        session,
+    )
     member_dto = await upsert_member(
         member.guild.id,
         member.id,
@@ -43,7 +48,7 @@ async def on_member_update_service(
         name=member.nick,
         avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
     )
-    event.bind(**member_dto.model_dump())
+    event |= member_dto.model_dump()
 
 
 @service
@@ -52,8 +57,5 @@ async def on_member_remove_service(
     session: AsyncSession,
     event,
 ) -> None:
-    await delete_member(member.guild.id, member.id, session)
-    event.bind(
-        guild_id=member.guild.id,
-        user_id=member.id,
-    )
+    member_dto = await delete_member(member.guild.id, member.id, session)
+    event |= member_dto.model_dump()

@@ -48,7 +48,7 @@ async def create_preset_service(
     session.add(preset)
     await session.flush()
     result = PresetDTO.model_validate(preset)
-    event.bind(**result.model_dump())
+    event |= result.model_dump()
     return result
 
 
@@ -83,7 +83,7 @@ async def update_preset_service(
         setattr(preset, key, value)
 
     result = PresetDTO.model_validate(preset)
-    event.bind(**result.model_dump())
+    event |= result.model_dump()
     return result
 
 
@@ -103,4 +103,4 @@ async def delete_preset_service(
         raise AppError(PresetErrorCode.NotFound)
 
     await session.delete(preset)
-    event.bind(preset_id=preset_id)
+    event |= PresetDTO.model_validate(preset).model_dump()
