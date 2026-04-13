@@ -101,6 +101,8 @@ def setup_logging() -> None:
         log.handlers = []
         log.propagate = True
 
+    logging.getLogger("uvicorn.access").propagate = False
+
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
