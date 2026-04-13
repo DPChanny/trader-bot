@@ -4,7 +4,7 @@ from fastapi import WebSocket
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auction_dto import ErrorDTO, MessageType
+from shared.dtos.auction_dto import MessageType
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.utils.error import (
     AuctionErrorCode,
@@ -17,160 +17,125 @@ from ..auction import Auction, AuctionManager
 from ..utils.token import AccessToken
 
 
-async def _send_error(websocket: WebSocket, code: int) -> None:
-    await websocket.send_json(
-        {"type": MessageType.ERROR, "dto": ErrorDTO(code=code).model_dump()}
-    )
-
-
 async def _resolve_member(
     token: str | None,
     preset_id: int,
     guild_id: int,
     preset_member_repo: PresetMemberRepository,
-) -> tuple[int | None, bool]:
+) -> int | None:
     if not token:
-        return None, False
+        return None
 
     try:
         user_id = AccessToken.decode(token).user_id
     except Exception:
-        return None, False
+        return None
 
     pm = await preset_member_repo.get_by_user_id(user_id, preset_id, guild_id)
     if pm is None:
-        return None, False
+        return None
 
-    return pm.member_id, pm.is_leader
+    return pm.member_id
 
 
 async def handle_websocket_connect(
     websocket: WebSocket,
     auction_id: int,
     session: AsyncSession,
-) -> tuple[Auction, int | None, bool, int | None]:
+) -> tuple[Auction, int | None, int | None]:
     auction = AuctionManager.get_auction(auction_id)
 
     if not auction:
-        logger.bind(
-            action="connect_failed",
-            auction_id=auction_id,
-            error_code=AuctionErrorCode.NotFound.value,
-        ).warning("")
-        raise WebSocketError(AuctionErrorCode.NotFound)
+        e = WebSocketError(AuctionErrorCode.NotFound)
+        e.function = handle_websocket_connect.__name__
+        logger.bind(function=e.function, code=e.code, auction_id=auction_id).warning("")
+        raise e
 
     await websocket.accept()
 
     try:
         auth_message = json.loads(await websocket.receive_text())
     except Exception:
-        logger.bind(
-            action="auth_failed",
-            auction_id=auction_id,
-            error_code=AuthErrorCode.Unauthorized.value,
-        ).warning("")
-        raise WebSocketError(AuthErrorCode.Unauthorized) from None
+        e = WebSocketError(AuthErrorCode.Unauthorized)
+        e.function = handle_websocket_connect.__name__
+        logger.bind(function=e.function, code=e.code, auction_id=auction_id).warning("")
+        raise e from None
 
     if auth_message.get("type") != MessageType.AUTH.value:
-        logger.bind(
-            action="auth_failed",
-            auction_id=auction_id,
-            error_code=AuthErrorCode.Unauthorized.value,
-        ).warning("")
-        raise WebSocketError(AuthErrorCode.Unauthorized)
+        e = WebSocketError(AuthErrorCode.Unauthorized)
+        e.function = handle_websocket_connect.__name__
+        logger.bind(function=e.function, code=e.code, auction_id=auction_id).warning("")
+        raise e
 
     auth_data = auth_message.get("data")
     if not isinstance(auth_data, dict):
-        logger.bind(
-            action="auth_failed",
-            auction_id=auction_id,
-            error_code=AuthErrorCode.Unauthorized.value,
-        ).warning("")
-        raise WebSocketError(AuthErrorCode.Unauthorized)
+        e = WebSocketError(AuthErrorCode.Unauthorized)
+        e.function = handle_websocket_connect.__name__
+        logger.bind(function=e.function, code=e.code, auction_id=auction_id).warning("")
+        raise e
 
     token = auth_data.get("token")
     if token is not None and not isinstance(token, str):
-        logger.bind(
-            action="auth_failed",
-            auction_id=auction_id,
-            error_code=AuthErrorCode.Unauthorized.value,
-        ).warning("")
-        raise WebSocketError(AuthErrorCode.Unauthorized)
+        e = WebSocketError(AuthErrorCode.Unauthorized)
+        e.function = handle_websocket_connect.__name__
+        logger.bind(function=e.function, code=e.code, auction_id=auction_id).warning("")
+        raise e
 
     preset_id: int = auction.preset_id
     guild_id: int = auction.guild_id
     preset_member_repo = PresetMemberRepository(session)
-    member_id, is_leader = await _resolve_member(
-        token, preset_id, guild_id, preset_member_repo
-    )
+    member_id = await _resolve_member(token, preset_id, guild_id, preset_member_repo)
 
     team_id: int | None = None
-    if member_id is not None and is_leader:
+    if member_id is not None:
         for team in auction.teams:
             if team.leader_id == member_id:
                 team_id = team.team_id
                 break
 
     if member_id is None and not auction.is_public:
-        logger.bind(
-            action="connect_failed",
-            auction_id=auction_id,
-            error_code=AuctionErrorCode.Forbidden.value,
-        ).warning("")
-        raise WebSocketError(AuctionErrorCode.Forbidden)
+        e = WebSocketError(AuctionErrorCode.Forbidden)
+        e.function = handle_websocket_connect.__name__
+        logger.bind(function=e.function, code=e.code, auction_id=auction_id).warning("")
+        raise e
 
-    logger.bind(
-        action="connected",
-        member_id=member_id,
-        auction_id=auction_id,
-    ).info("")
+    event = {"auction_id": auction_id, "member_id": member_id}
+    logger.bind(function=handle_websocket_connect.__name__, **event).info("")
 
     await auction.connect(websocket, member_id)
 
-    return auction, member_id, is_leader, team_id
+    return auction, member_id, team_id
 
 
 async def handle_websocket_message(
-    websocket: WebSocket,
     auction: Auction,
     member_id: int | None,
     message: dict,
-    is_leader: bool,
 ) -> None:
     message_type = message.get("type")
 
     if message_type == MessageType.PLACE_BID.value:
-        if not is_leader or member_id is None:
-            logger.bind(
-                action="bid_rejected",
-                member_id=member_id,
-                error_code=AuctionErrorCode.BidNotLeader.value,
-            ).warning("")
-            await _send_error(websocket, AuctionErrorCode.BidNotLeader.value)
-            return
+        if member_id is None:
+            e = WebSocketError(AuctionErrorCode.BidNotLeader)
+            e.function = handle_websocket_message.__name__
+            raise e
 
         bid_data = message.get("data", {})
         amount = bid_data.get("amount")
 
         if amount is None:
-            logger.bind(
-                action="bid_rejected",
-                member_id=member_id,
-                error_code=ValidationErrorCode.Invalid.value,
-            ).warning("")
-            await _send_error(websocket, ValidationErrorCode.Invalid.value)
-            return
+            e = WebSocketError(ValidationErrorCode.Invalid)
+            e.function = handle_websocket_message.__name__
+            raise e
 
-        logger.bind(action="bid_placing", member_id=member_id, amount=amount).info("")
         try:
             await auction.place_bid(member_id, amount)
         except WebSocketError as e:
-            logger.bind(
-                action="bid_failed",
-                member_id=member_id,
-                error_code=e.code,
-            ).warning("")
-            await _send_error(websocket, e.code)
+            e.function = handle_websocket_message.__name__
+            raise
+
+        event = {"member_id": member_id, "amount": amount}
+        logger.bind(function=handle_websocket_message.__name__, **event).info("")
 
 
 async def handle_websocket_disconnect(
@@ -179,4 +144,6 @@ async def handle_websocket_disconnect(
     websocket: WebSocket,
 ) -> None:
     await auction.disconnect(websocket, member_id)
-    logger.bind(action="disconnected", member_id=member_id).info("")
+    logger.bind(
+        function=handle_websocket_disconnect.__name__, member_id=member_id
+    ).info("")

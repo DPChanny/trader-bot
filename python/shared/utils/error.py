@@ -97,4 +97,5 @@ class HTTPError(Exception):
 class WebSocketError(Exception):
     def __init__(self, code: IntEnum) -> None:
         self.code: int = code.value
+        self.function: str | None = None
         super().__init__(str(code.value))

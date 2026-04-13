@@ -52,7 +52,6 @@ class AuctionDetailDTO(AuctionDTO):
 class AuctionInitDTO(AuctionDetailDTO):
     team_id: int | None
     member_id: int | None
-    is_leader: bool
 
 
 class CreateAuctionDTO(BaseDTO):

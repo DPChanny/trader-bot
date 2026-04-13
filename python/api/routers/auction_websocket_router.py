@@ -10,7 +10,12 @@ from fastapi import (
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auction_dto import AuctionDetailDTO, AuctionInitDTO, MessageType
+from shared.dtos.auction_dto import (
+    AuctionDetailDTO,
+    AuctionInitDTO,
+    ErrorDTO,
+    MessageType,
+)
 from shared.utils.database import get_session
 from shared.utils.error import WebSocketError
 
@@ -25,6 +30,12 @@ from ..services.auction_websocket_service import (
 auction_websocket_router = APIRouter(prefix="/auction", tags=["auction_websocket"])
 
 
+async def _send_error(websocket: WebSocket, code: int) -> None:
+    await websocket.send_json(
+        {"type": MessageType.ERROR, "dto": ErrorDTO(code=code).model_dump()}
+    )
+
+
 @auction_websocket_router.websocket("/{auction_id}")
 async def auction_websocket(
     websocket: WebSocket,
@@ -34,7 +45,7 @@ async def auction_websocket(
     member_id: int | None = None
     auction = None
     try:
-        auction, member_id, is_leader, team_id = await handle_websocket_connect(
+        auction, member_id, team_id = await handle_websocket_connect(
             websocket, auction_id, session
         )
 
@@ -43,7 +54,6 @@ async def auction_websocket(
             **detail.model_dump(),
             team_id=team_id,
             member_id=member_id,
-            is_leader=is_leader,
         )
         await websocket.send_json({"type": MessageType.INIT, "dto": init.model_dump()})
 
@@ -51,9 +61,13 @@ async def auction_websocket(
             data = await websocket.receive_text()
             message = json.loads(data)
 
-            await handle_websocket_message(
-                websocket, auction, member_id, message, is_leader
-            )
+            try:
+                await handle_websocket_message(auction, member_id, message)
+            except WebSocketError as e:
+                logger.bind(
+                    function=e.function, code=e.code, member_id=member_id
+                ).warning("")
+                await _send_error(websocket, e.code)
 
             if auction.status == Auction.Status.COMPLETED:
                 break
@@ -68,7 +82,9 @@ async def auction_websocket(
 
     except Exception:
         logger.bind(
-            action="error", auction_id=auction_id, member_id=member_id
+            function=auction_websocket.__name__,
+            auction_id=auction_id,
+            member_id=member_id,
         ).exception("")
         if auction is not None:
             await handle_websocket_disconnect(auction, member_id, websocket)
