@@ -1,11 +1,30 @@
 export enum AuctionStatus {
   WAITING = 0,
-  IN_PROGRESS = 1,
+  RUNNING = 1,
   COMPLETED = 2,
 }
 
 export interface AuctionDTO {
   auctionId: string;
+  guildId: number;
+  presetId: number;
+  status: AuctionStatus;
+  currentMemberId: number | null;
+  currentBid: AuctionBidDTO | null;
+  timer: number;
+}
+
+export interface AuctionDetailDTO extends AuctionDTO {
+  teams: AuctionTeamDTO[];
+  auctionQueue: number[];
+  unsoldQueue: number[];
+  connectedMemberIds: number[];
+  presetSnapshot: any | null;
+}
+
+export interface InitDTO extends AuctionDetailDTO {
+  teamId: number | null;
+  memberId: number | null;
 }
 
 export interface CreateAuctionDTO {
@@ -13,72 +32,75 @@ export interface CreateAuctionDTO {
   sendInvite: boolean;
 }
 
-export type MessageType =
-  | "auth"
-  | "timer"
-  | "place_bid"
-  | "bid_placed"
-  | "member_sold"
-  | "next_member"
-  | "queue_update"
-  | "init"
-  | "status"
-  | "error"
-  | "user_connected"
-  | "user_disconnected";
-
-export interface WebSocketMessage {
-  type: MessageType;
-  data: any;
+export enum MessageType {
+  AUTH = 0,
+  INIT = 1,
+  ERROR = 2,
+  TIMER = 3,
+  STATUS = 4,
+  PLACE_BID = 5,
+  BID_PLACED = 6,
+  MEMBER_SOLD = 7,
+  MEMBER_UNSOLD = 8,
+  MEMBER_CONNECTED = 9,
+  MEMBER_DISCONNECTED = 10,
+  NEXT_MEMBER = 11,
 }
 
-export interface Team {
+export interface AuctionMessageDTO<TDto = unknown> {
+  type: MessageType;
+  dto: TDto;
+}
+
+export type WebSocketMessage = AuctionMessageDTO;
+
+export interface AuctionTeamDTO {
   teamId: number;
   leaderId: number;
-  memberIdList: number[];
+  memberIds: number[];
   points: number;
 }
 
-export interface StatusMessageData {
-  status: number;
+export interface AuctionBidDTO {
+  amount: number;
+  leaderId: number;
 }
 
-export interface AuctionInitDTO {
-  auctionId: string;
+export type AuctionInitDTO = InitDTO;
+
+export interface StatusMessageDTO {
   status: AuctionStatus;
-  currentMemberId: number | null;
-  currentBid: number | null;
-  currentBidder: number | null;
-  timer: number;
-  teams: Team[];
-  auctionQueue: number[];
-  unsoldQueue: number[];
-  teamId: number | null;
-  memberId: number | null;
-  isLeader: boolean;
-  connectedUsers: number[];
-  presetSnapshot: any | null;
 }
 
-export interface BidPlacedMessageData {
-  teamId: number;
+export interface BidPlacedMessageDTO {
   leaderId: number;
   amount: number;
 }
 
-export interface NextMemberMessageData {
+export interface NextMemberMessageDTO {
   memberId: number;
-}
-
-export interface QueueUpdateMessageData {
   auctionQueue: number[];
   unsoldQueue: number[];
 }
 
-export interface MemberSoldMessageData {
-  teams: Team[];
+export interface MemberSoldMessageDTO {
+  teams: AuctionTeamDTO[];
+  auctionQueue: number[];
+  unsoldQueue: number[];
 }
 
-export interface TimerMessageData {
+export interface MemberConnectedMessageDTO {
+  memberId: number;
+}
+
+export interface MemberDisconnectedMessageDTO {
+  memberId: number;
+}
+
+export interface ErrorMessageDTO {
+  code: number;
+}
+
+export interface TimerMessageDTO {
   timer: number;
 }

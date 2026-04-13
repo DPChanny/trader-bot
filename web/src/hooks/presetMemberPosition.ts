@@ -1,11 +1,30 @@
-import { useMutation, useQueryClient } from "@tanstack/preact-query";
+import {
+  useMutation,
+  useQueryClient,
+  type UseMutationResult,
+} from "@tanstack/preact-query";
 import {
   createPresetMemberPosition,
   deletePresetMemberPosition,
 } from "@/apis/presetMemberPosition";
 import { queryKeys } from "@/utils/query";
 
-export function useCreatePresetMemberPosition() {
+type CreatePresetMemberPositionVariables = Parameters<
+  typeof createPresetMemberPosition
+>[0];
+type CreatePresetMemberPositionResult = Awaited<
+  ReturnType<typeof createPresetMemberPosition>
+>;
+type DeletePresetMemberPositionVariables = Parameters<
+  typeof deletePresetMemberPosition
+>[0];
+
+export function useCreatePresetMemberPosition(): UseMutationResult<
+  CreatePresetMemberPositionResult,
+  Error,
+  CreatePresetMemberPositionVariables,
+  unknown
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -21,7 +40,12 @@ export function useCreatePresetMemberPosition() {
   });
 }
 
-export function useDeletePresetMemberPosition() {
+export function useDeletePresetMemberPosition(): UseMutationResult<
+  void,
+  Error,
+  DeletePresetMemberPositionVariables,
+  unknown
+> {
   const queryClient = useQueryClient();
 
   return useMutation({

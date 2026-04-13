@@ -1,19 +1,33 @@
 import { useEffect, useRef, useState } from "preact/hooks";
+import { MessageType } from "@/dtos/auctionDto";
 import type {
+  AuctionMessageDTO,
   AuctionInitDTO,
-  AuctionStatus,
-  BidPlacedMessageData,
-  NextMemberMessageData,
-  QueueUpdateMessageData,
-  StatusMessageData,
-  TimerMessageData,
-  MemberSoldMessageData,
-  WebSocketMessage,
+  BidPlacedMessageDTO,
+  ErrorMessageDTO,
+  MemberConnectedMessageDTO,
+  MemberDisconnectedMessageDTO,
+  MemberSoldMessageDTO,
+  NextMemberMessageDTO,
+  StatusMessageDTO,
+  TimerMessageDTO,
 } from "@/dtos/auctionDto";
 import { toCamelCase } from "@/utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@/utils/env";
 import { getAccessToken } from "@/utils/auth";
 import { getWsErrorMessage } from "@/utils/error";
+
+function getMessagePayload(message: AuctionMessageDTO): unknown {
+  return message.dto;
+}
+
+function getCurrentBidTeamId(state: AuctionInitDTO | null): number | null {
+  if (!state?.currentBid) return null;
+  return (
+    state.teams.find((team) => team.leaderId === state.currentBid!.leaderId)
+      ?.teamId ?? null
+  );
+}
 
 interface AuctionWebSocketHook {
   isConnected: boolean;
@@ -23,9 +37,10 @@ interface AuctionWebSocketHook {
   placeBid: (amount: number) => void;
   state: AuctionInitDTO | null;
   isLeader: boolean;
+  currentBidTeamId: number | null;
   memberId: number | null;
   teamId: number | null;
-  connectedUsers: number[];
+  connectedMemberIds: number[];
   closeReason: string | null;
 }
 
@@ -34,119 +49,152 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
   const [wasConnected, setWasConnected] = useState(false);
   const [state, setState] = useState<AuctionInitDTO | null>(null);
   const [isLeader, setIsLeader] = useState(false);
+  const [currentBidTeamId, setCurrentBidTeamId] = useState<number | null>(null);
   const [memberId, setMemberId] = useState<number | null>(null);
   const [teamId, setTeamId] = useState<number | null>(null);
-  const [connectedUsers, setConnectedUsers] = useState<number[]>([]);
+  const [connectedMemberIds, setConnectedMemberIds] = useState<number[]>([]);
   const [closeReason, setCloseReason] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const mountedRef = useRef(true);
 
-  const handleWebSocketMessage = (message: WebSocketMessage) => {
+  const handleWebSocketMessage = (message: AuctionMessageDTO) => {
     switch (message.type) {
-      case "init": {
-        const rawData = message.data;
-        const data = toCamelCase<AuctionInitDTO>(rawData);
-        setIsLeader(data.isLeader);
-        setMemberId(data.memberId);
-        setTeamId(data.teamId);
-        setConnectedUsers(data.connectedUsers);
+      case MessageType.INIT: {
+        const rawData = getMessagePayload(message);
+        const nextState = toCamelCase<AuctionInitDTO>(rawData);
 
-        setState(data);
+        setIsLeader(nextState.teamId !== null);
+        setMemberId(nextState.memberId);
+        setTeamId(nextState.teamId);
+        setConnectedMemberIds(nextState.connectedMemberIds);
+        setCurrentBidTeamId(getCurrentBidTeamId(nextState));
+        setState(nextState);
         break;
       }
-      case "user_connected": {
-        const connectedMemberId = message.data.member_id;
-        setConnectedUsers((prev) => {
+      case MessageType.MEMBER_CONNECTED: {
+        const rawData = getMessagePayload(message);
+        const data = toCamelCase<MemberConnectedMessageDTO>(rawData);
+        const connectedMemberId = data.memberId;
+        setConnectedMemberIds((prev) => {
           if (prev.includes(connectedMemberId)) return prev;
           return [...prev, connectedMemberId];
         });
+        setState((prev) =>
+          prev
+            ? {
+                ...prev,
+                connectedMemberIds: prev.connectedMemberIds.includes(
+                  connectedMemberId,
+                )
+                  ? prev.connectedMemberIds
+                  : [...prev.connectedMemberIds, connectedMemberId],
+              }
+            : prev,
+        );
         break;
       }
-      case "user_disconnected": {
-        const connectedMemberId = message.data.member_id;
-        setConnectedUsers((prev) =>
+      case MessageType.MEMBER_DISCONNECTED: {
+        const rawData = getMessagePayload(message);
+        const data = toCamelCase<MemberDisconnectedMessageDTO>(rawData);
+        const connectedMemberId = data.memberId;
+        setConnectedMemberIds((prev) =>
           prev.filter((id) => id !== connectedMemberId),
+        );
+        setState((prev) =>
+          prev
+            ? {
+                ...prev,
+                connectedMemberIds: prev.connectedMemberIds.filter(
+                  (id) => id !== connectedMemberId,
+                ),
+              }
+            : prev,
         );
         break;
       }
 
-      case "next_member": {
-        const data = toCamelCase<NextMemberMessageData>(message.data);
-        setState((prev) =>
-          prev
+      case MessageType.NEXT_MEMBER: {
+        const rawData = getMessagePayload(message);
+        const data = toCamelCase<NextMemberMessageDTO>(rawData);
+        setState((prev) => {
+          const nextState = prev
             ? {
                 ...prev,
                 currentMemberId: data.memberId,
                 currentBid: null,
-                currentBidder: null,
-              }
-            : null,
-        );
-        break;
-      }
-
-      case "queue_update": {
-        const data = toCamelCase<QueueUpdateMessageData>(message.data);
-        setState((prev) =>
-          prev
-            ? {
-                ...prev,
                 auctionQueue: data.auctionQueue,
                 unsoldQueue: data.unsoldQueue,
               }
-            : null,
-        );
+            : prev;
+          setCurrentBidTeamId(getCurrentBidTeamId(nextState));
+          return nextState;
+        });
         break;
       }
 
-      case "timer": {
-        const data = toCamelCase<TimerMessageData>(message.data);
+      case MessageType.MEMBER_SOLD: {
+        const rawData = getMessagePayload(message);
+        const data = toCamelCase<MemberSoldMessageDTO>(rawData);
+        setState((prev) => {
+          const nextState = prev
+            ? {
+                ...prev,
+                teams: data.teams,
+                auctionQueue: data.auctionQueue,
+                unsoldQueue: data.unsoldQueue,
+              }
+            : prev;
+          setCurrentBidTeamId(getCurrentBidTeamId(nextState));
+          return nextState;
+        });
+        break;
+      }
+
+      case MessageType.TIMER: {
+        const rawData = getMessagePayload(message);
+        const data = toCamelCase<TimerMessageDTO>(rawData);
         setState((prev) => (prev ? { ...prev, timer: data.timer } : null));
         break;
       }
 
-      case "bid_placed": {
-        const data = toCamelCase<BidPlacedMessageData>(message.data);
+      case MessageType.BID_PLACED: {
+        const rawData = getMessagePayload(message);
+        const data = toCamelCase<BidPlacedMessageDTO>(rawData);
+        setState((prev) => {
+          if (!prev) return prev;
+          setCurrentBidTeamId(
+            prev.teams.find((team) => team.leaderId === data.leaderId)
+              ?.teamId ?? null,
+          );
+          return {
+            ...prev,
+            currentBid: {
+              amount: data.amount,
+              leaderId: data.leaderId,
+            },
+          };
+        });
+        break;
+      }
+
+      case MessageType.STATUS: {
+        const rawData = getMessagePayload(message);
+        const data = toCamelCase<StatusMessageDTO>(rawData);
         setState((prev) =>
           prev
             ? {
                 ...prev,
-                currentBid: data.amount,
-                currentBidder: data.teamId,
+                status: data.status,
               }
             : null,
         );
         break;
       }
 
-      case "member_sold": {
-        const data = toCamelCase<MemberSoldMessageData>(message.data);
-        setState((prev) =>
-          prev
-            ? {
-                ...prev,
-                teams: data.teams,
-              }
-            : null,
-        );
-        break;
-      }
-
-      case "status": {
-        const data = toCamelCase<StatusMessageData>(message.data);
-        setState((prev) =>
-          prev
-            ? {
-                ...prev,
-                status: data.status as AuctionStatus,
-              }
-            : null,
-        );
-        break;
-      }
-
-      case "error": {
-        const code = message.data?.code;
+      case MessageType.ERROR: {
+        const rawData = getMessagePayload(message);
+        const data = toCamelCase<ErrorMessageDTO>(rawData);
+        const code = data?.code;
         if (typeof code === "number" && mountedRef.current) {
           setCloseReason(getWsErrorMessage(code));
         }
@@ -164,6 +212,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       wsRef.current = null;
       setIsConnected(false);
       setState(null);
+      setCurrentBidTeamId(null);
       setCloseReason(null);
     }
   };
@@ -181,11 +230,11 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       if (mountedRef.current) {
         ws.send(
           JSON.stringify({
-            type: "auth",
-            data: {
+            type: MessageType.AUTH,
+            dto: {
               token: token,
             },
-          } satisfies WebSocketMessage),
+          } satisfies AuctionMessageDTO<{ token: string | null }>),
         );
         opened = true;
         setIsConnected(true);
@@ -195,7 +244,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
     ws.onmessage = (event) => {
       try {
-        const message = JSON.parse(event.data) as WebSocketMessage;
+        const message = JSON.parse(event.data) as AuctionMessageDTO;
         if (mountedRef.current) {
           handleWebSocketMessage(message);
         }
@@ -230,9 +279,9 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       return;
     }
 
-    const message = {
-      type: "place_bid",
-      data: {
+    const message: AuctionMessageDTO<{ amount: number }> = {
+      type: MessageType.PLACE_BID,
+      dto: {
         amount: amount,
       },
     };
@@ -256,9 +305,10 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     placeBid,
     state,
     isLeader,
+    currentBidTeamId,
     memberId,
     teamId,
     closeReason,
-    connectedUsers,
+    connectedMemberIds,
   };
 }

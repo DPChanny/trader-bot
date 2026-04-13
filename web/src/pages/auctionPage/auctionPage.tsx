@@ -33,8 +33,9 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     placeBid,
     state,
     isLeader,
+    currentBidTeamId,
     teamId,
-    connectedUsers,
+    connectedMemberIds,
     memberId,
     closeReason,
   } = useAuctionWebSocket();
@@ -110,14 +111,14 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   const currentTeam = teamId
     ? state.teams.find((t) => t.teamId === teamId)
     : null;
-  const teamMemberCount = currentTeam ? currentTeam.memberIdList.length : 0;
+  const teamMemberCount = currentTeam ? currentTeam.memberIds.length : 0;
   const isTeamFull = teamMemberCount >= 5;
 
   const getStatusText = (status: AuctionStatus) => {
     if (wasConnected && !isConnected && status !== AuctionStatus.COMPLETED)
       return "연결 끊김";
     if (status === AuctionStatus.WAITING) return "대기중";
-    if (status === AuctionStatus.IN_PROGRESS) return "진행중";
+    if (status === AuctionStatus.RUNNING) return "진행중";
     if (status === AuctionStatus.COMPLETED) return "완료";
     return String(status);
   };
@@ -126,8 +127,8 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     ? presetMemberMap.get(state.currentMemberId)
     : null;
 
-  const bidderTeam = state.currentBidder
-    ? state.teams.find((t) => t.teamId === state.currentBidder)
+  const bidderTeam = currentBidTeamId
+    ? state.teams.find((t) => t.teamId === currentBidTeamId)
     : null;
   const leaderMemberId = bidderTeam?.leaderId;
   const bidderLeader = leaderMemberId
@@ -153,7 +154,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
           presetMemberMap={presetMemberMap}
           pointScale={pointScale}
           clientMemberId={memberId ?? undefined}
-          connectedUsers={connectedUsers}
+          connectedUsers={connectedMemberIds}
         />
       </Section>
 
@@ -192,7 +193,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
                 value={
                   state.status === AuctionStatus.COMPLETED
                     ? 0
-                    : (state.currentBid || 0) * pointScale
+                    : (state.currentBid?.amount || 0) * pointScale
                 }
               />
             </Section>
@@ -214,12 +215,12 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
                 placeholder={`입찰 금액 (${pointScale}의 배수)`}
                 value={bidAmount}
                 onChange={(value) => setBidAmount(value)}
-                disabled={state.status !== AuctionStatus.IN_PROGRESS}
+                disabled={state.status !== AuctionStatus.RUNNING}
               />
               <PrimaryButton
                 onClick={handlePlaceBid}
                 disabled={
-                  state.status !== AuctionStatus.IN_PROGRESS ||
+                  state.status !== AuctionStatus.RUNNING ||
                   !bidAmount ||
                   parseInt(bidAmount) <= 0 ||
                   parseInt(bidAmount) % pointScale !== 0
@@ -241,7 +242,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
               presetMembers={auctionQueueMembers}
               onMemberClick={() => {}}
               clientMemberId={memberId ?? undefined}
-              connectedUsers={connectedUsers}
+              connectedUsers={connectedMemberIds}
             />
           </Section>
         </Section>
@@ -253,7 +254,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             <PresetMemberGrid
               presetMembers={unsoldQueueMembers}
               onMemberClick={() => {}}
-              connectedUsers={connectedUsers}
+              connectedUsers={connectedMemberIds}
               clientMemberId={memberId ?? undefined}
             />
           </Section>

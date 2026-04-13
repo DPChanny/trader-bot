@@ -11,6 +11,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction_dto import (
+    AuctionMessageDTO,
     AuctionDetailDTO,
     ErrorDTO,
     InitDTO,
@@ -32,7 +33,10 @@ auction_ws_router = APIRouter(prefix="/auction", tags=["auction_ws"])
 
 async def _send_error(ws: WebSocket, code: int) -> None:
     await ws.send_json(
-        {"type": MessageType.ERROR, "dto": ErrorDTO(code=code).model_dump()}
+        AuctionMessageDTO(
+            type=MessageType.ERROR,
+            dto=ErrorDTO(code=code).model_dump(),
+        ).model_dump()
     )
 
 
@@ -55,7 +59,9 @@ async def auction_ws(
             team_id=team_id,
             member_id=member_id,
         )
-        await ws.send_json({"type": MessageType.INIT, "dto": init.model_dump()})
+        await ws.send_json(
+            AuctionMessageDTO(type=MessageType.INIT, dto=init.model_dump()).model_dump()
+        )
 
         while True:
             data = await ws.receive_text()

@@ -10,6 +10,7 @@ from fastapi import WebSocket
 
 from shared.dtos import BaseDTO
 from shared.dtos.auction_dto import (
+    AuctionMessageDTO,
     BidPlacedDTO,
     MemberConnectedDTO,
     MemberDisconnectedDTO,
@@ -179,7 +180,9 @@ class Auction:
             ws_list.extend(self._public_ws_set)
 
         disconnected_websockets: list[WebSocket] = []
-        message = {"type": message_type, "dto": dto.model_dump()}
+        message = AuctionMessageDTO(
+            type=message_type, dto=dto.model_dump()
+        ).model_dump()
         for ws in ws_list:
             try:
                 await ws.send_json(message)
@@ -372,7 +375,6 @@ class Auction:
             message = (
                 MessageType.BID_PLACED,
                 BidPlacedDTO(
-                    team_id=team.team_id,
                     leader_id=team.leader_id,
                     amount=amount,
                 ),

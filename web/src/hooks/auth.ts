@@ -19,7 +19,7 @@ import {
 import { AUTH_API_ENDPOINT } from "@/utils/env";
 
 export function useLogin(redirect?: string) {
-  return () => {
+  return (): void => {
     const base = `${AUTH_API_ENDPOINT}/login`;
     const url = redirect
       ? `${base}?redirect=${encodeURIComponent(redirect)}`
@@ -30,7 +30,7 @@ export function useLogin(redirect?: string) {
 
 export function useLogout(redirect?: string) {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<void, Error, void>({
     mutationFn: async (): Promise<void> => {},
     onSettled: () => {
       removeAccessToken();

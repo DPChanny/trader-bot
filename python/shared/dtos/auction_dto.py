@@ -1,4 +1,5 @@
 from enum import IntEnum
+from typing import Any
 
 from shared.dtos.preset_dto import PresetDetailDTO
 
@@ -89,7 +90,6 @@ class PlaceBidDTO(BaseDTO):
 
 
 class BidPlacedDTO(BaseDTO):
-    team_id: int
     leader_id: int
     amount: int
 
@@ -104,3 +104,8 @@ class MemberDisconnectedDTO(BaseDTO):
 
 class ErrorDTO(BaseDTO):
     code: int
+
+
+class AuctionMessageDTO(BaseDTO):
+    type: MessageType
+    dto: dict[str, Any] | None = None

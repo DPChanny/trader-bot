@@ -1,4 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutationResult,
+  type UseQueryResult,
+} from "@tanstack/preact-query";
 import {
   getTiers,
   getTier,
@@ -7,22 +13,41 @@ import {
   deleteTier,
 } from "@/apis/tier";
 import { queryKeys } from "@/utils/query";
+import type { TierDTO } from "@/dtos/tierDto";
 
-export function useTiers(guildId: string, presetId: number) {
+type AddTierVariables = Parameters<typeof addTier>[0];
+type AddTierResult = Awaited<ReturnType<typeof addTier>>;
+type UpdateTierVariables = Parameters<typeof updateTier>[0];
+type UpdateTierResult = Awaited<ReturnType<typeof updateTier>>;
+type DeleteTierVariables = Parameters<typeof deleteTier>[0];
+
+export function useTiers(
+  guildId: string,
+  presetId: number,
+): UseQueryResult<TierDTO[], Error> {
   return useQuery({
     queryKey: queryKeys.tiers(guildId, presetId),
     queryFn: () => getTiers(guildId, presetId),
   });
 }
 
-export function useTier(guildId: string, presetId: number, tierId: number) {
+export function useTier(
+  guildId: string,
+  presetId: number,
+  tierId: number,
+): UseQueryResult<TierDTO, Error> {
   return useQuery({
     queryKey: queryKeys.tier(guildId, presetId, tierId),
     queryFn: () => getTier(guildId, presetId, tierId),
   });
 }
 
-export function useAddTier() {
+export function useAddTier(): UseMutationResult<
+  AddTierResult,
+  Error,
+  AddTierVariables,
+  unknown
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -41,7 +66,12 @@ export function useAddTier() {
   });
 }
 
-export function useUpdateTier() {
+export function useUpdateTier(): UseMutationResult<
+  UpdateTierResult,
+  Error,
+  UpdateTierVariables,
+  unknown
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -60,7 +90,12 @@ export function useUpdateTier() {
   });
 }
 
-export function useDeleteTier() {
+export function useDeleteTier(): UseMutationResult<
+  void,
+  Error,
+  DeleteTierVariables,
+  unknown
+> {
   const queryClient = useQueryClient();
 
   return useMutation({

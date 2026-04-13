@@ -1,4 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutationResult,
+  type UseQueryResult,
+} from "@tanstack/preact-query";
 import {
   getPositions,
   getPosition,
@@ -7,8 +13,18 @@ import {
   deletePosition,
 } from "@/apis/position";
 import { queryKeys } from "@/utils/query";
+import type { PositionDTO } from "@/dtos/positionDto";
 
-export function usePositions(guildId: string, presetId: number) {
+type AddPositionVariables = Parameters<typeof addPosition>[0];
+type AddPositionResult = Awaited<ReturnType<typeof addPosition>>;
+type UpdatePositionVariables = Parameters<typeof updatePosition>[0];
+type UpdatePositionResult = Awaited<ReturnType<typeof updatePosition>>;
+type DeletePositionVariables = Parameters<typeof deletePosition>[0];
+
+export function usePositions(
+  guildId: string,
+  presetId: number,
+): UseQueryResult<PositionDTO[], Error> {
   return useQuery({
     queryKey: queryKeys.positions(guildId, presetId),
     queryFn: () => getPositions(guildId, presetId),
@@ -19,14 +35,19 @@ export function usePosition(
   guildId: string,
   presetId: number,
   positionId: number,
-) {
+): UseQueryResult<PositionDTO, Error> {
   return useQuery({
     queryKey: queryKeys.position(guildId, presetId, positionId),
     queryFn: () => getPosition(guildId, presetId, positionId),
   });
 }
 
-export function useAddPosition() {
+export function useAddPosition(): UseMutationResult<
+  AddPositionResult,
+  Error,
+  AddPositionVariables,
+  unknown
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -45,7 +66,12 @@ export function useAddPosition() {
   });
 }
 
-export function useUpdatePosition() {
+export function useUpdatePosition(): UseMutationResult<
+  UpdatePositionResult,
+  Error,
+  UpdatePositionVariables,
+  unknown
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -64,7 +90,12 @@ export function useUpdatePosition() {
   });
 }
 
-export function useDeletePosition() {
+export function useDeletePosition(): UseMutationResult<
+  void,
+  Error,
+  DeletePositionVariables,
+  unknown
+> {
   const queryClient = useQueryClient();
 
   return useMutation({

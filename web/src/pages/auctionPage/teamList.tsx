@@ -26,7 +26,7 @@ export function TeamList({
       variantLayout="column"
     >
       {teams.map((team) => {
-        const members = team.memberIdList
+        const members = team.memberIds
           .map((id) => presetMemberMap.get(id))
           .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 

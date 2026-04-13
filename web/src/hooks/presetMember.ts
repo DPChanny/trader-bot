@@ -1,4 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/preact-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutationResult,
+  type UseQueryResult,
+} from "@tanstack/preact-query";
 import {
   getPresetMembers,
   getPresetMember,
@@ -7,8 +13,18 @@ import {
   deletePresetMember,
 } from "@/apis/presetMember";
 import { queryKeys } from "@/utils/query";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
 
-export function usePresetMembers(guildId: string, presetId: number) {
+type CreatePresetMemberVariables = Parameters<typeof createPresetMember>[0];
+type CreatePresetMemberResult = Awaited<ReturnType<typeof createPresetMember>>;
+type UpdatePresetMemberVariables = Parameters<typeof updatePresetMember>[0];
+type UpdatePresetMemberResult = Awaited<ReturnType<typeof updatePresetMember>>;
+type DeletePresetMemberVariables = Parameters<typeof deletePresetMember>[0];
+
+export function usePresetMembers(
+  guildId: string,
+  presetId: number,
+): UseQueryResult<PresetMemberDetailDTO[], Error> {
   return useQuery({
     queryKey: queryKeys.presetMembers(guildId, presetId),
     queryFn: () => getPresetMembers(guildId, presetId),
@@ -19,14 +35,19 @@ export function usePresetMember(
   guildId: string,
   presetId: number,
   presetMemberId: number,
-) {
+): UseQueryResult<PresetMemberDetailDTO, Error> {
   return useQuery({
     queryKey: queryKeys.presetMember(guildId, presetId, presetMemberId),
     queryFn: () => getPresetMember(guildId, presetId, presetMemberId),
   });
 }
 
-export function useCreatePresetMember() {
+export function useCreatePresetMember(): UseMutationResult<
+  CreatePresetMemberResult,
+  Error,
+  CreatePresetMemberVariables,
+  unknown
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -42,7 +63,12 @@ export function useCreatePresetMember() {
   });
 }
 
-export function useUpdatePresetMember() {
+export function useUpdatePresetMember(): UseMutationResult<
+  UpdatePresetMemberResult,
+  Error,
+  UpdatePresetMemberVariables,
+  unknown
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -58,7 +84,12 @@ export function useUpdatePresetMember() {
   });
 }
 
-export function useDeletePresetMember() {
+export function useDeletePresetMember(): UseMutationResult<
+  void,
+  Error,
+  DeletePresetMemberVariables,
+  unknown
+> {
   const queryClient = useQueryClient();
 
   return useMutation({

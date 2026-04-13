@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { nameSchema } from "@/utils/dto";
+import type { PresetMemberDetailDTO } from "./presetMemberDto";
 
 export const CreatePresetSchema = z.object({
   name: nameSchema,
@@ -28,4 +29,8 @@ export interface PresetDTO {
   timer: number;
   teamSize: number;
   pointScale: number;
+}
+
+export interface PresetDetailDTO extends PresetDTO {
+  presetMembers: PresetMemberDetailDTO[];
 }

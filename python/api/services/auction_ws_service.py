@@ -4,7 +4,7 @@ import json
 from fastapi import WebSocket
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auction_dto import MessageType, PlaceBidDTO
+from shared.dtos.auction_dto import AuctionMessageDTO, MessageType, PlaceBidDTO
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.utils.error import (
     AuctionErrorCode,
@@ -33,14 +33,17 @@ async def connect_auction_ws_service(
     await ws.accept()
 
     try:
-        auth_message = json.loads(await asyncio.wait_for(ws.receive_text(), timeout=10))
+        auth_message_raw = json.loads(
+            await asyncio.wait_for(ws.receive_text(), timeout=10)
+        )
+        auth_message = AuctionMessageDTO.model_validate(auth_message_raw)
     except Exception:
         raise WSError(AuthErrorCode.Unauthorized) from None
 
-    if auth_message.get("type") != MessageType.AUTH.value:
+    if auth_message.type != MessageType.AUTH:
         raise WSError(AuthErrorCode.Unauthorized)
 
-    auth_data = auth_message.get("dto")
+    auth_data = auth_message.dto
     if not isinstance(auth_data, dict):
         raise WSError(AuthErrorCode.Unauthorized)
 
@@ -84,13 +87,18 @@ async def handle_auction_ws_service(
     message: dict,
     event: dict,
 ) -> None:
-    message_type = message.get("type")
+    try:
+        parsed_message = AuctionMessageDTO.model_validate(message)
+    except Exception:
+        raise WSError(AuctionErrorCode.Invalid) from None
 
-    if message_type == MessageType.PLACE_BID.value:
+    message_type = parsed_message.type
+
+    if message_type == MessageType.PLACE_BID:
         if member_id is None:
             raise WSError(AuthErrorCode.Unauthorized)
 
-        bid_data = message.get("dto", {})
+        bid_data = parsed_message.dto or {}
         try:
             bid_dto = PlaceBidDTO.model_validate(bid_data)
         except Exception:
