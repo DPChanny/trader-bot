@@ -1,6 +1,6 @@
 from .auction_router import auction_router as auction_router
-from .auction_websocket_router import (
-    auction_websocket_router as auction_websocket_router,
+from .auction_ws_router import (
+    auction_ws_router as auction_ws_router,
 )
 from .auth_router import auth_router as auth_router
 from .guild_router import guild_router as guild_router

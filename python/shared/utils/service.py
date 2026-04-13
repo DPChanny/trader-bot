@@ -3,7 +3,7 @@ import inspect
 
 from loguru import logger
 
-from .error import HTTPError, UnexpectedErrorCode, WebSocketError
+from .error import HTTPError, UnexpectedErrorCode, WSError
 
 
 def http_service(func):
@@ -47,7 +47,7 @@ def ws_service(func):
             if has_event:
                 logger.bind(function=func.__name__, **event).info("")
             return result
-        except WebSocketError as error:
+        except WSError as error:
             error.function = func.__name__
             logger.bind(function=func.__name__, code=error.code).warning("")
             raise

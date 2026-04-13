@@ -1,0 +1,83 @@
+import contextlib
+import json
+
+from fastapi import (
+    APIRouter,
+    Depends,
+    WebSocket,
+    WebSocketDisconnect,
+)
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from shared.dtos.auction_dto import (
+    AuctionDetailDTO,
+    AuctionInitDTO,
+    ErrorDTO,
+    MessageType,
+)
+from shared.utils.database import get_session
+from shared.utils.error import WSError
+
+from ..auction import Auction
+from ..services.auction_ws_service import (
+    handle_auction_message_ws_service,
+    handle_connect_auction_ws_service,
+    handle_disconnect_auction_ws_service,
+)
+
+
+auction_ws_router = APIRouter(prefix="/auction", tags=["auction_ws"])
+
+
+async def _send_error(ws: WebSocket, code: int) -> None:
+    await ws.send_json(
+        {"type": MessageType.ERROR, "dto": ErrorDTO(code=code).model_dump()}
+    )
+
+
+@auction_ws_router.websocket("/{auction_id}")
+async def auction_ws(
+    ws: WebSocket,
+    auction_id: int,
+    session: AsyncSession = Depends(get_session),
+):
+    member_id: int | None = None
+    auction = None
+    try:
+        auction, member_id, team_id = await handle_connect_auction_ws_service(
+            ws, auction_id, session
+        )
+
+        detail = AuctionDetailDTO.model_validate(auction)
+        init = AuctionInitDTO(
+            **detail.model_dump(),
+            team_id=team_id,
+            member_id=member_id,
+        )
+        await ws.send_json({"type": MessageType.INIT, "dto": init.model_dump()})
+
+        while True:
+            data = await ws.receive_text()
+            message = json.loads(data)
+
+            try:
+                await handle_auction_message_ws_service(auction, member_id, message)
+            except WSError as e:
+                await _send_error(ws, e.code)
+
+            if auction.status == Auction.Status.COMPLETED:
+                break
+
+    except WebSocketDisconnect:
+        if auction is not None:
+            await handle_disconnect_auction_ws_service(auction, member_id, ws)
+
+    except WSError as e:
+        with contextlib.suppress(Exception):
+            await ws.close(code=4000, reason=str(e.code))
+
+    except Exception:
+        if auction is not None:
+            await handle_disconnect_auction_ws_service(auction, member_id, ws)
+        with contextlib.suppress(Exception):
+            await ws.close()

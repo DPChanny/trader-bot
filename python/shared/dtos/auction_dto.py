@@ -79,6 +79,10 @@ class MemberSoldDTO(BaseDTO):
     unsold_queue: list[int]
 
 
+class PlaceBidDTO(BaseDTO):
+    amount: int
+
+
 class BidPlacedDTO(BaseDTO):
     team_id: int
     leader_id: int

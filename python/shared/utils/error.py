@@ -78,6 +78,11 @@ class PresetMemberPositionErrorCode(IntEnum):
     NotFound = 4411
 
 
+class TokenError(Exception):
+    def __init__(self, code: AuthErrorCode | ValidationErrorCode) -> None:
+        self.code = code
+
+
 class HTTPError(Exception):
     def __init__(self, code: IntEnum) -> None:
         self.code: int = code.value
@@ -94,7 +99,7 @@ class HTTPError(Exception):
         super().__init__(str(code.value))
 
 
-class WebSocketError(Exception):
+class WSError(Exception):
     def __init__(self, code: IntEnum) -> None:
         self.code: int = code.value
         self.function: str | None = None
