@@ -7,16 +7,17 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
 )
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction_dto import (
     AuctionDetailDTO,
-    InitDTO,
     ErrorDTO,
+    InitDTO,
     MessageType,
 )
 from shared.utils.database import get_session
-from shared.utils.error import ValidationErrorCode, WSError
+from shared.utils.error import UnexpectedErrorCode, ValidationErrorCode, WSError
 
 from ..auction import Auction
 from ..services.auction_ws_service import (
@@ -70,6 +71,8 @@ async def auction_ws(
             try:
                 await handle_auction_ws_service(auction, member_id, message)
             except WSError as e:
+                function = e.function or handle_auction_ws_service.__name__
+                logger.bind(function=function, error_code=e.code).warning("")
                 await _send_error(ws, e.code)
 
             if auction.status == Auction.Status.COMPLETED:
@@ -80,12 +83,23 @@ async def auction_ws(
             await disconnect_auction_ws_service(auction, member_id, ws)
 
     except WSError as e:
+        function = e.function or auction_ws.__name__
+        if e.code < 5000:
+            logger.bind(function=function, error_code=e.code).warning("")
+        else:
+            logger.opt(exception=e.__cause__).bind(
+                function=function, error_code=e.code
+            ).error("")
         with contextlib.suppress(Exception):
             await _send_error(ws, e.code)
         with contextlib.suppress(Exception):
             await ws.close(code=4000, reason=str(e.code))
 
-    except Exception:
+    except Exception as e:
+        logger.opt(exception=e).bind(
+            function=auction_ws.__name__,
+            error_code=UnexpectedErrorCode.Internal.value,
+        ).error("")
         if auction is not None:
             await disconnect_auction_ws_service(auction, member_id, ws)
         with contextlib.suppress(Exception):

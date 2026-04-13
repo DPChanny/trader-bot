@@ -44,6 +44,12 @@ def _json_sink(message) -> None:
     }
     if record["message"]:
         data["message"] = record["message"]
+    event = extra.pop("event", None)
+    request = extra.pop("request", None)
+    if event:
+        data["event"] = event
+    if request:
+        data["request"] = request
     if extra:
         data.update(extra)
     if record["exception"]:
@@ -59,6 +65,8 @@ def _text_sink(message) -> None:
     extra = dict(record["extra"])
     function = extra.pop("function", None)
     source = function or f"{record['name']}:{record['function']}:{record['line']}"
+    event = extra.pop("event", None)
+    request = extra.pop("request", None)
     parts = [
         f"{timestamp} | {record['level'].name:<8} | {source}",
     ]
@@ -70,6 +78,11 @@ def _text_sink(message) -> None:
         parts.append(record["message"])
 
     output = " | ".join(parts)
+
+    if event:
+        output += "\n" + json.dumps(event, ensure_ascii=False, indent=2, default=str)
+    if request:
+        output += "\n" + json.dumps(request, ensure_ascii=False, indent=2, default=str)
 
     if record["exception"]:
         import traceback
@@ -113,10 +126,12 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             duration = round((time.perf_counter() - start) * 1000)
             logger.bind(
-                method=request.method,
-                route=request.url.path,
-                status_code=response.status_code,
-                duration=duration,
+                request={
+                    "method": request.method,
+                    "route": request.url.path,
+                    "status_code": response.status_code,
+                    "duration": duration,
+                }
             ).info("")
             response.headers["X-Request-ID"] = request_id
             return response

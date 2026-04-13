@@ -19,7 +19,7 @@ def http_service(func):
         try:
             result = await func(*args, **kwargs)
             if has_event:
-                logger.bind(function=func.__name__, **event).info("")
+                logger.bind(function=func.__name__, event=event).info("")
             return result
         except HTTPError as error:
             error.function = func.__name__
@@ -45,14 +45,14 @@ def ws_service(func):
         try:
             result = await func(*args, **kwargs)
             if has_event:
-                logger.bind(function=func.__name__, **event).info("")
+                logger.bind(function=func.__name__, event=event).info("")
             return result
         except WSError as error:
             error.function = func.__name__
-            logger.bind(function=func.__name__, code=error.code).warning("")
             raise
-        except Exception:
-            logger.bind(function=func.__name__).exception("")
-            raise
+        except Exception as error:
+            app_error = WSError(UnexpectedErrorCode.Internal)
+            app_error.function = func.__name__
+            raise app_error from error
 
     return wrapper
