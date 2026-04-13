@@ -3,7 +3,7 @@ import inspect
 
 from loguru import logger
 
-from .error import AppError, UnexpectedErrorCode
+from .error import HTTPError, UnexpectedErrorCode
 
 
 def service(func):
@@ -21,11 +21,11 @@ def service(func):
             if has_event:
                 logger.bind(function=func.__name__, **event).info("")
             return result
-        except AppError as error:
+        except HTTPError as error:
             error.function = func.__name__
             raise
         except Exception as error:
-            app_error = AppError(UnexpectedErrorCode.Internal)
+            app_error = HTTPError(UnexpectedErrorCode.Internal)
             app_error.function = func.__name__
             raise app_error from error
 

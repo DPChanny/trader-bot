@@ -5,7 +5,7 @@ from typing import ParamSpec, TypeVar
 from loguru import logger
 
 from shared.utils.database import get_session
-from shared.utils.error import AppError, UnexpectedErrorCode
+from shared.utils.error import HTTPError, UnexpectedErrorCode
 
 
 P = ParamSpec("P")
@@ -22,7 +22,7 @@ def router[**P, T](
                 return await func(*args, session=session, **kwargs)
 
             raise RuntimeError("No Session")
-        except AppError as error:
+        except HTTPError as error:
             function = error.function or func.__name__
             if error.status_code < 500:
                 logger.bind(function=function, error_code=error.code).warning("")

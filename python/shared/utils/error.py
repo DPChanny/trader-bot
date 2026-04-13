@@ -79,7 +79,7 @@ class PresetMemberPositionErrorCode(IntEnum):
     NotFound = 4411
 
 
-class AppError(Exception):
+class HTTPError(Exception):
     def __init__(self, code: IntEnum) -> None:
         self.code: int = code.value
         self.status_code: int = {

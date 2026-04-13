@@ -9,7 +9,7 @@ import jwt
 from fastapi import Header
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
-from shared.utils.error import AppError, AuthErrorCode, ValidationErrorCode
+from shared.utils.error import HTTPError, AuthErrorCode, ValidationErrorCode
 
 
 _ACCESS_TOKEN_EXPIRATION_MINUTES = 15
@@ -49,12 +49,12 @@ class JWTToken:
                 algorithms=[get_jwt_algorithm()],
             )
             if data.get("type") != cls._type:
-                raise AppError(AuthErrorCode.IncorrectJWTToken)
+                raise HTTPError(AuthErrorCode.IncorrectJWTToken)
             return cls.Payload(**data)
         except jwt.ExpiredSignatureError:
-            raise AppError(AuthErrorCode.ExpiredJWTToken) from None
+            raise HTTPError(AuthErrorCode.ExpiredJWTToken) from None
         except jwt.InvalidTokenError:
-            raise AppError(ValidationErrorCode.Invalid) from None
+            raise HTTPError(ValidationErrorCode.Invalid) from None
 
 
 class AccessToken(JWTToken):
@@ -106,11 +106,11 @@ class ExchangeToken:
 async def verify_access_token(authorization: str = Header(None)) -> int:
     try:
         if not authorization:
-            raise AppError(AuthErrorCode.Unauthorized)
+            raise HTTPError(AuthErrorCode.Unauthorized)
         if not authorization.startswith("Bearer "):
-            raise AppError(AuthErrorCode.Unauthorized)
+            raise HTTPError(AuthErrorCode.Unauthorized)
         token = authorization.removeprefix("Bearer ")
         return AccessToken.decode(token).user_id
-    except AppError as e:
+    except HTTPError as e:
         e.function = verify_access_token.__name__
         raise

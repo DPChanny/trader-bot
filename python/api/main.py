@@ -8,7 +8,7 @@ from loguru import logger
 
 from shared.utils.database import setup_db
 from shared.utils.env import get_app_origin
-from shared.utils.error import AppError, UnexpectedErrorCode, ValidationErrorCode
+from shared.utils.error import HTTPError, UnexpectedErrorCode, ValidationErrorCode
 from shared.utils.logging import LoggingMiddleware, setup_logging
 
 from .routers import (
@@ -38,9 +38,9 @@ async def lifespan(_):
 app = FastAPI(title="Trader API", version="1.0.0", lifespan=lifespan)
 
 
-@app.exception_handler(AppError)
-async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
-    function = exc.function or app_error_handler.__name__
+@app.exception_handler(HTTPError)
+async def http_error_handler(_: Request, exc: HTTPError) -> JSONResponse:
+    function = exc.function or http_error_handler.__name__
     if exc.status_code < 500:
         logger.bind(function=function, error_code=exc.code).warning("")
     else:
@@ -58,18 +58,18 @@ async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
 async def validation_error_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    app_error = AppError(ValidationErrorCode.Invalid)
+    app_error = HTTPError(ValidationErrorCode.Invalid)
     app_error.function = validation_error_handler.__name__
     app_error.__cause__ = exc
-    return await app_error_handler(request, app_error)
+    return await http_error_handler(request, app_error)
 
 
 @app.exception_handler(Exception)
 async def exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    app_error = AppError(UnexpectedErrorCode.Internal)
+    app_error = HTTPError(UnexpectedErrorCode.Internal)
     app_error.function = exception_handler.__name__
     app_error.__cause__ = exc
-    return await app_error_handler(request, app_error)
+    return await http_error_handler(request, app_error)
 
 
 app.add_middleware(LoggingMiddleware)

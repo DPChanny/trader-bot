@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auth_dto import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
 from shared.utils.env import get_app_origin
-from shared.utils.error import AppError, AuthErrorCode
+from shared.utils.error import HTTPError, AuthErrorCode
 from shared.utils.service import service
 from shared.utils.user import upsert_user
 
@@ -54,7 +54,7 @@ async def callback_service(
 async def exchange_token_service(dto: ExchangeTokenDTO) -> JWTTokenDTO:
     token_pair = ExchangeToken.consume(dto.exchange_token)
     if token_pair is None:
-        raise AppError(AuthErrorCode.ExchangeFailed)
+        raise HTTPError(AuthErrorCode.ExchangeFailed)
 
     token, refresh_token = token_pair
     return JWTTokenDTO(access_token=token, refresh_token=refresh_token)
