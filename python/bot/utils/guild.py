@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.guild_dto import GuildDTO
 from shared.entities.guild import Guild
 from shared.repositories.guild_repository import GuildRepository
-from shared.utils.error import HTTPError, GuildErrorCode
+from shared.utils.error import GuildErrorCode, HTTPError
 
 
 async def upsert_guild(

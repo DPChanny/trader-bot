@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auth_dto import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
 from shared.utils.env import get_app_origin
-from shared.utils.error import HTTPError, AuthErrorCode
+from shared.utils.error import AuthErrorCode, HTTPError
 from shared.utils.service import service
 from shared.utils.user import upsert_user
 

@@ -8,7 +8,7 @@ from shared.utils.env import (
     get_discord_client_id,
     get_discord_client_secret,
 )
-from shared.utils.error import HTTPError, DiscordErrorCode
+from shared.utils.error import DiscordErrorCode, HTTPError
 
 
 DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize"

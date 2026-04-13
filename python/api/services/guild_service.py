@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild_dto import GuildDetailDTO
 from shared.repositories.guild_repository import GuildRepository
-from shared.utils.error import HTTPError, GuildErrorCode
+from shared.utils.error import GuildErrorCode, HTTPError
 from shared.utils.service import service
 
 from ..utils.member import verify_role

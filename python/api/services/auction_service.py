@@ -11,7 +11,7 @@ from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin
-from shared.utils.error import HTTPError, AuctionErrorCode, PresetErrorCode
+from shared.utils.error import AuctionErrorCode, HTTPError, PresetErrorCode
 from shared.utils.service import service
 
 from ..auction.auction_manager import auction_manager
