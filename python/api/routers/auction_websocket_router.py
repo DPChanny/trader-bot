@@ -10,7 +10,6 @@ from fastapi import (
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auction.auction import AuctionStatus
 from shared.dtos.auction_dto import AuctionDetailDTO, AuctionInitDTO, MessageType
 from shared.utils.database import get_session
 from shared.utils.error import WebSocketError
@@ -46,27 +45,6 @@ async def auction_websocket(
             is_leader=is_leader,
         )
         await websocket.send_json({"type": MessageType.INIT, "dto": init.model_dump()})
-
-        if is_leader and auction.can_progress():
-            logger.bind(
-                action="starting",
-                auction_id=auction_id,
-                leader_count=len(auction.leader_member_ids),
-            ).info("")
-            if auction.status == AuctionStatus.WAITING:
-                await auction.set_status(AuctionStatus.RUNNING)
-        elif is_leader:
-            connected_count = sum(
-                1
-                for lid in auction.leader_member_ids
-                if lid in auction.member_id_to_ws_set
-            )
-            logger.bind(
-                action="leader_joined",
-                auction_id=auction_id,
-                connected=connected_count,
-                total=len(auction.leader_member_ids),
-            ).info("")
 
         while True:
             data = await websocket.receive_text()

@@ -4,7 +4,6 @@ from fastapi import WebSocket
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.auction.auction import AuctionStatus
 from shared.dtos.auction_dto import ErrorDTO, MessageType
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.utils.error import (
@@ -181,9 +180,3 @@ async def handle_websocket_disconnect(
 ) -> None:
     await auction.disconnect(websocket, member_id)
     logger.bind(action="disconnected", member_id=member_id).info("")
-
-    if auction.status == AuctionStatus.RUNNING and not auction.can_progress():
-        logger.bind(
-            action="paused", reason="leader_disconnected", member_id=member_id
-        ).warning("")
-        await auction.set_status(AuctionStatus.WAITING)
