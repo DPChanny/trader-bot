@@ -57,7 +57,7 @@ async def add_position_service(
     preset_id: int,
     dto: AddPositionDTO,
     session: AsyncSession,
-    logger,
+    event,
 ) -> PositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -85,7 +85,7 @@ async def update_position_service(
     position_id: int,
     dto: UpdatePositionDTO,
     session: AsyncSession,
-    logger,
+    event,
 ) -> PositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -109,7 +109,7 @@ async def delete_position_service(
     preset_id: int,
     position_id: int,
     session: AsyncSession,
-    logger,
+    event,
 ) -> None:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 

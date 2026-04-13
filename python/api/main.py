@@ -9,7 +9,7 @@ from loguru import logger
 from shared.utils.database import setup_db
 from shared.utils.env import get_app_origin
 from shared.utils.error import AppError, UnexpectedErrorCode, ValidationErrorCode
-from shared.utils.logging import LoguruMiddleware, setup_logging
+from shared.utils.logging import LoggingMiddleware, setup_logging
 
 from .routers import (
     auction_router,
@@ -72,7 +72,7 @@ async def exception_handler(request: Request, exc: Exception) -> JSONResponse:
     return await app_error_handler(request, app_error)
 
 
-app.add_middleware(LoguruMiddleware)
+app.add_middleware(LoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[get_app_origin()],

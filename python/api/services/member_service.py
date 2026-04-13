@@ -49,7 +49,7 @@ async def update_member_service(
     member_id: int,
     dto,
     session: AsyncSession,
-    logger,
+    event,
 ) -> MemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
     member_repo = MemberRepository(session)
@@ -66,5 +66,5 @@ async def update_member_service(
     if member is None:
         raise AppError(MemberErrorCode.NotFound)
     result = MemberDetailDTO.model_validate(member)
-    logger.bind(**MemberDTO.model_validate(result).model_dump())
+    event.bind(**MemberDTO.model_validate(result).model_dump())
     return result

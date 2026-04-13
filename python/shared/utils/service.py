@@ -6,7 +6,7 @@ from loguru import logger
 from .error import AppError, UnexpectedErrorCode
 
 
-class _ServiceLogger:
+class _ServiceEvent:
     def __init__(self) -> None:
         self.entries: list[dict[str, object]] = []
 
@@ -17,20 +17,20 @@ class _ServiceLogger:
 
 def service(func):
     sig = inspect.signature(func)
-    accepts_logger = "logger" in sig.parameters
+    has_event = "event" in sig.parameters
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        service_logger = _ServiceLogger()
-        if accepts_logger and "logger" not in kwargs:
-            kwargs["logger"] = service_logger
+        event = _ServiceEvent()
+        if has_event and "event" not in kwargs:
+            kwargs["event"] = event
 
         try:
             result = await func(*args, **kwargs)
-            if accepts_logger and service_logger.entries:
-                for entry in service_logger.entries:
+            if has_event and event.entries:
+                for entry in event.entries:
                     logger.bind(function=func.__name__, **entry).info("")
-            elif accepts_logger:
+            elif has_event:
                 logger.bind(function=func.__name__).info("")
             return result
         except AppError as error:

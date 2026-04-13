@@ -9,7 +9,7 @@ from shared.utils.user import upsert_user
 async def on_user_update_service(
     user: User,
     session: AsyncSession,
-    logger,
+    event,
 ) -> None:
     user_dto = await upsert_user(
         user.id,
@@ -17,4 +17,4 @@ async def on_user_update_service(
         user.avatar.key if user.avatar else None,
         session,
     )
-    logger.bind(**user_dto.model_dump())
+    event.bind(**user_dto.model_dump())

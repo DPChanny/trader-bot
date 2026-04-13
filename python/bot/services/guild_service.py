@@ -10,7 +10,7 @@ from ..utils.member import update_member_role, upsert_member
 
 
 @service
-async def on_guild_join_service(guild: Guild, session: AsyncSession, logger) -> None:
+async def on_guild_join_service(guild: Guild, session: AsyncSession, event) -> None:
     owner_discord_id = guild.owner_id
     guild_id = guild.id
     guild_entity = await upsert_guild(
@@ -37,13 +37,13 @@ async def on_guild_join_service(guild: Guild, session: AsyncSession, logger) -> 
             name=member.nick,
             avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
         )
-        logger.bind(**user.model_dump())
+        event.bind(**user.model_dump())
         if member.id != owner_discord_id:
-            logger.bind(**member_dto.model_dump())
+            event.bind(**member_dto.model_dump())
 
     await session.flush()
 
-    logger.bind(
+    event.bind(
         **guild_entity.model_dump(),
     )
 
@@ -53,7 +53,7 @@ async def on_guild_join_service(guild: Guild, session: AsyncSession, logger) -> 
         Role.OWNER,
         session,
     )
-    logger.bind(**owner_member.model_dump())
+    event.bind(**owner_member.model_dump())
 
 
 @service
@@ -61,7 +61,7 @@ async def on_guild_update_service(
     before: Guild,
     after: Guild,
     session: AsyncSession,
-    logger,
+    event,
 ) -> None:
     guild_id = after.id
     guild_entity = await upsert_guild(
@@ -70,7 +70,7 @@ async def on_guild_update_service(
         after.icon.key if after.icon else None,
         session,
     )
-    logger.bind(
+    event.bind(
         **guild_entity.model_dump(),
         old_owner_discord_id=before.owner_id,
         new_owner_discord_id=after.owner_id,
@@ -87,11 +87,11 @@ async def on_guild_update_service(
         Role.OWNER,
         session,
     )
-    logger.bind(**old_owner_member.model_dump())
-    logger.bind(**new_owner_member.model_dump())
+    event.bind(**old_owner_member.model_dump())
+    event.bind(**new_owner_member.model_dump())
 
 
 @service
-async def on_guild_remove_service(guild: Guild, session: AsyncSession, logger) -> None:
+async def on_guild_remove_service(guild: Guild, session: AsyncSession, event) -> None:
     await delete_guild(guild.id, session)
-    logger.bind(discord_id=guild.id)
+    event.bind(discord_id=guild.id)

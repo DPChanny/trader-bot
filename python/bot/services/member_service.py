@@ -11,7 +11,7 @@ from ..utils.member import delete_member, upsert_member
 async def on_member_join_service(
     member: Member,
     session: AsyncSession,
-    logger,
+    event,
 ) -> None:
     user = await upsert_user(
         member.id,
@@ -26,15 +26,15 @@ async def on_member_join_service(
         name=member.nick,
         avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
     )
-    logger.bind(**user.model_dump())
-    logger.bind(**member_dto.model_dump())
+    event.bind(**user.model_dump())
+    event.bind(**member_dto.model_dump())
 
 
 @service
 async def on_member_update_service(
     member: Member,
     session: AsyncSession,
-    logger,
+    event,
 ) -> None:
     member_dto = await upsert_member(
         member.guild.id,
@@ -43,17 +43,17 @@ async def on_member_update_service(
         name=member.nick,
         avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
     )
-    logger.bind(**member_dto.model_dump())
+    event.bind(**member_dto.model_dump())
 
 
 @service
 async def on_member_remove_service(
     member: Member,
     session: AsyncSession,
-    logger,
+    event,
 ) -> None:
     await delete_member(member.guild.id, member.id, session)
-    logger.bind(
+    event.bind(
         guild_id=member.guild.id,
         user_id=member.id,
     )

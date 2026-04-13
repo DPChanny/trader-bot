@@ -11,7 +11,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 
-class LoguruHandler(logging.Handler):
+class _LoguruHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
         try:
             level = logger.level(record.levelname).name
@@ -41,9 +41,11 @@ def _json_sink(message) -> None:
         "module": None if function else record["name"],
         "function": function or record["function"],
         "line": None if function else record["line"],
-        "message": record["message"],
     }
-    data.update(extra)
+    if record["message"]:
+        data["message"] = record["message"]
+    if extra:
+        data.update(extra)
     if record["exception"]:
         import traceback
 
@@ -91,7 +93,7 @@ def setup_logging() -> None:
     else:
         logger.add(_text_sink, level=log_level)
 
-    logging.root.handlers = [LoguruHandler()]
+    logging.root.handlers = [_LoguruHandler()]
     logging.root.setLevel(logging.NOTSET)
 
     for name in list(logging.root.manager.loggerDict.keys()):
@@ -100,7 +102,7 @@ def setup_logging() -> None:
         log.propagate = True
 
 
-class LoguruMiddleware(BaseHTTPMiddleware):
+class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         request_id = str(uuid4())
         start = time.perf_counter()
@@ -111,7 +113,7 @@ class LoguruMiddleware(BaseHTTPMiddleware):
             logger.bind(
                 method=request.method,
                 route=request.url.path,
-                response=response.status_code,
+                status_code=response.status_code,
                 duration=duration,
             ).info("")
             response.headers["X-Request-ID"] = request_id

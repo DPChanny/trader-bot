@@ -33,7 +33,7 @@ async def create_preset_service(
     user_id: int,
     dto: CreatePresetDTO,
     session: AsyncSession,
-    logger,
+    event,
 ) -> PresetDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -48,7 +48,7 @@ async def create_preset_service(
     session.add(preset)
     await session.flush()
     result = PresetDTO.model_validate(preset)
-    logger.bind(**result.model_dump())
+    event.bind(**result.model_dump())
     return result
 
 
@@ -70,7 +70,7 @@ async def update_preset_service(
     preset_id: int,
     dto: UpdatePresetDTO,
     session: AsyncSession,
-    logger,
+    event,
 ) -> PresetDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -83,7 +83,7 @@ async def update_preset_service(
         setattr(preset, key, value)
 
     result = PresetDTO.model_validate(preset)
-    logger.bind(**result.model_dump())
+    event.bind(**result.model_dump())
     return result
 
 
@@ -93,7 +93,7 @@ async def delete_preset_service(
     user_id: int,
     preset_id: int,
     session: AsyncSession,
-    logger,
+    event,
 ) -> None:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
@@ -103,4 +103,4 @@ async def delete_preset_service(
         raise AppError(PresetErrorCode.NotFound)
 
     await session.delete(preset)
-    logger.bind(preset_id=preset_id)
+    event.bind(preset_id=preset_id)

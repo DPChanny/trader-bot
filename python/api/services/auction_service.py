@@ -27,7 +27,7 @@ async def create_auction_service(
     preset_id: int,
     dto: CreateAuctionDTO,
     session: AsyncSession,
-    logger,
+    event,
 ) -> AuctionDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
@@ -75,7 +75,7 @@ async def create_auction_service(
     auction_id: str = auction.auction_id
 
     result = AuctionDTO(auction_id=auction_id)
-    logger.bind(**result.model_dump(), member_count=len(member_ids))
+    event.bind(**result.model_dump(), member_count=len(member_ids))
 
     app_origin = get_app_origin()
 

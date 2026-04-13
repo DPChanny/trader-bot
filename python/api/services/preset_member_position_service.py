@@ -32,7 +32,7 @@ async def add_preset_member_position_service(
     preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
     session: AsyncSession,
-    logger,
+    event,
 ) -> PresetMemberPositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -58,7 +58,7 @@ async def add_preset_member_position_service(
         raise AppError(ValidationErrorCode.Duplicated) from None
 
     result = PresetMemberPositionDTO.model_validate(preset_member_position)
-    logger.bind(**result.model_dump())
+    event.bind(**result.model_dump())
     return result
 
 
@@ -70,7 +70,7 @@ async def delete_preset_member_position_service(
     preset_member_id: int,
     preset_member_position_id: int,
     session: AsyncSession,
-    logger,
+    event,
 ) -> None:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -82,4 +82,4 @@ async def delete_preset_member_position_service(
         raise AppError(PresetMemberPositionErrorCode.NotFound)
 
     await session.delete(preset_member_position)
-    logger.bind(preset_member_position_id=preset_member_position_id)
+    event.bind(preset_member_position_id=preset_member_position_id)

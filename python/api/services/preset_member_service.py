@@ -68,7 +68,7 @@ async def add_preset_member_service(
     preset_id: int,
     dto: AddPresetMemberDTO,
     session: AsyncSession,
-    logger,
+    event,
 ) -> PresetMemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -101,7 +101,7 @@ async def add_preset_member_service(
     if preset_member is None:
         raise AppError(PresetMemberErrorCode.NotFound)
     result = PresetMemberDetailDTO.model_validate(preset_member)
-    logger.bind(**PresetMemberDTO.model_validate(result).model_dump())
+    event.bind(**PresetMemberDTO.model_validate(result).model_dump())
     return result
 
 
@@ -113,7 +113,7 @@ async def update_preset_member_service(
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
     session: AsyncSession,
-    logger,
+    event,
 ) -> PresetMemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -136,7 +136,7 @@ async def update_preset_member_service(
         preset_member_id, preset_id, guild_id
     )
     result = PresetMemberDetailDTO.model_validate(preset_member)
-    logger.bind(**PresetMemberDTO.model_validate(result).model_dump())
+    event.bind(**PresetMemberDTO.model_validate(result).model_dump())
     return result
 
 
@@ -147,7 +147,7 @@ async def delete_preset_member_service(
     preset_id: int,
     preset_member_id: int,
     session: AsyncSession,
-    logger,
+    event,
 ) -> None:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -159,4 +159,4 @@ async def delete_preset_member_service(
         raise AppError(PresetMemberErrorCode.NotFound)
 
     await session.delete(preset_member)
-    logger.bind(preset_member_id=preset_member_id)
+    event.bind(preset_member_id=preset_member_id)
