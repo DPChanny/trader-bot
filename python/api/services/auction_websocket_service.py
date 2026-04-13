@@ -5,6 +5,7 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auction.auction import AuctionStatus
+from shared.dtos.auction_dto import MessageType
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.utils.error import AuctionErrorCode, AuthErrorCode, ValidationErrorCode
 
@@ -92,7 +93,7 @@ async def handle_websocket_connect(
 
     team_id: int | None = None
     if member_id is not None and is_leader:
-        for tid, team in auction.team_ids.items():
+        for tid, team in auction.team_id_to_team.items():
             if team.leader_id == member_id:
                 team_id = tid
                 break
@@ -112,7 +113,7 @@ async def handle_websocket_connect(
         auction_id=auction_id,
     ).info("")
 
-    await auction.connect(websocket, member_id, is_leader, team_id)
+    await auction.connect(websocket, member_id)
 
     return auction, member_id, is_leader, team_id
 
@@ -184,7 +185,7 @@ async def handle_websocket_disconnect(
     logger.bind(action="disconnected", member_id=member_id).info("")
 
     if (
-        auction.status == AuctionStatus.IN_PROGRESS
+        auction.status == AuctionStatus.RUNNING
         and not auction.are_all_leaders_connected()
     ):
         logger.bind(

@@ -57,12 +57,12 @@ async def auction_websocket(
                 leader_count=len(auction.leader_member_ids),
             ).info("")
             if auction.status == AuctionStatus.WAITING:
-                await auction.set_status(AuctionStatus.IN_PROGRESS)
+                await auction.set_status(AuctionStatus.RUNNING)
         elif is_leader:
             connected_count = sum(
                 1
                 for lid in auction.leader_member_ids
-                if lid in auction.connected_member_ids
+                if lid in auction.preset_member_websockets
             )
             logger.bind(
                 action="leader_joined",

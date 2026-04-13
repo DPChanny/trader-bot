@@ -24,8 +24,13 @@ class MessageType(StrEnum):
 class TeamDTO(BaseDTO):
     team_id: int
     leader_id: int
-    member_id_list: list[int]
+    member_ids: list[int]
     points: int
+
+
+class BidDTO(BaseDTO):
+    amount: int
+    leader_id: int
 
 
 class AuctionDTO(BaseDTO):
@@ -34,8 +39,7 @@ class AuctionDTO(BaseDTO):
     preset_id: int
     status: int
     current_member_id: int | None
-    current_bid: int | None
-    current_bidder: int | None
+    current_bid: BidDTO | None
     timer: int
 
 
@@ -43,7 +47,7 @@ class AuctionDetailDTO(AuctionDTO):
     teams: list[TeamDTO]
     auction_queue: list[int]
     unsold_queue: list[int]
-    connected_users: list[int]
+    connected_preset_member_ids: list[int]
     preset_snapshot: PresetDetailDTO | None
 
 
