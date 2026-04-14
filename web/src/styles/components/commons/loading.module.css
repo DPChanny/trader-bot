@@ -1,22 +1,4 @@
-﻿.container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  width: 100%;
-  flex: 1;
-}
-
-.inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-4);
-  padding: var(--space-10);
-}
-
-.spinner {
+﻿.spinner {
   width: var(--space-10);
   height: var(--space-10);
   border: var(--border-width-heavy) solid var(--color-loading-spinner-track);

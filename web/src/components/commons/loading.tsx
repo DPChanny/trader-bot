@@ -1,17 +1,15 @@
+import { Column, Fill, type LayoutProps } from "@/components/commons/layout";
 import styles from "@/styles/components/commons/loading.module.css";
 
-interface LoadingProps {
-  message?: string;
-  children?: any;
-}
+export type LoadingProps = Omit<LayoutProps, "children">;
 
-export function Loading({ message, children }: LoadingProps) {
+export function Loading({ className, ...props }: LoadingProps) {
   return (
-    <div className={styles.container}>
-      <div className={styles.inner}>
+    <Fill center className={className} {...props}>
+      <Column center gap="md" padding="xl">
         <div className={styles.spinner}></div>
-        <div className={styles.text}>{children || message || "로딩중"}</div>
-      </div>
-    </div>
+        <div className={styles.text}>로딩중</div>
+      </Column>
+    </Fill>
   );
 }

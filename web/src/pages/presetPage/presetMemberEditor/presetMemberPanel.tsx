@@ -243,7 +243,7 @@ export function PresetMemberPanel({
           <Label>팀장</Label>
           <TertiarySection>
             <Toggle
-              isActive={isLeader}
+              isPressed={isLeader}
               variantColor="gold"
               disabled={!canEdit}
               onClick={() => canEdit && setIsLeader(!isLeader)}
@@ -256,7 +256,7 @@ export function PresetMemberPanel({
           <TertiarySection>
             <Row wrap>
               <Toggle
-                isActive={tierId === null}
+                isPressed={tierId === null}
                 variantColor="red"
                 disabled={!canEdit}
                 onClick={() => canEdit && setTierId(null)}
@@ -266,7 +266,7 @@ export function PresetMemberPanel({
               {tiers?.map((tier) => (
                 <Toggle
                   key={tier.tierId}
-                  isActive={tierId === tier.tierId}
+                  isPressed={tierId === tier.tierId}
                   variantColor="red"
                   disabled={!canEdit}
                   onClick={() => canEdit && handleToggleTier(tier.tierId)}
@@ -281,7 +281,7 @@ export function PresetMemberPanel({
           <TertiarySection>
             <Row wrap>
               <Toggle
-                isActive={selectedPositionIds.length === 0}
+                isPressed={selectedPositionIds.length === 0}
                 variantColor="blue"
                 disabled={!canEdit}
                 onClick={() => canEdit && setSelectedPositionIds([])}
@@ -291,7 +291,7 @@ export function PresetMemberPanel({
               {positions.map((position) => (
                 <Toggle
                   key={position.positionId}
-                  isActive={selectedPositionIds.includes(position.positionId)}
+                  isPressed={selectedPositionIds.includes(position.positionId)}
                   variantColor="blue"
                   disabled={!canEdit}
                   onClick={() =>

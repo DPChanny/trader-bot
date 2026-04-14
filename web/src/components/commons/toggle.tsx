@@ -14,7 +14,7 @@ const toggleVariants = cva(styles.toggle, {
       gold: styles.colorGold,
     },
     pressed: {
-      true: styles.activeTrue,
+      true: styles.pressedTrue,
       false: "",
     },
   },
@@ -24,13 +24,12 @@ const toggleVariants = cva(styles.toggle, {
   },
 });
 
-export type ToggleProps = Omit<PressedButtonProps, "isPressed"> & {
+export type ToggleProps = PressedButtonProps & {
   variantColor?: VariantProps<typeof toggleVariants>["variantColor"];
-  isActive?: boolean;
 };
 
 export function Toggle({
-  isActive = false,
+  isPressed = false,
   variantColor = "blue",
   className,
   type = "button",
@@ -39,9 +38,9 @@ export function Toggle({
   return (
     <PressedButton
       type={type}
-      isPressed={isActive}
+      isPressed={isPressed}
       className={clsx(
-        toggleVariants({ variantColor, pressed: isActive }),
+        toggleVariants({ variantColor, pressed: isPressed }),
         className,
       )}
       {...props}

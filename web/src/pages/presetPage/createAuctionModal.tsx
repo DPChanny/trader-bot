@@ -39,14 +39,14 @@ export function CreateAuctionModal({
         {error && <Error error={error}>경매 생성에 실패했습니다.</Error>}
         <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
           <Label>퍼블릭 허용</Label>
-          <Toggle isActive={isPublic} onClick={() => setIsPublic((v) => !v)}>
+          <Toggle isPressed={isPublic} onClick={() => setIsPublic((v) => !v)}>
             {isPublic ? "허용" : "비허용"}
           </Toggle>
         </Row>
         <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
           <Label>초대 발송</Label>
           <Toggle
-            isActive={sendInvite}
+            isPressed={sendInvite}
             onClick={() => setSendInvite((v) => !v)}
           >
             {sendInvite ? "발송" : "미발송"}

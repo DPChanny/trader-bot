@@ -34,19 +34,19 @@
   border-color: var(--color-toggle-gold-border-hover);
 }
 
-.colorBlue.activeTrue {
+.colorBlue.pressedTrue {
   background: var(--color-toggle-blue-bg-active);
   border-color: var(--color-toggle-blue-border-active);
   color: var(--color-toggle-blue-text-active);
 }
 
-.colorRed.activeTrue {
+.colorRed.pressedTrue {
   background: var(--color-toggle-red-bg-active);
   border-color: var(--color-toggle-red-border-active);
   color: var(--color-toggle-red-text-active);
 }
 
-.colorGold.activeTrue {
+.colorGold.pressedTrue {
   background: var(--color-toggle-gold-bg-active);
   border-color: var(--color-toggle-gold-border-active);
   color: var(--color-toggle-gold-text-active);

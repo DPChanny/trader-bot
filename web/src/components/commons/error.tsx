@@ -1,3 +1,4 @@
+import { Column } from "@/components/commons/layout";
 import { useState } from "preact/hooks";
 import styles from "@/styles/components/commons/error.module.css";
 import { clsx } from "clsx";
@@ -17,22 +18,29 @@ export function Error({ children, className, error, ...props }: ErrorProps) {
     error instanceof AppError ? (error.code ?? undefined) : undefined;
 
   return (
-    <div className={clsx(styles.error, className)} {...props}>
+    <Column
+      align="center"
+      gap="xs"
+      className={clsx(styles.error, className)}
+      {...props}
+    >
       {detail ? (
         <button
+          type="button"
           className={styles.toggle}
+          aria-expanded={showDetail}
           onClick={() => setShowDetail((v) => !v)}
         >
-          {children || "오류가 발생했습니다."}
+          {children ?? "오류가 발생했습니다."}
         </button>
       ) : (
-        <span>{children || "오류가 발생했습니다."}</span>
+        <span>{children ?? "오류가 발생했습니다."}</span>
       )}
       {showDetail && (
         <span className={styles.detail}>
           {code !== undefined ? `#${code}: ${detail}` : detail}
         </span>
       )}
-    </div>
+    </Column>
   );
 }

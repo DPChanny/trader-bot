@@ -147,7 +147,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
                     variantColor={
                       value === 3 ? "gold" : value === 2 ? "red" : "blue"
                     }
-                    isActive={role === value}
+                    isPressed={role === value}
                     disabled={!canEditRole || value === 3}
                     onClick={() => setRole(value)}
                   >
