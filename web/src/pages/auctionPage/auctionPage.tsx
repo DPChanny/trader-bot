@@ -101,9 +101,11 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   if (errorMessage) {
     return (
       <PageLayout>
-        <PrimarySection className={styles.centerSection}>
-          <Error error={websocketError}>{errorMessage}</Error>
-        </PrimarySection>
+        <Column fill center>
+          <PrimarySection>
+            <Error error={websocketError}>{errorMessage}</Error>
+          </PrimarySection>
+        </Column>
       </PageLayout>
     );
   }
@@ -195,9 +197,13 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
           <span>{getStatusText(state.status)}</span>
         </Row>
         <Bar />
-        <Column className={styles.auctionInfoContentSection}>
+        <Column fill>
           <SecondarySection className={styles.auctionInfoTopSection}>
-            {currentMember && <PresetMemberCard presetMember={currentMember} />}
+            <Column fill align="center">
+              {currentMember && (
+                <PresetMemberCard presetMember={currentMember} />
+              )}
+            </Column>
           </SecondarySection>
 
           <Grid className={styles.auctionInfoGridSection}>

@@ -16,7 +16,7 @@ export type ModalProps = {
 export function Modal({ onClose, title, children, className }: ModalProps) {
   const content = (
     <Fill className={styles.modal}>
-      <Fill className={styles.overlay} onClick={onClose}>
+      <Fill center className={styles.overlay} onClick={onClose}>
         <PrimarySection
           className={clsx(styles.content, className)}
           onClick={(e) => e.stopPropagation()}
@@ -68,7 +68,7 @@ interface ModalFooterProps {
 
 export function ModalFooter({ children, className }: ModalFooterProps) {
   return (
-    <Row gap="sm" className={clsx(styles.footer, className)}>
+    <Row gap="sm" justify="end" className={className}>
       {children}
     </Row>
   );

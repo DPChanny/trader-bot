@@ -1,7 +1,10 @@
-list fill
-
-
 web section div & css
+    page layout 통합
+    text css
+positoin tier 위주 list editor modal 계층 명확화
+bar 관련 개선
+sidemenu overflow 및 section 탈퇴
+color 통일
 iframe
 log analysis
 home page

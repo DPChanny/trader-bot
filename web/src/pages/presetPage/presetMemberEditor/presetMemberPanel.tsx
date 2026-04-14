@@ -235,9 +235,9 @@ export function PresetMemberPanel({
 
       <Bar />
 
-      <Scroll axis="y" className={styles.content}>
+      <Scroll axis="y">
         <Column>
-          <Column className={styles.cardSection}>
+          <Column align="center">
             <PresetMemberCard presetMember={previewPresetMember} />
           </Column>
 
@@ -255,7 +255,7 @@ export function PresetMemberPanel({
 
           <Label>티어</Label>
           <TertiarySection>
-            <Row className={styles.toggleSection}>
+            <Row wrap>
               <Toggle
                 isActive={tierId === null}
                 variantColor="red"
@@ -280,7 +280,7 @@ export function PresetMemberPanel({
 
           <Label>포지션</Label>
           <TertiarySection>
-            <Row className={styles.toggleSection}>
+            <Row wrap>
               <Toggle
                 isActive={selectedPositionIds.length === 0}
                 variantColor="blue"

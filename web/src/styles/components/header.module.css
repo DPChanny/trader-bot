@@ -12,8 +12,6 @@
   max-width: 100%;
   padding: 0 var(--space-6);
   position: relative;
-  align-items: center;
-  justify-content: flex-end;
   height: 3.5rem;
 }
 
@@ -42,7 +40,6 @@
 }
 
 .headerUser {
-  align-items: center;
   gap: var(--gap-md);
 }
 

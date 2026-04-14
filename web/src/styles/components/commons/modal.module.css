@@ -8,8 +8,6 @@
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.7);
-  align-items: center;
-  justify-content: center;
 }
 
 .content {
@@ -19,8 +17,4 @@
 
 .row > * {
   flex: 1;
-}
-
-.footer {
-  justify-content: flex-end !important;
 }

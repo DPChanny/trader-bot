@@ -18,10 +18,7 @@ export function SideMenu() {
     <>
       {isOpen && (
         <PrimarySection className={styles.sideMenu}>
-          <Row
-            gap="sm"
-            style={{ justifyContent: "space-between", alignItems: "center" }}
-          >
+          <Row gap="sm" justify="between" align="center">
             <h3>메뉴</h3>
             <CloseButton
               onClick={() => setIsOpen(false)}

@@ -12,13 +12,13 @@ interface HeaderProps {
 export function Header({ user, onLogout, onLogin }: HeaderProps) {
   return (
     <header className={styles.header}>
-      <Row className={styles.headerContent}>
+      <Row align="center" justify="end" className={styles.headerContent}>
         <a href="/" className={styles.headerLogo}>
           <span className={styles.headerIcon}>🎮</span>
           <span className={styles.headerText}>Trader</span>
         </a>
 
-        <Row className={styles.headerUser}>
+        <Row align="center" className={styles.headerUser}>
           {user ? (
             <>
               {user.avatarUrl && (

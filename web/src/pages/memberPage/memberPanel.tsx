@@ -101,9 +101,9 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
 
       <Bar />
 
-      <Scroll axis="y" className={styles.content}>
+      <Scroll axis="y">
         <Column>
-          <Column className={styles.cardSection}>
+          <Column align="center">
             <MemberCard
               member={{
                 ...member,
@@ -135,7 +135,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
           <SecondarySection>
             <span>권한</span>
             <TertiarySection>
-              <Row className={styles.toggleSection}>
+              <Row wrap>
                 {(
                   [
                     { value: 0, label: "VIEWER" },

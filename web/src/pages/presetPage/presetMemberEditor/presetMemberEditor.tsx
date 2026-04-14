@@ -9,7 +9,7 @@ import { PresetMemberPanel } from "./presetMemberPanel";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimarySection, SecondarySection } from "@/components/commons/section";
-import { Column } from "@/components/commons/layout";
+import { Column, Row } from "@/components/commons/layout";
 import styles from "@/styles/pages/presetPage/presetMemberEditor/presetMemberEditor.module.css";
 
 interface PresetMemberEditorProps {
@@ -119,59 +119,61 @@ export function PresetMemberEditor({
 
   return (
     <PrimarySection className={styles.editorLayout}>
-      <Column className={styles.gridsColumn}>
-        <SecondarySection className={styles.gridSection}>
-          {presetMembersError ? (
-            <Error error={presetMembersError}>
-              프리셋 멤버 목록을 불러오는데 실패했습니다.
-            </Error>
-          ) : presetMembersLoading ? (
-            <Loading />
-          ) : (
-            <PresetMemberGrid
-              presetMembers={
-                presetMembers?.filter(
-                  (pm) => !removingMemberIds.has(pm.memberId),
-                ) ?? []
-              }
-              selectedMemberId={selectedPresetMemberId}
-              onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
-            />
-          )}
-        </SecondarySection>
-
-        <SecondarySection className={styles.gridSection}>
-          {membersError ? (
-            <Error error={membersError}>
-              멤버 목록을 불러오는데 실패했습니다.
-            </Error>
-          ) : membersLoading ? (
-            <Loading />
-          ) : (
-            <>
-              {canEdit && createPresetMember.isError && (
-                <Error error={createPresetMember.error}>
-                  프리셋 멤버 추가에 실패했습니다.
-                </Error>
-              )}
-              <MemberGrid
-                members={candidateMembers}
-                onMemberClick={canEdit ? handleAddMember : undefined}
+      <Row fill minSize>
+        <Column fill minSize>
+          <SecondarySection className={styles.gridSection}>
+            {presetMembersError ? (
+              <Error error={presetMembersError}>
+                프리셋 멤버 목록을 불러오는데 실패했습니다.
+              </Error>
+            ) : presetMembersLoading ? (
+              <Loading />
+            ) : (
+              <PresetMemberGrid
+                presetMembers={
+                  presetMembers?.filter(
+                    (pm) => !removingMemberIds.has(pm.memberId),
+                  ) ?? []
+                }
+                selectedMemberId={selectedPresetMemberId}
+                onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
               />
-            </>
-          )}
-        </SecondarySection>
-      </Column>
+            )}
+          </SecondarySection>
 
-      {selectedPresetMember && (
-        <PresetMemberPanel
-          key={selectedPresetMember.presetMemberId}
-          presetMember={selectedPresetMember}
-          setSelectedPresetMemberId={setSelectedPresetMemberId}
-          addMemberIdToRemoving={addMemberIdToRemoving}
-          removeMemberIdFromRemoving={removeMemberIdFromRemoving}
-        />
-      )}
+          <SecondarySection className={styles.gridSection}>
+            {membersError ? (
+              <Error error={membersError}>
+                멤버 목록을 불러오는데 실패했습니다.
+              </Error>
+            ) : membersLoading ? (
+              <Loading />
+            ) : (
+              <>
+                {canEdit && createPresetMember.isError && (
+                  <Error error={createPresetMember.error}>
+                    프리셋 멤버 추가에 실패했습니다.
+                  </Error>
+                )}
+                <MemberGrid
+                  members={candidateMembers}
+                  onMemberClick={canEdit ? handleAddMember : undefined}
+                />
+              </>
+            )}
+          </SecondarySection>
+        </Column>
+
+        {selectedPresetMember && (
+          <PresetMemberPanel
+            key={selectedPresetMember.presetMemberId}
+            presetMember={selectedPresetMember}
+            setSelectedPresetMemberId={setSelectedPresetMemberId}
+            addMemberIdToRemoving={addMemberIdToRemoving}
+            removeMemberIdFromRemoving={removeMemberIdFromRemoving}
+          />
+        )}
+      </Row>
     </PrimarySection>
   );
 }

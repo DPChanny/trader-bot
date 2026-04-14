@@ -18,6 +18,24 @@ const layoutVariants = cva(styles.layout, {
       lg: styles.gapLg,
       xl: styles.gapXl,
     },
+    justify: {
+      start: styles.justifyStart,
+      center: styles.justifyCenter,
+      end: styles.justifyEnd,
+      between: styles.justifyBetween,
+      around: styles.justifyAround,
+      evenly: styles.justifyEvenly,
+    },
+    align: {
+      start: styles.alignStart,
+      center: styles.alignCenter,
+      end: styles.alignEnd,
+      stretch: styles.alignStretch,
+    },
+    center: {
+      true: styles.center,
+      false: "",
+    },
     wrap: {
       true: styles.wrap,
       false: "",
@@ -40,6 +58,9 @@ const layoutVariants = cva(styles.layout, {
   },
   defaultVariants: {
     direction: "column",
+    justify: "start",
+    align: "stretch",
+    center: false,
     wrap: false,
     fill: false,
     minSize: false,
@@ -56,6 +77,9 @@ export interface LayoutProps
 export function Layout({
   direction = "column",
   gap,
+  justify,
+  align,
+  center = false,
   wrap = false,
   fill = false,
   minSize = false,
@@ -70,6 +94,9 @@ export function Layout({
         layoutVariants({
           direction,
           gap,
+          justify,
+          align,
+          center,
           wrap,
           fill,
           minSize,
