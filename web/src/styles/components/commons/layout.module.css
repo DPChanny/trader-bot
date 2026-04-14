@@ -1,6 +1,6 @@
 .layout {
   display: flex;
-  gap: var(--layout-gap, var(--section-gap, 0));
+  gap: var(--layout-gap, 0);
 }
 
 .directionRow {
@@ -16,6 +16,34 @@
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   justify-items: stretch;
   align-items: flex-start;
+}
+
+.surfacePrimary {
+  --layout-gap: var(--gap-lg);
+  background: var(--color-section-primary-bg);
+  color: var(--color-section-primary-text);
+  border: var(--border-width-default) solid var(--color-section-primary-border);
+  border-radius: var(--radius-xl);
+  padding: var(--padding-xl);
+}
+
+.surfaceSecondary {
+  --layout-gap: var(--gap-sm);
+  background: var(--color-section-secondary-bg);
+  color: var(--color-section-secondary-text);
+  border: var(--border-width-default) solid
+    var(--color-section-secondary-border);
+  border-radius: var(--radius-lg);
+  padding: var(--padding-lg);
+}
+
+.surfaceTertiary {
+  --layout-gap: var(--gap-xs);
+  background: var(--color-section-tertiary-bg);
+  color: var(--color-section-tertiary-text);
+  border: var(--border-width-default) solid var(--color-section-tertiary-border);
+  border-radius: var(--radius-lg);
+  padding: var(--padding-md);
 }
 
 .gapNone {

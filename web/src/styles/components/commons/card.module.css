@@ -1,14 +1,6 @@
 .card {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--card-gap, 0);
   border: var(--border-width-default) solid transparent;
-  flex-shrink: 0;
-}
-
-.card {
-  --card-gap: var(--gap-sm);
   border-radius: var(--radius-lg);
   padding: var(--padding-md);
 }

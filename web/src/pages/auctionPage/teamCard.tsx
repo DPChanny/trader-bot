@@ -39,10 +39,7 @@ export function TeamCard({
   return (
     <Card variantColor={resolvedVariantColor} {...props}>
       <Column>
-        <Row
-          gap="sm"
-          style={{ justifyContent: "space-between", alignItems: "center" }}
-        >
+        <Row gap="sm" justify="between" align="center">
           <h4>{teamName}</h4>
           <span className={styles.points}>
             {team.points * pointScale} 포인트
@@ -50,7 +47,6 @@ export function TeamCard({
         </Row>
         <Bar variantColor={barVariantColor} />
         <PresetMemberGrid
-          className={styles.membersGrid}
           presetMembers={members}
           onMemberClick={() => {}}
           connectedMemberIds={connectedMemberIds}

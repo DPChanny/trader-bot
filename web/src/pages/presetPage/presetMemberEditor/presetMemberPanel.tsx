@@ -24,7 +24,6 @@ import {
 } from "@/components/commons/section";
 import { Column, Row, Scroll } from "@/components/commons/layout";
 import { buildPatchDto } from "@/utils/dto";
-import styles from "@/styles/pages/presetPage/presetMemberEditor/presetMemberPanel.module.css";
 
 interface PresetMemberPanelProps {
   presetMember: PresetMemberDetailDTO;
@@ -201,7 +200,7 @@ export function PresetMemberPanel({
   };
 
   return (
-    <SecondarySection className={styles.panelSection}>
+    <SecondarySection minSize style={{ width: "24rem", flex: "none" }}>
       <Column>
         <Row>
           <h3>

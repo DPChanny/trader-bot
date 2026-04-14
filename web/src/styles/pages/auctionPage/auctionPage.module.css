@@ -1,22 +1,4 @@
-﻿.teamsSection {
-  flex: 3;
-  overflow: hidden;
-}
-
-.auctionInfoSection {
-  flex: 2;
-}
-
-.queueSection {
-  flex: 3;
-  overflow: hidden;
-}
-
-.auctionInfoTopSection {
-  flex: 1;
-}
-
-.auctionInfoGridSection {
+﻿.auctionInfoGridSection {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }

@@ -4,7 +4,6 @@ import { PrimaryButton } from "@/components/commons/button";
 import { GuildCard } from "./guildCard";
 import type { GuildDetailDTO } from "@/dtos/guild";
 import { getBotInviteUrl } from "@/utils/env";
-import styles from "@/styles/components/sideMenu/guild/guildList.module.css";
 import { Bar } from "@/components/commons/bar";
 
 interface GuildListProps {
@@ -14,8 +13,8 @@ interface GuildListProps {
 
 export function GuildList({ guilds, activeGuildId }: GuildListProps) {
   return (
-    <SecondarySection className={styles.wrapper}>
-      <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
+    <SecondarySection fill minSize>
+      <Row justify="between" align="center">
         <h3>길드 관리</h3>
         <PrimaryButton onClick={() => window.open(getBotInviteUrl(), "_blank")}>
           추가

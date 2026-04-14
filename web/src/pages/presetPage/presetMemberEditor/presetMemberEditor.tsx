@@ -10,7 +10,6 @@ import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimarySection, SecondarySection } from "@/components/commons/section";
 import { Column, Row } from "@/components/commons/layout";
-import styles from "@/styles/pages/presetPage/presetMemberEditor/presetMemberEditor.module.css";
 
 interface PresetMemberEditorProps {
   guildId: string;
@@ -118,10 +117,10 @@ export function PresetMemberEditor({
   };
 
   return (
-    <PrimarySection className={styles.editorLayout}>
+    <PrimarySection fill minSize>
       <Row fill minSize>
         <Column fill minSize>
-          <SecondarySection className={styles.gridSection}>
+          <SecondarySection fill minSize>
             {presetMembersError ? (
               <Error error={presetMembersError}>
                 프리셋 멤버 목록을 불러오는데 실패했습니다.
@@ -141,7 +140,7 @@ export function PresetMemberEditor({
             )}
           </SecondarySection>
 
-          <SecondarySection className={styles.gridSection}>
+          <SecondarySection fill minSize>
             {membersError ? (
               <Error error={membersError}>
                 멤버 목록을 불러오는데 실패했습니다.

@@ -2,7 +2,6 @@ import { TeamCard } from "./teamCard";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 import type { TeamDTO } from "@/dtos/auction";
 import { Scroll } from "@/components/commons/layout";
-import styles from "@/styles/pages/auctionPage/teamList.module.css";
 
 interface TeamListProps {
   teams: TeamDTO[];
@@ -22,7 +21,7 @@ export function TeamList({
   clientMemberId,
 }: TeamListProps) {
   return (
-    <Scroll axis="y" fill gap="md" className={styles.teamList}>
+    <Scroll axis="y" fill gap="md">
       {teams.map((team) => {
         const members = team.memberIds
           .map((id) => presetMemberMap.get(id))

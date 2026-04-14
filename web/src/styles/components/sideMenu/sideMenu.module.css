@@ -22,13 +22,3 @@
   color: var(--color-text);
   background: var(--color-section-secondary-bg);
 }
-
-.sideMenu {
-  width: 20rem;
-  height: 100%;
-  flex-shrink: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-}

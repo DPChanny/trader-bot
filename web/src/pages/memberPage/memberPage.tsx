@@ -8,7 +8,6 @@ import { Error } from "@/components/commons/error";
 import { MemberPanel } from "./memberPanel";
 import type { MemberDetailDTO } from "@/dtos/member";
 
-import styles from "@/styles/pages/memberPage/memberPage.module.css";
 import { Bar } from "@/components/commons/bar";
 
 interface MemberPageProps {
@@ -40,7 +39,7 @@ export function MemberPage({ guildId }: MemberPageProps) {
 
   return (
     <PageLayout>
-      <PrimarySection className={styles.mainSection}>
+      <PrimarySection minSize style={{ flex: 4 }}>
         <h3>멤버 목록</h3>
         <Bar />
         {error ? (

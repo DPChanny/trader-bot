@@ -46,7 +46,7 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
           </Badge>
         </div>
       )}
-      <Column gap="sm">
+      <Column gap="sm" align="center">
         <div class={styles.profile}>
           {avatarUrl ? (
             <img src={avatarUrl} alt={displayName} />
@@ -67,7 +67,7 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
           )}
         </div>
 
-        <Column gap="xs">
+        <Column gap="xs" align="center">
           <h3 class={styles.name}>{displayName}</h3>
         </Column>
       </Column>

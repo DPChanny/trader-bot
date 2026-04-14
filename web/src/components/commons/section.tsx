@@ -1,46 +1,35 @@
-import { cva, type VariantProps } from "class-variance-authority";
-import { clsx } from "clsx";
-import styles from "@/styles/components/commons/section.module.css";
-import type { HTMLAttributes } from "preact";
+import { Layout, type LayoutProps } from "@/components/commons/layout";
+import type { ComponentChildren } from "preact";
 
-const sectionVariants = cva(styles.section, {
-  variants: {
-    variantIntent: {
-      primary: styles.intentPrimary,
-      secondary: styles.intentSecondary,
-      tertiary: styles.intentTertiary,
-    },
-  },
-  defaultVariants: {
-    variantIntent: "primary",
-  },
-});
+type SectionIntent = "primary" | "secondary" | "tertiary";
 
-type SectionVariants = VariantProps<typeof sectionVariants>;
-
-interface SectionProps extends SectionVariants, HTMLAttributes<HTMLDivElement> {
-  children?: any;
-  variantIntent?: "primary" | "secondary" | "tertiary";
-  className?: string;
+interface SectionProps extends Omit<LayoutProps, "surface"> {
+  children?: ComponentChildren;
+  variantIntent?: SectionIntent;
 }
 
 type SurfaceSectionProps = Omit<SectionProps, "variantIntent">;
 
 export type { SectionProps, SurfaceSectionProps };
 
+const surfaceByIntent: Record<
+  SectionIntent,
+  "primary" | "secondary" | "tertiary"
+> = {
+  primary: "primary",
+  secondary: "secondary",
+  tertiary: "tertiary",
+};
+
 export function Section({
   children,
   variantIntent = "primary",
-  className,
   ...props
 }: SectionProps) {
   return (
-    <div
-      className={clsx(sectionVariants({ variantIntent }), className)}
-      {...props}
-    >
+    <Layout surface={surfaceByIntent[variantIntent]} {...props}>
       {children}
-    </div>
+    </Layout>
   );
 }
 

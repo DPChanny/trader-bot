@@ -18,6 +18,7 @@ export function Modal({ onClose, title, children, className }: ModalProps) {
     <Fill className={styles.modal}>
       <Fill center className={styles.overlay} onClick={onClose}>
         <PrimarySection
+          overflow="y"
           className={clsx(styles.content, className)}
           onClick={(e) => e.stopPropagation()}
         >

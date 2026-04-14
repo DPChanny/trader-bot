@@ -178,7 +178,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
   return (
     <PageLayout>
-      <PrimarySection className={styles.teamsSection}>
+      <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
         <h3>팀 목록</h3>
         <Bar />
         <TeamList
@@ -191,14 +191,14 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
         />
       </PrimarySection>
 
-      <PrimarySection className={styles.auctionInfoSection}>
+      <PrimarySection minSize style={{ flex: 2 }}>
         <Row>
           <h3>경매 정보</h3>
           <span>{getStatusText(state.status)}</span>
         </Row>
         <Bar />
         <Column fill>
-          <SecondarySection className={styles.auctionInfoTopSection}>
+          <SecondarySection fill>
             <Column fill align="center">
               {currentMember && (
                 <PresetMemberCard presetMember={currentMember} />
@@ -250,8 +250,8 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
         </Column>
       </PrimarySection>
 
-      <Column className={styles.queueSection}>
-        <PrimarySection className={styles.queueSection}>
+      <Column minSize style={{ flex: 3 }}>
+        <PrimarySection fill minSize overflow="hidden">
           <h3>경매 순서</h3>
           <Bar />
           <PresetMemberGrid
@@ -262,7 +262,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
           />
         </PrimarySection>
 
-        <PrimarySection className={styles.queueSection}>
+        <PrimarySection fill minSize overflow="hidden">
           <h3>유찰 목록</h3>
           <Bar />
           <PresetMemberGrid

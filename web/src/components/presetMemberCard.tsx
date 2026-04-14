@@ -48,7 +48,7 @@ export function PresetMemberCard({
         )}
       </div>
 
-      <Column gap="sm">
+      <Column gap="sm" align="center">
         <div class={styles.profile}>
           {member.avatarUrl || member.user.avatarUrl ? (
             <img
@@ -72,7 +72,7 @@ export function PresetMemberCard({
           )}
         </div>
 
-        <Column gap="xs">
+        <Column gap="xs" align="center">
           <h3 class={styles.name}>
             {member.alias || member.name || member.user.name}
           </h3>

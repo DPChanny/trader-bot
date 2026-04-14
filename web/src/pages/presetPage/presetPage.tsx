@@ -24,7 +24,6 @@ import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionModal } from "./auctionModal";
 import type { CreateAuctionDTO } from "@/dtos/auction";
 import type { UpdatePresetDTO } from "@/dtos/preset";
-import styles from "@/styles/pages/presetPage/presetPage.module.css";
 import { Bar } from "@/components/commons/bar";
 
 interface PresetPageProps {
@@ -120,7 +119,11 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
   return (
     <PageLayout>
-      <PrimarySection className={styles.panelSection}>
+      <PrimarySection
+        minSize
+        overflow="hidden"
+        style={{ width: "24rem", flex: "none" }}
+      >
         {isPresetLoading ? (
           <SecondarySection>
             <Loading />

@@ -21,8 +21,6 @@ import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import { buildPatchDto } from "@/utils/dto";
 
-import styles from "@/styles/pages/memberPage/memberPanel.module.css";
-
 interface MemberPanelProps {
   member: MemberDetailDTO;
   onClose: () => void;
@@ -76,7 +74,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
   };
 
   return (
-    <PrimarySection className={styles.panelSection}>
+    <PrimarySection minSize style={{ width: "24rem", flex: "none" }}>
       <SecondarySection>
         <Column>
           <Row>

@@ -23,7 +23,6 @@ import type {
   UpdatePositionDTO,
 } from "@/dtos/position";
 
-import styles from "@/styles/pages/presetPage/positionEditor/positionList.module.css";
 
 interface PositionEditorProps {
   guildId: string;
@@ -105,8 +104,8 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   };
 
   return (
-    <SecondarySection className={styles.wrapper}>
-      <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
+    <SecondarySection fill minSize>
+      <Row justify="between" align="center">
         <h3>포지션 목록</h3>
         {canEdit && (
           <PrimaryButton onClick={handleOpenAddPositionModal}>

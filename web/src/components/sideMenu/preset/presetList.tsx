@@ -7,7 +7,6 @@ import { PresetCard } from "./presetCard";
 import { useCreatePreset, usePresets } from "@/hooks/preset";
 import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
-import styles from "@/styles/components/sideMenu/preset/presetList.module.css";
 import type { CreatePresetDTO } from "@/dtos/preset";
 import { Bar } from "@/components/commons/bar";
 
@@ -38,8 +37,8 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
 
   return (
     <>
-      <SecondarySection className={styles.wrapper}>
-        <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
+      <SecondarySection fill minSize>
+        <Row justify="between" align="center">
           <h3>프리셋 관리</h3>
           {canEdit && (
             <PrimaryButton onClick={handleOpenCreatePresetModal}>

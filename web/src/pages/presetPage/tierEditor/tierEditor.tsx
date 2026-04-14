@@ -16,7 +16,6 @@ import { AddTierModal } from "./addTierModal";
 import { UpdateTierModal } from "./updateTierModal";
 import { DeleteTierModal } from "./deleteTierModal";
 import { TierCard } from "./tierCard";
-import styles from "@/styles/pages/presetPage/tierEditor/tierList.module.css";
 import { SecondarySection } from "@/components/commons/section";
 import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@/dtos/tier";
 
@@ -96,8 +95,8 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
   };
 
   return (
-    <SecondarySection className={styles.wrapper}>
-      <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
+    <SecondarySection fill minSize>
+      <Row justify="between" align="center">
         <h3>티어 목록</h3>
         {canEdit && (
           <PrimaryButton onClick={handleOpenAddTierModal}>추가</PrimaryButton>

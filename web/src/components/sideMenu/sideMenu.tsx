@@ -17,7 +17,11 @@ export function SideMenu() {
   return (
     <>
       {isOpen && (
-        <PrimarySection className={styles.sideMenu}>
+        <PrimarySection
+          minSize
+          overflow="y"
+          style={{ width: "20rem", height: "100%", flexShrink: 0 }}
+        >
           <Row gap="sm" justify="between" align="center">
             <h3>메뉴</h3>
             <CloseButton

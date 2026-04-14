@@ -2,11 +2,3 @@
   font-weight: var(--font-weight-semibold);
   color: var(--color-button-primary-bg);
 }
-
-.membersGrid {
-  flex: 1;
-  overflow-x: auto;
-  overflow-y: hidden;
-  display: flex;
-  flex-direction: row;
-}
