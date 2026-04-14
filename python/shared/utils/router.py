@@ -1,4 +1,5 @@
 import functools
+import inspect
 from collections.abc import Awaitable, Callable
 from typing import ParamSpec, TypeVar
 
@@ -23,10 +24,15 @@ def router[**P, T](
 ) -> Callable[P, Awaitable[T]]:
     @functools.wraps(func)
     async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+        has_session = False
+        result: T | None = None
         async for session in get_session():
-            return await func(*args, session=session, **kwargs)
+            has_session = True
+            result = await func(*args, session=session, **kwargs)
 
-        raise RuntimeError("No Session")
+        if not has_session:
+            raise RuntimeError("No Session")
+        return result
 
     return wrapper
 
@@ -90,6 +96,15 @@ def ws_router[**P, T](
                     lambda code, reason: ws.close(code=code, reason=reason),
                 )
                 return None
+
+        signature = inspect.signature(func)
+        wrapper.__signature__ = signature.replace(
+            parameters=[
+                parameter
+                for parameter_name, parameter in signature.parameters.items()
+                if parameter_name != "session"
+            ]
+        )
 
         return wrapper
 
