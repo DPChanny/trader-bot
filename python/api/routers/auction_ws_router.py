@@ -18,7 +18,7 @@ from shared.dtos.auction import (
     MessageType,
 )
 from shared.utils.database import get_session
-from shared.utils.error import AuctionErrorCode, UnexpectedErrorCode, WSError
+from shared.utils.error import UnexpectedErrorCode, ValidationErrorCode, WSError
 
 from ..auction import Auction
 from ..services.auction_ws_service import (
@@ -60,18 +60,20 @@ async def auction_ws(
             member_id=member_id,
         )
         await ws.send_json(
-            AuctionMessageDTO(type=MessageType.INIT, data=init.model_dump()).model_dump()
+            AuctionMessageDTO(
+                type=MessageType.INIT, data=init.model_dump()
+            ).model_dump()
         )
 
         while True:
             data = await ws.receive_text()
             if len(data) > 1024:
-                await _send_error(ws, AuctionErrorCode.Invalid)
+                await _send_error(ws, ValidationErrorCode.Invalid)
                 continue
             try:
                 message = json.loads(data)
             except Exception:
-                await _send_error(ws, AuctionErrorCode.Invalid)
+                await _send_error(ws, ValidationErrorCode.Invalid)
                 continue
 
             try:

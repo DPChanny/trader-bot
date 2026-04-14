@@ -8,7 +8,7 @@ from shared.utils.env import (
     get_discord_client_id,
     get_discord_client_secret,
 )
-from shared.utils.error import DiscordErrorCode, HTTPError
+from shared.utils.error import HTTPError, UnexpectedErrorCode
 
 
 DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize"
@@ -48,7 +48,7 @@ async def get_me(code: str) -> dict:
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
         if access_token_response.status_code != 200:
-            raise HTTPError(DiscordErrorCode.ExchangeFailed)
+            raise HTTPError(UnexpectedErrorCode.External)
         access_token = access_token_response.json()["access_token"]
 
         me_response = await client.get(
@@ -56,7 +56,7 @@ async def get_me(code: str) -> dict:
             headers={"Authorization": f"Bearer {access_token}"},
         )
         if me_response.status_code != 200:
-            raise HTTPError(DiscordErrorCode.FetchFailed)
+            raise HTTPError(UnexpectedErrorCode.External)
         return me_response.json()
 
 
@@ -73,7 +73,7 @@ async def send_message(user_id: int, embeds: list[dict]) -> None:
             json={"recipient_id": str(user_id)},
         )
         if ch_response.status_code != 200:
-            raise HTTPError(DiscordErrorCode.FetchFailed)
+            raise HTTPError(UnexpectedErrorCode.External)
 
         channel_id = ch_response.json()["id"]
         msg_response = await client.post(
@@ -82,4 +82,4 @@ async def send_message(user_id: int, embeds: list[dict]) -> None:
             json={"embeds": embeds},
         )
         if msg_response.status_code != 200:
-            raise HTTPError(DiscordErrorCode.FetchFailed)
+            raise HTTPError(UnexpectedErrorCode.External)
