@@ -8,7 +8,6 @@ const layoutVariants = cva(styles.layout, {
     direction: {
       row: styles.directionRow,
       column: styles.directionColumn,
-      grid: styles.directionGrid,
     },
     gap: {
       none: styles.gapNone,
@@ -129,12 +128,6 @@ export function Row(props: FlowProps) {
 
 export function Column(props: FlowProps) {
   return <Layout direction="column" {...props} />;
-}
-
-type GridProps = Omit<LayoutProps, "direction">;
-
-export function Grid(props: GridProps) {
-  return <Layout direction="grid" {...props} />;
 }
 
 type FillProps = Omit<LayoutProps, "fill" | "minSize">;

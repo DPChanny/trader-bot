@@ -11,13 +11,6 @@
   flex-direction: column;
 }
 
-.directionGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
-  justify-items: stretch;
-  align-items: flex-start;
-}
-
 .gapNone {
   --layout-gap: 0;
 }

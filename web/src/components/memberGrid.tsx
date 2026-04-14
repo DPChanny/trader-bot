@@ -1,7 +1,6 @@
 import { MemberCard } from "./memberCard";
 import { PressedButton } from "@/components/commons/button";
-import { Grid, Scroll } from "@/components/commons/layout";
-import { clsx } from "clsx";
+import { Row, Scroll } from "@/components/commons/layout";
 import styles from "@/styles/components/memberGrid.module.css";
 import type { MemberDetailDTO } from "@/dtos/member";
 
@@ -20,7 +19,7 @@ export function MemberGrid({
 }: MemberGridProps) {
   return (
     <Scroll axis="both">
-      <Grid gap="md" className={clsx(styles.grid, className)}>
+      <Row wrap gap="md" align="start" className={className}>
         {members.map((member) => {
           const isSelected = selectedMemberId === member.memberId;
 
@@ -28,7 +27,7 @@ export function MemberGrid({
             <PressedButton
               key={member.memberId}
               type="button"
-              className={clsx(styles.gridItem, styles.gridButton)}
+              className={styles.gridButton}
               onClick={
                 onMemberClick ? () => onMemberClick(member.memberId) : undefined
               }
@@ -39,7 +38,7 @@ export function MemberGrid({
             </PressedButton>
           );
         })}
-      </Grid>
+      </Row>
     </Scroll>
   );
 }

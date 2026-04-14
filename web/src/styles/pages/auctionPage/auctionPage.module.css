@@ -1,6 +1,6 @@
-﻿.auctionInfoGridSection {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+﻿.auctionInfoGridSection > * {
+  flex: 1 1 16rem;
+  min-width: 0;
 }
 
 .auctionInfoBottomSection input {
@@ -10,12 +10,6 @@
 .auctionInfoBottomSection button {
   flex-shrink: 0;
   min-width: 7.5rem;
-}
-
-@media (max-width: 1024px) {
-  .auctionInfoGridSection {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 768px) {

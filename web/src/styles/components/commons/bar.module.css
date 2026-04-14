@@ -4,15 +4,15 @@
 }
 
 .thicknessThin {
-  height: var(--border-width-thin) !important;
+  height: var(--border-width-thin);
 }
 
 .thicknessMedium {
-  height: var(--border-width-medium) !important;
+  height: var(--border-width-medium);
 }
 
 .thicknessThick {
-  height: var(--border-width-thick) !important;
+  height: var(--border-width-thick);
 }
 
 .colorBlue {

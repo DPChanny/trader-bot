@@ -1,16 +1,3 @@
-.grid {
-  display: grid;
-  gap: var(--gap-md);
-  justify-content: start;
-  align-content: start;
-  grid-template-columns: repeat(auto-fill, 7rem);
-  grid-auto-rows: 9rem;
-}
-
-.gridItem {
-  width: fit-content;
-}
-
 .gridButton {
   appearance: none;
   background: none;

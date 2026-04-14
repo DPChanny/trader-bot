@@ -3,7 +3,7 @@ import { useAuctionWebSocket } from "@/hooks/auctionWebSocket";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import { PrimarySection, SecondarySection } from "@/components/commons/section";
-import { Column, Grid, Row } from "@/components/commons/layout";
+import { Column, Row } from "@/components/commons/layout";
 import { Page } from "@/components/commons/layout";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
@@ -206,7 +206,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             </Column>
           </SecondarySection>
 
-          <Grid className={styles.auctionInfoGridSection}>
+          <Row wrap className={styles.auctionInfoGridSection}>
             <Column>
               <InfoCard label="남은 시간" value={state.timer} />
               <InfoCard
@@ -219,7 +219,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
                 <PresetMemberCard presetMember={currentBidLeader} />
               )}
             </InfoCard>
-          </Grid>
+          </Row>
 
           {isLeader && !isClientTeamFull && (
             <Row className={styles.auctionInfoBottomSection}>

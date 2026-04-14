@@ -1,7 +1,6 @@
 import { PresetMemberCard } from "./presetMemberCard";
 import { PressedButton } from "@/components/commons/button";
-import { Grid, Scroll } from "@/components/commons/layout";
-import { clsx } from "clsx";
+import { Row, Scroll } from "@/components/commons/layout";
 import styles from "@/styles/components/memberGrid.module.css";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 
@@ -28,7 +27,7 @@ export function PresetMemberGrid({
 
   return (
     <Scroll axis="both">
-      <Grid gap="md" className={clsx(styles.grid, className)}>
+      <Row wrap gap="md" align="start" className={className}>
         {sorted.map((presetMember) => {
           const isSelected = selectedMemberId === presetMember.presetMemberId;
 
@@ -36,7 +35,7 @@ export function PresetMemberGrid({
             <PressedButton
               key={presetMember.presetMemberId}
               type="button"
-              className={clsx(styles.gridItem, styles.gridButton)}
+              className={styles.gridButton}
               onClick={() => onMemberClick(presetMember.presetMemberId)}
               isPressed={isSelected}
             >
@@ -56,7 +55,7 @@ export function PresetMemberGrid({
             </PressedButton>
           );
         })}
-      </Grid>
+      </Row>
     </Scroll>
   );
 }
