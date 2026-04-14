@@ -1,13 +1,13 @@
 from discord import Member
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.utils.service import http_service
+from shared.utils.service import bot_service
 from shared.utils.user import upsert_user
 
 from ..utils.member import delete_member, upsert_member
 
 
-@http_service
+@bot_service
 async def on_member_join_service(
     member: Member,
     session: AsyncSession,
@@ -29,7 +29,7 @@ async def on_member_join_service(
     event |= member_dto.model_dump()
 
 
-@http_service
+@bot_service
 async def on_member_update_service(
     member: Member,
     session: AsyncSession,
@@ -51,7 +51,7 @@ async def on_member_update_service(
     event |= member_dto.model_dump()
 
 
-@http_service
+@bot_service
 async def on_member_remove_service(
     member: Member,
     session: AsyncSession,

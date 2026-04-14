@@ -18,15 +18,12 @@ export const ValidationErrorCode = {
 
 export const AuctionErrorCode = {
   InsufficientLeaders: 4202,
+  BidTeamFull: 4203,
+  BidTooHigh: 4204,
+  BidTooLow: 4205,
   ForbiddenAccess: 4301,
+  BidNotLeader: 4302,
   NotFound: 4401,
-} as const;
-
-export const BidErrorCode = {
-  TeamFull: 4203,
-  TooHigh: 4204,
-  TooLow: 4205,
-  NotLeader: 4302,
 } as const;
 
 export const GuildErrorCode = {
@@ -76,7 +73,6 @@ export type AuthErrorCodeType = ValueOf<typeof AuthErrorCode>;
 export type TokenErrorCodeType = ValueOf<typeof TokenErrorCode>;
 export type ValidationErrorCodeType = ValueOf<typeof ValidationErrorCode>;
 export type AuctionErrorCodeType = ValueOf<typeof AuctionErrorCode>;
-export type BidErrorCodeType = ValueOf<typeof BidErrorCode>;
 export type GuildErrorCodeType = ValueOf<typeof GuildErrorCode>;
 export type MemberErrorCodeType = ValueOf<typeof MemberErrorCode>;
 export type PositionErrorCodeType = ValueOf<typeof PositionErrorCode>;
@@ -94,7 +90,6 @@ export type AppErrorCode =
   | TokenErrorCodeType
   | ValidationErrorCodeType
   | AuctionErrorCodeType
-  | BidErrorCodeType
   | GuildErrorCodeType
   | MemberErrorCodeType
   | PositionErrorCodeType
@@ -126,13 +121,13 @@ export function getErrorMessage(code: number): string {
     case AuctionErrorCode.NotFound:
       return "경매를 찾을 수 없습니다.";
 
-    case BidErrorCode.TeamFull:
+    case AuctionErrorCode.BidTeamFull:
       return "팀 인원이 가득 찼습니다.";
-    case BidErrorCode.TooHigh:
+    case AuctionErrorCode.BidTooHigh:
       return "입찰 금액이 보유 포인트를 초과합니다.";
-    case BidErrorCode.TooLow:
+    case AuctionErrorCode.BidTooLow:
       return "입찰 금액이 최솟값보다 낮습니다.";
-    case BidErrorCode.NotLeader:
+    case AuctionErrorCode.BidNotLeader:
       return "리더만 입찰할 수 있습니다.";
 
     case GuildErrorCode.NotFound:

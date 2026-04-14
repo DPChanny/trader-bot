@@ -30,15 +30,12 @@ class ValidationErrorCode(IntEnum):
 
 class AuctionErrorCode(IntEnum):
     InsufficientLeaders = 4202
+    BidTeamFull = 4203
+    BidTooHigh = 4204
+    BidTooLow = 4205
     ForbiddenAccess = 4301
+    BidNotLeader = 4302
     NotFound = 4401
-
-
-class BidErrorCode(IntEnum):
-    TeamFull = 4203
-    TooHigh = 4204
-    TooLow = 4205
-    NotLeader = 4302
 
 
 class GuildErrorCode(IntEnum):
@@ -82,20 +79,36 @@ class UnexpectedErrorCode(IntEnum):
     External = 5002
 
 
+type AppErrorCode = (
+    AuthErrorCode
+    | ValidationErrorCode
+    | AuctionErrorCode
+    | GuildErrorCode
+    | MemberErrorCode
+    | PositionErrorCode
+    | PresetErrorCode
+    | PresetMemberErrorCode
+    | PresetMemberPositionErrorCode
+    | TierErrorCode
+    | UserErrorCode
+    | UnexpectedErrorCode
+)
+
+
 class TokenError(Exception):
     def __init__(self, code: TokenErrorCode) -> None:
         self.code = code
 
 
 class AppError(Exception):
-    def __init__(self, code: IntEnum) -> None:
+    def __init__(self, code: AppErrorCode) -> None:
         self.code: int = code.value
         self.function: str | None = None
         super().__init__(str(code.value))
 
 
 class HTTPError(AppError):
-    def __init__(self, code: IntEnum) -> None:
+    def __init__(self, code: AppErrorCode) -> None:
         super().__init__(code)
         self.status_code: int = {
             41: 401,
@@ -107,7 +120,7 @@ class HTTPError(AppError):
 
 
 class WSError(AppError):
-    def __init__(self, code: IntEnum) -> None:
+    def __init__(self, code: AppErrorCode) -> None:
         super().__init__(code)
 
 

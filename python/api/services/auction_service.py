@@ -17,7 +17,6 @@ from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin
 from shared.utils.error import (
     AuctionErrorCode,
-    AuthErrorCode,
     HTTPError,
     PresetErrorCode,
     TokenError,
@@ -161,7 +160,7 @@ async def place_bid_service(
     event: dict,
 ) -> None:
     if member_id is None:
-        raise WSError(AuthErrorCode.Unauthorized)
+        raise WSError(AuctionErrorCode.BidNotLeader)
 
     await auction.place_bid(member_id, place_bid_payload_dto.amount)
 

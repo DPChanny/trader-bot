@@ -15,8 +15,8 @@ import { checkRefreshToken } from "@/utils/auth";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 import { AuctionStatus } from "@/dtos/auction";
 import {
-  BidErrorCode,
-  type BidErrorCodeType,
+  AuctionErrorCode,
+  type AuctionErrorCodeType,
   type WSError,
 } from "@/utils/error";
 
@@ -27,12 +27,12 @@ interface AuctionPageProps {
   auctionId?: string;
 }
 
-function isBidErrorCode(code: number): code is BidErrorCodeType {
+function isBidErrorCode(code: number): code is AuctionErrorCodeType {
   switch (code) {
-    case BidErrorCode.TeamFull:
-    case BidErrorCode.TooHigh:
-    case BidErrorCode.TooLow:
-    case BidErrorCode.NotLeader:
+    case AuctionErrorCode.BidTeamFull:
+    case AuctionErrorCode.BidTooHigh:
+    case AuctionErrorCode.BidTooLow:
+    case AuctionErrorCode.BidNotLeader:
       return true;
     default:
       return false;
