@@ -24,7 +24,8 @@ def http_service(func):
                 logger.bind(function=func.__name__, event=event).info("")
             return result
         except HTTPError as error:
-            error.function = func.__name__
+            if error.function is None:
+                error.function = func.__name__
             raise
         except Exception as error:
             http_error = HTTPError(UnexpectedErrorCode.Internal)
@@ -50,7 +51,8 @@ def bot_service(func):
                 logger.bind(function=func.__name__, event=event).info("")
             return result
         except AppError as error:
-            error.function = func.__name__
+            if error.function is None:
+                error.function = func.__name__
             raise
         except Exception as error:
             app_error = AppError(UnexpectedErrorCode.Internal)
@@ -76,7 +78,8 @@ def ws_service(func):
                 logger.bind(function=func.__name__, event=event).info("")
             return result
         except WSError as error:
-            error.function = func.__name__
+            if error.function is None:
+                error.function = func.__name__
             raise
         except (ValidationError, JSONDecodeError):
             raise

@@ -2,13 +2,14 @@ from discord import User
 from discord.ext import commands
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.utils.router import bot_router
+
 from ..services import on_user_update_service
-from ..utils.router import router
 
 
 def include_user_router(bot: commands.Bot) -> None:
     @bot.event
-    @router
+    @bot_router
     async def on_user_update(before: User, after: User, session: AsyncSession):
         if (before.global_name or before.name) == (
             after.global_name or after.name

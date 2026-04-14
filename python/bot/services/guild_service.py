@@ -82,7 +82,7 @@ async def on_guild_update_service(
     }
 
 
-@http_service
+@bot_service
 async def on_guild_remove_service(guild: Guild, session: AsyncSession, event) -> None:
     guild_dto = await delete_guild(guild.id, session)
     event |= guild_dto.model_dump()

@@ -1,5 +1,4 @@
 import json
-from enum import IntEnum
 from json import JSONDecodeError
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
@@ -20,12 +19,12 @@ from shared.dtos.auction import (
 )
 from shared.utils.database import get_session
 from shared.utils.error import (
+    AppErrorCode,
     AuthErrorCode,
-    UnexpectedErrorCode,
     ValidationErrorCode,
     WSError,
-    handle_ws_error,
 )
+from shared.utils.router import ws_router
 
 from ..auction import Auction
 from ..services.auction_service import (
@@ -67,7 +66,7 @@ def _get_message_payload[TPayloadDTO: BaseModel](
     message: str,
     message_type: AuctionMessageType,
     message_payload_cls: type[TPayloadDTO],
-    error_code: IntEnum,
+    error_code: AppErrorCode,
 ) -> TPayloadDTO:
     if len(message) > 1024:
         raise WSError(ValidationErrorCode.Invalid)
@@ -85,10 +84,11 @@ def _get_message_payload[TPayloadDTO: BaseModel](
 
 
 @auction_ws_router.websocket("/{auction_id}")
+@ws_router(_send_error_message)
 async def auction_ws(
     ws: WebSocket,
     auction_id: int,
-    session: AsyncSession = Depends(get_session),
+    session: AsyncSession,
 ):
     member_id: int | None = None
     auction = None
@@ -140,23 +140,7 @@ async def auction_ws(
         if auction is not None:
             await disconnect_service(auction, member_id, ws)
 
-    except WSError as e:
-        await handle_ws_error(
-            e,
-            auction_ws.__name__,
-            lambda code: _send_error_message(ws, code),
-            lambda code, reason: ws.close(code=code, reason=reason),
-        )
-
-    except Exception as e:
+    except Exception:
         if auction is not None:
             await disconnect_service(auction, member_id, ws)
-        ws_error = WSError(UnexpectedErrorCode.Internal)
-        ws_error.function = auction_ws.__name__
-        ws_error.__cause__ = e
-        await handle_ws_error(
-            ws_error,
-            auction_ws.__name__,
-            lambda code: _send_error_message(ws, code),
-            lambda code, reason: ws.close(code=code, reason=reason),
-        )
+        raise

@@ -116,5 +116,6 @@ async def verify_access_token(authorization: str = Header(None)) -> int:
         error.function = verify_access_token.__name__
         raise error from None
     except HTTPError as e:
-        e.function = verify_access_token.__name__
+        if e.function is None:
+            e.function = verify_access_token.__name__
         raise
