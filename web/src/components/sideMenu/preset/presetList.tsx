@@ -1,7 +1,6 @@
 import { useState } from "preact/hooks";
-import { Column, Row } from "@/components/commons/layout";
+import { Row, Scroll } from "@/components/commons/layout";
 import { SecondarySection } from "@/components/commons/section";
-import { Bar } from "@/components/commons/bar";
 import { PrimaryButton } from "@/components/commons/button";
 import { CreatePresetModal } from "./createPresetModal";
 import { PresetCard } from "./presetCard";
@@ -10,6 +9,7 @@ import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import styles from "@/styles/components/sideMenu/preset/presetList.module.css";
 import type { CreatePresetDTO } from "@/dtos/preset";
+import { Bar } from "@/components/commons/bar";
 
 interface PresetListProps {
   guildId: string;
@@ -48,7 +48,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
           )}
         </Row>
         <Bar />
-        <Column gap="xs">
+        <Scroll axis="y" gap="xs">
           {presets.map((preset) => (
             <PresetCard
               key={preset.presetId}
@@ -57,7 +57,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
               isSelected={selectedPresetId === preset.presetId}
             />
           ))}
-        </Column>
+        </Scroll>
       </SecondarySection>
 
       {showCreatePresetModal && (

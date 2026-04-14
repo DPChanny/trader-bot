@@ -11,7 +11,7 @@ import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
-import { Column, Row } from "@/components/commons/layout";
+import { Row, Scroll } from "@/components/commons/layout";
 import { AddTierModal } from "./addTierModal";
 import { UpdateTierModal } from "./updateTierModal";
 import { DeleteTierModal } from "./deleteTierModal";
@@ -105,7 +105,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
       </Row>
       <Bar />
 
-      <Column className={styles.tierList}>
+      <Scroll axis="y" className={styles.tierList}>
         {error ? (
           <Error error={error}>티어 목록을 불러오는데 실패했습니다.</Error>
         ) : isLoading ? (
@@ -122,7 +122,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
             />
           ))
         )}
-      </Column>
+      </Scroll>
 
       {showAddTierModal && (
         <AddTierModal

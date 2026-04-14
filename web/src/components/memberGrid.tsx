@@ -1,6 +1,6 @@
 import { MemberCard } from "./memberCard";
 import { PressedButton } from "@/components/commons/button";
-import { Grid } from "@/components/commons/layout";
+import { Grid, Scroll } from "@/components/commons/layout";
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberGrid.module.css";
 import type { MemberDetailDTO } from "@/dtos/member";
@@ -19,25 +19,27 @@ export function MemberGrid({
   className,
 }: MemberGridProps) {
   return (
-    <Grid gap="md" className={clsx(styles.grid, className)}>
-      {members.map((member) => {
-        const isSelected = selectedMemberId === member.memberId;
+    <Scroll axis="both">
+      <Grid gap="md" className={clsx(styles.grid, className)}>
+        {members.map((member) => {
+          const isSelected = selectedMemberId === member.memberId;
 
-        return (
-          <PressedButton
-            key={member.memberId}
-            type="button"
-            className={clsx(styles.gridItem, styles.gridButton)}
-            onClick={
-              onMemberClick ? () => onMemberClick(member.memberId) : undefined
-            }
-            isPressed={isSelected}
-            disabled={!onMemberClick}
-          >
-            <MemberCard member={member} />
-          </PressedButton>
-        );
-      })}
-    </Grid>
+          return (
+            <PressedButton
+              key={member.memberId}
+              type="button"
+              className={clsx(styles.gridItem, styles.gridButton)}
+              onClick={
+                onMemberClick ? () => onMemberClick(member.memberId) : undefined
+              }
+              isPressed={isSelected}
+              disabled={!onMemberClick}
+            >
+              <MemberCard member={member} />
+            </PressedButton>
+          );
+        })}
+      </Grid>
+    </Scroll>
   );
 }

@@ -1,7 +1,7 @@
 import { createPortal } from "preact/compat";
 import { clsx } from "clsx";
 import { Bar } from "@/components/commons/bar";
-import { Column, Row } from "@/components/commons/layout";
+import { Column, Fill, Row } from "@/components/commons/layout";
 import { PrimarySection } from "@/components/commons/section";
 import styles from "@/styles/components/commons/modal.module.css";
 import type { JSX } from "preact";
@@ -15,8 +15,8 @@ export type ModalProps = {
 
 export function Modal({ onClose, title, children, className }: ModalProps) {
   const content = (
-    <div className={styles.modal}>
-      <div className={styles.overlay} onClick={onClose}>
+    <Fill className={styles.modal}>
+      <Fill className={styles.overlay} onClick={onClose}>
         <PrimarySection
           className={clsx(styles.content, className)}
           onClick={(e) => e.stopPropagation()}
@@ -25,8 +25,8 @@ export function Modal({ onClose, title, children, className }: ModalProps) {
           <Bar variantColor="blue" variantThickness="thin" />
           {children}
         </PrimarySection>
-      </div>
-    </div>
+      </Fill>
+    </Fill>
   );
 
   return createPortal(content, document.body);
@@ -41,7 +41,7 @@ interface ModalFormProps {
 export function ModalForm({ onSubmit, children, className }: ModalFormProps) {
   return (
     <form onSubmit={onSubmit}>
-      <Column gap="sm" className={clsx(className)}>
+      <Column gap="sm" className={className}>
         {children}
       </Column>
     </form>

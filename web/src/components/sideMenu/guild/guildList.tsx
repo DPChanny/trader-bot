@@ -1,13 +1,11 @@
-import { Layout, Row } from "@/components/commons/layout";
-import {
-  SecondarySection,
-  TertiarySection,
-} from "@/components/commons/section";
+import { Row, Scroll } from "@/components/commons/layout";
+import { SecondarySection } from "@/components/commons/section";
 import { PrimaryButton } from "@/components/commons/button";
 import { GuildCard } from "./guildCard";
 import type { GuildDetailDTO } from "@/dtos/guild";
 import { getBotInviteUrl } from "@/utils/env";
 import styles from "@/styles/components/sideMenu/guild/guildList.module.css";
+import { Bar } from "@/components/commons/bar";
 
 interface GuildListProps {
   guilds: GuildDetailDTO[];
@@ -23,17 +21,16 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
           추가
         </PrimaryButton>
       </Row>
-      <Layout fill>
-        <TertiarySection>
-          {guilds.map((g) => (
-            <GuildCard
-              key={g.discordId}
-              guild={g}
-              isSelected={activeGuildId === g.discordId}
-            />
-          ))}
-        </TertiarySection>
-      </Layout>
+      <Bar />
+      <Scroll axis="y" gap="xs">
+        {guilds.map((g) => (
+          <GuildCard
+            key={g.discordId}
+            guild={g}
+            isSelected={activeGuildId === g.discordId}
+          />
+        ))}
+      </Scroll>
     </SecondarySection>
   );
 }

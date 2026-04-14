@@ -14,7 +14,6 @@ export type PresetMemberCardProps = Omit<CardProps, "children"> & {
 export function PresetMemberCard({
   presetMember,
   className,
-  variantColor,
   isConnected,
   isClientMember,
   ...props
@@ -30,7 +29,7 @@ export function PresetMemberCard({
 
   return (
     <Card
-      variantColor={variantColor ?? (isLeader ? "gold" : "gray")}
+      variantColor={isLeader ? "gold" : "gray"}
       className={clsx(styles.memberCard, className)}
       {...props}
     >

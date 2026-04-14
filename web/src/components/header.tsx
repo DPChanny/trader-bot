@@ -1,5 +1,6 @@
 import styles from "@/styles/components/header.module.css";
 import { Button, DangerButton } from "@/components/commons/button";
+import { Row } from "@/components/commons/layout";
 import type { UserDetailDTO } from "@/dtos/user";
 
 interface HeaderProps {
@@ -11,13 +12,13 @@ interface HeaderProps {
 export function Header({ user, onLogout, onLogin }: HeaderProps) {
   return (
     <header className={styles.header}>
-      <div className={styles.headerContent}>
+      <Row className={styles.headerContent}>
         <a href="/" className={styles.headerLogo}>
           <span className={styles.headerIcon}>🎮</span>
           <span className={styles.headerText}>Trader</span>
         </a>
 
-        <div className={styles.headerUser}>
+        <Row className={styles.headerUser}>
           {user ? (
             <>
               {user.avatarUrl && (
@@ -45,8 +46,8 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
               </Button>
             )
           )}
-        </div>
-      </div>
+        </Row>
+      </Row>
     </header>
   );
 }

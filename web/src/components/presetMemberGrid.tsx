@@ -1,6 +1,6 @@
 import { PresetMemberCard } from "./presetMemberCard";
 import { PressedButton } from "@/components/commons/button";
-import { Grid } from "@/components/commons/layout";
+import { Grid, Scroll } from "@/components/commons/layout";
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberGrid.module.css";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
@@ -27,34 +27,36 @@ export function PresetMemberGrid({
   const sorted = [...leaders, ...nonLeaders];
 
   return (
-    <Grid gap="md" className={clsx(styles.grid, className)}>
-      {sorted.map((presetMember) => {
-        const isSelected = selectedMemberId === presetMember.presetMemberId;
+    <Scroll axis="both">
+      <Grid gap="md" className={clsx(styles.grid, className)}>
+        {sorted.map((presetMember) => {
+          const isSelected = selectedMemberId === presetMember.presetMemberId;
 
-        return (
-          <PressedButton
-            key={presetMember.presetMemberId}
-            type="button"
-            className={clsx(styles.gridItem, styles.gridButton)}
-            onClick={() => onMemberClick(presetMember.presetMemberId)}
-            isPressed={isSelected}
-          >
-            <PresetMemberCard
-              presetMember={presetMember}
-              isConnected={
-                connectedMemberIds
-                  ? connectedMemberIds.includes(presetMember.memberId)
-                  : undefined
-              }
-              isClientMember={
-                clientMemberId
-                  ? clientMemberId === presetMember.memberId
-                  : undefined
-              }
-            />
-          </PressedButton>
-        );
-      })}
-    </Grid>
+          return (
+            <PressedButton
+              key={presetMember.presetMemberId}
+              type="button"
+              className={clsx(styles.gridItem, styles.gridButton)}
+              onClick={() => onMemberClick(presetMember.presetMemberId)}
+              isPressed={isSelected}
+            >
+              <PresetMemberCard
+                presetMember={presetMember}
+                isConnected={
+                  connectedMemberIds
+                    ? connectedMemberIds.includes(presetMember.memberId)
+                    : undefined
+                }
+                isClientMember={
+                  clientMemberId
+                    ? clientMemberId === presetMember.memberId
+                    : undefined
+                }
+              />
+            </PressedButton>
+          );
+        })}
+      </Grid>
+    </Scroll>
   );
 }

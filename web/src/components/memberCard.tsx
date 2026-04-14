@@ -23,12 +23,7 @@ export type MemberCardProps = Omit<CardProps, "children"> & {
   member: MemberDetailDTO;
 };
 
-export function MemberCard({
-  member,
-  className,
-  variantColor = "gray",
-  ...props
-}: MemberCardProps) {
+export function MemberCard({ member, className, ...props }: MemberCardProps) {
   const displayName = member.alias || member.name || member.user.name;
   const avatarUrl = member.avatarUrl || member.user.avatarUrl;
   const roleLabel = ROLE_LABEL[member.role];
@@ -36,7 +31,7 @@ export function MemberCard({
 
   return (
     <Card
-      variantColor={variantColor}
+      variantColor="gray"
       className={clsx(styles.memberCard, className)}
       {...props}
     >

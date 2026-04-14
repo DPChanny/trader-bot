@@ -13,7 +13,6 @@ export function PresetCard({
   preset,
   guildId,
   isSelected,
-  variantColor = "blue",
   ...props
 }: PresetCardProps) {
   return (
@@ -22,7 +21,7 @@ export function PresetCard({
       className={styles.link}
       aria-current={isSelected ? "page" : undefined}
     >
-      <Card variantColor={variantColor} {...props}>
+      <Card {...props}>
         <Row>
           <span className={styles.name}>{preset.name}</span>
         </Row>

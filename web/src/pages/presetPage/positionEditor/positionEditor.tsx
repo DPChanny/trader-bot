@@ -11,7 +11,7 @@ import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
-import { Column, Row } from "@/components/commons/layout";
+import { Row, Scroll } from "@/components/commons/layout";
 import { SecondarySection } from "@/components/commons/section";
 import { AddPositionModal } from "./addPositionModal";
 import { UpdatePositionModal } from "./updatePositionModal";
@@ -116,7 +116,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
       </Row>
       <Bar />
 
-      <Column className={styles.positionList}>
+      <Scroll axis="y" className={styles.positionList}>
         {error ? (
           <Error error={error}>포지션 목록을 불러오는데 실패했습니다.</Error>
         ) : isLoading ? (
@@ -135,7 +135,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
             />
           ))
         )}
-      </Column>
+      </Scroll>
 
       {showAddPositionModal && (
         <AddPositionModal

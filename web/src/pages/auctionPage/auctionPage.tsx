@@ -3,7 +3,7 @@ import { useAuctionWebSocket } from "@/hooks/auctionWebSocket";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import { PrimarySection, SecondarySection } from "@/components/commons/section";
-import { Column, Grid, Row, Scroll } from "@/components/commons/layout";
+import { Column, Grid, Row } from "@/components/commons/layout";
 import { PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
@@ -248,27 +248,23 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
         <PrimarySection className={styles.queueSection}>
           <h3>경매 순서</h3>
           <Bar />
-          <Scroll axis="y" className={styles.queueGrid}>
-            <PresetMemberGrid
-              presetMembers={auctionQueuePresetMembers}
-              onMemberClick={() => {}}
-              clientMemberId={memberId ?? undefined}
-              connectedMemberIds={connectedMemberIds}
-            />
-          </Scroll>
+          <PresetMemberGrid
+            presetMembers={auctionQueuePresetMembers}
+            onMemberClick={() => {}}
+            clientMemberId={memberId ?? undefined}
+            connectedMemberIds={connectedMemberIds}
+          />
         </PrimarySection>
 
         <PrimarySection className={styles.queueSection}>
           <h3>유찰 목록</h3>
           <Bar />
-          <Scroll axis="y" className={styles.queueGrid}>
-            <PresetMemberGrid
-              presetMembers={unsoldQueuePresetMembers}
-              onMemberClick={() => {}}
-              clientMemberId={memberId ?? undefined}
-              connectedMemberIds={connectedMemberIds}
-            />
-          </Scroll>
+          <PresetMemberGrid
+            presetMembers={unsoldQueuePresetMembers}
+            onMemberClick={() => {}}
+            clientMemberId={memberId ?? undefined}
+            connectedMemberIds={connectedMemberIds}
+          />
         </PrimarySection>
       </Column>
     </PageLayout>

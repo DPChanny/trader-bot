@@ -2,13 +2,9 @@
   flex: 1;
   min-width: 0;
   min-height: 0;
-  overflow-y: auto;
 }
 
 .positionList {
-  flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
   flex: 1;
   min-height: 0;
 }

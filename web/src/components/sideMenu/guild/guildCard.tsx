@@ -8,19 +8,14 @@ type GuildCardProps = Omit<CardProps, "children"> & {
   isSelected?: boolean;
 };
 
-export function GuildCard({
-  guild,
-  isSelected,
-  variantColor = "blue",
-  ...props
-}: GuildCardProps) {
+export function GuildCard({ guild, isSelected, ...props }: GuildCardProps) {
   return (
     <a
       href={`/guild/${guild.discordId}/member`}
       className={styles.link}
       aria-current={isSelected ? "page" : undefined}
     >
-      <Card variantColor={variantColor} {...props}>
+      <Card {...props}>
         <Row>
           <div className={styles.icon}>
             {guild.iconUrl ? (

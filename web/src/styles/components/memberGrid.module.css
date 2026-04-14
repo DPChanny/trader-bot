@@ -1,8 +1,6 @@
 .grid {
   display: grid;
   gap: var(--gap-md);
-  overflow-y: auto;
-  height: 100%;
   justify-content: start;
   align-content: start;
   grid-template-columns: repeat(auto-fill, 7rem);
