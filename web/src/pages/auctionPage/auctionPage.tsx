@@ -90,11 +90,12 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
       : null;
   const websocketError = bidError ? null : visibleError;
 
-  const errorMessage = websocketError
-    ? websocketError.message
-    : !isCompleted && wasConnected && !isConnected
-      ? "서버와의 연결이 끊어졌습니다."
-      : null;
+  const errorMessage =
+    !isCompleted && websocketError
+      ? websocketError.message
+      : !isCompleted && wasConnected && !isConnected
+        ? "서버와의 연결이 끊어졌습니다."
+        : null;
 
   if (errorMessage) {
     return (
@@ -201,9 +202,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             variantIntent="secondary"
             className={styles.auctionInfoTopSection}
           >
-            {state.status !== AuctionStatus.COMPLETED && currentMember && (
-              <PresetMemberCard presetMember={currentMember} />
-            )}
+            {currentMember && <PresetMemberCard presetMember={currentMember} />}
           </Section>
 
           <Section
@@ -211,23 +210,14 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             className={styles.auctionInfoGridSection}
           >
             <Section variantTone="ghost">
-              <InfoCard
-                label="남은 시간"
-                value={
-                  state.status === AuctionStatus.COMPLETED ? 0 : state.timer
-                }
-              />
+              <InfoCard label="남은 시간" value={state.timer} />
               <InfoCard
                 label="입찰 포인트"
-                value={
-                  state.status === AuctionStatus.COMPLETED
-                    ? 0
-                    : (state.currentBid?.amount || 0) * pointScale
-                }
+                value={(state.currentBid?.amount || 0) * pointScale}
               />
             </Section>
             <InfoCard label="입찰 팀장" value="">
-              {state.status !== AuctionStatus.COMPLETED && currentBidLeader && (
+              {currentBidLeader && (
                 <PresetMemberCard presetMember={currentBidLeader} />
               )}
             </InfoCard>

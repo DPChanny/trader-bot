@@ -1,5 +1,6 @@
-auction 관련 명명법
-auction web 개편
+enum 명명법
+auction DTO 명명법
+card
 home page
 publish
 section div 역할 분리

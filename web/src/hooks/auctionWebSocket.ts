@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { MessageType } from "@/dtos/auction";
+import { AuctionStatus, MessageType } from "@/dtos/auction";
 import type {
   AuctionMessageDTO,
   InitDTO,
@@ -143,6 +143,15 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
             ? {
                 ...prev,
                 status: data.status,
+                timer: data.status === AuctionStatus.COMPLETED ? 0 : prev.timer,
+                currentMemberId:
+                  data.status === AuctionStatus.COMPLETED
+                    ? null
+                    : prev.currentMemberId,
+                currentBid:
+                  data.status === AuctionStatus.COMPLETED
+                    ? null
+                    : prev.currentBid,
               }
             : null,
         );
@@ -210,11 +219,16 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     ws.onclose = (event) => {
       if (mountedRef.current) {
         setIsConnected(false);
-        if (event.reason) {
-          setError(new WSError({ reason: event.reason }));
-        } else if (!opened) {
-          setError(new WSError({ reason: "서버에 연결할 수 없습니다." }));
-        }
+        setError((prev) => {
+          if (prev) return prev;
+          if (event.reason) {
+            return new WSError({ reason: event.reason });
+          }
+          if (!opened) {
+            return new WSError({ reason: "서버에 연결할 수 없습니다." });
+          }
+          return null;
+        });
       }
     };
 
