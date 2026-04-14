@@ -124,6 +124,16 @@ class WSError(AppError):
         super().__init__(code)
 
 
+def handle_app_error(error: AppError, fallback_function: str) -> None:
+    function = error.function or fallback_function
+    if error.code < 5000:
+        logger.bind(function=function, error_code=error.code).warning("")
+    else:
+        logger.opt(exception=error.__cause__).bind(
+            function=function, error_code=error.code
+        ).error("")
+
+
 def handle_http_error(error: HTTPError, fallback_function: str) -> JSONResponse:
     function = error.function or fallback_function
     if error.status_code < 500:

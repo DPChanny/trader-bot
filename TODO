@@ -4,11 +4,12 @@ iframe
 card
 home page
 publish
-section div 역할 분리
-모바일 대응
-web 다국어 지원
-code layout
-auction 조회
-result
+web section div & css
+web mobile
+preset template
+auction result
 bot command
-shadow transition effect
+web auction effect
+web effect
+web language
+code layout

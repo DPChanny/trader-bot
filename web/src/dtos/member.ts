@@ -13,7 +13,7 @@ export interface MemberDTO {
   memberId: number;
   guildId: string;
   userId: string;
-  role: number;
+  role: Role;
   name: string | null;
   alias: string | null;
   avatarHash: string | null;

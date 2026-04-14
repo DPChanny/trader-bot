@@ -3,40 +3,51 @@ from collections.abc import Awaitable, Callable
 from typing import ParamSpec, TypeVar
 
 from fastapi import WebSocket
-from loguru import logger
 
 from .database import get_session
-from .error import AppError, UnexpectedErrorCode, WSError, handle_ws_error
+from .error import (
+    AppError,
+    UnexpectedErrorCode,
+    WSError,
+    handle_app_error,
+    handle_ws_error,
+)
 
 
 P = ParamSpec("P")
 T = TypeVar("T")
 
 
+def router[**P, T](
+    func: Callable[P, Awaitable[T]],
+) -> Callable[P, Awaitable[T]]:
+    @functools.wraps(func)
+    async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+        async for session in get_session():
+            return await func(*args, session=session, **kwargs)
+
+        raise RuntimeError("No Session")
+
+    return wrapper
+
+
 def bot_router[**P, T](
     func: Callable[P, Awaitable[T]],
 ) -> Callable[P, Awaitable[T | None]]:
+    routed_func = router(func)
+
     @functools.wraps(func)
     async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | None:
         try:
-            async for session in get_session():
-                return await func(*args, session=session, **kwargs)
-
-            raise RuntimeError("No Session")
+            return await routed_func(*args, **kwargs)
         except AppError as error:
-            function = error.function or func.__name__
-            if error.code < 5000:
-                logger.bind(function=function, error_code=error.code).warning("")
-            else:
-                logger.opt(exception=error.__cause__).bind(
-                    function=function, error_code=error.code
-                ).error("")
+            handle_app_error(error, func.__name__)
             return None
         except Exception as error:
-            logger.opt(exception=error).bind(
-                function=func.__name__,
-                error_code=UnexpectedErrorCode.Internal.value,
-            ).error("")
+            app_error = AppError(UnexpectedErrorCode.Internal)
+            app_error.function = func.__name__
+            app_error.__cause__ = error
+            handle_app_error(app_error, func.__name__)
             return None
 
     return wrapper
@@ -48,20 +59,18 @@ def ws_router[**P, T](
     def decorator(
         func: Callable[P, Awaitable[T]],
     ) -> Callable[P, Awaitable[T | None]]:
+        routed_func = router(func)
+
         @functools.wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | None:
             ws = next((arg for arg in args if isinstance(arg, WebSocket)), None)
             if ws is None:
                 ws = kwargs.get("ws")
             if not isinstance(ws, WebSocket):
-                raise RuntimeError("WebSocket argument is required")
+                raise RuntimeError("No WebSocket")
 
             try:
-                async for session in get_session():
-                    return await func(*args, session=session, **kwargs)
-
-                raise RuntimeError("No Session")
-
+                return await routed_func(*args, **kwargs)
             except WSError as error:
                 await handle_ws_error(
                     error,
@@ -70,7 +79,6 @@ def ws_router[**P, T](
                     lambda code, reason: ws.close(code=code, reason=reason),
                 )
                 return None
-
             except Exception as error:
                 ws_error = WSError(UnexpectedErrorCode.Internal)
                 ws_error.function = func.__name__

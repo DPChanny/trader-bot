@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { PresetDetailDTO } from "./preset";
 
 export enum AuctionStatus {
   WAITING = 0,
@@ -21,7 +22,7 @@ export interface AuctionDetailDTO extends AuctionDTO {
   auctionQueue: number[];
   unsoldQueue: number[];
   connectedMemberIds: number[];
-  presetSnapshot: any | null;
+  presetSnapshot: PresetDetailDTO | null;
 }
 
 export interface InitPayloadDTO extends AuctionDetailDTO {
@@ -92,6 +93,10 @@ export interface MemberSoldPayloadDTO {
   teams: TeamDTO[];
   auctionQueue: number[];
   unsoldQueue: number[];
+}
+
+export interface MemberUnsoldPayloadDTO {
+  memberId: number;
 }
 
 export interface MemberConnectedPayloadDTO {
