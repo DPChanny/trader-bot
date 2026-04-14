@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from enum import IntEnum
 from typing import TYPE_CHECKING
 
 from sqlalchemy import BigInteger, ForeignKey, SmallInteger, String, UniqueConstraint
@@ -13,13 +12,6 @@ if TYPE_CHECKING:
     from .guild import Guild
     from .preset_member import PresetMember
     from .user import User
-
-
-class Role(IntEnum):
-    VIEWER = 0
-    EDITOR = 1
-    ADMIN = 2
-    OWNER = 3
 
 
 class Member(BaseEntity):

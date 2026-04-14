@@ -1,8 +1,16 @@
+from enum import IntEnum
+
 from pydantic import computed_field
 
-from ..entities.member import Role
 from . import BaseDTO, BigInt, NullableNameStr, NullableUrlStr
 from .user import UserDetailDTO
+
+
+class Role(IntEnum):
+    VIEWER = 0
+    EDITOR = 1
+    ADMIN = 2
+    OWNER = 3
 
 
 class MemberDTO(BaseDTO):

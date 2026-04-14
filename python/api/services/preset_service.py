@@ -5,7 +5,7 @@ from shared.dtos.preset import (
     PresetDTO,
     UpdatePresetDTO,
 )
-from shared.entities.member import Role
+from shared.dtos.member import Role
 from shared.entities.preset import Preset
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PresetErrorCode

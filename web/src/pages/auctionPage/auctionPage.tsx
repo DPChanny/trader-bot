@@ -13,7 +13,7 @@ import { Input } from "@/components/commons/input";
 import { Bar } from "@/components/commons/bar";
 import { checkRefreshToken } from "@/utils/auth";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
-import { AuctionStatus } from "@/dtos/auction";
+import { Status } from "@/dtos/auction";
 import {
   AuctionErrorCode,
   type AuctionErrorCodeType,
@@ -78,7 +78,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     }
   }, [state, memberId, isConnected, auctionId]);
 
-  const isCompleted = state?.status === AuctionStatus.COMPLETED;
+  const isCompleted = state?.status === Status.COMPLETED;
 
   const visibleError = error === dismissedError ? null : error;
 
@@ -144,12 +144,12 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   const clientTeamSize = clientTeam ? clientTeam.memberIds.length : 0;
   const isClientTeamFull = clientTeamSize >= teamSize;
 
-  const getStatusText = (status: AuctionStatus) => {
-    if (wasConnected && !isConnected && status !== AuctionStatus.COMPLETED)
+  const getStatusText = (status: Status) => {
+    if (wasConnected && !isConnected && status !== Status.COMPLETED)
       return "연결 끊김";
-    if (status === AuctionStatus.WAITING) return "대기중";
-    if (status === AuctionStatus.RUNNING) return "진행중";
-    if (status === AuctionStatus.COMPLETED) return "완료";
+    if (status === Status.WAITING) return "대기중";
+    if (status === Status.RUNNING) return "진행중";
+    if (status === Status.COMPLETED) return "완료";
     return String(status);
   };
 
@@ -238,12 +238,12 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
                   setDismissedError(error);
                   setBidAmount(value);
                 }}
-                disabled={state.status !== AuctionStatus.RUNNING}
+                disabled={state.status !== Status.RUNNING}
               />
               <PrimaryButton
                 onClick={handlePlaceBid}
                 disabled={
-                  state.status !== AuctionStatus.RUNNING ||
+                  state.status !== Status.RUNNING ||
                   !bidAmount ||
                   parseInt(bidAmount) <= 0 ||
                   parseInt(bidAmount) % pointScale !== 0

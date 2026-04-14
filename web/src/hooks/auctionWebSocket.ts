@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { AuctionStatus, AuctionMessageType } from "@/dtos/auction";
+import { Status, AuctionMessageType } from "@/dtos/auction";
 import type { AuctionMessageEnvelopeDTO, InitPayloadDTO } from "@/dtos/auction";
 import { AuthPayloadSchema, PlaceBidPayloadSchema } from "@/dtos/auction";
 import { toCamelCase } from "@/utils/dto";
@@ -118,15 +118,11 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
             ? {
                 ...prev,
                 status: dto.status,
-                timer: dto.status === AuctionStatus.COMPLETED ? 0 : prev.timer,
+                timer: dto.status === Status.COMPLETED ? 0 : prev.timer,
                 currentMemberId:
-                  dto.status === AuctionStatus.COMPLETED
-                    ? null
-                    : prev.currentMemberId,
+                  dto.status === Status.COMPLETED ? null : prev.currentMemberId,
                 currentBid:
-                  dto.status === AuctionStatus.COMPLETED
-                    ? null
-                    : prev.currentBid,
+                  dto.status === Status.COMPLETED ? null : prev.currentBid,
               }
             : null,
         );

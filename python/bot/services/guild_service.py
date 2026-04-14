@@ -1,7 +1,7 @@
 from discord import Guild
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.entities.member import Role
+from shared.dtos.member import Role
 from shared.utils.service import bot_service
 from shared.utils.user import upsert_user
 

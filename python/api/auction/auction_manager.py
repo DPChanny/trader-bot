@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 from typing import ClassVar
 
+from shared.dtos.auction import Status
 from shared.dtos.preset import PresetDetailDTO
 
 from .auction import Auction
@@ -15,11 +16,11 @@ class AuctionManager:
     def _purge(cls) -> None:
         now = datetime.now()
         for auction_id, auction in list(cls._auctions.items()):
-            if auction.status == Auction.Status.COMPLETED:
+            if auction.status == Status.COMPLETED:
                 del cls._auctions[auction_id]
-            elif auction.status == Auction.Status.WAITING and now > auction.exp:
+            elif auction.status == Status.WAITING and now > auction.exp:
                 del cls._auctions[auction_id]
-                asyncio.create_task(auction.set_status(Auction.Status.COMPLETED))
+                asyncio.create_task(auction.set_status(Status.COMPLETED))
 
     @classmethod
     def create_auction(

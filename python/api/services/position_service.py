@@ -5,7 +5,7 @@ from shared.dtos.position import (
     PositionDTO,
     UpdatePositionDTO,
 )
-from shared.entities.member import Role
+from shared.dtos.member import Role
 from shared.entities.position import Position
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository

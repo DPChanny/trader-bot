@@ -4,7 +4,7 @@ import argparse
 import asyncio
 
 from bot.utils.member import upsert_member
-from shared.entities.member import Role
+from shared.dtos.member import Role
 from shared.utils.database import get_session
 
 

@@ -8,6 +8,12 @@ from shared.dtos.preset import PresetDetailDTO
 from . import BaseDTO, BigInt
 
 
+class Status(IntEnum):
+    WAITING = 0
+    RUNNING = 1
+    COMPLETED = 2
+
+
 class AuctionMessageType(IntEnum):
     AUTH = 0
     INIT = 1
@@ -39,7 +45,7 @@ class AuctionDTO(BaseDTO):
     auction_id: BigInt
     guild_id: int
     preset_id: int
-    status: int
+    status: Status
     current_member_id: int | None
     current_bid: BidDTO | None
     timer: int
@@ -68,7 +74,7 @@ class TimerPayloadDTO(BaseDTO):
 
 
 class StatusPayloadDTO(BaseDTO):
-    status: int
+    status: Status
 
 
 class NextMemberPayloadDTO(BaseDTO):
@@ -88,7 +94,7 @@ class MemberUnsoldPayloadDTO(BaseDTO):
 
 
 class PlaceBidPayloadDTO(BaseDTO):
-    amount: int = Field(ge=1)
+    amount: int = Field(ge=1, le=10000)
 
 
 class AuthPayloadDTO(BaseDTO):

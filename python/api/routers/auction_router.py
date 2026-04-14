@@ -16,6 +16,7 @@ from shared.dtos.auction import (
     ErrorPayloadDTO,
     InitPayloadDTO,
     PlaceBidPayloadDTO,
+    Status,
 )
 from shared.utils.database import get_session
 from shared.utils.error import (
@@ -26,7 +27,6 @@ from shared.utils.error import (
 )
 from shared.utils.router import ws_router
 
-from ..auction import Auction
 from ..services.auction_service import (
     connect_service,
     create_auction_service,
@@ -137,7 +137,7 @@ async def auction_ws(
                 await _send_error_message(ws, e.code)
                 continue
 
-            if auction.status == Auction.Status.COMPLETED:
+            if auction.status == Status.COMPLETED:
                 break
 
     except WebSocketDisconnect:

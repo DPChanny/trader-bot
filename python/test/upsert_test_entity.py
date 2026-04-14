@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from bot.utils.guild import upsert_guild
 from bot.utils.member import upsert_member
-from shared.entities.member import Role
+from shared.dtos.member import Role
 from shared.entities.position import Position
 from shared.entities.preset import Preset
 from shared.entities.tier import Tier

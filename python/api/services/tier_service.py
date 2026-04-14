@@ -5,7 +5,7 @@ from shared.dtos.tier import (
     TierDTO,
     UpdateTierDTO,
 )
-from shared.entities.member import Role
+from shared.dtos.member import Role
 from shared.entities.tier import Tier
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository

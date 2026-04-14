@@ -4,7 +4,6 @@ import asyncio
 import random
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from enum import IntEnum
 
 from fastapi import WebSocket
 
@@ -18,6 +17,7 @@ from shared.dtos.auction import (
     MemberSoldPayloadDTO,
     MemberUnsoldPayloadDTO,
     NextMemberPayloadDTO,
+    Status,
     StatusPayloadDTO,
     TimerPayloadDTO,
 )
@@ -43,10 +43,7 @@ class Bid:
 
 
 class Auction:
-    class Status(IntEnum):
-        WAITING = 0
-        RUNNING = 1
-        COMPLETED = 2
+    Status = Status
 
     _exp_delta = timedelta(minutes=_AUCTION_EXPIRATION_MINUTES)
 
@@ -63,7 +60,7 @@ class Auction:
         self.guild_id = self.preset_snapshot.guild_id
         self.preset_id = self.preset_snapshot.preset_id
         self.team_size = self.preset_snapshot.team_size
-        self.status = Auction.Status.WAITING
+        self.status = Status.WAITING
 
         preset_members = self.preset_snapshot.preset_members
         leaders = [pm for pm in preset_members if pm.is_leader]
@@ -111,7 +108,7 @@ class Auction:
         return list(self._member_id_to_ws_sets.keys())
 
     async def connect(self, ws: WebSocket, member_id: int | None) -> None:
-        if self.status == Auction.Status.COMPLETED:
+        if self.status == Status.COMPLETED:
             return
         if member_id is None:
             self._public_ws_set.add(ws)
@@ -130,10 +127,10 @@ class Auction:
 
             if (
                 member_id in self._leader_member_ids
-                and self.status == Auction.Status.WAITING
+                and self.status == Status.WAITING
                 and self._can_progress()
             ):
-                await self.set_status(Auction.Status.RUNNING)
+                await self.set_status(Status.RUNNING)
 
     async def disconnect(self, ws: WebSocket, member_id: int | None) -> None:
         if member_id is None:
@@ -158,7 +155,7 @@ class Auction:
             return
 
         del self._member_id_to_ws_sets[member_id]
-        if self.status == Auction.Status.COMPLETED:
+        if self.status == Status.COMPLETED:
             return
 
         await self._broadcast(
@@ -166,8 +163,8 @@ class Auction:
             MemberDisconnectedPayloadDTO(member_id=member_id),
         )
 
-        if self.status == Auction.Status.RUNNING and not self._can_progress():
-            await self.set_status(Auction.Status.WAITING)
+        if self.status == Status.RUNNING and not self._can_progress():
+            await self.set_status(Status.WAITING)
 
     def _can_progress(self) -> bool:
         return self._leader_member_ids.issubset(self._member_id_to_ws_sets.keys())
@@ -197,18 +194,18 @@ class Auction:
         for ws in disconnected_websockets:
             await self.disconnect(ws, None)
 
-    async def set_status(self, new_status: Auction.Status):
+    async def set_status(self, new_status: Status):
         next_member = False
 
         async with self._state_lock:
-            if self.status == Auction.Status.COMPLETED:
+            if self.status == Status.COMPLETED:
                 return
 
             if self.status == new_status:
                 return
 
-            if new_status == Auction.Status.WAITING:
-                if self.status == Auction.Status.RUNNING:
+            if new_status == Status.WAITING:
+                if self.status == Status.RUNNING:
                     self._was_in_progress = True
                     if not (
                         self._timer_task
@@ -220,15 +217,15 @@ class Auction:
                 self._stop_timer()
                 self.exp = datetime.now() + self._exp_delta
 
-            elif new_status == Auction.Status.RUNNING:
-                if self.status == Auction.Status.WAITING:
+            elif new_status == Status.RUNNING:
+                if self.status == Status.WAITING:
                     if self._was_in_progress:
                         self._was_in_progress = False
                         self._start_timer()
                     else:
                         next_member = True
 
-            elif new_status == Auction.Status.COMPLETED:
+            elif new_status == Status.COMPLETED:
                 self.current_member_id = None
                 self.current_bid = None
                 self._stop_timer()
@@ -236,7 +233,7 @@ class Auction:
             self.status = new_status
 
         await self._broadcast(
-            AuctionMessageType.STATUS, StatusPayloadDTO(status=int(self.status))
+            AuctionMessageType.STATUS, StatusPayloadDTO(status=self.status)
         )
 
         if next_member:
@@ -314,7 +311,7 @@ class Auction:
             await self._broadcast(*message)
 
         if completed:
-            await self.set_status(Auction.Status.COMPLETED)
+            await self.set_status(Status.COMPLETED)
             return
 
         if start_timer:
@@ -363,7 +360,7 @@ class Auction:
     async def place_bid(self, leader_id: int, amount: int) -> None:
         message: tuple[AuctionMessageType, BaseDTO] | None = None
         async with self._state_lock:
-            if self.status != Auction.Status.RUNNING:
+            if self.status != Status.RUNNING:
                 return
             if self.current_member_id is None:
                 return

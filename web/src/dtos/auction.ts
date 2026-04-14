@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { PresetDetailDTO } from "./preset";
 
-export enum AuctionStatus {
+export enum Status {
   WAITING = 0,
   RUNNING = 1,
   COMPLETED = 2,
@@ -11,7 +11,7 @@ export interface AuctionDTO {
   auctionId: string;
   guildId: number;
   presetId: number;
-  status: AuctionStatus;
+  status: Status;
   currentMemberId: number | null;
   currentBid: BidDTO | null;
   timer: number;
@@ -75,7 +75,7 @@ export interface BidDTO {
 }
 
 export interface StatusPayloadDTO {
-  status: AuctionStatus;
+  status: Status;
 }
 
 export interface BidPlacedPayloadDTO {
@@ -124,5 +124,5 @@ export const AuthPayloadSchema = z.object({
 });
 
 export const PlaceBidPayloadSchema = z.object({
-  amount: z.number().int(),
+  amount: z.number().int().min(1).max(10000),
 });
