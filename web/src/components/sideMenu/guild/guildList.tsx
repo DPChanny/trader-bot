@@ -1,6 +1,8 @@
-import { Column, Row } from "@/components/commons/layout";
-import { SecondarySection } from "@/components/commons/section";
-import { Bar } from "@/components/commons/bar";
+import { Layout, Row } from "@/components/commons/layout";
+import {
+  SecondarySection,
+  TertiarySection,
+} from "@/components/commons/section";
 import { PrimaryButton } from "@/components/commons/button";
 import { GuildCard } from "./guildCard";
 import type { GuildDetailDTO } from "@/dtos/guild";
@@ -21,16 +23,17 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
           추가
         </PrimaryButton>
       </Row>
-      <Bar />
-      <Column gap="xs">
-        {guilds.map((g) => (
-          <GuildCard
-            key={g.discordId}
-            guild={g}
-            variantSelected={activeGuildId === g.discordId}
-          />
-        ))}
-      </Column>
+      <Layout fill>
+        <TertiarySection>
+          {guilds.map((g) => (
+            <GuildCard
+              key={g.discordId}
+              guild={g}
+              isSelected={activeGuildId === g.discordId}
+            />
+          ))}
+        </TertiarySection>
+      </Layout>
     </SecondarySection>
   );
 }

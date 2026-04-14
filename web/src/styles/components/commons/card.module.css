@@ -24,13 +24,15 @@
   border-color: var(--color-card-blue-border-hover);
 }
 
-.card.colorBlue.selectedTrue {
+:global([aria-pressed="true"]) > .card.colorBlue,
+:global([aria-current="page"]) > .card.colorBlue {
   background: var(--color-card-blue-bg-active);
   border-color: var(--color-card-blue-border-active);
   color: var(--color-card-blue-text-active);
 }
 
-.card.colorBlue.selectedTrue:hover {
+:global([aria-pressed="true"]) > .card.colorBlue:hover,
+:global([aria-current="page"]) > .card.colorBlue:hover {
   background: var(--color-card-blue-bg-hover);
   border-color: var(--color-card-blue-border-hover);
 }
@@ -46,13 +48,15 @@
   border-color: var(--color-card-gold-border-hover);
 }
 
-.card.colorGold.selectedTrue {
+:global([aria-pressed="true"]) > .card.colorGold,
+:global([aria-current="page"]) > .card.colorGold {
   background: var(--color-card-gold-bg-active);
   border-color: var(--color-card-gold-border-active);
   color: var(--color-card-gold-text-active);
 }
 
-.card.colorGold.selectedTrue:hover {
+:global([aria-pressed="true"]) > .card.colorGold:hover,
+:global([aria-current="page"]) > .card.colorGold:hover {
   background: var(--color-card-gold-bg-hover);
   border-color: var(--color-card-gold-border-hover);
 }
@@ -68,13 +72,15 @@
   border-color: var(--color-card-green-border-hover);
 }
 
-.card.colorGreen.selectedTrue {
+:global([aria-pressed="true"]) > .card.colorGreen,
+:global([aria-current="page"]) > .card.colorGreen {
   background: var(--color-card-green-bg-active);
   border-color: var(--color-card-green-border-active);
   color: var(--color-card-green-text-active);
 }
 
-.card.colorGreen.selectedTrue:hover {
+:global([aria-pressed="true"]) > .card.colorGreen:hover,
+:global([aria-current="page"]) > .card.colorGreen:hover {
   background: var(--color-card-green-bg-hover);
   border-color: var(--color-card-green-border-hover);
 }
@@ -90,13 +96,15 @@
   border-color: var(--color-card-gray-border-hover);
 }
 
-.card.colorGray.selectedTrue {
+:global([aria-pressed="true"]) > .card.colorGray,
+:global([aria-current="page"]) > .card.colorGray {
   background: var(--color-card-gray-bg-active);
   border-color: var(--color-card-gray-border-active);
   color: var(--color-card-gray-text-active);
 }
 
-.card.colorGray.selectedTrue:hover {
+:global([aria-pressed="true"]) > .card.colorGray:hover,
+:global([aria-current="page"]) > .card.colorGray:hover {
   background: var(--color-card-gray-bg-hover);
   border-color: var(--color-card-gray-border-hover);
 }

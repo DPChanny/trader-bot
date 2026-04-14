@@ -11,14 +11,9 @@ const cardVariants = cva(styles.card, {
       green: styles.colorGreen,
       gray: styles.colorGray,
     },
-    variantSelected: {
-      true: styles.selectedTrue,
-      false: "",
-    },
   },
   defaultVariants: {
     variantColor: "blue",
-    variantSelected: false,
   },
 });
 
@@ -26,24 +21,16 @@ type CardVariantProps = VariantProps<typeof cardVariants>;
 
 export type CardProps = HTMLAttributes<HTMLDivElement> & {
   variantColor?: CardVariantProps["variantColor"];
-  variantSelected?: boolean;
 };
 
 export function Card({
   variantColor = "blue",
-  variantSelected = false,
   className,
   children,
   ...props
 }: CardProps) {
   return (
-    <div
-      className={clsx(
-        cardVariants({ variantColor, variantSelected }),
-        className,
-      )}
-      {...props}
-    >
+    <div className={clsx(cardVariants({ variantColor }), className)} {...props}>
       {children}
     </div>
   );

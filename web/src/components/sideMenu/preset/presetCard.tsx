@@ -6,12 +6,13 @@ import type { PresetDTO } from "@/dtos/preset";
 type PresetCardProps = Omit<CardProps, "children"> & {
   preset: PresetDTO;
   guildId: string;
+  isSelected?: boolean;
 };
 
 export function PresetCard({
   preset,
   guildId,
-  variantSelected,
+  isSelected,
   variantColor = "blue",
   ...props
 }: PresetCardProps) {
@@ -19,13 +20,9 @@ export function PresetCard({
     <a
       href={`/guild/${guildId}/preset/${preset.presetId}`}
       className={styles.link}
-      aria-current={variantSelected ? "page" : undefined}
+      aria-current={isSelected ? "page" : undefined}
     >
-      <Card
-        variantColor={variantColor}
-        variantSelected={variantSelected}
-        {...props}
-      >
+      <Card variantColor={variantColor} {...props}>
         <Row>
           <span className={styles.name}>{preset.name}</span>
         </Row>

@@ -41,7 +41,6 @@ export function PresetMemberGrid({
           >
             <PresetMemberCard
               presetMember={presetMember}
-              variantSelected={isSelected}
               isConnected={
                 connectedMemberIds
                   ? connectedMemberIds.includes(presetMember.memberId)

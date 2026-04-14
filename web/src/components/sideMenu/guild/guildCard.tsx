@@ -5,11 +5,12 @@ import type { GuildDetailDTO } from "@/dtos/guild";
 
 type GuildCardProps = Omit<CardProps, "children"> & {
   guild: GuildDetailDTO;
+  isSelected?: boolean;
 };
 
 export function GuildCard({
   guild,
-  variantSelected,
+  isSelected,
   variantColor = "blue",
   ...props
 }: GuildCardProps) {
@@ -17,13 +18,9 @@ export function GuildCard({
     <a
       href={`/guild/${guild.discordId}/member`}
       className={styles.link}
-      aria-current={variantSelected ? "page" : undefined}
+      aria-current={isSelected ? "page" : undefined}
     >
-      <Card
-        variantColor={variantColor}
-        variantSelected={variantSelected}
-        {...props}
-      >
+      <Card variantColor={variantColor} {...props}>
         <Row>
           <div className={styles.icon}>
             {guild.iconUrl ? (

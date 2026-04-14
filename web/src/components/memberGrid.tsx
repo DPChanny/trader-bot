@@ -34,7 +34,7 @@ export function MemberGrid({
             isPressed={isSelected}
             disabled={!onMemberClick}
           >
-            <MemberCard member={member} variantSelected={isSelected} />
+            <MemberCard member={member} />
           </PressedButton>
         );
       })}
