@@ -11,9 +11,9 @@ import {
 } from "@/hooks/presetMemberPosition";
 import { useTiers } from "@/hooks/tier";
 import { usePositions } from "@/hooks/position";
-import { Role } from "@/dtos/memberDto";
+import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 import { CloseButton, SaveButton, Button } from "@/components/commons/button";
 import { Label } from "@/components/commons/label";
 import { Error } from "@/components/commons/error";

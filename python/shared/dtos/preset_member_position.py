@@ -1,5 +1,5 @@
 from . import BaseDTO
-from .position_dto import PositionDTO
+from .position import PositionDTO
 
 
 class PresetMemberPositionDTO(BaseDTO):

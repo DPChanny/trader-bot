@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { MessageType } from "@/dtos/auctionDto";
+import { MessageType } from "@/dtos/auction";
 import type {
   AuctionMessageDTO,
   InitDTO,
@@ -11,7 +11,7 @@ import type {
   NextMemberMessageDTO,
   StatusMessageDTO,
   TimerMessageDTO,
-} from "@/dtos/auctionDto";
+} from "@/dtos/auction";
 import { toCamelCase } from "@/utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@/utils/env";
 import { getAccessToken } from "@/utils/auth";

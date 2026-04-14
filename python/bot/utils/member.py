@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.member_dto import MemberDTO
+from shared.dtos.member import MemberDTO
 from shared.entities.member import Member, Role
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import HTTPError, MemberErrorCode

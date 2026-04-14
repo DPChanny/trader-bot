@@ -1,7 +1,7 @@
 from pydantic import Field
 
 from . import BaseDTO, BigInt, NameStr
-from .preset_member_dto import PresetMemberDetailDTO
+from .preset_member import PresetMemberDetailDTO
 
 
 class PresetDTO(BaseDTO):

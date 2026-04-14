@@ -11,8 +11,8 @@ import {
   UpdateMemberSchema,
   type MemberDetailDTO,
   type UpdateMemberDTO,
-} from "@/dtos/memberDto";
-import { Role } from "@/dtos/memberDto";
+} from "@/dtos/member";
+import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import { buildPatchDto } from "@/utils/dto";
 

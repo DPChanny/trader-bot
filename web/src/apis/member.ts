@@ -1,4 +1,4 @@
-import type { MemberDetailDTO, UpdateMemberDTO } from "@/dtos/memberDto";
+import type { MemberDetailDTO, UpdateMemberDTO } from "@/dtos/member";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getMemberEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/error";

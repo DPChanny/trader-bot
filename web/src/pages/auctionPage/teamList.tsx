@@ -1,6 +1,6 @@
 import { TeamCard } from "./teamCard";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
-import type { TeamDTO } from "@/dtos/auctionDto";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
+import type { TeamDTO } from "@/dtos/auction";
 import { Section } from "@/components/commons/section";
 import styles from "@/styles/pages/auctionPage/teamList.module.css";
 

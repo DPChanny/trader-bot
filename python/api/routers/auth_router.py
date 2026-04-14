@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auth_dto import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
+from shared.dtos.auth import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
 from shared.utils.database import get_session
 
 from ..services.auth_service import (

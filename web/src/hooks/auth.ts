@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { useEffect } from "preact/hooks";
 import { queryKeys } from "@/utils/query";
 import { route } from "preact-router";
-import type { JwtTokenDTO } from "@/dtos/authDto";
+import type { JwtTokenDTO } from "@/dtos/auth";
 import {
   exchangeToken as exchangeAuthToken,
   refreshToken as refreshAuthToken,

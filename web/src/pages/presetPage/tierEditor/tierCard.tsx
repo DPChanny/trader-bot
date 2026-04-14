@@ -2,8 +2,8 @@ import { DeleteButton, EditButton } from "@/components/commons/button";
 import { Badge } from "@/components/commons/badge";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
-import type { TierDTO } from "@/dtos/tierDto";
-import { Role } from "@/dtos/memberDto";
+import type { TierDTO } from "@/dtos/tier";
+import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import styles from "@/styles/pages/presetPage/tierEditor/tierCard.module.css";
 

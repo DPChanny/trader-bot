@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import Any
 
-from shared.dtos.preset_dto import PresetDetailDTO
+from shared.dtos.preset import PresetDetailDTO
 
 from . import BaseDTO, BigInt
 

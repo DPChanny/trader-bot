@@ -8,7 +8,7 @@ import {
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
-import { CreatePresetSchema, type CreatePresetDTO } from "@/dtos/presetDto";
+import { CreatePresetSchema, type CreatePresetDTO } from "@/dtos/preset";
 
 interface CreatePresetModalProps {
   onClose: () => void;

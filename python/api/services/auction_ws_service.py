@@ -4,7 +4,7 @@ import json
 from fastapi import WebSocket
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auction_dto import AuctionMessageDTO, MessageType, PlaceBidDTO
+from shared.dtos.auction import AuctionMessageDTO, MessageType, PlaceBidDTO
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.utils.error import (
     AuctionErrorCode,

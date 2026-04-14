@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.user_dto import UserDetailDTO
+from shared.dtos.user import UserDetailDTO
 from shared.repositories.user_repository import UserRepository
 from shared.utils.error import HTTPError, UserErrorCode
 from shared.utils.service import http_service

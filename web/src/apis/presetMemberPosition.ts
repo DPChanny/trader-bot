@@ -1,7 +1,7 @@
 import type {
   AddPresetMemberPositionDTO,
   PresetMemberPositionDTO,
-} from "@/dtos/presetMemberPositionDto";
+} from "@/dtos/presetMemberPosition";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetMemberPositionEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/error";

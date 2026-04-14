@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.guild_dto import GuildDetailDTO
+from shared.dtos.guild import GuildDetailDTO
 from shared.repositories.guild_repository import GuildRepository
 from shared.utils.error import GuildErrorCode, HTTPError
 from shared.utils.service import http_service

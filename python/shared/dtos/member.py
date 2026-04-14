@@ -2,7 +2,7 @@ from pydantic import computed_field
 
 from ..entities.member import Role
 from . import BaseDTO, BigInt, NullableNameStr, NullableUrlStr
-from .user_dto import UserDetailDTO
+from .user import UserDetailDTO
 
 
 class MemberDTO(BaseDTO):

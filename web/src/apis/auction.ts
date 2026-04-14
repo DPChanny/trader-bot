@@ -1,4 +1,4 @@
-import type { CreateAuctionDTO, AuctionDTO } from "@/dtos/auctionDto";
+import type { CreateAuctionDTO, AuctionDTO } from "@/dtos/auction";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getAuctionEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/error";

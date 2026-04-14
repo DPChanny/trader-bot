@@ -5,7 +5,7 @@ import { Label } from "@/components/commons/label";
 import { SecondaryButton, Button } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
 import { Section } from "@/components/commons/section";
-import type { CreateAuctionDTO } from "@/dtos/auctionDto";
+import type { CreateAuctionDTO } from "@/dtos/auction";
 
 interface CreateAuctionModalProps {
   onClose: () => void;

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.preset_member_dto import (
+from shared.dtos.preset_member import (
     AddPresetMemberDTO,
     PresetMemberDetailDTO,
     UpdatePresetMemberDTO,

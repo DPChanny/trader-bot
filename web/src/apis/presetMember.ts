@@ -2,7 +2,7 @@ import type {
   AddPresetMemberDTO,
   PresetMemberDetailDTO,
   UpdatePresetMemberDTO,
-} from "@/dtos/presetMemberDto";
+} from "@/dtos/presetMember";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetMemberEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/error";

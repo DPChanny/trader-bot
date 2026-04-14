@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.preset_member_position_dto import (
+from shared.dtos.preset_member_position import (
     AddPresetMemberPositionDTO,
     PresetMemberPositionDTO,
 )

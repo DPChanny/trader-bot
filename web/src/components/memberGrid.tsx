@@ -2,7 +2,7 @@ import { MemberCard } from "./memberCard";
 import { Section } from "@/components/commons/section";
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberGrid.module.css";
-import type { MemberDetailDTO } from "@/dtos/memberDto";
+import type { MemberDetailDTO } from "@/dtos/member";
 
 interface MemberGridProps {
   members: MemberDetailDTO[];

@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..dtos.user_dto import UserDTO
+from ..dtos.user import UserDTO
 from ..entities.user import User
 from ..repositories.user_repository import UserRepository
 

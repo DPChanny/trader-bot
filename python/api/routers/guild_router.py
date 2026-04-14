@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.guild_dto import GuildDetailDTO
+from shared.dtos.guild import GuildDetailDTO
 from shared.utils.database import get_session
 
 from ..services.guild_service import get_guild_list_service, get_guild_service

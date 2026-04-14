@@ -2,7 +2,7 @@ import type {
   ExchangeTokenDTO,
   JwtTokenDTO,
   RefreshTokenDTO,
-} from "@/dtos/authDto";
+} from "@/dtos/auth";
 import { AUTH_API_ENDPOINT } from "@/utils/env";
 import { handleHttpError } from "@/utils/error";
 

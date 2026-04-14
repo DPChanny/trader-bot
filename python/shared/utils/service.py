@@ -25,9 +25,9 @@ def http_service(func):
             error.function = func.__name__
             raise
         except Exception as error:
-            app_error = HTTPError(UnexpectedErrorCode.Internal)
-            app_error.function = func.__name__
-            raise app_error from error
+            http_error = HTTPError(UnexpectedErrorCode.Internal)
+            http_error.function = func.__name__
+            raise http_error from error
 
     return wrapper
 
@@ -51,8 +51,8 @@ def ws_service(func):
             error.function = func.__name__
             raise
         except Exception as error:
-            app_error = WSError(UnexpectedErrorCode.Internal)
-            app_error.function = func.__name__
-            raise app_error from error
+            ws_error = WSError(UnexpectedErrorCode.Internal)
+            ws_error.function = func.__name__
+            raise ws_error from error
 
     return wrapper

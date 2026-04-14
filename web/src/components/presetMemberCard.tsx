@@ -3,7 +3,7 @@ import styles from "@/styles/components/memberCard.module.css";
 import { Card } from "@/components/commons/card";
 import { Badge } from "@/components/commons/badge";
 import { Section } from "@/components/commons/section";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 
 export interface PresetMemberCardProps {
   presetMember: PresetMemberDetailDTO;

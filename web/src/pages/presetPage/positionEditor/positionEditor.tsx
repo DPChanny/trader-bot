@@ -5,7 +5,7 @@ import {
   usePositions,
   useUpdatePosition,
 } from "@/hooks/position";
-import { Role } from "@/dtos/memberDto";
+import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
@@ -20,7 +20,7 @@ import type {
   AddPositionDTO,
   PositionDTO,
   UpdatePositionDTO,
-} from "@/dtos/positionDto";
+} from "@/dtos/position";
 
 import styles from "@/styles/pages/presetPage/positionEditor/positionList.module.css";
 

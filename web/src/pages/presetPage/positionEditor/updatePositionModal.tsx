@@ -7,7 +7,7 @@ import {
   UpdatePositionSchema,
   type PositionDTO,
   type UpdatePositionDTO,
-} from "@/dtos/positionDto";
+} from "@/dtos/position";
 import { buildPatchDto } from "@/utils/dto";
 
 interface UpdatePositionModalProps {

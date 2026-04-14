@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.position_dto import (
+from shared.dtos.position import (
     AddPositionDTO,
     PositionDTO,
     UpdatePositionDTO,

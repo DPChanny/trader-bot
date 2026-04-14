@@ -2,7 +2,7 @@ import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
 import { PrimaryButton } from "@/components/commons/button";
 import { GuildCard } from "./guildCard";
-import type { GuildDetailDTO } from "@/dtos/guildDto";
+import type { GuildDetailDTO } from "@/dtos/guild";
 import { getBotInviteUrl } from "@/utils/env";
 import styles from "@/styles/components/sideMenu/guild/guildList.module.css";
 

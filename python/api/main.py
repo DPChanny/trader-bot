@@ -58,18 +58,18 @@ async def http_error_handler(_: Request, exc: HTTPError) -> JSONResponse:
 async def validation_error_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    app_error = HTTPError(ValidationErrorCode.Invalid)
-    app_error.function = validation_error_handler.__name__
-    app_error.__cause__ = exc
-    return await http_error_handler(request, app_error)
+    error = HTTPError(ValidationErrorCode.Invalid)
+    error.function = validation_error_handler.__name__
+    error.__cause__ = exc
+    return await http_error_handler(request, error)
 
 
 @app.exception_handler(Exception)
 async def exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    app_error = HTTPError(UnexpectedErrorCode.Internal)
-    app_error.function = exception_handler.__name__
-    app_error.__cause__ = exc
-    return await http_error_handler(request, app_error)
+    error = HTTPError(UnexpectedErrorCode.Internal)
+    error.function = exception_handler.__name__
+    error.__cause__ = exc
+    return await http_error_handler(request, error)
 
 
 app.add_middleware(LoggingMiddleware)

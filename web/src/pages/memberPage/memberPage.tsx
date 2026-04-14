@@ -6,7 +6,7 @@ import { PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { MemberPanel } from "./memberPanel";
-import type { MemberDetailDTO } from "@/dtos/memberDto";
+import type { MemberDetailDTO } from "@/dtos/member";
 
 import styles from "@/styles/pages/memberPage/memberPage.module.css";
 import { Bar } from "@/components/commons/bar";

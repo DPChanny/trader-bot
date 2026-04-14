@@ -1,6 +1,6 @@
 import styles from "@/styles/components/header.module.css";
 import { Button, DangerButton } from "@/components/commons/button";
-import type { UserDetailDTO } from "@/dtos/userDto";
+import type { UserDetailDTO } from "@/dtos/user";
 
 interface HeaderProps {
   user?: UserDetailDTO;

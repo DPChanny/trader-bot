@@ -5,7 +5,7 @@ import {
   useTiers,
   useUpdateTier,
 } from "@/hooks/tier";
-import { Role } from "@/dtos/memberDto";
+import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
@@ -17,7 +17,7 @@ import { DeleteTierModal } from "./deleteTierModal";
 import { TierCard } from "./tierCard";
 import styles from "@/styles/pages/presetPage/tierEditor/tierList.module.css";
 import { Section } from "@/components/commons/section";
-import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@/dtos/tierDto";
+import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@/dtos/tier";
 
 interface TierEditorProps {
   guildId: string;

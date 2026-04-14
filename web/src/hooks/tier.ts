@@ -13,7 +13,7 @@ import {
   deleteTier,
 } from "@/apis/tier";
 import { queryKeys } from "@/utils/query";
-import type { TierDTO } from "@/dtos/tierDto";
+import type { TierDTO } from "@/dtos/tier";
 
 type AddTierVariables = Parameters<typeof addTier>[0];
 type AddTierResult = Awaited<ReturnType<typeof addTier>>;

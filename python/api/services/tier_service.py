@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.tier_dto import (
+from shared.dtos.tier import (
     AddTierDTO,
     TierDTO,
     UpdateTierDTO,

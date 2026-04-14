@@ -2,11 +2,11 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auction_dto import (
+from shared.dtos.auction import (
     AuctionDTO,
     CreateAuctionDTO,
 )
-from shared.dtos.preset_dto import PresetDetailDTO
+from shared.dtos.preset import PresetDetailDTO
 from shared.entities.member import Role
 from shared.entities.preset_member import PresetMember
 from shared.repositories.preset_repository import PresetRepository

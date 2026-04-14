@@ -4,7 +4,7 @@ import urllib.parse
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auth_dto import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
+from shared.dtos.auth import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
 from shared.utils.env import get_app_origin
 from shared.utils.error import AuthErrorCode, HTTPError, TokenError
 from shared.utils.service import http_service

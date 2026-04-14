@@ -7,7 +7,7 @@ import {
   UpdateTierSchema,
   type TierDTO,
   type UpdateTierDTO,
-} from "@/dtos/tierDto";
+} from "@/dtos/tier";
 import { buildPatchDto } from "@/utils/dto";
 
 interface UpdateTierModalProps {

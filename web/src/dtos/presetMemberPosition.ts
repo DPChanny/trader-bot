@@ -1,4 +1,4 @@
-import type { PositionDTO } from "./positionDto";
+import type { PositionDTO } from "./position";
 
 export interface PresetMemberPositionDTO {
   presetMemberPositionId: number;

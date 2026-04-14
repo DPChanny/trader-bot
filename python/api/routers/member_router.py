@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.member_dto import MemberDetailDTO, UpdateMemberDTO
+from shared.dtos.member import MemberDetailDTO, UpdateMemberDTO
 from shared.utils.database import get_session
 
 from ..services.member_service import (

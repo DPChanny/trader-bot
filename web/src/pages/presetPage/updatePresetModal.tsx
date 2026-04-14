@@ -12,7 +12,7 @@ import {
   UpdatePresetSchema,
   type PresetDTO,
   type UpdatePresetDTO,
-} from "@/dtos/presetDto";
+} from "@/dtos/preset";
 import { buildPatchDto } from "@/utils/dto";
 
 interface UpdatePresetModalProps {

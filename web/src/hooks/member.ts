@@ -5,8 +5,8 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/preact-query";
-import type { MemberDetailDTO } from "@/dtos/memberDto";
-import { Role } from "@/dtos/memberDto";
+import type { MemberDetailDTO } from "@/dtos/member";
+import { Role } from "@/dtos/member";
 import {
   getMember,
   getMembers,

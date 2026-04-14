@@ -3,7 +3,7 @@ import { Modal, ModalFooter, ModalForm } from "@/components/commons/modal";
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error as ErrorMessage } from "@/components/commons/error";
-import { AddPositionSchema, type AddPositionDTO } from "@/dtos/positionDto";
+import { AddPositionSchema, type AddPositionDTO } from "@/dtos/position";
 
 interface AddPositionModalProps {
   onClose: () => void;

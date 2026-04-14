@@ -1,4 +1,4 @@
-import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@/dtos/tierDto";
+import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@/dtos/tier";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getTierEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/error";

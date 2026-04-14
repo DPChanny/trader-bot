@@ -12,8 +12,8 @@ import { PresetMemberCard } from "@/components/presetMemberCard";
 import { Input } from "@/components/commons/input";
 import { Bar } from "@/components/commons/bar";
 import { checkRefreshToken } from "@/utils/auth";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
-import { AuctionStatus } from "@/dtos/auctionDto";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
+import { AuctionStatus } from "@/dtos/auction";
 
 import styles from "@/styles/pages/auctionPage/auctionPage.module.css";
 

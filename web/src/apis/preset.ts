@@ -2,7 +2,7 @@ import type {
   PresetDTO,
   CreatePresetDTO,
   UpdatePresetDTO,
-} from "@/dtos/presetDto";
+} from "@/dtos/preset";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPresetEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/error";

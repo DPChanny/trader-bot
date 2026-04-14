@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auction_dto import AuctionDTO, CreateAuctionDTO
+from shared.dtos.auction import AuctionDTO, CreateAuctionDTO
 from shared.utils.database import get_session
 
 from ..services.auction_service import create_auction_service

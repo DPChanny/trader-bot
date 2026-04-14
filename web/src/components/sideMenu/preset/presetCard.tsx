@@ -1,6 +1,6 @@
 import { Card } from "@/components/commons/card";
 import styles from "@/styles/components/sideMenu/preset/presetCard.module.css";
-import type { PresetDTO } from "@/dtos/presetDto";
+import type { PresetDTO } from "@/dtos/preset";
 
 interface PresetCardProps {
   preset: PresetDTO;

@@ -1,6 +1,6 @@
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
-import type { TeamDTO } from "@/dtos/auctionDto";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
+import type { TeamDTO } from "@/dtos/auction";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";

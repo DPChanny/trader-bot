@@ -2,7 +2,7 @@ import { PresetMemberCard } from "./presetMemberCard";
 import { Section } from "@/components/commons/section";
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberGrid.module.css";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 
 interface PresetMemberGridProps {
   presetMembers: PresetMemberDetailDTO[];

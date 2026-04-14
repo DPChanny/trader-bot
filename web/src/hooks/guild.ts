@@ -1,5 +1,5 @@
 import { useQuery, type UseQueryResult } from "@tanstack/preact-query";
-import type { GuildDetailDTO } from "@/dtos/guildDto";
+import type { GuildDetailDTO } from "@/dtos/guild";
 import { getGuild, getGuilds } from "@/apis/guild";
 import { queryKeys } from "@/utils/query";
 

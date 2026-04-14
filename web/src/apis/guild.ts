@@ -1,4 +1,4 @@
-import type { GuildDetailDTO } from "@/dtos/guildDto";
+import type { GuildDetailDTO } from "@/dtos/guild";
 import { GUILD_API_ENDPOINT } from "@/utils/env";
 import { toCamelCase } from "@/utils/dto";
 import { handleHttpError } from "@/utils/error";

@@ -10,9 +10,9 @@ from fastapi import (
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auction_dto import (
-    AuctionMessageDTO,
+from shared.dtos.auction import (
     AuctionDetailDTO,
+    AuctionMessageDTO,
     ErrorDTO,
     InitDTO,
     MessageType,

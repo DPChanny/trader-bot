@@ -5,10 +5,10 @@ import { PrimaryButton } from "@/components/commons/button";
 import { CreatePresetModal } from "./createPresetModal";
 import { PresetCard } from "./presetCard";
 import { useCreatePreset, usePresets } from "@/hooks/preset";
-import { Role } from "@/dtos/memberDto";
+import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import styles from "@/styles/components/sideMenu/preset/presetList.module.css";
-import type { CreatePresetDTO } from "@/dtos/presetDto";
+import type { CreatePresetDTO } from "@/dtos/preset";
 
 interface PresetListProps {
   guildId: string;

@@ -13,7 +13,7 @@ import {
   deletePresetMember,
 } from "@/apis/presetMember";
 import { queryKeys } from "@/utils/query";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMemberDto";
+import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 
 type CreatePresetMemberVariables = Parameters<typeof createPresetMember>[0];
 type CreatePresetMemberResult = Awaited<ReturnType<typeof createPresetMember>>;

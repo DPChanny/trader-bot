@@ -2,7 +2,7 @@ import styles from "@/styles/components/memberCard.module.css";
 import { Card } from "@/components/commons/card";
 import { Section } from "@/components/commons/section";
 import { Badge } from "@/components/commons/badge";
-import type { MemberDetailDTO } from "@/dtos/memberDto";
+import type { MemberDetailDTO } from "@/dtos/member";
 
 const ROLE_LABEL: Record<number, string> = {
   3: "O",

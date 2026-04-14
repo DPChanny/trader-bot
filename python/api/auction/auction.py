@@ -9,7 +9,7 @@ from enum import IntEnum
 from fastapi import WebSocket
 
 from shared.dtos import BaseDTO
-from shared.dtos.auction_dto import (
+from shared.dtos.auction import (
     AuctionMessageDTO,
     BidPlacedDTO,
     MemberConnectedDTO,
@@ -21,7 +21,7 @@ from shared.dtos.auction_dto import (
     StatusDTO,
     TimerDTO,
 )
-from shared.dtos.preset_dto import PresetDetailDTO
+from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, UnexpectedErrorCode, WSError
 
 

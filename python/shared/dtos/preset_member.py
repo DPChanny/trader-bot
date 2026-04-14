@@ -1,7 +1,7 @@
 from . import BaseDTO
-from .member_dto import MemberDetailDTO
-from .preset_member_position_dto import PresetMemberPositionDetailDTO
-from .tier_dto import TierDTO
+from .member import MemberDetailDTO
+from .preset_member_position import PresetMemberPositionDetailDTO
+from .tier import TierDTO
 
 
 class PresetMemberDTO(BaseDTO):

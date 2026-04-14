@@ -2,7 +2,7 @@ import type {
   PositionDTO,
   AddPositionDTO,
   UpdatePositionDTO,
-} from "@/dtos/positionDto";
+} from "@/dtos/position";
 import { toCamelCase, toSnakeCase } from "@/utils/dto";
 import { getPositionEndpoint } from "@/utils/env";
 import { handleHttpError } from "@/utils/error";

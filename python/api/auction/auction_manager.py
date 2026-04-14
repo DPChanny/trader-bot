@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from typing import ClassVar
 
-from shared.dtos.preset_dto import PresetDetailDTO
+from shared.dtos.preset import PresetDetailDTO
 
 from .auction import Auction
 

@@ -1,4 +1,4 @@
-import type { UserDetailDTO } from "@/dtos/userDto";
+import type { UserDetailDTO } from "@/dtos/user";
 import { getAccessToken } from "@/utils/auth";
 import { USER_API_ENDPOINT } from "@/utils/env";
 import { toCamelCase } from "@/utils/dto";

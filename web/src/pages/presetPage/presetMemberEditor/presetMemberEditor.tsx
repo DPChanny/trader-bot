@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { useMembers } from "@/hooks/member";
-import { Role } from "@/dtos/memberDto";
+import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import { useCreatePresetMember, usePresetMembers } from "@/hooks/presetMember";
 import { MemberGrid } from "@/components/memberGrid";

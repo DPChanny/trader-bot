@@ -13,7 +13,7 @@ import {
   deletePosition,
 } from "@/apis/position";
 import { queryKeys } from "@/utils/query";
-import type { PositionDTO } from "@/dtos/positionDto";
+import type { PositionDTO } from "@/dtos/position";
 
 type AddPositionVariables = Parameters<typeof addPosition>[0];
 type AddPositionResult = Awaited<ReturnType<typeof addPosition>>;
