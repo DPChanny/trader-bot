@@ -15,11 +15,10 @@ export function PresetCard({ preset, guildId, isActive }: PresetCardProps) {
       style={{ display: "contents", textDecoration: "none", color: "inherit" }}
     >
       <Card
-        variantColor={isActive ? "blue" : "gray"}
+        variantColor="blue"
         variantActive={isActive}
         variantLayout="row"
         variantIntent="tertiary"
-        style={{ cursor: "pointer" }}
       >
         <span className={styles.name}>{preset.name}</span>
       </Card>

@@ -14,11 +14,10 @@ export function GuildCard({ guild, isActive }: GuildCardProps) {
       style={{ display: "contents", textDecoration: "none", color: "inherit" }}
     >
       <Card
-        variantColor={isActive ? "blue" : "gray"}
+        variantColor="blue"
         variantActive={isActive}
         variantLayout="row"
         variantIntent="tertiary"
-        style={{ cursor: "pointer" }}
       >
         <div className={styles.icon}>
           {guild.iconUrl ? (
