@@ -26,8 +26,16 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   const [bidAmount, setBidAmount] = useState<string>("");
   const reconnectedRef = useRef(false);
 
-  const { state, connect, placeBid, isConnected, wasConnected, closeReason } =
-    useAuctionWebSocket();
+  const {
+    state,
+    connect,
+    placeBid,
+    isConnected,
+    wasConnected,
+    closeReason,
+    bidReason,
+    clearBidReason,
+  } = useAuctionWebSocket();
 
   useEffect(() => {
     if (auctionId !== undefined) {
@@ -132,6 +140,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     const displayAmount = parseInt(bidAmount);
     if (displayAmount > 0 && displayAmount % pointScale === 0) {
       const actualAmount = displayAmount / pointScale;
+      clearBidReason();
       placeBid(actualAmount);
       setBidAmount("");
     }
@@ -204,11 +213,15 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
               variantLayout="row"
               className={styles.auctionInfoBottomSection}
             >
+              {bidReason && <Error>{bidReason}</Error>}
               <Input
                 type="number"
                 placeholder={`입찰 금액 (${pointScale}의 배수)`}
                 value={bidAmount}
-                onChange={(value) => setBidAmount(value)}
+                onChange={(value) => {
+                  clearBidReason();
+                  setBidAmount(value);
+                }}
                 disabled={state.status !== AuctionStatus.RUNNING}
               />
               <PrimaryButton

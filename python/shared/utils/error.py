@@ -5,6 +5,7 @@
 43xx 403 Forbidden
 44xx 404 Not found
 45xx 401 Discord
+46xx 400 Bid
 50xx 500 Unexpected
 """
 
@@ -13,13 +14,16 @@ from enum import IntEnum
 
 class AuctionErrorCode(IntEnum):
     InsufficientLeaders = 4001
-    BidTeamFull = 4002
-    BidTooHigh = 4003
-    BidTooLow = 4004
     Invalid = 4202
     ForbiddenAccess = 4301
-    BidNotLeader = 4302
     NotFound = 4401
+
+
+class BidErrorCode(IntEnum):
+    TeamFull = 4601
+    TooHigh = 4602
+    TooLow = 4603
+    NotLeader = 4604
 
 
 class AuthErrorCode(IntEnum):
@@ -93,6 +97,7 @@ class HTTPError(Exception):
             43: 403,
             44: 404,
             45: 401,
+            46: 400,
             50: 500,
         }[code.value // 100]
         self.function: str | None = None

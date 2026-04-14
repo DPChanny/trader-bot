@@ -22,7 +22,7 @@ from shared.dtos.auction import (
     TimerDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
-from shared.utils.error import AuctionErrorCode, UnexpectedErrorCode, WSError
+from shared.utils.error import BidErrorCode, UnexpectedErrorCode, WSError
 
 
 _AUCTION_EXPIRATION_MINUTES = 10
@@ -358,19 +358,19 @@ class Auction:
                 return
             self._bid_placed[leader_id] = now
             if leader_id not in self._leader_member_ids:
-                raise WSError(AuctionErrorCode.BidNotLeader)
+                raise WSError(BidErrorCode.NotLeader)
             team = self._member_id_to_team.get(leader_id)
             if team is None:
                 raise WSError(UnexpectedErrorCode.Internal)
             if len(team.member_ids) >= self.team_size:
-                raise WSError(AuctionErrorCode.BidTeamFull)
+                raise WSError(BidErrorCode.TeamFull)
             remaining_slots = self.team_size - len(team.member_ids)
             max_bid_amount = team.points - (remaining_slots - 1)
             if amount > max_bid_amount:
-                raise WSError(AuctionErrorCode.BidTooHigh)
+                raise WSError(BidErrorCode.TooHigh)
             min_bid = (self.current_bid.amount + 1) if self.current_bid else 1
             if amount < min_bid:
-                raise WSError(AuctionErrorCode.BidTooLow)
+                raise WSError(BidErrorCode.TooLow)
             self.current_bid = Bid(amount=amount, leader_id=leader_id)
             message = (
                 MessageType.BID_PLACED,

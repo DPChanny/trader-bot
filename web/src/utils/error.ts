@@ -4,13 +4,16 @@ import { queryClient, queryKeys } from "@/utils/query";
 
 export const AuctionErrorCode = {
   InsufficientLeaders: 4001,
-  BidTeamFull: 4002,
-  BidTooHigh: 4003,
-  BidTooLow: 4004,
   Invalid: 4202,
   ForbiddenAccess: 4301,
-  BidNotLeader: 4302,
   NotFound: 4401,
+} as const;
+
+export const BidErrorCode = {
+  TeamFull: 4601,
+  TooHigh: 4602,
+  TooLow: 4603,
+  NotLeader: 4604,
 } as const;
 
 export const AuthErrorCode = {
@@ -69,21 +72,56 @@ export const UnexpectedErrorCode = {
   Internal: 5001,
 } as const;
 
+type ValueOf<T> = T[keyof T];
+
+export type AuctionErrorCodeType = ValueOf<typeof AuctionErrorCode>;
+export type BidErrorCodeType = ValueOf<typeof BidErrorCode>;
+export type AuthErrorCodeType = ValueOf<typeof AuthErrorCode>;
+export type ValidationErrorCodeType = ValueOf<typeof ValidationErrorCode>;
+export type DiscordErrorCodeType = ValueOf<typeof DiscordErrorCode>;
+export type UserErrorCodeType = ValueOf<typeof UserErrorCode>;
+export type GuildErrorCodeType = ValueOf<typeof GuildErrorCode>;
+export type MemberErrorCodeType = ValueOf<typeof MemberErrorCode>;
+export type PresetErrorCodeType = ValueOf<typeof PresetErrorCode>;
+export type TierErrorCodeType = ValueOf<typeof TierErrorCode>;
+export type PositionErrorCodeType = ValueOf<typeof PositionErrorCode>;
+export type PresetMemberErrorCodeType = ValueOf<typeof PresetMemberErrorCode>;
+export type PresetMemberPositionErrorCodeType = ValueOf<
+  typeof PresetMemberPositionErrorCode
+>;
+export type UnexpectedErrorCodeType = ValueOf<typeof UnexpectedErrorCode>;
+
+export type AppErrorCode =
+  | AuctionErrorCodeType
+  | BidErrorCodeType
+  | AuthErrorCodeType
+  | ValidationErrorCodeType
+  | DiscordErrorCodeType
+  | UserErrorCodeType
+  | GuildErrorCodeType
+  | MemberErrorCodeType
+  | PresetErrorCodeType
+  | TierErrorCodeType
+  | PositionErrorCodeType
+  | PresetMemberErrorCodeType
+  | PresetMemberPositionErrorCodeType
+  | UnexpectedErrorCodeType;
+
 export function getErrorMessage(code: number): string {
   switch (code) {
     case AuctionErrorCode.InsufficientLeaders:
       return "팀에 리더가 부족합니다.";
-    case AuctionErrorCode.BidTeamFull:
+    case BidErrorCode.TeamFull:
       return "팀 인원이 가득 찼습니다.";
-    case AuctionErrorCode.BidTooHigh:
+    case BidErrorCode.TooHigh:
       return "입찰 금액이 보유 포인트를 초과합니다.";
-    case AuctionErrorCode.BidTooLow:
+    case BidErrorCode.TooLow:
       return "입찰 금액이 최솟값보다 낮습니다.";
     case AuctionErrorCode.Invalid:
       return "유효하지 않은 경매 요청입니다.";
     case AuctionErrorCode.ForbiddenAccess:
       return "경매에 접근 권한이 없습니다.";
-    case AuctionErrorCode.BidNotLeader:
+    case BidErrorCode.NotLeader:
       return "리더만 입찰할 수 있습니다.";
     case AuctionErrorCode.NotFound:
       return "경매를 찾을 수 없습니다.";
