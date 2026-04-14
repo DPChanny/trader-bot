@@ -3,7 +3,8 @@ import styles from "@/styles/components/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@/hooks/guild";
 import { useGuildRoute } from "@/hooks/router";
 import { Button, CloseButton } from "@/components/commons/button";
-import { Section } from "@/components/commons/section";
+import { Row } from "@/components/commons/layout";
+import { PrimarySection } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
 import { GuildList } from "./guild/guildList";
 import { PresetList } from "./preset/presetList";
@@ -16,20 +17,23 @@ export function SideMenu() {
   return (
     <>
       {isOpen && (
-        <Section variantLayout="column" className={styles.sideMenu}>
-          <Section variantTone="ghost" variantLayout="row">
+        <PrimarySection className={styles.sideMenu}>
+          <Row
+            gap="sm"
+            style={{ justifyContent: "space-between", alignItems: "center" }}
+          >
             <h3>메뉴</h3>
             <CloseButton
               onClick={() => setIsOpen(false)}
               aria-label="사이드메뉴 닫기"
             />
-          </Section>
+          </Row>
           <Bar />
           <GuildList guilds={guilds} activeGuildId={guildId} />
           {guildId && (
             <PresetList guildId={guildId} selectedPresetId={presetId} />
           )}
-        </Section>
+        </PrimarySection>
       )}
       {!isOpen && (
         <Button

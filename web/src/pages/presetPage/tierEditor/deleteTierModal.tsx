@@ -1,7 +1,7 @@
 import { Modal, ModalFooter } from "@/components/commons/modal";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
-import { Section } from "@/components/commons/section";
+import { Column } from "@/components/commons/layout";
 
 interface DeleteTierModalProps {
   onClose: () => void;
@@ -23,7 +23,7 @@ export function DeleteTierModal({
 
   return (
     <Modal onClose={handleClose} title="티어 삭제">
-      <Section variantTone="ghost" variantIntent="secondary">
+      <Column gap="sm">
         정말 이 티어를 삭제하시겠습니까?
         {error && <Error error={error}>티어 삭제에 실패했습니다.</Error>}
         <ModalFooter>
@@ -38,7 +38,7 @@ export function DeleteTierModal({
             삭제
           </PrimaryButton>
         </ModalFooter>
-      </Section>
+      </Column>
     </Modal>
   );
 }

@@ -5,7 +5,12 @@ import { CloseButton, SaveButton } from "@/components/commons/button";
 import { LabelInput } from "@/components/commons/labelInput";
 import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
-import { Section } from "@/components/commons/section";
+import {
+  PrimarySection,
+  SecondarySection,
+  TertiarySection,
+} from "@/components/commons/section";
+import { Column, Row, Scroll } from "@/components/commons/layout";
 import { Toggle } from "@/components/commons/toggle";
 import {
   UpdateMemberSchema,
@@ -71,42 +76,34 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
   };
 
   return (
-    <Section variantIntent="primary" className={styles.panelSection}>
-      <Section variantTone="ghost" variantIntent="secondary">
-        <Section
-          variantTone="ghost"
-          variantLayout="row"
-          variantIntent="secondary"
-        >
-          <h3>{member.alias || member.user.name}</h3>
-          <Section
-            variantTone="ghost"
-            variantLayout="row"
-            variantIntent="secondary"
-          >
-            {canEdit && (
-              <SaveButton
-                onClick={handleSave}
-                disabled={updateMember.isPending || !hasChanges || !isFormValid}
-              />
-            )}
-            <CloseButton onClick={onClose} />
-          </Section>
-        </Section>
-        {updateMember.isError && (
-          <Error error={updateMember.error}>멤버 수정에 실패했습니다.</Error>
-        )}
-      </Section>
+    <PrimarySection className={styles.panelSection}>
+      <SecondarySection>
+        <Column>
+          <Row>
+            <h3>{member.alias || member.user.name}</h3>
+            <Row>
+              {canEdit && (
+                <SaveButton
+                  onClick={handleSave}
+                  disabled={
+                    updateMember.isPending || !hasChanges || !isFormValid
+                  }
+                />
+              )}
+              <CloseButton onClick={onClose} />
+            </Row>
+          </Row>
+          {updateMember.isError && (
+            <Error error={updateMember.error}>멤버 수정에 실패했습니다.</Error>
+          )}
+        </Column>
+      </SecondarySection>
 
       <Bar />
 
-      <Section
-        className={styles.content}
-        variantTone="ghost"
-        variantIntent="secondary"
-      >
-        <Section variantTone="ghost">
-          <Section variantTone="ghost" className={styles.cardSection}>
+      <Scroll axis="y" className={styles.content}>
+        <Column>
+          <Column className={styles.cardSection}>
             <MemberCard
               member={{
                 ...member,
@@ -114,7 +111,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
                 role,
               }}
             />
-          </Section>
+          </Column>
 
           <LabelInput
             label="별칭"
@@ -135,37 +132,35 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
             </a>
           )}
 
-          <Section variantTone="ghost" variantIntent="secondary">
+          <SecondarySection>
             <span>권한</span>
-            <Section
-              variantIntent="tertiary"
-              variantLayout="row"
-              className={styles.toggleSection}
-            >
-              {(
-                [
-                  { value: 0, label: "VIEWER" },
-                  { value: 1, label: "EDITOR" },
-                  { value: 2, label: "ADMIN" },
-                  { value: 3, label: "OWNER" },
-                ] as const
-              ).map(({ value, label }) => (
-                <Toggle
-                  key={value}
-                  variantColor={
-                    value === 3 ? "gold" : value === 2 ? "red" : "blue"
-                  }
-                  isActive={role === value}
-                  disabled={!canEditRole || value === 3}
-                  onClick={() => setRole(value)}
-                >
-                  {label}
-                </Toggle>
-              ))}
-            </Section>
-          </Section>
-        </Section>
-      </Section>
-    </Section>
+            <TertiarySection>
+              <Row className={styles.toggleSection}>
+                {(
+                  [
+                    { value: 0, label: "VIEWER" },
+                    { value: 1, label: "EDITOR" },
+                    { value: 2, label: "ADMIN" },
+                    { value: 3, label: "OWNER" },
+                  ] as const
+                ).map(({ value, label }) => (
+                  <Toggle
+                    key={value}
+                    variantColor={
+                      value === 3 ? "gold" : value === 2 ? "red" : "blue"
+                    }
+                    isActive={role === value}
+                    disabled={!canEditRole || value === 3}
+                    onClick={() => setRole(value)}
+                  >
+                    {label}
+                  </Toggle>
+                ))}
+              </Row>
+            </TertiarySection>
+          </SecondarySection>
+        </Column>
+      </Scroll>
+    </PrimarySection>
   );
 }

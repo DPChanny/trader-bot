@@ -8,7 +8,8 @@ import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import { PresetMemberPanel } from "./presetMemberPanel";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
-import { Section } from "@/components/commons/section";
+import { PrimarySection, SecondarySection } from "@/components/commons/section";
+import { Column } from "@/components/commons/layout";
 import styles from "@/styles/pages/presetPage/presetMemberEditor/presetMemberEditor.module.css";
 
 interface PresetMemberEditorProps {
@@ -117,13 +118,9 @@ export function PresetMemberEditor({
   };
 
   return (
-    <Section variantIntent="primary" className={styles.editorLayout}>
-      <Section
-        variantTone="ghost"
-        variantLayout="column"
-        className={styles.gridsColumn}
-      >
-        <Section variantIntent="secondary" className={styles.gridSection}>
+    <PrimarySection className={styles.editorLayout}>
+      <Column className={styles.gridsColumn}>
+        <SecondarySection className={styles.gridSection}>
           {presetMembersError ? (
             <Error error={presetMembersError}>
               프리셋 멤버 목록을 불러오는데 실패했습니다.
@@ -141,9 +138,9 @@ export function PresetMemberEditor({
               onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
             />
           )}
-        </Section>
+        </SecondarySection>
 
-        <Section variantIntent="secondary" className={styles.gridSection}>
+        <SecondarySection className={styles.gridSection}>
           {membersError ? (
             <Error error={membersError}>
               멤버 목록을 불러오는데 실패했습니다.
@@ -163,8 +160,8 @@ export function PresetMemberEditor({
               />
             </>
           )}
-        </Section>
-      </Section>
+        </SecondarySection>
+      </Column>
 
       {selectedPresetMember && (
         <PresetMemberPanel
@@ -175,6 +172,6 @@ export function PresetMemberEditor({
           removeMemberIdFromRemoving={removeMemberIdFromRemoving}
         />
       )}
-    </Section>
+    </PrimarySection>
   );
 }

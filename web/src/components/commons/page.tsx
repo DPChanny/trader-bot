@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
 import type { ComponentChildren } from "preact";
+import { Row } from "@/components/commons/layout";
 import styles from "@/styles/components/commons/page.module.css";
 
 interface PageLayoutProps {
@@ -8,5 +9,15 @@ interface PageLayoutProps {
 }
 
 export function PageLayout({ children, className }: PageLayoutProps) {
-  return <div className={clsx(styles.pageLayout, className)}>{children}</div>;
+  return (
+    <Row
+      fill
+      minSize
+      overflow="hidden"
+      gap="lg"
+      className={clsx(styles.pageLayout, className)}
+    >
+      {children}
+    </Row>
+  );
 }

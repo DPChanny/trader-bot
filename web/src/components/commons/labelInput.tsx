@@ -1,6 +1,6 @@
 import { Input, type InputProps } from "@/components/commons/input";
 import { Label } from "@/components/commons/label";
-import { Section } from "./section";
+import { Column } from "./layout";
 
 type LabelInputProps = InputProps & {
   label: string;
@@ -15,11 +15,11 @@ export function LabelInput({
   ...inputProps
 }: LabelInputProps) {
   return (
-    <Section variantTone="ghost" variantIntent="tertiary">
+    <Column gap="xs">
       <Label htmlFor={htmlFor} required={required}>
         {label}
       </Label>
       <Input {...inputProps} />
-    </Section>
+    </Column>
   );
 }

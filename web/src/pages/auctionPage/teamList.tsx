@@ -1,7 +1,7 @@
 import { TeamCard } from "./teamCard";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 import type { TeamDTO } from "@/dtos/auction";
-import { Section } from "@/components/commons/section";
+import { Scroll } from "@/components/commons/layout";
 import styles from "@/styles/pages/auctionPage/teamList.module.css";
 
 interface TeamListProps {
@@ -22,11 +22,7 @@ export function TeamList({
   clientMemberId,
 }: TeamListProps) {
   return (
-    <Section
-      variantTone="ghost"
-      className={styles.teamList}
-      variantLayout="column"
-    >
+    <Scroll axis="y" fill gap="md" className={styles.teamList}>
       {teams.map((team) => {
         const members = team.memberIds
           .map((id) => presetMemberMap.get(id))
@@ -44,6 +40,6 @@ export function TeamList({
           />
         );
       })}
-    </Section>
+    </Scroll>
   );
 }

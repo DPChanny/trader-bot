@@ -1,4 +1,5 @@
-import { Section } from "@/components/commons/section";
+import { Column } from "@/components/commons/layout";
+import { SecondarySection } from "@/components/commons/section";
 import styles from "@/styles/pages/auctionPage/infoCard.module.css";
 
 interface InfoCardProps {
@@ -9,15 +10,15 @@ interface InfoCardProps {
 
 export function InfoCard({ label, value, children }: InfoCardProps) {
   return (
-    <Section variantIntent="secondary" className={styles.infoCard}>
+    <SecondarySection className={styles.infoCard}>
       <span className={styles.infoLabel}>{label}</span>
-      <Section variantTone="ghost" className={styles.valueSection}>
+      <Column className={styles.valueSection}>
         {children ? (
           children
         ) : (
           <span className={styles.infoValue}>{value}</span>
         )}
-      </Section>
-    </Section>
+      </Column>
+    </SecondarySection>
   );
 }

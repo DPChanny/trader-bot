@@ -11,12 +11,13 @@ import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
+import { Column, Row } from "@/components/commons/layout";
 import { AddTierModal } from "./addTierModal";
 import { UpdateTierModal } from "./updateTierModal";
 import { DeleteTierModal } from "./deleteTierModal";
 import { TierCard } from "./tierCard";
 import styles from "@/styles/pages/presetPage/tierEditor/tierList.module.css";
-import { Section } from "@/components/commons/section";
+import { SecondarySection } from "@/components/commons/section";
 import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@/dtos/tier";
 
 interface TierEditorProps {
@@ -95,21 +96,16 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
   };
 
   return (
-    <Section variantIntent="secondary" className={styles.wrapper}>
-      <Section variantTone="ghost" variantLayout="row">
+    <SecondarySection className={styles.wrapper}>
+      <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
         <h3>티어 목록</h3>
         {canEdit && (
           <PrimaryButton onClick={handleOpenAddTierModal}>추가</PrimaryButton>
         )}
-      </Section>
+      </Row>
       <Bar />
 
-      <Section
-        variantTone="ghost"
-        variantLayout="column"
-        variantIntent="secondary"
-        className={styles.tierList}
-      >
+      <Column gap="sm" className={styles.tierList}>
         {error ? (
           <Error error={error}>티어 목록을 불러오는데 실패했습니다.</Error>
         ) : isLoading ? (
@@ -126,7 +122,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
             />
           ))
         )}
-      </Section>
+      </Column>
 
       {showAddTierModal && (
         <AddTierModal
@@ -153,6 +149,6 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
           error={deleteTier.isError ? deleteTier.error : undefined}
         />
       )}
-    </Section>
+    </SecondarySection>
   );
 }

@@ -18,7 +18,11 @@ import { CloseButton, SaveButton, Button } from "@/components/commons/button";
 import { Label } from "@/components/commons/label";
 import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
-import { Section } from "@/components/commons/section";
+import {
+  SecondarySection,
+  TertiarySection,
+} from "@/components/commons/section";
+import { Column, Row, Scroll } from "@/components/commons/layout";
 import { buildPatchDto } from "@/utils/dto";
 import styles from "@/styles/pages/presetPage/presetMemberEditor/presetMemberPanel.module.css";
 
@@ -197,23 +201,15 @@ export function PresetMemberPanel({
   };
 
   return (
-    <Section variantIntent="secondary" className={styles.panelSection}>
-      <Section variantTone="ghost" variantIntent="secondary">
-        <Section
-          variantTone="ghost"
-          variantLayout="row"
-          variantIntent="secondary"
-        >
+    <SecondarySection className={styles.panelSection}>
+      <Column>
+        <Row>
           <h3>
             {presetMember.member.alias ||
               presetMember.member.name ||
               presetMember.member.user.name}
           </h3>
-          <Section
-            variantTone="ghost"
-            variantLayout="row"
-            variantIntent="secondary"
-          >
+          <Row>
             {canEdit && (
               <SaveButton
                 onClick={handleSave}
@@ -221,8 +217,8 @@ export function PresetMemberPanel({
               />
             )}
             <CloseButton onClick={() => setSelectedPresetMemberId(null)} />
-          </Section>
-        </Section>
+          </Row>
+        </Row>
         {hasError && (
           <Error
             error={
@@ -235,22 +231,18 @@ export function PresetMemberPanel({
             프리셋 멤버 수정에 실패했습니다.
           </Error>
         )}
-      </Section>
+      </Column>
 
       <Bar />
 
-      <Section
-        className={styles.content}
-        variantTone="ghost"
-        variantIntent="secondary"
-      >
-        <Section variantTone="ghost">
-          <Section variantTone="ghost" className={styles.cardSection}>
+      <Scroll axis="y" className={styles.content}>
+        <Column>
+          <Column className={styles.cardSection}>
             <PresetMemberCard presetMember={previewPresetMember} />
-          </Section>
+          </Column>
 
           <Label>팀장</Label>
-          <Section variantIntent="tertiary">
+          <TertiarySection>
             <Toggle
               isActive={isLeader}
               variantColor="gold"
@@ -259,80 +251,74 @@ export function PresetMemberPanel({
             >
               팀장
             </Toggle>
-          </Section>
+          </TertiarySection>
 
           <Label>티어</Label>
-          <Section
-            variantLayout="row"
-            variantIntent="tertiary"
-            className={styles.toggleSection}
-          >
-            <Toggle
-              isActive={tierId === null}
-              variantColor="red"
-              disabled={!canEdit}
-              onClick={() => canEdit && setTierId(null)}
-            >
-              없음
-            </Toggle>
-            {tiers?.map((tier) => (
+          <TertiarySection>
+            <Row className={styles.toggleSection}>
               <Toggle
-                key={tier.tierId}
-                isActive={tierId === tier.tierId}
+                isActive={tierId === null}
                 variantColor="red"
                 disabled={!canEdit}
-                onClick={() => canEdit && handleToggleTier(tier.tierId)}
+                onClick={() => canEdit && setTierId(null)}
               >
-                {tier.name}
+                없음
               </Toggle>
-            ))}
-          </Section>
+              {tiers?.map((tier) => (
+                <Toggle
+                  key={tier.tierId}
+                  isActive={tierId === tier.tierId}
+                  variantColor="red"
+                  disabled={!canEdit}
+                  onClick={() => canEdit && handleToggleTier(tier.tierId)}
+                >
+                  {tier.name}
+                </Toggle>
+              ))}
+            </Row>
+          </TertiarySection>
 
           <Label>포지션</Label>
-          <Section
-            variantLayout="row"
-            variantIntent="tertiary"
-            className={styles.toggleSection}
-          >
-            <Toggle
-              isActive={selectedPositionIds.length === 0}
-              variantColor="blue"
-              disabled={!canEdit}
-              onClick={() => canEdit && setSelectedPositionIds([])}
-            >
-              없음
-            </Toggle>
-            {positions.map((position) => (
+          <TertiarySection>
+            <Row className={styles.toggleSection}>
               <Toggle
-                key={position.positionId}
-                isActive={selectedPositionIds.includes(position.positionId)}
+                isActive={selectedPositionIds.length === 0}
                 variantColor="blue"
                 disabled={!canEdit}
-                onClick={() =>
-                  canEdit && handleTogglePosition(position.positionId)
-                }
+                onClick={() => canEdit && setSelectedPositionIds([])}
               >
-                {position.name}
+                없음
               </Toggle>
-            ))}
-          </Section>
-        </Section>
-      </Section>
+              {positions.map((position) => (
+                <Toggle
+                  key={position.positionId}
+                  isActive={selectedPositionIds.includes(position.positionId)}
+                  variantColor="blue"
+                  disabled={!canEdit}
+                  onClick={() =>
+                    canEdit && handleTogglePosition(position.positionId)
+                  }
+                >
+                  {position.name}
+                </Toggle>
+              ))}
+            </Row>
+          </TertiarySection>
+        </Column>
+      </Scroll>
 
       {canEdit && (
         <>
           <Bar />
-          <Section variantTone="ghost" variantIntent="secondary">
-            <Button
-              variantIntent="warning"
-              onClick={handleRemoveMember}
-              disabled={removePresetMember.isPending}
-            >
-              제거
-            </Button>
-          </Section>
+          <Button
+            variantIntent="warning"
+            onClick={handleRemoveMember}
+            disabled={removePresetMember.isPending}
+          >
+            제거
+          </Button>
         </>
       )}
-    </Section>
+    </SecondarySection>
   );
 }

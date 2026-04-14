@@ -1,0 +1,71 @@
+.layout {
+  display: flex;
+}
+
+.directionRow {
+  flex-direction: row;
+}
+
+.directionColumn {
+  flex-direction: column;
+}
+
+.directionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  justify-items: stretch;
+  align-items: flex-start;
+}
+
+.gapNone {
+  gap: 0;
+}
+
+.gapXs {
+  gap: var(--gap-xs);
+}
+
+.gapSm {
+  gap: var(--gap-sm);
+}
+
+.gapMd {
+  gap: var(--gap-md);
+}
+
+.gapLg {
+  gap: var(--gap-lg);
+}
+
+.gapXl {
+  gap: var(--gap-xl);
+}
+
+.wrap {
+  flex-wrap: wrap;
+}
+
+.fill {
+  flex: 1;
+}
+
+.minSize {
+  min-width: 0;
+  min-height: 0;
+}
+
+.overflowHidden {
+  overflow: hidden;
+}
+
+.overflowAuto {
+  overflow: auto;
+}
+
+.overflowX {
+  overflow-x: auto;
+}
+
+.overflowY {
+  overflow-y: auto;
+}

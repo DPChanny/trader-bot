@@ -1,4 +1,4 @@
-import { Card } from "@/components/commons/card";
+import { ToggleCard } from "@/components/commons/card";
 import styles from "@/styles/components/sideMenu/preset/presetCard.module.css";
 import type { PresetDTO } from "@/dtos/preset";
 
@@ -14,14 +14,14 @@ export function PresetCard({ preset, guildId, isActive }: PresetCardProps) {
       href={`/guild/${guildId}/preset/${preset.presetId}`}
       style={{ display: "contents", textDecoration: "none", color: "inherit" }}
     >
-      <Card
+      <ToggleCard
         variantColor="blue"
-        variantActive={isActive}
+        isActive={isActive}
         variantLayout="row"
         variantIntent="tertiary"
       >
         <span className={styles.name}>{preset.name}</span>
-      </Card>
+      </ToggleCard>
     </a>
   );
 }

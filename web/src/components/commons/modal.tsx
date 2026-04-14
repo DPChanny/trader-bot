@@ -1,7 +1,8 @@
 import { createPortal } from "preact/compat";
 import { clsx } from "clsx";
 import { Bar } from "@/components/commons/bar";
-import { Section } from "@/components/commons/section";
+import { Column, Row } from "@/components/commons/layout";
+import { PrimarySection } from "@/components/commons/section";
 import styles from "@/styles/components/commons/modal.module.css";
 import type { JSX } from "preact";
 
@@ -16,14 +17,14 @@ export function Modal({ onClose, title, children, className }: ModalProps) {
   const content = (
     <div className={styles.modal}>
       <div className={styles.overlay} onClick={onClose}>
-        <Section
+        <PrimarySection
           className={clsx(styles.content, className)}
           onClick={(e) => e.stopPropagation()}
         >
           <h3>{title}</h3>
           <Bar variantColor="blue" variantThickness="thin" />
           {children}
-        </Section>
+        </PrimarySection>
       </div>
     </div>
   );
@@ -40,13 +41,9 @@ interface ModalFormProps {
 export function ModalForm({ onSubmit, children, className }: ModalFormProps) {
   return (
     <form onSubmit={onSubmit}>
-      <Section
-        variantTone="ghost"
-        variantIntent="secondary"
-        className={clsx(className)}
-      >
+      <Column gap="sm" className={clsx(className)}>
         {children}
-      </Section>
+      </Column>
     </form>
   );
 }
@@ -58,14 +55,9 @@ interface ModalRowProps {
 
 export function ModalRow({ children, className }: ModalRowProps) {
   return (
-    <Section
-      variantTone="ghost"
-      variantLayout="row"
-      variantIntent="secondary"
-      className={clsx(styles.row, className)}
-    >
+    <Row gap="sm" className={clsx(styles.row, className)}>
       {children}
-    </Section>
+    </Row>
   );
 }
 
@@ -76,12 +68,8 @@ interface ModalFooterProps {
 
 export function ModalFooter({ children, className }: ModalFooterProps) {
   return (
-    <Section
-      variantTone="ghost"
-      variantLayout="row"
-      className={clsx(styles.footer, className)}
-    >
+    <Row gap="sm" className={clsx(styles.footer, className)}>
       {children}
-    </Section>
+    </Row>
   );
 }

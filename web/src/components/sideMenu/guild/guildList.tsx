@@ -1,4 +1,5 @@
-import { Section } from "@/components/commons/section";
+import { Column, Row } from "@/components/commons/layout";
+import { SecondarySection } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
 import { PrimaryButton } from "@/components/commons/button";
 import { GuildCard } from "./guildCard";
@@ -13,15 +14,15 @@ interface GuildListProps {
 
 export function GuildList({ guilds, activeGuildId }: GuildListProps) {
   return (
-    <Section variantIntent="secondary" className={styles.wrapper}>
-      <Section variantTone="ghost" variantLayout="row">
+    <SecondarySection className={styles.wrapper}>
+      <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
         <h3>길드 관리</h3>
         <PrimaryButton onClick={() => window.open(getBotInviteUrl(), "_blank")}>
           추가
         </PrimaryButton>
-      </Section>
+      </Row>
       <Bar />
-      <Section variantTone="ghost" variantIntent="tertiary">
+      <Column gap="xs">
         {guilds.map((g) => (
           <GuildCard
             key={g.discordId}
@@ -29,7 +30,7 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
             isActive={activeGuildId === g.discordId}
           />
         ))}
-      </Section>
-    </Section>
+      </Column>
+    </SecondarySection>
   );
 }

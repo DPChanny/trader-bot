@@ -1,8 +1,8 @@
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberCard.module.css";
-import { Card } from "@/components/commons/card";
+import { Card, ToggleCard } from "@/components/commons/card";
 import { Badge } from "@/components/commons/badge";
-import { Section } from "@/components/commons/section";
+import { Column } from "@/components/commons/layout";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 
 export interface PresetMemberCardProps {
@@ -10,6 +10,7 @@ export interface PresetMemberCardProps {
   isActive?: boolean;
   isConnected?: boolean;
   isClientMember?: boolean;
+  isInteractive?: boolean;
 }
 
 export function PresetMemberCard({
@@ -17,6 +18,7 @@ export function PresetMemberCard({
   isActive,
   isConnected,
   isClientMember,
+  isInteractive = false,
 }: PresetMemberCardProps) {
   const { member, tier, presetMemberPositions, isLeader } = presetMember;
 
@@ -27,10 +29,12 @@ export function PresetMemberCard({
     return null;
   })();
 
+  const CardComponent = isInteractive ? ToggleCard : Card;
+
   return (
-    <Card
+    <CardComponent
       variantColor={isLeader ? "gold" : "gray"}
-      variantActive={isActive}
+      isActive={isInteractive ? isActive : undefined}
       className={styles.memberCard}
     >
       <div class={styles.badgesLeft}>
@@ -48,7 +52,7 @@ export function PresetMemberCard({
         )}
       </div>
 
-      <Section variantTone="ghost" variantIntent="secondary">
+      <Column gap="sm">
         <div class={styles.profile}>
           {member.avatarUrl || member.user.avatarUrl ? (
             <img
@@ -72,7 +76,7 @@ export function PresetMemberCard({
           )}
         </div>
 
-        <Section variantTone="ghost" variantIntent="tertiary">
+        <Column gap="xs">
           <h3 class={styles.name}>
             {member.alias || member.name || member.user.name}
           </h3>
@@ -91,8 +95,8 @@ export function PresetMemberCard({
               ))}
             </div>
           )}
-        </Section>
-      </Section>
-    </Card>
+        </Column>
+      </Column>
+    </CardComponent>
   );
 }

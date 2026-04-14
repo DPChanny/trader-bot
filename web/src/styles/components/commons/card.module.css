@@ -6,6 +6,25 @@
   flex-shrink: 0;
 }
 
+.buttonCard {
+  cursor: pointer;
+  user-select: none;
+}
+
+.buttonCardDisabled {
+  cursor: default;
+}
+
+.layoutColumn {
+  flex-direction: column;
+}
+
+.layoutRow {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .card.colorBlue {
   background: var(--color-card-blue-bg);
   border-color: var(--color-card-blue-border);

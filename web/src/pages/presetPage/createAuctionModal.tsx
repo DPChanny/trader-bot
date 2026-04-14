@@ -4,7 +4,7 @@ import { Toggle } from "@/components/commons/toggle";
 import { Label } from "@/components/commons/label";
 import { SecondaryButton, Button } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
-import { Section } from "@/components/commons/section";
+import { Column, Row } from "@/components/commons/layout";
 import type { CreateAuctionDTO } from "@/dtos/auction";
 
 interface CreateAuctionModalProps {
@@ -34,23 +34,21 @@ export function CreateAuctionModal({
 
   return (
     <Modal onClose={handleClose} title="경매 생성">
-      <Section variantTone="ghost" variantIntent="secondary">
+      <Column gap="sm">
         {message && <Error>{message}</Error>}
         {error && <Error error={error}>경매 생성에 실패했습니다.</Error>}
-        <Section
-          variantTone="ghost"
-          variantLayout="row"
-          variantIntent="secondary"
+        <Row
+          gap="sm"
+          style={{ justifyContent: "space-between", alignItems: "center" }}
         >
           <Label>퍼블릭 허용</Label>
           <Toggle isActive={isPublic} onClick={() => setIsPublic((v) => !v)}>
             {isPublic ? "허용" : "비허용"}
           </Toggle>
-        </Section>
-        <Section
-          variantTone="ghost"
-          variantLayout="row"
-          variantIntent="secondary"
+        </Row>
+        <Row
+          gap="sm"
+          style={{ justifyContent: "space-between", alignItems: "center" }}
         >
           <Label>초대 발송</Label>
           <Toggle
@@ -59,7 +57,7 @@ export function CreateAuctionModal({
           >
             {sendInvite ? "발송" : "미발송"}
           </Toggle>
-        </Section>
+        </Row>
         <ModalFooter>
           <SecondaryButton
             type="button"
@@ -76,7 +74,7 @@ export function CreateAuctionModal({
             생성
           </Button>
         </ModalFooter>
-      </Section>
+      </Column>
     </Modal>
   );
 }

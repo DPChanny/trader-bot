@@ -1,7 +1,7 @@
 import { Modal, ModalFooter } from "@/components/commons/modal";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
-import { Section } from "@/components/commons/section";
+import { Column } from "@/components/commons/layout";
 
 interface DeletePresetModalProps {
   onClose: () => void;
@@ -23,7 +23,7 @@ export function DeletePresetModal({
 
   return (
     <Modal onClose={handleClose} title="프리셋 삭제">
-      <Section variantTone="ghost" variantIntent="secondary">
+      <Column gap="sm">
         정말 이 프리셋을 삭제하시겠습니까?
         {error && <Error error={error}>프리셋 삭제에 실패했습니다.</Error>}
         <ModalFooter>
@@ -38,7 +38,7 @@ export function DeletePresetModal({
             삭제
           </PrimaryButton>
         </ModalFooter>
-      </Section>
+      </Column>
     </Modal>
   );
 }

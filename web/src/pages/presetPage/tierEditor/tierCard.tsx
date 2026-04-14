@@ -1,7 +1,7 @@
 import { DeleteButton, EditButton } from "@/components/commons/button";
 import { Badge } from "@/components/commons/badge";
 import { Card } from "@/components/commons/card";
-import { Section } from "@/components/commons/section";
+import { Row } from "@/components/commons/layout";
 import type { TierDTO } from "@/dtos/tier";
 import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
@@ -36,18 +36,14 @@ export function TierCard({
       <span className={styles.name}>{tier.name}</span>
 
       {canEdit && (
-        <Section
-          variantTone="ghost"
-          variantLayout="row"
-          variantIntent="tertiary"
-        >
+        <Row gap="xs">
           <EditButton variantSize="small" onClick={onEdit} />
           <DeleteButton
             variantSize="small"
             disabled={isDeletePending}
             onClick={onDelete}
           />
-        </Section>
+        </Row>
       )}
     </Card>
   );

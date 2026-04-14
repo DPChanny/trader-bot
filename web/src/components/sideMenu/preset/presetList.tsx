@@ -1,5 +1,6 @@
 import { useState } from "preact/hooks";
-import { Section } from "@/components/commons/section";
+import { Column, Row } from "@/components/commons/layout";
+import { SecondarySection } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
 import { PrimaryButton } from "@/components/commons/button";
 import { CreatePresetModal } from "./createPresetModal";
@@ -37,17 +38,17 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
 
   return (
     <>
-      <Section variantIntent="secondary" className={styles.wrapper}>
-        <Section variantTone="ghost" variantLayout="row">
+      <SecondarySection className={styles.wrapper}>
+        <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
           <h3>프리셋 관리</h3>
           {canEdit && (
             <PrimaryButton onClick={handleOpenCreatePresetModal}>
               추가
             </PrimaryButton>
           )}
-        </Section>
+        </Row>
         <Bar />
-        <Section variantTone="ghost" variantIntent="tertiary">
+        <Column gap="xs">
           {presets.map((preset) => (
             <PresetCard
               key={preset.presetId}
@@ -56,8 +57,8 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
               isActive={selectedPresetId === preset.presetId}
             />
           ))}
-        </Section>
-      </Section>
+        </Column>
+      </SecondarySection>
 
       {showCreatePresetModal && (
         <CreatePresetModal

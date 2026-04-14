@@ -2,7 +2,7 @@ import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 import type { TeamDTO } from "@/dtos/auction";
 import { Card } from "@/components/commons/card";
-import { Section } from "@/components/commons/section";
+import { Row } from "@/components/commons/layout";
 import { Bar } from "@/components/commons/bar";
 import styles from "@/styles/pages/auctionPage/teamCard.module.css";
 
@@ -32,10 +32,13 @@ export function TeamCard({
 
   return (
     <Card variantColor={variantColor} variantLayout="column">
-      <Section variantTone="ghost" variantLayout="row">
+      <Row
+        gap="sm"
+        style={{ justifyContent: "space-between", alignItems: "center" }}
+      >
         <h4>{teamName}</h4>
         <span className={styles.points}>{team.points * pointScale} 포인트</span>
-      </Section>
+      </Row>
       <Bar variantColor={variantColor} />
       <PresetMemberGrid
         className={styles.membersGrid}

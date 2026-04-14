@@ -1,7 +1,7 @@
 import { route } from "preact-router";
 import { Modal, ModalFooter } from "@/components/commons/modal";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
-import { Section } from "@/components/commons/section";
+import { Column } from "@/components/commons/layout";
 
 interface AuctionModalProps {
   auctionId: string;
@@ -18,7 +18,7 @@ export function AuctionModal({ auctionId, onClose }: AuctionModalProps) {
 
   return (
     <Modal onClose={onClose} title="경매 생성 완료">
-      <Section variantTone="ghost" variantIntent="secondary">
+      <Column gap="sm">
         경매가 생성되었습니다.
         <ModalFooter>
           <SecondaryButton type="button" onClick={onClose}>
@@ -34,7 +34,7 @@ export function AuctionModal({ auctionId, onClose }: AuctionModalProps) {
             경매 참가
           </PrimaryButton>
         </ModalFooter>
-      </Section>
+      </Column>
     </Modal>
   );
 }

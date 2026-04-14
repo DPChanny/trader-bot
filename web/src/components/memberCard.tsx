@@ -1,6 +1,6 @@
 import styles from "@/styles/components/memberCard.module.css";
-import { Card } from "@/components/commons/card";
-import { Section } from "@/components/commons/section";
+import { Card, ToggleCard } from "@/components/commons/card";
+import { Column } from "@/components/commons/layout";
 import { Badge } from "@/components/commons/badge";
 import type { MemberDetailDTO } from "@/dtos/member";
 
@@ -21,17 +21,24 @@ const ROLE_COLOR: Record<number, "gold" | "red" | "blue" | "gray"> = {
 export interface MemberCardProps {
   member: MemberDetailDTO;
   isActive?: boolean;
+  isInteractive?: boolean;
 }
 
-export function MemberCard({ member, isActive }: MemberCardProps) {
+export function MemberCard({
+  member,
+  isActive,
+  isInteractive = false,
+}: MemberCardProps) {
   const displayName = member.alias || member.name || member.user.name;
   const avatarUrl = member.avatarUrl || member.user.avatarUrl;
   const roleLabel = ROLE_LABEL[member.role];
   const roleColor = ROLE_COLOR[member.role];
+  const CardComponent = isInteractive ? ToggleCard : Card;
+
   return (
-    <Card
+    <CardComponent
       variantColor="gray"
-      variantActive={isActive}
+      isActive={isInteractive ? isActive : undefined}
       className={styles.memberCard}
     >
       {roleLabel && (
@@ -45,7 +52,7 @@ export function MemberCard({ member, isActive }: MemberCardProps) {
           </Badge>
         </div>
       )}
-      <Section variantTone="ghost" variantIntent="secondary">
+      <Column gap="sm">
         <div class={styles.profile}>
           {avatarUrl ? (
             <img src={avatarUrl} alt={displayName} />
@@ -66,10 +73,10 @@ export function MemberCard({ member, isActive }: MemberCardProps) {
           )}
         </div>
 
-        <Section variantTone="ghost" variantIntent="tertiary">
+        <Column gap="xs">
           <h3 class={styles.name}>{displayName}</h3>
-        </Section>
-      </Section>
-    </Card>
+        </Column>
+      </Column>
+    </CardComponent>
   );
 }

@@ -10,51 +10,48 @@ const sectionVariants = cva(styles.section, {
       secondary: styles.intentSecondary,
       tertiary: styles.intentTertiary,
     },
-    variantTone: {
-      solid: "",
-      ghost: styles.toneGhost,
-    },
-    variantLayout: {
-      column: styles.layoutColumn,
-      row: styles.layoutRow,
-      grid: styles.layoutGrid,
-    },
   },
   defaultVariants: {
     variantIntent: "primary",
-    variantTone: "solid",
-    variantLayout: "column",
   },
 });
 
-interface SectionProps
-  extends VariantProps<typeof sectionVariants>, HTMLAttributes<HTMLDivElement> {
+type SectionVariants = VariantProps<typeof sectionVariants>;
+
+interface SectionProps extends SectionVariants, HTMLAttributes<HTMLDivElement> {
   children?: any;
   variantIntent?: "primary" | "secondary" | "tertiary";
-  variantTone?: "solid" | "ghost";
-  variantLayout?: "column" | "row" | "grid";
   className?: string;
 }
 
-export type { SectionProps };
+type SurfaceSectionProps = Omit<SectionProps, "variantIntent">;
+
+export type { SectionProps, SurfaceSectionProps };
 
 export function Section({
   children,
   variantIntent = "primary",
-  variantTone = "solid",
-  variantLayout = "column",
   className,
   ...props
 }: SectionProps) {
   return (
     <div
-      className={clsx(
-        sectionVariants({ variantIntent, variantTone, variantLayout }),
-        className,
-      )}
+      className={clsx(sectionVariants({ variantIntent }), className)}
       {...props}
     >
       {children}
     </div>
   );
+}
+
+export function PrimarySection(props: SurfaceSectionProps) {
+  return <Section variantIntent="primary" {...props} />;
+}
+
+export function SecondarySection(props: SurfaceSectionProps) {
+  return <Section variantIntent="secondary" {...props} />;
+}
+
+export function TertiarySection(props: SurfaceSectionProps) {
+  return <Section variantIntent="tertiary" {...props} />;
 }

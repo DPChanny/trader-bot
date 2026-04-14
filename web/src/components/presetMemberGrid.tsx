@@ -1,5 +1,5 @@
 import { PresetMemberCard } from "./presetMemberCard";
-import { Section } from "@/components/commons/section";
+import { Grid } from "@/components/commons/layout";
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberGrid.module.css";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
@@ -26,11 +26,7 @@ export function PresetMemberGrid({
   const sorted = [...leaders, ...nonLeaders];
 
   return (
-    <Section
-      variantTone="ghost"
-      variantLayout="grid"
-      className={clsx(styles.grid, className)}
-    >
+    <Grid gap="md" className={clsx(styles.grid, className)}>
       {sorted.map((presetMember) => (
         <div
           key={presetMember.presetMemberId}
@@ -40,6 +36,7 @@ export function PresetMemberGrid({
           <PresetMemberCard
             presetMember={presetMember}
             isActive={selectedMemberId === presetMember.presetMemberId}
+            isInteractive={true}
             isConnected={
               connectedMemberIds
                 ? connectedMemberIds.includes(presetMember.memberId)
@@ -53,6 +50,6 @@ export function PresetMemberGrid({
           />
         </div>
       ))}
-    </Section>
+    </Grid>
   );
 }

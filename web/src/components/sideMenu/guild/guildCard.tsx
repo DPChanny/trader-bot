@@ -1,4 +1,4 @@
-import { Card } from "@/components/commons/card";
+import { ToggleCard } from "@/components/commons/card";
 import styles from "@/styles/components/sideMenu/guild/guildCard.module.css";
 import type { GuildDetailDTO } from "@/dtos/guild";
 
@@ -13,9 +13,9 @@ export function GuildCard({ guild, isActive }: GuildCardProps) {
       href={`/guild/${guild.discordId}/member`}
       style={{ display: "contents", textDecoration: "none", color: "inherit" }}
     >
-      <Card
+      <ToggleCard
         variantColor="blue"
-        variantActive={isActive}
+        isActive={isActive}
         variantLayout="row"
         variantIntent="tertiary"
       >
@@ -27,7 +27,7 @@ export function GuildCard({ guild, isActive }: GuildCardProps) {
           )}
         </div>
         <span className={styles.name}>{guild.name}</span>
-      </Card>
+      </ToggleCard>
     </a>
   );
 }

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { useAuctionWebSocket } from "@/hooks/auctionWebSocket";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
-import { Section } from "@/components/commons/section";
+import { PrimarySection, SecondarySection } from "@/components/commons/section";
+import { Column, Grid, Row, Scroll } from "@/components/commons/layout";
 import { PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
@@ -100,9 +101,9 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   if (errorMessage) {
     return (
       <PageLayout>
-        <Section variantIntent="primary" className={styles.centerSection}>
+        <PrimarySection className={styles.centerSection}>
           <Error error={websocketError}>{errorMessage}</Error>
-        </Section>
+        </PrimarySection>
       </PageLayout>
     );
   }
@@ -175,7 +176,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
   return (
     <PageLayout>
-      <Section variantIntent="primary" className={styles.teamsSection}>
+      <PrimarySection className={styles.teamsSection}>
         <h3>팀 목록</h3>
         <Bar />
         <TeamList
@@ -186,49 +187,36 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
           clientMemberId={memberId ?? undefined}
           connectedMemberIds={connectedMemberIds}
         />
-      </Section>
+      </PrimarySection>
 
-      <Section variantIntent="primary" className={styles.auctionInfoSection}>
-        <Section variantTone="ghost" variantLayout="row">
+      <PrimarySection className={styles.auctionInfoSection}>
+        <Row>
           <h3>경매 정보</h3>
           <span>{getStatusText(state.status)}</span>
-        </Section>
+        </Row>
         <Bar />
-        <Section
-          variantTone="ghost"
-          className={styles.auctionInfoContentSection}
-        >
-          <Section
-            variantIntent="secondary"
-            className={styles.auctionInfoTopSection}
-          >
+        <Column className={styles.auctionInfoContentSection}>
+          <SecondarySection className={styles.auctionInfoTopSection}>
             {currentMember && <PresetMemberCard presetMember={currentMember} />}
-          </Section>
+          </SecondarySection>
 
-          <Section
-            variantTone="ghost"
-            className={styles.auctionInfoGridSection}
-          >
-            <Section variantTone="ghost">
+          <Grid className={styles.auctionInfoGridSection}>
+            <Column>
               <InfoCard label="남은 시간" value={state.timer} />
               <InfoCard
                 label="입찰 포인트"
                 value={(state.currentBid?.amount || 0) * pointScale}
               />
-            </Section>
+            </Column>
             <InfoCard label="입찰 팀장" value="">
               {currentBidLeader && (
                 <PresetMemberCard presetMember={currentBidLeader} />
               )}
             </InfoCard>
-          </Section>
+          </Grid>
 
           {isLeader && !isClientTeamFull && (
-            <Section
-              variantTone="ghost"
-              variantLayout="row"
-              className={styles.auctionInfoBottomSection}
-            >
+            <Row className={styles.auctionInfoBottomSection}>
               {bidError && <Error error={bidError}>{bidError.message}</Error>}
               <Input
                 type="number"
@@ -251,38 +239,38 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
               >
                 입찰하기
               </PrimaryButton>
-            </Section>
+            </Row>
           )}
-        </Section>
-      </Section>
+        </Column>
+      </PrimarySection>
 
-      <Section variantTone="ghost" className={styles.queueSection}>
-        <Section variantIntent="primary" className={styles.queueSection}>
+      <Column className={styles.queueSection}>
+        <PrimarySection className={styles.queueSection}>
           <h3>경매 순서</h3>
           <Bar />
-          <Section variantTone="ghost" className={styles.queueGrid}>
+          <Scroll axis="y" className={styles.queueGrid}>
             <PresetMemberGrid
               presetMembers={auctionQueuePresetMembers}
               onMemberClick={() => {}}
               clientMemberId={memberId ?? undefined}
               connectedMemberIds={connectedMemberIds}
             />
-          </Section>
-        </Section>
+          </Scroll>
+        </PrimarySection>
 
-        <Section variantIntent="primary" className={styles.queueSection}>
+        <PrimarySection className={styles.queueSection}>
           <h3>유찰 목록</h3>
           <Bar />
-          <Section variantTone="ghost" className={styles.queueGrid}>
+          <Scroll axis="y" className={styles.queueGrid}>
             <PresetMemberGrid
               presetMembers={unsoldQueuePresetMembers}
               onMemberClick={() => {}}
               clientMemberId={memberId ?? undefined}
               connectedMemberIds={connectedMemberIds}
             />
-          </Section>
-        </Section>
-      </Section>
+          </Scroll>
+        </PrimarySection>
+      </Column>
     </PageLayout>
   );
 }

@@ -8,7 +8,12 @@ import { useVerifyRole } from "@/hooks/member";
 import { TierEditor } from "./tierEditor/tierEditor";
 import { PositionEditor } from "./positionEditor/positionEditor";
 import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
-import { Section } from "@/components/commons/section";
+import {
+  PrimarySection,
+  SecondarySection,
+  TertiarySection,
+} from "@/components/commons/section";
+import { Row } from "@/components/commons/layout";
 import { PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
 import { EditButton, DeleteButton, Button } from "@/components/commons/button";
@@ -115,32 +120,24 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
   return (
     <PageLayout>
-      <Section variantIntent="primary" className={styles.panelSection}>
+      <PrimarySection className={styles.panelSection}>
         {isPresetLoading ? (
-          <Section variantIntent="secondary">
+          <SecondarySection>
             <Loading />
-          </Section>
+          </SecondarySection>
         ) : presetError ? (
-          <Section variantIntent="secondary">
+          <SecondarySection>
             <Error error={presetError}>프리셋을 불러오는데 실패했습니다.</Error>
-          </Section>
+          </SecondarySection>
         ) : !preset ? (
-          <Section variantIntent="secondary">
+          <SecondarySection>
             <Error>프리셋을 찾을 수 없습니다.</Error>
-          </Section>
+          </SecondarySection>
         ) : (
-          <Section variantIntent="secondary">
-            <Section
-              variantTone="ghost"
-              variantLayout="row"
-              variantIntent="secondary"
-            >
+          <SecondarySection>
+            <Row>
               <h3>{preset.name}</h3>
-              <Section
-                variantTone="ghost"
-                variantLayout="row"
-                variantIntent="secondary"
-              >
+              <Row>
                 {canEdit && (
                   <EditButton
                     variantSize="medium"
@@ -153,16 +150,19 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
                     onClick={handleOpenDeletePresetModal}
                   />
                 )}
-              </Section>
-            </Section>
+              </Row>
+            </Row>
             <Bar />
-            <Section variantLayout="row" variantIntent="tertiary">
-              <span>{teamSize} 명</span>
-              <span>
-                {preset.points * preset.pointScale} / {preset.pointScale} 포인트
-              </span>
-              <span>{preset.timer} 초</span>
-            </Section>
+            <TertiarySection>
+              <Row>
+                <span>{teamSize} 명</span>
+                <span>
+                  {preset.points * preset.pointScale} / {preset.pointScale}{" "}
+                  포인트
+                </span>
+                <span>{preset.timer} 초</span>
+              </Row>
+            </TertiarySection>
 
             {canEdit && (
               <Button
@@ -172,12 +172,12 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
                 경매 생성
               </Button>
             )}
-          </Section>
+          </SecondarySection>
         )}
 
         <TierEditor guildId={guildId} presetId={presetId} />
         <PositionEditor guildId={guildId} presetId={presetId} />
-      </Section>
+      </PrimarySection>
 
       <PresetMemberEditor guildId={guildId} presetId={presetId} />
 

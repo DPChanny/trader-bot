@@ -1,7 +1,7 @@
 import { useMemo, useState } from "preact/hooks";
 import { useMembers } from "@/hooks/member";
 import { MemberGrid } from "@/components/memberGrid";
-import { Section } from "@/components/commons/section";
+import { PrimarySection } from "@/components/commons/section";
 import { PageLayout } from "@/components/commons/page";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
@@ -40,25 +40,21 @@ export function MemberPage({ guildId }: MemberPageProps) {
 
   return (
     <PageLayout>
-      <Section variantIntent="primary" className={styles.mainSection}>
-        <Section variantTone="ghost" variantLayout="row">
-          <h3>멤버 목록</h3>
-        </Section>
+      <PrimarySection className={styles.mainSection}>
+        <h3>멤버 목록</h3>
         <Bar />
-        <Section variantTone="ghost" variantIntent="secondary">
-          {error ? (
-            <Error error={error}>멤버 목록을 불러오는데 실패했습니다.</Error>
-          ) : isLoading ? (
-            <Loading />
-          ) : (
-            <MemberGrid
-              members={sortedMembers}
-              selectedMemberId={selectedMemberId}
-              onMemberClick={setSelectedMemberId}
-            />
-          )}
-        </Section>
-      </Section>
+        {error ? (
+          <Error error={error}>멤버 목록을 불러오는데 실패했습니다.</Error>
+        ) : isLoading ? (
+          <Loading />
+        ) : (
+          <MemberGrid
+            members={sortedMembers}
+            selectedMemberId={selectedMemberId}
+            onMemberClick={setSelectedMemberId}
+          />
+        )}
+      </PrimarySection>
 
       {selectedMember && (
         <MemberPanel

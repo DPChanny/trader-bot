@@ -1,5 +1,5 @@
 import { MemberCard } from "./memberCard";
-import { Section } from "@/components/commons/section";
+import { Grid } from "@/components/commons/layout";
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberGrid.module.css";
 import type { MemberDetailDTO } from "@/dtos/member";
@@ -18,11 +18,7 @@ export function MemberGrid({
   className,
 }: MemberGridProps) {
   return (
-    <Section
-      variantTone="ghost"
-      variantLayout="grid"
-      className={clsx(styles.grid, className)}
-    >
+    <Grid gap="md" className={clsx(styles.grid, className)}>
       {members.map((member) => (
         <div
           key={member.memberId}
@@ -32,9 +28,10 @@ export function MemberGrid({
           <MemberCard
             member={member}
             isActive={selectedMemberId === member.memberId}
+            isInteractive={onMemberClick !== undefined}
           />
         </div>
       ))}
-    </Section>
+    </Grid>
   );
 }
