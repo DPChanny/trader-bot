@@ -20,8 +20,6 @@ def include_guild_router(bot: commands.Bot) -> None:
     @bot.event
     @bot_router
     async def on_guild_update(before: Guild, after: Guild, session: AsyncSession):
-        if before.owner_id == after.owner_id:
-            return
         await on_guild_update_service(before, after, session)
 
     @bot.event

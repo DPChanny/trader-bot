@@ -2,18 +2,13 @@ from discord import Member
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.utils.service import bot_service
-from shared.utils.user import upsert_user
 
 from ..utils.member import delete_member, upsert_member
+from .user_service import sync_user_service
 
 
 async def sync_member_service(member: Member, session: AsyncSession) -> dict:
-    await upsert_user(
-        member.id,
-        member.global_name or member.name,
-        member.avatar.key if member.avatar else None,
-        session,
-    )
+    await sync_user_service(member, session)
     member_dto = await upsert_member(
         member.guild.id,
         member.id,
