@@ -118,24 +118,29 @@ def setup_logging() -> None:
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
-        request_id = str(uuid4())
+        request_id = (
+            request.headers.get("x-trace-id")
+            or request.headers.get("x-request-id")
+            or str(uuid4())
+        )
         start = time.perf_counter()
         response: Response | None = None
         status_code = 500
 
-        try:
-            response = await call_next(request)
-            status_code = response.status_code
-            response.headers["X-Request-ID"] = request_id
-            return response
-        finally:
-            duration = round((time.perf_counter() - start) * 1000)
-            logger.bind(
-                request={
-                    "request_id": request_id,
-                    "method": request.method,
-                    "route": request.url.path,
-                    "status_code": status_code,
-                    "duration": duration,
-                }
-            ).info("")
+        with logger.contextualize(request_id=request_id):
+            try:
+                response = await call_next(request)
+                status_code = response.status_code
+                response.headers["X-Request-ID"] = request_id
+                return response
+            finally:
+                duration = round((time.perf_counter() - start) * 1000)
+                logger.bind(
+                    request={
+                        "request_id": request_id,
+                        "method": request.method,
+                        "route": request.url.path,
+                        "status_code": status_code,
+                        "duration": duration,
+                    }
+                ).info("")
