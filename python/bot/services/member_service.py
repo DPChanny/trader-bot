@@ -7,12 +7,7 @@ from shared.utils.user import upsert_user
 from ..utils.member import delete_member, upsert_member
 
 
-@bot_service
-async def on_member_join_service(
-    member: Member,
-    session: AsyncSession,
-    event,
-) -> None:
+async def sync_member_service(member: Member, session: AsyncSession) -> dict:
     await upsert_user(
         member.id,
         member.global_name or member.name,
@@ -26,7 +21,16 @@ async def on_member_join_service(
         name=member.nick,
         avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
     )
-    event |= member_dto.model_dump()
+    return member_dto.model_dump()
+
+
+@bot_service
+async def on_member_join_service(
+    member: Member,
+    session: AsyncSession,
+    event,
+) -> None:
+    event |= await sync_member_service(member, session)
 
 
 @bot_service
@@ -35,20 +39,7 @@ async def on_member_update_service(
     session: AsyncSession,
     event,
 ) -> None:
-    await upsert_user(
-        member.id,
-        member.global_name or member.name,
-        member.avatar.key if member.avatar else None,
-        session,
-    )
-    member_dto = await upsert_member(
-        member.guild.id,
-        member.id,
-        session,
-        name=member.nick,
-        avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
-    )
-    event |= member_dto.model_dump()
+    event |= await sync_member_service(member, session)
 
 
 @bot_service

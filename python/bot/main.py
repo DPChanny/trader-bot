@@ -9,6 +9,7 @@ from shared.utils.logging import setup_logging
 from .routers import (
     include_guild_router,
     include_member_router,
+    include_on_ready_router,
     include_user_router,
 )
 
@@ -23,6 +24,7 @@ async def main() -> None:
 
     bot = commands.Bot(command_prefix="!", intents=intents)
 
+    include_on_ready_router(bot)
     include_guild_router(bot)
     include_member_router(bot)
     include_user_router(bot)

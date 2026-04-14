@@ -14,12 +14,6 @@ from ..services import (
 def include_guild_router(bot: commands.Bot) -> None:
     @bot.event
     @bot_router
-    async def on_ready(session: AsyncSession):
-        for guild in bot.guilds:
-            await on_guild_join_service(guild, session)
-
-    @bot.event
-    @bot_router
     async def on_guild_join(guild: Guild, session: AsyncSession):
         await on_guild_join_service(guild, session)
 

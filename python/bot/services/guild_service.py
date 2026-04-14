@@ -3,14 +3,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import Role
 from shared.utils.service import bot_service
-from shared.utils.user import upsert_user
 
 from ..utils.guild import delete_guild, upsert_guild
-from ..utils.member import update_member_role, upsert_member
+from ..utils.member import update_member_role
+from .member_service import sync_member_service
 
 
-@bot_service
-async def on_guild_join_service(guild: Guild, session: AsyncSession, event) -> None:
+async def sync_guild_service(
+    guild: Guild, session: AsyncSession
+) -> tuple[dict, set[int]]:
     owner_discord_id = guild.owner_id
     guild_id = guild.id
     guild_entity = await upsert_guild(
@@ -19,24 +20,13 @@ async def on_guild_join_service(guild: Guild, session: AsyncSession, event) -> N
         guild.icon.key if guild.icon else None,
         session,
     )
+    synced_member_ids: set[int] = set()
 
     async for member in guild.fetch_members():
         if member.bot:
             continue
-
-        await upsert_user(
-            member.id,
-            member.global_name or member.name,
-            member.avatar.key if member.avatar else None,
-            session,
-        )
-        await upsert_member(
-            guild_id,
-            member.id,
-            session,
-            name=member.nick,
-            avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
-        )
+        await sync_member_service(member, session)
+        synced_member_ids.add(member.id)
 
     await session.flush()
 
@@ -47,7 +37,13 @@ async def on_guild_join_service(guild: Guild, session: AsyncSession, event) -> N
         session,
     )
 
-    event |= guild_entity.model_dump() | owner_member.model_dump()
+    return guild_entity.model_dump() | owner_member.model_dump(), synced_member_ids
+
+
+@bot_service
+async def on_guild_join_service(guild: Guild, session: AsyncSession, event) -> None:
+    guild_event, _ = await sync_guild_service(guild, session)
+    event |= guild_event
 
 
 @bot_service

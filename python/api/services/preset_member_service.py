@@ -1,12 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.dtos.member import Role
 from shared.dtos.preset_member import (
     AddPresetMemberDTO,
     PresetMemberDetailDTO,
     PresetMemberDTO,
     UpdatePresetMemberDTO,
 )
-from shared.dtos.member import Role
 from shared.entities.preset_member import PresetMember
 from shared.repositories.member_repository import MemberRepository
 from shared.repositories.preset_member_repository import PresetMemberRepository

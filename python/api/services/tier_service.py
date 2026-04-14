@@ -1,11 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.dtos.member import Role
 from shared.dtos.tier import (
     AddTierDTO,
     TierDTO,
     UpdateTierDTO,
 )
-from shared.dtos.member import Role
 from shared.entities.tier import Tier
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
