@@ -6,12 +6,15 @@ bar 관련 개선
 sidemenu 개선
 color 통일
 iframe
-log analysis
+log 개선
+    file rotation
+    extra 통일
 home page
     policy
     annuncement
     tutorial
 publish
+    swap memory
 web mobile
 preset template
 auction result
