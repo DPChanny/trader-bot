@@ -4,7 +4,11 @@ import json
 from fastapi import WebSocket
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.auction import AuctionMessageDTO, MessageType, PlaceBidDTO
+from shared.dtos.auction import (
+    AuctionMessageEnvelopeDTO,
+    MessageType,
+    PlaceBidPayloadDTO,
+)
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.utils.error import (
     AuctionErrorCode,
@@ -37,18 +41,20 @@ async def connect_auction_ws_service(
         auth_message_raw = json.loads(
             await asyncio.wait_for(ws.receive_text(), timeout=10)
         )
-        auth_message = AuctionMessageDTO.model_validate(auth_message_raw)
+        auth_message_envelope_dto = AuctionMessageEnvelopeDTO.model_validate(
+            auth_message_raw
+        )
     except Exception:
         raise WSError(AuthErrorCode.Unauthorized) from None
 
-    if auth_message.type != MessageType.AUTH:
+    if auth_message_envelope_dto.type != MessageType.AUTH:
         raise WSError(AuthErrorCode.Unauthorized)
 
-    auth_data = auth_message.data
-    if not isinstance(auth_data, dict):
+    auth_payload_data = auth_message_envelope_dto.payload
+    if not isinstance(auth_payload_data, dict):
         raise WSError(AuthErrorCode.Unauthorized)
 
-    token = auth_data.get("token")
+    token = auth_payload_data.get("token")
     if token is not None and not isinstance(token, str):
         raise WSError(AuthErrorCode.Unauthorized)
 
@@ -89,25 +95,25 @@ async def handle_auction_ws_service(
     event: dict,
 ) -> None:
     try:
-        parsed_message = AuctionMessageDTO.model_validate(message)
+        message_envelope_dto = AuctionMessageEnvelopeDTO.model_validate(message)
     except Exception:
         raise WSError(ValidationErrorCode.Invalid) from None
 
-    message_type = parsed_message.type
+    message_type = message_envelope_dto.type
 
     if message_type == MessageType.PLACE_BID:
         if member_id is None:
             raise WSError(AuthErrorCode.Unauthorized)
 
-        bid_data = parsed_message.data or {}
+        bid_payload_data = message_envelope_dto.payload or {}
         try:
-            bid_dto = PlaceBidDTO.model_validate(bid_data)
+            bid_payload_dto = PlaceBidPayloadDTO.model_validate(bid_payload_data)
         except Exception:
             raise WSError(ValidationErrorCode.Invalid) from None
 
-        await auction.place_bid(member_id, bid_dto.amount)
+        await auction.place_bid(member_id, bid_payload_dto.amount)
 
-        event |= {"member_id": member_id, "amount": bid_dto.amount}
+        event |= {"member_id": member_id, "amount": bid_payload_dto.amount}
 
     else:
         raise WSError(ValidationErrorCode.Invalid)

@@ -51,7 +51,7 @@ class AuctionDetailDTO(AuctionDTO):
     preset_snapshot: PresetDetailDTO | None
 
 
-class InitDTO(AuctionDetailDTO):
+class InitPayloadDTO(AuctionDetailDTO):
     team_id: int | None
     member_id: int | None
 
@@ -61,51 +61,51 @@ class CreateAuctionDTO(BaseDTO):
     send_invite: bool
 
 
-class TimerDTO(BaseDTO):
+class TimerPayloadDTO(BaseDTO):
     timer: int
 
 
-class StatusDTO(BaseDTO):
+class StatusPayloadDTO(BaseDTO):
     status: int
 
 
-class NextMemberDTO(BaseDTO):
+class NextMemberPayloadDTO(BaseDTO):
     member_id: int
     auction_queue: list[int]
     unsold_queue: list[int]
 
 
-class MemberSoldDTO(BaseDTO):
+class MemberSoldPayloadDTO(BaseDTO):
     teams: list[TeamDTO]
     auction_queue: list[int]
     unsold_queue: list[int]
 
 
-class MemberUnsoldDTO(BaseDTO):
+class MemberUnsoldPayloadDTO(BaseDTO):
     member_id: int
 
 
-class PlaceBidDTO(BaseDTO):
+class PlaceBidPayloadDTO(BaseDTO):
     amount: int
 
 
-class BidPlacedDTO(BaseDTO):
+class BidPlacedPayloadDTO(BaseDTO):
     leader_id: int
     amount: int
 
 
-class MemberConnectedDTO(BaseDTO):
+class MemberConnectedPayloadDTO(BaseDTO):
     member_id: int
 
 
-class MemberDisconnectedDTO(BaseDTO):
+class MemberDisconnectedPayloadDTO(BaseDTO):
     member_id: int
 
 
-class ErrorDTO(BaseDTO):
+class ErrorPayloadDTO(BaseDTO):
     code: int
 
 
-class AuctionMessageDTO(BaseDTO):
+class AuctionMessageEnvelopeDTO(BaseDTO):
     type: MessageType
-    data: dict[str, Any] | None = None
+    payload: dict[str, Any] | None = None

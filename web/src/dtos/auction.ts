@@ -47,9 +47,9 @@ export enum MessageType {
   NEXT_MEMBER = 11,
 }
 
-export interface AuctionMessageDTO<TData = unknown> {
+export interface AuctionMessageDTO<TPayload = unknown> {
   type: MessageType;
-  data: TData;
+  payload: TPayload;
 }
 
 export interface TeamDTO {

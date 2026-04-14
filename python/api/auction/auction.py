@@ -10,16 +10,16 @@ from fastapi import WebSocket
 
 from shared.dtos import BaseDTO
 from shared.dtos.auction import (
-    AuctionMessageDTO,
-    BidPlacedDTO,
-    MemberConnectedDTO,
-    MemberDisconnectedDTO,
-    MemberSoldDTO,
-    MemberUnsoldDTO,
+    AuctionMessageEnvelopeDTO,
+    BidPlacedPayloadDTO,
+    MemberConnectedPayloadDTO,
+    MemberDisconnectedPayloadDTO,
+    MemberSoldPayloadDTO,
+    MemberUnsoldPayloadDTO,
     MessageType,
-    NextMemberDTO,
-    StatusDTO,
-    TimerDTO,
+    NextMemberPayloadDTO,
+    StatusPayloadDTO,
+    TimerPayloadDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import BidErrorCode, UnexpectedErrorCode, WSError
@@ -125,7 +125,7 @@ class Auction:
         if is_new:
             await self._broadcast(
                 MessageType.MEMBER_CONNECTED,
-                MemberConnectedDTO(member_id=member_id),
+                MemberConnectedPayloadDTO(member_id=member_id),
             )
 
             if (
@@ -163,7 +163,7 @@ class Auction:
 
         await self._broadcast(
             MessageType.MEMBER_DISCONNECTED,
-            MemberDisconnectedDTO(member_id=member_id),
+            MemberDisconnectedPayloadDTO(member_id=member_id),
         )
 
         if self.status == Auction.Status.RUNNING and not self._can_progress():
@@ -172,7 +172,11 @@ class Auction:
     def _can_progress(self) -> bool:
         return self._leader_member_ids.issubset(self._member_id_to_ws_sets.keys())
 
-    async def _broadcast(self, message_type: MessageType, dto: BaseDTO) -> None:
+    async def _broadcast(
+        self,
+        message_type: MessageType,
+        message_payload_dto: BaseDTO,
+    ) -> None:
         ws_list: list[WebSocket] = []
         async with self._broadcast_lock:
             for member_ws_set in self._member_id_to_ws_sets.values():
@@ -180,12 +184,13 @@ class Auction:
             ws_list.extend(self._public_ws_set)
 
         disconnected_websockets: list[WebSocket] = []
-        message = AuctionMessageDTO(
-            type=message_type, data=dto.model_dump()
+        message_envelope_dto = AuctionMessageEnvelopeDTO(
+            type=message_type,
+            payload=message_payload_dto.model_dump(),
         ).model_dump()
         for ws in ws_list:
             try:
-                await ws.send_json(message)
+                await ws.send_json(message_envelope_dto)
             except Exception:
                 disconnected_websockets.append(ws)
 
@@ -230,7 +235,9 @@ class Auction:
 
             self.status = new_status
 
-        await self._broadcast(MessageType.STATUS, StatusDTO(status=int(self.status)))
+        await self._broadcast(
+            MessageType.STATUS, StatusPayloadDTO(status=int(self.status))
+        )
 
         if next_member:
             await self._next_member()
@@ -275,7 +282,11 @@ class Auction:
                 incomplete_team.member_ids.extend(remaining_members)
                 message = (
                     MessageType.MEMBER_SOLD,
-                    MemberSoldDTO(teams=self.teams, auction_queue=[], unsold_queue=[]),
+                    MemberSoldPayloadDTO(
+                        teams=self.teams,
+                        auction_queue=[],
+                        unsold_queue=[],
+                    ),
                 )
                 completed = True
             else:
@@ -289,7 +300,7 @@ class Auction:
                     self.timer = self.preset_snapshot.timer
                     message = (
                         MessageType.NEXT_MEMBER,
-                        NextMemberDTO(
+                        NextMemberPayloadDTO(
                             member_id=self.current_member_id,
                             auction_queue=self.auction_queue[:],
                             unsold_queue=self.unsold_queue[:],
@@ -312,7 +323,10 @@ class Auction:
     async def _timer(self):
         try:
             while self.timer > 0:
-                await self._broadcast(MessageType.TIMER, TimerDTO(timer=self.timer))
+                await self._broadcast(
+                    MessageType.TIMER,
+                    TimerPayloadDTO(timer=self.timer),
+                )
 
                 await asyncio.sleep(1)
                 self.timer -= 1
@@ -324,7 +338,7 @@ class Auction:
                         self.unsold_queue.append(self.current_member_id)
                         message = (
                             MessageType.MEMBER_UNSOLD,
-                            MemberUnsoldDTO(member_id=self.current_member_id),
+                            MemberUnsoldPayloadDTO(member_id=self.current_member_id),
                         )
                 else:
                     team = self._member_id_to_team[self.current_bid.leader_id]
@@ -332,7 +346,7 @@ class Auction:
                     team.member_ids.append(self.current_member_id)
                     message = (
                         MessageType.MEMBER_SOLD,
-                        MemberSoldDTO(
+                        MemberSoldPayloadDTO(
                             teams=self.teams,
                             auction_queue=self.auction_queue[:],
                             unsold_queue=self.unsold_queue[:],
@@ -374,7 +388,7 @@ class Auction:
             self.current_bid = Bid(amount=amount, leader_id=leader_id)
             message = (
                 MessageType.BID_PLACED,
-                BidPlacedDTO(
+                BidPlacedPayloadDTO(
                     leader_id=leader_id,
                     amount=amount,
                 ),

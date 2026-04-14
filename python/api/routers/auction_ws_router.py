@@ -12,9 +12,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction import (
     AuctionDetailDTO,
-    AuctionMessageDTO,
-    ErrorDTO,
-    InitDTO,
+    AuctionMessageEnvelopeDTO,
+    ErrorPayloadDTO,
+    InitPayloadDTO,
     MessageType,
 )
 from shared.utils.database import get_session
@@ -33,9 +33,9 @@ auction_ws_router = APIRouter(prefix="/auction", tags=["auction_ws"])
 
 async def _send_error(ws: WebSocket, code: int) -> None:
     await ws.send_json(
-        AuctionMessageDTO(
+        AuctionMessageEnvelopeDTO(
             type=MessageType.ERROR,
-            data=ErrorDTO(code=code).model_dump(),
+            payload=ErrorPayloadDTO(code=code).model_dump(),
         ).model_dump()
     )
 
@@ -53,15 +53,16 @@ async def auction_ws(
             ws, auction_id, session
         )
 
-        detail = AuctionDetailDTO.model_validate(auction)
-        init = InitDTO(
-            **detail.model_dump(),
+        auction_detail_dto = AuctionDetailDTO.model_validate(auction)
+        init_payload_dto = InitPayloadDTO(
+            **auction_detail_dto.model_dump(),
             team_id=team_id,
             member_id=member_id,
         )
         await ws.send_json(
-            AuctionMessageDTO(
-                type=MessageType.INIT, data=init.model_dump()
+            AuctionMessageEnvelopeDTO(
+                type=MessageType.INIT,
+                payload=init_payload_dto.model_dump(),
             ).model_dump()
         )
 

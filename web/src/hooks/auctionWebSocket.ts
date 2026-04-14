@@ -35,42 +35,39 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
   const mountedRef = useRef(true);
 
   const handleWebSocketMessage = (message: AuctionMessageDTO) => {
+    const rawPayload = message.payload;
+
     switch (message.type) {
       case MessageType.INIT: {
-        const rawData = message.data;
-        const nextState = toCamelCase<InitDTO>(rawData);
+        const nextState = toCamelCase<InitDTO>(rawPayload);
         setError(null);
         setState(nextState);
         break;
       }
       case MessageType.MEMBER_CONNECTED: {
-        const rawData = message.data;
-        const data = toCamelCase<MemberConnectedMessageDTO>(rawData);
-        const connectedMemberId = data.memberId;
+        const dto = toCamelCase<MemberConnectedMessageDTO>(rawPayload);
         setState((prev) =>
           prev
             ? {
                 ...prev,
                 connectedMemberIds: prev.connectedMemberIds.includes(
-                  connectedMemberId,
+                  dto.memberId,
                 )
                   ? prev.connectedMemberIds
-                  : [...prev.connectedMemberIds, connectedMemberId],
+                  : [...prev.connectedMemberIds, dto.memberId],
               }
             : prev,
         );
         break;
       }
       case MessageType.MEMBER_DISCONNECTED: {
-        const rawData = message.data;
-        const data = toCamelCase<MemberDisconnectedMessageDTO>(rawData);
-        const connectedMemberId = data.memberId;
+        const dto = toCamelCase<MemberDisconnectedMessageDTO>(rawPayload);
         setState((prev) =>
           prev
             ? {
                 ...prev,
                 connectedMemberIds: prev.connectedMemberIds.filter(
-                  (id) => id !== connectedMemberId,
+                  (id) => id !== dto.memberId,
                 ),
               }
             : prev,
@@ -79,16 +76,15 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       }
 
       case MessageType.NEXT_MEMBER: {
-        const rawData = message.data;
-        const data = toCamelCase<NextMemberMessageDTO>(rawData);
+        const dto = toCamelCase<NextMemberMessageDTO>(rawPayload);
         setState((prev) => {
           return prev
             ? {
                 ...prev,
-                currentMemberId: data.memberId,
+                currentMemberId: dto.memberId,
                 currentBid: null,
-                auctionQueue: data.auctionQueue,
-                unsoldQueue: data.unsoldQueue,
+                auctionQueue: dto.auctionQueue,
+                unsoldQueue: dto.unsoldQueue,
               }
             : prev;
         });
@@ -96,15 +92,14 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       }
 
       case MessageType.MEMBER_SOLD: {
-        const rawData = message.data;
-        const data = toCamelCase<MemberSoldMessageDTO>(rawData);
+        const dto = toCamelCase<MemberSoldMessageDTO>(rawPayload);
         setState((prev) => {
           return prev
             ? {
                 ...prev,
-                teams: data.teams,
-                auctionQueue: data.auctionQueue,
-                unsoldQueue: data.unsoldQueue,
+                teams: dto.teams,
+                auctionQueue: dto.auctionQueue,
+                unsoldQueue: dto.unsoldQueue,
               }
             : prev;
         });
@@ -112,23 +107,21 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       }
 
       case MessageType.TIMER: {
-        const rawData = message.data;
-        const data = toCamelCase<TimerMessageDTO>(rawData);
-        setState((prev) => (prev ? { ...prev, timer: data.timer } : null));
+        const dto = toCamelCase<TimerMessageDTO>(rawPayload);
+        setState((prev) => (prev ? { ...prev, timer: dto.timer } : null));
         break;
       }
 
       case MessageType.BID_PLACED: {
-        const rawData = message.data;
-        const data = toCamelCase<BidPlacedMessageDTO>(rawData);
+        const dto = toCamelCase<BidPlacedMessageDTO>(rawPayload);
         setError(null);
         setState((prev) => {
           if (!prev) return prev;
           return {
             ...prev,
             currentBid: {
-              amount: data.amount,
-              leaderId: data.leaderId,
+              amount: dto.amount,
+              leaderId: dto.leaderId,
             },
           };
         });
@@ -136,20 +129,19 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       }
 
       case MessageType.STATUS: {
-        const rawData = message.data;
-        const data = toCamelCase<StatusMessageDTO>(rawData);
+        const dto = toCamelCase<StatusMessageDTO>(rawPayload);
         setState((prev) =>
           prev
             ? {
                 ...prev,
-                status: data.status,
-                timer: data.status === AuctionStatus.COMPLETED ? 0 : prev.timer,
+                status: dto.status,
+                timer: dto.status === AuctionStatus.COMPLETED ? 0 : prev.timer,
                 currentMemberId:
-                  data.status === AuctionStatus.COMPLETED
+                  dto.status === AuctionStatus.COMPLETED
                     ? null
                     : prev.currentMemberId,
                 currentBid:
-                  data.status === AuctionStatus.COMPLETED
+                  dto.status === AuctionStatus.COMPLETED
                     ? null
                     : prev.currentBid,
               }
@@ -159,9 +151,8 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       }
 
       case MessageType.ERROR: {
-        const rawData = message.data;
-        const data = toCamelCase<ErrorMessageDTO>(rawData);
-        const code = data?.code;
+        const dto = toCamelCase<ErrorMessageDTO>(rawPayload);
+        const code = dto?.code;
         if (typeof code === "number" && mountedRef.current) {
           setError(new WSError({ code }));
         }
@@ -194,7 +185,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         ws.send(
           JSON.stringify({
             type: MessageType.AUTH,
-            data: {
+            payload: {
               token: token,
             },
           } satisfies AuctionMessageDTO<{ token: string | null }>),
@@ -249,7 +240,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
     const message: AuctionMessageDTO<{ amount: number }> = {
       type: MessageType.PLACE_BID,
-      data: {
+      payload: {
         amount: amount,
       },
     };
