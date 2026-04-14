@@ -4,11 +4,15 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from loguru import logger
 
 from shared.utils.database import setup_db
 from shared.utils.env import get_app_origin
-from shared.utils.error import HTTPError, UnexpectedErrorCode, ValidationErrorCode
+from shared.utils.error import (
+    HTTPError,
+    UnexpectedErrorCode,
+    ValidationErrorCode,
+    handle_http_error,
+)
 from shared.utils.logging import LoggingMiddleware, setup_logging
 
 from .routers import (
@@ -40,36 +44,25 @@ app = FastAPI(title="Trader API", version="1.0.0", lifespan=lifespan)
 
 @app.exception_handler(HTTPError)
 async def http_error_handler(_: Request, exc: HTTPError) -> JSONResponse:
-    function = exc.function or http_error_handler.__name__
-    if exc.status_code < 500:
-        logger.bind(function=function, error_code=exc.code).warning("")
-    else:
-        logger.opt(exception=exc.__cause__).bind(
-            function=function, error_code=exc.code
-        ).error("")
-
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"code": exc.code},
-    )
+    return handle_http_error(exc, http_error_handler.__name__)
 
 
 @app.exception_handler(RequestValidationError)
 async def validation_error_handler(
-    request: Request, exc: RequestValidationError
+    _: Request, exc: RequestValidationError
 ) -> JSONResponse:
     error = HTTPError(ValidationErrorCode.Invalid)
     error.function = validation_error_handler.__name__
     error.__cause__ = exc
-    return await http_error_handler(request, error)
+    return handle_http_error(error, validation_error_handler.__name__)
 
 
 @app.exception_handler(Exception)
-async def exception_handler(request: Request, exc: Exception) -> JSONResponse:
+async def exception_handler(_: Request, exc: Exception) -> JSONResponse:
     error = HTTPError(UnexpectedErrorCode.Internal)
     error.function = exception_handler.__name__
     error.__cause__ = exc
-    return await http_error_handler(request, error)
+    return handle_http_error(error, exception_handler.__name__)
 
 
 app.add_middleware(LoggingMiddleware)

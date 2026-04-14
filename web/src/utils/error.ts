@@ -4,6 +4,9 @@ import { queryClient, queryKeys } from "@/utils/query";
 
 export const AuthErrorCode = {
   Unauthorized: 4101,
+} as const;
+
+export const TokenErrorCode = {
   IncorrectJWTToken: 4102,
   ExpiredJWTToken: 4103,
   ExchangeFailed: 4104,
@@ -70,6 +73,7 @@ export const PresetMemberPositionErrorCode = {
 type ValueOf<T> = T[keyof T];
 
 export type AuthErrorCodeType = ValueOf<typeof AuthErrorCode>;
+export type TokenErrorCodeType = ValueOf<typeof TokenErrorCode>;
 export type ValidationErrorCodeType = ValueOf<typeof ValidationErrorCode>;
 export type AuctionErrorCodeType = ValueOf<typeof AuctionErrorCode>;
 export type BidErrorCodeType = ValueOf<typeof BidErrorCode>;
@@ -87,6 +91,7 @@ export type UnexpectedErrorCodeType = ValueOf<typeof UnexpectedErrorCode>;
 
 export type AppErrorCode =
   | AuthErrorCodeType
+  | TokenErrorCodeType
   | ValidationErrorCodeType
   | AuctionErrorCodeType
   | BidErrorCodeType
@@ -104,11 +109,11 @@ export function getErrorMessage(code: number): string {
   switch (code) {
     case AuthErrorCode.Unauthorized:
       return "인증이 필요합니다.";
-    case AuthErrorCode.IncorrectJWTToken:
+    case TokenErrorCode.IncorrectJWTToken:
       return "유효하지 않은 토큰입니다.";
-    case AuthErrorCode.ExpiredJWTToken:
+    case TokenErrorCode.ExpiredJWTToken:
       return "토큰이 만료되었습니다.";
-    case AuthErrorCode.ExchangeFailed:
+    case TokenErrorCode.ExchangeFailed:
       return "로그인에 실패했습니다.";
 
     case ValidationErrorCode.Invalid:

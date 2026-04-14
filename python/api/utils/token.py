@@ -9,7 +9,7 @@ import jwt
 from fastapi import Header
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
-from shared.utils.error import AuthErrorCode, HTTPError, TokenError
+from shared.utils.error import AuthErrorCode, HTTPError, TokenError, TokenErrorCode
 
 
 _ACCESS_TOKEN_EXPIRATION_MINUTES = 15
@@ -49,12 +49,12 @@ class JWTToken:
                 algorithms=[get_jwt_algorithm()],
             )
             if data.get("type") != cls._type:
-                raise TokenError(AuthErrorCode.IncorrectJWTToken)
+                raise TokenError(TokenErrorCode.IncorrectJWTToken)
             return cls.Payload(**data)
         except jwt.ExpiredSignatureError:
-            raise TokenError(AuthErrorCode.ExpiredJWTToken) from None
+            raise TokenError(TokenErrorCode.ExpiredJWTToken) from None
         except jwt.InvalidTokenError:
-            raise TokenError(AuthErrorCode.IncorrectJWTToken) from None
+            raise TokenError(TokenErrorCode.IncorrectJWTToken) from None
 
 
 class AccessToken(JWTToken):
@@ -95,11 +95,11 @@ class ExchangeToken:
         return code
 
     @classmethod
-    def consume(cls, exchange_token: str) -> tuple[str, str] | None:
+    def consume(cls, exchange_token: str) -> tuple[str, str]:
         cls._purge()
         entry = cls._exchange_tokens.pop(exchange_token, None)
         if entry is None:
-            return None
+            raise TokenError(TokenErrorCode.ExchangeFailed)
         return entry.access_token, entry.refresh_token
 
 
@@ -114,7 +114,7 @@ async def verify_access_token(authorization: str = Header(None)) -> int:
     except TokenError as e:
         error = HTTPError(e.code)
         error.function = verify_access_token.__name__
-        raise error from e
+        raise error from None
     except HTTPError as e:
         e.function = verify_access_token.__name__
         raise

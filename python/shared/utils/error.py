@@ -6,11 +6,19 @@
 50xx 500 Unexpected
 """
 
+import contextlib
+from collections.abc import Awaitable, Callable
 from enum import IntEnum
+
+from fastapi.responses import JSONResponse
+from loguru import logger
 
 
 class AuthErrorCode(IntEnum):
     Unauthorized = 4101
+
+
+class TokenErrorCode(IntEnum):
     IncorrectJWTToken = 4102
     ExpiredJWTToken = 4103
     ExchangeFailed = 4104
@@ -75,7 +83,7 @@ class UnexpectedErrorCode(IntEnum):
 
 
 class TokenError(Exception):
-    def __init__(self, code: AuthErrorCode | ValidationErrorCode) -> None:
+    def __init__(self, code: TokenErrorCode) -> None:
         self.code = code
 
 
@@ -101,3 +109,39 @@ class HTTPError(AppError):
 class WSError(AppError):
     def __init__(self, code: IntEnum) -> None:
         super().__init__(code)
+
+
+def handle_http_error(error: HTTPError, fallback_function: str) -> JSONResponse:
+    function = error.function or fallback_function
+    if error.status_code < 500:
+        logger.bind(function=function, error_code=error.code).warning("")
+    else:
+        logger.opt(exception=error.__cause__).bind(
+            function=function, error_code=error.code
+        ).error("")
+
+    return JSONResponse(
+        status_code=error.status_code,
+        content={"code": error.code},
+    )
+
+
+async def handle_ws_error(
+    error: WSError,
+    fallback_function: str,
+    send_error_message: Callable[[int], Awaitable[None]],
+    close_ws: Callable[[int, str], Awaitable[None]],
+) -> None:
+    function = error.function or fallback_function
+    if error.code < 5000:
+        logger.bind(function=function, error_code=error.code).warning("")
+    else:
+        logger.opt(exception=error.__cause__).bind(
+            function=function, error_code=error.code
+        ).error("")
+
+    with contextlib.suppress(Exception):
+        await send_error_message(error.code)
+
+    with contextlib.suppress(Exception):
+        await close_ws(4000, str(error.code))

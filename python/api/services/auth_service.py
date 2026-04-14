@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auth import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
 from shared.utils.env import get_app_origin
-from shared.utils.error import AuthErrorCode, HTTPError, TokenError
+from shared.utils.error import HTTPError, TokenError
 from shared.utils.service import http_service
 from shared.utils.user import upsert_user
 
@@ -52,9 +52,10 @@ async def callback_service(
 
 @http_service
 async def exchange_token_service(dto: ExchangeTokenDTO) -> JWTTokenDTO:
-    token_pair = ExchangeToken.consume(dto.exchange_token)
-    if token_pair is None:
-        raise HTTPError(AuthErrorCode.ExchangeFailed)
+    try:
+        token_pair = ExchangeToken.consume(dto.exchange_token)
+    except TokenError as e:
+        raise HTTPError(e.code) from None
 
     token, refresh_token = token_pair
     return JWTTokenDTO(access_token=token, refresh_token=refresh_token)
@@ -65,7 +66,7 @@ async def refresh_token_service(dto: RefreshTokenDTO, event) -> JWTTokenDTO:
     try:
         rt_payload = RefreshToken.decode(dto.refresh_token)
     except TokenError as e:
-        raise HTTPError(e.code) from e
+        raise HTTPError(e.code) from None
     access_token, _ = AccessToken.create(rt_payload.user_id)
     new_refresh_token, _ = RefreshToken.create(rt_payload.user_id)
     event |= {"discord_id": rt_payload.user_id}
