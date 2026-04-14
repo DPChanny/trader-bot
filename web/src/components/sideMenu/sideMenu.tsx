@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import styles from "@/styles/components/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@/hooks/guild";
 import { useGuildRoute } from "@/hooks/router";
-import { Button, CloseButton } from "@/components/commons/button";
+import { CloseButton } from "@/components/commons/button";
 import { Row } from "@/components/commons/layout";
 import { PrimarySection } from "@/components/commons/section";
 import { Bar } from "@/components/commons/bar";
@@ -37,13 +37,14 @@ export function SideMenu() {
         </PrimarySection>
       )}
       {!isOpen && (
-        <Button
+        <button
+          type="button"
           className={styles.floatingToggle}
           onClick={() => setIsOpen(true)}
           aria-label="사이드메뉴 펼치기"
         >
           ▶
-        </Button>
+        </button>
       )}
     </>
   );

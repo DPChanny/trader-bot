@@ -2,7 +2,7 @@ import { useMemo, useState } from "preact/hooks";
 import { useMembers } from "@/hooks/member";
 import { MemberGrid } from "@/components/memberGrid";
 import { PrimarySection } from "@/components/commons/section";
-import { PageLayout } from "@/components/commons/page";
+import { Page } from "@/components/commons/layout";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { MemberPanel } from "./memberPanel";
@@ -38,7 +38,7 @@ export function MemberPage({ guildId }: MemberPageProps) {
   );
 
   return (
-    <PageLayout>
+    <Page>
       <PrimarySection minSize style={{ flex: 4 }}>
         <h3>멤버 목록</h3>
         <Bar />
@@ -61,6 +61,6 @@ export function MemberPage({ guildId }: MemberPageProps) {
           onClose={() => setSelectedMemberId(null)}
         />
       )}
-    </PageLayout>
+    </Page>
   );
 }

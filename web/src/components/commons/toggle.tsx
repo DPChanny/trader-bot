@@ -1,6 +1,9 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
-import { PressedButton } from "@/components/commons/button";
+import {
+  PressedButton,
+  type PressedButtonProps,
+} from "@/components/commons/button";
 import styles from "@/styles/components/commons/toggle.module.css";
 
 const toggleVariants = cva(styles.toggle, {
@@ -10,48 +13,38 @@ const toggleVariants = cva(styles.toggle, {
       red: styles.colorRed,
       gold: styles.colorGold,
     },
-    variantActive: {
+    pressed: {
       true: styles.activeTrue,
       false: "",
     },
   },
   defaultVariants: {
     variantColor: "blue",
-    variantActive: false,
+    pressed: false,
   },
 });
 
-interface ToggleProps extends VariantProps<typeof toggleVariants> {
-  children?: string;
-  isActive: boolean;
-  variantColor?: "blue" | "red" | "gold";
-  onClick: () => void;
-  className?: string;
-  type?: "button" | "submit" | "reset";
-  disabled?: boolean;
-}
+export type ToggleProps = Omit<PressedButtonProps, "isPressed"> & {
+  variantColor?: VariantProps<typeof toggleVariants>["variantColor"];
+  isActive?: boolean;
+};
 
 export function Toggle({
-  children,
-  isActive,
+  isActive = false,
   variantColor = "blue",
-  onClick,
   className,
   type = "button",
-  disabled = false,
+  ...props
 }: ToggleProps) {
   return (
     <PressedButton
       type={type}
+      isPressed={isActive}
       className={clsx(
-        toggleVariants({ variantColor, variantActive: isActive }),
+        toggleVariants({ variantColor, pressed: isActive }),
         className,
       )}
-      onClick={onClick}
-      isPressed={isActive}
-      disabled={disabled}
-    >
-      {children}
-    </PressedButton>
+      {...props}
+    />
   );
 }

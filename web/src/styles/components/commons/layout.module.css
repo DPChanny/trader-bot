@@ -70,6 +70,26 @@
   --layout-gap: var(--gap-xl);
 }
 
+.paddingNone {
+  padding: 0;
+}
+
+.paddingSm {
+  padding: var(--padding-sm);
+}
+
+.paddingMd {
+  padding: var(--padding-md);
+}
+
+.paddingLg {
+  padding: var(--padding-lg);
+}
+
+.paddingXl {
+  padding: var(--padding-xl);
+}
+
 .justifyStart {
   justify-content: flex-start;
 }

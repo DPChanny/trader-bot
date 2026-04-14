@@ -14,7 +14,7 @@ import {
   TertiarySection,
 } from "@/components/commons/section";
 import { Row } from "@/components/commons/layout";
-import { PageLayout } from "@/components/commons/page";
+import { Page } from "@/components/commons/layout";
 import { Loading } from "@/components/commons/loading";
 import { EditButton, DeleteButton, Button } from "@/components/commons/button";
 import { Error } from "@/components/commons/error";
@@ -118,7 +118,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
   };
 
   return (
-    <PageLayout>
+    <Page>
       <PrimarySection
         minSize
         overflow="hidden"
@@ -223,6 +223,6 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
           onClose={() => setCreatedAuctionId(null)}
         />
       )}
-    </PageLayout>
+    </Page>
   );
 }

@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import styles from "@/styles/components/commons/input.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
+import type { JSX } from "preact";
 
 const inputVariants = cva(styles.input, {
   variants: {
@@ -26,15 +27,9 @@ const inputVariants = cva(styles.input, {
   },
 });
 
-export type InputProps = {
-  value: string;
-  onChange: (value: string) => void;
-  onKeyPress?: (e: KeyboardEvent) => void;
-  placeholder?: string;
-  autoFocus?: boolean;
-  disabled?: boolean;
-  type?: "text" | "number" | "email" | "password";
-  className?: string;
+export type InputProps = Omit<JSX.IntrinsicElements["input"], "onChange"> & {
+  value?: string | number;
+  onChange?: (value: string) => void;
   variantIntent?: VariantProps<typeof inputVariants>["variantIntent"];
   variantTone?: VariantProps<typeof inputVariants>["variantTone"];
   variantSize?: VariantProps<typeof inputVariants>["variantSize"];
@@ -43,15 +38,12 @@ export type InputProps = {
 export function Input({
   value,
   onChange,
-  onKeyPress,
-  placeholder,
-  autoFocus,
-  disabled,
   type = "text",
   className,
   variantIntent,
   variantTone,
   variantSize,
+  ...props
 }: InputProps) {
   const baseClass = inputVariants({
     variantIntent,
@@ -63,12 +55,9 @@ export function Input({
     <input
       type={type}
       value={value}
-      onChange={(e) => onChange((e.target as HTMLInputElement).value)}
-      onKeyPress={onKeyPress}
-      placeholder={placeholder}
-      autoFocus={autoFocus}
-      disabled={disabled}
+      onChange={(e) => onChange?.((e.target as HTMLInputElement).value)}
       className={clsx(baseClass, className)}
+      {...props}
     />
   );
 }

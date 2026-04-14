@@ -2,14 +2,14 @@ import { useState } from "preact/hooks";
 import styles from "@/styles/components/commons/error.module.css";
 import { clsx } from "clsx";
 import { AppError } from "@/utils/error";
+import type { ComponentChildren, JSX } from "preact";
 
-interface ErrorProps {
-  children?: any;
-  className?: string;
+export type ErrorProps = JSX.IntrinsicElements["div"] & {
+  children?: ComponentChildren;
   error?: unknown;
-}
+};
 
-export function Error({ children, className, error }: ErrorProps) {
+export function Error({ children, className, error, ...props }: ErrorProps) {
   const [showDetail, setShowDetail] = useState(false);
 
   const detail = error instanceof globalThis.Error ? error.message : undefined;
@@ -17,7 +17,7 @@ export function Error({ children, className, error }: ErrorProps) {
     error instanceof AppError ? (error.code ?? undefined) : undefined;
 
   return (
-    <div className={clsx(styles.error, className)}>
+    <div className={clsx(styles.error, className)} {...props}>
       {detail ? (
         <button
           className={styles.toggle}

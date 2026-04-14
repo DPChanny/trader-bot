@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@/styles/components/commons/layout.module.css";
-import type { ComponentChildren, HTMLAttributes } from "preact";
+import type { ComponentChildren, JSX } from "preact";
 
 const layoutVariants = cva(styles.layout, {
   variants: {
@@ -23,6 +23,13 @@ const layoutVariants = cva(styles.layout, {
       md: styles.gapMd,
       lg: styles.gapLg,
       xl: styles.gapXl,
+    },
+    padding: {
+      none: styles.paddingNone,
+      sm: styles.paddingSm,
+      md: styles.paddingMd,
+      lg: styles.paddingLg,
+      xl: styles.paddingXl,
     },
     justify: {
       start: styles.justifyStart,
@@ -65,6 +72,7 @@ const layoutVariants = cva(styles.layout, {
   defaultVariants: {
     direction: "column",
     surface: "none",
+    padding: "none",
     justify: "start",
     align: "stretch",
     center: false,
@@ -75,16 +83,17 @@ const layoutVariants = cva(styles.layout, {
   },
 });
 
-export interface LayoutProps
-  extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof layoutVariants> {
-  children?: ComponentChildren;
-  className?: string;
-}
+export type LayoutProps = JSX.IntrinsicElements["div"] &
+  VariantProps<typeof layoutVariants> & {
+    children?: ComponentChildren;
+    className?: string;
+  };
 
 export function Layout({
   direction = "column",
   surface = "none",
   gap,
+  padding = "none",
   justify,
   align,
   center = false,
@@ -103,6 +112,7 @@ export function Layout({
           direction,
           surface,
           gap,
+          padding,
           justify,
           align,
           center,
@@ -140,6 +150,17 @@ type FillProps = Omit<LayoutProps, "fill" | "minSize">;
 
 export function Fill(props: FillProps) {
   return <Layout fill minSize {...props} />;
+}
+
+export type PageProps = Omit<
+  LayoutProps,
+  "direction" | "fill" | "minSize" | "overflow" | "gap" | "padding"
+>;
+
+export function Page(props: PageProps) {
+  return (
+    <Row fill minSize overflow="hidden" gap="lg" padding="lg" {...props} />
+  );
 }
 
 export interface ScrollProps extends Omit<LayoutProps, "overflow"> {

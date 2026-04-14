@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import styles from "@/styles/components/commons/badge.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
+import type { JSX } from "preact";
 
 const badgeVariants = cva(styles.badge, {
   variants: {
@@ -28,11 +29,9 @@ const badgeVariants = cva(styles.badge, {
   },
 });
 
-export type BadgeProps = {
-  children?: string;
+export type BadgeProps = JSX.IntrinsicElements["span"] & {
   src?: string;
   alt?: string;
-  className?: string;
   variantColor?: VariantProps<typeof badgeVariants>["variantColor"];
   variantTone?: VariantProps<typeof badgeVariants>["variantTone"];
   variantSize?: VariantProps<typeof badgeVariants>["variantSize"];

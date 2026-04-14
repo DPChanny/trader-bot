@@ -1,5 +1,5 @@
-import { PageLayout } from "@/components/commons/page";
+import { Page } from "@/components/commons/layout";
 
 export function HomePage() {
-  return <PageLayout></PageLayout>;
+  return <Page></Page>;
 }

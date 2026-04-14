@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@/styles/components/commons/card.module.css";
-import type { HTMLAttributes } from "preact";
+import type { JSX } from "preact";
 
 const cardVariants = cva(styles.card, {
   variants: {
@@ -19,7 +19,7 @@ const cardVariants = cva(styles.card, {
 
 type CardVariantProps = VariantProps<typeof cardVariants>;
 
-export type CardProps = HTMLAttributes<HTMLDivElement> & {
+export type CardProps = JSX.IntrinsicElements["div"] & {
   variantColor?: CardVariantProps["variantColor"];
 };
 

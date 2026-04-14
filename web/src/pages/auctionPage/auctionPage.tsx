@@ -4,7 +4,7 @@ import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import { PrimarySection, SecondarySection } from "@/components/commons/section";
 import { Column, Grid, Row } from "@/components/commons/layout";
-import { PageLayout } from "@/components/commons/page";
+import { Page } from "@/components/commons/layout";
 import { Loading } from "@/components/commons/loading";
 import { Error } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
@@ -100,13 +100,13 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
   if (errorMessage) {
     return (
-      <PageLayout>
+      <Page>
         <Column fill center>
           <PrimarySection>
             <Error error={websocketError}>{errorMessage}</Error>
           </PrimarySection>
         </Column>
-      </PageLayout>
+      </Page>
     );
   }
 
@@ -114,9 +114,9 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
   if (isLoading) {
     return (
-      <PageLayout>
+      <Page>
         <Loading />
-      </PageLayout>
+      </Page>
     );
   }
 
@@ -177,7 +177,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   };
 
   return (
-    <PageLayout>
+    <Page>
       <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
         <h3>팀 목록</h3>
         <Bar />
@@ -273,6 +273,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
           />
         </PrimarySection>
       </Column>
-    </PageLayout>
+    </Page>
   );
 }
