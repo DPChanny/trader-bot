@@ -14,9 +14,11 @@ def http_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        event: dict = {}
-        if has_event and "event" not in kwargs:
-            kwargs["event"] = event
+        event: dict | None = None
+        if has_event:
+            if "event" not in kwargs or kwargs["event"] is None:
+                kwargs["event"] = {}
+            event = kwargs["event"]
 
         try:
             result = await func(*args, **kwargs)
@@ -41,9 +43,11 @@ def bot_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        event: dict = {}
-        if has_event and "event" not in kwargs:
-            kwargs["event"] = event
+        event: dict | None = None
+        if has_event:
+            if "event" not in kwargs or kwargs["event"] is None:
+                kwargs["event"] = {}
+            event = kwargs["event"]
 
         try:
             result = await func(*args, **kwargs)
@@ -68,9 +72,11 @@ def ws_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        event: dict = {}
-        if has_event and "event" not in kwargs:
-            kwargs["event"] = event
+        event: dict | None = None
+        if has_event:
+            if "event" not in kwargs or kwargs["event"] is None:
+                kwargs["event"] = {}
+            event = kwargs["event"]
 
         try:
             result = await func(*args, **kwargs)
