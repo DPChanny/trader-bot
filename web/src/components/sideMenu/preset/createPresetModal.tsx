@@ -81,7 +81,7 @@ export function CreatePresetModal({
             required
           />
           <LabelInput
-            label="포인트 스케일"
+            label="포인트 단위"
             type="number"
             value={pointScale}
             placeholder="5"
@@ -91,7 +91,7 @@ export function CreatePresetModal({
         </ModalRow>
         <ModalRow>
           <LabelInput
-            label="경매 타이머 (초)"
+            label="타이머 (초)"
             type="number"
             value={timer}
             placeholder="15"

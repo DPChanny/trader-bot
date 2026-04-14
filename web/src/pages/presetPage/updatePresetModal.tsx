@@ -98,7 +98,7 @@ export function UpdatePresetModal({
             required
           />
           <LabelInput
-            label="포인트 스케일"
+            label="포인트 단위"
             type="number"
             value={pointScale}
             onChange={setPointScale}
