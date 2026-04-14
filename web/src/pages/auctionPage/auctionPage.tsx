@@ -14,6 +14,11 @@ import { Bar } from "@/components/commons/bar";
 import { checkRefreshToken } from "@/utils/auth";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 import { AuctionStatus } from "@/dtos/auction";
+import {
+  BidErrorCode,
+  type BidErrorCodeType,
+  type WSError,
+} from "@/utils/error";
 
 import styles from "@/styles/pages/auctionPage/auctionPage.module.css";
 
@@ -22,20 +27,31 @@ interface AuctionPageProps {
   auctionId?: string;
 }
 
+function isBidErrorCode(code: number): code is BidErrorCodeType {
+  switch (code) {
+    case BidErrorCode.TeamFull:
+    case BidErrorCode.TooHigh:
+    case BidErrorCode.TooLow:
+    case BidErrorCode.NotLeader:
+      return true;
+    default:
+      return false;
+  }
+}
+
 export function AuctionPage({ auctionId }: AuctionPageProps) {
   const [bidAmount, setBidAmount] = useState<string>("");
+  const [dismissedError, setDismissedError] = useState<WSError | null>(null);
   const reconnectedRef = useRef(false);
 
-  const {
-    state,
-    connect,
-    placeBid,
-    isConnected,
-    wasConnected,
-    closeReason,
-    bidReason,
-    clearBidReason,
-  } = useAuctionWebSocket();
+  const { state, connect, placeBid, isConnected, wasConnected, error } =
+    useAuctionWebSocket();
+
+  useEffect(() => {
+    if (error === null) {
+      setDismissedError(null);
+    }
+  }, [error]);
 
   useEffect(() => {
     if (auctionId !== undefined) {
@@ -64,8 +80,18 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
   const isCompleted = state?.status === AuctionStatus.COMPLETED;
 
-  const errorMessage = closeReason
-    ? closeReason
+  const visibleError = error === dismissedError ? null : error;
+
+  const bidError =
+    visibleError !== null &&
+    typeof visibleError.code === "number" &&
+    isBidErrorCode(visibleError.code)
+      ? visibleError
+      : null;
+  const websocketError = bidError ? null : visibleError;
+
+  const errorMessage = websocketError
+    ? websocketError.message
     : !isCompleted && wasConnected && !isConnected
       ? "서버와의 연결이 끊어졌습니다."
       : null;
@@ -74,7 +100,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     return (
       <PageLayout>
         <Section variantIntent="primary" className={styles.centerSection}>
-          <Error>{errorMessage}</Error>
+          <Error error={websocketError}>{errorMessage}</Error>
         </Section>
       </PageLayout>
     );
@@ -140,7 +166,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     const displayAmount = parseInt(bidAmount);
     if (displayAmount > 0 && displayAmount % pointScale === 0) {
       const actualAmount = displayAmount / pointScale;
-      clearBidReason();
+      setDismissedError(error);
       placeBid(actualAmount);
       setBidAmount("");
     }
@@ -213,13 +239,13 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
               variantLayout="row"
               className={styles.auctionInfoBottomSection}
             >
-              {bidReason && <Error>{bidReason}</Error>}
+              {bidError && <Error error={bidError}>{bidError.message}</Error>}
               <Input
                 type="number"
                 placeholder={`입찰 금액 (${pointScale}의 배수)`}
                 value={bidAmount}
                 onChange={(value) => {
-                  clearBidReason();
+                  setDismissedError(error);
                   setBidAmount(value);
                 }}
                 disabled={state.status !== AuctionStatus.RUNNING}

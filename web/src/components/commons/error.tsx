@@ -13,7 +13,8 @@ export function Error({ children, className, error }: ErrorProps) {
   const [showDetail, setShowDetail] = useState(false);
 
   const detail = error instanceof globalThis.Error ? error.message : undefined;
-  const code = error instanceof AppError ? error.code : undefined;
+  const code =
+    error instanceof AppError ? (error.code ?? undefined) : undefined;
 
   return (
     <div className={clsx(styles.error, className)}>

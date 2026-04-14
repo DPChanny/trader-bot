@@ -15,11 +15,7 @@ import type {
 import { toCamelCase } from "@/utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@/utils/env";
 import { getAccessToken } from "@/utils/auth";
-import {
-  BidErrorCode,
-  type BidErrorCodeType,
-  getWsErrorMessage,
-} from "@/utils/error";
+import { WSError } from "@/utils/error";
 
 interface AuctionWebSocketHook {
   state: InitDTO | null;
@@ -27,29 +23,14 @@ interface AuctionWebSocketHook {
   placeBid: (amount: number) => void;
   isConnected: boolean;
   wasConnected: boolean;
-  closeReason: string | null;
-  bidReason: string | null;
-  clearBidReason: () => void;
-}
-
-function isBidErrorCode(code: number): code is BidErrorCodeType {
-  switch (code) {
-    case BidErrorCode.TeamFull:
-    case BidErrorCode.TooHigh:
-    case BidErrorCode.TooLow:
-    case BidErrorCode.NotLeader:
-      return true;
-    default:
-      return false;
-  }
+  error: WSError | null;
 }
 
 export function useAuctionWebSocket(): AuctionWebSocketHook {
   const [isConnected, setIsConnected] = useState(false);
   const [wasConnected, setWasConnected] = useState(false);
   const [state, setState] = useState<InitDTO | null>(null);
-  const [closeReason, setCloseReason] = useState<string | null>(null);
-  const [bidReason, setBidReason] = useState<string | null>(null);
+  const [error, setError] = useState<WSError | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const mountedRef = useRef(true);
 
@@ -58,7 +39,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       case MessageType.INIT: {
         const rawData = message.data;
         const nextState = toCamelCase<InitDTO>(rawData);
-        setBidReason(null);
+        setError(null);
         setState(nextState);
         break;
       }
@@ -140,7 +121,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       case MessageType.BID_PLACED: {
         const rawData = message.data;
         const data = toCamelCase<BidPlacedMessageDTO>(rawData);
-        setBidReason(null);
+        setError(null);
         setState((prev) => {
           if (!prev) return prev;
           return {
@@ -173,11 +154,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         const data = toCamelCase<ErrorMessageDTO>(rawData);
         const code = data?.code;
         if (typeof code === "number" && mountedRef.current) {
-          if (isBidErrorCode(code)) {
-            setBidReason(getWsErrorMessage(code));
-          } else {
-            setCloseReason(getWsErrorMessage(code));
-          }
+          setError(new WSError({ code }));
         }
         break;
       }
@@ -196,8 +173,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
   const connect = (auctionId: string) => {
     cleanupConnection();
-    setCloseReason(null);
-    setBidReason(null);
+    setError(null);
 
     const token = getAccessToken();
     const url = `${AUCTION_WS_ENDPOINT}/${auctionId}`;
@@ -235,9 +211,9 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       if (mountedRef.current) {
         setIsConnected(false);
         if (event.reason) {
-          setCloseReason(event.reason);
+          setError(new WSError({ reason: event.reason }));
         } else if (!opened) {
-          setCloseReason("서버에 연결할 수 없습니다.");
+          setError(new WSError({ reason: "서버에 연결할 수 없습니다." }));
         }
       }
     };
@@ -256,8 +232,6 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     if (!wsRef.current) {
       return;
     }
-
-    setBidReason(null);
 
     const message: AuctionMessageDTO<{ amount: number }> = {
       type: MessageType.PLACE_BID,
@@ -283,8 +257,6 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     placeBid,
     isConnected,
     wasConnected,
-    closeReason,
-    bidReason,
-    clearBidReason: () => setBidReason(null),
+    error,
   };
 }

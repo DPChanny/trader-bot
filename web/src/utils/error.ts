@@ -172,17 +172,36 @@ export function getErrorMessage(code: number): string {
   }
 }
 
-export function getWsErrorMessage(code: number): string {
-  return getErrorMessage(code);
+export class AppError extends Error {
+  code: number | null;
+
+  constructor(message: string, code: number | null, name: string) {
+    super(message);
+    this.code = code;
+    this.name = name;
+  }
 }
 
-export class AppError extends Error {
-  code: number;
+export class HTTPError extends AppError {
+  override code: number;
 
   constructor(code: number) {
-    super(getErrorMessage(code));
+    super(getErrorMessage(code), code, "HTTPError");
     this.code = code;
-    this.name = "AppError";
+  }
+}
+
+export class WSError extends AppError {
+  override code: number | null;
+
+  constructor({ code, reason }: { code?: number; reason?: string }) {
+    const parsedCode = typeof code === "number" ? code : null;
+    const message =
+      typeof parsedCode === "number"
+        ? getErrorMessage(parsedCode)
+        : (reason ?? "웹소켓 오류가 발생했습니다.");
+    super(message, parsedCode, "WSError");
+    this.code = parsedCode;
   }
 }
 
@@ -202,5 +221,5 @@ export async function handleHttpError(response: Response): Promise<never> {
     code = response.status;
   }
 
-  throw new AppError(code);
+  throw new HTTPError(code);
 }

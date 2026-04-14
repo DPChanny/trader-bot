@@ -79,22 +79,25 @@ class TokenError(Exception):
         self.code = code
 
 
-class HTTPError(Exception):
+class AppError(Exception):
     def __init__(self, code: IntEnum) -> None:
         self.code: int = code.value
+        self.function: str | None = None
+        super().__init__(str(code.value))
+
+
+class HTTPError(AppError):
+    def __init__(self, code: IntEnum) -> None:
+        super().__init__(code)
         self.status_code: int = {
             41: 401,
             42: 422,
             43: 403,
             44: 404,
             50: 500,
-        }[code.value // 100]
-        self.function: str | None = None
-        super().__init__(str(code.value))
+        }[self.code // 100]
 
 
-class WSError(Exception):
+class WSError(AppError):
     def __init__(self, code: IntEnum) -> None:
-        self.code: int = code.value
-        self.function: str | None = None
-        super().__init__(str(code.value))
+        super().__init__(code)
