@@ -1,4 +1,5 @@
 import { PresetMemberCard } from "./presetMemberCard";
+import { PressedButton } from "@/components/commons/button";
 import { Grid } from "@/components/commons/layout";
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberGrid.module.css";
@@ -27,29 +28,34 @@ export function PresetMemberGrid({
 
   return (
     <Grid gap="md" className={clsx(styles.grid, className)}>
-      {sorted.map((presetMember) => (
-        <div
-          key={presetMember.presetMemberId}
-          className={styles.gridItem}
-          onClick={() => onMemberClick(presetMember.presetMemberId)}
-        >
-          <PresetMemberCard
-            presetMember={presetMember}
-            isActive={selectedMemberId === presetMember.presetMemberId}
-            isInteractive={true}
-            isConnected={
-              connectedMemberIds
-                ? connectedMemberIds.includes(presetMember.memberId)
-                : undefined
-            }
-            isClientMember={
-              clientMemberId
-                ? clientMemberId === presetMember.memberId
-                : undefined
-            }
-          />
-        </div>
-      ))}
+      {sorted.map((presetMember) => {
+        const isActive = selectedMemberId === presetMember.presetMemberId;
+
+        return (
+          <PressedButton
+            key={presetMember.presetMemberId}
+            type="button"
+            className={clsx(styles.gridItem, styles.gridButton)}
+            onClick={() => onMemberClick(presetMember.presetMemberId)}
+            isPressed={isActive}
+          >
+            <PresetMemberCard
+              presetMember={presetMember}
+              isActive={isActive}
+              isConnected={
+                connectedMemberIds
+                  ? connectedMemberIds.includes(presetMember.memberId)
+                  : undefined
+              }
+              isClientMember={
+                clientMemberId
+                  ? clientMemberId === presetMember.memberId
+                  : undefined
+              }
+            />
+          </PressedButton>
+        );
+      })}
     </Grid>
   );
 }

@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberCard.module.css";
-import { Card, ToggleCard } from "@/components/commons/card";
+import { Card } from "@/components/commons/card";
 import { Badge } from "@/components/commons/badge";
 import { Column } from "@/components/commons/layout";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
@@ -10,7 +10,6 @@ export interface PresetMemberCardProps {
   isActive?: boolean;
   isConnected?: boolean;
   isClientMember?: boolean;
-  isInteractive?: boolean;
 }
 
 export function PresetMemberCard({
@@ -18,7 +17,6 @@ export function PresetMemberCard({
   isActive,
   isConnected,
   isClientMember,
-  isInteractive = false,
 }: PresetMemberCardProps) {
   const { member, tier, presetMemberPositions, isLeader } = presetMember;
 
@@ -29,12 +27,10 @@ export function PresetMemberCard({
     return null;
   })();
 
-  const CardComponent = isInteractive ? ToggleCard : Card;
-
   return (
-    <CardComponent
+    <Card
       variantColor={isLeader ? "gold" : "gray"}
-      isActive={isInteractive ? isActive : undefined}
+      variantActive={isActive}
       className={styles.memberCard}
     >
       <div class={styles.badgesLeft}>
@@ -97,6 +93,6 @@ export function PresetMemberCard({
           )}
         </Column>
       </Column>
-    </CardComponent>
+    </Card>
   );
 }

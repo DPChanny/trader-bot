@@ -24,27 +24,29 @@ export function TierCard({
 }: TierCardProps) {
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   return (
-    <Card variantLayout="row" variantIntent="tertiary">
-      <Badge
-        src={tier.iconUrl || undefined}
-        alt={tier.name}
-        variantColor="red"
-        variantSize="large"
-      >
-        {tier.name.charAt(0)}
-      </Badge>
-      <span className={styles.name}>{tier.name}</span>
+    <Card variantIntent="tertiary">
+      <Row>
+        <Badge
+          src={tier.iconUrl || undefined}
+          alt={tier.name}
+          variantColor="red"
+          variantSize="large"
+        >
+          {tier.name.charAt(0)}
+        </Badge>
+        <span className={styles.name}>{tier.name}</span>
 
-      {canEdit && (
-        <Row gap="xs">
-          <EditButton variantSize="small" onClick={onEdit} />
-          <DeleteButton
-            variantSize="small"
-            disabled={isDeletePending}
-            onClick={onDelete}
-          />
-        </Row>
-      )}
+        {canEdit && (
+          <Row>
+            <EditButton variantSize="small" onClick={onEdit} />
+            <DeleteButton
+              variantSize="small"
+              disabled={isDeletePending}
+              onClick={onDelete}
+            />
+          </Row>
+        )}
+      </Row>
     </Card>
   );
 }

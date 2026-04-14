@@ -34,16 +34,36 @@ const buttonVariants = cva(styles.button, {
   },
 });
 
-export type ButtonProps = HTMLAttributes<HTMLButtonElement> & {
+export type PressedButtonProps = HTMLAttributes<HTMLButtonElement> & {
   onClick?: (e: TargetedMouseEvent<HTMLButtonElement>) => void;
   children?: JSX.Element | string;
   disabled?: boolean;
   type?: "button" | "submit" | "reset";
+  isPressed?: boolean;
+};
+
+export type ButtonProps = PressedButtonProps & {
   variantIntent?: VariantProps<typeof buttonVariants>["variantIntent"];
   variantTone?: VariantProps<typeof buttonVariants>["variantTone"];
   variantSize?: VariantProps<typeof buttonVariants>["variantSize"];
   variantType?: VariantProps<typeof buttonVariants>["variantType"];
 };
+
+export function PressedButton({
+  type = "button",
+  isPressed,
+  className,
+  ...props
+}: PressedButtonProps) {
+  return (
+    <button
+      type={type}
+      className={className}
+      aria-pressed={isPressed}
+      {...props}
+    />
+  );
+}
 
 export function Button({
   className,
@@ -52,6 +72,7 @@ export function Button({
   variantSize,
   variantType,
   type = "button",
+  isPressed,
   ...props
 }: ButtonProps) {
   const baseClass = buttonVariants({
@@ -62,7 +83,12 @@ export function Button({
   });
 
   return (
-    <button type={type} className={clsx(baseClass, className)} {...props} />
+    <PressedButton
+      type={type}
+      isPressed={isPressed}
+      className={clsx(baseClass, className)}
+      {...props}
+    />
   );
 }
 

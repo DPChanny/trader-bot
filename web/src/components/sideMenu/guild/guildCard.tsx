@@ -1,4 +1,5 @@
-import { ToggleCard } from "@/components/commons/card";
+import { Card } from "@/components/commons/card";
+import { Row } from "@/components/commons/layout";
 import styles from "@/styles/components/sideMenu/guild/guildCard.module.css";
 import type { GuildDetailDTO } from "@/dtos/guild";
 
@@ -11,23 +12,25 @@ export function GuildCard({ guild, isActive }: GuildCardProps) {
   return (
     <a
       href={`/guild/${guild.discordId}/member`}
-      style={{ display: "contents", textDecoration: "none", color: "inherit" }}
+      className={styles.link}
+      aria-current={isActive ? "page" : undefined}
     >
-      <ToggleCard
+      <Card
         variantColor="blue"
-        isActive={isActive}
-        variantLayout="row"
+        variantActive={isActive}
         variantIntent="tertiary"
       >
-        <div className={styles.icon}>
-          {guild.iconUrl ? (
-            <img src={guild.iconUrl} alt={guild.name} />
-          ) : (
-            <span className={styles.iconFallback}>🎮</span>
-          )}
-        </div>
-        <span className={styles.name}>{guild.name}</span>
-      </ToggleCard>
+        <Row>
+          <div className={styles.icon}>
+            {guild.iconUrl ? (
+              <img src={guild.iconUrl} alt={guild.name} />
+            ) : (
+              <span className={styles.iconFallback}>🎮</span>
+            )}
+          </div>
+          <span className={styles.name}>{guild.name}</span>
+        </Row>
+      </Card>
     </a>
   );
 }

@@ -1,5 +1,6 @@
 .layout {
   display: flex;
+  gap: var(--layout-gap, var(--section-gap, 0));
 }
 
 .directionRow {
@@ -18,27 +19,27 @@
 }
 
 .gapNone {
-  gap: 0;
+  --layout-gap: 0;
 }
 
 .gapXs {
-  gap: var(--gap-xs);
+  --layout-gap: var(--gap-xs);
 }
 
 .gapSm {
-  gap: var(--gap-sm);
+  --layout-gap: var(--gap-sm);
 }
 
 .gapMd {
-  gap: var(--gap-md);
+  --layout-gap: var(--gap-md);
 }
 
 .gapLg {
-  gap: var(--gap-lg);
+  --layout-gap: var(--gap-lg);
 }
 
 .gapXl {
-  gap: var(--gap-xl);
+  --layout-gap: var(--gap-xl);
 }
 
 .wrap {

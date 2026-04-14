@@ -1,5 +1,5 @@
 import styles from "@/styles/components/memberCard.module.css";
-import { Card, ToggleCard } from "@/components/commons/card";
+import { Card } from "@/components/commons/card";
 import { Column } from "@/components/commons/layout";
 import { Badge } from "@/components/commons/badge";
 import type { MemberDetailDTO } from "@/dtos/member";
@@ -21,24 +21,18 @@ const ROLE_COLOR: Record<number, "gold" | "red" | "blue" | "gray"> = {
 export interface MemberCardProps {
   member: MemberDetailDTO;
   isActive?: boolean;
-  isInteractive?: boolean;
 }
 
-export function MemberCard({
-  member,
-  isActive,
-  isInteractive = false,
-}: MemberCardProps) {
+export function MemberCard({ member, isActive }: MemberCardProps) {
   const displayName = member.alias || member.name || member.user.name;
   const avatarUrl = member.avatarUrl || member.user.avatarUrl;
   const roleLabel = ROLE_LABEL[member.role];
   const roleColor = ROLE_COLOR[member.role];
-  const CardComponent = isInteractive ? ToggleCard : Card;
 
   return (
-    <CardComponent
+    <Card
       variantColor="gray"
-      isActive={isInteractive ? isActive : undefined}
+      variantActive={isActive}
       className={styles.memberCard}
     >
       {roleLabel && (
@@ -77,6 +71,6 @@ export function MemberCard({
           <h3 class={styles.name}>{displayName}</h3>
         </Column>
       </Column>
-    </CardComponent>
+    </Card>
   );
 }

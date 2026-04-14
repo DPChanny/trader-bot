@@ -24,27 +24,29 @@ export function PositionCard({
 }: PositionCardProps) {
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   return (
-    <Card variantLayout="row" variantIntent="tertiary">
-      <Badge
-        src={position.iconUrl || undefined}
-        alt={position.name}
-        variantColor="blue"
-        variantSize="large"
-      >
-        {position.name.charAt(0)}
-      </Badge>
-      <span className={styles.name}>{position.name}</span>
+    <Card variantIntent="tertiary">
+      <Row>
+        <Badge
+          src={position.iconUrl || undefined}
+          alt={position.name}
+          variantColor="blue"
+          variantSize="large"
+        >
+          {position.name.charAt(0)}
+        </Badge>
+        <span className={styles.name}>{position.name}</span>
 
-      {canEdit && (
-        <Row gap="xs">
-          <EditButton variantSize="small" onClick={onEdit} />
-          <DeleteButton
-            variantSize="small"
-            disabled={isDeletePending}
-            onClick={onDelete}
-          />
-        </Row>
-      )}
+        {canEdit && (
+          <Row>
+            <EditButton variantSize="small" onClick={onEdit} />
+            <DeleteButton
+              variantSize="small"
+              disabled={isDeletePending}
+              onClick={onDelete}
+            />
+          </Row>
+        )}
+      </Row>
     </Card>
   );
 }

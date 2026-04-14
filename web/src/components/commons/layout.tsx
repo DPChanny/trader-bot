@@ -40,7 +40,6 @@ const layoutVariants = cva(styles.layout, {
   },
   defaultVariants: {
     direction: "column",
-    gap: "none",
     wrap: false,
     fill: false,
     minSize: false,
@@ -56,7 +55,7 @@ export interface LayoutProps
 
 export function Layout({
   direction = "column",
-  gap = "none",
+  gap,
   wrap = false,
   fill = false,
   minSize = false,

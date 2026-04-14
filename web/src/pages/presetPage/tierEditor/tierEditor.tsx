@@ -105,7 +105,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
       </Row>
       <Bar />
 
-      <Column gap="sm" className={styles.tierList}>
+      <Column className={styles.tierList}>
         {error ? (
           <Error error={error}>티어 목록을 불러오는데 실패했습니다.</Error>
         ) : isLoading ? (

@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
+import { PressedButton } from "@/components/commons/button";
 import styles from "@/styles/components/commons/toggle.module.css";
 
 const toggleVariants = cva(styles.toggle, {
@@ -40,16 +41,17 @@ export function Toggle({
   disabled = false,
 }: ToggleProps) {
   return (
-    <button
+    <PressedButton
       type={type}
       className={clsx(
         toggleVariants({ variantColor, variantActive: isActive }),
         className,
       )}
       onClick={onClick}
+      isPressed={isActive}
       disabled={disabled}
     >
       {children}
-    </button>
+    </PressedButton>
   );
 }

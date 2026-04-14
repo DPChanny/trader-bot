@@ -37,19 +37,13 @@ export function CreateAuctionModal({
       <Column gap="sm">
         {message && <Error>{message}</Error>}
         {error && <Error error={error}>경매 생성에 실패했습니다.</Error>}
-        <Row
-          gap="sm"
-          style={{ justifyContent: "space-between", alignItems: "center" }}
-        >
+        <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
           <Label>퍼블릭 허용</Label>
           <Toggle isActive={isPublic} onClick={() => setIsPublic((v) => !v)}>
             {isPublic ? "허용" : "비허용"}
           </Toggle>
         </Row>
-        <Row
-          gap="sm"
-          style={{ justifyContent: "space-between", alignItems: "center" }}
-        >
+        <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
           <Label>초대 발송</Label>
           <Toggle
             isActive={sendInvite}

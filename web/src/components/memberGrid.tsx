@@ -1,4 +1,5 @@
 import { MemberCard } from "./memberCard";
+import { PressedButton } from "@/components/commons/button";
 import { Grid } from "@/components/commons/layout";
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberGrid.module.css";
@@ -19,19 +20,24 @@ export function MemberGrid({
 }: MemberGridProps) {
   return (
     <Grid gap="md" className={clsx(styles.grid, className)}>
-      {members.map((member) => (
-        <div
-          key={member.memberId}
-          className={styles.gridItem}
-          onClick={() => onMemberClick?.(member.memberId)}
-        >
-          <MemberCard
-            member={member}
-            isActive={selectedMemberId === member.memberId}
-            isInteractive={onMemberClick !== undefined}
-          />
-        </div>
-      ))}
+      {members.map((member) => {
+        const isActive = selectedMemberId === member.memberId;
+
+        return (
+          <PressedButton
+            key={member.memberId}
+            type="button"
+            className={clsx(styles.gridItem, styles.gridButton)}
+            onClick={
+              onMemberClick ? () => onMemberClick(member.memberId) : undefined
+            }
+            isPressed={isActive}
+            disabled={!onMemberClick}
+          >
+            <MemberCard member={member} isActive={isActive} />
+          </PressedButton>
+        );
+      })}
     </Grid>
   );
 }
