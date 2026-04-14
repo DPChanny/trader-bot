@@ -29,7 +29,7 @@ export function PresetMemberGrid({
   return (
     <Grid gap="md" className={clsx(styles.grid, className)}>
       {sorted.map((presetMember) => {
-        const isActive = selectedMemberId === presetMember.presetMemberId;
+        const isSelected = selectedMemberId === presetMember.presetMemberId;
 
         return (
           <PressedButton
@@ -37,11 +37,11 @@ export function PresetMemberGrid({
             type="button"
             className={clsx(styles.gridItem, styles.gridButton)}
             onClick={() => onMemberClick(presetMember.presetMemberId)}
-            isPressed={isActive}
+            isPressed={isSelected}
           >
             <PresetMemberCard
               presetMember={presetMember}
-              isActive={isActive}
+              variantSelected={isSelected}
               isConnected={
                 connectedMemberIds
                   ? connectedMemberIds.includes(presetMember.memberId)

@@ -1,24 +1,28 @@
-import { Card } from "@/components/commons/card";
+import { Card, type CardProps } from "@/components/commons/card";
 import { Row } from "@/components/commons/layout";
 import styles from "@/styles/components/sideMenu/guild/guildCard.module.css";
 import type { GuildDetailDTO } from "@/dtos/guild";
 
-interface GuildCardProps {
+type GuildCardProps = Omit<CardProps, "children"> & {
   guild: GuildDetailDTO;
-  isActive?: boolean;
-}
+};
 
-export function GuildCard({ guild, isActive }: GuildCardProps) {
+export function GuildCard({
+  guild,
+  variantSelected,
+  variantColor = "blue",
+  ...props
+}: GuildCardProps) {
   return (
     <a
       href={`/guild/${guild.discordId}/member`}
       className={styles.link}
-      aria-current={isActive ? "page" : undefined}
+      aria-current={variantSelected ? "page" : undefined}
     >
       <Card
-        variantColor="blue"
-        variantActive={isActive}
-        variantIntent="tertiary"
+        variantColor={variantColor}
+        variantSelected={variantSelected}
+        {...props}
       >
         <Row>
           <div className={styles.icon}>

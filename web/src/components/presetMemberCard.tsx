@@ -1,22 +1,23 @@
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberCard.module.css";
-import { Card } from "@/components/commons/card";
+import { Card, type CardProps } from "@/components/commons/card";
 import { Badge } from "@/components/commons/badge";
 import { Column } from "@/components/commons/layout";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 
-export interface PresetMemberCardProps {
+export type PresetMemberCardProps = Omit<CardProps, "children"> & {
   presetMember: PresetMemberDetailDTO;
-  isActive?: boolean;
   isConnected?: boolean;
   isClientMember?: boolean;
-}
+};
 
 export function PresetMemberCard({
   presetMember,
-  isActive,
+  className,
+  variantColor,
   isConnected,
   isClientMember,
+  ...props
 }: PresetMemberCardProps) {
   const { member, tier, presetMemberPositions, isLeader } = presetMember;
 
@@ -29,9 +30,9 @@ export function PresetMemberCard({
 
   return (
     <Card
-      variantColor={isLeader ? "gold" : "gray"}
-      variantActive={isActive}
-      className={styles.memberCard}
+      variantColor={variantColor ?? (isLeader ? "gold" : "gray")}
+      className={clsx(styles.memberCard, className)}
+      {...props}
     >
       <div class={styles.badgesLeft}>
         {statusClass && <div className={clsx(styles.statusDot, statusClass)} />}

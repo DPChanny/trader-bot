@@ -1,9 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@/styles/components/commons/card.module.css";
-import { Section, type SectionProps } from "./section";
-
-type CardVariantProps = VariantProps<typeof cardVariants>;
+import type { HTMLAttributes } from "preact";
 
 const cardVariants = cva(styles.card, {
   variants: {
@@ -13,37 +11,40 @@ const cardVariants = cva(styles.card, {
       green: styles.colorGreen,
       gray: styles.colorGray,
     },
-    variantActive: {
-      true: styles.activeTrue,
+    variantSelected: {
+      true: styles.selectedTrue,
       false: "",
     },
   },
   defaultVariants: {
     variantColor: "blue",
-    variantActive: false,
+    variantSelected: false,
   },
 });
 
-export type CardProps = SectionProps & {
+type CardVariantProps = VariantProps<typeof cardVariants>;
+
+export type CardProps = HTMLAttributes<HTMLDivElement> & {
   variantColor?: CardVariantProps["variantColor"];
-  variantActive?: boolean;
+  variantSelected?: boolean;
 };
 
 export function Card({
   variantColor = "blue",
-  variantActive = false,
-  variantIntent,
+  variantSelected = false,
   className,
   children,
   ...props
 }: CardProps) {
   return (
-    <Section
-      variantIntent={variantIntent}
-      className={clsx(cardVariants({ variantColor, variantActive }), className)}
+    <div
+      className={clsx(
+        cardVariants({ variantColor, variantSelected }),
+        className,
+      )}
       {...props}
     >
       {children}
-    </Section>
+    </div>
   );
 }

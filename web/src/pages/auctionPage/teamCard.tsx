@@ -1,19 +1,19 @@
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 import type { TeamDTO } from "@/dtos/auction";
-import { Card } from "@/components/commons/card";
+import { Card, type CardProps } from "@/components/commons/card";
 import { Column, Row } from "@/components/commons/layout";
 import { Bar } from "@/components/commons/bar";
 import styles from "@/styles/pages/auctionPage/teamCard.module.css";
 
-interface TeamCardProps {
+type TeamCardProps = Omit<CardProps, "children"> & {
   team: TeamDTO;
   members: PresetMemberDetailDTO[];
   teamSize: number;
   pointScale: number;
   connectedMemberIds?: number[];
   clientMemberId?: number;
-}
+};
 
 export function TeamCard({
   team,
@@ -22,16 +22,22 @@ export function TeamCard({
   pointScale,
   connectedMemberIds,
   clientMemberId,
+  variantColor,
+  ...props
 }: TeamCardProps) {
   const leader = members.find((member) => member.isLeader);
   const teamName = leader
     ? `${leader.member.alias ?? leader.member.name ?? leader.member.user.name} 팀`
     : `Team ${team.teamId}`;
   const isFull = members.length >= teamSize;
-  const variantColor = isFull ? "green" : "blue";
+  const resolvedVariantColor = variantColor ?? (isFull ? "green" : "blue");
+  const barVariantColor =
+    resolvedVariantColor === "green" || resolvedVariantColor === "gold"
+      ? resolvedVariantColor
+      : "blue";
 
   return (
-    <Card variantColor={variantColor}>
+    <Card variantColor={resolvedVariantColor} {...props}>
       <Column>
         <Row
           gap="sm"
@@ -42,7 +48,7 @@ export function TeamCard({
             {team.points * pointScale} 포인트
           </span>
         </Row>
-        <Bar variantColor={variantColor} />
+        <Bar variantColor={barVariantColor} />
         <PresetMemberGrid
           className={styles.membersGrid}
           presetMembers={members}

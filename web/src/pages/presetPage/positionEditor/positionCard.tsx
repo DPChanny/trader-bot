@@ -1,19 +1,19 @@
 import { DeleteButton, EditButton } from "@/components/commons/button";
 import { Badge } from "@/components/commons/badge";
-import { Card } from "@/components/commons/card";
+import { Card, type CardProps } from "@/components/commons/card";
 import { Row } from "@/components/commons/layout";
 import type { PositionDTO } from "@/dtos/position";
 import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import styles from "@/styles/pages/presetPage/positionEditor/positionCard.module.css";
 
-interface PositionCardProps {
+type PositionCardProps = Omit<CardProps, "children"> & {
   position: PositionDTO;
   guildId: string;
   onEdit: () => void;
   onDelete: () => void;
   isDeletePending: boolean;
-}
+};
 
 export function PositionCard({
   position,
@@ -21,10 +21,11 @@ export function PositionCard({
   onEdit,
   onDelete,
   isDeletePending,
+  ...props
 }: PositionCardProps) {
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   return (
-    <Card variantIntent="tertiary">
+    <Card {...props}>
       <Row>
         <Badge
           src={position.iconUrl || undefined}

@@ -1,19 +1,19 @@
 import { DeleteButton, EditButton } from "@/components/commons/button";
 import { Badge } from "@/components/commons/badge";
-import { Card } from "@/components/commons/card";
+import { Card, type CardProps } from "@/components/commons/card";
 import { Row } from "@/components/commons/layout";
 import type { TierDTO } from "@/dtos/tier";
 import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import styles from "@/styles/pages/presetPage/tierEditor/tierCard.module.css";
 
-interface TierCardProps {
+type TierCardProps = Omit<CardProps, "children"> & {
   tier: TierDTO;
   guildId: string;
   onEdit: () => void;
   onDelete: () => void;
   isDeletePending: boolean;
-}
+};
 
 export function TierCard({
   tier,
@@ -21,10 +21,11 @@ export function TierCard({
   onEdit,
   onDelete,
   isDeletePending,
+  ...props
 }: TierCardProps) {
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   return (
-    <Card variantIntent="tertiary">
+    <Card {...props}>
       <Row>
         <Badge
           src={tier.iconUrl || undefined}

@@ -27,7 +27,7 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
           <GuildCard
             key={g.discordId}
             guild={g}
-            isActive={activeGuildId === g.discordId}
+            variantSelected={activeGuildId === g.discordId}
           />
         ))}
       </Column>

@@ -1,5 +1,6 @@
+import { clsx } from "clsx";
 import styles from "@/styles/components/memberCard.module.css";
-import { Card } from "@/components/commons/card";
+import { Card, type CardProps } from "@/components/commons/card";
 import { Column } from "@/components/commons/layout";
 import { Badge } from "@/components/commons/badge";
 import type { MemberDetailDTO } from "@/dtos/member";
@@ -18,12 +19,16 @@ const ROLE_COLOR: Record<number, "gold" | "red" | "blue" | "gray"> = {
   0: "gray",
 };
 
-export interface MemberCardProps {
+export type MemberCardProps = Omit<CardProps, "children"> & {
   member: MemberDetailDTO;
-  isActive?: boolean;
-}
+};
 
-export function MemberCard({ member, isActive }: MemberCardProps) {
+export function MemberCard({
+  member,
+  className,
+  variantColor = "gray",
+  ...props
+}: MemberCardProps) {
   const displayName = member.alias || member.name || member.user.name;
   const avatarUrl = member.avatarUrl || member.user.avatarUrl;
   const roleLabel = ROLE_LABEL[member.role];
@@ -31,9 +36,9 @@ export function MemberCard({ member, isActive }: MemberCardProps) {
 
   return (
     <Card
-      variantColor="gray"
-      variantActive={isActive}
-      className={styles.memberCard}
+      variantColor={variantColor}
+      className={clsx(styles.memberCard, className)}
+      {...props}
     >
       {roleLabel && (
         <div className={styles.badgesRight}>

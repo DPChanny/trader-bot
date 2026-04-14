@@ -1,9 +1,16 @@
 .card {
   position: relative;
-  border-radius: var(--radius-xl);
-  padding: var(--padding-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap, 0);
   border: var(--border-width-default) solid transparent;
   flex-shrink: 0;
+}
+
+.card {
+  --card-gap: var(--gap-sm);
+  border-radius: var(--radius-lg);
+  padding: var(--padding-md);
 }
 
 .card.colorBlue {
@@ -17,13 +24,13 @@
   border-color: var(--color-card-blue-border-hover);
 }
 
-.card.colorBlue.activeTrue {
+.card.colorBlue.selectedTrue {
   background: var(--color-card-blue-bg-active);
   border-color: var(--color-card-blue-border-active);
   color: var(--color-card-blue-text-active);
 }
 
-.card.colorBlue.activeTrue:hover {
+.card.colorBlue.selectedTrue:hover {
   background: var(--color-card-blue-bg-hover);
   border-color: var(--color-card-blue-border-hover);
 }
@@ -39,13 +46,13 @@
   border-color: var(--color-card-gold-border-hover);
 }
 
-.card.colorGold.activeTrue {
+.card.colorGold.selectedTrue {
   background: var(--color-card-gold-bg-active);
   border-color: var(--color-card-gold-border-active);
   color: var(--color-card-gold-text-active);
 }
 
-.card.colorGold.activeTrue:hover {
+.card.colorGold.selectedTrue:hover {
   background: var(--color-card-gold-bg-hover);
   border-color: var(--color-card-gold-border-hover);
 }
@@ -61,13 +68,13 @@
   border-color: var(--color-card-green-border-hover);
 }
 
-.card.colorGreen.activeTrue {
+.card.colorGreen.selectedTrue {
   background: var(--color-card-green-bg-active);
   border-color: var(--color-card-green-border-active);
   color: var(--color-card-green-text-active);
 }
 
-.card.colorGreen.activeTrue:hover {
+.card.colorGreen.selectedTrue:hover {
   background: var(--color-card-green-bg-hover);
   border-color: var(--color-card-green-border-hover);
 }
@@ -83,13 +90,13 @@
   border-color: var(--color-card-gray-border-hover);
 }
 
-.card.colorGray.activeTrue {
+.card.colorGray.selectedTrue {
   background: var(--color-card-gray-bg-active);
   border-color: var(--color-card-gray-border-active);
   color: var(--color-card-gray-text-active);
 }
 
-.card.colorGray.activeTrue:hover {
+.card.colorGray.selectedTrue:hover {
   background: var(--color-card-gray-bg-hover);
   border-color: var(--color-card-gray-border-hover);
 }

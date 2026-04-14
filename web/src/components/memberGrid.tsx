@@ -21,7 +21,7 @@ export function MemberGrid({
   return (
     <Grid gap="md" className={clsx(styles.grid, className)}>
       {members.map((member) => {
-        const isActive = selectedMemberId === member.memberId;
+        const isSelected = selectedMemberId === member.memberId;
 
         return (
           <PressedButton
@@ -31,10 +31,10 @@ export function MemberGrid({
             onClick={
               onMemberClick ? () => onMemberClick(member.memberId) : undefined
             }
-            isPressed={isActive}
+            isPressed={isSelected}
             disabled={!onMemberClick}
           >
-            <MemberCard member={member} isActive={isActive} />
+            <MemberCard member={member} variantSelected={isSelected} />
           </PressedButton>
         );
       })}

@@ -54,7 +54,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
               key={preset.presetId}
               preset={preset}
               guildId={guildId}
-              isActive={selectedPresetId === preset.presetId}
+              variantSelected={selectedPresetId === preset.presetId}
             />
           ))}
         </Column>
