@@ -94,8 +94,8 @@ async def update_position_service(
     if position is None:
         raise HTTPError(PositionErrorCode.NotFound)
 
-    for key, value in dto.model_dump(exclude_unset=True).items():
-        setattr(position, key, value)
+    for key in dto.model_fields_set:
+        setattr(position, key, getattr(dto, key))
 
     result = PositionDTO.model_validate(position)
     event |= result.model_dump()

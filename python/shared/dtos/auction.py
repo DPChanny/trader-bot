@@ -1,12 +1,14 @@
 from enum import IntEnum
 from typing import Any
 
+from pydantic import Field
+
 from shared.dtos.preset import PresetDetailDTO
 
 from . import BaseDTO, BigInt
 
 
-class MessageType(IntEnum):
+class AuctionMessageType(IntEnum):
     AUTH = 0
     INIT = 1
     ERROR = 2
@@ -86,7 +88,11 @@ class MemberUnsoldPayloadDTO(BaseDTO):
 
 
 class PlaceBidPayloadDTO(BaseDTO):
-    amount: int
+    amount: int = Field(ge=1)
+
+
+class AuthPayloadDTO(BaseDTO):
+    token: str | None
 
 
 class BidPlacedPayloadDTO(BaseDTO):
@@ -107,5 +113,5 @@ class ErrorPayloadDTO(BaseDTO):
 
 
 class AuctionMessageEnvelopeDTO(BaseDTO):
-    type: MessageType
-    payload: dict[str, Any] | None = None
+    type: AuctionMessageType
+    payload: dict[str, Any] | None

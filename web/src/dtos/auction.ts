@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export enum AuctionStatus {
   WAITING = 0,
   RUNNING = 1,
@@ -22,7 +24,7 @@ export interface AuctionDetailDTO extends AuctionDTO {
   presetSnapshot: any | null;
 }
 
-export interface InitDTO extends AuctionDetailDTO {
+export interface InitPayloadDTO extends AuctionDetailDTO {
   teamId: number | null;
   memberId: number | null;
 }
@@ -32,7 +34,7 @@ export interface CreateAuctionDTO {
   sendInvite: boolean;
 }
 
-export enum MessageType {
+export enum AuctionMessageType {
   AUTH = 0,
   INIT = 1,
   ERROR = 2,
@@ -47,8 +49,8 @@ export enum MessageType {
   NEXT_MEMBER = 11,
 }
 
-export interface AuctionMessageDTO<TPayload = unknown> {
-  type: MessageType;
+export interface AuctionMessageEnvelopeDTO<TPayload = unknown> {
+  type: AuctionMessageType;
   payload: TPayload;
 }
 
@@ -59,44 +61,63 @@ export interface TeamDTO {
   points: number;
 }
 
+export const TeamSchema = z.object({
+  teamId: z.number().int(),
+  leaderId: z.number().int(),
+  memberIds: z.array(z.number().int()),
+  points: z.number().int(),
+});
+
 export interface BidDTO {
   amount: number;
   leaderId: number;
 }
 
-export interface StatusMessageDTO {
+export interface StatusPayloadDTO {
   status: AuctionStatus;
 }
 
-export interface BidPlacedMessageDTO {
+export interface BidPlacedPayloadDTO {
   leaderId: number;
   amount: number;
 }
 
-export interface NextMemberMessageDTO {
+export interface NextMemberPayloadDTO {
   memberId: number;
   auctionQueue: number[];
   unsoldQueue: number[];
 }
 
-export interface MemberSoldMessageDTO {
+export interface MemberSoldPayloadDTO {
   teams: TeamDTO[];
   auctionQueue: number[];
   unsoldQueue: number[];
 }
 
-export interface MemberConnectedMessageDTO {
+export interface MemberConnectedPayloadDTO {
   memberId: number;
 }
 
-export interface MemberDisconnectedMessageDTO {
+export interface MemberDisconnectedPayloadDTO {
   memberId: number;
 }
 
-export interface ErrorMessageDTO {
+export interface ErrorPayloadDTO {
   code: number;
 }
 
-export interface TimerMessageDTO {
+export interface TimerPayloadDTO {
   timer: number;
 }
+
+export interface AuthPayloadDTO {
+  token: string | null;
+}
+
+export const AuthPayloadSchema = z.object({
+  token: z.string().nullable(),
+});
+
+export const PlaceBidPayloadSchema = z.object({
+  amount: z.number().int(),
+});

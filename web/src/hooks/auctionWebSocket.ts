@@ -1,24 +1,14 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { AuctionStatus, MessageType } from "@/dtos/auction";
-import type {
-  AuctionMessageDTO,
-  InitDTO,
-  BidPlacedMessageDTO,
-  ErrorMessageDTO,
-  MemberConnectedMessageDTO,
-  MemberDisconnectedMessageDTO,
-  MemberSoldMessageDTO,
-  NextMemberMessageDTO,
-  StatusMessageDTO,
-  TimerMessageDTO,
-} from "@/dtos/auction";
+import { AuctionStatus, AuctionMessageType } from "@/dtos/auction";
+import type { AuctionMessageEnvelopeDTO, InitPayloadDTO } from "@/dtos/auction";
+import { AuthPayloadSchema, PlaceBidPayloadSchema } from "@/dtos/auction";
 import { toCamelCase } from "@/utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@/utils/env";
 import { getAccessToken } from "@/utils/auth";
 import { WSError } from "@/utils/error";
 
 interface AuctionWebSocketHook {
-  state: InitDTO | null;
+  state: InitPayloadDTO | null;
   connect: (auctionId: string) => void;
   placeBid: (amount: number) => void;
   isConnected: boolean;
@@ -29,23 +19,22 @@ interface AuctionWebSocketHook {
 export function useAuctionWebSocket(): AuctionWebSocketHook {
   const [isConnected, setIsConnected] = useState(false);
   const [wasConnected, setWasConnected] = useState(false);
-  const [state, setState] = useState<InitDTO | null>(null);
+  const [state, setState] = useState<InitPayloadDTO | null>(null);
   const [error, setError] = useState<WSError | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const mountedRef = useRef(true);
 
-  const handleWebSocketMessage = (message: AuctionMessageDTO) => {
+  const handleWebSocketMessage = (message: AuctionMessageEnvelopeDTO) => {
     const rawPayload = message.payload;
+    const dto = toCamelCase(rawPayload);
 
     switch (message.type) {
-      case MessageType.INIT: {
-        const nextState = toCamelCase<InitDTO>(rawPayload);
+      case AuctionMessageType.INIT: {
         setError(null);
-        setState(nextState);
+        setState(dto as InitPayloadDTO);
         break;
       }
-      case MessageType.MEMBER_CONNECTED: {
-        const dto = toCamelCase<MemberConnectedMessageDTO>(rawPayload);
+      case AuctionMessageType.MEMBER_CONNECTED: {
         setState((prev) =>
           prev
             ? {
@@ -60,8 +49,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         );
         break;
       }
-      case MessageType.MEMBER_DISCONNECTED: {
-        const dto = toCamelCase<MemberDisconnectedMessageDTO>(rawPayload);
+      case AuctionMessageType.MEMBER_DISCONNECTED: {
         setState((prev) =>
           prev
             ? {
@@ -75,8 +63,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
 
-      case MessageType.NEXT_MEMBER: {
-        const dto = toCamelCase<NextMemberMessageDTO>(rawPayload);
+      case AuctionMessageType.NEXT_MEMBER: {
         setState((prev) => {
           return prev
             ? {
@@ -91,8 +78,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
 
-      case MessageType.MEMBER_SOLD: {
-        const dto = toCamelCase<MemberSoldMessageDTO>(rawPayload);
+      case AuctionMessageType.MEMBER_SOLD: {
         setState((prev) => {
           return prev
             ? {
@@ -106,14 +92,12 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
 
-      case MessageType.TIMER: {
-        const dto = toCamelCase<TimerMessageDTO>(rawPayload);
+      case AuctionMessageType.TIMER: {
         setState((prev) => (prev ? { ...prev, timer: dto.timer } : null));
         break;
       }
 
-      case MessageType.BID_PLACED: {
-        const dto = toCamelCase<BidPlacedMessageDTO>(rawPayload);
+      case AuctionMessageType.BID_PLACED: {
         setError(null);
         setState((prev) => {
           if (!prev) return prev;
@@ -128,8 +112,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
 
-      case MessageType.STATUS: {
-        const dto = toCamelCase<StatusMessageDTO>(rawPayload);
+      case AuctionMessageType.STATUS: {
         setState((prev) =>
           prev
             ? {
@@ -150,8 +133,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         break;
       }
 
-      case MessageType.ERROR: {
-        const dto = toCamelCase<ErrorMessageDTO>(rawPayload);
+      case AuctionMessageType.ERROR: {
         const code = dto?.code;
         if (typeof code === "number" && mountedRef.current) {
           setError(new WSError({ code }));
@@ -182,13 +164,22 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
     ws.onopen = () => {
       if (mountedRef.current) {
+        const auth_payload_result = AuthPayloadSchema.safeParse({
+          token: token,
+        });
+        if (!auth_payload_result.success) {
+          console.error(
+            "Invalid AUTH payload",
+            auth_payload_result.error.flatten(),
+          );
+          return;
+        }
+
         ws.send(
           JSON.stringify({
-            type: MessageType.AUTH,
-            payload: {
-              token: token,
-            },
-          } satisfies AuctionMessageDTO<{ token: string | null }>),
+            type: AuctionMessageType.AUTH,
+            payload: auth_payload_result.data,
+          } satisfies AuctionMessageEnvelopeDTO<{ token: string | null }>),
         );
         opened = true;
         setIsConnected(true);
@@ -198,7 +189,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
     ws.onmessage = (event) => {
       try {
-        const message = JSON.parse(event.data) as AuctionMessageDTO;
+        const message = JSON.parse(event.data) as AuctionMessageEnvelopeDTO;
         if (mountedRef.current) {
           handleWebSocketMessage(message);
         }
@@ -238,11 +229,20 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       return;
     }
 
-    const message: AuctionMessageDTO<{ amount: number }> = {
-      type: MessageType.PLACE_BID,
-      payload: {
-        amount: amount,
-      },
+    const place_bid_payload_result = PlaceBidPayloadSchema.safeParse({
+      amount: amount,
+    });
+    if (!place_bid_payload_result.success) {
+      console.error(
+        "Invalid PLACE_BID payload",
+        place_bid_payload_result.error.flatten(),
+      );
+      return;
+    }
+
+    const message: AuctionMessageEnvelopeDTO<{ amount: number }> = {
+      type: AuctionMessageType.PLACE_BID,
+      payload: place_bid_payload_result.data,
     };
 
     wsRef.current.send(JSON.stringify(message));

@@ -1,12 +1,8 @@
-import asyncio
-import json
-
 from fastapi import WebSocket
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction import (
-    AuctionMessageEnvelopeDTO,
-    MessageType,
+    AuthPayloadDTO,
     PlaceBidPayloadDTO,
 )
 from shared.repositories.preset_member_repository import PresetMemberRepository
@@ -14,7 +10,6 @@ from shared.utils.error import (
     AuctionErrorCode,
     AuthErrorCode,
     TokenError,
-    ValidationErrorCode,
     WSError,
 )
 from shared.utils.service import ws_service
@@ -24,9 +19,10 @@ from ..utils.token import AccessToken
 
 
 @ws_service
-async def connect_auction_ws_service(
+async def connect_service(
     ws: WebSocket,
     auction_id: int,
+    auth_payload_dto: AuthPayloadDTO,
     session: AsyncSession,
     event: dict,
 ) -> tuple[Auction, int | None, int | None]:
@@ -35,28 +31,7 @@ async def connect_auction_ws_service(
     if not auction:
         raise WSError(AuctionErrorCode.NotFound)
 
-    await ws.accept()
-
-    try:
-        auth_message_raw = json.loads(
-            await asyncio.wait_for(ws.receive_text(), timeout=10)
-        )
-        auth_message_envelope_dto = AuctionMessageEnvelopeDTO.model_validate(
-            auth_message_raw
-        )
-    except Exception:
-        raise WSError(AuthErrorCode.Unauthorized) from None
-
-    if auth_message_envelope_dto.type != MessageType.AUTH:
-        raise WSError(AuthErrorCode.Unauthorized)
-
-    auth_payload_data = auth_message_envelope_dto.payload
-    if not isinstance(auth_payload_data, dict):
-        raise WSError(AuthErrorCode.Unauthorized)
-
-    token = auth_payload_data.get("token")
-    if token is not None and not isinstance(token, str):
-        raise WSError(AuthErrorCode.Unauthorized)
+    token = auth_payload_dto.token
 
     member_id: int | None = None
     if token:
@@ -88,39 +63,22 @@ async def connect_auction_ws_service(
 
 
 @ws_service
-async def handle_auction_ws_service(
+async def place_bid_service(
     auction: Auction,
     member_id: int | None,
-    message: dict,
+    place_bid_payload_dto: PlaceBidPayloadDTO,
     event: dict,
 ) -> None:
-    try:
-        message_envelope_dto = AuctionMessageEnvelopeDTO.model_validate(message)
-    except Exception:
-        raise WSError(ValidationErrorCode.Invalid) from None
+    if member_id is None:
+        raise WSError(AuthErrorCode.Unauthorized)
 
-    message_type = message_envelope_dto.type
+    await auction.place_bid(member_id, place_bid_payload_dto.amount)
 
-    if message_type == MessageType.PLACE_BID:
-        if member_id is None:
-            raise WSError(AuthErrorCode.Unauthorized)
-
-        bid_payload_data = message_envelope_dto.payload or {}
-        try:
-            bid_payload_dto = PlaceBidPayloadDTO.model_validate(bid_payload_data)
-        except Exception:
-            raise WSError(ValidationErrorCode.Invalid) from None
-
-        await auction.place_bid(member_id, bid_payload_dto.amount)
-
-        event |= {"member_id": member_id, "amount": bid_payload_dto.amount}
-
-    else:
-        raise WSError(ValidationErrorCode.Invalid)
+    event |= {"member_id": member_id, "amount": place_bid_payload_dto.amount}
 
 
 @ws_service
-async def disconnect_auction_ws_service(
+async def disconnect_service(
     auction: Auction,
     member_id: int | None,
     ws: WebSocket,

@@ -1,7 +1,9 @@
 import functools
 import inspect
+from json import JSONDecodeError
 
 from loguru import logger
+from pydantic import ValidationError
 
 from .error import HTTPError, UnexpectedErrorCode, WSError
 
@@ -49,6 +51,8 @@ def ws_service(func):
             return result
         except WSError as error:
             error.function = func.__name__
+            raise
+        except (ValidationError, JSONDecodeError):
             raise
         except Exception as error:
             ws_error = WSError(UnexpectedErrorCode.Internal)

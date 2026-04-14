@@ -16,7 +16,7 @@ from shared.dtos.auction import (
     MemberDisconnectedPayloadDTO,
     MemberSoldPayloadDTO,
     MemberUnsoldPayloadDTO,
-    MessageType,
+    AuctionMessageType,
     NextMemberPayloadDTO,
     StatusPayloadDTO,
     TimerPayloadDTO,
@@ -124,7 +124,7 @@ class Auction:
 
         if is_new:
             await self._broadcast(
-                MessageType.MEMBER_CONNECTED,
+                AuctionMessageType.MEMBER_CONNECTED,
                 MemberConnectedPayloadDTO(member_id=member_id),
             )
 
@@ -162,7 +162,7 @@ class Auction:
             return
 
         await self._broadcast(
-            MessageType.MEMBER_DISCONNECTED,
+            AuctionMessageType.MEMBER_DISCONNECTED,
             MemberDisconnectedPayloadDTO(member_id=member_id),
         )
 
@@ -174,7 +174,7 @@ class Auction:
 
     async def _broadcast(
         self,
-        message_type: MessageType,
+        message_type: AuctionMessageType,
         message_payload_dto: BaseDTO,
     ) -> None:
         ws_list: list[WebSocket] = []
@@ -236,7 +236,7 @@ class Auction:
             self.status = new_status
 
         await self._broadcast(
-            MessageType.STATUS, StatusPayloadDTO(status=int(self.status))
+            AuctionMessageType.STATUS, StatusPayloadDTO(status=int(self.status))
         )
 
         if next_member:
@@ -252,7 +252,7 @@ class Auction:
         self._timer_task = asyncio.create_task(self._timer())
 
     async def _next_member(self) -> None:
-        message: tuple[MessageType, BaseDTO] | None = None
+        message: tuple[AuctionMessageType, BaseDTO] | None = None
         completed = False
         start_timer = False
 
@@ -281,7 +281,7 @@ class Auction:
                 self.unsold_queue = []
                 incomplete_team.member_ids.extend(remaining_members)
                 message = (
-                    MessageType.MEMBER_SOLD,
+                    AuctionMessageType.MEMBER_SOLD,
                     MemberSoldPayloadDTO(
                         teams=self.teams,
                         auction_queue=[],
@@ -299,7 +299,7 @@ class Auction:
                     self.current_bid = None
                     self.timer = self.preset_snapshot.timer
                     message = (
-                        MessageType.NEXT_MEMBER,
+                        AuctionMessageType.NEXT_MEMBER,
                         NextMemberPayloadDTO(
                             member_id=self.current_member_id,
                             auction_queue=self.auction_queue[:],
@@ -324,20 +324,20 @@ class Auction:
         try:
             while self.timer > 0:
                 await self._broadcast(
-                    MessageType.TIMER,
+                    AuctionMessageType.TIMER,
                     TimerPayloadDTO(timer=self.timer),
                 )
 
                 await asyncio.sleep(1)
                 self.timer -= 1
 
-            message: tuple[MessageType, BaseDTO] | None = None
+            message: tuple[AuctionMessageType, BaseDTO] | None = None
             async with self._state_lock:
                 if self.current_bid is None:
                     if self.current_member_id is not None:
                         self.unsold_queue.append(self.current_member_id)
                         message = (
-                            MessageType.MEMBER_UNSOLD,
+                            AuctionMessageType.MEMBER_UNSOLD,
                             MemberUnsoldPayloadDTO(member_id=self.current_member_id),
                         )
                 else:
@@ -345,7 +345,7 @@ class Auction:
                     team.points -= self.current_bid.amount
                     team.member_ids.append(self.current_member_id)
                     message = (
-                        MessageType.MEMBER_SOLD,
+                        AuctionMessageType.MEMBER_SOLD,
                         MemberSoldPayloadDTO(
                             teams=self.teams,
                             auction_queue=self.auction_queue[:],
@@ -361,7 +361,7 @@ class Auction:
             pass
 
     async def place_bid(self, leader_id: int, amount: int) -> None:
-        message: tuple[MessageType, BaseDTO] | None = None
+        message: tuple[AuctionMessageType, BaseDTO] | None = None
         async with self._state_lock:
             if self.status != Auction.Status.RUNNING:
                 return
@@ -387,7 +387,7 @@ class Auction:
                 raise WSError(BidErrorCode.TooLow)
             self.current_bid = Bid(amount=amount, leader_id=leader_id)
             message = (
-                MessageType.BID_PLACED,
+                AuctionMessageType.BID_PLACED,
                 BidPlacedPayloadDTO(
                     leader_id=leader_id,
                     amount=amount,

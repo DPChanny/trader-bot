@@ -79,8 +79,8 @@ async def update_preset_service(
     if preset is None:
         raise HTTPError(PresetErrorCode.NotFound)
 
-    for key, value in dto.model_dump(exclude_unset=True).items():
-        setattr(preset, key, value)
+    for key in dto.model_fields_set:
+        setattr(preset, key, getattr(dto, key))
 
     result = PresetDTO.model_validate(preset)
     event |= result.model_dump()

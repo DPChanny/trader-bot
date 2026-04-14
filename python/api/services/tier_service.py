@@ -90,8 +90,8 @@ async def update_tier_service(
     if tier is None:
         raise HTTPError(TierErrorCode.NotFound)
 
-    for key, value in dto.model_dump(exclude_unset=True).items():
-        setattr(tier, key, value)
+    for key in dto.model_fields_set:
+        setattr(tier, key, getattr(dto, key))
 
     result = TierDTO.model_validate(tier)
     event |= result.model_dump()

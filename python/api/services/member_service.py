@@ -56,11 +56,13 @@ async def update_member_service(
     member = await member_repo.get_by_id(member_id, guild_id)
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
-    if member.role == Role.OWNER or dto.role == Role.OWNER:
+    if member.role == Role.OWNER or (
+        "role" in dto.model_fields_set and dto.role == Role.OWNER
+    ):
         raise HTTPError(MemberErrorCode.ForbiddenRole)
 
-    for key, value in dto.model_dump(exclude_unset=True).items():
-        setattr(member, key, value)
+    for key in dto.model_fields_set:
+        setattr(member, key, getattr(dto, key))
 
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:

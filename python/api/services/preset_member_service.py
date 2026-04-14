@@ -125,7 +125,8 @@ async def update_preset_member_service(
         raise HTTPError(PresetMemberErrorCode.NotFound)
 
     tier_repo = TierRepository(session)
-    for key, value in dto.model_dump(exclude_unset=True).items():
+    for key in dto.model_fields_set:
+        value = getattr(dto, key)
         if key == "tier_id" and value is not None:
             tier = await tier_repo.get_by_id(value, preset_id, guild_id)
             if tier is None:
