@@ -85,7 +85,7 @@ export function UpdatePresetModal({
         <LabelInput
           label="프리셋 이름"
           value={name}
-          onChange={setName}
+          onValueChange={setName}
           autoFocus
           required
         />
@@ -94,14 +94,14 @@ export function UpdatePresetModal({
             label="포인트"
             type="number"
             value={displayPoints}
-            onChange={setDisplayPoints}
+            onValueChange={setDisplayPoints}
             required
           />
           <LabelInput
             label="포인트 단위"
             type="number"
             value={pointScale}
-            onChange={setPointScale}
+            onValueChange={setPointScale}
             required
           />
         </ModalRow>
@@ -111,14 +111,14 @@ export function UpdatePresetModal({
             label="타이머 (초)"
             type="number"
             value={timer}
-            onChange={setTimer}
+            onValueChange={setTimer}
             required
           />
           <LabelInput
             label="팀 크기"
             type="number"
             value={teamSize}
-            onChange={setTeamSize}
+            onValueChange={setTeamSize}
             required
           />
         </ModalRow>

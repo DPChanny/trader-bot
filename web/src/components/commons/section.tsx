@@ -1,46 +1,43 @@
 import { Layout, type LayoutProps } from "@/components/commons/layout";
-import type { ComponentChildren } from "preact";
+import { cva } from "class-variance-authority";
+import { clsx } from "clsx";
+import styles from "@/styles/components/commons/section.module.css";
 
 type SectionIntent = "primary" | "secondary" | "tertiary";
 
-interface SectionProps extends Omit<LayoutProps, "surface"> {
-  children?: ComponentChildren;
-  variantIntent?: SectionIntent;
+interface BaseSectionProps extends LayoutProps {
+  variantIntent: SectionIntent;
 }
 
-type SurfaceSectionProps = Omit<SectionProps, "variantIntent">;
+export type SurfaceSectionProps = Omit<BaseSectionProps, "variantIntent">;
 
-export type { SectionProps, SurfaceSectionProps };
+const sectionVariants = cva(styles.section, {
+  variants: {
+    variantIntent: {
+      primary: styles.intentPrimary,
+      secondary: styles.intentSecondary,
+      tertiary: styles.intentTertiary,
+    },
+  },
+});
 
-const surfaceByIntent: Record<
-  SectionIntent,
-  "primary" | "secondary" | "tertiary"
-> = {
-  primary: "primary",
-  secondary: "secondary",
-  tertiary: "tertiary",
-};
-
-export function Section({
-  children,
-  variantIntent = "primary",
-  ...props
-}: SectionProps) {
+function BaseSection({ className, variantIntent, ...props }: BaseSectionProps) {
   return (
-    <Layout surface={surfaceByIntent[variantIntent]} {...props}>
-      {children}
-    </Layout>
+    <Layout
+      className={clsx(sectionVariants({ variantIntent }), className)}
+      {...props}
+    />
   );
 }
 
 export function PrimarySection(props: SurfaceSectionProps) {
-  return <Section variantIntent="primary" {...props} />;
+  return <BaseSection variantIntent="primary" {...props} />;
 }
 
 export function SecondarySection(props: SurfaceSectionProps) {
-  return <Section variantIntent="secondary" {...props} />;
+  return <BaseSection variantIntent="secondary" {...props} />;
 }
 
 export function TertiarySection(props: SurfaceSectionProps) {
-  return <Section variantIntent="tertiary" {...props} />;
+  return <BaseSection variantIntent="tertiary" {...props} />;
 }

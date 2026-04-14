@@ -1,0 +1,30 @@
+﻿.section {
+  border: var(--border-width-default) solid transparent;
+}
+
+.intentPrimary {
+  --layout-gap: var(--gap-lg);
+  background: var(--color-section-primary-bg);
+  color: var(--color-section-primary-text);
+  border-color: var(--color-section-primary-border);
+  border-radius: var(--radius-xl);
+  padding: var(--padding-xl);
+}
+
+.intentSecondary {
+  --layout-gap: var(--gap-sm);
+  background: var(--color-section-secondary-bg);
+  color: var(--color-section-secondary-text);
+  border-color: var(--color-section-secondary-border);
+  border-radius: var(--radius-lg);
+  padding: var(--padding-lg);
+}
+
+.intentTertiary {
+  --layout-gap: var(--gap-xs);
+  background: var(--color-section-tertiary-bg);
+  color: var(--color-section-tertiary-text);
+  border-color: var(--color-section-tertiary-border);
+  border-radius: var(--radius-lg);
+  padding: var(--padding-md);
+}

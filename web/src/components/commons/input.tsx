@@ -27,9 +27,9 @@ const inputVariants = cva(styles.input, {
   },
 });
 
-export type InputProps = Omit<JSX.IntrinsicElements["input"], "onChange"> & {
+export type InputProps = JSX.IntrinsicElements["input"] & {
   value?: string | number;
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
   variantIntent?: VariantProps<typeof inputVariants>["variantIntent"];
   variantTone?: VariantProps<typeof inputVariants>["variantTone"];
   variantSize?: VariantProps<typeof inputVariants>["variantSize"];
@@ -37,7 +37,8 @@ export type InputProps = Omit<JSX.IntrinsicElements["input"], "onChange"> & {
 
 export function Input({
   value,
-  onChange,
+  onValueChange,
+  onInput,
   type = "text",
   className,
   variantIntent,
@@ -55,7 +56,10 @@ export function Input({
     <input
       type={type}
       value={value}
-      onChange={(e) => onChange?.((e.target as HTMLInputElement).value)}
+      onInput={(e) => {
+        onInput?.(e);
+        onValueChange?.((e.currentTarget as HTMLInputElement).value);
+      }}
       className={clsx(baseClass, className)}
       {...props}
     />

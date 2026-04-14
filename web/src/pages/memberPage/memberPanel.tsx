@@ -114,14 +114,14 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
           <LabelInput
             label="별칭"
             value={alias}
-            onChange={setAlias}
+            onValueChange={setAlias}
             placeholder={member.alias || member.name || member.user.name}
             disabled={!canEdit}
           />
           <LabelInput
             label="프로필 링크"
             value={infoUrl}
-            onChange={setInfoUrl}
+            onValueChange={setInfoUrl}
             disabled={!canEdit}
           />
           {infoUrl && (

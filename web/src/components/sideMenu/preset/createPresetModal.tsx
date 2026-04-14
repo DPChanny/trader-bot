@@ -68,7 +68,7 @@ export function CreatePresetModal({
           label="프리셋 이름"
           type="text"
           value={name}
-          onChange={setName}
+          onValueChange={setName}
           required
         />
         <ModalRow>
@@ -77,7 +77,7 @@ export function CreatePresetModal({
             type="number"
             value={points}
             placeholder="1000"
-            onChange={setPoints}
+            onValueChange={setPoints}
             required
           />
           <LabelInput
@@ -85,7 +85,7 @@ export function CreatePresetModal({
             type="number"
             value={pointScale}
             placeholder="5"
-            onChange={setPointScale}
+            onValueChange={setPointScale}
             required
           />
         </ModalRow>
@@ -95,7 +95,7 @@ export function CreatePresetModal({
             type="number"
             value={timer}
             placeholder="15"
-            onChange={setTimer}
+            onValueChange={setTimer}
             required
           />
           <LabelInput
@@ -103,7 +103,7 @@ export function CreatePresetModal({
             type="number"
             value={teamSize}
             placeholder="5"
-            onChange={setTeamSize}
+            onValueChange={setTeamSize}
             required
           />
         </ModalRow>

@@ -228,7 +228,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
                 type="number"
                 placeholder={`입찰 금액 (${pointScale}의 배수)`}
                 value={bidAmount}
-                onChange={(value) => {
+                onValueChange={(value) => {
                   setDismissedError(error);
                   setBidAmount(value);
                 }}

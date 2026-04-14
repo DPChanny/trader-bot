@@ -10,12 +10,6 @@ const layoutVariants = cva(styles.layout, {
       column: styles.directionColumn,
       grid: styles.directionGrid,
     },
-    surface: {
-      none: "",
-      primary: styles.surfacePrimary,
-      secondary: styles.surfaceSecondary,
-      tertiary: styles.surfaceTertiary,
-    },
     gap: {
       none: styles.gapNone,
       xs: styles.gapXs,
@@ -71,7 +65,6 @@ const layoutVariants = cva(styles.layout, {
   },
   defaultVariants: {
     direction: "column",
-    surface: "none",
     padding: "none",
     justify: "start",
     align: "stretch",
@@ -91,7 +84,6 @@ export type LayoutProps = JSX.IntrinsicElements["div"] &
 
 export function Layout({
   direction = "column",
-  surface = "none",
   gap,
   padding = "none",
   justify,
@@ -110,7 +102,6 @@ export function Layout({
       className={clsx(
         layoutVariants({
           direction,
-          surface,
           gap,
           padding,
           justify,

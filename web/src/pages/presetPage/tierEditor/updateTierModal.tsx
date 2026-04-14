@@ -61,14 +61,14 @@ export function UpdateTierModal({
           label="티어 이름"
           type="text"
           value={name}
-          onChange={setName}
+          onValueChange={setName}
           required
         />
         <LabelInput
           label="아이콘 링크"
           type="text"
           value={iconUrl}
-          onChange={setIconUrl}
+          onValueChange={setIconUrl}
         />
         <ModalFooter>
           <SecondaryButton onClick={handleClose} disabled={isPending}>
