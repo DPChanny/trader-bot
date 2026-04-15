@@ -1,4 +1,4 @@
-import { Layout, type LayoutProps } from "@components/atoms/layout";
+import { Layout, type LayoutProps } from "../atoms/layout";
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@styles/components/molecules/section.module.css";

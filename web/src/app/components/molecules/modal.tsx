@@ -1,8 +1,8 @@
 import { createPortal } from "preact/compat";
 import { clsx } from "clsx";
-import { Bar } from "@components/atoms/bar";
-import { Column, Fill, Row } from "@components/atoms/layout";
-import { PrimarySection } from "@components/molecules/section";
+import { Bar } from "../atoms/bar";
+import { Column, Fill, Row } from "../atoms/layout";
+import { PrimarySection } from "./section";
 import styles from "@styles/components/molecules/modal.module.css";
 import type { JSX } from "preact";
 

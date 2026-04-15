@@ -1,6 +1,6 @@
 import { route } from "preact-router";
-import { removeAccessToken, removeRefreshToken } from "@utils/auth";
-import { queryClient, queryKeys } from "@utils/query";
+import { removeAccessToken, removeRefreshToken } from "./auth";
+import { queryClient, queryKeys } from "./query";
 
 export const AuthErrorCode = {
   Unauthorized: 4101,

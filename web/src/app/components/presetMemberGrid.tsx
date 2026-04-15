@@ -1,6 +1,6 @@
 import { PresetMemberCard } from "./presetMemberCard";
-import { PressedButton } from "@components/atoms/button";
-import { Row, Scroll } from "@components/atoms/layout";
+import { PressedButton } from "./atoms/button";
+import { Row, Scroll } from "./atoms/layout";
 import styles from "@styles/components/memberGrid.module.css";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 

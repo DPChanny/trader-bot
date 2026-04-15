@@ -1,9 +1,9 @@
 import { clsx } from "clsx";
 import styles from "@styles/components/memberCard.module.css";
-import { Card, type CardProps } from "@components/atoms/card";
-import { Badge } from "@components/molecules/badge";
-import { Image } from "@components/atoms/image";
-import { Column } from "@components/atoms/layout";
+import { Card, type CardProps } from "./atoms/card";
+import { Badge } from "./molecules/badge";
+import { Image } from "./atoms/image";
+import { Column } from "./atoms/layout";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
 export type PresetMemberCardProps = Omit<CardProps, "children"> & {

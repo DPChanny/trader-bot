@@ -1,4 +1,4 @@
-import { Column } from "@components/atoms/layout";
+import { Column } from "../atoms/layout";
 import { useState } from "preact/hooks";
 import styles from "@styles/components/molecules/error.module.css";
 import { clsx } from "clsx";

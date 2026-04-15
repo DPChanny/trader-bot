@@ -1,6 +1,6 @@
 import { MemberCard } from "./memberCard";
-import { PressedButton } from "@components/atoms/button";
-import { Row, Scroll } from "@components/atoms/layout";
+import { PressedButton } from "./atoms/button";
+import { Row, Scroll } from "./atoms/layout";
 import styles from "@styles/components/memberGrid.module.css";
 import type { MemberDetailDTO } from "@dtos/member";
 

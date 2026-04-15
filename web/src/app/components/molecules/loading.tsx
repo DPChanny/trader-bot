@@ -1,4 +1,4 @@
-import { Column, Fill, type LayoutProps } from "@components/atoms/layout";
+import { Column, Fill, type LayoutProps } from "../atoms/layout";
 import styles from "@styles/components/molecules/loading.module.css";
 
 export type LoadingProps = Omit<LayoutProps, "children">;

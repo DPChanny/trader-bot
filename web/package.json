@@ -25,7 +25,6 @@
     "postcss": "latest",
     "typed-css-modules": "latest",
     "typescript": "latest",
-    "vite": "latest",
-    "vite-tsconfig-paths": "latest"
+    "vite": "latest"
   }
 }
