@@ -13,7 +13,6 @@ import {
   SecondarySection,
   TertiarySection,
 } from "@components/molecules/section";
-import { Column, Row } from "@components/atoms/layout";
 import { Title } from "@components/atoms/text";
 
 interface PresetMemberEditorProps {

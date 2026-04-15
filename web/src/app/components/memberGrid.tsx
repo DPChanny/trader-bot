@@ -21,7 +21,7 @@ export function MemberGrid({
   return (
     <TertiarySection fill>
       <Scroll axis="both">
-        <Row wrap gap="md" align="start" className={className}>
+        <Row wrap className={className}>
           {members.map((member) => {
             const isSelected = selectedMemberId === member.memberId;
 
