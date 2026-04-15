@@ -34,7 +34,7 @@ export function TeamCard({
   return (
     <Card variantColor={resolvedVariantColor} {...props}>
       <Column>
-        <Row gap="sm" justify="between" align="center">
+        <Row justify="between">
           <Name>{teamName}</Name>
           <Text variantWeight="bold">{team.points * pointScale} 포인트</Text>
         </Row>

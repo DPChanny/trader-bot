@@ -57,28 +57,26 @@ export function PresetMemberCard({
           variantContent="avatar"
           variantSize="large"
         />
-        <Column gap="xs" align="center">
-          <Name variantSize="small">
-            {member.alias || member.name || member.user.name}
-          </Name>
-          {presetMemberPositions?.length > 0 && (
-            <Row wrap align="center" justify="center" gap="xs">
-              {presetMemberPositions.slice(0, 3).map((pmp) => (
-                <Badge key={pmp.positionId} variantColor="blue">
-                  {pmp.position.iconUrl ? (
-                    <Image
-                      src={pmp.position.iconUrl}
-                      alt={pmp.position.name}
-                      variantSize="auto"
-                    />
-                  ) : (
-                    pmp.position.name.charAt(0)
-                  )}
-                </Badge>
-              ))}
-            </Row>
-          )}
-        </Column>
+        <Name variantSize="small">
+          {member.alias || member.name || member.user.name}
+        </Name>
+        {presetMemberPositions?.length > 0 && (
+          <Row wrap align="center" justify="center" gap="xs">
+            {presetMemberPositions.slice(0, 3).map((pmp) => (
+              <Badge key={pmp.positionId} variantColor="blue">
+                {pmp.position.iconUrl ? (
+                  <Image
+                    src={pmp.position.iconUrl}
+                    alt={pmp.position.name}
+                    variantSize="auto"
+                  />
+                ) : (
+                  pmp.position.name.charAt(0)
+                )}
+              </Badge>
+            ))}
+          </Row>
+        )}
       </Fill>
     </Card>
   );

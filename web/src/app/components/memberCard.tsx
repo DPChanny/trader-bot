@@ -37,9 +37,7 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
           variantContent="avatar"
           variantSize="large"
         />
-        <Column gap="xs" align="center">
-          <Name variantSize="small">{displayName}</Name>
-        </Column>
+        <Name variantSize="small">{displayName}</Name>
       </Fill>
     </Card>
   );
