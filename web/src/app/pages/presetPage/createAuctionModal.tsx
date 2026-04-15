@@ -3,6 +3,7 @@ import { Modal, ModalFooter } from "@components/molecules/modal";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { SecondaryButton, Button } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
+import { SecondarySection } from "@components/molecules/section";
 import type { CreateAuctionDTO } from "@dtos/auction";
 
 interface CreateAuctionModalProps {
@@ -32,24 +33,26 @@ export function CreateAuctionModal({
 
   return (
     <Modal onClose={handleClose} title="경매 생성">
-      {message && <ErrorMessage>{message}</ErrorMessage>}
-      {error && (
-        <ErrorMessage error={error}>경매를 생성하지 못했습니다.</ErrorMessage>
-      )}
-      <LabelToggle
-        label="퍼블릭 허용"
-        isPressed={isPublic}
-        onClick={() => setIsPublic((v) => !v)}
-      >
-        {isPublic ? "허용" : "비허용"}
-      </LabelToggle>
-      <LabelToggle
-        label="초대 발송"
-        isPressed={sendInvite}
-        onClick={() => setSendInvite((v) => !v)}
-      >
-        {sendInvite ? "발송" : "미발송"}
-      </LabelToggle>
+      <SecondarySection>
+        {message && <ErrorMessage>{message}</ErrorMessage>}
+        {error && (
+          <ErrorMessage error={error}>경매를 생성하지 못했습니다.</ErrorMessage>
+        )}
+        <LabelToggle
+          label="퍼블릭 허용"
+          isPressed={isPublic}
+          onClick={() => setIsPublic((v) => !v)}
+        >
+          {isPublic ? "허용" : "비허용"}
+        </LabelToggle>
+        <LabelToggle
+          label="초대 발송"
+          isPressed={sendInvite}
+          onClick={() => setSendInvite((v) => !v)}
+        >
+          {sendInvite ? "발송" : "미발송"}
+        </LabelToggle>
+      </SecondarySection>
       <ModalFooter>
         <SecondaryButton
           type="button"

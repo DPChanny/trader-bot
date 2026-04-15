@@ -1,6 +1,7 @@
 import { Modal, ModalFooter } from "@components/molecules/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
+import { SecondarySection } from "@components/molecules/section";
 
 interface DeletePositionModalProps {
   onClose: () => void;
@@ -22,10 +23,14 @@ export function DeletePositionModal({
 
   return (
     <Modal onClose={handleClose} title="포지션 삭제">
-      정말 이 포지션을 삭제하시겠습니까?
-      {error && (
-        <ErrorMessage error={error}>포지션을 삭제하지 못했습니다.</ErrorMessage>
-      )}
+      <SecondarySection>
+        정말 이 포지션을 삭제하시겠습니까?
+        {error && (
+          <ErrorMessage error={error}>
+            포지션을 삭제하지 못했습니다.
+          </ErrorMessage>
+        )}
+      </SecondarySection>
       <ModalFooter>
         <SecondaryButton
           type="button"

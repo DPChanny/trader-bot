@@ -213,7 +213,7 @@ export function PresetMemberPanel({
               presetMember.member.name ||
               presetMember.member.user.name}
           </NameTitle>
-          <Row gap="sm">
+          <Row gap="sm" align="center">
             {canEdit && (
               <SaveButton
                 onClick={handleSave}

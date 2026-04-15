@@ -2,7 +2,7 @@ import { createPortal } from "preact/compat";
 import { clsx } from "clsx";
 import { Column, Fill, Row } from "../atoms/layout";
 import { Title } from "../atoms/text";
-import { PrimarySection, SecondarySection } from "./section";
+import { PrimarySection } from "./section";
 import styles from "@styles/components/molecules/modal.module.css";
 import type { JSX } from "preact";
 
@@ -23,7 +23,7 @@ export function Modal({ onClose, title, children, className }: ModalProps) {
           onClick={(e) => e.stopPropagation()}
         >
           <Title>{title}</Title>
-          <SecondarySection>{children}</SecondarySection>
+          {children}
         </PrimarySection>
       </Fill>
     </Fill>
@@ -36,14 +36,18 @@ export interface ModalFormProps {
   onSubmit: (e: Event) => void;
   children: JSX.Element | JSX.Element[] | (JSX.Element | null | undefined)[];
   className?: string;
+  id?: string;
 }
 
-export function ModalForm({ onSubmit, children, className }: ModalFormProps) {
+export function ModalForm({
+  onSubmit,
+  children,
+  className,
+  id,
+}: ModalFormProps) {
   return (
-    <form onSubmit={onSubmit}>
-      <Column gap="sm" className={className}>
-        {children}
-      </Column>
+    <form id={id} onSubmit={onSubmit}>
+      <Column className={className}>{children}</Column>
     </form>
   );
 }
@@ -55,7 +59,7 @@ export interface ModalRowProps {
 
 export function ModalRow({ children, className }: ModalRowProps) {
   return (
-    <Row gap="sm" className={clsx(styles.row, className)}>
+    <Row align="center" className={clsx(styles.row, className)}>
       {children}
     </Row>
   );
@@ -68,7 +72,7 @@ export interface ModalFooterProps {
 
 export function ModalFooter({ children, className }: ModalFooterProps) {
   return (
-    <Row gap="sm" justify="end" className={className}>
+    <Row align="center" justify="end" className={className}>
       {children}
     </Row>
   );

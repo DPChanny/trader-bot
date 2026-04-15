@@ -32,7 +32,7 @@ export function TeamCard({
   const resolvedVariantColor = variantColor ?? (isFull ? "green" : "blue");
 
   return (
-    <Card variantColor={resolvedVariantColor} gap="sm" {...props}>
+    <Card variantColor={resolvedVariantColor} {...props}>
       <Row justify="between" align="center">
         <Name>{teamName}</Name>
         <Text variantWeight="bold">{team.points * pointScale} 포인트</Text>

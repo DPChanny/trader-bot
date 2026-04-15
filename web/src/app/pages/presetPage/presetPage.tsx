@@ -132,9 +132,9 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
             프리셋을 불러오지 못했습니다.
           </ErrorMessage>
         ) : (
-          <Row justify="between">
+          <Row justify="between" align="center">
             <NameTitle>{preset ? preset.name : "?"}</NameTitle>
-            <Row gap="sm">
+            <Row gap="sm" align="center">
               {canEdit && (
                 <EditButton
                   variantSize="medium"
@@ -159,7 +159,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
           </ErrorMessage>
         ) : preset ? (
           <SecondarySection>
-            <Row justify="between">
+            <Row justify="between" align="center">
               <Text>{teamSize} 명</Text>
               <Text>
                 {preset.points * preset.pointScale} / {preset.pointScale} 포인트
@@ -169,7 +169,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
           </SecondarySection>
         ) : (
           <SecondarySection>
-            <Row justify="between">
+            <Row justify="between" align="center">
               <Text>? 명</Text>
               <Text>? / ? 포인트</Text>
               <Text>? 초</Text>

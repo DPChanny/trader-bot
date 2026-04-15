@@ -75,22 +75,18 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
 
   return (
     <PrimarySection minSize style={{ width: "24rem" }}>
-      <Column>
-        <Row>
-          <Fill>
-            <NameTitle>{member.alias || member.user.name}</NameTitle>
-          </Fill>
-          <Row gap="sm">
-            {canEdit && (
-              <SaveButton
-                onClick={handleSave}
-                disabled={updateMember.isPending || !hasChanges || !isFormValid}
-              />
-            )}
-            <CloseButton onClick={onClose} />
-          </Row>
+      <Row justify="between" align="center">
+        <NameTitle>{member.alias || member.user.name}</NameTitle>
+        <Row gap="sm" align="center">
+          {canEdit && (
+            <SaveButton
+              onClick={handleSave}
+              disabled={updateMember.isPending || !hasChanges || !isFormValid}
+            />
+          )}
+          <CloseButton onClick={onClose} />
         </Row>
-      </Column>
+      </Row>
 
       {updateMember.isError && (
         <ErrorMessage error={updateMember.error}>

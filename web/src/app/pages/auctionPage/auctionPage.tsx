@@ -11,7 +11,7 @@ import { Column, FlexItem, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { ErrorMessage } from "@components/molecules/errorMessage";
-import { Modal } from "@components/molecules/modal";
+import { Modal, ModalFooter } from "@components/molecules/modal";
 import { PrimaryButton } from "@components/atoms/button";
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberCard } from "@components/presetMemberCard";
@@ -218,14 +218,16 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     <Page>
       {runtimeError && (
         <Modal onClose={handleCloseRuntimeErrorModal} title="경매 오류">
-          <Column gap="sm">
+          <SecondarySection>
             <ErrorMessage error={runtimeError}>
               {AUCTION_RUNTIME_ERROR_MESSAGE}
             </ErrorMessage>
+          </SecondarySection>
+          <ModalFooter>
             <PrimaryButton type="button" onClick={handleCloseRuntimeErrorModal}>
               확인
             </PrimaryButton>
-          </Column>
+          </ModalFooter>
         </Modal>
       )}
 

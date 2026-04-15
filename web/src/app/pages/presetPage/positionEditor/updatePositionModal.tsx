@@ -3,6 +3,7 @@ import { Modal, ModalFooter, ModalForm } from "@components/molecules/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
+import { SecondarySection } from "@components/molecules/section";
 import {
   UpdatePositionSchema,
   type PositionDTO,
@@ -39,6 +40,7 @@ export function UpdatePositionModal({
     ? buildPatchDto(parseResult.data, position)
     : null;
   const hasChanges = patchDto !== null;
+  const formId = "update-position-form";
 
   const handleClose = () => {
     if (isPending) return;
@@ -53,37 +55,40 @@ export function UpdatePositionModal({
 
   return (
     <Modal onClose={handleClose} title="포지션 수정">
-      <ModalForm onSubmit={handleSubmit}>
-        {error ? (
-          <ErrorMessage error={error}>
-            포지션을 수정하지 못했습니다.
-          </ErrorMessage>
-        ) : null}
-        <LabelInput
-          label="포지션 이름"
-          type="text"
-          value={name}
-          onValueChange={setName}
-          required
-        />
-        <LabelInput
-          label="아이콘 링크"
-          type="text"
-          value={iconUrl}
-          onValueChange={setIconUrl}
-        />
-        <ModalFooter>
-          <SecondaryButton onClick={handleClose} disabled={isPending}>
-            취소
-          </SecondaryButton>
-          <PrimaryButton
-            type="submit"
-            disabled={isPending || !isFormValid || !hasChanges}
-          >
-            저장
-          </PrimaryButton>
-        </ModalFooter>
-      </ModalForm>
+      <SecondarySection>
+        <ModalForm id={formId} onSubmit={handleSubmit}>
+          {error ? (
+            <ErrorMessage error={error}>
+              포지션을 수정하지 못했습니다.
+            </ErrorMessage>
+          ) : null}
+          <LabelInput
+            label="포지션 이름"
+            type="text"
+            value={name}
+            onValueChange={setName}
+            required
+          />
+          <LabelInput
+            label="아이콘 링크"
+            type="text"
+            value={iconUrl}
+            onValueChange={setIconUrl}
+          />
+        </ModalForm>
+      </SecondarySection>
+      <ModalFooter>
+        <SecondaryButton onClick={handleClose} disabled={isPending}>
+          취소
+        </SecondaryButton>
+        <PrimaryButton
+          type="submit"
+          form={formId}
+          disabled={isPending || !isFormValid || !hasChanges}
+        >
+          저장
+        </PrimaryButton>
+      </ModalFooter>
     </Modal>
   );
 }
