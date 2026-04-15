@@ -39,7 +39,6 @@ export function TeamCard({
       </Row>
       <PresetMemberGrid
         presetMembers={members}
-        onMemberClick={() => {}}
         connectedMemberIds={connectedMemberIds}
         clientMemberId={clientMemberId}
       />

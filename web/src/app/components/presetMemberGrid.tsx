@@ -8,7 +8,7 @@ import { TertiarySection } from "./molecules/section";
 interface PresetMemberGridProps {
   presetMembers: PresetMemberDetailDTO[];
   selectedMemberId?: number | null;
-  onMemberClick: (presetMemberId: number) => void;
+  onMemberClick?: (presetMemberId: number) => void;
   className?: string;
   connectedMemberIds?: number[];
   clientMemberId?: number;
@@ -36,10 +36,14 @@ export function PresetMemberGrid({
             return (
               <PressedButton
                 key={presetMember.presetMemberId}
-                type="button"
                 className={styles.gridButton}
-                onClick={() => onMemberClick(presetMember.presetMemberId)}
+                onClick={
+                  onMemberClick
+                    ? () => onMemberClick(presetMember.presetMemberId)
+                    : undefined
+                }
                 isPressed={isSelected}
+                disabled={!onMemberClick}
               >
                 <PresetMemberCard
                   presetMember={presetMember}

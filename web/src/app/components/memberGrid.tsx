@@ -28,7 +28,6 @@ export function MemberGrid({
             return (
               <PressedButton
                 key={member.memberId}
-                type="button"
                 className={styles.gridButton}
                 onClick={
                   onMemberClick

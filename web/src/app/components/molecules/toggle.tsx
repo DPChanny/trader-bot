@@ -25,14 +25,12 @@ export function Toggle({
   isPressed = false,
   variantColor,
   className,
-  type = "button",
   ...props
 }: ToggleProps) {
   const baseClass = toggleVariants({ variantColor });
 
   return (
     <PressedButton
-      type={type}
       isPressed={isPressed}
       className={clsx(baseClass, className)}
       {...props}

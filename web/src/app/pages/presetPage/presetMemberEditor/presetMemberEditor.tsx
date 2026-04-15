@@ -182,9 +182,9 @@ export function PresetMemberEditor({
         <PresetMemberPanel
           key={selectedPresetMember.presetMemberId}
           presetMember={selectedPresetMember}
-          setSelectedPresetMemberId={setSelectedPresetMemberId}
-          addMemberIdToRemoving={addMemberIdToRemoving}
-          removeMemberIdFromRemoving={removeMemberIdFromRemoving}
+          onClose={() => setSelectedPresetMemberId(null)}
+          onRemoveStart={addMemberIdToRemoving}
+          onRemoveRollback={removeMemberIdFromRemoving}
         />
       )}
     </>

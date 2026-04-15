@@ -316,7 +316,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             <Title>경매 순서</Title>
             <PresetMemberGrid
               presetMembers={auctionQueuePresetMembers}
-              onMemberClick={() => {}}
               clientMemberId={memberId ?? undefined}
               connectedMemberIds={connectedMemberIds}
             />
@@ -326,7 +325,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             <Title>유찰 목록</Title>
             <PresetMemberGrid
               presetMembers={unsoldQueuePresetMembers}
-              onMemberClick={() => {}}
               clientMemberId={memberId ?? undefined}
               connectedMemberIds={connectedMemberIds}
             />

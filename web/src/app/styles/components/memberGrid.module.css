@@ -2,7 +2,12 @@
   appearance: none;
   background: none;
   border: none;
-  padding: 0;
+}
+
+.gridButton:not(:disabled) {
   cursor: pointer;
-  text-align: left;
+}
+
+.gridButton:disabled {
+  cursor: default;
 }

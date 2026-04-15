@@ -33,31 +33,27 @@ const buttonVariants = cva(styles.button, {
   },
 });
 
-export type PressedButtonProps = JSX.IntrinsicElements["button"] & {
+type PressableButtonProps = Omit<
+  JSX.IntrinsicElements["button"],
+  "aria-pressed"
+> & {
   isPressed?: boolean;
 };
 
-export type ButtonProps = PressedButtonProps & {
+export type PressedButtonProps = Omit<PressableButtonProps, "type">;
+
+export type ButtonProps = Omit<
+  JSX.IntrinsicElements["button"],
+  "aria-pressed"
+> & {
   variantIntent?: VariantProps<typeof buttonVariants>["variantIntent"];
   variantTone?: VariantProps<typeof buttonVariants>["variantTone"];
   variantSize?: VariantProps<typeof buttonVariants>["variantSize"];
   variantContent?: VariantProps<typeof buttonVariants>["variantContent"];
 };
 
-export function PressedButton({
-  type = "button",
-  isPressed,
-  className,
-  ...props
-}: PressedButtonProps) {
-  return (
-    <button
-      type={type}
-      className={className}
-      aria-pressed={isPressed}
-      {...props}
-    />
-  );
+export function PressedButton({ isPressed, ...props }: PressedButtonProps) {
+  return <button type="button" aria-pressed={isPressed} {...props} />;
 }
 
 export function Button({
@@ -67,7 +63,6 @@ export function Button({
   variantSize,
   variantContent,
   type = "button",
-  isPressed,
   ...props
 }: ButtonProps) {
   const baseClass = buttonVariants({
@@ -78,12 +73,7 @@ export function Button({
   });
 
   return (
-    <PressedButton
-      type={type}
-      isPressed={isPressed}
-      className={clsx(baseClass, className)}
-      {...props}
-    />
+    <button type={type} className={clsx(baseClass, className)} {...props} />
   );
 }
 

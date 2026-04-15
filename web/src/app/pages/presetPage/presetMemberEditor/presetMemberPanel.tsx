@@ -29,16 +29,16 @@ import { buildPatchDto } from "@utils/dto";
 
 interface PresetMemberPanelProps {
   presetMember: PresetMemberDetailDTO;
-  setSelectedPresetMemberId: (id: number | null) => void;
-  addMemberIdToRemoving: (memberId: number) => void;
-  removeMemberIdFromRemoving: (memberId: number) => void;
+  onClose: () => void;
+  onRemoveStart: (memberId: number) => void;
+  onRemoveRollback: (memberId: number) => void;
 }
 
 export function PresetMemberPanel({
   presetMember,
-  setSelectedPresetMemberId,
-  addMemberIdToRemoving,
-  removeMemberIdFromRemoving,
+  onClose,
+  onRemoveStart,
+  onRemoveRollback,
 }: PresetMemberPanelProps) {
   const updatePresetMember = useUpdatePresetMember();
   const removePresetMember = useDeletePresetMember();
@@ -152,7 +152,7 @@ export function PresetMemberPanel({
   };
 
   const handleRemoveMember = () => {
-    if (presetMember.memberId) addMemberIdToRemoving(presetMember.memberId);
+    if (presetMember.memberId) onRemoveStart(presetMember.memberId);
     removePresetMember.mutate(
       {
         guildId,
@@ -161,11 +161,11 @@ export function PresetMemberPanel({
       },
       {
         onSuccess: () => {
-          setSelectedPresetMemberId(null);
+          onClose();
         },
         onError: () => {
           if (presetMember.memberId) {
-            removeMemberIdFromRemoving(presetMember.memberId);
+            onRemoveRollback(presetMember.memberId);
           }
         },
       },
@@ -220,7 +220,7 @@ export function PresetMemberPanel({
                 disabled={updatePresetMember.isPending || !hasChanges}
               />
             )}
-            <CloseButton onClick={() => setSelectedPresetMemberId(null)} />
+            <CloseButton onClick={onClose} />
           </Row>
         </Row>
       </Column>
