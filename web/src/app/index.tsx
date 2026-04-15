@@ -3,22 +3,22 @@ import { render } from "preact";
 import Router, { route } from "preact-router";
 import type { RoutableProps } from "preact-router";
 import { QueryClientProvider } from "@tanstack/preact-query";
-import { MemberPage } from "@/app/pages/memberPage/memberPage";
-import { PresetPage } from "@/app/pages/presetPage/presetPage";
-import { HomePage } from "@/app/pages/homePage/homePage";
-import { AuctionPage } from "@/app/pages/auctionPage/auctionPage";
-import { Header } from "@/app/header";
-import { SideMenu } from "@/app/sideMenu/sideMenu";
+import { MemberPage } from "@pages/memberPage/memberPage";
+import { PresetPage } from "@pages/presetPage/presetPage";
+import { HomePage } from "@pages/homePage/homePage";
+import { AuctionPage } from "@pages/auctionPage/auctionPage";
+import { Header } from "./header";
+import { SideMenu } from "./sideMenu/sideMenu";
 import {
   useAutoRefreshToken,
   useLogin,
   useLoginCallback,
   useLogout,
-} from "@/hooks/auth";
-import { useMyUser } from "@/hooks/user";
-import { checkRefreshToken } from "@/utils/auth";
-import { queryClient } from "@/utils/query";
-import "@/app/styles/app.css";
+} from "@hooks/auth";
+import { useMyUser } from "@hooks/user";
+import { checkRefreshToken } from "@utils/auth";
+import { queryClient } from "@utils/query";
+import "@styles/app.css";
 
 function RootRoute({}: RoutableProps) {
   return <HomePage />;

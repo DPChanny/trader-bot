@@ -1,7 +1,7 @@
 import { TeamCard } from "./teamCard";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
-import type { TeamDTO } from "@/dtos/auction";
-import { Scroll } from "@/app/components/atoms/layout";
+import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import type { TeamDTO } from "@dtos/auction";
+import { Scroll } from "@components/atoms/layout";
 
 interface TeamListProps {
   teams: TeamDTO[];

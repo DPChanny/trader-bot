@@ -4,15 +4,15 @@ import {
   useDeletePosition,
   usePositions,
   useUpdatePosition,
-} from "@/hooks/position";
-import { Role } from "@/dtos/member";
-import { useVerifyRole } from "@/hooks/member";
-import { Loading } from "@/app/components/molecules/loading";
-import { ErrorMessage } from "@/app/components/molecules/errorMessage";
-import { PrimaryButton } from "@/app/components/atoms/button";
-import { Bar } from "@/app/components/atoms/bar";
-import { Row, Scroll } from "@/app/components/atoms/layout";
-import { SecondarySection } from "@/app/components/molecules/section";
+} from "@hooks/position";
+import { Role } from "@dtos/member";
+import { useVerifyRole } from "@hooks/member";
+import { Loading } from "@components/molecules/loading";
+import { ErrorMessage } from "@components/molecules/errorMessage";
+import { PrimaryButton } from "@components/atoms/button";
+import { Bar } from "@components/atoms/bar";
+import { Row, Scroll } from "@components/atoms/layout";
+import { SecondarySection } from "@components/molecules/section";
 import { AddPositionModal } from "./addPositionModal";
 import { UpdatePositionModal } from "./updatePositionModal";
 import { DeletePositionModal } from "./deletePositionModal";
@@ -21,7 +21,7 @@ import type {
   AddPositionDTO,
   PositionDTO,
   UpdatePositionDTO,
-} from "@/dtos/position";
+} from "@dtos/position";
 
 interface PositionEditorProps {
   guildId: string;

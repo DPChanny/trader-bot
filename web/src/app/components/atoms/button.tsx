@@ -1,6 +1,6 @@
 import type { JSX } from "preact";
 import { clsx } from "clsx";
-import styles from "@/app/styles/components/atoms/button.module.css";
+import styles from "@styles/components/atoms/button.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const buttonVariants = cva(styles.button, {

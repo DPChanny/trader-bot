@@ -7,7 +7,15 @@
     "moduleResolution": "bundler",
     "noEmit": true,
 
-    "paths": { "@/*": ["./src/*"] },
+    "paths": {
+      "@pages/*": ["./src/app/pages/*"],
+      "@components/*": ["./src/app/components/*"],
+      "@styles/*": ["./src/app/styles/*"],
+      "@apis/*": ["./src/apis/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@dtos/*": ["./src/dtos/*"],
+      "@utils/*": ["./src/utils/*"]
+    },
     "types": ["vite/client"],
 
     "jsx": "react-jsx",

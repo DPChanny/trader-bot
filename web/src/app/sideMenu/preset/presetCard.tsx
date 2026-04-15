@@ -1,8 +1,8 @@
-import { Card, type CardProps } from "@/app/components/atoms/card";
-import { Row } from "@/app/components/atoms/layout";
-import { Link } from "@/app/components/atoms/link";
-import styles from "@/app/styles/sideMenu/preset/presetCard.module.css";
-import type { PresetDTO } from "@/dtos/preset";
+import { Card, type CardProps } from "@components/atoms/card";
+import { Row } from "@components/atoms/layout";
+import { Link } from "@components/atoms/link";
+import styles from "@styles/sideMenu/preset/presetCard.module.css";
+import type { PresetDTO } from "@dtos/preset";
 
 type PresetCardProps = Omit<CardProps, "children"> & {
   preset: PresetDTO;

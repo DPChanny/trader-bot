@@ -1,8 +1,8 @@
-import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@/dtos/tier";
-import { toCamelCase, toSnakeCase } from "@/utils/dto";
-import { getTierEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/error";
-import { getAuthHeader, getJsonHeader, getHeaders } from "@/utils/api";
+import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@dtos/tier";
+import { toCamelCase, toSnakeCase } from "@utils/dto";
+import { getTierEndpoint } from "@utils/env";
+import { handleHttpError } from "@utils/error";
+import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
 export async function getTiers(
   guildId: string,

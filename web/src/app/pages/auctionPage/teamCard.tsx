@@ -1,10 +1,10 @@
-import { PresetMemberGrid } from "@/app/components/presetMemberGrid";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
-import type { TeamDTO } from "@/dtos/auction";
-import { Card, type CardProps } from "@/app/components/atoms/card";
-import { Column, Row } from "@/app/components/atoms/layout";
-import { Bar } from "@/app/components/atoms/bar";
-import styles from "@/app/styles/pages/auctionPage/teamCard.module.css";
+import { PresetMemberGrid } from "@components/presetMemberGrid";
+import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import type { TeamDTO } from "@dtos/auction";
+import { Card, type CardProps } from "@components/atoms/card";
+import { Column, Row } from "@components/atoms/layout";
+import { Bar } from "@components/atoms/bar";
+import styles from "@styles/pages/auctionPage/teamCard.module.css";
 
 type TeamCardProps = Omit<CardProps, "children"> & {
   team: TeamDTO;

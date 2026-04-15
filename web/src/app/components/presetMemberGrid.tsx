@@ -1,8 +1,8 @@
 import { PresetMemberCard } from "./presetMemberCard";
-import { PressedButton } from "@/app/components/atoms/button";
-import { Row, Scroll } from "@/app/components/atoms/layout";
-import styles from "@/app/styles/components/memberGrid.module.css";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
+import { PressedButton } from "@components/atoms/button";
+import { Row, Scroll } from "@components/atoms/layout";
+import styles from "@styles/components/memberGrid.module.css";
+import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
 interface PresetMemberGridProps {
   presetMembers: PresetMemberDetailDTO[];

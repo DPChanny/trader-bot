@@ -6,8 +6,8 @@ import {
 import {
   createPresetMemberPosition,
   deletePresetMemberPosition,
-} from "@/apis/presetMemberPosition";
-import { queryKeys } from "@/utils/query";
+} from "@apis/presetMemberPosition";
+import { queryKeys } from "@utils/query";
 
 type CreatePresetMemberPositionVariables = Parameters<
   typeof createPresetMemberPosition

@@ -1,14 +1,14 @@
 import { useState } from "preact/hooks";
-import { Row, Scroll } from "@/app/components/atoms/layout";
-import { SecondarySection } from "@/app/components/molecules/section";
-import { PrimaryButton } from "@/app/components/atoms/button";
+import { Row, Scroll } from "@components/atoms/layout";
+import { SecondarySection } from "@components/molecules/section";
+import { PrimaryButton } from "@components/atoms/button";
 import { CreatePresetModal } from "./createPresetModal";
 import { PresetCard } from "./presetCard";
-import { useCreatePreset, usePresets } from "@/hooks/preset";
-import { Role } from "@/dtos/member";
-import { useVerifyRole } from "@/hooks/member";
-import type { CreatePresetDTO } from "@/dtos/preset";
-import { Bar } from "@/app/components/atoms/bar";
+import { useCreatePreset, usePresets } from "@hooks/preset";
+import { Role } from "@dtos/member";
+import { useVerifyRole } from "@hooks/member";
+import type { CreatePresetDTO } from "@dtos/preset";
+import { Bar } from "@components/atoms/bar";
 
 interface PresetListProps {
   guildId: string;

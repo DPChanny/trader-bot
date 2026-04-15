@@ -2,11 +2,11 @@ import type {
   PositionDTO,
   AddPositionDTO,
   UpdatePositionDTO,
-} from "@/dtos/position";
-import { toCamelCase, toSnakeCase } from "@/utils/dto";
-import { getPositionEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/error";
-import { getAuthHeader, getJsonHeader, getHeaders } from "@/utils/api";
+} from "@dtos/position";
+import { toCamelCase, toSnakeCase } from "@utils/dto";
+import { getPositionEndpoint } from "@utils/env";
+import { handleHttpError } from "@utils/error";
+import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
 export async function getPositions(
   guildId: string,

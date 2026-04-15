@@ -1,8 +1,8 @@
 import { clsx } from "clsx";
-import styles from "@/app/styles/components/molecules/badge.module.css";
+import styles from "@styles/components/molecules/badge.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { JSX } from "preact";
-import { Image } from "@/app/components/atoms/image";
+import { Image } from "@components/atoms/image";
 
 const badgeVariants = cva(styles.badge, {
   variants: {

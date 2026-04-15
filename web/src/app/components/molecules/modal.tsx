@@ -1,9 +1,9 @@
 import { createPortal } from "preact/compat";
 import { clsx } from "clsx";
-import { Bar } from "@/app/components/atoms/bar";
-import { Column, Fill, Row } from "@/app/components/atoms/layout";
-import { PrimarySection } from "@/app/components/molecules/section";
-import styles from "@/app/styles/components/molecules/modal.module.css";
+import { Bar } from "@components/atoms/bar";
+import { Column, Fill, Row } from "@components/atoms/layout";
+import { PrimarySection } from "@components/molecules/section";
+import styles from "@styles/components/molecules/modal.module.css";
 import type { JSX } from "preact";
 
 export type ModalProps = {

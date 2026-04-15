@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { useEffect } from "preact/hooks";
-import { queryKeys } from "@/utils/query";
+import { queryKeys } from "@utils/query";
 import { route } from "preact-router";
-import type { JwtTokenDTO } from "@/dtos/auth";
+import type { JwtTokenDTO } from "@dtos/auth";
 import {
   exchangeToken as exchangeAuthToken,
   refreshToken as refreshAuthToken,
-} from "@/apis/auth";
+} from "@apis/auth";
 import {
   setAccessToken,
   getAccessToken,
@@ -15,8 +15,8 @@ import {
   setRefreshToken,
   removeAccessToken,
   removeRefreshToken,
-} from "@/utils/auth";
-import { AUTH_API_ENDPOINT } from "@/utils/env";
+} from "@utils/auth";
+import { AUTH_API_ENDPOINT } from "@utils/env";
 
 export function useLogin(redirect?: string) {
   return (): void => {

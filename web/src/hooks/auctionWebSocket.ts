@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { Status, AuctionMessageType } from "@/dtos/auction";
-import type { AuctionMessageEnvelopeDTO, InitPayloadDTO } from "@/dtos/auction";
-import { AuthPayloadSchema, PlaceBidPayloadSchema } from "@/dtos/auction";
-import { toCamelCase } from "@/utils/dto";
-import { AUCTION_WS_ENDPOINT } from "@/utils/env";
-import { getAccessToken } from "@/utils/auth";
-import { WSError } from "@/utils/error";
+import { Status, AuctionMessageType } from "@dtos/auction";
+import type { AuctionMessageEnvelopeDTO, InitPayloadDTO } from "@dtos/auction";
+import { AuthPayloadSchema, PlaceBidPayloadSchema } from "@dtos/auction";
+import { toCamelCase } from "@utils/dto";
+import { AUCTION_WS_ENDPOINT } from "@utils/env";
+import { getAccessToken } from "@utils/auth";
+import { WSError } from "@utils/error";
 
 interface AuctionWebSocketHook {
   state: InitPayloadDTO | null;

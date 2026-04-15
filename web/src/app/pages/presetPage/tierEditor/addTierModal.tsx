@@ -1,9 +1,9 @@
 import { useState } from "preact/hooks";
-import { Modal, ModalForm, ModalFooter } from "@/app/components/molecules/modal";
-import { LabelInput } from "@/app/components/molecules/labelInput";
-import { PrimaryButton, SecondaryButton } from "@/app/components/atoms/button";
-import { ErrorMessage } from "@/app/components/molecules/errorMessage";
-import { AddTierSchema, type AddTierDTO } from "@/dtos/tier";
+import { Modal, ModalForm, ModalFooter } from "@components/molecules/modal";
+import { LabelInput } from "@components/molecules/labelInput";
+import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
+import { ErrorMessage } from "@components/molecules/errorMessage";
+import { AddTierSchema, type AddTierDTO } from "@dtos/tier";
 
 interface AddTierModalProps {
   onClose: () => void;

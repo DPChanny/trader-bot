@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
-import { useMembers } from "@/hooks/member";
-import { Role } from "@/dtos/member";
-import { useVerifyRole } from "@/hooks/member";
-import { useCreatePresetMember, usePresetMembers } from "@/hooks/presetMember";
-import { MemberGrid } from "@/app/components/memberGrid";
-import { PresetMemberGrid } from "@/app/components/presetMemberGrid";
+import { useMembers } from "@hooks/member";
+import { Role } from "@dtos/member";
+import { useVerifyRole } from "@hooks/member";
+import { useCreatePresetMember, usePresetMembers } from "@hooks/presetMember";
+import { MemberGrid } from "@components/memberGrid";
+import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberPanel } from "./presetMemberPanel";
-import { Loading } from "@/app/components/molecules/loading";
-import { ErrorMessage } from "@/app/components/molecules/errorMessage";
-import { PrimarySection, SecondarySection } from "@/app/components/molecules/section";
-import { Column, Row } from "@/app/components/atoms/layout";
+import { Loading } from "@components/molecules/loading";
+import { ErrorMessage } from "@components/molecules/errorMessage";
+import { PrimarySection, SecondarySection } from "@components/molecules/section";
+import { Column, Row } from "@components/atoms/layout";
 
 interface PresetMemberEditorProps {
   guildId: string;

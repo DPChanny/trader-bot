@@ -1,11 +1,11 @@
 import { useState } from "preact/hooks";
-import { Modal, ModalFooter } from "@/app/components/molecules/modal";
-import { Toggle } from "@/app/components/molecules/toggle";
-import { Label } from "@/app/components/atoms/label";
-import { SecondaryButton, Button } from "@/app/components/atoms/button";
-import { ErrorMessage } from "@/app/components/molecules/errorMessage";
-import { Column, Row } from "@/app/components/atoms/layout";
-import type { CreateAuctionDTO } from "@/dtos/auction";
+import { Modal, ModalFooter } from "@components/molecules/modal";
+import { Toggle } from "@components/molecules/toggle";
+import { Label } from "@components/atoms/label";
+import { SecondaryButton, Button } from "@components/atoms/button";
+import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Column, Row } from "@components/atoms/layout";
+import type { CreateAuctionDTO } from "@dtos/auction";
 
 interface CreateAuctionModalProps {
   onClose: () => void;

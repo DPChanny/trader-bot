@@ -1,27 +1,27 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { useAuctionWebSocket } from "@/hooks/auctionWebSocket";
+import { useAuctionWebSocket } from "@hooks/auctionWebSocket";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
-import { PrimarySection, SecondarySection } from "@/app/components/molecules/section";
-import { Column, Row } from "@/app/components/atoms/layout";
-import { Page } from "@/app/components/atoms/layout";
-import { Loading } from "@/app/components/molecules/loading";
-import { ErrorMessage } from "@/app/components/molecules/errorMessage";
-import { PrimaryButton } from "@/app/components/atoms/button";
-import { PresetMemberGrid } from "@/app/components/presetMemberGrid";
-import { PresetMemberCard } from "@/app/components/presetMemberCard";
-import { Input } from "@/app/components/atoms/input";
-import { Bar } from "@/app/components/atoms/bar";
-import { checkRefreshToken } from "@/utils/auth";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
-import { Status } from "@/dtos/auction";
+import { PrimarySection, SecondarySection } from "@components/molecules/section";
+import { Column, Row } from "@components/atoms/layout";
+import { Page } from "@components/atoms/layout";
+import { Loading } from "@components/molecules/loading";
+import { ErrorMessage } from "@components/molecules/errorMessage";
+import { PrimaryButton } from "@components/atoms/button";
+import { PresetMemberGrid } from "@components/presetMemberGrid";
+import { PresetMemberCard } from "@components/presetMemberCard";
+import { Input } from "@components/atoms/input";
+import { Bar } from "@components/atoms/bar";
+import { checkRefreshToken } from "@utils/auth";
+import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import { Status } from "@dtos/auction";
 import {
   AuctionErrorCode,
   type AuctionErrorCodeType,
   type WSError,
-} from "@/utils/error";
+} from "@utils/error";
 
-import styles from "@/app/styles/pages/auctionPage/auctionPage.module.css";
+import styles from "@styles/pages/auctionPage/auctionPage.module.css";
 
 interface AuctionPageProps {
   path?: string;

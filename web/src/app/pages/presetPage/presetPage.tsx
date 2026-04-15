@@ -1,10 +1,10 @@
 import { useState } from "preact/hooks";
 import { route } from "preact-router";
-import { useCreateAuction } from "@/hooks/auction";
-import { usePreset, useUpdatePreset, useDeletePreset } from "@/hooks/preset";
-import { usePresetMembers } from "@/hooks/presetMember";
-import { Role } from "@/dtos/member";
-import { useVerifyRole } from "@/hooks/member";
+import { useCreateAuction } from "@hooks/auction";
+import { usePreset, useUpdatePreset, useDeletePreset } from "@hooks/preset";
+import { usePresetMembers } from "@hooks/presetMember";
+import { Role } from "@dtos/member";
+import { useVerifyRole } from "@hooks/member";
 import { TierEditor } from "./tierEditor/tierEditor";
 import { PositionEditor } from "./positionEditor/positionEditor";
 import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
@@ -12,19 +12,19 @@ import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
-} from "@/app/components/molecules/section";
-import { Row } from "@/app/components/atoms/layout";
-import { Page } from "@/app/components/atoms/layout";
-import { Loading } from "@/app/components/molecules/loading";
-import { EditButton, DeleteButton, Button } from "@/app/components/atoms/button";
-import { ErrorMessage } from "@/app/components/molecules/errorMessage";
+} from "@components/molecules/section";
+import { Row } from "@components/atoms/layout";
+import { Page } from "@components/atoms/layout";
+import { Loading } from "@components/molecules/loading";
+import { EditButton, DeleteButton, Button } from "@components/atoms/button";
+import { ErrorMessage } from "@components/molecules/errorMessage";
 import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionModal } from "./auctionModal";
-import type { CreateAuctionDTO } from "@/dtos/auction";
-import type { UpdatePresetDTO } from "@/dtos/preset";
-import { Bar } from "@/app/components/atoms/bar";
+import type { CreateAuctionDTO } from "@dtos/auction";
+import type { UpdatePresetDTO } from "@dtos/preset";
+import { Bar } from "@components/atoms/bar";
 
 interface PresetPageProps {
   guildId: string;

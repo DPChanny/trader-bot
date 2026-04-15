@@ -1,26 +1,26 @@
 import { useEffect, useState } from "preact/hooks";
-import { MemberCard } from "@/app/components/memberCard";
-import { useUpdateMember } from "@/hooks/member";
-import { CloseButton, SaveButton } from "@/app/components/atoms/button";
-import { Link } from "@/app/components/atoms/link";
-import { LabelInput } from "@/app/components/molecules/labelInput";
-import { ErrorMessage } from "@/app/components/molecules/errorMessage";
-import { Bar } from "@/app/components/atoms/bar";
+import { MemberCard } from "@components/memberCard";
+import { useUpdateMember } from "@hooks/member";
+import { CloseButton, SaveButton } from "@components/atoms/button";
+import { Link } from "@components/atoms/link";
+import { LabelInput } from "@components/molecules/labelInput";
+import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Bar } from "@components/atoms/bar";
 import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
-} from "@/app/components/molecules/section";
-import { Column, Row, Scroll } from "@/app/components/atoms/layout";
-import { Toggle } from "@/app/components/molecules/toggle";
+} from "@components/molecules/section";
+import { Column, Row, Scroll } from "@components/atoms/layout";
+import { Toggle } from "@components/molecules/toggle";
 import {
   UpdateMemberSchema,
   type MemberDetailDTO,
   type UpdateMemberDTO,
-} from "@/dtos/member";
-import { Role } from "@/dtos/member";
-import { useVerifyRole } from "@/hooks/member";
-import { buildPatchDto } from "@/utils/dto";
+} from "@dtos/member";
+import { Role } from "@dtos/member";
+import { useVerifyRole } from "@hooks/member";
+import { buildPatchDto } from "@utils/dto";
 
 interface MemberPanelProps {
   member: MemberDetailDTO;

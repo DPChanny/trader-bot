@@ -1,29 +1,29 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
-import { PresetMemberCard } from "@/app/components/presetMemberCard";
-import { Toggle } from "@/app/components/molecules/toggle";
+import { PresetMemberCard } from "@components/presetMemberCard";
+import { Toggle } from "@components/molecules/toggle";
 import {
   useDeletePresetMember,
   useUpdatePresetMember,
-} from "@/hooks/presetMember";
+} from "@hooks/presetMember";
 import {
   useCreatePresetMemberPosition,
   useDeletePresetMemberPosition,
-} from "@/hooks/presetMemberPosition";
-import { useTiers } from "@/hooks/tier";
-import { usePositions } from "@/hooks/position";
-import { Role } from "@/dtos/member";
-import { useVerifyRole } from "@/hooks/member";
-import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
-import { CloseButton, SaveButton, Button } from "@/app/components/atoms/button";
-import { Label } from "@/app/components/atoms/label";
-import { ErrorMessage } from "@/app/components/molecules/errorMessage";
-import { Bar } from "@/app/components/atoms/bar";
+} from "@hooks/presetMemberPosition";
+import { useTiers } from "@hooks/tier";
+import { usePositions } from "@hooks/position";
+import { Role } from "@dtos/member";
+import { useVerifyRole } from "@hooks/member";
+import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import { CloseButton, SaveButton, Button } from "@components/atoms/button";
+import { Label } from "@components/atoms/label";
+import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Bar } from "@components/atoms/bar";
 import {
   SecondarySection,
   TertiarySection,
-} from "@/app/components/molecules/section";
-import { Column, Row, Scroll } from "@/app/components/atoms/layout";
-import { buildPatchDto } from "@/utils/dto";
+} from "@components/molecules/section";
+import { Column, Row, Scroll } from "@components/atoms/layout";
+import { buildPatchDto } from "@utils/dto";
 
 interface PresetMemberPanelProps {
   presetMember: PresetMemberDetailDTO;

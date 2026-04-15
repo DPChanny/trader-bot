@@ -1,10 +1,10 @@
 import { clsx } from "clsx";
-import styles from "@/app/styles/components/memberCard.module.css";
-import { Card, type CardProps } from "@/app/components/atoms/card";
-import { Image } from "@/app/components/atoms/image";
-import { Column } from "@/app/components/atoms/layout";
-import { Badge } from "@/app/components/molecules/badge";
-import type { MemberDetailDTO } from "@/dtos/member";
+import styles from "@styles/components/memberCard.module.css";
+import { Card, type CardProps } from "@components/atoms/card";
+import { Image } from "@components/atoms/image";
+import { Column } from "@components/atoms/layout";
+import { Badge } from "@components/molecules/badge";
+import type { MemberDetailDTO } from "@dtos/member";
 
 const ROLE_LABEL: Record<number, string> = {
   3: "O",

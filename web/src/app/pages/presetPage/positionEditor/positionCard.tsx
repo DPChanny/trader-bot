@@ -1,11 +1,11 @@
-import { DeleteButton, EditButton } from "@/app/components/atoms/button";
-import { Badge } from "@/app/components/molecules/badge";
-import { Card, type CardProps } from "@/app/components/atoms/card";
-import { Row } from "@/app/components/atoms/layout";
-import type { PositionDTO } from "@/dtos/position";
-import { Role } from "@/dtos/member";
-import { useVerifyRole } from "@/hooks/member";
-import styles from "@/app/styles/pages/presetPage/positionEditor/positionCard.module.css";
+import { DeleteButton, EditButton } from "@components/atoms/button";
+import { Badge } from "@components/molecules/badge";
+import { Card, type CardProps } from "@components/atoms/card";
+import { Row } from "@components/atoms/layout";
+import type { PositionDTO } from "@dtos/position";
+import { Role } from "@dtos/member";
+import { useVerifyRole } from "@hooks/member";
+import styles from "@styles/pages/presetPage/positionEditor/positionCard.module.css";
 
 type PositionCardProps = Omit<CardProps, "children"> & {
   position: PositionDTO;

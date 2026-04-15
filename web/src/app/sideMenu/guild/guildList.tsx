@@ -1,10 +1,10 @@
-import { Row, Scroll } from "@/app/components/atoms/layout";
-import { SecondarySection } from "@/app/components/molecules/section";
-import { PrimaryButton } from "@/app/components/atoms/button";
+import { Row, Scroll } from "@components/atoms/layout";
+import { SecondarySection } from "@components/molecules/section";
+import { PrimaryButton } from "@components/atoms/button";
 import { GuildCard } from "./guildCard";
-import type { GuildDetailDTO } from "@/dtos/guild";
-import { getBotInviteUrl } from "@/utils/env";
-import { Bar } from "@/app/components/atoms/bar";
+import type { GuildDetailDTO } from "@dtos/guild";
+import { getBotInviteUrl } from "@utils/env";
+import { Bar } from "@components/atoms/bar";
 
 interface GuildListProps {
   guilds: GuildDetailDTO[];

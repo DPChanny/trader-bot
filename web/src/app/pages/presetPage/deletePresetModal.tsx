@@ -1,7 +1,7 @@
-import { Modal, ModalFooter } from "@/app/components/molecules/modal";
-import { PrimaryButton, SecondaryButton } from "@/app/components/atoms/button";
-import { ErrorMessage } from "@/app/components/molecules/errorMessage";
-import { Column } from "@/app/components/atoms/layout";
+import { Modal, ModalFooter } from "@components/molecules/modal";
+import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
+import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Column } from "@components/atoms/layout";
 
 interface DeletePresetModalProps {
   onClose: () => void;

@@ -2,9 +2,9 @@ import type {
   ExchangeTokenDTO,
   JwtTokenDTO,
   RefreshTokenDTO,
-} from "@/dtos/auth";
-import { AUTH_API_ENDPOINT } from "@/utils/env";
-import { handleHttpError } from "@/utils/error";
+} from "@dtos/auth";
+import { AUTH_API_ENDPOINT } from "@utils/env";
+import { handleHttpError } from "@utils/error";
 
 export async function exchangeToken(
   dto: ExchangeTokenDTO,

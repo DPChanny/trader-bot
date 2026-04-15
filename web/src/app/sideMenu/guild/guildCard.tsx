@@ -1,9 +1,9 @@
-import { Card, type CardProps } from "@/app/components/atoms/card";
-import { Image } from "@/app/components/atoms/image";
-import { Row } from "@/app/components/atoms/layout";
-import { Link } from "@/app/components/atoms/link";
-import styles from "@/app/styles/sideMenu/guild/guildCard.module.css";
-import type { GuildDetailDTO } from "@/dtos/guild";
+import { Card, type CardProps } from "@components/atoms/card";
+import { Image } from "@components/atoms/image";
+import { Row } from "@components/atoms/layout";
+import { Link } from "@components/atoms/link";
+import styles from "@styles/sideMenu/guild/guildCard.module.css";
+import type { GuildDetailDTO } from "@dtos/guild";
 
 type GuildCardProps = Omit<CardProps, "children"> & {
   guild: GuildDetailDTO;

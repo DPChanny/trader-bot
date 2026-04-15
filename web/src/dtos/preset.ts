@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { nameSchema } from "@/utils/dto";
+import { nameSchema } from "@utils/dto";
 import type { PresetMemberDetailDTO } from "./presetMember";
 
 export const CreatePresetSchema = z.object({

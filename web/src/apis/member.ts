@@ -1,8 +1,8 @@
-import type { MemberDetailDTO, UpdateMemberDTO } from "@/dtos/member";
-import { toCamelCase, toSnakeCase } from "@/utils/dto";
-import { getMemberEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/error";
-import { getAuthHeader, getJsonHeader, getHeaders } from "@/utils/api";
+import type { MemberDetailDTO, UpdateMemberDTO } from "@dtos/member";
+import { toCamelCase, toSnakeCase } from "@utils/dto";
+import { getMemberEndpoint } from "@utils/env";
+import { handleHttpError } from "@utils/error";
+import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
 export async function getMyMember(guildId: string): Promise<MemberDetailDTO> {
   const response = await fetch(`${getMemberEndpoint(guildId)}/me`, {

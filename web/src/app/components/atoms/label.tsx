@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import styles from "@/app/styles/components/atoms/label.module.css";
+import styles from "@styles/components/atoms/label.module.css";
 import type { ComponentChildren, JSX } from "preact";
 
 export type LabelProps = JSX.IntrinsicElements["label"] & {

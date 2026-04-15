@@ -4,16 +4,16 @@ import {
   ModalFooter,
   ModalForm,
   ModalRow,
-} from "@/app/components/molecules/modal";
-import { LabelInput } from "@/app/components/molecules/labelInput";
-import { PrimaryButton, SecondaryButton } from "@/app/components/atoms/button";
-import { ErrorMessage } from "@/app/components/molecules/errorMessage";
+} from "@components/molecules/modal";
+import { LabelInput } from "@components/molecules/labelInput";
+import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
+import { ErrorMessage } from "@components/molecules/errorMessage";
 import {
   UpdatePresetSchema,
   type PresetDTO,
   type UpdatePresetDTO,
-} from "@/dtos/preset";
-import { buildPatchDto } from "@/utils/dto";
+} from "@dtos/preset";
+import { buildPatchDto } from "@utils/dto";
 
 interface UpdatePresetModalProps {
   preset: PresetDTO;

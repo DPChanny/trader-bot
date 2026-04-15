@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
-import styles from "@/app/styles/components/atoms/card.module.css";
+import styles from "@styles/components/atoms/card.module.css";
 import type { JSX } from "preact";
 
 const cardVariants = cva(styles.card, {

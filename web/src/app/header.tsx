@@ -1,9 +1,9 @@
-import styles from "@/app/styles/header.module.css";
-import { Button, DangerButton } from "@/app/components/atoms/button";
-import { Image } from "@/app/components/atoms/image";
-import { Row } from "@/app/components/atoms/layout";
-import { Link } from "@/app/components/atoms/link";
-import type { UserDetailDTO } from "@/dtos/user";
+import styles from "@styles/header.module.css";
+import { Button, DangerButton } from "@components/atoms/button";
+import { Image } from "@components/atoms/image";
+import { Row } from "@components/atoms/layout";
+import { Link } from "@components/atoms/link";
+import type { UserDetailDTO } from "@dtos/user";
 
 interface HeaderProps {
   user?: UserDetailDTO;

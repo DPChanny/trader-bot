@@ -1,11 +1,11 @@
 import { useState } from "preact/hooks";
-import styles from "@/app/styles/sideMenu/sideMenu.module.css";
-import { useGuilds } from "@/hooks/guild";
-import { useGuildRoute } from "@/hooks/router";
-import { CloseButton } from "@/app/components/atoms/button";
-import { Row } from "@/app/components/atoms/layout";
-import { PrimarySection } from "@/app/components/molecules/section";
-import { Bar } from "@/app/components/atoms/bar";
+import styles from "@styles/sideMenu/sideMenu.module.css";
+import { useGuilds } from "@hooks/guild";
+import { useGuildRoute } from "@hooks/router";
+import { CloseButton } from "@components/atoms/button";
+import { Row } from "@components/atoms/layout";
+import { PrimarySection } from "@components/molecules/section";
+import { Bar } from "@components/atoms/bar";
 import { GuildList } from "./guild/guildList";
 import { PresetList } from "./preset/presetList";
 

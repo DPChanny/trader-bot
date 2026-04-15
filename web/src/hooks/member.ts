@@ -5,15 +5,15 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/preact-query";
-import type { MemberDetailDTO } from "@/dtos/member";
-import { Role } from "@/dtos/member";
+import type { MemberDetailDTO } from "@dtos/member";
+import { Role } from "@dtos/member";
 import {
   getMember,
   getMembers,
   getMyMember,
   updateMember,
-} from "@/apis/member";
-import { queryKeys } from "@/utils/query";
+} from "@apis/member";
+import { queryKeys } from "@utils/query";
 
 type UpdateMemberVariables = Parameters<typeof updateMember>[0];
 type UpdateMemberResult = Awaited<ReturnType<typeof updateMember>>;

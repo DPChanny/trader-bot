@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { nameSchema, nullableUrlSchema } from "@/utils/dto";
+import { nameSchema, nullableUrlSchema } from "@utils/dto";
 
 export const AddPositionSchema = z.object({
   name: nameSchema,

@@ -11,9 +11,9 @@ import {
   createPreset,
   updatePreset,
   deletePreset,
-} from "@/apis/preset";
-import { queryKeys } from "@/utils/query";
-import type { PresetDTO } from "@/dtos/preset";
+} from "@apis/preset";
+import { queryKeys } from "@utils/query";
+import type { PresetDTO } from "@dtos/preset";
 
 type CreatePresetVariables = Parameters<typeof createPreset>[0];
 type CreatePresetResult = Awaited<ReturnType<typeof createPreset>>;

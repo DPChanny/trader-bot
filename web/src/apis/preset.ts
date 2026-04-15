@@ -2,11 +2,11 @@ import type {
   PresetDTO,
   CreatePresetDTO,
   UpdatePresetDTO,
-} from "@/dtos/preset";
-import { toCamelCase, toSnakeCase } from "@/utils/dto";
-import { getPresetEndpoint } from "@/utils/env";
-import { handleHttpError } from "@/utils/error";
-import { getAuthHeader, getJsonHeader, getHeaders } from "@/utils/api";
+} from "@dtos/preset";
+import { toCamelCase, toSnakeCase } from "@utils/dto";
+import { getPresetEndpoint } from "@utils/env";
+import { handleHttpError } from "@utils/error";
+import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
 export async function getPresets(guildId: string): Promise<PresetDTO[]> {
   const response = await fetch(getPresetEndpoint(guildId), {

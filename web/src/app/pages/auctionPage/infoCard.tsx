@@ -1,6 +1,6 @@
-import { Column, Fill } from "@/app/components/atoms/layout";
-import { SecondarySection } from "@/app/components/molecules/section";
-import styles from "@/app/styles/pages/auctionPage/infoCard.module.css";
+import { Column, Fill } from "@components/atoms/layout";
+import { SecondarySection } from "@components/molecules/section";
+import styles from "@styles/pages/auctionPage/infoCard.module.css";
 
 interface InfoCardProps {
   label: string;
