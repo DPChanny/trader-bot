@@ -1,7 +1,5 @@
-text css
 surface layout text 구분
 layout
-inline 검토
 status dot 폐지
 badge 개선
 whole css
@@ -12,6 +10,7 @@ gap 통일
 bar 관련 개선
 sidemenu 개선
 color 정리
+최종 web 개선
 log 개선
     file rotation
     extra 통일

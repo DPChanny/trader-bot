@@ -114,11 +114,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
   return (
     <Page>
-      <PrimarySection
-        minSize
-        overflow="hidden"
-        style={{ width: "24rem", flex: "none" }}
-      >
+      <PrimarySection minSize overflow="hidden" style={{ width: "24rem" }}>
         {presetError ? (
           <ErrorMessage error={presetError}>
             프리셋을 불러오는데 실패했습니다.

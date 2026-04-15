@@ -76,7 +76,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
   };
 
   return (
-    <PrimarySection minSize style={{ width: "24rem", flex: "none" }}>
+    <PrimarySection minSize style={{ width: "24rem" }}>
       <Column>
         <Row>
           <Fill>

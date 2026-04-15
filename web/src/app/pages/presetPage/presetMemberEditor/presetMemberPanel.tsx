@@ -202,7 +202,7 @@ export function PresetMemberPanel({
   };
 
   return (
-    <PrimarySection minSize style={{ width: "24rem", flex: "none" }}>
+    <PrimarySection minSize style={{ width: "24rem" }}>
       <Column>
         <Row justify="between">
           <NameTitle>

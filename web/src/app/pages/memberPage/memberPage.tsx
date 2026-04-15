@@ -42,7 +42,7 @@ export function MemberPage({ guildId }: MemberPageProps) {
 
   return (
     <Page>
-      <PrimarySection minSize style={{ flex: 4 }}>
+      <PrimarySection fill>
         <SecondarySection fill>
           <Title>멤버 목록</Title>
           {error ? (
