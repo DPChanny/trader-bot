@@ -12,9 +12,8 @@ import {
   PrimarySection,
   SecondarySection,
 } from "@components/molecules/section";
-import { Fill, Layout, Row } from "@components/atoms/layout";
+import { Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
-import { Loading } from "@components/molecules/loading";
 import { EditButton, DeleteButton, Button } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 import { UpdatePresetModal } from "./updatePresetModal";
@@ -38,11 +37,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
   const [createdAuctionId, setCreatedAuctionId] = useState<string | null>(null);
 
   const createAuction = useCreateAuction();
-  const {
-    data: preset,
-    isLoading: isPresetLoading,
-    error: presetError,
-  } = usePreset(guildId, presetId);
+  const { data: preset, error: presetError } = usePreset(guildId, presetId);
   const updatePreset = useUpdatePreset();
   const deletePreset = useDeletePreset();
   const { data: presetMembers } = usePresetMembers(guildId, presetId);

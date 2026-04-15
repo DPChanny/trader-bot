@@ -1,6 +1,5 @@
 import { createPortal } from "preact/compat";
 import { clsx } from "clsx";
-import { Bar } from "../atoms/bar";
 import { Column, Fill, Row } from "../atoms/layout";
 import { Title } from "../atoms/text";
 import { PrimarySection, SecondarySection } from "./section";
