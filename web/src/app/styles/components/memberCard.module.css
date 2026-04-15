@@ -1,7 +1,6 @@
 ﻿.memberCard {
   width: 7rem;
   height: 9rem;
-  text-align: center;
 }
 
 .badgesLeft {
@@ -22,15 +21,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.positions {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-1);
 }
 
 .statusDot {

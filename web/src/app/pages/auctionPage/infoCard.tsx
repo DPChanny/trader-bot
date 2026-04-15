@@ -13,13 +13,9 @@ export function InfoCard({ label, value, children }: InfoCardProps) {
   return (
     <SecondarySection>
       <Column fill center>
-        <Eyebrow className={styles.infoLabel}>{label}</Eyebrow>
+        <Eyebrow>{label}</Eyebrow>
         <Fill center className={styles.valueSection}>
-          {children ? (
-            children
-          ) : (
-            <Metric className={styles.infoValue}>{value}</Metric>
-          )}
+          {children ? children : <Metric>{value}</Metric>}
         </Fill>
       </Column>
     </SecondarySection>

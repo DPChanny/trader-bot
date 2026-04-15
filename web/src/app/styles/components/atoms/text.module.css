@@ -11,6 +11,18 @@
   line-height: var(--line-height-tight);
 }
 
+.body {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+.bodyStrong {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
+}
+
 .label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -54,4 +66,10 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-normal);
   line-height: var(--line-height-relaxed);
+}
+
+.micro {
+  font-size: 0.6rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
 }

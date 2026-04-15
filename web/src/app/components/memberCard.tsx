@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import styles from "@styles/components/memberCard.module.css";
 import { Card, type CardProps } from "./atoms/card";
 import { Image } from "./atoms/image";
-import { Column } from "./atoms/layout";
+import { Column, Fill } from "./atoms/layout";
 import { CaptionStrong } from "./atoms/text";
 import { Badge } from "./molecules/badge";
 import type { MemberDetailDTO } from "@dtos/member";
@@ -44,7 +44,7 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
           </Badge>
         </div>
       )}
-      <Column gap="sm" align="center">
+      <Fill direction="column" gap="sm" align="center" justify="center">
         <Image
           src={avatarUrl}
           alt={displayName}
@@ -52,11 +52,9 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
           variantSize="large"
         />
         <Column gap="xs" align="center">
-          <h3 class={styles.name}>
-            <CaptionStrong>{displayName}</CaptionStrong>
-          </h3>
+          <CaptionStrong className={styles.name}>{displayName}</CaptionStrong>
         </Column>
-      </Column>
+      </Fill>
     </Card>
   );
 }

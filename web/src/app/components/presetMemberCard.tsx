@@ -3,7 +3,8 @@ import styles from "@styles/components/memberCard.module.css";
 import { Card, type CardProps } from "./atoms/card";
 import { Badge } from "./molecules/badge";
 import { Image } from "./atoms/image";
-import { Column } from "./atoms/layout";
+import { Column, Fill, Row } from "./atoms/layout";
+import { CaptionStrong } from "./atoms/text";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
 export type PresetMemberCardProps = Omit<CardProps, "children"> & {
@@ -49,7 +50,7 @@ export function PresetMemberCard({
         )}
       </div>
 
-      <Column gap="sm" align="center">
+      <Fill direction="column" gap="sm" align="center" justify="center">
         <Image
           src={member.avatarUrl || member.user.avatarUrl}
           alt={member.alias || member.name || member.user.name}
@@ -57,11 +58,11 @@ export function PresetMemberCard({
           variantSize="large"
         />
         <Column gap="xs" align="center">
-          <h3 class={styles.name}>
+          <CaptionStrong className={styles.name}>
             {member.alias || member.name || member.user.name}
-          </h3>
+          </CaptionStrong>
           {presetMemberPositions?.length > 0 && (
-            <div className={styles.positions}>
+            <Row wrap align="center" justify="center" gap="xs">
               {presetMemberPositions.slice(0, 3).map((pmp) => (
                 <Badge
                   key={pmp.positionId}
@@ -73,10 +74,10 @@ export function PresetMemberCard({
                   {pmp.position.name.charAt(0)}
                 </Badge>
               ))}
-            </div>
+            </Row>
           )}
         </Column>
-      </Column>
+      </Fill>
     </Card>
   );
 }

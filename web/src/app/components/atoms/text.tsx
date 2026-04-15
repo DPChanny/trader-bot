@@ -23,6 +23,14 @@ export function TitleSm({ className, ...props }: SpanProps) {
   return <span className={clsx(styles.titleSm, className)} {...props} />;
 }
 
+export function Body({ className, ...props }: SpanProps) {
+  return <span className={clsx(styles.body, className)} {...props} />;
+}
+
+export function BodyStrong({ className, ...props }: SpanProps) {
+  return <span className={clsx(styles.bodyStrong, className)} {...props} />;
+}
+
 export function HeadingTitle({ className, ...props }: HeadingProps) {
   return <h3 className={clsx(styles.title, className)} {...props} />;
 }
@@ -54,4 +62,8 @@ export function CaptionStrong({ className, ...props }: SpanProps) {
 
 export function BodyRelaxed({ className, ...props }: SpanProps) {
   return <span className={clsx(styles.bodyRelaxed, className)} {...props} />;
+}
+
+export function Micro({ className, ...props }: SpanProps) {
+  return <span className={clsx(styles.micro, className)} {...props} />;
 }
