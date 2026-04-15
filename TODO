@@ -1,5 +1,4 @@
 variant
-image
 component refactor
 text css
 layout
@@ -11,7 +10,7 @@ positoin tier 위주 list editor modal 계층 개선
 gap 통일
 bar 관련 개선
 sidemenu 개선
-color 통일
+color 정리
 iframe
 log 개선
     file rotation

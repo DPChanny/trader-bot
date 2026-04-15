@@ -49,7 +49,11 @@ export function Badge({
   return (
     <span className={clsx(baseClass, className)} {...props}>
       {src ? (
-        <Image src={src} alt={alt ?? "icon"} variantSize="inset" />
+        <Image
+          src={src}
+          alt={alt ?? "icon"}
+          variantScale="inset"
+        />
       ) : (
         children
       )}

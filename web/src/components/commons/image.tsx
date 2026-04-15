@@ -10,42 +10,45 @@ const imageVariants = cva(styles.root, {
       small: styles.sizeSmall,
       medium: styles.sizeMedium,
       large: styles.sizeLarge,
-      inset: styles.sizeInset,
+    },
+    variantScale: {
+      fixed: "",
+      inset: styles.scaleInset,
     },
   },
   defaultVariants: {
     variantSize: "small",
+    variantScale: "fixed",
   },
 });
 
 export type ImageProps = Omit<JSX.IntrinsicElements["img"], "src"> & {
   src?: string | null;
   variantSize?: VariantProps<typeof imageVariants>["variantSize"];
+  variantScale?: VariantProps<typeof imageVariants>["variantScale"];
+  variantType?: "icon" | "avatar";
 };
 
 export function Image({
   src,
   variantSize,
+  variantScale,
+  variantType = "icon",
   alt,
   className,
   onError,
   ...props
 }: ImageProps) {
   const [isBroken, setIsBroken] = useState(false);
-  const baseClass = imageVariants({ variantSize });
-  const resolvedVariantSize = variantSize ?? "small";
-  const isAvatarFallback =
-    resolvedVariantSize === "medium" || resolvedVariantSize === "large";
+  const baseClass = imageVariants({ variantSize, variantScale });
 
   useEffect(() => {
     setIsBroken(false);
   }, [src]);
 
-  const canShowImage = Boolean(src) && !isBroken;
-
   return (
     <span className={clsx(baseClass, className)}>
-      {canShowImage ? (
+      {Boolean(src) && !isBroken ? (
         <img
           src={src!}
           alt={alt}
@@ -58,7 +61,7 @@ export function Image({
         />
       ) : (
         <span className={styles.fallback}>
-          {isAvatarFallback ? (
+          {variantType === "avatar" ? (
             <svg
               className={styles.avatarFallbackIcon}
               viewBox="0 0 24 24"

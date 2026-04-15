@@ -53,7 +53,8 @@ export function PresetMemberCard({
         <Image
           src={member.avatarUrl || member.user.avatarUrl}
           alt={member.alias || member.name || member.user.name}
-            variantSize="large"
+          variantType="avatar"
+          variantSize="large"
         />
         <Column gap="xs" align="center">
           <h3 class={styles.name}>

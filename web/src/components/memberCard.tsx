@@ -44,7 +44,12 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
         </div>
       )}
       <Column gap="sm" align="center">
-        <Image src={avatarUrl} alt={displayName} variantSize="large" />
+        <Image
+          src={avatarUrl}
+          alt={displayName}
+          variantType="avatar"
+          variantSize="large"
+        />
         <Column gap="xs" align="center">
           <h3 class={styles.name}>{displayName}</h3>
         </Column>
