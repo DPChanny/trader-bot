@@ -24,26 +24,26 @@
   line-height: 1;
 }
 
-.sizeHeader {
+.sizeMedium {
   width: 2rem;
   height: 2rem;
   border: var(--border-width-default) solid rgba(255, 255, 255, 0.2);
 }
 
-.sizeProfile {
+.sizeLarge {
   width: 3.75rem;
   height: 3.75rem;
   border: var(--border-width-medium) solid var(--color-card-border);
   background: var(--color-card-bg);
 }
 
-.sizeGuild {
+.sizeSmall {
   width: 1.5rem;
   height: 1.5rem;
   background: rgba(255, 255, 255, 0.06);
 }
 
-.sizeBadge {
+.sizeInset {
   width: 80%;
   height: 80%;
 }

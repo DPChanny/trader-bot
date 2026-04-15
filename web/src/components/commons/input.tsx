@@ -9,11 +9,6 @@ const inputVariants = cva(styles.input, {
       default: styles.intentDefault,
       error: styles.intentError,
     },
-    variantTone: {
-      solid: styles.toneSolid,
-      outline: styles.toneOutline,
-      ghost: styles.toneGhost,
-    },
     variantSize: {
       small: styles.sizeSmall,
       medium: styles.sizeMedium,
@@ -22,7 +17,6 @@ const inputVariants = cva(styles.input, {
   },
   defaultVariants: {
     variantIntent: "default",
-    variantTone: "solid",
     variantSize: "medium",
   },
 });
@@ -31,7 +25,6 @@ export type InputProps = JSX.IntrinsicElements["input"] & {
   value?: string | number;
   onValueChange?: (value: string) => void;
   variantIntent?: VariantProps<typeof inputVariants>["variantIntent"];
-  variantTone?: VariantProps<typeof inputVariants>["variantTone"];
   variantSize?: VariantProps<typeof inputVariants>["variantSize"];
 };
 
@@ -42,13 +35,11 @@ export function Input({
   type = "text",
   className,
   variantIntent,
-  variantTone,
   variantSize,
   ...props
 }: InputProps) {
   const baseClass = inputVariants({
     variantIntent,
-    variantTone,
     variantSize,
   });
 

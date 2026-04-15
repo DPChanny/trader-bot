@@ -27,7 +27,7 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
                 <Image
                   src={user.avatarUrl}
                   alt={user.name}
-                  variantSize="header"
+                  variantSize="medium"
                 />
               )}
               <span className={styles.userName}>{user.name}</span>

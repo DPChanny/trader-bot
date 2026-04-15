@@ -7,14 +7,14 @@ import styles from "@/styles/components/commons/image.module.css";
 const imageVariants = cva(styles.root, {
   variants: {
     variantSize: {
-      header: styles.sizeHeader,
-      profile: styles.sizeProfile,
-      guild: styles.sizeGuild,
-      badge: styles.sizeBadge,
+      small: styles.sizeSmall,
+      medium: styles.sizeMedium,
+      large: styles.sizeLarge,
+      inset: styles.sizeInset,
     },
   },
   defaultVariants: {
-    variantSize: "guild",
+    variantSize: "small",
   },
 });
 
@@ -33,9 +33,9 @@ export function Image({
 }: ImageProps) {
   const [isBroken, setIsBroken] = useState(false);
   const baseClass = imageVariants({ variantSize });
-  const resolvedSizeVariant = variantSize ?? "guild";
+  const resolvedVariantSize = variantSize ?? "small";
   const isAvatarFallback =
-    resolvedSizeVariant === "header" || resolvedSizeVariant === "profile";
+    resolvedVariantSize === "medium" || resolvedVariantSize === "large";
 
   useEffect(() => {
     setIsBroken(false);

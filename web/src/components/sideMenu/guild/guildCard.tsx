@@ -20,7 +20,7 @@ export function GuildCard({ guild, isSelected, ...props }: GuildCardProps) {
     >
       <Card {...props}>
         <Row>
-          <Image src={guild.iconUrl} alt={guild.name} variantSize="guild" />
+          <Image src={guild.iconUrl} alt={guild.name} variantSize="small" />
           <span className={styles.name}>{guild.name}</span>
         </Row>
       </Card>

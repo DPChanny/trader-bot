@@ -55,8 +55,3 @@
   height: 1.625rem;
   font-size: var(--font-size-base);
 }
-
-.toneOutline {
-  background-color: transparent;
-  border-color: currentColor;
-}

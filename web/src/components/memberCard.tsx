@@ -38,17 +38,13 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
     >
       {roleLabel && (
         <div className={styles.badgesRight}>
-          <Badge
-            variantColor={roleColor}
-            variantSize="small"
-            variantTone="outline"
-          >
+          <Badge variantColor={roleColor} variantSize="small">
             {roleLabel}
           </Badge>
         </div>
       )}
       <Column gap="sm" align="center">
-        <Image src={avatarUrl} alt={displayName} variantSize="profile" />
+        <Image src={avatarUrl} alt={displayName} variantSize="large" />
         <Column gap="xs" align="center">
           <h3 class={styles.name}>{displayName}</h3>
         </Column>
