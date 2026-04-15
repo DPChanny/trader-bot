@@ -1,6 +1,6 @@
 import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/atoms/badge";
-import { Card, type CardProps } from "@components/molecules/card";
+import { Card } from "@components/molecules/card";
 import { Image } from "@components/atoms/image";
 import { Row } from "@components/atoms/layout";
 import { Name } from "@components/atoms/text";
@@ -8,7 +8,7 @@ import type { PositionDTO } from "@dtos/position";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
 
-type PositionCardProps = Omit<CardProps, "children"> & {
+type PositionCardProps = {
   position: PositionDTO;
   guildId: string;
   onEdit: () => void;
@@ -22,11 +22,10 @@ export function PositionCard({
   onEdit,
   onDelete,
   isDeletePending,
-  ...props
 }: PositionCardProps) {
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   return (
-    <Card {...props} direction="row" justify="between" align="center">
+    <Card direction="row" justify="between" align="center">
       <Badge variantColor="blue" variantSize="large">
         {position.iconUrl ? (
           <Image

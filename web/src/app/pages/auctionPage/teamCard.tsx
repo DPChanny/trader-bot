@@ -1,17 +1,18 @@
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import type { TeamDTO } from "@dtos/auction";
-import { Card, type CardProps } from "@components/molecules/card";
+import { Card } from "@components/molecules/card";
 import { Row } from "@components/atoms/layout";
 import { Name, Text } from "@components/atoms/text";
 
-type TeamCardProps = Omit<CardProps, "children"> & {
+type TeamCardProps = {
   team: TeamDTO;
   members: PresetMemberDetailDTO[];
   teamSize: number;
   pointScale: number;
   connectedMemberIds?: number[];
   clientMemberId?: number;
+  variantColor?: "blue" | "gold" | "green" | "gray";
 };
 
 export function TeamCard({
@@ -22,7 +23,6 @@ export function TeamCard({
   connectedMemberIds,
   clientMemberId,
   variantColor,
-  ...props
 }: TeamCardProps) {
   const leader = members.find((member) => member.isLeader);
   const teamName = leader
@@ -32,7 +32,7 @@ export function TeamCard({
   const resolvedVariantColor = variantColor ?? (isFull ? "green" : "blue");
 
   return (
-    <Card variantColor={resolvedVariantColor} {...props}>
+    <Card variantColor={resolvedVariantColor}>
       <Row justify="between" align="center">
         <Name>{teamName}</Name>
         <Text variantWeight="bold">{team.points * pointScale} 포인트</Text>

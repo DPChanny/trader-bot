@@ -1,4 +1,4 @@
-import { Modal, ModalFooter } from "@components/molecules/modal";
+import { Modal, ModalFooter } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 

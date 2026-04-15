@@ -1,22 +1,22 @@
-import { Card, type CardProps } from "@components/molecules/card";
+import { Card } from "@components/molecules/card";
 import { Image } from "@components/atoms/image";
 import { Link } from "@components/atoms/link";
 import { Name } from "@components/atoms/text";
 import type { GuildDetailDTO } from "@dtos/guild";
 
-type GuildCardProps = Omit<CardProps, "children"> & {
+type GuildCardProps = {
   guild: GuildDetailDTO;
   isSelected?: boolean;
 };
 
-export function GuildCard({ guild, isSelected, ...props }: GuildCardProps) {
+export function GuildCard({ guild, isSelected }: GuildCardProps) {
   return (
     <Link
       href={`/guild/${guild.discordId}/member`}
       variantContent="div"
       aria-current={isSelected ? "page" : undefined}
     >
-      <Card {...props} direction="row" align="center" justify="center">
+      <Card direction="row" align="center" justify="center">
         <Image src={guild.iconUrl} alt={guild.name} />
         <Name>{guild.name}</Name>
       </Card>

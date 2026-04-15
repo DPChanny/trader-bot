@@ -1,8 +1,8 @@
 import { createPortal } from "preact/compat";
 import { clsx } from "clsx";
-import { Column, Fill, Row } from "../atoms/layout";
-import { Title } from "../atoms/text";
-import { PrimarySection, SecondarySection } from "./section";
+import { Column, Fill, Row } from "./atoms/layout";
+import { Title } from "./atoms/text";
+import { PrimarySection, SecondarySection } from "./molecules/section";
 import styles from "@styles/components/molecules/modal.module.css";
 import { toChildArray, type ComponentChildren, type JSX } from "preact";
 

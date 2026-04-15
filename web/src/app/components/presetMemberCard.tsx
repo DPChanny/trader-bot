@@ -1,13 +1,12 @@
-import { clsx } from "clsx";
 import styles from "@styles/components/memberCard.module.css";
-import { Card, type CardProps } from "./molecules/card";
+import { Card } from "./molecules/card";
 import { Badge } from "./atoms/badge";
 import { Image } from "./atoms/image";
 import { Row } from "./atoms/layout";
 import { Name } from "./atoms/text";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
-export type PresetMemberCardProps = Omit<CardProps, "children"> & {
+export type PresetMemberCardProps = {
   presetMember: PresetMemberDetailDTO;
   isConnected?: boolean;
   isClientMember?: boolean;
@@ -15,10 +14,8 @@ export type PresetMemberCardProps = Omit<CardProps, "children"> & {
 
 export function PresetMemberCard({
   presetMember,
-  className,
   isConnected,
   isClientMember,
-  ...props
 }: PresetMemberCardProps) {
   const { member, tier, presetMemberPositions, isLeader } = presetMember;
 
@@ -34,11 +31,12 @@ export function PresetMemberCard({
       justify="center"
       align="center"
       variantColor={isLeader ? "gold" : "gray"}
-      className={clsx(styles.memberCard, className)}
-      {...props}
+      className={styles.memberCard}
     >
       <div class={styles.badgesLeft}>
-        {statusClass && <div className={clsx(styles.statusDot, statusClass)} />}
+        {statusClass && (
+          <div className={`${styles.statusDot} ${statusClass}`} />
+        )}
       </div>
       <div class={styles.badgesRight}>
         {tier && (

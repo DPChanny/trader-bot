@@ -1,17 +1,16 @@
-import { clsx } from "clsx";
 import styles from "@styles/components/memberCard.module.css";
-import { Card, type CardProps } from "./molecules/card";
+import { Card } from "./molecules/card";
 import { Image } from "./atoms/image";
 import { Name } from "./atoms/text";
 import { Badge } from "./atoms/badge";
 import type { MemberDetailDTO } from "@dtos/member";
 import { getRoleEntries } from "@utils/enum";
 
-export type MemberCardProps = Omit<CardProps, "children"> & {
+export type MemberCardProps = {
   member: MemberDetailDTO;
 };
 
-export function MemberCard({ member, className, ...props }: MemberCardProps) {
+export function MemberCard({ member }: MemberCardProps) {
   const displayName = member.alias || member.name || member.user.name;
   const avatarUrl = member.avatarUrl || member.user.avatarUrl;
   const roleEntry = getRoleEntries()[member.role];
@@ -23,8 +22,7 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
       variantColor="gray"
       justify="center"
       align="center"
-      className={clsx(styles.memberCard, className)}
-      {...props}
+      className={styles.memberCard}
     >
       {roleLabel && (
         <div className={styles.badgesRight}>

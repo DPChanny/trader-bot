@@ -11,7 +11,7 @@ import { Column, FlexItem, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { ErrorMessage } from "@components/molecules/errorMessage";
-import { Modal, ModalFooter } from "@components/molecules/modal";
+import { Modal, ModalFooter } from "@components/modal";
 import { PrimaryButton } from "@components/atoms/button";
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberCard } from "@components/presetMemberCard";
