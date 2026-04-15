@@ -31,7 +31,7 @@ interface MemberPanelProps {
 
 export function MemberPanel({ member, onClose }: MemberPanelProps) {
   const updateMember = useUpdateMember();
-  const roleEntries = getRoleEntries();
+  const roleEntries = Object.values(getRoleEntries());
 
   const [alias, setAlias] = useState(member.alias ?? "");
   const [infoUrl, setInfoUrl] = useState(member.infoUrl ?? "");
@@ -137,19 +137,13 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
               <Label>권한</Label>
               <TertiarySection>
                 <Row wrap>
-                  {roleEntries.map(({ value, displayName }) => (
+                  {roleEntries.map(({ key, displayName, color }) => (
                     <Toggle
-                      key={value}
-                      variantColor={
-                        value === Role.OWNER
-                          ? "gold"
-                          : value === Role.ADMIN
-                            ? "red"
-                            : "blue"
-                      }
-                      isPressed={role === value}
-                      disabled={!canEditRole || value === Role.OWNER}
-                      onClick={() => setRole(value)}
+                      key={key}
+                      variantColor={color}
+                      isPressed={role === key}
+                      disabled={!canEditRole || key === Role.OWNER}
+                      onClick={() => setRole(key)}
                     >
                       {displayName}
                     </Toggle>

@@ -19,6 +19,11 @@
   cursor: not-allowed;
 }
 
+.colorGreen:hover:not(:disabled) {
+  background: var(--color-toggle-green-bg-hover);
+  border-color: var(--color-toggle-green-border-hover);
+}
+
 .colorBlue:hover:not(:disabled) {
   background: var(--color-toggle-blue-bg-hover);
   border-color: var(--color-toggle-blue-border-hover);
@@ -50,4 +55,10 @@
   background: var(--color-toggle-gold-bg-active);
   border-color: var(--color-toggle-gold-border-active);
   color: var(--color-toggle-gold-text-active);
+}
+
+.colorGreen[aria-pressed="true"] {
+  background: var(--color-toggle-green-bg-active);
+  border-color: var(--color-toggle-green-border-active);
+  color: var(--color-toggle-green-text-active);
 }

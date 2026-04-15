@@ -107,6 +107,12 @@
   --color-toggle-border: rgba(255, 255, 255, 0.12);
   --color-toggle-text: rgb(156, 163, 175);
 
+  --color-toggle-green-bg-hover: rgb(16, 44, 30);
+  --color-toggle-green-bg-active: rgb(18, 50, 34);
+  --color-toggle-green-border-hover: rgba(34, 197, 94, 0.4);
+  --color-toggle-green-border-active: rgba(34, 197, 94, 0.6);
+  --color-toggle-green-text-active: rgb(134, 239, 172);
+
   --color-toggle-blue-bg-hover: rgb(30, 48, 92);
   --color-toggle-blue-bg-active: rgb(38, 58, 108);
   --color-toggle-blue-border-hover: rgba(102, 126, 234, 0.4);

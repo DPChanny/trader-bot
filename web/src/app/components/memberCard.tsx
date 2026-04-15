@@ -6,14 +6,7 @@ import { Column, Fill } from "./atoms/layout";
 import { Name } from "./atoms/text";
 import { Badge } from "./molecules/badge";
 import type { MemberDetailDTO } from "@dtos/member";
-import { getRoleDisplayNames } from "@utils/enum";
-
-const ROLE_COLOR: Record<number, "gold" | "red" | "blue" | "gray"> = {
-  3: "gold",
-  2: "red",
-  1: "blue",
-  0: "gray",
-};
+import { getRoleEntries } from "@utils/enum";
 
 export type MemberCardProps = Omit<CardProps, "children"> & {
   member: MemberDetailDTO;
@@ -22,9 +15,9 @@ export type MemberCardProps = Omit<CardProps, "children"> & {
 export function MemberCard({ member, className, ...props }: MemberCardProps) {
   const displayName = member.alias || member.name || member.user.name;
   const avatarUrl = member.avatarUrl || member.user.avatarUrl;
-  const roleDisplayName = getRoleDisplayNames()[member.role];
-  const roleLabel = roleDisplayName.charAt(0);
-  const roleColor = ROLE_COLOR[member.role];
+  const roleEntry = getRoleEntries()[member.role];
+  const roleLabel = roleEntry.displayName.charAt(0);
+  const roleColor = roleEntry.color;
 
   return (
     <Card

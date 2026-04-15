@@ -17,6 +17,7 @@ import { PresetMemberCard } from "@components/presetMemberCard";
 import { Input } from "@components/atoms/input";
 import { Text, Title } from "@components/atoms/text";
 import { checkRefreshToken } from "@utils/auth";
+import { getStatusEntries } from "@utils/enum";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { Status } from "@dtos/auction";
 import {
@@ -148,14 +149,12 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     teamId !== null ? state.teams.find((t) => t.teamId === teamId) : null;
   const clientTeamSize = clientTeam ? clientTeam.memberIds.length : 0;
   const isClientTeamFull = clientTeamSize >= teamSize;
+  const statusEntries = getStatusEntries();
 
   const getStatusText = (status: Status) => {
     if (wasConnected && !isConnected && status !== Status.COMPLETED)
       return "연결 끊김";
-    if (status === Status.WAITING) return "대기중";
-    if (status === Status.RUNNING) return "진행중";
-    if (status === Status.COMPLETED) return "완료";
-    return String(status);
+    return statusEntries[status].displayName;
   };
 
   const currentMember = state.currentMemberId

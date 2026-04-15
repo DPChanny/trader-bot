@@ -1,70 +1,59 @@
 import { Status } from "@dtos/auction";
 import { Role } from "@dtos/member";
 
-type EnumEntry<TValue extends number> = {
-  value: TValue;
+type EnumEntry<TKey extends number> = {
+  key: TKey;
   displayName: string;
 };
 
-const ROLE_DISPLAY_NAME: Record<Role, string> = {
-  [Role.VIEWER]: "Viewer",
-  [Role.EDITOR]: "Editor",
-  [Role.ADMIN]: "Admin",
-  [Role.OWNER]: "Owner",
+type RoleColor = "green" | "blue" | "red" | "gold";
+
+type RoleEntry = EnumEntry<Role> & {
+  color: RoleColor;
 };
 
-const ROLE_ENTRIES: Array<EnumEntry<Role>> = [
-  {
-    value: Role.VIEWER,
-    displayName: ROLE_DISPLAY_NAME[Role.VIEWER],
+const ROLE_ENTRIES: Record<Role, RoleEntry> = {
+  [Role.VIEWER]: {
+    key: Role.VIEWER,
+    displayName: "Viewer",
+    color: "blue",
   },
-  {
-    value: Role.EDITOR,
-    displayName: ROLE_DISPLAY_NAME[Role.EDITOR],
+  [Role.EDITOR]: {
+    key: Role.EDITOR,
+    displayName: "Editor",
+    color: "green",
   },
-  {
-    value: Role.ADMIN,
-    displayName: ROLE_DISPLAY_NAME[Role.ADMIN],
+  [Role.ADMIN]: {
+    key: Role.ADMIN,
+    displayName: "Admin",
+    color: "red",
   },
-  {
-    value: Role.OWNER,
-    displayName: ROLE_DISPLAY_NAME[Role.OWNER],
+  [Role.OWNER]: {
+    key: Role.OWNER,
+    displayName: "Owner",
+    color: "gold",
   },
-];
-
-const STATUS_DISPLAY_NAME: Record<Status, string> = {
-  [Status.WAITING]: "Waiting",
-  [Status.RUNNING]: "Running",
-  [Status.COMPLETED]: "Completed",
 };
 
-const STATUS_ENTRIES: Array<EnumEntry<Status>> = [
-  {
-    value: Status.WAITING,
-    displayName: STATUS_DISPLAY_NAME[Status.WAITING],
+const STATUS_ENTRIES: Record<Status, EnumEntry<Status>> = {
+  [Status.WAITING]: {
+    key: Status.WAITING,
+    displayName: "대기중",
   },
-  {
-    value: Status.RUNNING,
-    displayName: STATUS_DISPLAY_NAME[Status.RUNNING],
+  [Status.RUNNING]: {
+    key: Status.RUNNING,
+    displayName: "진행중",
   },
-  {
-    value: Status.COMPLETED,
-    displayName: STATUS_DISPLAY_NAME[Status.COMPLETED],
+  [Status.COMPLETED]: {
+    key: Status.COMPLETED,
+    displayName: "완료",
   },
-];
+};
 
-export function getRoleEntries(): Array<EnumEntry<Role>> {
+export function getRoleEntries(): Record<Role, RoleEntry> {
   return ROLE_ENTRIES;
 }
 
-export function getStatusEntries(): Array<EnumEntry<Status>> {
+export function getStatusEntries(): Record<Status, EnumEntry<Status>> {
   return STATUS_ENTRIES;
-}
-
-export function getRoleDisplayNames(): Record<Role, string> {
-  return ROLE_DISPLAY_NAME;
-}
-
-export function getStatusDisplayNames(): Record<Status, string> {
-  return STATUS_DISPLAY_NAME;
 }

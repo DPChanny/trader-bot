@@ -6,6 +6,7 @@ import styles from "@styles/components/molecules/toggle.module.css";
 const toggleVariants = cva(styles.toggle, {
   variants: {
     variantColor: {
+      green: styles.colorGreen,
       blue: styles.colorBlue,
       red: styles.colorRed,
       gold: styles.colorGold,
