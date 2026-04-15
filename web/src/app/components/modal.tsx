@@ -1,8 +1,8 @@
 import { createPortal } from "preact/compat";
-import { Column, Fill, Row } from "./atoms/layout";
+import { Column, Fill, FlexItem, Row } from "./atoms/layout";
 import { Title } from "./atoms/text";
 import { PrimarySection, SecondarySection } from "./molecules/section";
-import styles from "@styles/components/molecules/modal.module.css";
+import styles from "@styles/components/modal.module.css";
 import { toChildArray, type ComponentChildren, type VNode } from "preact";
 
 export type ModalProps = {
@@ -59,9 +59,13 @@ export interface ModalRowProps {
 }
 
 export function ModalRow({ children }: ModalRowProps) {
+  const childArray = toChildArray(children);
+
   return (
-    <Row align="center" className={styles.row}>
-      {children}
+    <Row align="center">
+      {childArray.map((child, index) => (
+        <FlexItem key={index}>{child}</FlexItem>
+      ))}
     </Row>
   );
 }
