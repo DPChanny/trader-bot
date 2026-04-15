@@ -22,6 +22,7 @@ import {
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
 import { buildPatchDto } from "@utils/dto";
+import { getRoleEntries } from "@utils/enum";
 
 interface MemberPanelProps {
   member: MemberDetailDTO;
@@ -30,6 +31,7 @@ interface MemberPanelProps {
 
 export function MemberPanel({ member, onClose }: MemberPanelProps) {
   const updateMember = useUpdateMember();
+  const roleEntries = getRoleEntries();
 
   const [alias, setAlias] = useState(member.alias ?? "");
   const [infoUrl, setInfoUrl] = useState(member.infoUrl ?? "");
@@ -135,24 +137,21 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
               <Label>권한</Label>
               <TertiarySection>
                 <Row wrap>
-                  {(
-                    [
-                      { value: 0, label: "VIEWER" },
-                      { value: 1, label: "EDITOR" },
-                      { value: 2, label: "ADMIN" },
-                      { value: 3, label: "OWNER" },
-                    ] as const
-                  ).map(({ value, label }) => (
+                  {roleEntries.map(({ value, displayName }) => (
                     <Toggle
                       key={value}
                       variantColor={
-                        value === 3 ? "gold" : value === 2 ? "red" : "blue"
+                        value === Role.OWNER
+                          ? "gold"
+                          : value === Role.ADMIN
+                            ? "red"
+                            : "blue"
                       }
                       isPressed={role === value}
-                      disabled={!canEditRole || value === 3}
+                      disabled={!canEditRole || value === Role.OWNER}
                       onClick={() => setRole(value)}
                     >
-                      {label}
+                      {displayName}
                     </Toggle>
                   ))}
                 </Row>

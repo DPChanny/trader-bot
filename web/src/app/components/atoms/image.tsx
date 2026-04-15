@@ -14,7 +14,7 @@ const imageVariants = cva(styles.root, {
     },
   },
   defaultVariants: {
-    variantSize: "small",
+    variantSize: "medium",
   },
 });
 

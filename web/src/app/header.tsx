@@ -28,7 +28,6 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
                   src={user.avatarUrl}
                   alt={user.name}
                   variantContent="avatar"
-                  variantSize="medium"
                 />
               )}
               <Name>{user.name}</Name>

@@ -1,6 +1,7 @@
 import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/molecules/badge";
 import { Card, type CardProps } from "@components/atoms/card";
+import { Image } from "@components/atoms/image";
 import { FlexItem, Row } from "@components/atoms/layout";
 import { Name } from "@components/atoms/text";
 import type { PositionDTO } from "@dtos/position";
@@ -27,13 +28,16 @@ export function PositionCard({
   return (
     <Card {...props}>
       <Row>
-        <Badge
-          src={position.iconUrl || undefined}
-          alt={position.name}
-          variantColor="blue"
-          variantSize="large"
-        >
-          {position.name.charAt(0)}
+        <Badge variantColor="blue" variantSize="large">
+          {position.iconUrl ? (
+            <Image
+              src={position.iconUrl}
+              alt={position.name}
+              variantSize="auto"
+            />
+          ) : (
+            position.name.charAt(0)
+          )}
         </Badge>
         <FlexItem>
           <Name>{position.name}</Name>

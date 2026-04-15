@@ -2,7 +2,6 @@ import { clsx } from "clsx";
 import styles from "@styles/components/molecules/badge.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { JSX } from "preact";
-import { Image } from "../atoms/image";
 
 const badgeVariants = cva(styles.badge, {
   variants: {
@@ -26,16 +25,12 @@ const badgeVariants = cva(styles.badge, {
 });
 
 export type BadgeProps = JSX.IntrinsicElements["span"] & {
-  src?: string;
-  alt?: string;
   variantColor?: VariantProps<typeof badgeVariants>["variantColor"];
   variantSize?: VariantProps<typeof badgeVariants>["variantSize"];
 };
 
 export function Badge({
   children,
-  src,
-  alt,
   className,
   variantColor,
   variantSize,
@@ -48,11 +43,7 @@ export function Badge({
 
   return (
     <span className={clsx(baseClass, className)} {...props}>
-      {src ? (
-        <Image src={src} alt={alt ?? "icon"} variantSize="auto" />
-      ) : (
-        children
-      )}
+      {children}
     </span>
   );
 }

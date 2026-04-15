@@ -1,6 +1,7 @@
 import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/molecules/badge";
 import { Card, type CardProps } from "@components/atoms/card";
+import { Image } from "@components/atoms/image";
 import { FlexItem, Row } from "@components/atoms/layout";
 import { Name } from "@components/atoms/text";
 import type { TierDTO } from "@dtos/tier";
@@ -27,13 +28,12 @@ export function TierCard({
   return (
     <Card {...props}>
       <Row>
-        <Badge
-          src={tier.iconUrl || undefined}
-          alt={tier.name}
-          variantColor="red"
-          variantSize="large"
-        >
-          {tier.name.charAt(0)}
+        <Badge variantColor="red" variantSize="large">
+          {tier.iconUrl ? (
+            <Image src={tier.iconUrl} alt={tier.name} variantSize="auto" />
+          ) : (
+            tier.name.charAt(0)
+          )}
         </Badge>
         <FlexItem>
           <Name>{tier.name}</Name>

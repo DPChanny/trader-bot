@@ -40,12 +40,12 @@ export function PresetMemberCard({
       </div>
       <div class={styles.badgesRight}>
         {tier && (
-          <Badge
-            src={tier.iconUrl || undefined}
-            alt={tier.name}
-            variantColor="red"
-          >
-            {tier.name.charAt(0)}
+          <Badge variantColor="red">
+            {tier.iconUrl ? (
+              <Image src={tier.iconUrl} alt={tier.name} variantSize="auto" />
+            ) : (
+              tier.name.charAt(0)
+            )}
           </Badge>
         )}
       </div>
@@ -64,13 +64,16 @@ export function PresetMemberCard({
           {presetMemberPositions?.length > 0 && (
             <Row wrap align="center" justify="center" gap="xs">
               {presetMemberPositions.slice(0, 3).map((pmp) => (
-                <Badge
-                  key={pmp.positionId}
-                  src={pmp.position.iconUrl || undefined}
-                  alt={pmp.position.name}
-                  variantColor="blue"
-                >
-                  {pmp.position.name.charAt(0)}
+                <Badge key={pmp.positionId} variantColor="blue">
+                  {pmp.position.iconUrl ? (
+                    <Image
+                      src={pmp.position.iconUrl}
+                      alt={pmp.position.name}
+                      variantSize="auto"
+                    />
+                  ) : (
+                    pmp.position.name.charAt(0)
+                  )}
                 </Badge>
               ))}
             </Row>
