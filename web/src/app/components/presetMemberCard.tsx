@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import styles from "@styles/components/memberCard.module.css";
 import { Card, type CardProps } from "./molecules/card";
-import { Badge } from "./molecules/badge";
+import { Badge } from "./atoms/badge";
 import { Image } from "./atoms/image";
 import { Row } from "./atoms/layout";
 import { Name } from "./atoms/text";

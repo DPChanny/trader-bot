@@ -11,7 +11,7 @@ import {
   SecondarySection,
   TertiarySection,
 } from "@components/molecules/section";
-import { Column, Fill, Row, Scroll } from "@components/atoms/layout";
+import { Column, Row, Scroll } from "@components/atoms/layout";
 import { Toggle } from "@components/molecules/toggle";
 import { Label, NameTitle } from "@components/atoms/text";
 import {

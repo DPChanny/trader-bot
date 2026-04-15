@@ -1,5 +1,5 @@
 import { DeleteButton, EditButton } from "@components/atoms/button";
-import { Badge } from "@components/molecules/badge";
+import { Badge } from "@components/atoms/badge";
 import { Card, type CardProps } from "@components/molecules/card";
 import { Image } from "@components/atoms/image";
 import { Row } from "@components/atoms/layout";

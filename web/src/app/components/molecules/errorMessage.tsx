@@ -42,7 +42,6 @@ export function ErrorMessage({
       {detail ? (
         <button
           className={styles.toggle}
-          aria-expanded={showDetail}
           onClick={() => setShowDetail((v) => !v)}
         >
           <Text>{text}</Text>

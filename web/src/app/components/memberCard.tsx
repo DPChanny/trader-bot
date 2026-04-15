@@ -3,7 +3,7 @@ import styles from "@styles/components/memberCard.module.css";
 import { Card, type CardProps } from "./molecules/card";
 import { Image } from "./atoms/image";
 import { Name } from "./atoms/text";
-import { Badge } from "./molecules/badge";
+import { Badge } from "./atoms/badge";
 import type { MemberDetailDTO } from "@dtos/member";
 import { getRoleEntries } from "@utils/enum";
 
