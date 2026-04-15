@@ -1,5 +1,6 @@
 import { Card, type CardProps } from "@/components/commons/card";
 import { Row } from "@/components/commons/layout";
+import { Link } from "@/components/commons/link";
 import styles from "@/styles/components/sideMenu/preset/presetCard.module.css";
 import type { PresetDTO } from "@/dtos/preset";
 
@@ -16,9 +17,10 @@ export function PresetCard({
   ...props
 }: PresetCardProps) {
   return (
-    <a
+    <Link
       href={`/guild/${guildId}/preset/${preset.presetId}`}
-      className={styles.link}
+      variantStyle="plain"
+      variantDisplay="block"
       aria-current={isSelected ? "page" : undefined}
     >
       <Card {...props}>
@@ -26,6 +28,6 @@ export function PresetCard({
           <span className={styles.name}>{preset.name}</span>
         </Row>
       </Card>
-    </a>
+    </Link>
   );
 }

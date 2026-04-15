@@ -20,8 +20,6 @@
   align-items: center;
   gap: var(--gap-md);
   user-select: none;
-  text-decoration: none;
-  color: inherit;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);

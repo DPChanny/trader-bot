@@ -1,9 +1,3 @@
-.link {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
-
 .name {
   flex: 1;
   min-width: 0;

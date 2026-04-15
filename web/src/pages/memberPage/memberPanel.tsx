@@ -2,6 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import { MemberCard } from "@/components/memberCard";
 import { useUpdateMember } from "@/hooks/member";
 import { CloseButton, SaveButton } from "@/components/commons/button";
+import { Link } from "@/components/commons/link";
 import { LabelInput } from "@/components/commons/labelInput";
 import { Error } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
@@ -125,9 +126,9 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
             disabled={!canEdit}
           />
           {infoUrl && (
-            <a href={infoUrl} target="_blank" rel="noopener noreferrer">
+            <Link href={infoUrl} target="_blank" rel="noopener noreferrer">
               프로필 보기 →
-            </a>
+            </Link>
           )}
 
           <SecondarySection>

@@ -1,5 +1,6 @@
 import { Card, type CardProps } from "@/components/commons/card";
 import { Row } from "@/components/commons/layout";
+import { Link } from "@/components/commons/link";
 import styles from "@/styles/components/sideMenu/guild/guildCard.module.css";
 import type { GuildDetailDTO } from "@/dtos/guild";
 
@@ -10,9 +11,10 @@ type GuildCardProps = Omit<CardProps, "children"> & {
 
 export function GuildCard({ guild, isSelected, ...props }: GuildCardProps) {
   return (
-    <a
+    <Link
       href={`/guild/${guild.discordId}/member`}
-      className={styles.link}
+      variantStyle="plain"
+      variantDisplay="block"
       aria-current={isSelected ? "page" : undefined}
     >
       <Card {...props}>
@@ -27,6 +29,6 @@ export function GuildCard({ guild, isSelected, ...props }: GuildCardProps) {
           <span className={styles.name}>{guild.name}</span>
         </Row>
       </Card>
-    </a>
+    </Link>
   );
 }
