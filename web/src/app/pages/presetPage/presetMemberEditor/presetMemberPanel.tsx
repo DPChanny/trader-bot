@@ -19,11 +19,7 @@ import { Label, Title } from "@components/atoms/text";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { Bar } from "@components/atoms/bar";
-import {
-  PrimarySection,
-  SecondarySection,
-  TertiarySection,
-} from "@components/molecules/section";
+import { PrimarySection, TertiarySection } from "@components/molecules/section";
 import { Column, Fill, Row, Scroll } from "@components/atoms/layout";
 import { buildPatchDto } from "@utils/dto";
 
@@ -239,77 +235,74 @@ export function PresetMemberPanel({
       <Bar />
 
       <Scroll axis="y">
-        <Column>
-          <Column align="center">
-            <PresetMemberCard presetMember={previewPresetMember} />
-          </Column>
+        <Column align="center">
+          <PresetMemberCard presetMember={previewPresetMember} />
+        </Column>
 
-          <LabelToggle
-            label="팀장"
-            isPressed={isLeader}
-            variantColor="gold"
-            disabled={!canEdit}
-            onClick={() => canEdit && setIsLeader(!isLeader)}
-          >
-            팀장
-          </LabelToggle>
-          <Column gap="xs">
-            <Label>티어</Label>
-            <TertiarySection>
-              <Row wrap>
+        <LabelToggle
+          label="팀장"
+          isPressed={isLeader}
+          variantColor="gold"
+          disabled={!canEdit}
+          onClick={() => canEdit && setIsLeader(!isLeader)}
+        >
+          팀장
+        </LabelToggle>
+
+        <Column gap="xs">
+          <Label>티어</Label>
+          <TertiarySection>
+            <Row wrap>
+              <Toggle
+                isPressed={tierId === null}
+                variantColor="red"
+                disabled={!canEdit}
+                onClick={() => canEdit && setTierId(null)}
+              >
+                없음
+              </Toggle>
+              {tiers?.map((tier) => (
                 <Toggle
-                  isPressed={tierId === null}
+                  key={tier.tierId}
+                  isPressed={tierId === tier.tierId}
                   variantColor="red"
                   disabled={!canEdit}
-                  onClick={() => canEdit && setTierId(null)}
+                  onClick={() => canEdit && handleToggleTier(tier.tierId)}
                 >
-                  없음
+                  {tier.name}
                 </Toggle>
-                {tiers?.map((tier) => (
-                  <Toggle
-                    key={tier.tierId}
-                    isPressed={tierId === tier.tierId}
-                    variantColor="red"
-                    disabled={!canEdit}
-                    onClick={() => canEdit && handleToggleTier(tier.tierId)}
-                  >
-                    {tier.name}
-                  </Toggle>
-                ))}
-              </Row>
-            </TertiarySection>
-          </Column>
+              ))}
+            </Row>
+          </TertiarySection>
+        </Column>
 
-          <Column gap="xs">
-            <Label>포지션</Label>
-            <TertiarySection>
-              <Row wrap>
+        <Column gap="xs">
+          <Label>포지션</Label>
+          <TertiarySection>
+            <Row wrap>
+              <Toggle
+                isPressed={selectedPositionIds.length === 0}
+                variantColor="blue"
+                disabled={!canEdit}
+                onClick={() => canEdit && setSelectedPositionIds([])}
+              >
+                없음
+              </Toggle>
+              {positions.map((position) => (
                 <Toggle
-                  isPressed={selectedPositionIds.length === 0}
+                  key={position.positionId}
+                  isPressed={selectedPositionIds.includes(position.positionId)}
                   variantColor="blue"
                   disabled={!canEdit}
-                  onClick={() => canEdit && setSelectedPositionIds([])}
+                  onClick={() =>
+                    canEdit && handleTogglePosition(position.positionId)
+                  }
                 >
-                  없음
+                  {position.name}
                 </Toggle>
-                {positions.map((position) => (
-                  <Toggle
-                    key={position.positionId}
-                    isPressed={selectedPositionIds.includes(
-                      position.positionId,
-                    )}
-                    variantColor="blue"
-                    disabled={!canEdit}
-                    onClick={() =>
-                      canEdit && handleTogglePosition(position.positionId)
-                    }
-                  >
-                    {position.name}
-                  </Toggle>
-                ))}
-              </Row>
-            </TertiarySection>
-          </Column>
+              ))}
+            </Row>
+          </TertiarySection>
         </Column>
       </Scroll>
 

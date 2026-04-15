@@ -6,14 +6,10 @@ import { Link } from "@components/atoms/link";
 import { LabelInput } from "@components/molecules/labelInput";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 import { Bar } from "@components/atoms/bar";
-import {
-  PrimarySection,
-  SecondarySection,
-  TertiarySection,
-} from "@components/molecules/section";
+import { PrimarySection, TertiarySection } from "@components/molecules/section";
 import { Column, Fill, Row, Scroll } from "@components/atoms/layout";
 import { Toggle } from "@components/molecules/toggle";
-import { Label, Name, Title } from "@components/atoms/text";
+import { Label, Title } from "@components/atoms/text";
 import {
   UpdateMemberSchema,
   type MemberDetailDTO,
@@ -132,7 +128,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
             </Link>
           )}
 
-          <SecondarySection>
+          <Column gap="xs">
             <Label>권한</Label>
             <TertiarySection>
               <Row wrap>
@@ -158,7 +154,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
                 ))}
               </Row>
             </TertiarySection>
-          </SecondarySection>
+          </Column>
         </Column>
       </Scroll>
     </PrimarySection>

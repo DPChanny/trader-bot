@@ -11,7 +11,6 @@ import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
 import {
   PrimarySection,
   SecondarySection,
-  TertiarySection,
 } from "@components/molecules/section";
 import { Fill, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
@@ -22,7 +21,7 @@ import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionModal } from "./auctionModal";
-import { Name, Text, Title } from "@components/atoms/text";
+import { Text, Title } from "@components/atoms/text";
 import type { CreateAuctionDTO } from "@dtos/auction";
 import type { UpdatePresetDTO } from "@dtos/preset";
 import { Bar } from "@components/atoms/bar";

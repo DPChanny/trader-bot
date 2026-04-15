@@ -4,7 +4,7 @@ import type { TeamDTO } from "@dtos/auction";
 import { Card, type CardProps } from "@components/atoms/card";
 import { Column, Row } from "@components/atoms/layout";
 import { Bar } from "@components/atoms/bar";
-import { Name, Text, Title } from "@components/atoms/text";
+import { Text, Title } from "@components/atoms/text";
 
 type TeamCardProps = Omit<CardProps, "children"> & {
   team: TeamDTO;
