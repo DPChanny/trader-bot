@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
-import styles from "@/styles/components/commons/layout.module.css";
+import styles from "@/styles/components/atoms/layout.module.css";
 import type { ComponentChildren, JSX } from "preact";
 
 const layoutVariants = cva(styles.layout, {

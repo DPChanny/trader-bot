@@ -6,10 +6,10 @@ import { useCreatePresetMember, usePresetMembers } from "@/hooks/presetMember";
 import { MemberGrid } from "@/components/memberGrid";
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import { PresetMemberPanel } from "./presetMemberPanel";
-import { Loading } from "@/components/commons/loading";
-import { ErrorMessage } from "@/components/commons/errorMessage";
-import { PrimarySection, SecondarySection } from "@/components/commons/section";
-import { Column, Row } from "@/components/commons/layout";
+import { Loading } from "@/components/molecules/loading";
+import { ErrorMessage } from "@/components/molecules/errorMessage";
+import { PrimarySection, SecondarySection } from "@/components/molecules/section";
+import { Column, Row } from "@/components/atoms/layout";
 
 interface PresetMemberEditorProps {
   guildId: string;

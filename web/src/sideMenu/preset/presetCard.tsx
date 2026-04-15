@@ -1,7 +1,7 @@
-import { Card, type CardProps } from "@/components/commons/card";
-import { Row } from "@/components/commons/layout";
-import { Link } from "@/components/commons/link";
-import styles from "@/styles/components/sideMenu/preset/presetCard.module.css";
+import { Card, type CardProps } from "@/components/atoms/card";
+import { Row } from "@/components/atoms/layout";
+import { Link } from "@/components/atoms/link";
+import styles from "@/styles/sideMenu/preset/presetCard.module.css";
 import type { PresetDTO } from "@/dtos/preset";
 
 type PresetCardProps = Omit<CardProps, "children"> & {

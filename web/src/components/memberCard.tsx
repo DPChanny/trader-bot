@@ -1,9 +1,9 @@
 import { clsx } from "clsx";
 import styles from "@/styles/components/memberCard.module.css";
-import { Card, type CardProps } from "@/components/commons/card";
-import { Image } from "@/components/commons/image";
-import { Column } from "@/components/commons/layout";
-import { Badge } from "@/components/commons/badge";
+import { Card, type CardProps } from "@/components/atoms/card";
+import { Image } from "@/components/atoms/image";
+import { Column } from "@/components/atoms/layout";
+import { Badge } from "@/components/molecules/badge";
 import type { MemberDetailDTO } from "@/dtos/member";
 
 const ROLE_LABEL: Record<number, string> = {

@@ -1,8 +1,8 @@
-import styles from "@/styles/components/header.module.css";
-import { Button, DangerButton } from "@/components/commons/button";
-import { Image } from "@/components/commons/image";
-import { Row } from "@/components/commons/layout";
-import { Link } from "@/components/commons/link";
+import styles from "@/styles/header.module.css";
+import { Button, DangerButton } from "@/components/atoms/button";
+import { Image } from "@/components/atoms/image";
+import { Row } from "@/components/atoms/layout";
+import { Link } from "@/components/atoms/link";
 import type { UserDetailDTO } from "@/dtos/user";
 
 interface HeaderProps {

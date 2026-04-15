@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { PresetMemberCard } from "@/components/presetMemberCard";
-import { Toggle } from "@/components/commons/toggle";
+import { Toggle } from "@/components/molecules/toggle";
 import {
   useDeletePresetMember,
   useUpdatePresetMember,
@@ -14,15 +14,15 @@ import { usePositions } from "@/hooks/position";
 import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
-import { CloseButton, SaveButton, Button } from "@/components/commons/button";
-import { Label } from "@/components/commons/label";
-import { ErrorMessage } from "@/components/commons/errorMessage";
-import { Bar } from "@/components/commons/bar";
+import { CloseButton, SaveButton, Button } from "@/components/atoms/button";
+import { Label } from "@/components/atoms/label";
+import { ErrorMessage } from "@/components/molecules/errorMessage";
+import { Bar } from "@/components/atoms/bar";
 import {
   SecondarySection,
   TertiarySection,
-} from "@/components/commons/section";
-import { Column, Row, Scroll } from "@/components/commons/layout";
+} from "@/components/molecules/section";
+import { Column, Row, Scroll } from "@/components/atoms/layout";
 import { buildPatchDto } from "@/utils/dto";
 
 interface PresetMemberPanelProps {

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
-import { Modal, ModalFooter, ModalForm } from "@/components/commons/modal";
-import { LabelInput } from "@/components/commons/labelInput";
-import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
-import { ErrorMessage } from "@/components/commons/errorMessage";
+import { Modal, ModalFooter, ModalForm } from "@/components/molecules/modal";
+import { LabelInput } from "@/components/molecules/labelInput";
+import { PrimaryButton, SecondaryButton } from "@/components/atoms/button";
+import { ErrorMessage } from "@/components/molecules/errorMessage";
 import {
   UpdatePositionSchema,
   type PositionDTO,

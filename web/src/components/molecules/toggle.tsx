@@ -3,8 +3,8 @@ import { clsx } from "clsx";
 import {
   PressedButton,
   type PressedButtonProps,
-} from "@/components/commons/button";
-import styles from "@/styles/components/commons/toggle.module.css";
+} from "@/components/atoms/button";
+import styles from "@/styles/components/molecules/toggle.module.css";
 
 const toggleVariants = cva(styles.toggle, {
   variants: {

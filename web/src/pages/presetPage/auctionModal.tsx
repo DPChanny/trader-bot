@@ -1,7 +1,7 @@
 import { route } from "preact-router";
-import { Modal, ModalFooter } from "@/components/commons/modal";
-import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
-import { Column } from "@/components/commons/layout";
+import { Modal, ModalFooter } from "@/components/molecules/modal";
+import { PrimaryButton, SecondaryButton } from "@/components/atoms/button";
+import { Column } from "@/components/atoms/layout";
 
 interface AuctionModalProps {
   auctionId: string;

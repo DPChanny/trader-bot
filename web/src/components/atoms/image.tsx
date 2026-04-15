@@ -2,7 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import { clsx } from "clsx";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { JSX } from "preact";
-import styles from "@/styles/components/commons/image.module.css";
+import styles from "@/styles/components/atoms/image.module.css";
 
 const imageVariants = cva(styles.root, {
   variants: {
@@ -18,8 +18,10 @@ const imageVariants = cva(styles.root, {
   },
 });
 
-export type ImageProps = Omit<JSX.IntrinsicElements["img"], "src"> & {
+export type ImageProps = JSX.IntrinsicElements["span"] & {
   src?: string | null;
+  alt?: string;
+  onError?: JSX.IntrinsicElements["img"]["onError"];
   variantSize?: VariantProps<typeof imageVariants>["variantSize"];
   variantContent?: "icon" | "avatar";
 };
@@ -41,13 +43,12 @@ export function Image({
   }, [src]);
 
   return (
-    <span className={clsx(baseClass, className)}>
+    <span className={clsx(baseClass, className)} {...props}>
       {Boolean(src) && !isBroken ? (
         <img
           src={src!}
           alt={alt}
           className={styles.img}
-          {...props}
           onError={(event) => {
             setIsBroken(true);
             onError?.(event);

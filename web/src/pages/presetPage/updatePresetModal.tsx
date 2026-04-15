@@ -4,10 +4,10 @@ import {
   ModalFooter,
   ModalForm,
   ModalRow,
-} from "@/components/commons/modal";
-import { LabelInput } from "@/components/commons/labelInput";
-import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
-import { ErrorMessage } from "@/components/commons/errorMessage";
+} from "@/components/molecules/modal";
+import { LabelInput } from "@/components/molecules/labelInput";
+import { PrimaryButton, SecondaryButton } from "@/components/atoms/button";
+import { ErrorMessage } from "@/components/molecules/errorMessage";
 import {
   UpdatePresetSchema,
   type PresetDTO,

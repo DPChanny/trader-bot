@@ -1,6 +1,6 @@
-import { Column } from "@/components/commons/layout";
+import { Column } from "@/components/atoms/layout";
 import { useState } from "preact/hooks";
-import styles from "@/styles/components/commons/error.module.css";
+import styles from "@/styles/components/molecules/error.module.css";
 import { clsx } from "clsx";
 import { AppError } from "@/utils/error";
 import type { ComponentChildren, JSX } from "preact";

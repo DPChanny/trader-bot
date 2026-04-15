@@ -7,8 +7,8 @@ import { MemberPage } from "@/pages/memberPage/memberPage";
 import { PresetPage } from "@/pages/presetPage/presetPage";
 import { HomePage } from "@/pages/homePage/homePage";
 import { AuctionPage } from "@/pages/auctionPage/auctionPage";
-import { Header } from "@/components/header";
-import { SideMenu } from "@/components/sideMenu/sideMenu";
+import { Header } from "@/header";
+import { SideMenu } from "@/sideMenu/sideMenu";
 import {
   useAutoRefreshToken,
   useLogin,

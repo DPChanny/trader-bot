@@ -1,5 +1,5 @@
-import { Column, Fill, type LayoutProps } from "@/components/commons/layout";
-import styles from "@/styles/components/commons/loading.module.css";
+import { Column, Fill, type LayoutProps } from "@/components/atoms/layout";
+import styles from "@/styles/components/molecules/loading.module.css";
 
 export type LoadingProps = Omit<LayoutProps, "children">;
 

@@ -1,10 +1,10 @@
-import { Row, Scroll } from "@/components/commons/layout";
-import { SecondarySection } from "@/components/commons/section";
-import { PrimaryButton } from "@/components/commons/button";
+import { Row, Scroll } from "@/components/atoms/layout";
+import { SecondarySection } from "@/components/molecules/section";
+import { PrimaryButton } from "@/components/atoms/button";
 import { GuildCard } from "./guildCard";
 import type { GuildDetailDTO } from "@/dtos/guild";
 import { getBotInviteUrl } from "@/utils/env";
-import { Bar } from "@/components/commons/bar";
+import { Bar } from "@/components/atoms/bar";
 
 interface GuildListProps {
   guilds: GuildDetailDTO[];

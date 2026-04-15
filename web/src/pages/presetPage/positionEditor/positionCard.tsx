@@ -1,7 +1,7 @@
-import { DeleteButton, EditButton } from "@/components/commons/button";
-import { Badge } from "@/components/commons/badge";
-import { Card, type CardProps } from "@/components/commons/card";
-import { Row } from "@/components/commons/layout";
+import { DeleteButton, EditButton } from "@/components/atoms/button";
+import { Badge } from "@/components/molecules/badge";
+import { Card, type CardProps } from "@/components/atoms/card";
+import { Row } from "@/components/atoms/layout";
 import type { PositionDTO } from "@/dtos/position";
 import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";

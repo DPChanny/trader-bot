@@ -1,6 +1,6 @@
-import { Input, type InputProps } from "@/components/commons/input";
-import { Label } from "@/components/commons/label";
-import { Column } from "@/components/commons/layout";
+import { Input, type InputProps } from "@/components/atoms/input";
+import { Label } from "@/components/atoms/label";
+import { Column } from "@/components/atoms/layout";
 
 export type LabelInputProps = InputProps & {
   label: string;

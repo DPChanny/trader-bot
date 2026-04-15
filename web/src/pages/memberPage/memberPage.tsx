@@ -1,14 +1,14 @@
 import { useMemo, useState } from "preact/hooks";
 import { useMembers } from "@/hooks/member";
 import { MemberGrid } from "@/components/memberGrid";
-import { PrimarySection } from "@/components/commons/section";
-import { Page } from "@/components/commons/layout";
-import { Loading } from "@/components/commons/loading";
-import { ErrorMessage } from "@/components/commons/errorMessage";
+import { PrimarySection } from "@/components/molecules/section";
+import { Page } from "@/components/atoms/layout";
+import { Loading } from "@/components/molecules/loading";
+import { ErrorMessage } from "@/components/molecules/errorMessage";
 import { MemberPanel } from "./memberPanel";
 import type { MemberDetailDTO } from "@/dtos/member";
 
-import { Bar } from "@/components/commons/bar";
+import { Bar } from "@/components/atoms/bar";
 
 interface MemberPageProps {
   guildId: string;

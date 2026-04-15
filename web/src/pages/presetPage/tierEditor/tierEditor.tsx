@@ -7,16 +7,16 @@ import {
 } from "@/hooks/tier";
 import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
-import { Loading } from "@/components/commons/loading";
-import { ErrorMessage } from "@/components/commons/errorMessage";
-import { PrimaryButton } from "@/components/commons/button";
-import { Bar } from "@/components/commons/bar";
-import { Row, Scroll } from "@/components/commons/layout";
+import { Loading } from "@/components/molecules/loading";
+import { ErrorMessage } from "@/components/molecules/errorMessage";
+import { PrimaryButton } from "@/components/atoms/button";
+import { Bar } from "@/components/atoms/bar";
+import { Row, Scroll } from "@/components/atoms/layout";
 import { AddTierModal } from "./addTierModal";
 import { UpdateTierModal } from "./updateTierModal";
 import { DeleteTierModal } from "./deleteTierModal";
 import { TierCard } from "./tierCard";
-import { SecondarySection } from "@/components/commons/section";
+import { SecondarySection } from "@/components/molecules/section";
 import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@/dtos/tier";
 
 interface TierEditorProps {

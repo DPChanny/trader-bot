@@ -12,19 +12,19 @@ import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
-} from "@/components/commons/section";
-import { Row } from "@/components/commons/layout";
-import { Page } from "@/components/commons/layout";
-import { Loading } from "@/components/commons/loading";
-import { EditButton, DeleteButton, Button } from "@/components/commons/button";
-import { ErrorMessage } from "@/components/commons/errorMessage";
+} from "@/components/molecules/section";
+import { Row } from "@/components/atoms/layout";
+import { Page } from "@/components/atoms/layout";
+import { Loading } from "@/components/molecules/loading";
+import { EditButton, DeleteButton, Button } from "@/components/atoms/button";
+import { ErrorMessage } from "@/components/molecules/errorMessage";
 import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionModal } from "./auctionModal";
 import type { CreateAuctionDTO } from "@/dtos/auction";
 import type { UpdatePresetDTO } from "@/dtos/preset";
-import { Bar } from "@/components/commons/bar";
+import { Bar } from "@/components/atoms/bar";
 
 interface PresetPageProps {
   guildId: string;

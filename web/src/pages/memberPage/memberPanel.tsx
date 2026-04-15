@@ -1,18 +1,18 @@
 import { useEffect, useState } from "preact/hooks";
 import { MemberCard } from "@/components/memberCard";
 import { useUpdateMember } from "@/hooks/member";
-import { CloseButton, SaveButton } from "@/components/commons/button";
-import { Link } from "@/components/commons/link";
-import { LabelInput } from "@/components/commons/labelInput";
-import { ErrorMessage } from "@/components/commons/errorMessage";
-import { Bar } from "@/components/commons/bar";
+import { CloseButton, SaveButton } from "@/components/atoms/button";
+import { Link } from "@/components/atoms/link";
+import { LabelInput } from "@/components/molecules/labelInput";
+import { ErrorMessage } from "@/components/molecules/errorMessage";
+import { Bar } from "@/components/atoms/bar";
 import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
-} from "@/components/commons/section";
-import { Column, Row, Scroll } from "@/components/commons/layout";
-import { Toggle } from "@/components/commons/toggle";
+} from "@/components/molecules/section";
+import { Column, Row, Scroll } from "@/components/atoms/layout";
+import { Toggle } from "@/components/molecules/toggle";
 import {
   UpdateMemberSchema,
   type MemberDetailDTO,

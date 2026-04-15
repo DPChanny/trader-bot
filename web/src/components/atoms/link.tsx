@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import { cva, type VariantProps } from "class-variance-authority";
-import styles from "@/styles/components/commons/link.module.css";
+import styles from "@/styles/components/atoms/link.module.css";
 import type { ComponentChildren, JSX } from "preact";
 
 const linkVariants = cva(styles.link, {

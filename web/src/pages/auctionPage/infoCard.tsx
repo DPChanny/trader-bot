@@ -1,5 +1,5 @@
-import { Column, Fill } from "@/components/commons/layout";
-import { SecondarySection } from "@/components/commons/section";
+import { Column, Fill } from "@/components/atoms/layout";
+import { SecondarySection } from "@/components/molecules/section";
 import styles from "@/styles/pages/auctionPage/infoCard.module.css";
 
 interface InfoCardProps {

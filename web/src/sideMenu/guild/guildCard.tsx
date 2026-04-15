@@ -1,8 +1,8 @@
-import { Card, type CardProps } from "@/components/commons/card";
-import { Image } from "@/components/commons/image";
-import { Row } from "@/components/commons/layout";
-import { Link } from "@/components/commons/link";
-import styles from "@/styles/components/sideMenu/guild/guildCard.module.css";
+import { Card, type CardProps } from "@/components/atoms/card";
+import { Image } from "@/components/atoms/image";
+import { Row } from "@/components/atoms/layout";
+import { Link } from "@/components/atoms/link";
+import styles from "@/styles/sideMenu/guild/guildCard.module.css";
 import type { GuildDetailDTO } from "@/dtos/guild";
 
 type GuildCardProps = Omit<CardProps, "children"> & {

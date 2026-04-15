@@ -1,4 +1,4 @@
-import { Page } from "@/components/commons/layout";
+import { Page } from "@/components/atoms/layout";
 
 export function HomePage() {
   return <Page></Page>;
