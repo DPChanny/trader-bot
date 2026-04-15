@@ -17,6 +17,7 @@ import { UpdateTierModal } from "./updateTierModal";
 import { DeleteTierModal } from "./deleteTierModal";
 import { TierCard } from "./tierCard";
 import { SecondarySection } from "@components/molecules/section";
+import { Title } from "@components/atoms/text";
 import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@dtos/tier";
 
 interface TierEditorProps {
@@ -97,7 +98,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
   return (
     <SecondarySection fill minSize>
       <Row justify="between" align="center">
-        <h3>티어 목록</h3>
+        <Title>티어 목록</Title>
         {canEdit && (
           <PrimaryButton onClick={handleOpenAddTierModal}>추가</PrimaryButton>
         )}

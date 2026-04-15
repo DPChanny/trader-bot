@@ -13,6 +13,7 @@ import {
 } from "@components/molecules/section";
 import { Column, Row, Scroll } from "@components/atoms/layout";
 import { Toggle } from "@components/molecules/toggle";
+import { Label, Title } from "@components/atoms/text";
 import {
   UpdateMemberSchema,
   type MemberDetailDTO,
@@ -79,7 +80,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
       <SecondarySection>
         <Column>
           <Row>
-            <h3>{member.alias || member.user.name}</h3>
+            <Title>{member.alias || member.user.name}</Title>
             <Row>
               {canEdit && (
                 <SaveButton
@@ -134,7 +135,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
           )}
 
           <SecondarySection>
-            <span>권한</span>
+            <Label>권한</Label>
             <TertiarySection>
               <Row wrap>
                 {(

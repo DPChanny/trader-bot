@@ -15,6 +15,7 @@ import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberCard } from "@components/presetMemberCard";
 import { Input } from "@components/atoms/input";
 import { Bar } from "@components/atoms/bar";
+import { Text, Title } from "@components/atoms/text";
 import { checkRefreshToken } from "@utils/auth";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { Status } from "@dtos/auction";
@@ -180,7 +181,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   return (
     <Page>
       <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
-        <h3>팀 목록</h3>
+        <Title>팀 목록</Title>
         <Bar />
         <TeamList
           teams={state.teams}
@@ -194,8 +195,8 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
       <PrimarySection minSize style={{ flex: 2 }}>
         <Row>
-          <h3>경매 정보</h3>
-          <span>{getStatusText(state.status)}</span>
+          <Title>경매 정보</Title>
+          <Text>{getStatusText(state.status)}</Text>
         </Row>
         <Bar />
         <Column fill>
@@ -262,7 +263,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
       <Column minSize style={{ flex: 3 }}>
         <PrimarySection fill minSize overflow="hidden">
-          <h3>경매 순서</h3>
+          <Title>경매 순서</Title>
           <Bar />
           <PresetMemberGrid
             presetMembers={auctionQueuePresetMembers}
@@ -273,7 +274,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
         </PrimarySection>
 
         <PrimarySection fill minSize overflow="hidden">
-          <h3>유찰 목록</h3>
+          <Title>유찰 목록</Title>
           <Bar />
           <PresetMemberGrid
             presetMembers={unsoldQueuePresetMembers}

@@ -1,10 +1,9 @@
 import { useState } from "preact/hooks";
 import { Modal, ModalFooter } from "@components/molecules/modal";
-import { Toggle } from "@components/molecules/toggle";
-import { Label } from "@components/atoms/text";
+import { LabelToggle } from "@components/molecules/labelToggle";
 import { SecondaryButton, Button } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
-import { Column, Row } from "@components/atoms/layout";
+import { Column } from "@components/atoms/layout";
 import type { CreateAuctionDTO } from "@dtos/auction";
 
 interface CreateAuctionModalProps {
@@ -39,21 +38,20 @@ export function CreateAuctionModal({
         {error && (
           <ErrorMessage error={error}>경매 생성에 실패했습니다.</ErrorMessage>
         )}
-        <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
-          <Label>퍼블릭 허용</Label>
-          <Toggle isPressed={isPublic} onClick={() => setIsPublic((v) => !v)}>
-            {isPublic ? "허용" : "비허용"}
-          </Toggle>
-        </Row>
-        <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
-          <Label>초대 발송</Label>
-          <Toggle
-            isPressed={sendInvite}
-            onClick={() => setSendInvite((v) => !v)}
-          >
-            {sendInvite ? "발송" : "미발송"}
-          </Toggle>
-        </Row>
+        <LabelToggle
+          label="퍼블릭 허용"
+          isPressed={isPublic}
+          onClick={() => setIsPublic((v) => !v)}
+        >
+          {isPublic ? "허용" : "비허용"}
+        </LabelToggle>
+        <LabelToggle
+          label="초대 발송"
+          isPressed={sendInvite}
+          onClick={() => setSendInvite((v) => !v)}
+        >
+          {sendInvite ? "발송" : "미발송"}
+        </LabelToggle>
         <ModalFooter>
           <SecondaryButton
             type="button"

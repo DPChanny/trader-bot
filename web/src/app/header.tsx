@@ -3,7 +3,7 @@ import { Button, DangerButton } from "@components/atoms/button";
 import { Image } from "@components/atoms/image";
 import { Row } from "@components/atoms/layout";
 import { Link } from "@components/atoms/link";
-import { Title, TitleSm } from "@components/atoms/text";
+import { BodyStrong, Title } from "@components/atoms/text";
 import type { UserDetailDTO } from "@dtos/user";
 
 interface HeaderProps {
@@ -17,7 +17,6 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
     <header className={styles.header}>
       <Row align="center" justify="end" className={styles.headerContent}>
         <Link href="/" variantContent="div" className={styles.headerLogo}>
-          <span className={styles.headerIcon}>🎮</span>
           <Title>Trader</Title>
         </Link>
 
@@ -32,7 +31,9 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
                   variantSize="medium"
                 />
               )}
-              <TitleSm className={styles.userName}>{user.name}</TitleSm>
+              <BodyStrong truncate className={styles.userName}>
+                {user.name}
+              </BodyStrong>
               {onLogout && (
                 <DangerButton variantSize="small" onClick={onLogout}>
                   로그아웃

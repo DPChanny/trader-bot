@@ -8,7 +8,10 @@ import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberPanel } from "./presetMemberPanel";
 import { Loading } from "@components/molecules/loading";
 import { ErrorMessage } from "@components/molecules/errorMessage";
-import { PrimarySection, SecondarySection } from "@components/molecules/section";
+import {
+  PrimarySection,
+  SecondarySection,
+} from "@components/molecules/section";
 import { Column, Row } from "@components/atoms/layout";
 
 interface PresetMemberEditorProps {

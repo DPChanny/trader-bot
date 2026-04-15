@@ -4,7 +4,7 @@ import { useGuilds } from "@hooks/guild";
 import { useGuildRoute } from "@hooks/router";
 import { CloseButton } from "@components/atoms/button";
 import { Row } from "@components/atoms/layout";
-import { Micro } from "@components/atoms/text";
+import { Micro, Title } from "@components/atoms/text";
 import { PrimarySection } from "@components/molecules/section";
 import { Bar } from "@components/atoms/bar";
 import { GuildList } from "./guild/guildList";
@@ -24,7 +24,7 @@ export function SideMenu() {
           style={{ width: "20rem", height: "100%", flexShrink: 0 }}
         >
           <Row gap="sm" justify="between" align="center">
-            <h3>메뉴</h3>
+            <Title>메뉴</Title>
             <CloseButton
               onClick={() => setIsOpen(false)}
               aria-label="사이드메뉴 닫기"

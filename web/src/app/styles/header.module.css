@@ -36,6 +36,5 @@
 }
 
 .userName {
-  opacity: 0.85;
-  white-space: nowrap;
+  max-width: min(40vw, 14rem);
 }

@@ -13,6 +13,7 @@ import { PrimaryButton } from "@components/atoms/button";
 import { Bar } from "@components/atoms/bar";
 import { Row, Scroll } from "@components/atoms/layout";
 import { SecondarySection } from "@components/molecules/section";
+import { Title } from "@components/atoms/text";
 import { AddPositionModal } from "./addPositionModal";
 import { UpdatePositionModal } from "./updatePositionModal";
 import { DeletePositionModal } from "./deletePositionModal";
@@ -105,7 +106,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   return (
     <SecondarySection fill minSize>
       <Row justify="between" align="center">
-        <h3>포지션 목록</h3>
+        <Title>포지션 목록</Title>
         {canEdit && (
           <PrimaryButton onClick={handleOpenAddPositionModal}>
             추가

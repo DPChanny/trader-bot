@@ -9,6 +9,7 @@ import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
 import type { CreatePresetDTO } from "@dtos/preset";
 import { Bar } from "@components/atoms/bar";
+import { Title } from "@components/atoms/text";
 
 interface PresetListProps {
   guildId: string;
@@ -39,7 +40,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
     <>
       <SecondarySection fill minSize>
         <Row justify="between" align="center">
-          <h3>프리셋 관리</h3>
+          <Title>프리셋 관리</Title>
           {canEdit && (
             <PrimaryButton onClick={handleOpenCreatePresetModal}>
               추가

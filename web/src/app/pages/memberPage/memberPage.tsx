@@ -6,6 +6,7 @@ import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 import { MemberPanel } from "./memberPanel";
+import { Title } from "@components/atoms/text";
 import type { MemberDetailDTO } from "@dtos/member";
 
 import { Bar } from "@components/atoms/bar";
@@ -40,7 +41,7 @@ export function MemberPage({ guildId }: MemberPageProps) {
   return (
     <Page>
       <PrimarySection minSize style={{ flex: 4 }}>
-        <h3>멤버 목록</h3>
+        <Title>멤버 목록</Title>
         <Bar />
         {error ? (
           <ErrorMessage error={error}>

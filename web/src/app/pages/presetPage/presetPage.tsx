@@ -22,6 +22,7 @@ import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionModal } from "./auctionModal";
+import { Text, Title } from "@components/atoms/text";
 import type { CreateAuctionDTO } from "@dtos/auction";
 import type { UpdatePresetDTO } from "@dtos/preset";
 import { Bar } from "@components/atoms/bar";
@@ -141,7 +142,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
         ) : (
           <SecondarySection>
             <Row>
-              <h3>{preset.name}</h3>
+              <Title>{preset.name}</Title>
               <Row>
                 {canEdit && (
                   <EditButton
@@ -160,12 +161,12 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
             <Bar />
             <TertiarySection>
               <Row>
-                <span>{teamSize} 명</span>
-                <span>
+                <Text>{teamSize} 명</Text>
+                <Text>
                   {preset.points * preset.pointScale} / {preset.pointScale}{" "}
                   포인트
-                </span>
-                <span>{preset.timer} 초</span>
+                </Text>
+                <Text>{preset.timer} 초</Text>
               </Row>
             </TertiarySection>
 

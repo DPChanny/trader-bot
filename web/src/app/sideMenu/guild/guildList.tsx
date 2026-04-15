@@ -5,6 +5,7 @@ import { GuildCard } from "./guildCard";
 import type { GuildDetailDTO } from "@dtos/guild";
 import { getBotInviteUrl } from "@utils/env";
 import { Bar } from "@components/atoms/bar";
+import { Title } from "@components/atoms/text";
 
 interface GuildListProps {
   guilds: GuildDetailDTO[];
@@ -15,7 +16,7 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
   return (
     <SecondarySection fill minSize>
       <Row justify="between" align="center">
-        <h3>길드 관리</h3>
+        <Title>길드 관리</Title>
         <PrimaryButton onClick={() => window.open(getBotInviteUrl(), "_blank")}>
           추가
         </PrimaryButton>

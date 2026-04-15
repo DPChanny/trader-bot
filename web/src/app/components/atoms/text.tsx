@@ -26,19 +26,10 @@ export function Text({ className, truncate, ...props }: SpanProps) {
   return <span className={withTruncate(className, truncate)} {...props} />;
 }
 
-export function Title({ className, truncate, ...props }: SpanProps) {
+export function Title({ className, truncate, ...props }: HeadingProps) {
   return (
-    <span
+    <h3
       className={withTruncate(clsx(styles.title, className), truncate)}
-      {...props}
-    />
-  );
-}
-
-export function TitleSm({ className, truncate, ...props }: SpanProps) {
-  return (
-    <span
-      className={withTruncate(clsx(styles.titleSm, className), truncate)}
       {...props}
     />
   );
@@ -57,15 +48,6 @@ export function BodyStrong({ className, truncate, ...props }: SpanProps) {
   return (
     <span
       className={withTruncate(clsx(styles.bodyStrong, className), truncate)}
-      {...props}
-    />
-  );
-}
-
-export function HeadingTitle({ className, truncate, ...props }: HeadingProps) {
-  return (
-    <h3
-      className={withTruncate(clsx(styles.title, className), truncate)}
       {...props}
     />
   );
