@@ -19,8 +19,8 @@ export function PresetCard({
   return (
     <Link
       href={`/guild/${guildId}/preset/${preset.presetId}`}
-      variantStyle="plain"
-      variantDisplay="block"
+      variantContent="div"
+      className={styles.link}
       aria-current={isSelected ? "page" : undefined}
     >
       <Card {...props}>

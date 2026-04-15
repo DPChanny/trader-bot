@@ -15,7 +15,7 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
   return (
     <header className={styles.header}>
       <Row align="center" justify="end" className={styles.headerContent}>
-        <Link href="/" variantStyle="plain" className={styles.headerLogo}>
+        <Link href="/" variantContent="div" className={styles.headerLogo}>
           <span className={styles.headerIcon}>🎮</span>
           <span className={styles.headerText}>Trader</span>
         </Link>

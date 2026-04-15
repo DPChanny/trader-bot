@@ -10,29 +10,23 @@ const imageVariants = cva(styles.root, {
       small: styles.sizeSmall,
       medium: styles.sizeMedium,
       large: styles.sizeLarge,
-    },
-    variantScale: {
-      fixed: "",
-      inset: styles.scaleInset,
+      auto: styles.sizeAuto,
     },
   },
   defaultVariants: {
     variantSize: "small",
-    variantScale: "fixed",
   },
 });
 
 export type ImageProps = Omit<JSX.IntrinsicElements["img"], "src"> & {
   src?: string | null;
   variantSize?: VariantProps<typeof imageVariants>["variantSize"];
-  variantScale?: VariantProps<typeof imageVariants>["variantScale"];
   variantContent?: "icon" | "avatar";
 };
 
 export function Image({
   src,
   variantSize,
-  variantScale,
   variantContent = "icon",
   alt,
   className,
@@ -40,7 +34,7 @@ export function Image({
   ...props
 }: ImageProps) {
   const [isBroken, setIsBroken] = useState(false);
-  const baseClass = imageVariants({ variantSize, variantScale });
+  const baseClass = imageVariants({ variantSize });
 
   useEffect(() => {
     setIsBroken(false);

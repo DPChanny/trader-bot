@@ -23,7 +23,7 @@ export function Modal({ onClose, title, children, className }: ModalProps) {
           onClick={(e) => e.stopPropagation()}
         >
           <h3>{title}</h3>
-          <Bar variantColor="blue" variantThickness="thin" />
+          <Bar variantColor="blue" variantSize="small" />
           {children}
         </PrimarySection>
       </Fill>

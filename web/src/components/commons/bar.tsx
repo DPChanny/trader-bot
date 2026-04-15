@@ -10,32 +10,32 @@ const barVariants = cva(styles.bar, {
       green: styles.colorGreen,
       gold: styles.colorGold,
     },
-    variantThickness: {
-      thin: styles.thicknessThin,
-      medium: styles.thicknessMedium,
-      thick: styles.thicknessThick,
+    variantSize: {
+      small: styles.sizeSmall,
+      medium: styles.sizeMedium,
+      large: styles.sizeLarge,
     },
   },
   defaultVariants: {
     variantColor: "blue",
-    variantThickness: "thin",
+    variantSize: "small",
   },
 });
 
 export type BarProps = JSX.IntrinsicElements["div"] & {
   variantColor?: VariantProps<typeof barVariants>["variantColor"];
-  variantThickness?: VariantProps<typeof barVariants>["variantThickness"];
+  variantSize?: VariantProps<typeof barVariants>["variantSize"];
 };
 
 export function Bar({
   className,
   variantColor,
-  variantThickness,
+  variantSize,
   ...props
 }: BarProps) {
   const baseClass = barVariants({
     variantColor,
-    variantThickness,
+    variantSize,
   });
 
   return <div className={clsx(baseClass, className)} {...props} />;

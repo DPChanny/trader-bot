@@ -1,3 +1,7 @@
+.link {
+  display: block;
+}
+
 .name {
   flex: 1;
   min-width: 0;

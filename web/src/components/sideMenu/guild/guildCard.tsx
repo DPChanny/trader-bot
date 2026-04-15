@@ -14,8 +14,8 @@ export function GuildCard({ guild, isSelected, ...props }: GuildCardProps) {
   return (
     <Link
       href={`/guild/${guild.discordId}/member`}
-      variantStyle="plain"
-      variantDisplay="block"
+      variantContent="div"
+      className={styles.link}
       aria-current={isSelected ? "page" : undefined}
     >
       <Card {...props}>

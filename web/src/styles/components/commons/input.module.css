@@ -29,32 +29,32 @@
   color: var(--color-input-placeholder);
 }
 
-.stateDefault {
+.stateValid {
   background-color: var(--color-input-bg);
   color: var(--color-input-text);
   border-color: var(--color-input-border);
 }
 
-.stateDefault::placeholder {
+.stateValid::placeholder {
   color: var(--color-input-placeholder);
 }
 
-.stateDefault:focus {
+.stateValid:focus {
   background-color: var(--color-input-bg-focus);
   border-color: var(--color-input-border-focus);
 }
 
-.stateError {
+.stateInvalid {
   background-color: var(--color-input-error-bg);
   color: var(--color-input-error-text);
   border-color: var(--color-input-error-border);
 }
 
-.stateError::placeholder {
+.stateInvalid::placeholder {
   color: var(--color-input-error-placeholder);
 }
 
-.stateError:focus {
+.stateInvalid:focus {
   background-color: var(--color-input-error-bg-focus);
   border-color: var(--color-input-error-border-focus);
 }

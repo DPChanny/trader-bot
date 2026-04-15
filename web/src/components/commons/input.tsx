@@ -6,8 +6,8 @@ import type { JSX } from "preact";
 const inputVariants = cva(styles.input, {
   variants: {
     variantState: {
-      default: styles.stateDefault,
-      error: styles.stateError,
+      valid: styles.stateValid,
+      invalid: styles.stateInvalid,
     },
     variantSize: {
       small: styles.sizeSmall,
@@ -16,7 +16,7 @@ const inputVariants = cva(styles.input, {
     },
   },
   defaultVariants: {
-    variantState: "default",
+    variantState: "valid",
     variantSize: "medium",
   },
 });

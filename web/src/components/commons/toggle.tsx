@@ -13,14 +13,9 @@ const toggleVariants = cva(styles.toggle, {
       red: styles.colorRed,
       gold: styles.colorGold,
     },
-    variantPressed: {
-      true: styles.pressedTrue,
-      false: "",
-    },
   },
   defaultVariants: {
     variantColor: "blue",
-    variantPressed: false,
   },
 });
 
@@ -35,10 +30,7 @@ export function Toggle({
   type = "button",
   ...props
 }: ToggleProps) {
-  const baseClass = toggleVariants({
-    variantColor,
-    variantPressed: isPressed,
-  });
+  const baseClass = toggleVariants({ variantColor });
 
   return (
     <PressedButton

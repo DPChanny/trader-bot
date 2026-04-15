@@ -5,35 +5,28 @@ import type { ComponentChildren, JSX } from "preact";
 
 const linkVariants = cva(styles.link, {
   variants: {
-    variantStyle: {
-      inline: "",
-      plain: styles.stylePlain,
-    },
-    variantDisplay: {
-      inline: "",
-      block: styles.displayBlock,
+    variantContent: {
+      text: "",
+      div: styles.contentDiv,
     },
   },
   defaultVariants: {
-    variantStyle: "inline",
-    variantDisplay: "inline",
+    variantContent: "text",
   },
 });
 
 export type LinkProps = JSX.IntrinsicElements["a"] & {
   children?: ComponentChildren;
-  variantStyle?: VariantProps<typeof linkVariants>["variantStyle"];
-  variantDisplay?: VariantProps<typeof linkVariants>["variantDisplay"];
+  variantContent?: VariantProps<typeof linkVariants>["variantContent"];
 };
 
 export function Link({
   children,
   className,
-  variantStyle,
-  variantDisplay,
+  variantContent,
   ...props
 }: LinkProps) {
-  const baseClass = linkVariants({ variantStyle, variantDisplay });
+  const baseClass = linkVariants({ variantContent });
 
   return (
     <a className={clsx(baseClass, className)} {...props}>

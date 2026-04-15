@@ -3,15 +3,15 @@
   border-radius: var(--radius-xs);
 }
 
-.thicknessThin {
+.sizeSmall {
   height: var(--border-width-thin);
 }
 
-.thicknessMedium {
+.sizeMedium {
   height: var(--border-width-medium);
 }
 
-.thicknessThick {
+.sizeLarge {
   height: var(--border-width-thick);
 }
 
