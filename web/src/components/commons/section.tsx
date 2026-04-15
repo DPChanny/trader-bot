@@ -4,36 +4,36 @@ import { clsx } from "clsx";
 import styles from "@/styles/components/commons/section.module.css";
 
 interface SectionProps extends LayoutProps {
-  variantIntent: VariantProps<typeof sectionVariants>["variantIntent"];
+  variantSurface: VariantProps<typeof sectionVariants>["variantSurface"];
 }
 
 const sectionVariants = cva(styles.section, {
   variants: {
-    variantIntent: {
-      primary: styles.intentPrimary,
-      secondary: styles.intentSecondary,
-      tertiary: styles.intentTertiary,
+    variantSurface: {
+      primary: styles.surfacePrimary,
+      secondary: styles.surfaceSecondary,
+      tertiary: styles.surfaceTertiary,
     },
   },
   defaultVariants: {
-    variantIntent: "primary",
+    variantSurface: "primary",
   },
 });
 
-function Section({ className, variantIntent, ...props }: SectionProps) {
-  const baseClass = sectionVariants({ variantIntent });
+function Section({ className, variantSurface, ...props }: SectionProps) {
+  const baseClass = sectionVariants({ variantSurface });
 
   return <Layout className={clsx(baseClass, className)} {...props} />;
 }
 
 export function PrimarySection(props: LayoutProps) {
-  return <Section variantIntent="primary" {...props} />;
+  return <Section variantSurface="primary" {...props} />;
 }
 
 export function SecondarySection(props: LayoutProps) {
-  return <Section variantIntent="secondary" {...props} />;
+  return <Section variantSurface="secondary" {...props} />;
 }
 
 export function TertiarySection(props: LayoutProps) {
-  return <Section variantIntent="tertiary" {...props} />;
+  return <Section variantSurface="tertiary" {...props} />;
 }

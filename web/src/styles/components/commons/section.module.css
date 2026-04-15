@@ -2,7 +2,7 @@
   border: var(--border-width-default) solid transparent;
 }
 
-.intentPrimary {
+.surfacePrimary {
   --layout-gap: var(--gap-lg);
   background: var(--color-section-primary-bg);
   color: var(--color-section-primary-text);
@@ -11,7 +11,7 @@
   padding: var(--padding-xl);
 }
 
-.intentSecondary {
+.surfaceSecondary {
   --layout-gap: var(--gap-sm);
   background: var(--color-section-secondary-bg);
   color: var(--color-section-secondary-text);
@@ -20,7 +20,7 @@
   padding: var(--padding-lg);
 }
 
-.intentTertiary {
+.surfaceTertiary {
   --layout-gap: var(--gap-xs);
   background: var(--color-section-tertiary-bg);
   color: var(--color-section-tertiary-text);

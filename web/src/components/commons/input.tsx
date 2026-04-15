@@ -5,9 +5,9 @@ import type { JSX } from "preact";
 
 const inputVariants = cva(styles.input, {
   variants: {
-    variantIntent: {
-      default: styles.intentDefault,
-      error: styles.intentError,
+    variantState: {
+      default: styles.stateDefault,
+      error: styles.stateError,
     },
     variantSize: {
       small: styles.sizeSmall,
@@ -16,7 +16,7 @@ const inputVariants = cva(styles.input, {
     },
   },
   defaultVariants: {
-    variantIntent: "default",
+    variantState: "default",
     variantSize: "medium",
   },
 });
@@ -24,7 +24,7 @@ const inputVariants = cva(styles.input, {
 export type InputProps = JSX.IntrinsicElements["input"] & {
   value?: string | number;
   onValueChange?: (value: string) => void;
-  variantIntent?: VariantProps<typeof inputVariants>["variantIntent"];
+  variantState?: VariantProps<typeof inputVariants>["variantState"];
   variantSize?: VariantProps<typeof inputVariants>["variantSize"];
 };
 
@@ -34,12 +34,12 @@ export function Input({
   onInput,
   type = "text",
   className,
-  variantIntent,
+  variantState,
   variantSize,
   ...props
 }: InputProps) {
   const baseClass = inputVariants({
-    variantIntent,
+    variantState,
     variantSize,
   });
 

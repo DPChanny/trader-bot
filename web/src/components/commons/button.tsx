@@ -20,16 +20,16 @@ const buttonVariants = cva(styles.button, {
       medium: styles.sizeMedium,
       large: styles.sizeLarge,
     },
-    variantType: {
+    variantContent: {
       text: "",
-      icon: styles.typeIcon,
+      icon: styles.contentIcon,
     },
   },
   defaultVariants: {
     variantIntent: "primary",
     variantTone: "solid",
     variantSize: "medium",
-    variantType: "text",
+    variantContent: "text",
   },
 });
 
@@ -41,7 +41,7 @@ export type ButtonProps = PressedButtonProps & {
   variantIntent?: VariantProps<typeof buttonVariants>["variantIntent"];
   variantTone?: VariantProps<typeof buttonVariants>["variantTone"];
   variantSize?: VariantProps<typeof buttonVariants>["variantSize"];
-  variantType?: VariantProps<typeof buttonVariants>["variantType"];
+  variantContent?: VariantProps<typeof buttonVariants>["variantContent"];
 };
 
 export function PressedButton({
@@ -65,7 +65,7 @@ export function Button({
   variantIntent,
   variantTone,
   variantSize,
-  variantType,
+  variantContent,
   type = "button",
   isPressed,
   ...props
@@ -74,7 +74,7 @@ export function Button({
     variantIntent,
     variantTone,
     variantSize,
-    variantType: variantType,
+    variantContent,
   });
 
   return (
@@ -100,40 +100,60 @@ export function DangerButton(props: Omit<ButtonProps, "variantIntent">) {
 }
 
 export function EditButton(
-  props: Omit<ButtonProps, "children" | "variantType">,
+  props: Omit<ButtonProps, "children" | "variantContent">,
 ) {
   return (
-    <Button variantType="icon" variantIntent="primary" title="수정" {...props}>
+    <Button
+      variantContent="icon"
+      variantIntent="primary"
+      title="수정"
+      {...props}
+    >
       ✎
     </Button>
   );
 }
 
 export function DeleteButton(
-  props: Omit<ButtonProps, "children" | "variantType">,
+  props: Omit<ButtonProps, "children" | "variantContent">,
 ) {
   return (
-    <Button variantType="icon" variantIntent="danger" title="삭제" {...props}>
+    <Button
+      variantContent="icon"
+      variantIntent="danger"
+      title="삭제"
+      {...props}
+    >
       🗑
     </Button>
   );
 }
 
 export function CloseButton(
-  props: Omit<ButtonProps, "children" | "variantType">,
+  props: Omit<ButtonProps, "children" | "variantContent">,
 ) {
   return (
-    <Button variantType="icon" variantIntent="danger" title="닫기" {...props}>
+    <Button
+      variantContent="icon"
+      variantIntent="danger"
+      title="닫기"
+      {...props}
+    >
       ✕
     </Button>
   );
 }
 
 export function SaveButton(
-  props: Omit<ButtonProps, "children" | "variantType">,
+  props: Omit<ButtonProps, "children" | "variantContent">,
 ) {
   return (
-    <Button variantType="icon" variantIntent="primary" title="저장" {...props}>
+    <Button
+      variantContent="icon"
+      variantIntent="primary"
+      title="저장"
+      {...props}
+    >
       ✓
     </Button>
   );

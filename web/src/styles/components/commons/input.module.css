@@ -29,32 +29,32 @@
   color: var(--color-input-placeholder);
 }
 
-.intentDefault {
+.stateDefault {
   background-color: var(--color-input-bg);
   color: var(--color-input-text);
   border-color: var(--color-input-border);
 }
 
-.intentDefault::placeholder {
+.stateDefault::placeholder {
   color: var(--color-input-placeholder);
 }
 
-.intentDefault:focus {
+.stateDefault:focus {
   background-color: var(--color-input-bg-focus);
   border-color: var(--color-input-border-focus);
 }
 
-.intentError {
+.stateError {
   background-color: var(--color-input-error-bg);
   color: var(--color-input-error-text);
   border-color: var(--color-input-error-border);
 }
 
-.intentError::placeholder {
+.stateError::placeholder {
   color: var(--color-input-error-placeholder);
 }
 
-.intentError:focus {
+.stateError:focus {
   background-color: var(--color-input-error-bg-focus);
   border-color: var(--color-input-error-border-focus);
 }

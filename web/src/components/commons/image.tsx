@@ -26,14 +26,14 @@ export type ImageProps = Omit<JSX.IntrinsicElements["img"], "src"> & {
   src?: string | null;
   variantSize?: VariantProps<typeof imageVariants>["variantSize"];
   variantScale?: VariantProps<typeof imageVariants>["variantScale"];
-  variantType?: "icon" | "avatar";
+  variantContent?: "icon" | "avatar";
 };
 
 export function Image({
   src,
   variantSize,
   variantScale,
-  variantType = "icon",
+  variantContent = "icon",
   alt,
   className,
   onError,
@@ -61,7 +61,7 @@ export function Image({
         />
       ) : (
         <span className={styles.fallback}>
-          {variantType === "avatar" ? (
+          {variantContent === "avatar" ? (
             <svg
               className={styles.avatarFallbackIcon}
               viewBox="0 0 24 24"

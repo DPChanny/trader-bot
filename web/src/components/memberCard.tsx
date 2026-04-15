@@ -47,7 +47,7 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
         <Image
           src={avatarUrl}
           alt={displayName}
-          variantType="avatar"
+          variantContent="avatar"
           variantSize="large"
         />
         <Column gap="xs" align="center">
