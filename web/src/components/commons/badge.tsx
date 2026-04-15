@@ -2,6 +2,7 @@ import { clsx } from "clsx";
 import styles from "@/styles/components/commons/badge.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { JSX } from "preact";
+import { Image } from "@/components/commons/image";
 
 const badgeVariants = cva(styles.badge, {
   variants: {
@@ -14,7 +15,7 @@ const badgeVariants = cva(styles.badge, {
     },
     variantTone: {
       solid: "",
-      outline: styles.variantOutline,
+      outline: styles.toneOutline,
     },
     variantSize: {
       small: styles.sizeSmall,
@@ -55,16 +56,7 @@ export function Badge({
   return (
     <span className={clsx(baseClass, className)}>
       {src ? (
-        <img
-          src={src}
-          alt={alt ?? "icon"}
-          style={{
-            width: "80%",
-            height: "80%",
-            objectFit: "cover",
-            display: "block",
-          }}
-        />
+        <Image src={src} alt={alt ?? "icon"} variantSize="badge" />
       ) : (
         children
       )}

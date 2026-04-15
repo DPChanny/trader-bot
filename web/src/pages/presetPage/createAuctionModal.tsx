@@ -3,7 +3,7 @@ import { Modal, ModalFooter } from "@/components/commons/modal";
 import { Toggle } from "@/components/commons/toggle";
 import { Label } from "@/components/commons/label";
 import { SecondaryButton, Button } from "@/components/commons/button";
-import { Error } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/error";
 import { Column, Row } from "@/components/commons/layout";
 import type { CreateAuctionDTO } from "@/dtos/auction";
 
@@ -35,8 +35,10 @@ export function CreateAuctionModal({
   return (
     <Modal onClose={handleClose} title="경매 생성">
       <Column gap="sm">
-        {message && <Error>{message}</Error>}
-        {error && <Error error={error}>경매 생성에 실패했습니다.</Error>}
+        {message && <ErrorMessage>{message}</ErrorMessage>}
+        {error && (
+          <ErrorMessage error={error}>경매 생성에 실패했습니다.</ErrorMessage>
+        )}
         <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
           <Label>퍼블릭 허용</Label>
           <Toggle isPressed={isPublic} onClick={() => setIsPublic((v) => !v)}>

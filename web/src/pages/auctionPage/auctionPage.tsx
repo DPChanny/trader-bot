@@ -6,7 +6,7 @@ import { PrimarySection, SecondarySection } from "@/components/commons/section";
 import { Column, Row } from "@/components/commons/layout";
 import { Page } from "@/components/commons/layout";
 import { Loading } from "@/components/commons/loading";
-import { Error } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import { PresetMemberCard } from "@/components/presetMemberCard";
@@ -103,7 +103,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
       <Page>
         <Column fill center>
           <PrimarySection>
-            <Error error={websocketError}>{errorMessage}</Error>
+            <ErrorMessage error={websocketError}>{errorMessage}</ErrorMessage>
           </PrimarySection>
         </Column>
       </Page>
@@ -223,7 +223,9 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
           {isLeader && !isClientTeamFull && (
             <Row className={styles.auctionInfoBottomSection}>
-              {bidError && <Error error={bidError}>{bidError.message}</Error>}
+              {bidError && (
+                <ErrorMessage error={bidError}>{bidError.message}</ErrorMessage>
+              )}
               <Input
                 type="number"
                 placeholder={`입찰 금액 (${pointScale}의 배수)`}

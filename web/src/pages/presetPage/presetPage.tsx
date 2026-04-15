@@ -17,7 +17,7 @@ import { Row } from "@/components/commons/layout";
 import { Page } from "@/components/commons/layout";
 import { Loading } from "@/components/commons/loading";
 import { EditButton, DeleteButton, Button } from "@/components/commons/button";
-import { Error } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/error";
 import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
@@ -130,11 +130,13 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
           </SecondarySection>
         ) : presetError ? (
           <SecondarySection>
-            <Error error={presetError}>프리셋을 불러오는데 실패했습니다.</Error>
+            <ErrorMessage error={presetError}>
+              프리셋을 불러오는데 실패했습니다.
+            </ErrorMessage>
           </SecondarySection>
         ) : !preset ? (
           <SecondarySection>
-            <Error>프리셋을 찾을 수 없습니다.</Error>
+            <ErrorMessage>프리셋을 찾을 수 없습니다.</ErrorMessage>
           </SecondarySection>
         ) : (
           <SecondarySection>

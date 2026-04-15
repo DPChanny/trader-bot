@@ -16,7 +16,7 @@ import { useVerifyRole } from "@/hooks/member";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 import { CloseButton, SaveButton, Button } from "@/components/commons/button";
 import { Label } from "@/components/commons/label";
-import { Error } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import {
   SecondarySection,
@@ -219,7 +219,7 @@ export function PresetMemberPanel({
           </Row>
         </Row>
         {hasError && (
-          <Error
+          <ErrorMessage
             error={
               updatePresetMember.error ||
               createPresetMemberPosition.error ||
@@ -228,7 +228,7 @@ export function PresetMemberPanel({
             }
           >
             프리셋 멤버 수정에 실패했습니다.
-          </Error>
+          </ErrorMessage>
         )}
       </Column>
 

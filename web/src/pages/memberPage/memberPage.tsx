@@ -4,7 +4,7 @@ import { MemberGrid } from "@/components/memberGrid";
 import { PrimarySection } from "@/components/commons/section";
 import { Page } from "@/components/commons/layout";
 import { Loading } from "@/components/commons/loading";
-import { Error } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/error";
 import { MemberPanel } from "./memberPanel";
 import type { MemberDetailDTO } from "@/dtos/member";
 
@@ -43,7 +43,9 @@ export function MemberPage({ guildId }: MemberPageProps) {
         <h3>멤버 목록</h3>
         <Bar />
         {error ? (
-          <Error error={error}>멤버 목록을 불러오는데 실패했습니다.</Error>
+          <ErrorMessage error={error}>
+            멤버 목록을 불러오는데 실패했습니다.
+          </ErrorMessage>
         ) : isLoading ? (
           <Loading />
         ) : (

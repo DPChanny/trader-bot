@@ -8,7 +8,7 @@ import {
 import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import { Loading } from "@/components/commons/loading";
-import { Error } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/error";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
 import { Row, Scroll } from "@/components/commons/layout";
@@ -106,7 +106,9 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
 
       <Scroll axis="y">
         {error ? (
-          <Error error={error}>티어 목록을 불러오는데 실패했습니다.</Error>
+          <ErrorMessage error={error}>
+            티어 목록을 불러오는데 실패했습니다.
+          </ErrorMessage>
         ) : isLoading ? (
           <Loading />
         ) : (

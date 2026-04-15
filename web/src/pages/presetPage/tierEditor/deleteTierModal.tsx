@@ -1,6 +1,6 @@
 import { Modal, ModalFooter } from "@/components/commons/modal";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
-import { Error } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/error";
 import { Column } from "@/components/commons/layout";
 
 interface DeleteTierModalProps {
@@ -25,7 +25,9 @@ export function DeleteTierModal({
     <Modal onClose={handleClose} title="티어 삭제">
       <Column gap="sm">
         정말 이 티어를 삭제하시겠습니까?
-        {error && <Error error={error}>티어 삭제에 실패했습니다.</Error>}
+        {error && (
+          <ErrorMessage error={error}>티어 삭제에 실패했습니다.</ErrorMessage>
+        )}
         <ModalFooter>
           <SecondaryButton
             type="button"

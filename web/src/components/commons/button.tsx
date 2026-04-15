@@ -22,7 +22,7 @@ const buttonVariants = cva(styles.button, {
     },
     variantType: {
       text: "",
-      icon: styles.variantIcon,
+      icon: styles.typeIcon,
     },
   },
   defaultVariants: {

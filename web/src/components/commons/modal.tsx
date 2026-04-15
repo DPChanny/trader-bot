@@ -33,7 +33,7 @@ export function Modal({ onClose, title, children, className }: ModalProps) {
   return createPortal(content, document.body);
 }
 
-interface ModalFormProps {
+export interface ModalFormProps {
   onSubmit: (e: Event) => void;
   children: JSX.Element | JSX.Element[] | (JSX.Element | null | undefined)[];
   className?: string;
@@ -49,7 +49,7 @@ export function ModalForm({ onSubmit, children, className }: ModalFormProps) {
   );
 }
 
-interface ModalRowProps {
+export interface ModalRowProps {
   children: JSX.Element | JSX.Element[];
   className?: string;
 }
@@ -62,7 +62,7 @@ export function ModalRow({ children, className }: ModalRowProps) {
   );
 }
 
-interface ModalFooterProps {
+export interface ModalFooterProps {
   children: JSX.Element | JSX.Element[];
   className?: string;
 }

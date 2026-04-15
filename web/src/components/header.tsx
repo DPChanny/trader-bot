@@ -1,5 +1,6 @@
 import styles from "@/styles/components/header.module.css";
 import { Button, DangerButton } from "@/components/commons/button";
+import { Image } from "@/components/commons/image";
 import { Row } from "@/components/commons/layout";
 import { Link } from "@/components/commons/link";
 import type { UserDetailDTO } from "@/dtos/user";
@@ -23,10 +24,10 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
           {user ? (
             <>
               {user.avatarUrl && (
-                <img
-                  className={styles.userAvatar}
+                <Image
                   src={user.avatarUrl}
                   alt={user.name}
+                  variantSize="header"
                 />
               )}
               <span className={styles.userName}>{user.name}</span>

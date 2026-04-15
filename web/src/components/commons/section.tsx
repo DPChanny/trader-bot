@@ -1,15 +1,11 @@
 import { Layout, type LayoutProps } from "@/components/commons/layout";
-import { cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@/styles/components/commons/section.module.css";
 
-type SectionIntent = "primary" | "secondary" | "tertiary";
-
-interface BaseSectionProps extends LayoutProps {
-  variantIntent: SectionIntent;
+interface SectionProps extends LayoutProps {
+  variantIntent: VariantProps<typeof sectionVariants>["variantIntent"];
 }
-
-export type SurfaceSectionProps = Omit<BaseSectionProps, "variantIntent">;
 
 const sectionVariants = cva(styles.section, {
   variants: {
@@ -19,9 +15,12 @@ const sectionVariants = cva(styles.section, {
       tertiary: styles.intentTertiary,
     },
   },
+  defaultVariants: {
+    variantIntent: "primary",
+  },
 });
 
-function BaseSection({ className, variantIntent, ...props }: BaseSectionProps) {
+function Section({ className, variantIntent, ...props }: SectionProps) {
   return (
     <Layout
       className={clsx(sectionVariants({ variantIntent }), className)}
@@ -30,14 +29,14 @@ function BaseSection({ className, variantIntent, ...props }: BaseSectionProps) {
   );
 }
 
-export function PrimarySection(props: SurfaceSectionProps) {
-  return <BaseSection variantIntent="primary" {...props} />;
+export function PrimarySection(props: LayoutProps) {
+  return <Section variantIntent="primary" {...props} />;
 }
 
-export function SecondarySection(props: SurfaceSectionProps) {
-  return <BaseSection variantIntent="secondary" {...props} />;
+export function SecondarySection(props: LayoutProps) {
+  return <Section variantIntent="secondary" {...props} />;
 }
 
-export function TertiarySection(props: SurfaceSectionProps) {
-  return <BaseSection variantIntent="tertiary" {...props} />;
+export function TertiarySection(props: LayoutProps) {
+  return <Section variantIntent="tertiary" {...props} />;
 }

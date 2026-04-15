@@ -17,10 +17,8 @@ const cardVariants = cva(styles.card, {
   },
 });
 
-type CardVariantProps = VariantProps<typeof cardVariants>;
-
 export type CardProps = JSX.IntrinsicElements["div"] & {
-  variantColor?: CardVariantProps["variantColor"];
+  variantColor?: VariantProps<typeof cardVariants>["variantColor"];
 };
 
 export function Card({

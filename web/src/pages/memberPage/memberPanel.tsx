@@ -4,7 +4,7 @@ import { useUpdateMember } from "@/hooks/member";
 import { CloseButton, SaveButton } from "@/components/commons/button";
 import { Link } from "@/components/commons/link";
 import { LabelInput } from "@/components/commons/labelInput";
-import { Error } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/error";
 import { Bar } from "@/components/commons/bar";
 import {
   PrimarySection,
@@ -93,7 +93,9 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
             </Row>
           </Row>
           {updateMember.isError && (
-            <Error error={updateMember.error}>멤버 수정에 실패했습니다.</Error>
+            <ErrorMessage error={updateMember.error}>
+              멤버 수정에 실패했습니다.
+            </ErrorMessage>
           )}
         </Column>
       </SecondarySection>

@@ -1,8 +1,8 @@
 import { Input, type InputProps } from "@/components/commons/input";
 import { Label } from "@/components/commons/label";
-import { Column } from "./layout";
+import { Column } from "@/components/commons/layout";
 
-type LabelInputProps = InputProps & {
+export type LabelInputProps = InputProps & {
   label: string;
   required?: boolean;
 };

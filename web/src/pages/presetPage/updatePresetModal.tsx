@@ -7,7 +7,7 @@ import {
 } from "@/components/commons/modal";
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
-import { Error } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/error";
 import {
   UpdatePresetSchema,
   type PresetDTO,
@@ -81,7 +81,9 @@ export function UpdatePresetModal({
   return (
     <Modal onClose={handleClose} title="프리셋 수정">
       <ModalForm onSubmit={handleSubmit}>
-        {error && <Error error={error}>프리셋 수정에 실패했습니다.</Error>}
+        {error && (
+          <ErrorMessage error={error}>프리셋 수정에 실패했습니다.</ErrorMessage>
+        )}
         <LabelInput
           label="프리셋 이름"
           value={name}

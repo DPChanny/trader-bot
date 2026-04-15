@@ -41,14 +41,6 @@
   gap: var(--gap-md);
 }
 
-.userAvatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--radius-full);
-  object-fit: cover;
-  border: var(--border-width-default) solid rgba(255, 255, 255, 0.2);
-}
-
 .userName {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);

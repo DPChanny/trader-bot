@@ -1,0 +1,62 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  line-height: 1;
+}
+
+.sizeHeader {
+  width: 2rem;
+  height: 2rem;
+  border: var(--border-width-default) solid rgba(255, 255, 255, 0.2);
+}
+
+.sizeProfile {
+  width: 3.75rem;
+  height: 3.75rem;
+  border: var(--border-width-medium) solid var(--color-card-border);
+  background: var(--color-card-bg);
+}
+
+.sizeGuild {
+  width: 1.5rem;
+  height: 1.5rem;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sizeBadge {
+  width: 80%;
+  height: 80%;
+}
+
+.avatarFallbackIcon {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+}
+
+.iconFallbackIcon {
+  color: var(--color-text-muted);
+  width: 70%;
+  height: 70%;
+}

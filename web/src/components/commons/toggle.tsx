@@ -13,14 +13,14 @@ const toggleVariants = cva(styles.toggle, {
       red: styles.colorRed,
       gold: styles.colorGold,
     },
-    pressed: {
+    variantPressed: {
       true: styles.pressedTrue,
       false: "",
     },
   },
   defaultVariants: {
     variantColor: "blue",
-    pressed: false,
+    variantPressed: false,
   },
 });
 
@@ -40,7 +40,7 @@ export function Toggle({
       type={type}
       isPressed={isPressed}
       className={clsx(
-        toggleVariants({ variantColor, pressed: isPressed }),
+        toggleVariants({ variantColor, variantPressed: isPressed }),
         className,
       )}
       {...props}

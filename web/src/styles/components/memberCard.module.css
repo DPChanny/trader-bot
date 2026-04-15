@@ -16,33 +16,6 @@
   right: var(--space-1);
 }
 
-.profile {
-  width: 3.75rem;
-  height: 3.75rem;
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  border: var(--border-width-medium) solid var(--color-card-border);
-  background: var(--color-card-bg);
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.profile img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.profileIcon {
-  color: var(--color-text-muted);
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-}
-
 .name {
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-xs);

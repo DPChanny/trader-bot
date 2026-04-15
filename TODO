@@ -1,10 +1,12 @@
 image
+variant
+text css
+whole css
 prop injection
 security
-uncommon component css
-text css
 inline 검토
 positoin tier 위주 list editor modal 계층 개선
+gap 통일
 bar 관련 개선
 sidemenu 개선
 color 통일
@@ -47,3 +49,7 @@ logger.add(
     level="INFO",        # 운영 단계에선 INFO 이상만 기록
     enqueue=True         # 별도 쓰레드에서 비동기로 처리 (FastAPI 성능 저하 방지)
 )
+
+
+
+The plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.

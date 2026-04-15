@@ -167,21 +167,21 @@
   padding: var(--padding-lg) var(--space-6);
 }
 
-.variantIcon {
+.typeIcon {
   padding: var(--padding-sm);
   width: var(--space-8);
   height: var(--space-8);
   border-radius: var(--radius-button);
 }
 
-.variantIcon.sizeSmall {
+.typeIcon.sizeSmall {
   width: var(--space-7);
   height: var(--space-7);
   font-size: var(--font-size-xs);
   padding: var(--padding-sm);
 }
 
-.variantIcon.sizeLarge {
+.typeIcon.sizeLarge {
   width: var(--space-11);
   height: var(--space-11);
   font-size: var(--font-size-lg);

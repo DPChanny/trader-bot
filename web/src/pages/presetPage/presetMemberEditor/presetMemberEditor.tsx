@@ -7,7 +7,7 @@ import { MemberGrid } from "@/components/memberGrid";
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import { PresetMemberPanel } from "./presetMemberPanel";
 import { Loading } from "@/components/commons/loading";
-import { Error } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/error";
 import { PrimarySection, SecondarySection } from "@/components/commons/section";
 import { Column, Row } from "@/components/commons/layout";
 
@@ -122,9 +122,9 @@ export function PresetMemberEditor({
         <Column fill minSize>
           <SecondarySection fill minSize>
             {presetMembersError ? (
-              <Error error={presetMembersError}>
+              <ErrorMessage error={presetMembersError}>
                 프리셋 멤버 목록을 불러오는데 실패했습니다.
-              </Error>
+              </ErrorMessage>
             ) : presetMembersLoading ? (
               <Loading />
             ) : (
@@ -142,17 +142,17 @@ export function PresetMemberEditor({
 
           <SecondarySection fill minSize>
             {membersError ? (
-              <Error error={membersError}>
+              <ErrorMessage error={membersError}>
                 멤버 목록을 불러오는데 실패했습니다.
-              </Error>
+              </ErrorMessage>
             ) : membersLoading ? (
               <Loading />
             ) : (
               <>
                 {canEdit && createPresetMember.isError && (
-                  <Error error={createPresetMember.error}>
+                  <ErrorMessage error={createPresetMember.error}>
                     프리셋 멤버 추가에 실패했습니다.
-                  </Error>
+                  </ErrorMessage>
                 )}
                 <MemberGrid
                   members={candidateMembers}

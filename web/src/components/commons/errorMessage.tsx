@@ -10,7 +10,12 @@ export type ErrorProps = JSX.IntrinsicElements["div"] & {
   error?: unknown;
 };
 
-export function Error({ children, className, error, ...props }: ErrorProps) {
+export function ErrorMessage({
+  children,
+  className,
+  error,
+  ...props
+}: ErrorProps) {
   const [showDetail, setShowDetail] = useState(false);
 
   const detail = error instanceof globalThis.Error ? error.message : undefined;

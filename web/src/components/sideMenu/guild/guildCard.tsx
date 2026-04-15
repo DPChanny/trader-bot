@@ -1,4 +1,5 @@
 import { Card, type CardProps } from "@/components/commons/card";
+import { Image } from "@/components/commons/image";
 import { Row } from "@/components/commons/layout";
 import { Link } from "@/components/commons/link";
 import styles from "@/styles/components/sideMenu/guild/guildCard.module.css";
@@ -19,13 +20,7 @@ export function GuildCard({ guild, isSelected, ...props }: GuildCardProps) {
     >
       <Card {...props}>
         <Row>
-          <div className={styles.icon}>
-            {guild.iconUrl ? (
-              <img src={guild.iconUrl} alt={guild.name} />
-            ) : (
-              <span className={styles.iconFallback}>🎮</span>
-            )}
-          </div>
+          <Image src={guild.iconUrl} alt={guild.name} variantSize="guild" />
           <span className={styles.name}>{guild.name}</span>
         </Row>
       </Card>

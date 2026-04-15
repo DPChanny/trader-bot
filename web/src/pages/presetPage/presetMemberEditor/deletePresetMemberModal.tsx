@@ -1,6 +1,6 @@
 import { Modal, ModalFooter } from "@/components/commons/modal";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
-import { Error } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/error";
 import { Column } from "@/components/commons/layout";
 
 interface DeletePresetMemberModalProps {
@@ -25,7 +25,11 @@ export function DeletePresetMemberModal({
     <Modal onClose={handleClose} title="프리셋 멤버 제거">
       <Column gap="sm">
         정말 이 멤버를 프리셋에서 제거하시겠습니까?
-        {error && <Error error={error}>프리셋 멤버 제거에 실패했습니다.</Error>}
+        {error && (
+          <ErrorMessage error={error}>
+            프리셋 멤버 제거에 실패했습니다.
+          </ErrorMessage>
+        )}
         <ModalFooter>
           <SecondaryButton
             type="button"
