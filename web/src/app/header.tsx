@@ -6,13 +6,21 @@ import { Link } from "@components/atoms/link";
 import { Name, Title } from "@components/atoms/text";
 import type { UserDetailDTO } from "@dtos/user";
 
-interface HeaderProps {
-  user?: UserDetailDTO;
-  onLogout?: () => void;
-  onLogin?: () => void;
-}
+type HeaderGuestProps = {
+  user?: undefined;
+  onLogin: () => void;
+  onLogout?: never;
+};
 
-export function Header({ user, onLogout, onLogin }: HeaderProps) {
+type HeaderUserProps = {
+  user: UserDetailDTO;
+  onLogout: () => void;
+  onLogin?: never;
+};
+
+type HeaderProps = HeaderGuestProps | HeaderUserProps;
+
+export function Header(props: HeaderProps) {
   return (
     <header className={styles.header}>
       <Row align="center" justify="end" className={styles.headerContent}>
@@ -21,32 +29,28 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
         </Link>
 
         <Row align="center" gap="sm">
-          {user ? (
+          {props.user ? (
             <>
-              {user.avatarUrl && (
+              {props.user.avatarUrl && (
                 <Image
-                  src={user.avatarUrl}
-                  alt={user.name}
+                  src={props.user.avatarUrl}
+                  alt={props.user.name}
                   variantContent="avatar"
                 />
               )}
-              <Name>{user.name}</Name>
-              {onLogout && (
-                <DangerButton variantSize="small" onClick={onLogout}>
-                  로그아웃
-                </DangerButton>
-              )}
+              <Name>{props.user.name}</Name>
+              <DangerButton variantSize="small" onClick={props.onLogout}>
+                로그아웃
+              </DangerButton>
             </>
           ) : (
-            onLogin && (
-              <Button
-                variantIntent="primary"
-                variantSize="small"
-                onClick={onLogin}
-              >
-                로그인
-              </Button>
-            )
+            <Button
+              variantIntent="primary"
+              variantSize="small"
+              onClick={props.onLogin}
+            >
+              로그인
+            </Button>
           )}
         </Row>
       </Row>

@@ -81,11 +81,11 @@ function App() {
 
   return (
     <div className="app-container">
-      <Header
-        user={user ?? undefined}
-        onLogout={user ? handleLogout : undefined}
-        onLogin={!user ? login : undefined}
-      />
+      {user ? (
+        <Header user={user} onLogout={handleLogout} />
+      ) : (
+        <Header onLogin={login} />
+      )}
       <div className="app-body">
         {user && <SideMenu />}
         <div className="app-content">
