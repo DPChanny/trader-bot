@@ -19,13 +19,18 @@ export type LinkProps = JSX.IntrinsicElements["a"] & {
   variantContent?: VariantProps<typeof linkVariants>["variantContent"];
 };
 
-export function Link({
-  children,
-  className,
-  variantContent,
-  ...props
-}: LinkProps) {
-  const baseClass = linkVariants({ variantContent });
+function getVariantContent(children: LinkProps["children"]) {
+  if (typeof children === "string" || typeof children === "number") {
+    return "text" as const;
+  }
+
+  return "div" as const;
+}
+
+export function Link({ children, className, ...props }: LinkProps) {
+  const baseClass = linkVariants({
+    variantContent: getVariantContent(children),
+  });
 
   return (
     <a className={clsx(baseClass, className)} {...props}>

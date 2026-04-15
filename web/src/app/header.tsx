@@ -24,7 +24,7 @@ export function Header(props: HeaderProps) {
   return (
     <header className={styles.header}>
       <Row align="center" justify="end" className={styles.headerContent}>
-        <Link href="/" variantContent="div" className={styles.headerLogo}>
+        <Link href="/" className={styles.headerLogo}>
           <Title>Trader</Title>
         </Link>
 

@@ -13,7 +13,6 @@ export function GuildCard({ guild, isSelected }: GuildCardProps) {
   return (
     <Link
       href={`/guild/${guild.discordId}/member`}
-      variantContent="div"
       aria-current={isSelected ? "page" : undefined}
     >
       <Card direction="row" align="center" justify="center">

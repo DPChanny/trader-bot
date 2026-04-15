@@ -1,19 +1,17 @@
-surface layout text 구분
-status dot 개선
-prop injection
-sidemenu 개선
+prop drilling
+    except atoms
+    except molecules
+component
+    status dot
+    bar
+    sidemenu
 layout
-    overflow
-    hidden
-    flex 등
-color 개선
 icon
-whole css
-css token 개선
-최종 web 검토
-log 개선
+css
+web
+log
     file rotation
-    extra 통일
+    analysis
 home page
     policy
     annuncement

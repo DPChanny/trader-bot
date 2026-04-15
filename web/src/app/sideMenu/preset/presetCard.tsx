@@ -13,7 +13,6 @@ export function PresetCard({ preset, guildId, isSelected }: PresetCardProps) {
   return (
     <Link
       href={`/guild/${guildId}/preset/${preset.presetId}`}
-      variantContent="div"
       aria-current={isSelected ? "page" : undefined}
     >
       <Card direction="row" align="center" justify="center">
