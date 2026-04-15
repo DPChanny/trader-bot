@@ -8,20 +8,7 @@ export const nullableNameSchema = z
   .transform((v) => (v.length === 0 ? null : v))
   .pipe(nameSchema.nullable());
 
-export const urlSchema = z
-  .string()
-  .trim()
-  .refine(
-    (v) => {
-      try {
-        const url = new URL(v);
-        return url.protocol === "http:" || url.protocol === "https:";
-      } catch {
-        return false;
-      }
-    },
-    { message: "Invalid URL" },
-  );
+export const urlSchema = z.string().trim().min(1).max(2048);
 
 export const nullableUrlSchema = z
   .string()
