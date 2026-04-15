@@ -23,7 +23,7 @@ export function TeamList({
 }: TeamListProps) {
   return (
     <TertiarySection fill>
-      <Scroll axis="y" fill gap="md">
+      <Scroll axis="y" fill>
         {teams.map((team) => {
           const members = team.memberIds
             .map((id) => presetMemberMap.get(id))

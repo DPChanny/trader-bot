@@ -36,7 +36,7 @@ export function CreateAuctionModal({
       <Column gap="sm">
         {message && <ErrorMessage>{message}</ErrorMessage>}
         {error && (
-          <ErrorMessage error={error}>경매 생성에 실패했습니다.</ErrorMessage>
+          <ErrorMessage error={error}>경매를 생성하지 못했습니다.</ErrorMessage>
         )}
         <LabelToggle
           label="퍼블릭 허용"

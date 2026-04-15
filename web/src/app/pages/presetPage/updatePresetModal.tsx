@@ -82,7 +82,9 @@ export function UpdatePresetModal({
     <Modal onClose={handleClose} title="프리셋 수정">
       <ModalForm onSubmit={handleSubmit}>
         {error && (
-          <ErrorMessage error={error}>프리셋 수정에 실패했습니다.</ErrorMessage>
+          <ErrorMessage error={error}>
+            프리셋을 수정하지 못했습니다.
+          </ErrorMessage>
         )}
         <LabelInput
           label="프리셋 이름"

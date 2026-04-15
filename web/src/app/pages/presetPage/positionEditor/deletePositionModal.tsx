@@ -26,7 +26,9 @@ export function DeletePositionModal({
       <Column gap="sm">
         정말 이 포지션을 삭제하시겠습니까?
         {error && (
-          <ErrorMessage error={error}>포지션 삭제에 실패했습니다.</ErrorMessage>
+          <ErrorMessage error={error}>
+            포지션을 삭제하지 못했습니다.
+          </ErrorMessage>
         )}
         <ModalFooter>
           <SecondaryButton

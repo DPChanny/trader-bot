@@ -40,9 +40,13 @@ export const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 30,
       refetchOnWindowFocus: false,
       retry: (failureCount, error) => {
-        if (error instanceof Error && "status" in error) {
-          const status = (error as any).status;
-          if (status >= 400 && status < 500) return false;
+        if (error instanceof Error && "code" in error) {
+          const code = (error as any).code;
+          if (typeof code === "number") {
+            const isHttpClientCode = code >= 400 && code < 500;
+            const isAppClientCode = code >= 4000 && code < 5000;
+            if (isHttpClientCode || isAppClientCode) return false;
+          }
         }
         return failureCount < 2;
       },

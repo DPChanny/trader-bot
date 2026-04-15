@@ -7,6 +7,5 @@ export function useMyUser(): UseQueryResult<UserDetailDTO | null, Error> {
   return useQuery({
     queryKey: queryKeys.me(),
     queryFn: getMyUser,
-    retry: false,
   });
 }

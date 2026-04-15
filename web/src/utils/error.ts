@@ -100,76 +100,112 @@ export type AppErrorCode =
   | UserErrorCodeType
   | UnexpectedErrorCodeType;
 
-export function getErrorMessage(code: number): string {
+export interface ErrorDetail {
+  code: number;
+  message: string;
+}
+
+export function getErrorDetail(code: number): ErrorDetail {
+  let message: string;
+
   switch (code) {
     case AuthErrorCode.Unauthorized:
-      return "인증이 필요합니다.";
+      message = "인증이 필요합니다.";
+      break;
     case TokenErrorCode.IncorrectJWTToken:
-      return "유효하지 않은 토큰입니다.";
+      message = "유효하지 않은 토큰입니다.";
+      break;
     case TokenErrorCode.ExpiredJWTToken:
-      return "토큰이 만료되었습니다.";
+      message = "토큰이 만료되었습니다.";
+      break;
     case TokenErrorCode.ExchangeFailed:
-      return "로그인에 실패했습니다.";
+      message = "로그인에 실패했습니다.";
+      break;
 
     case ValidationErrorCode.Invalid:
-      return "유효하지 않은 입력입니다.";
+      message = "유효하지 않은 입력입니다.";
+      break;
 
     case AuctionErrorCode.InsufficientLeaders:
-      return "팀에 리더가 부족합니다.";
+      message = "팀에 리더가 부족합니다.";
+      break;
     case AuctionErrorCode.ForbiddenAccess:
-      return "경매에 접근 권한이 없습니다.";
+      message = "경매에 접근 권한이 없습니다.";
+      break;
     case AuctionErrorCode.NotFound:
-      return "경매를 찾을 수 없습니다.";
+      message = "경매를 찾을 수 없습니다.";
+      break;
 
     case AuctionErrorCode.BidTeamFull:
-      return "팀 인원이 가득 찼습니다.";
+      message = "팀 인원이 가득 찼습니다.";
+      break;
     case AuctionErrorCode.BidTooHigh:
-      return "입찰 금액이 보유 포인트를 초과합니다.";
+      message = "입찰 금액이 보유 포인트를 초과합니다.";
+      break;
     case AuctionErrorCode.BidTooLow:
-      return "입찰 금액이 최솟값보다 낮습니다.";
+      message = "입찰 금액이 최솟값보다 낮습니다.";
+      break;
     case AuctionErrorCode.BidNotLeader:
-      return "리더만 입찰할 수 있습니다.";
+      message = "리더만 입찰할 수 있습니다.";
+      break;
 
     case GuildErrorCode.NotFound:
-      return "길드를 찾을 수 없습니다.";
+      message = "길드를 찾을 수 없습니다.";
+      break;
 
     case MemberErrorCode.InsufficientRole:
-      return "권한이 부족합니다.";
+      message = "권한이 부족합니다.";
+      break;
     case MemberErrorCode.ForbiddenRole:
-      return "해당 역할을 부여할 수 없습니다.";
+      message = "해당 역할을 부여할 수 없습니다.";
+      break;
     case MemberErrorCode.NotMember:
-      return "길드의 멤버가 아닙니다.";
+      message = "길드의 멤버가 아닙니다.";
+      break;
     case MemberErrorCode.NotFound:
-      return "멤버를 찾을 수 없습니다.";
+      message = "멤버를 찾을 수 없습니다.";
+      break;
 
     case PositionErrorCode.NotFound:
-      return "포지션을 찾을 수 없습니다.";
+      message = "포지션을 찾을 수 없습니다.";
+      break;
 
     case PresetErrorCode.NotFound:
-      return "프리셋을 찾을 수 없습니다.";
+      message = "프리셋을 찾을 수 없습니다.";
+      break;
 
     case PresetMemberErrorCode.NotFound:
-      return "프리셋 멤버를 찾을 수 없습니다.";
+      message = "프리셋 멤버를 찾을 수 없습니다.";
+      break;
 
     case PresetMemberPositionErrorCode.Duplicated:
-      return "이미 존재하는 프리셋 멤버 포지션입니다.";
+      message = "이미 존재하는 프리셋 멤버 포지션입니다.";
+      break;
     case PresetMemberPositionErrorCode.NotFound:
-      return "프리셋 멤버 포지션을 찾을 수 없습니다.";
+      message = "프리셋 멤버 포지션을 찾을 수 없습니다.";
+      break;
 
     case TierErrorCode.NotFound:
-      return "티어를 찾을 수 없습니다.";
+      message = "티어를 찾을 수 없습니다.";
+      break;
 
     case UserErrorCode.NotFound:
-      return "사용자를 찾을 수 없습니다.";
+      message = "사용자를 찾을 수 없습니다.";
+      break;
 
     case UnexpectedErrorCode.Internal:
-      return "서버 오류가 발생했습니다.";
+      message = "서버 오류가 발생했습니다.";
+      break;
     case UnexpectedErrorCode.External:
-      return "외부 연동에 실패했습니다.";
+      message = "외부 연동에 실패했습니다.";
+      break;
 
     default:
-      return "알 수 없는 오류가 발생했습니다.";
+      message = "알 수 없는 오류가 발생했습니다.";
+      break;
   }
+
+  return { code, message };
 }
 
 export class AppError extends Error {
@@ -186,8 +222,9 @@ export class HTTPError extends AppError {
   override code: number;
 
   constructor(code: number) {
-    super(getErrorMessage(code), code, "HTTPError");
-    this.code = code;
+    const detail = getErrorDetail(code);
+    super(detail.message, detail.code, "HTTPError");
+    this.code = detail.code;
   }
 }
 
@@ -198,7 +235,7 @@ export class WSError extends AppError {
     const parsedCode = typeof code === "number" ? code : null;
     const message =
       typeof parsedCode === "number"
-        ? getErrorMessage(parsedCode)
+        ? getErrorDetail(parsedCode).message
         : (reason ?? "웹소켓 오류가 발생했습니다.");
     super(message, parsedCode, "WSError");
     this.code = parsedCode;

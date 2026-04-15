@@ -128,7 +128,7 @@ export function PresetMemberEditor({
           {presetMembersError ? (
             <TertiarySection fill>
               <ErrorMessage error={presetMembersError}>
-                프리셋 멤버 목록을 불러오는데 실패했습니다.
+                프리셋 멤버 목록을 불러오지 못했습니다.
               </ErrorMessage>
             </TertiarySection>
           ) : presetMembersLoading ? (
@@ -153,7 +153,7 @@ export function PresetMemberEditor({
           {membersError ? (
             <TertiarySection fill>
               <ErrorMessage error={membersError}>
-                멤버 목록을 불러오는데 실패했습니다.
+                멤버 목록을 불러오지 못했습니다.
               </ErrorMessage>
             </TertiarySection>
           ) : membersLoading ? (
@@ -164,7 +164,7 @@ export function PresetMemberEditor({
             <>
               {canEdit && createPresetMember.isError && (
                 <ErrorMessage error={createPresetMember.error}>
-                  프리셋 멤버 추가에 실패했습니다.
+                  프리셋 멤버를 추가하지 못했습니다.
                 </ErrorMessage>
               )}
               <MemberGrid

@@ -22,6 +22,7 @@ export function ErrorMessage({
   const detail = error instanceof globalThis.Error ? error.message : undefined;
   const code =
     error instanceof AppError ? (error.code ?? undefined) : undefined;
+  const text = children ?? detail ?? "오류가 발생했습니다.";
 
   return (
     <Column
@@ -32,15 +33,14 @@ export function ErrorMessage({
     >
       {detail ? (
         <button
-          type="button"
           className={styles.toggle}
           aria-expanded={showDetail}
           onClick={() => setShowDetail((v) => !v)}
         >
-          <Text>{children ?? "오류가 발생했습니다."}</Text>
+          <Text>{text}</Text>
         </button>
       ) : (
-        <Text>{children ?? "오류가 발생했습니다."}</Text>
+        <Text>{text}</Text>
       )}
       {showDetail && (
         <Text variantSize="small" className={styles.detail}>

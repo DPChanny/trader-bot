@@ -98,7 +98,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
 
       {updateMember.isError && (
         <ErrorMessage error={updateMember.error}>
-          멤버 수정에 실패했습니다.
+          멤버를 수정하지 못했습니다.
         </ErrorMessage>
       )}
 

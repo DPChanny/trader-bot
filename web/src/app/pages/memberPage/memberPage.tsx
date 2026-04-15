@@ -48,7 +48,7 @@ export function MemberPage({ guildId }: MemberPageProps) {
           {error ? (
             <TertiarySection fill>
               <ErrorMessage error={error}>
-                멤버 목록을 불러오는데 실패했습니다.
+                멤버 목록을 불러오지 못했습니다.
               </ErrorMessage>
             </TertiarySection>
           ) : isLoading ? (

@@ -1,14 +1,19 @@
 error message 정리
+card molecule
+children 노출 통일
+modal 개선
+gap 통일
 surface layout text 구분
 layout
-status dot 폐지
-whole css
-prop injection
+    overflow
+    hidden
+    flex 등
+status dot 개선
 aria 검토
-gap 통일
-bar 관련 개선
+prop injection
 sidemenu 개선
-color 정리
+whole css
+token 개선
 최종 web 개선
 log 개선
     file rotation

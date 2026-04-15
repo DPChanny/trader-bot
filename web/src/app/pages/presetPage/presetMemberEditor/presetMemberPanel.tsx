@@ -231,7 +231,7 @@ export function PresetMemberPanel({
             removePresetMember.error
           }
         >
-          프리셋 멤버 수정에 실패했습니다.
+          프리셋 멤버를 수정하지 못했습니다.
         </ErrorMessage>
       )}
 

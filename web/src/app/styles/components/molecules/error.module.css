@@ -11,11 +11,8 @@
   border: none;
   color: var(--color-error-text);
   cursor: pointer;
-  padding: 0;
 }
 
 .detail {
   opacity: 0.75;
-  text-align: center;
-  word-break: break-all;
 }

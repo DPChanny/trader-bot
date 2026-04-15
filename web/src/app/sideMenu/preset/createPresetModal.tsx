@@ -62,7 +62,9 @@ export function CreatePresetModal({
     <Modal onClose={handleClose} title="프리셋 추가">
       <ModalForm onSubmit={handleSubmit}>
         {error ? (
-          <ErrorMessage error={error}>프리셋 추가에 실패했습니다.</ErrorMessage>
+          <ErrorMessage error={error}>
+            프리셋을 추가하지 못했습니다.
+          </ErrorMessage>
         ) : null}
         <LabelInput
           label="프리셋 이름"

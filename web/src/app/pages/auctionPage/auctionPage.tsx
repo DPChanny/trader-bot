@@ -104,11 +104,9 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   if (errorMessage) {
     return (
       <Page>
-        <Column fill center>
-          <PrimarySection>
-            <ErrorMessage error={websocketError}>{errorMessage}</ErrorMessage>
-          </PrimarySection>
-        </Column>
+        <PrimarySection fill align="stretch" justify="center">
+          <ErrorMessage error={websocketError}>{errorMessage}</ErrorMessage>
+        </PrimarySection>
       </Page>
     );
   }
@@ -232,11 +230,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             <TertiarySection>
               {isLeader && !isClientTeamFull && (
                 <Row>
-                  {bidError && (
-                    <ErrorMessage error={bidError}>
-                      {bidError.message}
-                    </ErrorMessage>
-                  )}
+                  {bidError && <ErrorMessage error={bidError} />}
                   <FlexItem>
                     <Input
                       type="number"

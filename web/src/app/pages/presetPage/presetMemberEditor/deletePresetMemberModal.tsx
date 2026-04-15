@@ -27,7 +27,7 @@ export function DeletePresetMemberModal({
         정말 이 멤버를 프리셋에서 제거하시겠습니까?
         {error && (
           <ErrorMessage error={error}>
-            프리셋 멤버 제거에 실패했습니다.
+            프리셋 멤버를 제거하지 못했습니다.
           </ErrorMessage>
         )}
         <ModalFooter>

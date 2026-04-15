@@ -119,7 +119,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
         <Scroll axis="y">
           {error ? (
             <ErrorMessage error={error}>
-              포지션 목록을 불러오는데 실패했습니다.
+              포지션 목록을 불러오지 못했습니다.
             </ErrorMessage>
           ) : isLoading ? (
             <Loading />

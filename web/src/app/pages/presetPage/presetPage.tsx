@@ -117,7 +117,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
       <PrimarySection minSize overflow="hidden" style={{ width: "24rem" }}>
         {presetError ? (
           <ErrorMessage error={presetError}>
-            프리셋을 불러오는데 실패했습니다.
+            프리셋을 불러오지 못했습니다.
           </ErrorMessage>
         ) : (
           <Row justify="between">
@@ -143,7 +143,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
         {presetError ? (
           <ErrorMessage error={presetError}>
-            프리셋을 불러오는데 실패했습니다.
+            프리셋을 불러오지 못했습니다.
           </ErrorMessage>
         ) : preset ? (
           <SecondarySection>

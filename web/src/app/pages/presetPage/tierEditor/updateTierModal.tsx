@@ -3,11 +3,7 @@ import { Modal, ModalFooter, ModalForm } from "@components/molecules/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
-import {
-  UpdateTierSchema,
-  type TierDTO,
-  type UpdateTierDTO,
-} from "@dtos/tier";
+import { UpdateTierSchema, type TierDTO, type UpdateTierDTO } from "@dtos/tier";
 import { buildPatchDto } from "@utils/dto";
 
 interface UpdateTierModalProps {
@@ -55,7 +51,7 @@ export function UpdateTierModal({
     <Modal onClose={handleClose} title="티어 수정">
       <ModalForm onSubmit={handleSubmit}>
         {error ? (
-          <ErrorMessage error={error}>티어 수정에 실패했습니다.</ErrorMessage>
+          <ErrorMessage error={error}>티어를 수정하지 못했습니다.</ErrorMessage>
         ) : null}
         <LabelInput
           label="티어 이름"
