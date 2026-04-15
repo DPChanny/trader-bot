@@ -3,7 +3,7 @@ import { clsx } from "clsx";
 import { Bar } from "../atoms/bar";
 import { Column, Fill, Row } from "../atoms/layout";
 import { Title } from "../atoms/text";
-import { PrimarySection } from "./section";
+import { PrimarySection, SecondarySection } from "./section";
 import styles from "@styles/components/molecules/modal.module.css";
 import type { JSX } from "preact";
 
@@ -24,8 +24,7 @@ export function Modal({ onClose, title, children, className }: ModalProps) {
           onClick={(e) => e.stopPropagation()}
         >
           <Title>{title}</Title>
-          <Bar variantColor="blue" variantSize="small" />
-          {children}
+          <SecondarySection>{children}</SecondarySection>
         </PrimarySection>
       </Fill>
     </Fill>

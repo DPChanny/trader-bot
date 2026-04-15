@@ -1,15 +1,17 @@
 import { useMemo, useState } from "preact/hooks";
 import { useMembers } from "@hooks/member";
 import { MemberGrid } from "@components/memberGrid";
-import { PrimarySection } from "@components/molecules/section";
+import {
+  PrimarySection,
+  SecondarySection,
+  TertiarySection,
+} from "@components/molecules/section";
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 import { MemberPanel } from "./memberPanel";
 import { Title } from "@components/atoms/text";
 import type { MemberDetailDTO } from "@dtos/member";
-
-import { Bar } from "@components/atoms/bar";
 
 interface MemberPageProps {
   guildId: string;
@@ -41,20 +43,26 @@ export function MemberPage({ guildId }: MemberPageProps) {
   return (
     <Page>
       <PrimarySection minSize style={{ flex: 4 }}>
-        <Title>멤버 목록</Title>
-        {error ? (
-          <ErrorMessage error={error}>
-            멤버 목록을 불러오는데 실패했습니다.
-          </ErrorMessage>
-        ) : isLoading ? (
-          <Loading />
-        ) : (
-          <MemberGrid
-            members={sortedMembers}
-            selectedMemberId={selectedMemberId}
-            onMemberClick={setSelectedMemberId}
-          />
-        )}
+        <SecondarySection fill>
+          <Title>멤버 목록</Title>
+          {error ? (
+            <TertiarySection fill>
+              <ErrorMessage error={error}>
+                멤버 목록을 불러오는데 실패했습니다.
+              </ErrorMessage>
+            </TertiarySection>
+          ) : isLoading ? (
+            <TertiarySection fill>
+              <Loading />
+            </TertiarySection>
+          ) : (
+            <MemberGrid
+              members={sortedMembers}
+              selectedMemberId={selectedMemberId}
+              onMemberClick={setSelectedMemberId}
+            />
+          )}
+        </SecondarySection>
       </PrimarySection>
 
       {selectedMember && (

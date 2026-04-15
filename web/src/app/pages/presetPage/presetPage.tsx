@@ -12,7 +12,7 @@ import {
   PrimarySection,
   SecondarySection,
 } from "@components/molecules/section";
-import { Fill, Row } from "@components/atoms/layout";
+import { Fill, Layout, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { EditButton, DeleteButton, Button } from "@components/atoms/button";
@@ -124,47 +124,54 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
         overflow="hidden"
         style={{ width: "24rem", flex: "none" }}
       >
-        {isPresetLoading ? (
-          <Loading />
-        ) : presetError ? (
+        {presetError ? (
           <ErrorMessage error={presetError}>
             프리셋을 불러오는데 실패했습니다.
           </ErrorMessage>
-        ) : !preset ? (
-          <ErrorMessage>프리셋을 찾을 수 없습니다.</ErrorMessage>
         ) : (
-          <>
-            <Row>
-              <Fill>
-                <NameTitle>{preset.name}</NameTitle>
-              </Fill>
-              <Row gap="sm">
-                {canEdit && (
-                  <EditButton
-                    variantSize="medium"
-                    onClick={handleOpenUpdatePresetModal}
-                  />
-                )}
-                {canEdit && (
-                  <DeleteButton
-                    variantSize="medium"
-                    onClick={handleOpenDeletePresetModal}
-                  />
-                )}
-              </Row>
+          <Row justify="between">
+            <NameTitle>{preset ? preset.name : "?"}</NameTitle>
+            <Row gap="sm">
+              {canEdit && (
+                <EditButton
+                  variantSize="medium"
+                  onClick={handleOpenUpdatePresetModal}
+                />
+              )}
+              {canEdit && (
+                <DeleteButton
+                  variantSize="medium"
+                  onClick={handleOpenDeletePresetModal}
+                />
+              )}
             </Row>
-            <Bar />
-            <SecondarySection>
-              <Row align="stretch">
-                <Text>{teamSize} 명</Text>
-                <Text>
-                  {preset.points * preset.pointScale} / {preset.pointScale}{" "}
-                  포인트
-                </Text>
-                <Text>{preset.timer} 초</Text>
-              </Row>
-            </SecondarySection>
-          </>
+          </Row>
+        )}
+
+        <Bar />
+
+        {presetError ? (
+          <ErrorMessage error={presetError}>
+            프리셋을 불러오는데 실패했습니다.
+          </ErrorMessage>
+        ) : preset ? (
+          <SecondarySection>
+            <Row justify="between">
+              <Text>{teamSize} 명</Text>
+              <Text>
+                {preset.points * preset.pointScale} / {preset.pointScale} 포인트
+              </Text>
+              <Text>{preset.timer} 초</Text>
+            </Row>
+          </SecondarySection>
+        ) : (
+          <SecondarySection>
+            <Row justify="between">
+              <Text>? 명</Text>
+              <Text>? / ? 포인트</Text>
+              <Text>? 초</Text>
+            </Row>
+          </SecondarySection>
         )}
 
         <TierEditor guildId={guildId} presetId={presetId} />

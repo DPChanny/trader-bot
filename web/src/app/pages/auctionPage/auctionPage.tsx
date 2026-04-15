@@ -5,6 +5,7 @@ import { InfoCard } from "./infoCard";
 import {
   PrimarySection,
   SecondarySection,
+  TertiarySection,
 } from "@components/molecules/section";
 import { Column, FlexItem, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
@@ -14,7 +15,6 @@ import { PrimaryButton } from "@components/atoms/button";
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberCard } from "@components/presetMemberCard";
 import { Input } from "@components/atoms/input";
-import { Bar } from "@components/atoms/bar";
 import { Text, Title } from "@components/atoms/text";
 import { checkRefreshToken } from "@utils/auth";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
@@ -181,107 +181,116 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   return (
     <Page>
       <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
-        <Title>팀 목록</Title>
-        <TeamList
-          teams={state.teams}
-          presetMemberMap={presetMemberMap}
-          teamSize={teamSize}
-          pointScale={pointScale}
-          clientMemberId={memberId ?? undefined}
-          connectedMemberIds={connectedMemberIds}
-        />
+        <SecondarySection fill>
+          <Title>팀 목록</Title>
+          <TeamList
+            teams={state.teams}
+            presetMemberMap={presetMemberMap}
+            teamSize={teamSize}
+            pointScale={pointScale}
+            clientMemberId={memberId ?? undefined}
+            connectedMemberIds={connectedMemberIds}
+          />
+        </SecondarySection>
       </PrimarySection>
 
       <PrimarySection minSize style={{ flex: 2 }}>
-        <Row>
-          <Title>경매 정보</Title>
-          <Text>{getStatusText(state.status)}</Text>
-        </Row>
-        <Bar />
-        <Column fill>
-          <SecondarySection fill>
-            <Column fill align="center">
-              {currentMember && (
-                <PresetMemberCard presetMember={currentMember} />
-              )}
-            </Column>
-          </SecondarySection>
-
-          <Row wrap>
-            <FlexItem>
-              <Column>
-                <InfoCard label="남은 시간" value={state.timer} />
-                <InfoCard
-                  label="입찰 포인트"
-                  value={(state.currentBid?.amount || 0) * pointScale}
-                />
-              </Column>
-            </FlexItem>
-            <FlexItem>
-              <InfoCard label="입찰 팀장" value="">
-                {currentBidLeader && (
-                  <PresetMemberCard presetMember={currentBidLeader} />
-                )}
-              </InfoCard>
-            </FlexItem>
+        <SecondarySection fill>
+          <Row justify="between">
+            <Title>경매 정보</Title>
+            <Text>{getStatusText(state.status)}</Text>
           </Row>
+          <Column fill>
+            <TertiarySection fill>
+              <Column fill align="center">
+                {currentMember && (
+                  <PresetMemberCard presetMember={currentMember} />
+                )}
+              </Column>
+            </TertiarySection>
 
-          {isLeader && !isClientTeamFull && (
-            <Row>
-              {bidError && (
-                <ErrorMessage error={bidError}>{bidError.message}</ErrorMessage>
+            <TertiarySection>
+              <Row wrap>
+                <FlexItem>
+                  <Column>
+                    <InfoCard label="남은 시간" value={state.timer} />
+                    <InfoCard
+                      label="입찰 포인트"
+                      value={(state.currentBid?.amount || 0) * pointScale}
+                    />
+                  </Column>
+                </FlexItem>
+                <FlexItem>
+                  <InfoCard label="입찰 팀장" value="">
+                    {currentBidLeader && (
+                      <PresetMemberCard presetMember={currentBidLeader} />
+                    )}
+                  </InfoCard>
+                </FlexItem>
+              </Row>
+            </TertiarySection>
+
+            <TertiarySection>
+              {isLeader && !isClientTeamFull && (
+                <Row>
+                  {bidError && (
+                    <ErrorMessage error={bidError}>
+                      {bidError.message}
+                    </ErrorMessage>
+                  )}
+                  <FlexItem>
+                    <Input
+                      type="number"
+                      placeholder={`입찰 금액 (${pointScale}의 배수)`}
+                      value={bidAmount}
+                      onValueChange={(value) => {
+                        setDismissedError(error);
+                        setBidAmount(value);
+                      }}
+                      disabled={state.status !== Status.RUNNING}
+                    />
+                  </FlexItem>
+                  <PrimaryButton
+                    onClick={handlePlaceBid}
+                    disabled={
+                      state.status !== Status.RUNNING ||
+                      !bidAmount ||
+                      parseInt(bidAmount) <= 0 ||
+                      parseInt(bidAmount) % pointScale !== 0
+                    }
+                  >
+                    입찰하기
+                  </PrimaryButton>
+                </Row>
               )}
-              <FlexItem>
-                <Input
-                  type="number"
-                  placeholder={`입찰 금액 (${pointScale}의 배수)`}
-                  value={bidAmount}
-                  onValueChange={(value) => {
-                    setDismissedError(error);
-                    setBidAmount(value);
-                  }}
-                  disabled={state.status !== Status.RUNNING}
-                />
-              </FlexItem>
-              <PrimaryButton
-                onClick={handlePlaceBid}
-                disabled={
-                  state.status !== Status.RUNNING ||
-                  !bidAmount ||
-                  parseInt(bidAmount) <= 0 ||
-                  parseInt(bidAmount) % pointScale !== 0
-                }
-              >
-                입찰하기
-              </PrimaryButton>
-            </Row>
-          )}
-        </Column>
+            </TertiarySection>
+          </Column>
+        </SecondarySection>
       </PrimarySection>
 
-      <Column minSize style={{ flex: 3 }}>
-        <PrimarySection fill minSize overflow="hidden">
-          <Title>경매 순서</Title>
-          <Bar />
-          <PresetMemberGrid
-            presetMembers={auctionQueuePresetMembers}
-            onMemberClick={() => {}}
-            clientMemberId={memberId ?? undefined}
-            connectedMemberIds={connectedMemberIds}
-          />
-        </PrimarySection>
+      <PrimarySection style={{ flex: 3 }}>
+        <Column fill>
+          <SecondarySection fill overflow="hidden">
+            <Title>경매 순서</Title>
+            <PresetMemberGrid
+              presetMembers={auctionQueuePresetMembers}
+              onMemberClick={() => {}}
+              clientMemberId={memberId ?? undefined}
+              connectedMemberIds={connectedMemberIds}
+            />
+          </SecondarySection>
 
-        <PrimarySection fill minSize overflow="hidden">
-          <Title>유찰 목록</Title>
-          <Bar />
-          <PresetMemberGrid
-            presetMembers={unsoldQueuePresetMembers}
-            onMemberClick={() => {}}
-            clientMemberId={memberId ?? undefined}
-            connectedMemberIds={connectedMemberIds}
-          />
-        </PrimarySection>
-      </Column>
+          <SecondarySection fill overflow="hidden">
+            <Title>유찰 목록</Title>
+            <PresetMemberGrid
+              presetMembers={unsoldQueuePresetMembers}
+              onMemberClick={() => {}}
+              clientMemberId={memberId ?? undefined}
+              connectedMemberIds={connectedMemberIds}
+            />
+          </SecondarySection>
+        </Column>
+      </PrimarySection>
     </Page>
   );
 }

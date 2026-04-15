@@ -19,7 +19,7 @@ export function SideMenu() {
     <>
       {isOpen && (
         <PrimarySection minSize overflow="y" style={{ width: "24rem" }}>
-          <Row gap="sm" justify="between" align="center">
+          <Row justify="between">
             <Title>메뉴</Title>
             <CloseButton
               onClick={() => setIsOpen(false)}

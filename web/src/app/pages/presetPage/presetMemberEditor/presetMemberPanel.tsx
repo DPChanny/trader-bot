@@ -15,11 +15,15 @@ import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { CloseButton, SaveButton, Button } from "@components/atoms/button";
-import { Label, NameTitle, Title } from "@components/atoms/text";
+import { Label, NameTitle } from "@components/atoms/text";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { Bar } from "@components/atoms/bar";
-import { PrimarySection, TertiarySection } from "@components/molecules/section";
+import {
+  PrimarySection,
+  SecondarySection,
+  TertiarySection,
+} from "@components/molecules/section";
 import { Column, Fill, Row, Scroll } from "@components/atoms/layout";
 import { buildPatchDto } from "@utils/dto";
 
@@ -200,14 +204,12 @@ export function PresetMemberPanel({
   return (
     <PrimarySection minSize style={{ width: "24rem", flex: "none" }}>
       <Column>
-        <Row>
-          <Fill>
-            <NameTitle>
-              {presetMember.member.alias ||
-                presetMember.member.name ||
-                presetMember.member.user.name}
-            </NameTitle>
-          </Fill>
+        <Row justify="between">
+          <NameTitle>
+            {presetMember.member.alias ||
+              presetMember.member.name ||
+              presetMember.member.user.name}
+          </NameTitle>
           <Row gap="sm">
             {canEdit && (
               <SaveButton
@@ -218,105 +220,106 @@ export function PresetMemberPanel({
             <CloseButton onClick={() => setSelectedPresetMemberId(null)} />
           </Row>
         </Row>
-        {hasError && (
-          <ErrorMessage
-            error={
-              updatePresetMember.error ||
-              createPresetMemberPosition.error ||
-              deletePresetMemberPosition.error ||
-              removePresetMember.error
-            }
-          >
-            프리셋 멤버 수정에 실패했습니다.
-          </ErrorMessage>
-        )}
       </Column>
+
+      {hasError && (
+        <ErrorMessage
+          error={
+            updatePresetMember.error ||
+            createPresetMemberPosition.error ||
+            deletePresetMemberPosition.error ||
+            removePresetMember.error
+          }
+        >
+          프리셋 멤버 수정에 실패했습니다.
+        </ErrorMessage>
+      )}
 
       <Bar />
 
       <Scroll axis="y">
-        <Column align="center">
+        <Column align="center" fill>
           <PresetMemberCard presetMember={previewPresetMember} />
-        </Column>
+          <SecondarySection fill>
+            <LabelToggle
+              label="팀장"
+              isPressed={isLeader}
+              variantColor="gold"
+              disabled={!canEdit}
+              onClick={() => canEdit && setIsLeader(!isLeader)}
+            >
+              팀장
+            </LabelToggle>
 
-        <LabelToggle
-          label="팀장"
-          isPressed={isLeader}
-          variantColor="gold"
-          disabled={!canEdit}
-          onClick={() => canEdit && setIsLeader(!isLeader)}
-        >
-          팀장
-        </LabelToggle>
+            <Column gap="xs">
+              <Label>티어</Label>
+              <TertiarySection>
+                <Row wrap>
+                  <Toggle
+                    isPressed={tierId === null}
+                    variantColor="red"
+                    disabled={!canEdit}
+                    onClick={() => canEdit && setTierId(null)}
+                  >
+                    없음
+                  </Toggle>
+                  {tiers?.map((tier) => (
+                    <Toggle
+                      key={tier.tierId}
+                      isPressed={tierId === tier.tierId}
+                      variantColor="red"
+                      disabled={!canEdit}
+                      onClick={() => canEdit && handleToggleTier(tier.tierId)}
+                    >
+                      {tier.name}
+                    </Toggle>
+                  ))}
+                </Row>
+              </TertiarySection>
+            </Column>
 
-        <Column gap="xs">
-          <Label>티어</Label>
-          <TertiarySection>
-            <Row wrap>
-              <Toggle
-                isPressed={tierId === null}
-                variantColor="red"
-                disabled={!canEdit}
-                onClick={() => canEdit && setTierId(null)}
-              >
-                없음
-              </Toggle>
-              {tiers?.map((tier) => (
-                <Toggle
-                  key={tier.tierId}
-                  isPressed={tierId === tier.tierId}
-                  variantColor="red"
-                  disabled={!canEdit}
-                  onClick={() => canEdit && handleToggleTier(tier.tierId)}
-                >
-                  {tier.name}
-                </Toggle>
-              ))}
-            </Row>
-          </TertiarySection>
-        </Column>
-
-        <Column gap="xs">
-          <Label>포지션</Label>
-          <TertiarySection>
-            <Row wrap>
-              <Toggle
-                isPressed={selectedPositionIds.length === 0}
-                variantColor="blue"
-                disabled={!canEdit}
-                onClick={() => canEdit && setSelectedPositionIds([])}
-              >
-                없음
-              </Toggle>
-              {positions.map((position) => (
-                <Toggle
-                  key={position.positionId}
-                  isPressed={selectedPositionIds.includes(position.positionId)}
-                  variantColor="blue"
-                  disabled={!canEdit}
-                  onClick={() =>
-                    canEdit && handleTogglePosition(position.positionId)
-                  }
-                >
-                  {position.name}
-                </Toggle>
-              ))}
-            </Row>
-          </TertiarySection>
+            <Column gap="xs">
+              <Label>포지션</Label>
+              <TertiarySection>
+                <Row wrap>
+                  <Toggle
+                    isPressed={selectedPositionIds.length === 0}
+                    variantColor="blue"
+                    disabled={!canEdit}
+                    onClick={() => canEdit && setSelectedPositionIds([])}
+                  >
+                    없음
+                  </Toggle>
+                  {positions.map((position) => (
+                    <Toggle
+                      key={position.positionId}
+                      isPressed={selectedPositionIds.includes(
+                        position.positionId,
+                      )}
+                      variantColor="blue"
+                      disabled={!canEdit}
+                      onClick={() =>
+                        canEdit && handleTogglePosition(position.positionId)
+                      }
+                    >
+                      {position.name}
+                    </Toggle>
+                  ))}
+                </Row>
+              </TertiarySection>
+            </Column>
+          </SecondarySection>
         </Column>
       </Scroll>
 
       {canEdit && (
-        <>
-          <Bar />
-          <Button
-            variantIntent="warning"
-            onClick={handleRemoveMember}
-            disabled={removePresetMember.isPending}
-          >
-            제거
-          </Button>
-        </>
+        <Button
+          variantIntent="warning"
+          onClick={handleRemoveMember}
+          disabled={removePresetMember.isPending}
+        >
+          제거
+        </Button>
       )}
     </PrimarySection>
   );

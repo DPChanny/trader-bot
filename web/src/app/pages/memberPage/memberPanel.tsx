@@ -6,7 +6,11 @@ import { Link } from "@components/atoms/link";
 import { LabelInput } from "@components/molecules/labelInput";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 import { Bar } from "@components/atoms/bar";
-import { PrimarySection, TertiarySection } from "@components/molecules/section";
+import {
+  PrimarySection,
+  SecondarySection,
+  TertiarySection,
+} from "@components/molecules/section";
 import { Column, Fill, Row, Scroll } from "@components/atoms/layout";
 import { Toggle } from "@components/molecules/toggle";
 import { Label, NameTitle } from "@components/atoms/text";
@@ -88,73 +92,73 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
             <CloseButton onClick={onClose} />
           </Row>
         </Row>
-        {updateMember.isError && (
-          <ErrorMessage error={updateMember.error}>
-            멤버 수정에 실패했습니다.
-          </ErrorMessage>
-        )}
       </Column>
+
+      {updateMember.isError && (
+        <ErrorMessage error={updateMember.error}>
+          멤버 수정에 실패했습니다.
+        </ErrorMessage>
+      )}
 
       <Bar />
 
       <Scroll axis="y">
-        <Column>
-          <Column align="center">
-            <MemberCard
-              member={{
-                ...member,
-                alias: alias || null,
-                role,
-              }}
+        <Column align="center" fill>
+          <MemberCard
+            member={{
+              ...member,
+              alias: alias || null,
+              role,
+            }}
+          />
+          <SecondarySection fill>
+            <LabelInput
+              label="별칭"
+              value={alias}
+              onValueChange={setAlias}
+              placeholder={member.alias || member.name || member.user.name}
+              disabled={!canEdit}
             />
-          </Column>
+            <LabelInput
+              label="프로필 링크"
+              value={infoUrl}
+              onValueChange={setInfoUrl}
+              disabled={!canEdit}
+            />
+            {infoUrl && (
+              <Link href={infoUrl} target="_blank" rel="noopener noreferrer">
+                프로필 보기
+              </Link>
+            )}
 
-          <LabelInput
-            label="별칭"
-            value={alias}
-            onValueChange={setAlias}
-            placeholder={member.alias || member.name || member.user.name}
-            disabled={!canEdit}
-          />
-          <LabelInput
-            label="프로필 링크"
-            value={infoUrl}
-            onValueChange={setInfoUrl}
-            disabled={!canEdit}
-          />
-          {infoUrl && (
-            <Link href={infoUrl} target="_blank" rel="noopener noreferrer">
-              프로필 보기
-            </Link>
-          )}
-
-          <Column gap="xs">
-            <Label>권한</Label>
-            <TertiarySection>
-              <Row wrap>
-                {(
-                  [
-                    { value: 0, label: "VIEWER" },
-                    { value: 1, label: "EDITOR" },
-                    { value: 2, label: "ADMIN" },
-                    { value: 3, label: "OWNER" },
-                  ] as const
-                ).map(({ value, label }) => (
-                  <Toggle
-                    key={value}
-                    variantColor={
-                      value === 3 ? "gold" : value === 2 ? "red" : "blue"
-                    }
-                    isPressed={role === value}
-                    disabled={!canEditRole || value === 3}
-                    onClick={() => setRole(value)}
-                  >
-                    {label}
-                  </Toggle>
-                ))}
-              </Row>
-            </TertiarySection>
-          </Column>
+            <Column gap="xs">
+              <Label>권한</Label>
+              <TertiarySection>
+                <Row wrap>
+                  {(
+                    [
+                      { value: 0, label: "VIEWER" },
+                      { value: 1, label: "EDITOR" },
+                      { value: 2, label: "ADMIN" },
+                      { value: 3, label: "OWNER" },
+                    ] as const
+                  ).map(({ value, label }) => (
+                    <Toggle
+                      key={value}
+                      variantColor={
+                        value === 3 ? "gold" : value === 2 ? "red" : "blue"
+                      }
+                      isPressed={role === value}
+                      disabled={!canEditRole || value === 3}
+                      onClick={() => setRole(value)}
+                    >
+                      {label}
+                    </Toggle>
+                  ))}
+                </Row>
+              </TertiarySection>
+            </Column>
+          </SecondarySection>
         </Column>
       </Scroll>
     </PrimarySection>

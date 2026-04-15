@@ -2,7 +2,7 @@ import { TeamCard } from "./teamCard";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import type { TeamDTO } from "@dtos/auction";
 import { Scroll } from "@components/atoms/layout";
-import { SecondarySection } from "@components/molecules/section";
+import { TertiarySection } from "@components/molecules/section";
 
 interface TeamListProps {
   teams: TeamDTO[];
@@ -22,7 +22,7 @@ export function TeamList({
   clientMemberId,
 }: TeamListProps) {
   return (
-    <SecondarySection fill>
+    <TertiarySection fill>
       <Scroll axis="y" fill gap="md">
         {teams.map((team) => {
           const members = team.memberIds
@@ -41,7 +41,7 @@ export function TeamList({
             />
           );
         })}
-      </Scroll>{" "}
-    </SecondarySection>
+      </Scroll>
+    </TertiarySection>
   );
 }

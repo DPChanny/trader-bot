@@ -10,7 +10,6 @@ import { useVerifyRole } from "@hooks/member";
 import { Loading } from "@components/molecules/loading";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 import { PrimaryButton } from "@components/atoms/button";
-import { Bar } from "@components/atoms/bar";
 import { Row, Scroll } from "@components/atoms/layout";
 import { AddTierModal } from "./addTierModal";
 import { UpdateTierModal } from "./updateTierModal";

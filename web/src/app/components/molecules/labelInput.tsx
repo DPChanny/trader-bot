@@ -1,6 +1,7 @@
 import { Input, type InputProps } from "../atoms/input";
 import { Label } from "../atoms/text";
 import { Column } from "../atoms/layout";
+import { TertiarySection } from "./section";
 
 export type LabelInputProps = InputProps & {
   label: string;
@@ -15,7 +16,9 @@ export function LabelInput({
   return (
     <Column gap="xs">
       <Label required={required}>{label}</Label>
-      <Input {...inputProps} />
+      <TertiarySection>
+        <Input {...inputProps} />
+      </TertiarySection>
     </Column>
   );
 }
