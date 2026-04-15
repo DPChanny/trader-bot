@@ -2,6 +2,7 @@ import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/molecules/badge";
 import { Card, type CardProps } from "@components/atoms/card";
 import { Row } from "@components/atoms/layout";
+import { CaptionStrong } from "@components/atoms/text";
 import type { PositionDTO } from "@dtos/position";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
@@ -35,7 +36,9 @@ export function PositionCard({
         >
           {position.name.charAt(0)}
         </Badge>
-        <span className={styles.name}>{position.name}</span>
+        <span className={styles.name}>
+          <CaptionStrong>{position.name}</CaptionStrong>
+        </span>
 
         {canEdit && (
           <Row>

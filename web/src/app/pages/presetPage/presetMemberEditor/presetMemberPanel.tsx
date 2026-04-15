@@ -15,7 +15,7 @@ import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { CloseButton, SaveButton, Button } from "@components/atoms/button";
-import { Label } from "@components/atoms/label";
+import { Label } from "@components/atoms/text";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 import { Bar } from "@components/atoms/bar";
 import {

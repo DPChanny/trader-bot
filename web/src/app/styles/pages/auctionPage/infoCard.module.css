@@ -1,8 +1,4 @@
 ﻿.infoLabel {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
 }
 
 .valueSection {
@@ -10,7 +6,5 @@
 }
 
 .infoValue {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
   text-align: center;
 }

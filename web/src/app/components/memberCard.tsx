@@ -3,6 +3,7 @@ import styles from "@styles/components/memberCard.module.css";
 import { Card, type CardProps } from "./atoms/card";
 import { Image } from "./atoms/image";
 import { Column } from "./atoms/layout";
+import { CaptionStrong } from "./atoms/text";
 import { Badge } from "./molecules/badge";
 import type { MemberDetailDTO } from "@dtos/member";
 
@@ -51,7 +52,9 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
           variantSize="large"
         />
         <Column gap="xs" align="center">
-          <h3 class={styles.name}>{displayName}</h3>
+          <h3 class={styles.name}>
+            <CaptionStrong>{displayName}</CaptionStrong>
+          </h3>
         </Column>
       </Column>
     </Card>

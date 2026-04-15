@@ -31,10 +31,7 @@
 }
 
 .headerText {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
   color: #ffffff;
-  letter-spacing: var(--letter-spacing-tight);
 }
 
 .headerUser {
@@ -42,8 +39,6 @@
 }
 
 .userName {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
   color: rgba(255, 255, 255, 0.85);
   white-space: nowrap;
 }

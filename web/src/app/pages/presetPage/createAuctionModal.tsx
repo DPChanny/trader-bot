@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import { Modal, ModalFooter } from "@components/molecules/modal";
 import { Toggle } from "@components/molecules/toggle";
-import { Label } from "@components/atoms/label";
+import { Label } from "@components/atoms/text";
 import { SecondaryButton, Button } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 import { Column, Row } from "@components/atoms/layout";

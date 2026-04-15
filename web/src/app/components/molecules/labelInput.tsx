@@ -1,5 +1,5 @@
 import { Input, type InputProps } from "../atoms/input";
-import { Label } from "../atoms/label";
+import { Label } from "../atoms/text";
 import { Column } from "../atoms/layout";
 
 export type LabelInputProps = InputProps & {
