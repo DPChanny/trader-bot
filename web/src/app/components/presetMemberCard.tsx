@@ -58,7 +58,7 @@ export function PresetMemberCard({
           variantSize="large"
         />
         <Column gap="xs" align="center">
-          <CaptionStrong className={styles.name}>
+          <CaptionStrong truncate>
             {member.alias || member.name || member.user.name}
           </CaptionStrong>
           {presetMemberPositions?.length > 0 && (

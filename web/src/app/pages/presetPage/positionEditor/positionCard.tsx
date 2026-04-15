@@ -1,12 +1,11 @@
 import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/molecules/badge";
 import { Card, type CardProps } from "@components/atoms/card";
-import { Row } from "@components/atoms/layout";
+import { FlexItem, Row } from "@components/atoms/layout";
 import { CaptionStrong } from "@components/atoms/text";
 import type { PositionDTO } from "@dtos/position";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
-import styles from "@styles/pages/presetPage/positionEditor/positionCard.module.css";
 
 type PositionCardProps = Omit<CardProps, "children"> & {
   position: PositionDTO;
@@ -36,9 +35,9 @@ export function PositionCard({
         >
           {position.name.charAt(0)}
         </Badge>
-        <span className={styles.name}>
-          <CaptionStrong>{position.name}</CaptionStrong>
-        </span>
+        <FlexItem>
+          <CaptionStrong truncate>{position.name}</CaptionStrong>
+        </FlexItem>
 
         {canEdit && (
           <Row>

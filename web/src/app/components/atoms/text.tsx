@@ -4,66 +4,141 @@ import type { ComponentChildren, JSX } from "preact";
 
 type SpanProps = JSX.IntrinsicElements["span"] & {
   children?: ComponentChildren;
+  truncate?: boolean;
 };
 
 export type LabelProps = JSX.IntrinsicElements["label"] & {
   children?: ComponentChildren;
   required?: boolean;
+  truncate?: boolean;
 };
 
 type HeadingProps = JSX.IntrinsicElements["h3"] & {
   children?: ComponentChildren;
+  truncate?: boolean;
 };
 
-export function Title({ className, ...props }: SpanProps) {
-  return <span className={clsx(styles.title, className)} {...props} />;
+function withTruncate(className: SpanProps["className"], truncate?: boolean) {
+  return clsx(className, truncate && styles.truncate);
 }
 
-export function TitleSm({ className, ...props }: SpanProps) {
-  return <span className={clsx(styles.titleSm, className)} {...props} />;
+export function Text({ className, truncate, ...props }: SpanProps) {
+  return <span className={withTruncate(className, truncate)} {...props} />;
 }
 
-export function Body({ className, ...props }: SpanProps) {
-  return <span className={clsx(styles.body, className)} {...props} />;
-}
-
-export function BodyStrong({ className, ...props }: SpanProps) {
-  return <span className={clsx(styles.bodyStrong, className)} {...props} />;
-}
-
-export function HeadingTitle({ className, ...props }: HeadingProps) {
-  return <h3 className={clsx(styles.title, className)} {...props} />;
-}
-
-export function Label({ className, children, required, ...props }: LabelProps) {
+export function Title({ className, truncate, ...props }: SpanProps) {
   return (
-    <label className={clsx(styles.label, className)} {...props}>
+    <span
+      className={withTruncate(clsx(styles.title, className), truncate)}
+      {...props}
+    />
+  );
+}
+
+export function TitleSm({ className, truncate, ...props }: SpanProps) {
+  return (
+    <span
+      className={withTruncate(clsx(styles.titleSm, className), truncate)}
+      {...props}
+    />
+  );
+}
+
+export function Body({ className, truncate, ...props }: SpanProps) {
+  return (
+    <span
+      className={withTruncate(clsx(styles.body, className), truncate)}
+      {...props}
+    />
+  );
+}
+
+export function BodyStrong({ className, truncate, ...props }: SpanProps) {
+  return (
+    <span
+      className={withTruncate(clsx(styles.bodyStrong, className), truncate)}
+      {...props}
+    />
+  );
+}
+
+export function HeadingTitle({ className, truncate, ...props }: HeadingProps) {
+  return (
+    <h3
+      className={withTruncate(clsx(styles.title, className), truncate)}
+      {...props}
+    />
+  );
+}
+
+export function Label({
+  className,
+  children,
+  required,
+  truncate,
+  ...props
+}: LabelProps) {
+  return (
+    <label
+      className={withTruncate(clsx(styles.label, className), truncate)}
+      {...props}
+    >
       {children}
       {required && <span className={styles.labelRequired}> *</span>}
     </label>
   );
 }
 
-export function Eyebrow({ className, ...props }: SpanProps) {
-  return <span className={clsx(styles.eyebrow, className)} {...props} />;
+export function Eyebrow({ className, truncate, ...props }: SpanProps) {
+  return (
+    <span
+      className={withTruncate(clsx(styles.eyebrow, className), truncate)}
+      {...props}
+    />
+  );
 }
 
-export function Metric({ className, ...props }: SpanProps) {
-  return <span className={clsx(styles.metric, className)} {...props} />;
+export function Metric({ className, truncate, ...props }: SpanProps) {
+  return (
+    <span
+      className={withTruncate(clsx(styles.metric, className), truncate)}
+      {...props}
+    />
+  );
 }
 
-export function Caption({ className, ...props }: SpanProps) {
-  return <span className={clsx(styles.caption, className)} {...props} />;
+export function Caption({ className, truncate, ...props }: SpanProps) {
+  return (
+    <span
+      className={withTruncate(clsx(styles.caption, className), truncate)}
+      {...props}
+    />
+  );
 }
 
-export function CaptionStrong({ className, ...props }: SpanProps) {
-  return <span className={clsx(styles.captionStrong, className)} {...props} />;
+export function CaptionStrong({ className, truncate, ...props }: SpanProps) {
+  return (
+    <span
+      className={withTruncate(clsx(styles.captionStrong, className), truncate)}
+      {...props}
+    />
+  );
 }
 
-export function BodyRelaxed({ className, ...props }: SpanProps) {
-  return <span className={clsx(styles.bodyRelaxed, className)} {...props} />;
+export function BodyRelaxed({ className, truncate, ...props }: SpanProps) {
+  return (
+    <span
+      className={withTruncate(clsx(styles.bodyRelaxed, className), truncate)}
+      {...props}
+    />
+  );
 }
 
-export function Micro({ className, ...props }: SpanProps) {
-  return <span className={clsx(styles.micro, className)} {...props} />;
+export function Micro({ className, truncate, ...props }: SpanProps) {
+  return (
+    <span
+      className={withTruncate(clsx(styles.micro, className), truncate)}
+      {...props}
+    />
+  );
 }

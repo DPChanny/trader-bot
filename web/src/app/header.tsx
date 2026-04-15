@@ -18,7 +18,7 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
       <Row align="center" justify="end" className={styles.headerContent}>
         <Link href="/" variantContent="div" className={styles.headerLogo}>
           <span className={styles.headerIcon}>🎮</span>
-          <Title className={styles.headerText}>Trader</Title>
+          <Title>Trader</Title>
         </Link>
 
         <Row align="center" className={styles.headerUser}>

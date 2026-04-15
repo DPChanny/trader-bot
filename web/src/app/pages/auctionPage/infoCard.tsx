@@ -1,6 +1,5 @@
 import { Column, Fill } from "@components/atoms/layout";
 import { SecondarySection } from "@components/molecules/section";
-import styles from "@styles/pages/auctionPage/infoCard.module.css";
 import { Eyebrow, Metric } from "@components/atoms/text";
 
 interface InfoCardProps {
@@ -14,9 +13,7 @@ export function InfoCard({ label, value, children }: InfoCardProps) {
     <SecondarySection>
       <Column fill center>
         <Eyebrow>{label}</Eyebrow>
-        <Fill center className={styles.valueSection}>
-          {children ? children : <Metric>{value}</Metric>}
-        </Fill>
+        <Fill center>{children ? children : <Metric>{value}</Metric>}</Fill>
       </Column>
     </SecondarySection>
   );

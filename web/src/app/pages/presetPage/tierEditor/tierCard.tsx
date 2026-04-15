@@ -1,11 +1,11 @@
 import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/molecules/badge";
 import { Card, type CardProps } from "@components/atoms/card";
-import { Row } from "@components/atoms/layout";
+import { FlexItem, Row } from "@components/atoms/layout";
+import { Text } from "@components/atoms/text";
 import type { TierDTO } from "@dtos/tier";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
-import styles from "@styles/pages/presetPage/tierEditor/tierCard.module.css";
 
 type TierCardProps = Omit<CardProps, "children"> & {
   tier: TierDTO;
@@ -35,7 +35,9 @@ export function TierCard({
         >
           {tier.name.charAt(0)}
         </Badge>
-        <span className={styles.name}>{tier.name}</span>
+        <FlexItem>
+          <Text truncate>{tier.name}</Text>
+        </FlexItem>
 
         {canEdit && (
           <Row>

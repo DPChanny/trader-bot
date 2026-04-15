@@ -1,7 +1,8 @@
 ﻿.header {
   width: 100%;
-  background: rgb(16, 22, 42);
-  border-bottom: var(--border-width-default) solid rgba(255, 255, 255, 0.07);
+  background: var(--color-header-bg);
+  color: var(--color-header-text);
+  border-bottom: var(--border-width-default) solid var(--color-header-border);
   position: sticky;
   top: 0;
   z-index: var(--z-header);
@@ -30,15 +31,11 @@
   line-height: 1;
 }
 
-.headerText {
-  color: #ffffff;
-}
-
 .headerUser {
   gap: var(--gap-md);
 }
 
 .userName {
-  color: rgba(255, 255, 255, 0.85);
+  opacity: 0.85;
   white-space: nowrap;
 }

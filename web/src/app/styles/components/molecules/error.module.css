@@ -9,8 +9,7 @@
 .toggle {
   background: none;
   border: none;
-  color: inherit;
-  font: inherit;
+  color: var(--color-error-text);
   cursor: pointer;
   padding: 0;
 }

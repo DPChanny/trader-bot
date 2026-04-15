@@ -52,7 +52,7 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
           variantSize="large"
         />
         <Column gap="xs" align="center">
-          <CaptionStrong className={styles.name}>{displayName}</CaptionStrong>
+          <CaptionStrong truncate>{displayName}</CaptionStrong>
         </Column>
       </Fill>
     </Card>

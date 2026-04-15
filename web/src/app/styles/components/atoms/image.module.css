@@ -49,14 +49,12 @@
 }
 
 .avatarFallbackIcon {
-  color: var(--color-text-muted);
   flex-shrink: 0;
   width: 2rem;
   height: 2rem;
 }
 
 .iconFallbackIcon {
-  color: var(--color-text-muted);
   width: 70%;
   height: 70%;
 }

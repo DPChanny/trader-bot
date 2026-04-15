@@ -1,7 +1,7 @@
 import { Card, type CardProps } from "@components/atoms/card";
-import { Row } from "@components/atoms/layout";
+import { FlexItem, Row } from "@components/atoms/layout";
 import { Link } from "@components/atoms/link";
-import styles from "@styles/sideMenu/preset/presetCard.module.css";
+import { Text } from "@components/atoms/text";
 import type { PresetDTO } from "@dtos/preset";
 
 type PresetCardProps = Omit<CardProps, "children"> & {
@@ -20,12 +20,13 @@ export function PresetCard({
     <Link
       href={`/guild/${guildId}/preset/${preset.presetId}`}
       variantContent="div"
-      className={styles.link}
       aria-current={isSelected ? "page" : undefined}
     >
       <Card {...props}>
         <Row>
-          <span className={styles.name}>{preset.name}</span>
+          <FlexItem>
+            <Text truncate>{preset.name}</Text>
+          </FlexItem>
         </Row>
       </Card>
     </Link>

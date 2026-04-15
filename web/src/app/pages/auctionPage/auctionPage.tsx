@@ -2,8 +2,11 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { useAuctionWebSocket } from "@hooks/auctionWebSocket";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
-import { PrimarySection, SecondarySection } from "@components/molecules/section";
-import { Column, Row } from "@components/atoms/layout";
+import {
+  PrimarySection,
+  SecondarySection,
+} from "@components/molecules/section";
+import { Column, FlexItem, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { ErrorMessage } from "@components/molecules/errorMessage";
@@ -20,8 +23,6 @@ import {
   type AuctionErrorCodeType,
   type WSError,
 } from "@utils/error";
-
-import styles from "@styles/pages/auctionPage/auctionPage.module.css";
 
 interface AuctionPageProps {
   path?: string;
@@ -206,38 +207,45 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             </Column>
           </SecondarySection>
 
-          <Row wrap className={styles.auctionInfoGridSection}>
-            <Column>
-              <InfoCard label="남은 시간" value={state.timer} />
-              <InfoCard
-                label="입찰 포인트"
-                value={(state.currentBid?.amount || 0) * pointScale}
-              />
-            </Column>
-            <InfoCard label="입찰 팀장" value="">
-              {currentBidLeader && (
-                <PresetMemberCard presetMember={currentBidLeader} />
-              )}
-            </InfoCard>
+          <Row wrap>
+            <FlexItem>
+              <Column>
+                <InfoCard label="남은 시간" value={state.timer} />
+                <InfoCard
+                  label="입찰 포인트"
+                  value={(state.currentBid?.amount || 0) * pointScale}
+                />
+              </Column>
+            </FlexItem>
+            <FlexItem>
+              <InfoCard label="입찰 팀장" value="">
+                {currentBidLeader && (
+                  <PresetMemberCard presetMember={currentBidLeader} />
+                )}
+              </InfoCard>
+            </FlexItem>
           </Row>
 
           {isLeader && !isClientTeamFull && (
-            <Row className={styles.auctionInfoBottomSection}>
+            <Row>
               {bidError && (
                 <ErrorMessage error={bidError}>{bidError.message}</ErrorMessage>
               )}
-              <Input
-                type="number"
-                placeholder={`입찰 금액 (${pointScale}의 배수)`}
-                value={bidAmount}
-                onValueChange={(value) => {
-                  setDismissedError(error);
-                  setBidAmount(value);
-                }}
-                disabled={state.status !== Status.RUNNING}
-              />
+              <FlexItem>
+                <Input
+                  type="number"
+                  placeholder={`입찰 금액 (${pointScale}의 배수)`}
+                  value={bidAmount}
+                  onValueChange={(value) => {
+                    setDismissedError(error);
+                    setBidAmount(value);
+                  }}
+                  disabled={state.status !== Status.RUNNING}
+                />
+              </FlexItem>
               <PrimaryButton
                 onClick={handlePlaceBid}
+                style={{ minWidth: "7.5rem" }}
                 disabled={
                   state.status !== Status.RUNNING ||
                   !bidAmount ||

@@ -5,7 +5,6 @@ import { Card, type CardProps } from "@components/atoms/card";
 import { Column, Row } from "@components/atoms/layout";
 import { Bar } from "@components/atoms/bar";
 import { BodyStrong } from "@components/atoms/text";
-import styles from "@styles/pages/auctionPage/teamCard.module.css";
 
 type TeamCardProps = Omit<CardProps, "children"> & {
   team: TeamDTO;
@@ -42,9 +41,7 @@ export function TeamCard({
       <Column>
         <Row gap="sm" justify="between" align="center">
           <h4>{teamName}</h4>
-          <BodyStrong className={styles.points}>
-            {team.points * pointScale} 포인트
-          </BodyStrong>
+          <BodyStrong>{team.points * pointScale} 포인트</BodyStrong>
         </Row>
         <Bar variantColor={barVariantColor} />
         <PresetMemberGrid

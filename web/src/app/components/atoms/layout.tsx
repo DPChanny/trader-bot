@@ -132,6 +132,18 @@ export function Fill(props: FillProps) {
   return <Layout fill minSize {...props} />;
 }
 
+export type FlexItemProps = JSX.IntrinsicElements["div"] & {
+  children?: ComponentChildren;
+};
+
+export function FlexItem({ className, children, ...props }: FlexItemProps) {
+  return (
+    <div className={clsx(styles.flexItem, className)} {...props}>
+      {children}
+    </div>
+  );
+}
+
 export type PageProps = Omit<
   LayoutProps,
   "direction" | "fill" | "minSize" | "overflow" | "gap" | "padding"

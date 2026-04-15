@@ -15,14 +15,6 @@
   right: var(--space-1);
 }
 
-.name {
-  margin: 0;
-  color: var(--color-card-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .statusDot {
   width: 0.625rem;
   height: 0.625rem;

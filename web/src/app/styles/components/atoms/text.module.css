@@ -27,13 +27,12 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-normal);
-  color: var(--color-label-text);
   display: block;
 }
 
 .labelRequired {
   color: var(--color-error-text);
-  font-weight: inherit;
+  font-weight: var(--font-weight-medium);
 }
 
 .eyebrow {
@@ -72,4 +71,11 @@
   font-size: 0.6rem;
   font-weight: var(--font-weight-medium);
   line-height: 1;
+}
+
+.truncate {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
