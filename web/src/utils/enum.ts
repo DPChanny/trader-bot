@@ -15,22 +15,22 @@ type RoleEntry = EnumEntry<Role> & {
 const ROLE_ENTRIES: Record<Role, RoleEntry> = {
   [Role.VIEWER]: {
     key: Role.VIEWER,
-    displayName: "Viewer",
+    displayName: "열람자",
     color: "blue",
   },
   [Role.EDITOR]: {
     key: Role.EDITOR,
-    displayName: "Editor",
+    displayName: "편집자",
     color: "green",
   },
   [Role.ADMIN]: {
     key: Role.ADMIN,
-    displayName: "Admin",
+    displayName: "관리자",
     color: "red",
   },
   [Role.OWNER]: {
     key: Role.OWNER,
-    displayName: "Owner",
+    displayName: "소유자",
     color: "gold",
   },
 };

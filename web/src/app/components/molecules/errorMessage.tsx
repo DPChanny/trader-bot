@@ -3,7 +3,7 @@ import { useState } from "preact/hooks";
 import styles from "@styles/components/molecules/error.module.css";
 import { clsx } from "clsx";
 import { Text } from "../atoms/text";
-import { AppError } from "@utils/error";
+import { AppError, UNKNOWN_ERROR_MESSAGE } from "@utils/error";
 import type { ComponentChildren, JSX } from "preact";
 
 export type ErrorProps = JSX.IntrinsicElements["div"] & {
@@ -22,7 +22,7 @@ export function ErrorMessage({
   const detail = error instanceof globalThis.Error ? error.message : undefined;
   const code =
     error instanceof AppError ? (error.code ?? undefined) : undefined;
-  const text = children ?? detail ?? "오류가 발생했습니다.";
+  const text = children ?? detail ?? UNKNOWN_ERROR_MESSAGE;
 
   return (
     <Column

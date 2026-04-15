@@ -22,7 +22,7 @@ import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { Status } from "@dtos/auction";
 import {
   AuctionErrorCode,
-  type AuctionErrorCodeType,
+  AUCTION_ENTRY_FAILED_MESSAGE,
   type WSError,
 } from "@utils/error";
 
@@ -31,7 +31,7 @@ interface AuctionPageProps {
   auctionId?: string;
 }
 
-function isBidErrorCode(code: number): code is AuctionErrorCodeType {
+function isBidErrorCode(code: number): boolean {
   switch (code) {
     case AuctionErrorCode.BidTeamFull:
     case AuctionErrorCode.BidTooHigh:
@@ -83,6 +83,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   }, [state, memberId, isConnected, auctionId]);
 
   const isCompleted = state?.status === Status.COMPLETED;
+  const isRunning = state?.status === Status.RUNNING;
 
   const visibleError = error === dismissedError ? null : error;
 
@@ -98,7 +99,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     !isCompleted && websocketError
       ? websocketError.message
       : !isCompleted && wasConnected && !isConnected
-        ? "서버와의 연결이 끊어졌습니다."
+        ? AUCTION_ENTRY_FAILED_MESSAGE
         : null;
 
   if (errorMessage) {
@@ -150,8 +151,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   const statusEntries = getStatusEntries();
 
   const getStatusText = (status: Status) => {
-    if (wasConnected && !isConnected && status !== Status.COMPLETED)
-      return "연결 끊김";
+    if (wasConnected && !isConnected && !isCompleted) return "연결 끊김";
     return statusEntries[status].displayName;
   };
 
@@ -231,6 +231,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
               {isLeader && !isClientTeamFull && (
                 <Row>
                   {bidError && <ErrorMessage error={bidError} />}
+                  // TODO
                   <FlexItem>
                     <Input
                       type="number"
@@ -240,13 +241,13 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
                         setDismissedError(error);
                         setBidAmount(value);
                       }}
-                      disabled={state.status !== Status.RUNNING}
+                      disabled={!isRunning}
                     />
                   </FlexItem>
                   <PrimaryButton
                     onClick={handlePlaceBid}
                     disabled={
-                      state.status !== Status.RUNNING ||
+                      !isRunning ||
                       !bidAmount ||
                       parseInt(bidAmount) <= 0 ||
                       parseInt(bidAmount) % pointScale !== 0

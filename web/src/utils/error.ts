@@ -2,21 +2,26 @@ import { route } from "preact-router";
 import { removeAccessToken, removeRefreshToken } from "./auth";
 import { queryClient, queryKeys } from "./query";
 
-const AuthErrorCode = {
+export const UNKNOWN_ERROR_MESSAGE = "알 수 없는 오류가 발생했습니다.";
+export const AUCTION_CONNECTION_FAILED_MESSAGE =
+  "경매 서버에 연결하지 못했습니다.";
+export const AUCTION_ENTRY_FAILED_MESSAGE = "경매 서버에 진입하지 못했습니다.";
+
+export const AuthErrorCode = {
   Unauthorized: 4101,
 } as const;
 
-const TokenErrorCode = {
+export const TokenErrorCode = {
   IncorrectJWTToken: 4102,
   ExpiredJWTToken: 4103,
   ExchangeFailed: 4104,
 } as const;
 
-const ValidationErrorCode = {
+export const ValidationErrorCode = {
   Invalid: 4201,
 } as const;
 
-const AuctionErrorCode = {
+export const AuctionErrorCode = {
   InsufficientLeaders: 4202,
   BidTeamFull: 4203,
   BidTooHigh: 4204,
@@ -26,43 +31,43 @@ const AuctionErrorCode = {
   NotFound: 4401,
 } as const;
 
-const GuildErrorCode = {
+export const GuildErrorCode = {
   NotFound: 4402,
 } as const;
 
-const MemberErrorCode = {
+export const MemberErrorCode = {
   InsufficientRole: 4303,
   ForbiddenRole: 4304,
   NotMember: 4305,
   NotFound: 4403,
 } as const;
 
-const PresetErrorCode = {
+export const PresetErrorCode = {
   NotFound: 4405,
 } as const;
 
-const TierErrorCode = {
+export const TierErrorCode = {
   NotFound: 4408,
 } as const;
 
-const UserErrorCode = {
+export const UserErrorCode = {
   NotFound: 4409,
 } as const;
 
-const UnexpectedErrorCode = {
+export const UnexpectedErrorCode = {
   Internal: 5001,
   External: 5002,
 } as const;
 
-const PositionErrorCode = {
+export const PositionErrorCode = {
   NotFound: 4404,
 } as const;
 
-const PresetMemberErrorCode = {
+export const PresetMemberErrorCode = {
   NotFound: 4406,
 } as const;
 
-const PresetMemberPositionErrorCode = {
+export const PresetMemberPositionErrorCode = {
   Duplicated: 4206,
   NotFound: 4407,
 } as const;
@@ -130,12 +135,12 @@ function getErrorMessage(code: number): string {
       return "사용자를 찾을 수 없습니다.";
 
     case UnexpectedErrorCode.Internal:
-      return "서버 내부에서 예기치 못한 오류가 발생했습니다.";
+      return "서버 내부에서 문제가 발생했습니다.";
     case UnexpectedErrorCode.External:
-      return "외부 연동에서 예기치 못한 오류가 발생했습니다.";
+      return "외부 연동 중 문제가 발생했습니다.";
 
     default:
-      return "알 수 없는 오류가 발생했습니다.";
+      return UNKNOWN_ERROR_MESSAGE;
   }
 }
 
@@ -166,7 +171,7 @@ export class WSError extends AppError {
     const message =
       typeof parsedCode === "number"
         ? getErrorMessage(parsedCode)
-        : (reason ?? "웹소켓 오류가 발생했습니다.");
+        : (reason ?? UNKNOWN_ERROR_MESSAGE);
     super(message, parsedCode, "WSError");
     this.code = parsedCode;
   }

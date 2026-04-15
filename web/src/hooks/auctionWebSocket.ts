@@ -5,7 +5,7 @@ import { AuthPayloadSchema, PlaceBidPayloadSchema } from "@dtos/auction";
 import { toCamelCase } from "@utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@utils/env";
 import { getAccessToken } from "@utils/auth";
-import { WSError } from "@utils/error";
+import { AUCTION_CONNECTION_FAILED_MESSAGE, WSError } from "@utils/error";
 
 interface AuctionWebSocketHook {
   state: InitPayloadDTO | null;
@@ -203,7 +203,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
             return new WSError({ reason: event.reason });
           }
           if (!opened) {
-            return new WSError({ reason: "서버에 연결할 수 없습니다." });
+            return new WSError({ reason: AUCTION_CONNECTION_FAILED_MESSAGE });
           }
           return null;
         });
