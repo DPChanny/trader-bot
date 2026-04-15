@@ -2,6 +2,7 @@ import { TeamCard } from "./teamCard";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import type { TeamDTO } from "@dtos/auction";
 import { Scroll } from "@components/atoms/layout";
+import { SecondarySection } from "@components/molecules/section";
 
 interface TeamListProps {
   teams: TeamDTO[];
@@ -21,24 +22,26 @@ export function TeamList({
   clientMemberId,
 }: TeamListProps) {
   return (
-    <Scroll axis="y" fill gap="md">
-      {teams.map((team) => {
-        const members = team.memberIds
-          .map((id) => presetMemberMap.get(id))
-          .filter((m): m is PresetMemberDetailDTO => m !== undefined);
+    <SecondarySection fill>
+      <Scroll axis="y" fill gap="md">
+        {teams.map((team) => {
+          const members = team.memberIds
+            .map((id) => presetMemberMap.get(id))
+            .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
-        return (
-          <TeamCard
-            key={team.teamId}
-            team={team}
-            members={members}
-            teamSize={teamSize}
-            pointScale={pointScale}
-            connectedMemberIds={connectedMemberIds}
-            clientMemberId={clientMemberId}
-          />
-        );
-      })}
-    </Scroll>
+          return (
+            <TeamCard
+              key={team.teamId}
+              team={team}
+              members={members}
+              teamSize={teamSize}
+              pointScale={pointScale}
+              connectedMemberIds={connectedMemberIds}
+              clientMemberId={clientMemberId}
+            />
+          );
+        })}
+      </Scroll>{" "}
+    </SecondarySection>
   );
 }

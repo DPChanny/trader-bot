@@ -21,7 +21,7 @@ import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionModal } from "./auctionModal";
-import { NameTitle, Text, Title } from "@components/atoms/text";
+import { NameTitle, Text } from "@components/atoms/text";
 import type { CreateAuctionDTO } from "@dtos/auction";
 import type { UpdatePresetDTO } from "@dtos/preset";
 import { Bar } from "@components/atoms/bar";

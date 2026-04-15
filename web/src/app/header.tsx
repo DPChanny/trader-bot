@@ -20,7 +20,7 @@ export function Header({ user, onLogout, onLogin }: HeaderProps) {
           <Title>Trader</Title>
         </Link>
 
-        <Row align="center" className={styles.headerUser}>
+        <Row align="center" gap="sm">
           {user ? (
             <>
               {user.avatarUrl && (

@@ -6,7 +6,6 @@
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  flex-shrink: 0;
 }
 
 .headerContent {
@@ -24,17 +23,4 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-}
-
-.headerIcon {
-  font-size: var(--font-size-2xl);
-  line-height: 1;
-}
-
-.headerUser {
-  gap: var(--gap-md);
-}
-
-.userName {
-  max-width: min(40vw, 14rem);
 }

@@ -39,9 +39,7 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
     >
       {roleLabel && (
         <div className={styles.badgesRight}>
-          <Badge variantColor={roleColor} variantSize="small">
-            {roleLabel}
-          </Badge>
+          <Badge variantColor={roleColor}>{roleLabel}</Badge>
         </div>
       )}
       <Fill direction="column" gap="sm" align="center" justify="center">

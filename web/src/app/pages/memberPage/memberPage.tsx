@@ -42,7 +42,6 @@ export function MemberPage({ guildId }: MemberPageProps) {
     <Page>
       <PrimarySection minSize style={{ flex: 4 }}>
         <Title>멤버 목록</Title>
-        <Bar />
         {error ? (
           <ErrorMessage error={error}>
             멤버 목록을 불러오는데 실패했습니다.

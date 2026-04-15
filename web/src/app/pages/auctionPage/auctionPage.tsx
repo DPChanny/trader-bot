@@ -182,7 +182,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     <Page>
       <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
         <Title>팀 목록</Title>
-        <Bar />
         <TeamList
           teams={state.teams}
           presetMemberMap={presetMemberMap}

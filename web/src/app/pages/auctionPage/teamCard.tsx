@@ -39,14 +39,12 @@ export function TeamCard({
           <Name>{teamName}</Name>
           <Text variantWeight="bold">{team.points * pointScale} 포인트</Text>
         </Row>
-        <TertiarySection>
-          <PresetMemberGrid
-            presetMembers={members}
-            onMemberClick={() => {}}
-            connectedMemberIds={connectedMemberIds}
-            clientMemberId={clientMemberId}
-          />
-        </TertiarySection>
+        <PresetMemberGrid
+          presetMembers={members}
+          onMemberClick={() => {}}
+          connectedMemberIds={connectedMemberIds}
+          clientMemberId={clientMemberId}
+        />
       </Column>
     </Card>
   );

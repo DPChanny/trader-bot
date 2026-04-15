@@ -1,6 +1,9 @@
 import { useState } from "preact/hooks";
 import { Row, Scroll } from "@components/atoms/layout";
-import { SecondarySection } from "@components/molecules/section";
+import {
+  SecondarySection,
+  TertiarySection,
+} from "@components/molecules/section";
 import { PrimaryButton } from "@components/atoms/button";
 import { CreatePresetModal } from "./createPresetModal";
 import { PresetCard } from "./presetCard";
@@ -47,17 +50,18 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
             </PrimaryButton>
           )}
         </Row>
-        <Bar />
-        <Scroll axis="y" gap="xs">
-          {presets.map((preset) => (
-            <PresetCard
-              key={preset.presetId}
-              preset={preset}
-              guildId={guildId}
-              isSelected={selectedPresetId === preset.presetId}
-            />
-          ))}
-        </Scroll>
+        <TertiarySection fill>
+          <Scroll axis="y">
+            {presets.map((preset) => (
+              <PresetCard
+                key={preset.presetId}
+                preset={preset}
+                guildId={guildId}
+                isSelected={selectedPresetId === preset.presetId}
+              />
+            ))}
+          </Scroll>
+        </TertiarySection>
       </SecondarySection>
 
       {showCreatePresetModal && (

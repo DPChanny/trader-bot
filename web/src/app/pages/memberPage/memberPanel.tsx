@@ -9,7 +9,7 @@ import { Bar } from "@components/atoms/bar";
 import { PrimarySection, TertiarySection } from "@components/molecules/section";
 import { Column, Fill, Row, Scroll } from "@components/atoms/layout";
 import { Toggle } from "@components/molecules/toggle";
-import { Label, NameTitle, Title } from "@components/atoms/text";
+import { Label, NameTitle } from "@components/atoms/text";
 import {
   UpdateMemberSchema,
   type MemberDetailDTO,

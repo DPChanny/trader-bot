@@ -11,6 +11,7 @@ import { ErrorMessage } from "@components/molecules/errorMessage";
 import {
   PrimarySection,
   SecondarySection,
+  TertiarySection,
 } from "@components/molecules/section";
 import { Column, Row } from "@components/atoms/layout";
 
@@ -122,47 +123,51 @@ export function PresetMemberEditor({
   return (
     <>
       <PrimarySection fill minSize>
-        <SecondarySection fill minSize>
-          {presetMembersError ? (
+        {presetMembersError ? (
+          <TertiarySection fill>
             <ErrorMessage error={presetMembersError}>
               프리셋 멤버 목록을 불러오는데 실패했습니다.
             </ErrorMessage>
-          ) : presetMembersLoading ? (
+          </TertiarySection>
+        ) : presetMembersLoading ? (
+          <TertiarySection fill>
             <Loading />
-          ) : (
-            <PresetMemberGrid
-              presetMembers={
-                presetMembers?.filter(
-                  (pm) => !removingMemberIds.has(pm.memberId),
-                ) ?? []
-              }
-              selectedMemberId={selectedPresetMemberId}
-              onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
-            />
-          )}
-        </SecondarySection>
+          </TertiarySection>
+        ) : (
+          <PresetMemberGrid
+            presetMembers={
+              presetMembers?.filter(
+                (pm) => !removingMemberIds.has(pm.memberId),
+              ) ?? []
+            }
+            selectedMemberId={selectedPresetMemberId}
+            onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
+          />
+        )}
 
-        <SecondarySection fill minSize>
-          {membersError ? (
+        {membersError ? (
+          <TertiarySection fill>
             <ErrorMessage error={membersError}>
               멤버 목록을 불러오는데 실패했습니다.
             </ErrorMessage>
-          ) : membersLoading ? (
+          </TertiarySection>
+        ) : membersLoading ? (
+          <TertiarySection fill>
             <Loading />
-          ) : (
-            <>
-              {canEdit && createPresetMember.isError && (
-                <ErrorMessage error={createPresetMember.error}>
-                  프리셋 멤버 추가에 실패했습니다.
-                </ErrorMessage>
-              )}
-              <MemberGrid
-                members={candidateMembers}
-                onMemberClick={canEdit ? handleAddMember : undefined}
-              />
-            </>
-          )}
-        </SecondarySection>
+          </TertiarySection>
+        ) : (
+          <>
+            {canEdit && createPresetMember.isError && (
+              <ErrorMessage error={createPresetMember.error}>
+                프리셋 멤버 추가에 실패했습니다.
+              </ErrorMessage>
+            )}
+            <MemberGrid
+              members={candidateMembers}
+              onMemberClick={canEdit ? handleAddMember : undefined}
+            />
+          </>
+        )}
       </PrimarySection>
 
       {selectedPresetMember && (

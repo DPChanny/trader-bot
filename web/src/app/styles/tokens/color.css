@@ -65,8 +65,8 @@
   --color-card-blue-border: rgba(102, 126, 234, 0.2);
   --color-card-blue-border-hover: rgba(102, 126, 234, 0.5);
   --color-card-blue-border-active: rgb(102, 126, 234);
-  --color-card-blue-text: rgb(229, 231, 235);
-  --color-card-blue-text-active: rgb(255, 255, 255);
+  --color-card-blue-text: rgb(165, 180, 252);
+  --color-card-blue-text-active: rgb(205, 217, 255);
 
   --color-card-gold-bg: rgb(60, 46, 14);
   --color-card-gold-bg-hover: rgb(78, 60, 18);

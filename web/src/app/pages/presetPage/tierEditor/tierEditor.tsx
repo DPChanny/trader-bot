@@ -16,7 +16,10 @@ import { AddTierModal } from "./addTierModal";
 import { UpdateTierModal } from "./updateTierModal";
 import { DeleteTierModal } from "./deleteTierModal";
 import { TierCard } from "./tierCard";
-import { SecondarySection } from "@components/molecules/section";
+import {
+  SecondarySection,
+  TertiarySection,
+} from "@components/molecules/section";
 import { Title } from "@components/atoms/text";
 import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@dtos/tier";
 
@@ -103,28 +106,28 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
           <PrimaryButton onClick={handleOpenAddTierModal}>추가</PrimaryButton>
         )}
       </Row>
-      <Bar />
-
-      <Scroll axis="y">
-        {error ? (
-          <ErrorMessage error={error}>
-            티어 목록을 불러오는데 실패했습니다.
-          </ErrorMessage>
-        ) : isLoading ? (
-          <Loading />
-        ) : (
-          tiers?.map((tier) => (
-            <TierCard
-              key={tier.tierId}
-              tier={tier}
-              guildId={guildId}
-              onEdit={() => setUpdatingTier(tier)}
-              onDelete={() => handleOpenDeleteTierModal(tier.tierId)}
-              isDeletePending={deleteTier.isPending}
-            />
-          ))
-        )}
-      </Scroll>
+      <TertiarySection fill>
+        <Scroll axis="y">
+          {error ? (
+            <ErrorMessage error={error}>
+              티어 목록을 불러오는데 실패했습니다.
+            </ErrorMessage>
+          ) : isLoading ? (
+            <Loading />
+          ) : (
+            tiers?.map((tier) => (
+              <TierCard
+                key={tier.tierId}
+                tier={tier}
+                guildId={guildId}
+                onEdit={() => setUpdatingTier(tier)}
+                onDelete={() => handleOpenDeleteTierModal(tier.tierId)}
+                isDeletePending={deleteTier.isPending}
+              />
+            ))
+          )}
+        </Scroll>
+      </TertiarySection>
 
       {showAddTierModal && (
         <AddTierModal

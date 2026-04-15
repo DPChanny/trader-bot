@@ -68,7 +68,6 @@ export function PresetMemberCard({
                   key={pmp.positionId}
                   src={pmp.position.iconUrl || undefined}
                   alt={pmp.position.name}
-                  variantSize="medium"
                   variantColor="blue"
                 >
                   {pmp.position.name.charAt(0)}

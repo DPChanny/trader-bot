@@ -1,5 +1,8 @@
 import { Row, Scroll } from "@components/atoms/layout";
-import { SecondarySection } from "@components/molecules/section";
+import {
+  SecondarySection,
+  TertiarySection,
+} from "@components/molecules/section";
 import { PrimaryButton } from "@components/atoms/button";
 import { GuildCard } from "./guildCard";
 import type { GuildDetailDTO } from "@dtos/guild";
@@ -21,16 +24,17 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
           추가
         </PrimaryButton>
       </Row>
-      <Bar />
-      <Scroll axis="y" gap="xs">
-        {guilds.map((g) => (
-          <GuildCard
-            key={g.discordId}
-            guild={g}
-            isSelected={activeGuildId === g.discordId}
-          />
-        ))}
-      </Scroll>
+      <TertiarySection fill>
+        <Scroll axis="y">
+          {guilds.map((g) => (
+            <GuildCard
+              key={g.discordId}
+              guild={g}
+              isSelected={activeGuildId === g.discordId}
+            />
+          ))}
+        </Scroll>
+      </TertiarySection>
     </SecondarySection>
   );
 }

@@ -5,22 +5,21 @@
 
 .badgesLeft {
   position: absolute;
-  top: var(--space-1);
-  left: var(--space-1);
+  top: var(--space-xs);
+  left: var(--space-xs);
 }
 
 .badgesRight {
   position: absolute;
-  top: var(--space-1);
-  right: var(--space-1);
+  top: var(--space-xs);
+  right: var(--space-xs);
 }
 
 .statusDot {
   width: 0.625rem;
   height: 0.625rem;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   border: 1px solid var(--color-card-blue-border);
-  margin-right: var(--space-1);
 }
 
 .statusDotOnline {

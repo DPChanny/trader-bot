@@ -12,7 +12,10 @@ import { ErrorMessage } from "@components/molecules/errorMessage";
 import { PrimaryButton } from "@components/atoms/button";
 import { Bar } from "@components/atoms/bar";
 import { Row, Scroll } from "@components/atoms/layout";
-import { SecondarySection } from "@components/molecules/section";
+import {
+  SecondarySection,
+  TertiarySection,
+} from "@components/molecules/section";
 import { Title } from "@components/atoms/text";
 import { AddPositionModal } from "./addPositionModal";
 import { UpdatePositionModal } from "./updatePositionModal";
@@ -113,30 +116,30 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
           </PrimaryButton>
         )}
       </Row>
-      <Bar />
-
-      <Scroll axis="y">
-        {error ? (
-          <ErrorMessage error={error}>
-            포지션 목록을 불러오는데 실패했습니다.
-          </ErrorMessage>
-        ) : isLoading ? (
-          <Loading />
-        ) : (
-          positions?.map((position) => (
-            <PositionCard
-              key={position.positionId}
-              position={position}
-              guildId={guildId}
-              onEdit={() => setUpdatingPosition(position)}
-              onDelete={() =>
-                handleOpenDeletePositionModal(position.positionId)
-              }
-              isDeletePending={deletePosition.isPending}
-            />
-          ))
-        )}
-      </Scroll>
+      <TertiarySection fill>
+        <Scroll axis="y">
+          {error ? (
+            <ErrorMessage error={error}>
+              포지션 목록을 불러오는데 실패했습니다.
+            </ErrorMessage>
+          ) : isLoading ? (
+            <Loading />
+          ) : (
+            positions?.map((position) => (
+              <PositionCard
+                key={position.positionId}
+                position={position}
+                guildId={guildId}
+                onEdit={() => setUpdatingPosition(position)}
+                onDelete={() =>
+                  handleOpenDeletePositionModal(position.positionId)
+                }
+                isDeletePending={deletePosition.isPending}
+              />
+            ))
+          )}
+        </Scroll>
+      </TertiarySection>
 
       {showAddPositionModal && (
         <AddPositionModal
