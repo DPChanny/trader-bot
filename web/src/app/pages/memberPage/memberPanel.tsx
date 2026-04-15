@@ -61,20 +61,16 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
     canEditRole && role !== member.role && role !== Role.OWNER;
   const hasChanges = basePatchDto !== null || roleChanged;
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!isFormValid) return;
     if (!hasChanges) return;
     const dto: UpdateMemberDTO = { ...basePatchDto };
     if (roleChanged) dto.role = role;
-    try {
-      await updateMember.mutateAsync({
-        guildId: member.guildId,
-        memberId: member.memberId,
-        dto,
-      });
-    } catch (err) {
-      console.error("Failed to update member:", err);
-    }
+    updateMember.mutate({
+      guildId: member.guildId,
+      memberId: member.memberId,
+      dto,
+    });
   };
 
   return (

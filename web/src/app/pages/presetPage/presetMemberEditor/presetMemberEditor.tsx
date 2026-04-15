@@ -106,18 +106,20 @@ export function PresetMemberEditor({
     [selectedPresetMemberId, presetMembers],
   );
 
-  const handleAddMember = async (memberId: number) => {
+  const handleAddMember = (memberId: number) => {
     addMemberIdToAdding(memberId);
-    try {
-      await createPresetMember.mutateAsync({
+    createPresetMember.mutate(
+      {
         guildId,
         presetId,
         dto: { memberId, tierId: null, isLeader: false },
-      });
-    } catch (err) {
-      console.error("Failed to add member:", err);
-      removeMemberIdFromAdding(memberId);
-    }
+      },
+      {
+        onError: () => {
+          removeMemberIdFromAdding(memberId);
+        },
+      },
+    );
   };
 
   return (

@@ -52,20 +52,22 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
     await addTier.mutateAsync({ guildId, presetId, dto });
   };
 
-  const handleUpdateTier = async (dto: UpdateTierDTO) => {
+  const handleUpdateTier = (dto: UpdateTierDTO) => {
     if (!updatingTier) return;
-    try {
-      await updateTier.mutateAsync({
+    updateTier.mutate(
+      {
         guildId,
         presetId,
         tierId: updatingTier.tierId,
         dto,
-      });
-      setUpdatingTier(null);
-      updateTier.reset();
-    } catch (err) {
-      console.error("Failed to update tier:", err);
-    }
+      },
+      {
+        onSuccess: () => {
+          setUpdatingTier(null);
+          updateTier.reset();
+        },
+      },
+    );
   };
 
   const handleCloseUpdateTierModal = () => {
@@ -83,18 +85,20 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
     setDeletingTierId(null);
   };
 
-  const handleDeleteTier = async () => {
+  const handleDeleteTier = () => {
     if (deletingTierId === null) return;
-    try {
-      await deleteTier.mutateAsync({
+    deleteTier.mutate(
+      {
         guildId,
         presetId,
         tierId: deletingTierId,
-      });
-      handleCloseDeleteTierModal();
-    } catch (err) {
-      console.error("Failed to delete tier:", err);
-    }
+      },
+      {
+        onSuccess: () => {
+          handleCloseDeleteTierModal();
+        },
+      },
+    );
   };
 
   return (

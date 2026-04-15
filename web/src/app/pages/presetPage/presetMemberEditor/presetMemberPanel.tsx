@@ -134,9 +134,7 @@ export function PresetMemberPanel({
           dto: { positionId },
         });
       }
-    } catch (err) {
-      console.error("Failed to save preset member:", err);
-    }
+    } catch {}
   };
 
   const handleTogglePosition = (positionId: number) => {
@@ -153,20 +151,25 @@ export function PresetMemberPanel({
     setTierId((prev) => (prev === id ? null : id));
   };
 
-  const handleRemoveMember = async () => {
-    try {
-      if (presetMember.memberId) addMemberIdToRemoving(presetMember.memberId);
-      await removePresetMember.mutateAsync({
+  const handleRemoveMember = () => {
+    if (presetMember.memberId) addMemberIdToRemoving(presetMember.memberId);
+    removePresetMember.mutate(
+      {
         guildId,
         presetId,
         presetMemberId: presetMember.presetMemberId,
-      });
-      setSelectedPresetMemberId(null);
-    } catch (err) {
-      console.error("Failed to remove preset member:", err);
-      if (presetMember.memberId)
-        removeMemberIdFromRemoving(presetMember.memberId);
-    }
+      },
+      {
+        onSuccess: () => {
+          setSelectedPresetMemberId(null);
+        },
+        onError: () => {
+          if (presetMember.memberId) {
+            removeMemberIdFromRemoving(presetMember.memberId);
+          }
+        },
+      },
+    );
   };
 
   const hasError =

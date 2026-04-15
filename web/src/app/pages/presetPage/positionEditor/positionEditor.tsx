@@ -60,20 +60,22 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
     await addPosition.mutateAsync({ guildId, presetId, dto });
   };
 
-  const handleUpdatePosition = async (dto: UpdatePositionDTO) => {
+  const handleUpdatePosition = (dto: UpdatePositionDTO) => {
     if (!updatingPosition) return;
-    try {
-      await updatePosition.mutateAsync({
+    updatePosition.mutate(
+      {
         guildId,
         presetId,
         positionId: updatingPosition.positionId,
         dto,
-      });
-      setUpdatingPosition(null);
-      updatePosition.reset();
-    } catch (err) {
-      console.error("Failed to update position:", err);
-    }
+      },
+      {
+        onSuccess: () => {
+          setUpdatingPosition(null);
+          updatePosition.reset();
+        },
+      },
+    );
   };
 
   const handleCloseUpdatePositionModal = () => {
@@ -91,18 +93,20 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
     setDeletingPositionId(null);
   };
 
-  const handleDeletePosition = async () => {
+  const handleDeletePosition = () => {
     if (deletingPositionId === null) return;
-    try {
-      await deletePosition.mutateAsync({
+    deletePosition.mutate(
+      {
         guildId,
         presetId,
         positionId: deletingPositionId,
-      });
-      handleCloseDeletePositionModal();
-    } catch (err) {
-      console.error("Failed to delete position:", err);
-    }
+      },
+      {
+        onSuccess: () => {
+          handleCloseDeletePositionModal();
+        },
+      },
+    );
   };
 
   return (

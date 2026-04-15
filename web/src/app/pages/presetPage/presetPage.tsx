@@ -64,27 +64,47 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
       : "primary";
 
   const handleStartAuction = async (dto: CreateAuctionDTO) => {
-    try {
-      const result = await createAuction.mutateAsync({
+    createAuction.mutate(
+      {
         guildId,
         presetId,
         dto,
-      });
-      setShowCreateAuctionModal(false);
-      setCreatedAuctionId(result.auctionId);
-    } catch {}
+      },
+      {
+        onSuccess: (result) => {
+          setShowCreateAuctionModal(false);
+          setCreatedAuctionId(result.auctionId);
+        },
+      },
+    );
   };
 
   const handleUpdate = async (dto: UpdatePresetDTO) => {
     if (!preset) return;
-    try {
-      await updatePreset.mutateAsync({
+    updatePreset.mutate(
+      {
         guildId,
         presetId: preset.presetId,
         dto,
-      });
-      setShowUpdatePresetModal(false);
-    } catch {}
+      },
+      {
+        onSuccess: () => {
+          setShowUpdatePresetModal(false);
+        },
+      },
+    );
+  };
+
+  const handleDelete = async () => {
+    deletePreset.mutate(
+      { guildId, presetId },
+      {
+        onSuccess: () => {
+          setShowDeletePresetModal(false);
+          route(`/guild/${guildId}/member`);
+        },
+      },
+    );
   };
 
   const handleOpenUpdatePresetModal = () => {
@@ -102,14 +122,6 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
   const handleCloseDeletePresetModal = () => {
     setShowDeletePresetModal(false);
-  };
-
-  const handleDelete = async () => {
-    try {
-      await deletePreset.mutateAsync({ guildId, presetId });
-      setShowDeletePresetModal(false);
-      route(`/guild/${guildId}/member`);
-    } catch {}
   };
 
   return (
