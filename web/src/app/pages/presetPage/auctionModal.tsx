@@ -1,7 +1,6 @@
 import { route } from "preact-router";
 import { Modal, ModalFooter } from "@components/molecules/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
-import { SecondarySection } from "@components/molecules/section";
 
 interface AuctionModalProps {
   auctionId: string;
@@ -18,7 +17,7 @@ export function AuctionModal({ auctionId, onClose }: AuctionModalProps) {
 
   return (
     <Modal onClose={onClose} title="경매 생성 완료">
-      <SecondarySection>경매가 생성되었습니다.</SecondarySection>
+      경매가 생성되었습니다.
       <ModalFooter>
         <SecondaryButton type="button" onClick={onClose}>
           닫기

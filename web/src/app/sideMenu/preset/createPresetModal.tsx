@@ -5,7 +5,6 @@ import {
   ModalFooter,
   ModalRow,
 } from "@components/molecules/modal";
-import { SecondarySection } from "@components/molecules/section";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
@@ -62,58 +61,56 @@ export function CreatePresetModal({
 
   return (
     <Modal onClose={handleClose} title="프리셋 추가">
-      <SecondarySection>
-        <ModalForm id={formId} onSubmit={handleSubmit}>
-          {error ? (
-            <ErrorMessage error={error}>
-              프리셋을 추가하지 못했습니다.
-            </ErrorMessage>
-          ) : null}
+      <ModalForm id={formId} onSubmit={handleSubmit}>
+        {error ? (
+          <ErrorMessage error={error}>
+            프리셋을 추가하지 못했습니다.
+          </ErrorMessage>
+        ) : null}
+        <LabelInput
+          label="프리셋 이름"
+          type="text"
+          value={name}
+          onValueChange={setName}
+          required
+        />
+        <ModalRow>
           <LabelInput
-            label="프리셋 이름"
-            type="text"
-            value={name}
-            onValueChange={setName}
+            label="포인트"
+            type="number"
+            value={points}
+            placeholder="1000"
+            onValueChange={setPoints}
             required
           />
-          <ModalRow>
-            <LabelInput
-              label="포인트"
-              type="number"
-              value={points}
-              placeholder="1000"
-              onValueChange={setPoints}
-              required
-            />
-            <LabelInput
-              label="포인트 단위"
-              type="number"
-              value={pointScale}
-              placeholder="5"
-              onValueChange={setPointScale}
-              required
-            />
-          </ModalRow>
-          <ModalRow>
-            <LabelInput
-              label="타이머 (초)"
-              type="number"
-              value={timer}
-              placeholder="15"
-              onValueChange={setTimer}
-              required
-            />
-            <LabelInput
-              label="팀 크기"
-              type="number"
-              value={teamSize}
-              placeholder="5"
-              onValueChange={setTeamSize}
-              required
-            />
-          </ModalRow>
-        </ModalForm>
-      </SecondarySection>
+          <LabelInput
+            label="포인트 단위"
+            type="number"
+            value={pointScale}
+            placeholder="5"
+            onValueChange={setPointScale}
+            required
+          />
+        </ModalRow>
+        <ModalRow>
+          <LabelInput
+            label="타이머 (초)"
+            type="number"
+            value={timer}
+            placeholder="15"
+            onValueChange={setTimer}
+            required
+          />
+          <LabelInput
+            label="팀 크기"
+            type="number"
+            value={teamSize}
+            placeholder="5"
+            onValueChange={setTeamSize}
+            required
+          />
+        </ModalRow>
+      </ModalForm>
       <ModalFooter>
         <SecondaryButton onClick={handleClose} disabled={isPending}>
           취소

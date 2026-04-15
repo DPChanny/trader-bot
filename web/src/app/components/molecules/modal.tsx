@@ -2,18 +2,27 @@ import { createPortal } from "preact/compat";
 import { clsx } from "clsx";
 import { Column, Fill, Row } from "../atoms/layout";
 import { Title } from "../atoms/text";
-import { PrimarySection } from "./section";
+import { PrimarySection, SecondarySection } from "./section";
 import styles from "@styles/components/molecules/modal.module.css";
-import type { JSX } from "preact";
+import { toChildArray, type ComponentChildren, type JSX } from "preact";
 
 export type ModalProps = {
   onClose: () => void;
   title: string;
-  children: JSX.Element | JSX.Element[] | string;
+  children: ComponentChildren;
   className?: string;
 };
 
 export function Modal({ onClose, title, children, className }: ModalProps) {
+  const childArray = toChildArray(children);
+
+  const footerChildren = childArray.filter(
+    (child) => (child as JSX.Element)?.type === ModalFooter,
+  );
+  const bodyChildren = childArray.filter(
+    (child) => (child as JSX.Element)?.type !== ModalFooter,
+  );
+
   const content = (
     <Fill className={styles.modal}>
       <Fill center className={styles.overlay} onClick={onClose}>
@@ -23,7 +32,8 @@ export function Modal({ onClose, title, children, className }: ModalProps) {
           onClick={(e) => e.stopPropagation()}
         >
           <Title>{title}</Title>
-          {children}
+          <SecondarySection>{bodyChildren}</SecondarySection>
+          {footerChildren}
         </PrimarySection>
       </Fill>
     </Fill>

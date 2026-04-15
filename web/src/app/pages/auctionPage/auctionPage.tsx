@@ -218,11 +218,9 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     <Page>
       {runtimeError && (
         <Modal onClose={handleCloseRuntimeErrorModal} title="경매 오류">
-          <SecondarySection>
-            <ErrorMessage error={runtimeError}>
-              {AUCTION_RUNTIME_ERROR_MESSAGE}
-            </ErrorMessage>
-          </SecondarySection>
+          <ErrorMessage error={runtimeError}>
+            {AUCTION_RUNTIME_ERROR_MESSAGE}
+          </ErrorMessage>
           <ModalFooter>
             <PrimaryButton type="button" onClick={handleCloseRuntimeErrorModal}>
               확인

@@ -3,7 +3,6 @@ import { Modal, ModalForm, ModalFooter } from "@components/molecules/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
-import { SecondarySection } from "@components/molecules/section";
 import { AddTierSchema, type AddTierDTO } from "@dtos/tier";
 
 interface AddTierModalProps {
@@ -43,28 +42,24 @@ export function AddTierModal({
 
   return (
     <Modal onClose={handleClose} title="티어 추가">
-      <SecondarySection>
-        <ModalForm id={formId} onSubmit={handleSubmit}>
-          {error ? (
-            <ErrorMessage error={error}>
-              티어를 추가하지 못했습니다.
-            </ErrorMessage>
-          ) : null}
-          <LabelInput
-            label="티어 이름"
-            type="text"
-            value={name}
-            onValueChange={setName}
-            required
-          />
-          <LabelInput
-            label="아이콘 링크"
-            type="text"
-            value={iconUrl}
-            onValueChange={setIconUrl}
-          />
-        </ModalForm>
-      </SecondarySection>
+      <ModalForm id={formId} onSubmit={handleSubmit}>
+        {error ? (
+          <ErrorMessage error={error}>티어를 추가하지 못했습니다.</ErrorMessage>
+        ) : null}
+        <LabelInput
+          label="티어 이름"
+          type="text"
+          value={name}
+          onValueChange={setName}
+          required
+        />
+        <LabelInput
+          label="아이콘 링크"
+          type="text"
+          value={iconUrl}
+          onValueChange={setIconUrl}
+        />
+      </ModalForm>
       <ModalFooter>
         <SecondaryButton onClick={handleClose} disabled={isPending}>
           취소
