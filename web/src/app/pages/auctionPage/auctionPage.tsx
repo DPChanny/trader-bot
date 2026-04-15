@@ -11,12 +11,12 @@ import { Column, FlexItem, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { ErrorMessage } from "@components/molecules/errorMessage";
-import { Modal, ModalFooter } from "@components/modal";
 import { PrimaryButton } from "@components/atoms/button";
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberCard } from "@components/presetMemberCard";
 import { Input } from "@components/atoms/input";
 import { Text, Title } from "@components/atoms/text";
+import { RuntimeErrorModal } from "./runtimeErrorModal";
 import { checkRefreshToken } from "@utils/auth";
 import { getStatusEntries } from "@utils/enum";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
@@ -24,7 +24,6 @@ import { Status } from "@dtos/auction";
 import {
   AuctionErrorCode,
   AUCTION_CONNECTION_FAILED_MESSAGE,
-  AUCTION_RUNTIME_ERROR_MESSAGE,
   UnexpectedErrorCode,
   type WSError,
 } from "@utils/error";
@@ -217,16 +216,10 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   return (
     <Page>
       {runtimeError && (
-        <Modal onClose={handleCloseRuntimeErrorModal} title="경매 오류">
-          <ErrorMessage error={runtimeError}>
-            {AUCTION_RUNTIME_ERROR_MESSAGE}
-          </ErrorMessage>
-          <ModalFooter>
-            <PrimaryButton type="button" onClick={handleCloseRuntimeErrorModal}>
-              확인
-            </PrimaryButton>
-          </ModalFooter>
-        </Modal>
+        <RuntimeErrorModal
+          error={runtimeError}
+          onClose={handleCloseRuntimeErrorModal}
+        />
       )}
 
       <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>

@@ -1,8 +1,7 @@
-
 surface layout text 구분
 status dot 개선
 prop injection
-    modal 계층 분리
+    css
     info card 개선
 sidemenu 개선
 layout
@@ -13,7 +12,7 @@ color 개선
 icon
 whole css
 css token 개선
-최종 web 개선
+최종 web 검토
 log 개선
     file rotation
     extra 통일
@@ -22,7 +21,7 @@ home page
     annuncement
     tutorial
 security
-publish
+********************publish********************
     swap memory
     t4g.small
 pagenation & sorting & search

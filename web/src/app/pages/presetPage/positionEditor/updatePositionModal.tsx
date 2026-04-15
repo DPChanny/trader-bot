@@ -13,7 +13,7 @@ import { buildPatchDto } from "@utils/dto";
 interface UpdatePositionModalProps {
   position: PositionDTO;
   onClose: () => void;
-  onSubmit: (dto: UpdatePositionDTO) => void;
+  onSubmit: (dto: UpdatePositionDTO) => void | Promise<void>;
   isPending: boolean;
   error?: any;
 }

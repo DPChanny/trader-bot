@@ -7,7 +7,7 @@ import { CreatePresetSchema, type CreatePresetDTO } from "@dtos/preset";
 
 interface CreatePresetModalProps {
   onClose: () => void;
-  onSubmit: (dto: CreatePresetDTO) => Promise<void>;
+  onSubmit: (dto: CreatePresetDTO) => void | Promise<void>;
   isPending: boolean;
   error?: any;
 }

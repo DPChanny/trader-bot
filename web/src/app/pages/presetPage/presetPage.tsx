@@ -19,7 +19,7 @@ import { ErrorMessage } from "@components/molecules/errorMessage";
 import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
-import { AuctionModal } from "./auctionModal";
+import { AuctionCreatedModal } from "./auctionCreatedModal";
 import { NameTitle, Text } from "@components/atoms/text";
 import type { CreateAuctionDTO } from "@dtos/auction";
 import type { UpdatePresetDTO } from "@dtos/preset";
@@ -122,6 +122,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
   const handleCloseDeletePresetModal = () => {
     setShowDeletePresetModal(false);
+    deletePreset.reset();
   };
 
   return (
@@ -226,7 +227,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
       )}
 
       {createdAuctionId && (
-        <AuctionModal
+        <AuctionCreatedModal
           auctionId={createdAuctionId}
           onClose={() => setCreatedAuctionId(null)}
         />

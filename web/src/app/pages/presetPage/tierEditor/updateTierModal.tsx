@@ -9,7 +9,7 @@ import { buildPatchDto } from "@utils/dto";
 interface UpdateTierModalProps {
   tier: TierDTO;
   onClose: () => void;
-  onSubmit: (dto: UpdateTierDTO) => void;
+  onSubmit: (dto: UpdateTierDTO) => void | Promise<void>;
   isPending: boolean;
   error?: any;
 }

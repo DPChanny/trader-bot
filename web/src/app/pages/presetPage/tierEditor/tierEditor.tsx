@@ -30,7 +30,6 @@ interface TierEditorProps {
 export function TierEditor({ guildId, presetId }: TierEditorProps) {
   const [showAddTierModal, setShowAddTierModal] = useState(false);
   const [updatingTier, setUpdatingTier] = useState<TierDTO | null>(null);
-  const [showDeleteTierModal, setShowDeleteTierModal] = useState(false);
   const [deletingTierId, setDeletingTierId] = useState<number | null>(null);
 
   const { data: tiers, isLoading, error } = useTiers(guildId, presetId);
@@ -77,12 +76,11 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
 
   const handleOpenDeleteTierModal = (tierId: number) => {
     setDeletingTierId(tierId);
-    setShowDeleteTierModal(true);
   };
 
   const handleCloseDeleteTierModal = () => {
-    setShowDeleteTierModal(false);
     setDeletingTierId(null);
+    deleteTier.reset();
   };
 
   const handleDeleteTier = () => {
@@ -149,7 +147,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
           error={updateTier.isError ? updateTier.error : undefined}
         />
       )}
-      {showDeleteTierModal && (
+      {deletingTierId !== null && (
         <DeleteTierModal
           onClose={handleCloseDeleteTierModal}
           onConfirm={handleDeleteTier}

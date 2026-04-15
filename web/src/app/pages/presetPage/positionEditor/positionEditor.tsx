@@ -36,7 +36,6 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   const [updatingPosition, setUpdatingPosition] = useState<PositionDTO | null>(
     null,
   );
-  const [showDeletePositionModal, setShowDeletePositionModal] = useState(false);
   const [deletingPositionId, setDeletingPositionId] = useState<number | null>(
     null,
   );
@@ -85,12 +84,11 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
 
   const handleOpenDeletePositionModal = (positionId: number) => {
     setDeletingPositionId(positionId);
-    setShowDeletePositionModal(true);
   };
 
   const handleCloseDeletePositionModal = () => {
-    setShowDeletePositionModal(false);
     setDeletingPositionId(null);
+    deletePosition.reset();
   };
 
   const handleDeletePosition = () => {
@@ -163,7 +161,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
         />
       )}
 
-      {showDeletePositionModal && (
+      {deletingPositionId !== null && (
         <DeletePositionModal
           onClose={handleCloseDeletePositionModal}
           onConfirm={handleDeletePosition}

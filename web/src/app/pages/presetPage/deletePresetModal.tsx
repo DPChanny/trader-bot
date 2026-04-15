@@ -1,10 +1,10 @@
-import { Modal, ModalFooter } from "@components/modal";
+import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 
 interface DeletePresetModalProps {
   onClose: () => void;
-  onConfirm: () => Promise<void>;
+  onConfirm: () => void | Promise<void>;
   isPending: boolean;
   error?: any;
 }
@@ -15,26 +15,33 @@ export function DeletePresetModal({
   isPending,
   error,
 }: DeletePresetModalProps) {
+  const formId = "delete-preset-form";
+
   const handleClose = () => {
     if (isPending) return;
     onClose();
   };
 
+  const handleSubmit = async (e: Event) => {
+    e.preventDefault();
+    await onConfirm();
+  };
+
   return (
     <Modal onClose={handleClose} title="프리셋 삭제">
-      정말 이 프리셋을 삭제하시겠습니까?
-      {error && (
-        <ErrorMessage error={error}>프리셋을 삭제하지 못했습니다.</ErrorMessage>
-      )}
+      <ModalForm id={formId} onSubmit={handleSubmit}>
+        정말 이 프리셋을 삭제하시겠습니까?
+        {error && (
+          <ErrorMessage error={error}>
+            프리셋을 삭제하지 못했습니다.
+          </ErrorMessage>
+        )}
+      </ModalForm>
       <ModalFooter>
-        <SecondaryButton
-          type="button"
-          onClick={handleClose}
-          disabled={isPending}
-        >
+        <SecondaryButton onClick={handleClose} disabled={isPending}>
           취소
         </SecondaryButton>
-        <PrimaryButton type="button" onClick={onConfirm} disabled={isPending}>
+        <PrimaryButton type="submit" form={formId} disabled={isPending}>
           삭제
         </PrimaryButton>
       </ModalFooter>

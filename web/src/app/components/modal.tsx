@@ -1,26 +1,24 @@
 import { createPortal } from "preact/compat";
-import { clsx } from "clsx";
 import { Column, Fill, Row } from "./atoms/layout";
 import { Title } from "./atoms/text";
 import { PrimarySection, SecondarySection } from "./molecules/section";
 import styles from "@styles/components/molecules/modal.module.css";
-import { toChildArray, type ComponentChildren, type JSX } from "preact";
+import { toChildArray, type ComponentChildren, type VNode } from "preact";
 
 export type ModalProps = {
   onClose: () => void;
   title: string;
   children: ComponentChildren;
-  className?: string;
 };
 
-export function Modal({ onClose, title, children, className }: ModalProps) {
+export function Modal({ onClose, title, children }: ModalProps) {
   const childArray = toChildArray(children);
 
   const footerChildren = childArray.filter(
-    (child) => (child as JSX.Element)?.type === ModalFooter,
+    (child) => (child as VNode)?.type === ModalFooter,
   );
   const bodyChildren = childArray.filter(
-    (child) => (child as JSX.Element)?.type !== ModalFooter,
+    (child) => (child as VNode)?.type !== ModalFooter,
   );
 
   const content = (
@@ -28,7 +26,7 @@ export function Modal({ onClose, title, children, className }: ModalProps) {
       <Fill center className={styles.overlay} onClick={onClose}>
         <PrimarySection
           overflow="y"
-          className={clsx(styles.content, className)}
+          className={styles.content}
           onClick={(e) => e.stopPropagation()}
         >
           <Title>{title}</Title>
@@ -43,46 +41,38 @@ export function Modal({ onClose, title, children, className }: ModalProps) {
 }
 
 export interface ModalFormProps {
-  onSubmit: (e: Event) => void;
-  children: JSX.Element | JSX.Element[] | (JSX.Element | null | undefined)[];
-  className?: string;
+  onSubmit: (e: Event) => void | Promise<void>;
+  children: ComponentChildren;
   id?: string;
 }
 
-export function ModalForm({
-  onSubmit,
-  children,
-  className,
-  id,
-}: ModalFormProps) {
+export function ModalForm({ onSubmit, children, id }: ModalFormProps) {
   return (
     <form id={id} onSubmit={onSubmit}>
-      <Column className={className}>{children}</Column>
+      <Column>{children}</Column>
     </form>
   );
 }
 
 export interface ModalRowProps {
-  children: JSX.Element | JSX.Element[];
-  className?: string;
+  children: ComponentChildren;
 }
 
-export function ModalRow({ children, className }: ModalRowProps) {
+export function ModalRow({ children }: ModalRowProps) {
   return (
-    <Row align="center" className={clsx(styles.row, className)}>
+    <Row align="center" className={styles.row}>
       {children}
     </Row>
   );
 }
 
 export interface ModalFooterProps {
-  children: JSX.Element | JSX.Element[];
-  className?: string;
+  children: ComponentChildren;
 }
 
-export function ModalFooter({ children, className }: ModalFooterProps) {
+export function ModalFooter({ children }: ModalFooterProps) {
   return (
-    <Row align="center" justify="end" className={className}>
+    <Row align="center" justify="end">
       {children}
     </Row>
   );

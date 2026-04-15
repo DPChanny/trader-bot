@@ -7,7 +7,7 @@ import { AddPositionSchema, type AddPositionDTO } from "@dtos/position";
 
 interface AddPositionModalProps {
   onClose: () => void;
-  onSubmit: (dto: AddPositionDTO) => Promise<void>;
+  onSubmit: (dto: AddPositionDTO) => void | Promise<void>;
   isPending: boolean;
   error?: any;
 }

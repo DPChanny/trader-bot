@@ -7,7 +7,7 @@ import { AddTierSchema, type AddTierDTO } from "@dtos/tier";
 
 interface AddTierModalProps {
   onClose: () => void;
-  onSubmit: (dto: AddTierDTO) => Promise<void>;
+  onSubmit: (dto: AddTierDTO) => void | Promise<void>;
   isPending: boolean;
   error?: any;
 }

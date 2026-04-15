@@ -13,7 +13,7 @@ import { buildPatchDto } from "@utils/dto";
 interface UpdatePresetModalProps {
   preset: PresetDTO;
   onClose: () => void;
-  onSubmit: (dto: UpdatePresetDTO) => void;
+  onSubmit: (dto: UpdatePresetDTO) => void | Promise<void>;
   isPending: boolean;
   error?: any;
 }
@@ -124,11 +124,7 @@ export function UpdatePresetModal({
         </ModalRow>
       </ModalForm>
       <ModalFooter>
-        <SecondaryButton
-          type="button"
-          onClick={handleClose}
-          disabled={isPending}
-        >
+        <SecondaryButton onClick={handleClose} disabled={isPending}>
           취소
         </SecondaryButton>
         <PrimaryButton
