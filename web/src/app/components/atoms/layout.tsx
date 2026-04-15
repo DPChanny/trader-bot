@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@styles/components/atoms/layout.module.css";
-import type { ComponentChildren, JSX } from "preact";
+import type { JSX } from "preact";
 
 const layoutVariants = cva(styles.layout, {
   variants: {
@@ -77,7 +77,6 @@ const layoutVariants = cva(styles.layout, {
 
 export type LayoutProps = JSX.IntrinsicElements["div"] &
   VariantProps<typeof layoutVariants> & {
-    children?: ComponentChildren;
     className?: string;
   };
 
@@ -132,9 +131,7 @@ export function Fill(props: FillProps) {
   return <Layout fill minSize {...props} />;
 }
 
-export type FlexItemProps = JSX.IntrinsicElements["div"] & {
-  children?: ComponentChildren;
-};
+export type FlexItemProps = JSX.IntrinsicElements["div"] & {};
 
 export function FlexItem({ className, children, ...props }: FlexItemProps) {
   return (

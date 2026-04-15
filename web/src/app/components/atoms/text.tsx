@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import { cva, type VariantProps } from "class-variance-authority";
 import styles from "@styles/components/atoms/text.module.css";
-import type { ComponentChildren, JSX } from "preact";
+import type { JSX } from "preact";
 
 const textVariants = cva("", {
   variants: {
@@ -28,17 +28,13 @@ const textVariants = cva("", {
 });
 
 type TextProps = JSX.IntrinsicElements["span"] &
-  VariantProps<typeof textVariants> & {
-    children?: ComponentChildren;
-  };
+  VariantProps<typeof textVariants>;
 
 export type LabelProps = JSX.IntrinsicElements["label"] & {
-  children?: ComponentChildren;
   required?: boolean;
 };
 
 type TitleProps = JSX.IntrinsicElements["h3"] & {
-  children?: ComponentChildren;
   truncate?: boolean;
 };
 
