@@ -11,7 +11,6 @@ import { useCreatePreset, usePresets } from "@hooks/preset";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
 import type { CreatePresetDTO } from "@dtos/preset";
-import { Bar } from "@components/atoms/bar";
 import { Title } from "@components/atoms/text";
 
 interface PresetListProps {

@@ -7,7 +7,6 @@ import { PrimaryButton } from "@components/atoms/button";
 import { GuildCard } from "./guildCard";
 import type { GuildDetailDTO } from "@dtos/guild";
 import { getBotInviteUrl } from "@utils/env";
-import { Bar } from "@components/atoms/bar";
 import { Title } from "@components/atoms/text";
 
 interface GuildListProps {
