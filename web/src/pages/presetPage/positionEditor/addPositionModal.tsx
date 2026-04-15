@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import { Modal, ModalFooter, ModalForm } from "@/components/commons/modal";
 import { LabelInput } from "@/components/commons/labelInput";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
-import { ErrorMessage as ErrorMessage } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/errorMessage";
 import { AddPositionSchema, type AddPositionDTO } from "@/dtos/position";
 
 interface AddPositionModalProps {

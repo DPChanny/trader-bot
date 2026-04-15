@@ -30,19 +30,21 @@ export type ToggleProps = PressedButtonProps & {
 
 export function Toggle({
   isPressed = false,
-  variantColor = "blue",
+  variantColor,
   className,
   type = "button",
   ...props
 }: ToggleProps) {
+  const baseClass = toggleVariants({
+    variantColor,
+    variantPressed: isPressed,
+  });
+
   return (
     <PressedButton
       type={type}
       isPressed={isPressed}
-      className={clsx(
-        toggleVariants({ variantColor, variantPressed: isPressed }),
-        className,
-      )}
+      className={clsx(baseClass, className)}
       {...props}
     />
   );

@@ -22,13 +22,15 @@ export type CardProps = JSX.IntrinsicElements["div"] & {
 };
 
 export function Card({
-  variantColor = "blue",
+  variantColor,
   className,
   children,
   ...props
 }: CardProps) {
+  const baseClass = cardVariants({ variantColor });
+
   return (
-    <div className={clsx(cardVariants({ variantColor }), className)} {...props}>
+    <div className={clsx(baseClass, className)} {...props}>
       {children}
     </div>
   );

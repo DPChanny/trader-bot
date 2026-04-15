@@ -7,7 +7,7 @@ import { MemberGrid } from "@/components/memberGrid";
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import { PresetMemberPanel } from "./presetMemberPanel";
 import { Loading } from "@/components/commons/loading";
-import { ErrorMessage } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/errorMessage";
 import { PrimarySection, SecondarySection } from "@/components/commons/section";
 import { Column, Row } from "@/components/commons/layout";
 

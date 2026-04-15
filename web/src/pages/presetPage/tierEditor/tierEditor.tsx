@@ -8,7 +8,7 @@ import {
 import { Role } from "@/dtos/member";
 import { useVerifyRole } from "@/hooks/member";
 import { Loading } from "@/components/commons/loading";
-import { ErrorMessage } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/errorMessage";
 import { PrimaryButton } from "@/components/commons/button";
 import { Bar } from "@/components/commons/bar";
 import { Row, Scroll } from "@/components/commons/layout";

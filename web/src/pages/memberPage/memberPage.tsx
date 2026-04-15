@@ -4,7 +4,7 @@ import { MemberGrid } from "@/components/memberGrid";
 import { PrimarySection } from "@/components/commons/section";
 import { Page } from "@/components/commons/layout";
 import { Loading } from "@/components/commons/loading";
-import { ErrorMessage } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/errorMessage";
 import { MemberPanel } from "./memberPanel";
 import type { MemberDetailDTO } from "@/dtos/member";
 

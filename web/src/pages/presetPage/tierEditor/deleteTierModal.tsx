@@ -1,6 +1,6 @@
 import { Modal, ModalFooter } from "@/components/commons/modal";
 import { PrimaryButton, SecondaryButton } from "@/components/commons/button";
-import { ErrorMessage } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/errorMessage";
 import { Column } from "@/components/commons/layout";
 
 interface DeleteTierModalProps {

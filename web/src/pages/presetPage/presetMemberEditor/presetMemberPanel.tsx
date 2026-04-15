@@ -16,7 +16,7 @@ import { useVerifyRole } from "@/hooks/member";
 import type { PresetMemberDetailDTO } from "@/dtos/presetMember";
 import { CloseButton, SaveButton, Button } from "@/components/commons/button";
 import { Label } from "@/components/commons/label";
-import { ErrorMessage } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/errorMessage";
 import { Bar } from "@/components/commons/bar";
 import {
   SecondarySection,

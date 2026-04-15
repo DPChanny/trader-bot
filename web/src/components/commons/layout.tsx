@@ -96,25 +96,21 @@ export function Layout({
   children,
   ...props
 }: LayoutProps) {
+  const baseClass = layoutVariants({
+    direction,
+    gap,
+    padding,
+    justify,
+    align,
+    center,
+    wrap,
+    fill,
+    minSize,
+    overflow,
+  });
+
   return (
-    <div
-      className={clsx(
-        layoutVariants({
-          direction,
-          gap,
-          padding,
-          justify,
-          align,
-          center,
-          wrap,
-          fill,
-          minSize,
-          overflow,
-        }),
-        className,
-      )}
-      {...props}
-    >
+    <div className={clsx(baseClass, className)} {...props}>
       {children}
     </div>
   );

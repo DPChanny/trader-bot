@@ -21,12 +21,9 @@ const sectionVariants = cva(styles.section, {
 });
 
 function Section({ className, variantIntent, ...props }: SectionProps) {
-  return (
-    <Layout
-      className={clsx(sectionVariants({ variantIntent }), className)}
-      {...props}
-    />
-  );
+  const baseClass = sectionVariants({ variantIntent });
+
+  return <Layout className={clsx(baseClass, className)} {...props} />;
 }
 
 export function PrimarySection(props: LayoutProps) {

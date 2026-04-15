@@ -47,10 +47,10 @@ export function Image({
     <span className={clsx(baseClass, className)}>
       {canShowImage ? (
         <img
-          {...props}
           src={src!}
           alt={alt}
           className={styles.img}
+          {...props}
           onError={(event) => {
             setIsBroken(true);
             onError?.(event);

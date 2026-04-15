@@ -6,7 +6,7 @@ import { PrimarySection, SecondarySection } from "@/components/commons/section";
 import { Column, Row } from "@/components/commons/layout";
 import { Page } from "@/components/commons/layout";
 import { Loading } from "@/components/commons/loading";
-import { ErrorMessage } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/errorMessage";
 import { PrimaryButton } from "@/components/commons/button";
 import { PresetMemberGrid } from "@/components/presetMemberGrid";
 import { PresetMemberCard } from "@/components/presetMemberCard";

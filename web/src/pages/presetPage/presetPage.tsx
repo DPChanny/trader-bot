@@ -17,7 +17,7 @@ import { Row } from "@/components/commons/layout";
 import { Page } from "@/components/commons/layout";
 import { Loading } from "@/components/commons/loading";
 import { EditButton, DeleteButton, Button } from "@/components/commons/button";
-import { ErrorMessage } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/errorMessage";
 import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";

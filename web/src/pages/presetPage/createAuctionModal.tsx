@@ -3,7 +3,7 @@ import { Modal, ModalFooter } from "@/components/commons/modal";
 import { Toggle } from "@/components/commons/toggle";
 import { Label } from "@/components/commons/label";
 import { SecondaryButton, Button } from "@/components/commons/button";
-import { ErrorMessage } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/errorMessage";
 import { Column, Row } from "@/components/commons/layout";
 import type { CreateAuctionDTO } from "@/dtos/auction";
 

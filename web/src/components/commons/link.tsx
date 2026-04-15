@@ -33,14 +33,10 @@ export function Link({
   variantDisplay,
   ...props
 }: LinkProps) {
+  const baseClass = linkVariants({ variantStyle, variantDisplay });
+
   return (
-    <a
-      className={clsx(
-        linkVariants({ variantStyle, variantDisplay }),
-        className,
-      )}
-      {...props}
-    >
+    <a className={clsx(baseClass, className)} {...props}>
       {children}
     </a>
   );

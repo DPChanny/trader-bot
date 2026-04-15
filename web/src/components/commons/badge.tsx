@@ -46,6 +46,7 @@ export function Badge({
   variantColor,
   variantTone,
   variantSize,
+  ...props
 }: BadgeProps) {
   const baseClass = badgeVariants({
     variantColor,
@@ -54,7 +55,7 @@ export function Badge({
   });
 
   return (
-    <span className={clsx(baseClass, className)}>
+    <span className={clsx(baseClass, className)} {...props}>
       {src ? (
         <Image src={src} alt={alt ?? "icon"} variantSize="badge" />
       ) : (

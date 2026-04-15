@@ -4,7 +4,7 @@ import { useUpdateMember } from "@/hooks/member";
 import { CloseButton, SaveButton } from "@/components/commons/button";
 import { Link } from "@/components/commons/link";
 import { LabelInput } from "@/components/commons/labelInput";
-import { ErrorMessage } from "@/components/commons/error";
+import { ErrorMessage } from "@/components/commons/errorMessage";
 import { Bar } from "@/components/commons/bar";
 import {
   PrimarySection,
