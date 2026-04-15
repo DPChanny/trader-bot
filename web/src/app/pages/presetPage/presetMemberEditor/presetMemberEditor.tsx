@@ -120,62 +120,60 @@ export function PresetMemberEditor({
   };
 
   return (
-    <PrimarySection fill minSize>
-      <Row fill minSize>
-        <Column fill minSize>
-          <SecondarySection fill minSize>
-            {presetMembersError ? (
-              <ErrorMessage error={presetMembersError}>
-                프리셋 멤버 목록을 불러오는데 실패했습니다.
-              </ErrorMessage>
-            ) : presetMembersLoading ? (
-              <Loading />
-            ) : (
-              <PresetMemberGrid
-                presetMembers={
-                  presetMembers?.filter(
-                    (pm) => !removingMemberIds.has(pm.memberId),
-                  ) ?? []
-                }
-                selectedMemberId={selectedPresetMemberId}
-                onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
+    <>
+      <PrimarySection fill minSize>
+        <SecondarySection fill minSize>
+          {presetMembersError ? (
+            <ErrorMessage error={presetMembersError}>
+              프리셋 멤버 목록을 불러오는데 실패했습니다.
+            </ErrorMessage>
+          ) : presetMembersLoading ? (
+            <Loading />
+          ) : (
+            <PresetMemberGrid
+              presetMembers={
+                presetMembers?.filter(
+                  (pm) => !removingMemberIds.has(pm.memberId),
+                ) ?? []
+              }
+              selectedMemberId={selectedPresetMemberId}
+              onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
+            />
+          )}
+        </SecondarySection>
+
+        <SecondarySection fill minSize>
+          {membersError ? (
+            <ErrorMessage error={membersError}>
+              멤버 목록을 불러오는데 실패했습니다.
+            </ErrorMessage>
+          ) : membersLoading ? (
+            <Loading />
+          ) : (
+            <>
+              {canEdit && createPresetMember.isError && (
+                <ErrorMessage error={createPresetMember.error}>
+                  프리셋 멤버 추가에 실패했습니다.
+                </ErrorMessage>
+              )}
+              <MemberGrid
+                members={candidateMembers}
+                onMemberClick={canEdit ? handleAddMember : undefined}
               />
-            )}
-          </SecondarySection>
+            </>
+          )}
+        </SecondarySection>
+      </PrimarySection>
 
-          <SecondarySection fill minSize>
-            {membersError ? (
-              <ErrorMessage error={membersError}>
-                멤버 목록을 불러오는데 실패했습니다.
-              </ErrorMessage>
-            ) : membersLoading ? (
-              <Loading />
-            ) : (
-              <>
-                {canEdit && createPresetMember.isError && (
-                  <ErrorMessage error={createPresetMember.error}>
-                    프리셋 멤버 추가에 실패했습니다.
-                  </ErrorMessage>
-                )}
-                <MemberGrid
-                  members={candidateMembers}
-                  onMemberClick={canEdit ? handleAddMember : undefined}
-                />
-              </>
-            )}
-          </SecondarySection>
-        </Column>
-
-        {selectedPresetMember && (
-          <PresetMemberPanel
-            key={selectedPresetMember.presetMemberId}
-            presetMember={selectedPresetMember}
-            setSelectedPresetMemberId={setSelectedPresetMemberId}
-            addMemberIdToRemoving={addMemberIdToRemoving}
-            removeMemberIdFromRemoving={removeMemberIdFromRemoving}
-          />
-        )}
-      </Row>
-    </PrimarySection>
+      {selectedPresetMember && (
+        <PresetMemberPanel
+          key={selectedPresetMember.presetMemberId}
+          presetMember={selectedPresetMember}
+          setSelectedPresetMemberId={setSelectedPresetMemberId}
+          addMemberIdToRemoving={addMemberIdToRemoving}
+          removeMemberIdFromRemoving={removeMemberIdFromRemoving}
+        />
+      )}
+    </>
   );
 }

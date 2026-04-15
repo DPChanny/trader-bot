@@ -4,7 +4,7 @@ import type { TeamDTO } from "@dtos/auction";
 import { Card, type CardProps } from "@components/atoms/card";
 import { Column, Row } from "@components/atoms/layout";
 import { Bar } from "@components/atoms/bar";
-import { BodyStrong } from "@components/atoms/text";
+import { Name, Text, Title } from "@components/atoms/text";
 
 type TeamCardProps = Omit<CardProps, "children"> & {
   team: TeamDTO;
@@ -40,8 +40,10 @@ export function TeamCard({
     <Card variantColor={resolvedVariantColor} {...props}>
       <Column>
         <Row gap="sm" justify="between" align="center">
-          <h4>{teamName}</h4>
-          <BodyStrong>{team.points * pointScale} 포인트</BodyStrong>
+          <Title truncate>{teamName}</Title>
+          <Text variantWeight="semibold" variantSize="base">
+            {team.points * pointScale} 포인트
+          </Text>
         </Row>
         <Bar variantColor={barVariantColor} />
         <PresetMemberGrid

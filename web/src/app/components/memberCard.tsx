@@ -3,7 +3,7 @@ import styles from "@styles/components/memberCard.module.css";
 import { Card, type CardProps } from "./atoms/card";
 import { Image } from "./atoms/image";
 import { Column, Fill } from "./atoms/layout";
-import { CaptionStrong } from "./atoms/text";
+import { Name } from "./atoms/text";
 import { Badge } from "./molecules/badge";
 import type { MemberDetailDTO } from "@dtos/member";
 
@@ -52,7 +52,7 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
           variantSize="large"
         />
         <Column gap="xs" align="center">
-          <CaptionStrong truncate>{displayName}</CaptionStrong>
+          <Name variantSize="xs">{displayName}</Name>
         </Column>
       </Fill>
     </Card>

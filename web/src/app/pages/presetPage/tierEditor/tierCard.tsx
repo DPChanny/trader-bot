@@ -2,7 +2,7 @@ import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/molecules/badge";
 import { Card, type CardProps } from "@components/atoms/card";
 import { FlexItem, Row } from "@components/atoms/layout";
-import { Text } from "@components/atoms/text";
+import { Name } from "@components/atoms/text";
 import type { TierDTO } from "@dtos/tier";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
@@ -36,7 +36,7 @@ export function TierCard({
           {tier.name.charAt(0)}
         </Badge>
         <FlexItem>
-          <Text truncate>{tier.name}</Text>
+          <Name>{tier.name}</Name>
         </FlexItem>
 
         {canEdit && (

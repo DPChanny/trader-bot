@@ -5,16 +5,60 @@
   letter-spacing: var(--letter-spacing-tight);
 }
 
-.body {
-  font-size: var(--font-size-base);
+.fontRelaxed {
+  line-height: var(--line-height-relaxed);
+}
+
+.fontEyebrow {
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.weightNormal {
   font-weight: var(--font-weight-normal);
+}
+
+.weightMedium {
+  font-weight: var(--font-weight-medium);
+}
+
+.weightSemibold {
+  font-weight: var(--font-weight-semibold);
+}
+
+.weightBold {
+  font-weight: var(--font-weight-bold);
+}
+
+.sizeMicro {
+  font-size: 0.6rem;
+  line-height: 1;
+}
+
+.sizeXs {
+  font-size: var(--font-size-xs);
   line-height: var(--line-height-normal);
 }
 
-.bodyStrong {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+.sizeSm {
+  font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
+}
+
+.sizeBase {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+}
+
+.sizeXl {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-tight);
+}
+
+.size3xl {
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-tight);
 }
 
 .label {
@@ -27,44 +71,6 @@
 .labelRequired {
   color: var(--color-error-text);
   font-weight: var(--font-weight-medium);
-}
-
-.eyebrow {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-tight);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-.metric {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
-}
-
-.caption {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-normal);
-  line-height: var(--line-height-normal);
-}
-
-.captionStrong {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-normal);
-}
-
-.bodyRelaxed {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-normal);
-  line-height: var(--line-height-relaxed);
-}
-
-.micro {
-  font-size: 0.6rem;
-  font-weight: var(--font-weight-medium);
-  line-height: 1;
 }
 
 .truncate {

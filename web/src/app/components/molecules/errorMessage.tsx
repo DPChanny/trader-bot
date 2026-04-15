@@ -2,7 +2,7 @@ import { Column } from "../atoms/layout";
 import { useState } from "preact/hooks";
 import styles from "@styles/components/molecules/error.module.css";
 import { clsx } from "clsx";
-import { BodyRelaxed, Caption } from "../atoms/text";
+import { Text } from "../atoms/text";
 import { AppError } from "@utils/error";
 import type { ComponentChildren, JSX } from "preact";
 
@@ -37,15 +37,19 @@ export function ErrorMessage({
           aria-expanded={showDetail}
           onClick={() => setShowDetail((v) => !v)}
         >
-          <BodyRelaxed>{children ?? "오류가 발생했습니다."}</BodyRelaxed>
+          <Text variantFont="relaxed" variantWeight="normal" variantSize="sm">
+            {children ?? "오류가 발생했습니다."}
+          </Text>
         </button>
       ) : (
-        <BodyRelaxed>{children ?? "오류가 발생했습니다."}</BodyRelaxed>
+        <Text variantFont="relaxed" variantWeight="normal" variantSize="sm">
+          {children ?? "오류가 발생했습니다."}
+        </Text>
       )}
       {showDetail && (
-        <Caption className={styles.detail}>
+        <Text variantWeight="normal" variantSize="xs" className={styles.detail}>
           {code !== undefined ? `#${code}: ${detail}` : detail}
-        </Caption>
+        </Text>
       )}
     </Column>
   );

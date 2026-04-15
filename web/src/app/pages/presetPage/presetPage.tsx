@@ -13,7 +13,7 @@ import {
   SecondarySection,
   TertiarySection,
 } from "@components/molecules/section";
-import { Row } from "@components/atoms/layout";
+import { Fill, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { EditButton, DeleteButton, Button } from "@components/atoms/button";
@@ -22,7 +22,7 @@ import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionModal } from "./auctionModal";
-import { Text, Title } from "@components/atoms/text";
+import { Name, Text, Title } from "@components/atoms/text";
 import type { CreateAuctionDTO } from "@dtos/auction";
 import type { UpdatePresetDTO } from "@dtos/preset";
 import { Bar } from "@components/atoms/bar";
@@ -126,24 +126,20 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
         style={{ width: "24rem", flex: "none" }}
       >
         {isPresetLoading ? (
-          <SecondarySection>
-            <Loading />
-          </SecondarySection>
+          <Loading />
         ) : presetError ? (
-          <SecondarySection>
-            <ErrorMessage error={presetError}>
-              프리셋을 불러오는데 실패했습니다.
-            </ErrorMessage>
-          </SecondarySection>
+          <ErrorMessage error={presetError}>
+            프리셋을 불러오는데 실패했습니다.
+          </ErrorMessage>
         ) : !preset ? (
-          <SecondarySection>
-            <ErrorMessage>프리셋을 찾을 수 없습니다.</ErrorMessage>
-          </SecondarySection>
+          <ErrorMessage>프리셋을 찾을 수 없습니다.</ErrorMessage>
         ) : (
-          <SecondarySection>
+          <>
             <Row>
-              <Title>{preset.name}</Title>
-              <Row>
+              <Fill>
+                <Title truncate>{preset.name}</Title>
+              </Fill>
+              <Row gap="sm">
                 {canEdit && (
                   <EditButton
                     variantSize="medium"
@@ -159,8 +155,8 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
               </Row>
             </Row>
             <Bar />
-            <TertiarySection>
-              <Row>
+            <SecondarySection>
+              <Row align="stretch">
                 <Text>{teamSize} 명</Text>
                 <Text>
                   {preset.points * preset.pointScale} / {preset.pointScale}{" "}
@@ -168,21 +164,21 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
                 </Text>
                 <Text>{preset.timer} 초</Text>
               </Row>
-            </TertiarySection>
-
-            {canEdit && (
-              <Button
-                variantIntent={auctionButtonIntent}
-                onClick={() => setShowCreateAuctionModal(true)}
-              >
-                경매 생성
-              </Button>
-            )}
-          </SecondarySection>
+            </SecondarySection>
+          </>
         )}
 
         <TierEditor guildId={guildId} presetId={presetId} />
         <PositionEditor guildId={guildId} presetId={presetId} />
+
+        {canEdit && (
+          <Button
+            variantIntent={auctionButtonIntent}
+            onClick={() => setShowCreateAuctionModal(true)}
+          >
+            경매 생성
+          </Button>
+        )}
       </PrimarySection>
 
       <PresetMemberEditor guildId={guildId} presetId={presetId} />

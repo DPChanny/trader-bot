@@ -11,9 +11,9 @@ import {
   SecondarySection,
   TertiarySection,
 } from "@components/molecules/section";
-import { Column, Row, Scroll } from "@components/atoms/layout";
+import { Column, Fill, Row, Scroll } from "@components/atoms/layout";
 import { Toggle } from "@components/molecules/toggle";
-import { Label, Title } from "@components/atoms/text";
+import { Label, Name, Title } from "@components/atoms/text";
 import {
   UpdateMemberSchema,
   type MemberDetailDTO,
@@ -77,29 +77,27 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
 
   return (
     <PrimarySection minSize style={{ width: "24rem", flex: "none" }}>
-      <SecondarySection>
-        <Column>
-          <Row>
-            <Title>{member.alias || member.user.name}</Title>
-            <Row>
-              {canEdit && (
-                <SaveButton
-                  onClick={handleSave}
-                  disabled={
-                    updateMember.isPending || !hasChanges || !isFormValid
-                  }
-                />
-              )}
-              <CloseButton onClick={onClose} />
-            </Row>
+      <Column>
+        <Row>
+          <Fill>
+            <Title truncate>{member.alias || member.user.name}</Title>
+          </Fill>
+          <Row gap="sm">
+            {canEdit && (
+              <SaveButton
+                onClick={handleSave}
+                disabled={updateMember.isPending || !hasChanges || !isFormValid}
+              />
+            )}
+            <CloseButton onClick={onClose} />
           </Row>
-          {updateMember.isError && (
-            <ErrorMessage error={updateMember.error}>
-              멤버 수정에 실패했습니다.
-            </ErrorMessage>
-          )}
-        </Column>
-      </SecondarySection>
+        </Row>
+        {updateMember.isError && (
+          <ErrorMessage error={updateMember.error}>
+            멤버 수정에 실패했습니다.
+          </ErrorMessage>
+        )}
+      </Column>
 
       <Bar />
 

@@ -4,7 +4,7 @@ import { Card, type CardProps } from "./atoms/card";
 import { Badge } from "./molecules/badge";
 import { Image } from "./atoms/image";
 import { Column, Fill, Row } from "./atoms/layout";
-import { CaptionStrong } from "./atoms/text";
+import { Name } from "./atoms/text";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
 export type PresetMemberCardProps = Omit<CardProps, "children"> & {
@@ -58,9 +58,9 @@ export function PresetMemberCard({
           variantSize="large"
         />
         <Column gap="xs" align="center">
-          <CaptionStrong truncate>
+          <Name variantSize="xs">
             {member.alias || member.name || member.user.name}
-          </CaptionStrong>
+          </Name>
           {presetMemberPositions?.length > 0 && (
             <Row wrap align="center" justify="center" gap="xs">
               {presetMemberPositions.slice(0, 3).map((pmp) => (

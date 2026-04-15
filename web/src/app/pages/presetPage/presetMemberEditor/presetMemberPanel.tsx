@@ -24,7 +24,7 @@ import {
   SecondarySection,
   TertiarySection,
 } from "@components/molecules/section";
-import { Column, Row, Scroll } from "@components/atoms/layout";
+import { Column, Fill, Row, Scroll } from "@components/atoms/layout";
 import { buildPatchDto } from "@utils/dto";
 
 interface PresetMemberPanelProps {
@@ -202,15 +202,17 @@ export function PresetMemberPanel({
   };
 
   return (
-    <SecondarySection minSize style={{ width: "24rem", flex: "none" }}>
+    <PrimarySection minSize style={{ width: "24rem", flex: "none" }}>
       <Column>
         <Row>
-          <Title>
-            {presetMember.member.alias ||
-              presetMember.member.name ||
-              presetMember.member.user.name}
-          </Title>
-          <Row>
+          <Fill>
+            <Title truncate>
+              {presetMember.member.alias ||
+                presetMember.member.name ||
+                presetMember.member.user.name}
+            </Title>
+          </Fill>
+          <Row gap="sm">
             {canEdit && (
               <SaveButton
                 onClick={handleSave}
@@ -323,6 +325,6 @@ export function PresetMemberPanel({
           </Button>
         </>
       )}
-    </SecondarySection>
+    </PrimarySection>
   );
 }

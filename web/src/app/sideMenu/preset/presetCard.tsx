@@ -1,7 +1,7 @@
 import { Card, type CardProps } from "@components/atoms/card";
 import { FlexItem, Row } from "@components/atoms/layout";
 import { Link } from "@components/atoms/link";
-import { Text } from "@components/atoms/text";
+import { Name } from "@components/atoms/text";
 import type { PresetDTO } from "@dtos/preset";
 
 type PresetCardProps = Omit<CardProps, "children"> & {
@@ -25,7 +25,7 @@ export function PresetCard({
       <Card {...props}>
         <Row>
           <FlexItem>
-            <Text truncate>{preset.name}</Text>
+            <Name>{preset.name}</Name>
           </FlexItem>
         </Row>
       </Card>

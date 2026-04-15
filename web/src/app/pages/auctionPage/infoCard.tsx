@@ -1,6 +1,6 @@
 import { Column, Fill } from "@components/atoms/layout";
 import { SecondarySection } from "@components/molecules/section";
-import { Eyebrow, Metric } from "@components/atoms/text";
+import { Text } from "@components/atoms/text";
 
 interface InfoCardProps {
   label: string;
@@ -12,8 +12,18 @@ export function InfoCard({ label, value, children }: InfoCardProps) {
   return (
     <SecondarySection>
       <Column fill center>
-        <Eyebrow>{label}</Eyebrow>
-        <Fill center>{children ? children : <Metric>{value}</Metric>}</Fill>
+        <Text variantFont="eyebrow" variantWeight="medium" variantSize="sm">
+          {label}
+        </Text>
+        <Fill center>
+          {children ? (
+            children
+          ) : (
+            <Text variantWeight="bold" variantSize="3xl">
+              {value}
+            </Text>
+          )}
+        </Fill>
       </Column>
     </SecondarySection>
   );
