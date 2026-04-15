@@ -5,7 +5,6 @@
   appearance: none;
   border-radius: var(--radius-input);
   outline: none;
-  font-family: var(--font-sans);
   background-color: var(--color-input-bg);
   color: var(--color-input-text);
   border: var(--border-width-default) solid var(--color-input-border);

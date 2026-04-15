@@ -12,14 +12,12 @@ export function InfoCard({ label, value, children }: InfoCardProps) {
   return (
     <SecondarySection>
       <Column fill center>
-        <Text variantFont="eyebrow" variantWeight="medium" variantSize="sm">
-          {label}
-        </Text>
+        <Text variantWeight="bold">{label}</Text>
         <Fill center>
           {children ? (
             children
           ) : (
-            <Text variantWeight="bold" variantSize="3xl">
+            <Text variantWeight="bold" variantSize="large">
               {value}
             </Text>
           )}

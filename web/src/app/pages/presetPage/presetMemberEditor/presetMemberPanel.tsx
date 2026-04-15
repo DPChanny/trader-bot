@@ -15,7 +15,7 @@ import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { CloseButton, SaveButton, Button } from "@components/atoms/button";
-import { Label, Title } from "@components/atoms/text";
+import { Label, NameTitle, Title } from "@components/atoms/text";
 import { ErrorMessage } from "@components/molecules/errorMessage";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { Bar } from "@components/atoms/bar";
@@ -202,11 +202,11 @@ export function PresetMemberPanel({
       <Column>
         <Row>
           <Fill>
-            <Title truncate>
+            <NameTitle>
               {presetMember.member.alias ||
                 presetMember.member.name ||
                 presetMember.member.user.name}
-            </Title>
+            </NameTitle>
           </Fill>
           <Row gap="sm">
             {canEdit && (

@@ -21,7 +21,7 @@ import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionModal } from "./auctionModal";
-import { Text, Title } from "@components/atoms/text";
+import { NameTitle, Text, Title } from "@components/atoms/text";
 import type { CreateAuctionDTO } from "@dtos/auction";
 import type { UpdatePresetDTO } from "@dtos/preset";
 import { Bar } from "@components/atoms/bar";
@@ -136,7 +136,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
           <>
             <Row>
               <Fill>
-                <Title truncate>{preset.name}</Title>
+                <NameTitle>{preset.name}</NameTitle>
               </Fill>
               <Row gap="sm">
                 {canEdit && (

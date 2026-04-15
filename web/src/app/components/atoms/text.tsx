@@ -5,24 +5,15 @@ import type { ComponentChildren, JSX } from "preact";
 
 const textVariants = cva("", {
   variants: {
-    variantFont: {
-      plain: "",
-      relaxed: styles.fontRelaxed,
-      eyebrow: styles.fontEyebrow,
-    },
     variantWeight: {
       normal: styles.weightNormal,
-      medium: styles.weightMedium,
       semibold: styles.weightSemibold,
       bold: styles.weightBold,
     },
     variantSize: {
-      micro: styles.sizeMicro,
-      xs: styles.sizeXs,
-      sm: styles.sizeSm,
-      base: styles.sizeBase,
-      xl: styles.sizeXl,
-      "3xl": styles.size3xl,
+      small: styles.sizeSmall,
+      medium: styles.sizeMedium,
+      large: styles.sizeLarge,
     },
     truncate: {
       true: styles.truncate,
@@ -30,9 +21,8 @@ const textVariants = cva("", {
     },
   },
   defaultVariants: {
-    variantFont: "plain",
     variantWeight: "normal",
-    variantSize: "base",
+    variantSize: "medium",
     truncate: false,
   },
 });
@@ -45,24 +35,15 @@ type TextProps = JSX.IntrinsicElements["span"] &
 export type LabelProps = JSX.IntrinsicElements["label"] & {
   children?: ComponentChildren;
   required?: boolean;
-  truncate?: boolean;
 };
 
-type HeadingProps = JSX.IntrinsicElements["h3"] & {
+type TitleProps = JSX.IntrinsicElements["h3"] & {
   children?: ComponentChildren;
   truncate?: boolean;
 };
 
-function withTruncate(
-  className: JSX.IntrinsicElements["span"]["className"],
-  truncate?: boolean,
-) {
-  return clsx(className, truncate && styles.truncate);
-}
-
 export function Text({
   className,
-  variantFont,
   variantWeight,
   variantSize,
   truncate,
@@ -72,7 +53,6 @@ export function Text({
     <span
       className={clsx(
         textVariants({
-          variantFont,
           variantWeight,
           variantSize,
           truncate,
@@ -88,27 +68,22 @@ export function Name({ ...props }: TextProps) {
   return <Text variantWeight="semibold" truncate {...props} />;
 }
 
-export function Title({ className, truncate, ...props }: HeadingProps) {
+export function Title({ className, truncate, ...props }: TitleProps) {
   return (
     <h3
-      className={withTruncate(clsx(styles.title, className), truncate)}
+      className={clsx(styles.title, className, truncate && styles.truncate)}
       {...props}
     />
   );
 }
 
-export function Label({
-  className,
-  children,
-  required,
-  truncate,
-  ...props
-}: LabelProps) {
+export function NameTitle({ ...props }: TitleProps) {
+  return <Title truncate {...props} />;
+}
+
+export function Label({ className, children, required, ...props }: LabelProps) {
   return (
-    <label
-      className={withTruncate(clsx(styles.label, className), truncate)}
-      {...props}
-    >
+    <label className={clsx(styles.label, className)} {...props}>
       {children}
       {required && <span className={styles.labelRequired}> *</span>}
     </label>

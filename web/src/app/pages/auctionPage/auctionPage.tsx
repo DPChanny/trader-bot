@@ -246,7 +246,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
               </FlexItem>
               <PrimaryButton
                 onClick={handlePlaceBid}
-                style={{ minWidth: "7.5rem" }}
                 disabled={
                   state.status !== Status.RUNNING ||
                   !bidAmount ||

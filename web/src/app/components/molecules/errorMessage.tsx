@@ -37,17 +37,13 @@ export function ErrorMessage({
           aria-expanded={showDetail}
           onClick={() => setShowDetail((v) => !v)}
         >
-          <Text variantFont="relaxed" variantWeight="normal" variantSize="sm">
-            {children ?? "오류가 발생했습니다."}
-          </Text>
+          <Text>{children ?? "오류가 발생했습니다."}</Text>
         </button>
       ) : (
-        <Text variantFont="relaxed" variantWeight="normal" variantSize="sm">
-          {children ?? "오류가 발생했습니다."}
-        </Text>
+        <Text>{children ?? "오류가 발생했습니다."}</Text>
       )}
       {showDetail && (
-        <Text variantWeight="normal" variantSize="xs" className={styles.detail}>
+        <Text variantSize="small" className={styles.detail}>
           {code !== undefined ? `#${code}: ${detail}` : detail}
         </Text>
       )}

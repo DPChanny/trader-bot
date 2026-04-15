@@ -58,7 +58,7 @@ export function PresetMemberCard({
           variantSize="large"
         />
         <Column gap="xs" align="center">
-          <Name variantSize="xs">
+          <Name variantSize="small">
             {member.alias || member.name || member.user.name}
           </Name>
           {presetMemberPositions?.length > 0 && (

@@ -1,26 +1,10 @@
 .title {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-tight);
-}
-
-.fontRelaxed {
-  line-height: var(--line-height-relaxed);
-}
-
-.fontEyebrow {
-  line-height: var(--line-height-tight);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
 }
 
 .weightNormal {
   font-weight: var(--font-weight-normal);
-}
-
-.weightMedium {
-  font-weight: var(--font-weight-medium);
 }
 
 .weightSemibold {
@@ -31,40 +15,21 @@
   font-weight: var(--font-weight-bold);
 }
 
-.sizeMicro {
-  font-size: 0.6rem;
-  line-height: 1;
-}
-
-.sizeXs {
+.sizeSmall {
   font-size: var(--font-size-xs);
-  line-height: var(--line-height-normal);
 }
 
-.sizeSm {
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-normal);
-}
-
-.sizeBase {
+.sizeMedium {
   font-size: var(--font-size-base);
-  line-height: var(--line-height-normal);
 }
 
-.sizeXl {
-  font-size: var(--font-size-xl);
-  line-height: var(--line-height-tight);
-}
-
-.size3xl {
+.sizeLarge {
   font-size: var(--font-size-3xl);
-  line-height: var(--line-height-tight);
 }
 
 .label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-normal);
   display: block;
 }
 

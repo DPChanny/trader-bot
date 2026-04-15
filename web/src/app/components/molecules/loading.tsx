@@ -9,9 +9,7 @@ export function Loading({ className, ...props }: LoadingProps) {
     <Fill center className={className} {...props}>
       <Column center gap="md" padding="xl">
         <div className={styles.spinner}></div>
-        <Text variantWeight="normal" variantSize="base" className={styles.text}>
-          로딩중
-        </Text>
+        <Text className={styles.text}>로딩중</Text>
       </Column>
     </Fill>
   );

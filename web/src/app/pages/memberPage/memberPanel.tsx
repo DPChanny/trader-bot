@@ -9,7 +9,7 @@ import { Bar } from "@components/atoms/bar";
 import { PrimarySection, TertiarySection } from "@components/molecules/section";
 import { Column, Fill, Row, Scroll } from "@components/atoms/layout";
 import { Toggle } from "@components/molecules/toggle";
-import { Label, Title } from "@components/atoms/text";
+import { Label, NameTitle, Title } from "@components/atoms/text";
 import {
   UpdateMemberSchema,
   type MemberDetailDTO,
@@ -76,7 +76,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
       <Column>
         <Row>
           <Fill>
-            <Title truncate>{member.alias || member.user.name}</Title>
+            <NameTitle>{member.alias || member.user.name}</NameTitle>
           </Fill>
           <Row gap="sm">
             {canEdit && (
@@ -124,7 +124,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
           />
           {infoUrl && (
             <Link href={infoUrl} target="_blank" rel="noopener noreferrer">
-              프로필 보기 →
+              프로필 보기
             </Link>
           )}
 

@@ -2,9 +2,9 @@ import { useState } from "preact/hooks";
 import styles from "@styles/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@hooks/guild";
 import { useGuildRoute } from "@hooks/router";
-import { CloseButton } from "@components/atoms/button";
+import { Button, CloseButton } from "@components/atoms/button";
 import { Row } from "@components/atoms/layout";
-import { Text, Title } from "@components/atoms/text";
+import { Title } from "@components/atoms/text";
 import { PrimarySection } from "@components/molecules/section";
 import { Bar } from "@components/atoms/bar";
 import { GuildList } from "./guild/guildList";
@@ -18,11 +18,7 @@ export function SideMenu() {
   return (
     <>
       {isOpen && (
-        <PrimarySection
-          minSize
-          overflow="y"
-          style={{ width: "20rem", height: "100%", flexShrink: 0 }}
-        >
+        <PrimarySection minSize overflow="y" style={{ width: "24rem" }}>
           <Row gap="sm" justify="between" align="center">
             <Title>메뉴</Title>
             <CloseButton
@@ -38,16 +34,14 @@ export function SideMenu() {
         </PrimarySection>
       )}
       {!isOpen && (
-        <button
-          type="button"
+        <Button
+          variantContent="icon"
           className={styles.floatingToggle}
           onClick={() => setIsOpen(true)}
           aria-label="사이드메뉴 펼치기"
         >
-          <Text variantWeight="medium" variantSize="micro">
-            ▶
-          </Text>
-        </button>
+          ▶
+        </Button>
       )}
     </>
   );

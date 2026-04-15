@@ -52,7 +52,7 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
           variantSize="large"
         />
         <Column gap="xs" align="center">
-          <Name variantSize="xs">{displayName}</Name>
+          <Name variantSize="small">{displayName}</Name>
         </Column>
       </Fill>
     </Card>
