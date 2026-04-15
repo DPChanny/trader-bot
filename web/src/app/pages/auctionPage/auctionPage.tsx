@@ -255,15 +255,20 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
               <Row wrap>
                 <FlexItem>
                   <Column>
-                    <InfoCard label="남은 시간" value={state.timer} />
-                    <InfoCard
-                      label="입찰 포인트"
-                      value={(state.currentBid?.amount || 0) * pointScale}
-                    />
+                    <InfoCard label="남은 시간">
+                      <Text variantWeight="bold" variantSize="large">
+                        {state.timer}
+                      </Text>
+                    </InfoCard>
+                    <InfoCard label="입찰 포인트">
+                      <Text variantWeight="bold" variantSize="large">
+                        {(state.currentBid?.amount || 0) * pointScale}
+                      </Text>
+                    </InfoCard>
                   </Column>
                 </FlexItem>
                 <FlexItem>
-                  <InfoCard label="입찰 팀장" value="">
+                  <InfoCard label="입찰 팀장">
                     {currentBidLeader && (
                       <PresetMemberCard presetMember={currentBidLeader} />
                     )}
