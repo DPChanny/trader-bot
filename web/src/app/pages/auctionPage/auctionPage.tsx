@@ -11,6 +11,7 @@ import { Column, FlexItem, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Modal } from "@components/molecules/modal";
 import { PrimaryButton } from "@components/atoms/button";
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberCard } from "@components/presetMemberCard";
@@ -22,7 +23,9 @@ import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { Status } from "@dtos/auction";
 import {
   AuctionErrorCode,
-  AUCTION_ENTRY_FAILED_MESSAGE,
+  AUCTION_CONNECTION_FAILED_MESSAGE,
+  AUCTION_RUNTIME_ERROR_MESSAGE,
+  UnexpectedErrorCode,
   type WSError,
 } from "@utils/error";
 
@@ -43,9 +46,17 @@ function isBidErrorCode(code: number): boolean {
   }
 }
 
+function isRuntimeErrorCode(code: number | null | undefined): boolean {
+  return (
+    code === UnexpectedErrorCode.Internal ||
+    code === UnexpectedErrorCode.External
+  );
+}
+
 export function AuctionPage({ auctionId }: AuctionPageProps) {
   const [bidAmount, setBidAmount] = useState<string>("");
-  const [dismissedError, setDismissedError] = useState<WSError | null>(null);
+  const [bidError, setBidError] = useState<WSError | null>(null);
+  const [runtimeError, setRuntimeError] = useState<WSError | null>(null);
   const reconnectedRef = useRef(false);
 
   const { state, connect, placeBid, isConnected, wasConnected, error } =
@@ -53,7 +64,8 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
   useEffect(() => {
     if (error === null) {
-      setDismissedError(null);
+      setBidError(null);
+      setRuntimeError(null);
     }
   }, [error]);
 
@@ -85,28 +97,47 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   const isCompleted = state?.status === Status.COMPLETED;
   const isRunning = state?.status === Status.RUNNING;
 
-  const visibleError = error === dismissedError ? null : error;
-
-  const bidError =
-    visibleError !== null &&
-    typeof visibleError.code === "number" &&
-    isBidErrorCode(visibleError.code)
-      ? visibleError
+  const incomingBidError =
+    error !== null &&
+    typeof error.code === "number" &&
+    isBidErrorCode(error.code)
+      ? error
       : null;
-  const websocketError = bidError ? null : visibleError;
 
-  const errorMessage =
-    !isCompleted && websocketError
-      ? websocketError.message
-      : !isCompleted && wasConnected && !isConnected
-        ? AUCTION_ENTRY_FAILED_MESSAGE
-        : null;
+  useEffect(() => {
+    setBidError(incomingBidError);
+  }, [incomingBidError]);
 
-  if (errorMessage) {
+  const websocketError = incomingBidError ? null : error;
+
+  useEffect(() => {
+    if (
+      !isCompleted &&
+      websocketError &&
+      isRuntimeErrorCode(websocketError.code)
+    ) {
+      setRuntimeError(websocketError);
+    }
+  }, [isCompleted, websocketError]);
+
+  const isRuntimeError = isRuntimeErrorCode(websocketError?.code);
+
+  const isBlockingError =
+    !isCompleted &&
+    ((websocketError !== null && !isRuntimeError) ||
+      (wasConnected && !isConnected));
+
+  const blockingErrorMessage = isBlockingError
+    ? AUCTION_CONNECTION_FAILED_MESSAGE
+    : null;
+
+  if (blockingErrorMessage) {
     return (
       <Page>
         <PrimarySection fill align="stretch" justify="center">
-          <ErrorMessage error={websocketError}>{errorMessage}</ErrorMessage>
+          <ErrorMessage error={websocketError}>
+            {blockingErrorMessage}
+          </ErrorMessage>
         </PrimarySection>
       </Page>
     );
@@ -166,17 +197,38 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
       : null;
 
   const handlePlaceBid = () => {
-    const displayAmount = parseInt(bidAmount);
+    const displayAmount = Number.parseInt(bidAmount, 10);
     if (displayAmount > 0 && displayAmount % pointScale === 0) {
       const actualAmount = displayAmount / pointScale;
-      setDismissedError(error);
+      setBidError(null);
       placeBid(actualAmount);
       setBidAmount("");
     }
   };
 
+  const parsedBidAmount = Number.parseInt(bidAmount, 10);
+  const isValidBidAmount =
+    parsedBidAmount > 0 && parsedBidAmount % pointScale === 0;
+
+  const handleCloseRuntimeErrorModal = () => {
+    setRuntimeError(null);
+  };
+
   return (
     <Page>
+      {runtimeError && (
+        <Modal onClose={handleCloseRuntimeErrorModal} title="경매 오류">
+          <Column gap="sm">
+            <ErrorMessage error={runtimeError}>
+              {AUCTION_RUNTIME_ERROR_MESSAGE}
+            </ErrorMessage>
+            <PrimaryButton type="button" onClick={handleCloseRuntimeErrorModal}>
+              확인
+            </PrimaryButton>
+          </Column>
+        </Modal>
+      )}
+
       <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
         <SecondarySection fill>
           <Title>팀 목록</Title>
@@ -230,15 +282,18 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             <TertiarySection>
               {isLeader && !isClientTeamFull && (
                 <Row>
-                  {bidError && <ErrorMessage error={bidError} />}
-                  // TODO
+                  {bidError && (
+                    <ErrorMessage error={bidError}>
+                      입찰에 실패했습니다.
+                    </ErrorMessage>
+                  )}
                   <FlexItem>
                     <Input
                       type="number"
                       placeholder={`입찰 금액 (${pointScale}의 배수)`}
                       value={bidAmount}
                       onValueChange={(value) => {
-                        setDismissedError(error);
+                        setBidError(null);
                         setBidAmount(value);
                       }}
                       disabled={!isRunning}
@@ -246,12 +301,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
                   </FlexItem>
                   <PrimaryButton
                     onClick={handlePlaceBid}
-                    disabled={
-                      !isRunning ||
-                      !bidAmount ||
-                      parseInt(bidAmount) <= 0 ||
-                      parseInt(bidAmount) % pointScale !== 0
-                    }
+                    disabled={!isRunning || !bidAmount || !isValidBidAmount}
                   >
                     입찰하기
                   </PrimaryButton>

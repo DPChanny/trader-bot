@@ -5,7 +5,8 @@ import { queryClient, queryKeys } from "./query";
 export const UNKNOWN_ERROR_MESSAGE = "알 수 없는 오류가 발생했습니다.";
 export const AUCTION_CONNECTION_FAILED_MESSAGE =
   "경매 서버에 연결하지 못했습니다.";
-export const AUCTION_ENTRY_FAILED_MESSAGE = "경매 서버에 진입하지 못했습니다.";
+export const AUCTION_RUNTIME_ERROR_MESSAGE =
+  "경매 진행 중 오류가 발생했습니다.";
 
 export const AuthErrorCode = {
   Unauthorized: 4101,
@@ -168,12 +169,17 @@ export class WSError extends AppError {
 
   constructor({ code, reason }: { code?: number; reason?: string }) {
     const parsedCode = typeof code === "number" ? code : null;
+    const parsedReasonCode =
+      typeof reason === "string" && /^\d+$/.test(reason.trim())
+        ? Number(reason)
+        : null;
+    const resolvedCode = parsedCode ?? parsedReasonCode;
     const message =
-      typeof parsedCode === "number"
-        ? getErrorMessage(parsedCode)
+      typeof resolvedCode === "number"
+        ? getErrorMessage(resolvedCode)
         : (reason ?? UNKNOWN_ERROR_MESSAGE);
-    super(message, parsedCode, "WSError");
-    this.code = parsedCode;
+    super(message, resolvedCode, "WSError");
+    this.code = resolvedCode;
   }
 }
 

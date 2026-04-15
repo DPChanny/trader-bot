@@ -6,10 +6,18 @@ import { Text } from "../atoms/text";
 import { AppError, UNKNOWN_ERROR_MESSAGE } from "@utils/error";
 import type { ComponentChildren, JSX } from "preact";
 
-export type ErrorProps = JSX.IntrinsicElements["div"] & {
-  children?: ComponentChildren;
-  error?: unknown;
+type ErrorPropsWithError = {
+  error: unknown;
+  children: ComponentChildren;
 };
+
+type ErrorPropsWithoutError = {
+  error?: undefined;
+  children?: ComponentChildren;
+};
+
+export type ErrorProps = JSX.IntrinsicElements["div"] &
+  (ErrorPropsWithError | ErrorPropsWithoutError);
 
 export function ErrorMessage({
   children,
