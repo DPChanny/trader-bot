@@ -3,7 +3,6 @@ import { Modal, ModalFooter } from "@components/molecules/modal";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { SecondaryButton, Button } from "@components/atoms/button";
 import { ErrorMessage } from "@components/molecules/errorMessage";
-import { Column } from "@components/atoms/layout";
 import type { CreateAuctionDTO } from "@dtos/auction";
 
 interface CreateAuctionModalProps {
