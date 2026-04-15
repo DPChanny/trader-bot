@@ -1,8 +1,8 @@
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import type { TeamDTO } from "@dtos/auction";
-import { Card, type CardProps } from "@components/atoms/card";
-import { Column, Row } from "@components/atoms/layout";
+import { Card, type CardProps } from "@components/molecules/card";
+import { Row } from "@components/atoms/layout";
 import { Name, Text } from "@components/atoms/text";
 
 type TeamCardProps = Omit<CardProps, "children"> & {
@@ -32,19 +32,17 @@ export function TeamCard({
   const resolvedVariantColor = variantColor ?? (isFull ? "green" : "blue");
 
   return (
-    <Card variantColor={resolvedVariantColor} {...props}>
-      <Column>
-        <Row justify="between">
-          <Name>{teamName}</Name>
-          <Text variantWeight="bold">{team.points * pointScale} 포인트</Text>
-        </Row>
-        <PresetMemberGrid
-          presetMembers={members}
-          onMemberClick={() => {}}
-          connectedMemberIds={connectedMemberIds}
-          clientMemberId={clientMemberId}
-        />
-      </Column>
+    <Card variantColor={resolvedVariantColor} gap="sm" {...props}>
+      <Row justify="between" align="center">
+        <Name>{teamName}</Name>
+        <Text variantWeight="bold">{team.points * pointScale} 포인트</Text>
+      </Row>
+      <PresetMemberGrid
+        presetMembers={members}
+        onMemberClick={() => {}}
+        connectedMemberIds={connectedMemberIds}
+        clientMemberId={clientMemberId}
+      />
     </Card>
   );
 }

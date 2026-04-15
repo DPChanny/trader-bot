@@ -1,8 +1,7 @@
 import { clsx } from "clsx";
 import styles from "@styles/components/memberCard.module.css";
-import { Card, type CardProps } from "./atoms/card";
+import { Card, type CardProps } from "./molecules/card";
 import { Image } from "./atoms/image";
-import { Column, Fill } from "./atoms/layout";
 import { Name } from "./atoms/text";
 import { Badge } from "./molecules/badge";
 import type { MemberDetailDTO } from "@dtos/member";
@@ -22,6 +21,8 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
   return (
     <Card
       variantColor="gray"
+      justify="center"
+      align="center"
       className={clsx(styles.memberCard, className)}
       {...props}
     >
@@ -30,15 +31,14 @@ export function MemberCard({ member, className, ...props }: MemberCardProps) {
           <Badge variantColor={roleColor}>{roleLabel}</Badge>
         </div>
       )}
-      <Fill direction="column" gap="sm" align="center" justify="center">
-        <Image
-          src={avatarUrl}
-          alt={displayName}
-          variantContent="avatar"
-          variantSize="large"
-        />
-        <Name variantSize="small">{displayName}</Name>
-      </Fill>
+
+      <Image
+        src={avatarUrl}
+        alt={displayName}
+        variantContent="avatar"
+        variantSize="large"
+      />
+      <Name variantSize="small">{displayName}</Name>
     </Card>
   );
 }

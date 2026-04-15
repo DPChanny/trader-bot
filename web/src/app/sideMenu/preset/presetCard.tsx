@@ -1,5 +1,4 @@
-import { Card, type CardProps } from "@components/atoms/card";
-import { FlexItem, Row } from "@components/atoms/layout";
+import { Card, type CardProps } from "@components/molecules/card";
 import { Link } from "@components/atoms/link";
 import { Name } from "@components/atoms/text";
 import type { PresetDTO } from "@dtos/preset";
@@ -22,12 +21,8 @@ export function PresetCard({
       variantContent="div"
       aria-current={isSelected ? "page" : undefined}
     >
-      <Card {...props}>
-        <Row>
-          <FlexItem>
-            <Name>{preset.name}</Name>
-          </FlexItem>
-        </Row>
+      <Card {...props} direction="row" align="center" justify="center">
+        <Name>{preset.name}</Name>
       </Card>
     </Link>
   );

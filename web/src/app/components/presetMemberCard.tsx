@@ -1,9 +1,9 @@
 import { clsx } from "clsx";
 import styles from "@styles/components/memberCard.module.css";
-import { Card, type CardProps } from "./atoms/card";
+import { Card, type CardProps } from "./molecules/card";
 import { Badge } from "./molecules/badge";
 import { Image } from "./atoms/image";
-import { Column, Fill, Row } from "./atoms/layout";
+import { Row } from "./atoms/layout";
 import { Name } from "./atoms/text";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
@@ -31,6 +31,8 @@ export function PresetMemberCard({
 
   return (
     <Card
+      justify="center"
+      align="center"
       variantColor={isLeader ? "gold" : "gray"}
       className={clsx(styles.memberCard, className)}
       {...props}
@@ -50,34 +52,32 @@ export function PresetMemberCard({
         )}
       </div>
 
-      <Fill direction="column" gap="sm" align="center" justify="center">
-        <Image
-          src={member.avatarUrl || member.user.avatarUrl}
-          alt={member.alias || member.name || member.user.name}
-          variantContent="avatar"
-          variantSize="large"
-        />
-        <Name variantSize="small">
-          {member.alias || member.name || member.user.name}
-        </Name>
-        {presetMemberPositions?.length > 0 && (
-          <Row wrap align="center" justify="center" gap="xs">
-            {presetMemberPositions.slice(0, 3).map((pmp) => (
-              <Badge key={pmp.positionId} variantColor="blue">
-                {pmp.position.iconUrl ? (
-                  <Image
-                    src={pmp.position.iconUrl}
-                    alt={pmp.position.name}
-                    variantSize="auto"
-                  />
-                ) : (
-                  pmp.position.name.charAt(0)
-                )}
-              </Badge>
-            ))}
-          </Row>
-        )}
-      </Fill>
+      <Image
+        src={member.avatarUrl || member.user.avatarUrl}
+        alt={member.alias || member.name || member.user.name}
+        variantContent="avatar"
+        variantSize="large"
+      />
+      <Name variantSize="small">
+        {member.alias || member.name || member.user.name}
+      </Name>
+      {presetMemberPositions?.length > 0 && (
+        <Row wrap align="center" justify="center" gap="xs">
+          {presetMemberPositions.slice(0, 3).map((pmp) => (
+            <Badge key={pmp.positionId} variantColor="blue">
+              {pmp.position.iconUrl ? (
+                <Image
+                  src={pmp.position.iconUrl}
+                  alt={pmp.position.name}
+                  variantSize="auto"
+                />
+              ) : (
+                pmp.position.name.charAt(0)
+              )}
+            </Badge>
+          ))}
+        </Row>
+      )}
     </Card>
   );
 }

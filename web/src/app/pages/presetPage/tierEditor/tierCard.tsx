@@ -1,8 +1,8 @@
 import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/molecules/badge";
-import { Card, type CardProps } from "@components/atoms/card";
+import { Card, type CardProps } from "@components/molecules/card";
 import { Image } from "@components/atoms/image";
-import { FlexItem, Row } from "@components/atoms/layout";
+import { Row } from "@components/atoms/layout";
 import { Name } from "@components/atoms/text";
 import type { TierDTO } from "@dtos/tier";
 import { Role } from "@dtos/member";
@@ -26,30 +26,26 @@ export function TierCard({
 }: TierCardProps) {
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   return (
-    <Card {...props}>
-      <Row>
-        <Badge variantColor="red" variantSize="large">
-          {tier.iconUrl ? (
-            <Image src={tier.iconUrl} alt={tier.name} variantSize="auto" />
-          ) : (
-            tier.name.charAt(0)
-          )}
-        </Badge>
-        <FlexItem>
-          <Name>{tier.name}</Name>
-        </FlexItem>
-
-        {canEdit && (
-          <Row>
-            <EditButton variantSize="small" onClick={onEdit} />
-            <DeleteButton
-              variantSize="small"
-              disabled={isDeletePending}
-              onClick={onDelete}
-            />
-          </Row>
+    <Card {...props} direction="row" justify="between" align="center">
+      <Badge variantColor="red" variantSize="large">
+        {tier.iconUrl ? (
+          <Image src={tier.iconUrl} alt={tier.name} variantSize="auto" />
+        ) : (
+          tier.name.charAt(0)
         )}
-      </Row>
+      </Badge>
+      <Name>{tier.name}</Name>
+
+      {canEdit && (
+        <Row align="center">
+          <EditButton variantSize="small" onClick={onEdit} />
+          <DeleteButton
+            variantSize="small"
+            disabled={isDeletePending}
+            onClick={onDelete}
+          />
+        </Row>
+      )}
     </Card>
   );
 }

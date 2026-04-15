@@ -1,7 +1,7 @@
+import { Layout, type LayoutProps } from "../atoms/layout";
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
-import styles from "@styles/components/atoms/card.module.css";
-import type { JSX } from "preact";
+import styles from "@styles/components/molecules/card.module.css";
 
 const cardVariants = cva(styles.card, {
   variants: {
@@ -17,9 +17,9 @@ const cardVariants = cva(styles.card, {
   },
 });
 
-export type CardProps = JSX.IntrinsicElements["div"] & {
+export interface CardProps extends LayoutProps {
   variantColor?: VariantProps<typeof cardVariants>["variantColor"];
-};
+}
 
 export function Card({
   variantColor,
@@ -30,8 +30,8 @@ export function Card({
   const baseClass = cardVariants({ variantColor });
 
   return (
-    <div className={clsx(baseClass, className)} {...props}>
+    <Layout gap="sm" className={clsx(baseClass, className)} {...props}>
       {children}
-    </div>
+    </Layout>
   );
 }
