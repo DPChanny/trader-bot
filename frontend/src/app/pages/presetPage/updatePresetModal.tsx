@@ -64,7 +64,7 @@ export function UpdatePresetModal({
     onClose();
   };
 
-  const handleSubmit = () => {
+  const onSubmit = () => {
     if (updatePreset.isPending) return;
     if (!patchDto) return;
     updatePreset.mutate(
@@ -77,7 +77,7 @@ export function UpdatePresetModal({
     <Modal onClose={handleClose} title="프리셋 수정">
       <ModalForm
         id={formId}
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         disabled={updatePreset.isPending}
       >
         {updatePreset.error && (

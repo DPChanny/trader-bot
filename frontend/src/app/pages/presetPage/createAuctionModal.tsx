@@ -30,7 +30,7 @@ export function CreateAuctionModal({
     onClose();
   };
 
-  const handleSubmit = () => {
+  const onSubmit = () => {
     if (createAuction.isPending || isHardError) return;
     createAuction.mutate(
       { guildId, presetId, dto: { isPublic, sendInvite } },
@@ -42,7 +42,7 @@ export function CreateAuctionModal({
     <Modal onClose={handleClose} title="경매 생성">
       <ModalForm
         id={formId}
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         disabled={createAuction.isPending}
       >
         {createAuction.error && (

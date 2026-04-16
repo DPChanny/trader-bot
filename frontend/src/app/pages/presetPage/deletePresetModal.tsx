@@ -23,7 +23,7 @@ export function DeletePresetModal({
     onClose();
   };
 
-  const handleSubmit = () => {
+  const onSubmit = () => {
     if (deletePreset.isPending) return;
     deletePreset.mutate(
       { guildId, presetId },
@@ -35,7 +35,7 @@ export function DeletePresetModal({
     <Modal onClose={handleClose} title="프리셋 삭제">
       <ModalForm
         id={formId}
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         disabled={deletePreset.isPending}
       >
         정말 이 프리셋을 삭제하시겠습니까?

@@ -42,7 +42,7 @@ export function UpdateTierModal({
     onClose();
   };
 
-  const handleSubmit = () => {
+  const onSubmit = () => {
     if (updateTier.isPending) return;
     if (!patchDto) return;
     updateTier.mutate(
@@ -55,7 +55,7 @@ export function UpdateTierModal({
     <Modal onClose={handleClose} title="티어 수정">
       <ModalForm
         id={formId}
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         disabled={updateTier.isPending}
       >
         {updateTier.error && (

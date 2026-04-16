@@ -2,7 +2,6 @@ import { useEffect, useState } from "preact/hooks";
 import { MemberCard } from "@components/memberCard";
 import { useUpdateMember } from "@hooks/member";
 import { CloseButton, SaveButton } from "@components/atoms/button";
-import { Link } from "@components/atoms/link";
 import { LabelInput } from "@components/molecules/labelInput";
 import { Error } from "@components/molecules/error";
 import { Bar } from "@components/atoms/bar";
@@ -155,12 +154,6 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
               onValueChange={setInfoUrl}
               disabled={!canEdit || isSaving}
             />
-            {infoUrl && (
-              <Link href={infoUrl} target="_blank" rel="noopener noreferrer">
-                프로필 보기
-              </Link>
-            )}
-
             <Column gap="xs">
               <Label>권한</Label>
               <TertiarySection>

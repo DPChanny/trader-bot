@@ -43,7 +43,7 @@ export function CreatePresetModal({
     onClose();
   };
 
-  const handleSubmit = () => {
+  const onSubmit = () => {
     if (createPreset.isPending) return;
     if (!parseResult.success) return;
     createPreset.mutate(
@@ -56,7 +56,7 @@ export function CreatePresetModal({
     <Modal onClose={handleClose} title="프리셋 생성">
       <ModalForm
         id={formId}
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         disabled={createPreset.isPending}
       >
         {createPreset.error && (

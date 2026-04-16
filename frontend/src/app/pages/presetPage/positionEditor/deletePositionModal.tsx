@@ -24,7 +24,7 @@ export function DeletePositionModal({
     onClose();
   };
 
-  const handleSubmit = () => {
+  const onSubmit = () => {
     if (deletePosition.isPending) return;
     deletePosition.mutate(
       { guildId, presetId, positionId },
@@ -36,7 +36,7 @@ export function DeletePositionModal({
     <Modal onClose={handleClose} title="포지션 삭제">
       <ModalForm
         id={formId}
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         disabled={deletePosition.isPending}
       >
         정말 이 포지션을 삭제하시겠습니까?
