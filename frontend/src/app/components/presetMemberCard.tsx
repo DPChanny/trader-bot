@@ -3,7 +3,7 @@ import { Card } from "./molecules/card";
 import { Dot, type DotProps } from "./molecules/dot";
 import { Badge } from "./atoms/badge";
 import { Image } from "./atoms/image";
-import { Column, Row } from "./atoms/layout";
+import { Row } from "./atoms/layout";
 import { Name } from "./atoms/text";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
@@ -34,10 +34,10 @@ export function PresetMemberCard({
 
   return (
     <Card
-      justify="center"
-      align="center"
+      center
       variantColor={isLeader ? "gold" : "gray"}
       className={styles.memberCard}
+      gap="xs"
     >
       <div class={styles.topLeft}>
         {variantColor && <Dot variantColor={variantColor} />}
@@ -54,24 +54,16 @@ export function PresetMemberCard({
         )}
       </div>
 
-      <Column gap="xs" center>
-        <Image
-          src={member.avatarUrl || member.user.avatarUrl}
-          alt={member.alias || member.name || member.user.name}
-          variantContent="avatar"
-          variantSize="large"
-        />
-        <Name variantSize="small">
-          {member.alias || member.name || member.user.name}
-        </Name>
-      </Column>
-      <Row
-        wrap
-        align="center"
-        justify="center"
-        gap="xs"
-        className={styles.positions}
-      >
+      <Image
+        src={member.avatarUrl || member.user.avatarUrl}
+        alt={member.alias || member.name || member.user.name}
+        variantContent="avatar"
+        variantSize="large"
+      />
+      <Name variantSize="small">
+        {member.alias || member.name || member.user.name}
+      </Name>
+      <Row center gap="xs" className={styles.positions}>
         {visiblePositions.map((pmp) => (
           <Badge key={pmp.positionId} variantColor="blue">
             {pmp.position.iconUrl ? (

@@ -5,7 +5,6 @@ import { Name } from "./atoms/text";
 import { Badge } from "./atoms/badge";
 import type { MemberDetailDTO } from "@dtos/member";
 import { getRoleEntries } from "@utils/enum";
-import { Column } from "./atoms/layout";
 
 export type MemberCardProps = {
   member: MemberDetailDTO;
@@ -19,27 +18,20 @@ export function MemberCard({ member }: MemberCardProps) {
   const roleColor = roleEntry.color;
 
   return (
-    <Card
-      variantColor="gray"
-      justify="center"
-      align="center"
-      className={styles.memberCard}
-    >
+    <Card variantColor="gray" center className={styles.memberCard} gap="xs">
       {roleLabel && (
         <div className={styles.topRight}>
           <Badge variantColor={roleColor}>{roleLabel}</Badge>
         </div>
       )}
 
-      <Column gap="xs" center>
-        <Image
-          src={avatarUrl}
-          alt={displayName}
-          variantContent="avatar"
-          variantSize="large"
-        />
-        <Name variantSize="small">{displayName}</Name>
-      </Column>
+      <Image
+        src={avatarUrl}
+        alt={displayName}
+        variantContent="avatar"
+        variantSize="large"
+      />
+      <Name variantSize="small">{displayName}</Name>
     </Card>
   );
 }
