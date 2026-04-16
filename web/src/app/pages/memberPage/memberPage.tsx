@@ -20,24 +20,26 @@ interface MemberPageProps {
 export function MemberPage({ guildId }: MemberPageProps) {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
 
-  const { data: members, isLoading, error } = useMembers(guildId);
+  const members = useMembers(guildId);
 
   const sortedMembers = useMemo(
     () =>
-      members
-        ? [...members].sort(
+      members.data
+        ? [...members.data].sort(
             (a: MemberDetailDTO, b: MemberDetailDTO) => b.role - a.role,
           )
         : [],
-    [members],
+    [members.data],
   );
 
   const selectedMember = useMemo(
     () =>
-      selectedMemberId !== null && members
-        ? members.find((m: MemberDetailDTO) => m.memberId === selectedMemberId)
+      selectedMemberId !== null && members.data
+        ? members.data.find(
+            (m: MemberDetailDTO) => m.memberId === selectedMemberId,
+          )
         : null,
-    [selectedMemberId, members],
+    [selectedMemberId, members.data],
   );
 
   return (
@@ -45,11 +47,11 @@ export function MemberPage({ guildId }: MemberPageProps) {
       <PrimarySection fill>
         <SecondarySection fill>
           <Title>멤버 목록</Title>
-          {error ? (
+          {members.error ? (
             <TertiarySection fill>
-              <Error error={error} />
+              <Error error={members.error} />
             </TertiarySection>
-          ) : isLoading ? (
+          ) : members.isLoading ? (
             <TertiarySection fill>
               <Loading />
             </TertiarySection>

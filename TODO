@@ -15,7 +15,6 @@ component
 layout
 icon
 css
-web
 log
     file rotation
     analysis

@@ -20,7 +20,7 @@ interface PresetListProps {
 export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
   const [showCreate, setShowCreate] = useState(false);
 
-  const { data: presets = [] } = usePresets(guildId);
+  const presets = usePresets(guildId);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
 
   return (
@@ -36,7 +36,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
         </Row>
         <TertiarySection fill>
           <Scroll axis="y">
-            {presets.map((preset) => (
+            {(presets.data ?? []).map((preset) => (
               <PresetCard
                 key={preset.presetId}
                 preset={preset}

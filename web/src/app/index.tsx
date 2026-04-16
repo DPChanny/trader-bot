@@ -71,7 +71,7 @@ function AuctionRoute({ auctionId }: RoutableProps & { auctionId?: string }) {
 
 function App() {
   useAutoRefreshToken();
-  const { data: user } = useMyUser();
+  const myUser = useMyUser();
   const login = useLogin();
   const logout = useLogout();
 
@@ -81,13 +81,13 @@ function App() {
 
   return (
     <div className="app-container">
-      {user ? (
-        <Header user={user} onLogout={handleLogout} />
+      {myUser.data ? (
+        <Header user={myUser.data} onLogout={handleLogout} />
       ) : (
         <Header onLogin={login} />
       )}
       <div className="app-body">
-        {user && <SideMenu />}
+        {myUser.data && <SideMenu />}
         <div className="app-content">
           <Router>
             <LoginCallbackRoute path="/auth/login/callback" />

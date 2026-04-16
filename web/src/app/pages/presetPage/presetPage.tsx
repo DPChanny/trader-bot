@@ -32,17 +32,18 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
   const [showCreate, setShowCreate] = useState(false);
   const [createdAuctionId, setCreatedAuctionId] = useState<string | null>(null);
 
-  const { data: preset, error: presetError } = usePreset(guildId, presetId);
-  const { data: presetMembers } = usePresetMembers(guildId, presetId);
+  const preset = usePreset(guildId, presetId);
+  const presetMembers = usePresetMembers(guildId, presetId);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
-  const teamSize = preset?.teamSize ?? 0;
-  const leaderCount = presetMembers?.filter((pm) => pm.isLeader).length ?? 0;
-  const presetMemberCount = presetMembers?.length ?? 0;
+  const teamSize = preset.data?.teamSize ?? 0;
+  const leaderCount =
+    presetMembers.data?.filter((pm) => pm.isLeader).length ?? 0;
+  const presetMemberCount = presetMembers.data?.length ?? 0;
   const requiredPresetMembers = leaderCount * teamSize;
-  const canStartAuction = !!presetMembers && leaderCount >= 2;
+  const canStartAuction = !!presetMembers.data && leaderCount >= 2;
 
   let presetValidMessage = "";
-  if (presetMembers) {
+  if (presetMembers.data) {
     if (leaderCount < 2) {
       presetValidMessage = `현재 팀장 인원(${leaderCount}명)이 최소 인원(2명)보다 적습니다.`;
     } else if (presetMemberCount < requiredPresetMembers) {
@@ -59,11 +60,11 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
   return (
     <Page>
       <PrimarySection minSize overflow="hidden" style={{ width: "24rem" }}>
-        {presetError ? (
-          <Error error={presetError} />
+        {preset.error ? (
+          <Error error={preset.error} />
         ) : (
           <Row justify="between" align="center">
-            <NameTitle>{preset ? preset.name : "?"}</NameTitle>
+            <NameTitle>{preset.data ? preset.data.name : "?"}</NameTitle>
             <Row gap="sm" align="center">
               {canEdit && (
                 <EditButton
@@ -83,16 +84,17 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
         <Bar />
 
-        {presetError ? (
-          <Error error={presetError} />
-        ) : preset ? (
+        {preset.error ? (
+          <Error error={preset.error} />
+        ) : preset.data ? (
           <SecondarySection>
             <Row justify="between" align="center">
               <Text>{teamSize} 명</Text>
               <Text>
-                {preset.points * preset.pointScale} / {preset.pointScale} 포인트
+                {preset.data.points * preset.data.pointScale} /{" "}
+                {preset.data.pointScale} 포인트
               </Text>
-              <Text>{preset.timer} 초</Text>
+              <Text>{preset.data.timer} 초</Text>
             </Row>
           </SecondarySection>
         ) : (
@@ -120,11 +122,11 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
       <PresetMemberEditor guildId={guildId} presetId={presetId} />
 
-      {preset && showUpdate && (
+      {preset.data && showUpdate && (
         <UpdatePresetModal
           guildId={guildId}
           presetId={presetId}
-          preset={preset}
+          preset={preset.data}
           onClose={() => setShowUpdate(false)}
         />
       )}

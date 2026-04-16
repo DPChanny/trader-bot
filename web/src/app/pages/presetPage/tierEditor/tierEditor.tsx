@@ -22,7 +22,7 @@ interface TierEditorProps {
 export function TierEditor({ guildId, presetId }: TierEditorProps) {
   const [showAdd, setShowAdd] = useState(false);
 
-  const { data: tiers, isLoading, error } = useTiers(guildId, presetId);
+  const tiers = useTiers(guildId, presetId);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
 
   return (
@@ -35,12 +35,12 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
       </Row>
       <TertiarySection fill>
         <Scroll axis="y">
-          {error ? (
-            <Error error={error} />
-          ) : isLoading ? (
+          {tiers.error ? (
+            <Error error={tiers.error} />
+          ) : tiers.isLoading ? (
             <Loading />
           ) : (
-            tiers?.map((tier) => (
+            tiers.data?.map((tier) => (
               <TierCard
                 key={tier.tierId}
                 tier={tier}

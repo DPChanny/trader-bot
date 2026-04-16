@@ -22,7 +22,7 @@ interface PositionEditorProps {
 export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
   const [showAdd, setShowAdd] = useState(false);
 
-  const { data: positions, isLoading, error } = usePositions(guildId, presetId);
+  const positions = usePositions(guildId, presetId);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
 
   return (
@@ -35,12 +35,12 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
       </Row>
       <TertiarySection fill>
         <Scroll axis="y">
-          {error ? (
-            <Error error={error} />
-          ) : isLoading ? (
+          {positions.error ? (
+            <Error error={positions.error} />
+          ) : positions.isLoading ? (
             <Loading />
           ) : (
-            positions?.map((position) => (
+            positions.data?.map((position) => (
               <PositionCard
                 key={position.positionId}
                 position={position}

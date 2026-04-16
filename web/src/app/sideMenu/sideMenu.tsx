@@ -11,7 +11,7 @@ import { GuildList } from "./guild/guildList";
 import { PresetList } from "./preset/presetList";
 
 export function SideMenu() {
-  const { data: guilds = [] } = useGuilds();
+  const guilds = useGuilds();
   const { guildId, presetId } = useGuildRoute();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -27,7 +27,7 @@ export function SideMenu() {
             />
           </Row>
           <Bar />
-          <GuildList guilds={guilds} activeGuildId={guildId} />
+          <GuildList guilds={guilds.data ?? []} activeGuildId={guildId} />
           {guildId && (
             <PresetList guildId={guildId} selectedPresetId={presetId} />
           )}
