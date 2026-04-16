@@ -61,16 +61,7 @@ export function ModalForm({
 
   return (
     <form id={id} onSubmit={handleSubmit}>
-      <fieldset
-        disabled={disabled}
-        style={{
-          border: 0,
-          margin: 0,
-          padding: 0,
-          minInlineSize: 0,
-          pointerEvents: disabled ? "none" : undefined,
-        }}
-      >
+      <fieldset disabled={disabled} className={styles.fieldset}>
         <Column>{children}</Column>
       </fieldset>
     </form>
