@@ -3,13 +3,13 @@
   height: 9rem;
 }
 
-.badgesLeft {
+.topLeft {
   position: absolute;
   top: var(--space-xs);
   left: var(--space-xs);
 }
 
-.badgesRight {
+.topRight {
   position: absolute;
   top: var(--space-xs);
   right: var(--space-xs);
@@ -19,17 +19,16 @@
   width: 0.625rem;
   height: 0.625rem;
   border-radius: var(--radius-full);
-  border: 1px solid var(--color-card-blue-border);
 }
 
 .statusDotOnline {
-  background-color: var(--color-card-green-text);
+  background-color: var(--color-status-online);
 }
 
 .statusDotOffline {
-  background-color: var(--color-button-danger-bg);
+  background-color: var(--color-status-offline);
 }
 
 .statusDotClient {
-  background-color: var(--color-button-primary-bg);
+  background-color: var(--color-status-client);
 }

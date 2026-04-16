@@ -2,9 +2,7 @@ prop drilling
     except atoms
     except molecules
 component
-    status dot
     sidemenu
-    grid
 layout
 icon
 css

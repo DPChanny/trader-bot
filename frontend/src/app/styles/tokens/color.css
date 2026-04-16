@@ -86,6 +86,10 @@
   --color-card-green-text: rgb(74, 222, 128);
   --color-card-green-text-active: rgb(134, 239, 172);
 
+  --color-status-online: rgb(74, 222, 128);
+  --color-status-offline: rgb(239, 68, 68);
+  --color-status-client: rgb(102, 126, 234);
+
   --color-card-gray-bg: rgb(48, 54, 70);
   --color-card-gray-bg-hover: rgb(60, 67, 86);
   --color-card-gray-bg-active: rgb(72, 80, 102);

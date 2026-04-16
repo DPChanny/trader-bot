@@ -19,7 +19,7 @@ export function AuctionCreatedModal({
     <Modal onClose={onClose} title="경매 생성 완료">
       <Text>
         <Link href={auctionHref} onClick={onClose}>
-          경매 링크
+          경매
         </Link>
         가 생성되었습니다.
       </Text>

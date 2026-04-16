@@ -2,7 +2,7 @@ import styles from "@styles/components/memberCard.module.css";
 import { Card } from "./molecules/card";
 import { Badge } from "./atoms/badge";
 import { Image } from "./atoms/image";
-import { Row } from "./atoms/layout";
+import { Column, Row } from "./atoms/layout";
 import { Name } from "./atoms/text";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
@@ -33,12 +33,12 @@ export function PresetMemberCard({
       variantColor={isLeader ? "gold" : "gray"}
       className={styles.memberCard}
     >
-      <div class={styles.badgesLeft}>
+      <div class={styles.topLeft}>
         {statusClass && (
           <div className={`${styles.statusDot} ${statusClass}`} />
         )}
       </div>
-      <div class={styles.badgesRight}>
+      <div class={styles.topRight}>
         {tier && (
           <Badge variantColor="red">
             {tier.iconUrl ? (
@@ -50,15 +50,17 @@ export function PresetMemberCard({
         )}
       </div>
 
-      <Image
-        src={member.avatarUrl || member.user.avatarUrl}
-        alt={member.alias || member.name || member.user.name}
-        variantContent="avatar"
-        variantSize="large"
-      />
-      <Name variantSize="small">
-        {member.alias || member.name || member.user.name}
-      </Name>
+      <Column gap="xs" center>
+        <Image
+          src={member.avatarUrl || member.user.avatarUrl}
+          alt={member.alias || member.name || member.user.name}
+          variantContent="avatar"
+          variantSize="large"
+        />
+        <Name variantSize="small">
+          {member.alias || member.name || member.user.name}
+        </Name>
+      </Column>
       {presetMemberPositions?.length > 0 && (
         <Row wrap align="center" justify="center" gap="xs">
           {presetMemberPositions.slice(0, 3).map((pmp) => (
