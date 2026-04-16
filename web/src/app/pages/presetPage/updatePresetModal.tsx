@@ -3,28 +3,22 @@ import { Modal, ModalFooter, ModalForm, ModalRow } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import {
-  UpdatePresetSchema,
-  type PresetDTO,
-  type UpdatePresetDTO,
-} from "@dtos/preset";
+import { UpdatePresetSchema, type PresetDTO } from "@dtos/preset";
 import { buildPatchDto } from "@utils/dto";
-import type { AppError } from "@utils/error";
+import { useUpdatePreset } from "@hooks/preset";
 
 interface UpdatePresetModalProps {
+  guildId: string;
+  presetId: number;
   preset: PresetDTO;
   onClose: () => void;
-  onSubmit: (dto: UpdatePresetDTO) => void | Promise<void>;
-  isPending: boolean;
-  error?: AppError;
 }
 
 export function UpdatePresetModal({
+  guildId,
+  presetId,
   preset,
   onClose,
-  onSubmit,
-  isPending,
-  error,
 }: UpdatePresetModalProps) {
   const [name, setName] = useState(preset.name);
   const [displayPoints, setDisplayPoints] = useState(
@@ -33,6 +27,7 @@ export function UpdatePresetModal({
   const [timer, setTimer] = useState(String(preset.timer));
   const [teamSize, setTeamSize] = useState(String(preset.teamSize));
   const [pointScale, setPointScale] = useState(String(preset.pointScale));
+  const updatePreset = useUpdatePreset();
 
   useEffect(() => {
     setName(preset.name);
@@ -64,21 +59,24 @@ export function UpdatePresetModal({
   const hasChanges = patchDto !== null;
   const formId = "update-preset-form";
 
+  const handleClose = () => {
+    if (updatePreset.isPending) return;
+    onClose();
+  };
+
   const handleSubmit = (e: Event) => {
     e.preventDefault();
     if (!patchDto) return;
-    onSubmit(patchDto);
-  };
-
-  const handleClose = () => {
-    if (isPending) return;
-    onClose();
+    updatePreset.mutate(
+      { guildId, presetId, dto: patchDto },
+      { onSuccess: onClose },
+    );
   };
 
   return (
     <Modal onClose={handleClose} title="프리셋 수정">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error && <Error error={error} />}
+        {updatePreset.isError && <Error error={updatePreset.error} />}
         <LabelInput
           label="프리셋 이름"
           value={name}
@@ -121,13 +119,16 @@ export function UpdatePresetModal({
         </ModalRow>
       </ModalForm>
       <ModalFooter>
-        <SecondaryButton onClick={handleClose} disabled={isPending}>
+        <SecondaryButton
+          onClick={handleClose}
+          disabled={updatePreset.isPending}
+        >
           취소
         </SecondaryButton>
         <PrimaryButton
           type="submit"
           form={formId}
-          disabled={isPending || !hasChanges || !isFormValid}
+          disabled={updatePreset.isPending || !hasChanges || !isFormValid}
         >
           저장
         </PrimaryButton>

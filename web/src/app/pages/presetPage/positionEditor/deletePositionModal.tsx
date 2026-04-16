@@ -1,44 +1,55 @@
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import type { AppError } from "@utils/error";
+import { useDeletePosition } from "@hooks/position";
 
 interface DeletePositionModalProps {
+  guildId: string;
+  presetId: number;
+  positionId: number;
   onClose: () => void;
-  onConfirm: () => void | Promise<void>;
-  isPending: boolean;
-  error?: AppError;
 }
 
 export function DeletePositionModal({
+  guildId,
+  presetId,
+  positionId,
   onClose,
-  onConfirm,
-  isPending,
-  error,
 }: DeletePositionModalProps) {
+  const deletePosition = useDeletePosition();
   const formId = "delete-position-form";
 
   const handleClose = () => {
-    if (isPending) return;
+    if (deletePosition.isPending) return;
     onClose();
   };
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
-    onConfirm();
+    deletePosition.mutate(
+      { guildId, presetId, positionId },
+      { onSuccess: onClose },
+    );
   };
 
   return (
     <Modal onClose={handleClose} title="포지션 삭제">
       <ModalForm id={formId} onSubmit={handleSubmit}>
         정말 이 포지션을 삭제하시겠습니까?
-        {error && <Error error={error} />}
+        {deletePosition.isError && <Error error={deletePosition.error} />}
       </ModalForm>
       <ModalFooter>
-        <SecondaryButton onClick={handleClose} disabled={isPending}>
+        <SecondaryButton
+          onClick={handleClose}
+          disabled={deletePosition.isPending}
+        >
           취소
         </SecondaryButton>
-        <PrimaryButton type="submit" form={formId} disabled={isPending}>
+        <PrimaryButton
+          type="submit"
+          form={formId}
+          disabled={deletePosition.isPending}
+        >
           삭제
         </PrimaryButton>
       </ModalFooter>

@@ -3,31 +3,26 @@ import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import {
-  UpdatePositionSchema,
-  type PositionDTO,
-  type UpdatePositionDTO,
-} from "@dtos/position";
+import { UpdatePositionSchema, type PositionDTO } from "@dtos/position";
 import { buildPatchDto } from "@utils/dto";
-import type { AppError } from "@utils/error";
+import { useUpdatePosition } from "@hooks/position";
 
 interface UpdatePositionModalProps {
+  guildId: string;
+  presetId: number;
   position: PositionDTO;
   onClose: () => void;
-  onSubmit: (dto: UpdatePositionDTO) => void | Promise<void>;
-  isPending: boolean;
-  error?: AppError;
 }
 
 export function UpdatePositionModal({
+  guildId,
+  presetId,
   position,
   onClose,
-  onSubmit,
-  isPending,
-  error,
 }: UpdatePositionModalProps) {
   const [name, setName] = useState(position.name);
   const [iconUrl, setIconUrl] = useState(position.iconUrl ?? "");
+  const updatePosition = useUpdatePosition();
 
   useEffect(() => {
     setName(position.name);
@@ -43,20 +38,23 @@ export function UpdatePositionModal({
   const formId = "update-position-form";
 
   const handleClose = () => {
-    if (isPending) return;
+    if (updatePosition.isPending) return;
     onClose();
   };
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
     if (!patchDto) return;
-    onSubmit(patchDto);
+    updatePosition.mutate(
+      { guildId, presetId, positionId: position.positionId, dto: patchDto },
+      { onSuccess: onClose },
+    );
   };
 
   return (
     <Modal onClose={handleClose} title="포지션 수정">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error && <Error error={error} />}
+        {updatePosition.isError && <Error error={updatePosition.error} />}
         <LabelInput
           label="포지션 이름"
           type="text"
@@ -72,13 +70,16 @@ export function UpdatePositionModal({
         />
       </ModalForm>
       <ModalFooter>
-        <SecondaryButton onClick={handleClose} disabled={isPending}>
+        <SecondaryButton
+          onClick={handleClose}
+          disabled={updatePosition.isPending}
+        >
           취소
         </SecondaryButton>
         <PrimaryButton
           type="submit"
           form={formId}
-          disabled={isPending || !isFormValid || !hasChanges}
+          disabled={updatePosition.isPending || !isFormValid || !hasChanges}
         >
           저장
         </PrimaryButton>

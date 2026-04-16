@@ -1,44 +1,49 @@
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import type { AppError } from "@utils/error";
+import { useDeleteTier } from "@hooks/tier";
 
 interface DeleteTierModalProps {
+  guildId: string;
+  presetId: number;
+  tierId: number;
   onClose: () => void;
-  onConfirm: () => void | Promise<void>;
-  isPending: boolean;
-  error?: AppError;
 }
 
 export function DeleteTierModal({
+  guildId,
+  presetId,
+  tierId,
   onClose,
-  onConfirm,
-  isPending,
-  error,
 }: DeleteTierModalProps) {
+  const deleteTier = useDeleteTier();
   const formId = "delete-tier-form";
 
   const handleClose = () => {
-    if (isPending) return;
+    if (deleteTier.isPending) return;
     onClose();
   };
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
-    onConfirm();
+    deleteTier.mutate({ guildId, presetId, tierId }, { onSuccess: onClose });
   };
 
   return (
     <Modal onClose={handleClose} title="티어 삭제">
       <ModalForm id={formId} onSubmit={handleSubmit}>
         정말 이 티어를 삭제하시겠습니까?
-        {error && <Error error={error} />}
+        {deleteTier.isError && <Error error={deleteTier.error} />}
       </ModalForm>
       <ModalFooter>
-        <SecondaryButton onClick={handleClose} disabled={isPending}>
+        <SecondaryButton onClick={handleClose} disabled={deleteTier.isPending}>
           취소
         </SecondaryButton>
-        <PrimaryButton type="submit" form={formId} disabled={isPending}>
+        <PrimaryButton
+          type="submit"
+          form={formId}
+          disabled={deleteTier.isPending}
+        >
           삭제
         </PrimaryButton>
       </ModalFooter>

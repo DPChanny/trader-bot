@@ -3,42 +3,45 @@ import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { SecondaryButton, Button } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import type { CreateAuctionDTO } from "@dtos/auction";
-import type { AppError } from "@utils/error";
+import { useCreateAuction } from "@hooks/auction";
 
 interface CreateAuctionModalProps {
+  guildId: string;
+  presetId: number;
   onClose: () => void;
-  onSubmit: (dto: CreateAuctionDTO) => void | Promise<void>;
-  isPending: boolean;
-  error?: AppError;
+  onSuccess: (auctionId: string) => void;
   isHardError: boolean;
 }
 
 export function CreateAuctionModal({
+  guildId,
+  presetId,
   onClose,
-  onSubmit,
-  isPending,
-  error,
+  onSuccess,
   isHardError,
 }: CreateAuctionModalProps) {
   const [isPublic, setIsPublic] = useState(true);
   const [sendInvite, setSendInvite] = useState(true);
+  const createAuction = useCreateAuction();
   const formId = "create-auction-form";
 
   const handleClose = () => {
-    if (isPending) return;
+    if (createAuction.isPending) return;
     onClose();
   };
 
-  const handleSubmit = async (e: Event) => {
+  const handleSubmit = (e: Event) => {
     e.preventDefault();
-    await onSubmit({ isPublic, sendInvite });
+    createAuction.mutate(
+      { guildId, presetId, dto: { isPublic, sendInvite } },
+      { onSuccess: (result) => onSuccess(result.auctionId) },
+    );
   };
 
   return (
     <Modal onClose={handleClose} title="경매 생성">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error && <Error error={error} />}
+        {createAuction.isError && <Error error={createAuction.error} />}
         <LabelToggle
           label="퍼블릭 허용"
           isPressed={isPublic}
@@ -55,10 +58,17 @@ export function CreateAuctionModal({
         </LabelToggle>
       </ModalForm>
       <ModalFooter>
-        <SecondaryButton onClick={handleClose} disabled={isPending}>
+        <SecondaryButton
+          onClick={handleClose}
+          disabled={createAuction.isPending}
+        >
           취소
         </SecondaryButton>
-        <Button type="submit" form={formId} disabled={isPending || isHardError}>
+        <Button
+          type="submit"
+          form={formId}
+          disabled={createAuction.isPending || isHardError}
+        >
           생성
         </Button>
       </ModalFooter>

@@ -1,7 +1,5 @@
 import { useState } from "preact/hooks";
-import { route } from "preact-router";
-import { useCreateAuction } from "@hooks/auction";
-import { usePreset, useUpdatePreset, useDeletePreset } from "@hooks/preset";
+import { usePreset } from "@hooks/preset";
 import { usePresetMembers } from "@hooks/presetMember";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
@@ -21,8 +19,6 @@ import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionCreatedModal } from "./auctionCreatedModal";
 import { NameTitle, Text } from "@components/atoms/text";
-import type { CreateAuctionDTO } from "@dtos/auction";
-import type { UpdatePresetDTO } from "@dtos/preset";
 import { Bar } from "@components/atoms/bar";
 
 interface PresetPageProps {
@@ -31,15 +27,12 @@ interface PresetPageProps {
 }
 
 export function PresetPage({ guildId, presetId }: PresetPageProps) {
-  const [showUpdatePresetModal, setShowUpdatePresetModal] = useState(false);
-  const [showDeletePresetModal, setShowDeletePresetModal] = useState(false);
-  const [showCreateAuctionModal, setShowCreateAuctionModal] = useState(false);
+  const [showUpdate, setShowUpdate] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
   const [createdAuctionId, setCreatedAuctionId] = useState<string | null>(null);
 
-  const createAuction = useCreateAuction();
   const { data: preset, error: presetError } = usePreset(guildId, presetId);
-  const updatePreset = useUpdatePreset();
-  const deletePreset = useDeletePreset();
   const { data: presetMembers } = usePresetMembers(guildId, presetId);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   const teamSize = preset?.teamSize ?? 0;
@@ -63,68 +56,6 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
       ? "warning"
       : "primary";
 
-  const handleStartAuction = async (dto: CreateAuctionDTO) => {
-    createAuction.mutate(
-      {
-        guildId,
-        presetId,
-        dto,
-      },
-      {
-        onSuccess: (result) => {
-          setShowCreateAuctionModal(false);
-          setCreatedAuctionId(result.auctionId);
-        },
-      },
-    );
-  };
-
-  const handleUpdate = async (dto: UpdatePresetDTO) => {
-    if (!preset) return;
-    updatePreset.mutate(
-      {
-        guildId,
-        presetId: preset.presetId,
-        dto,
-      },
-      {
-        onSuccess: () => {
-          setShowUpdatePresetModal(false);
-        },
-      },
-    );
-  };
-
-  const handleDelete = async () => {
-    deletePreset.mutate(
-      { guildId, presetId },
-      {
-        onSuccess: () => {
-          setShowDeletePresetModal(false);
-          route(`/guild/${guildId}/member`);
-        },
-      },
-    );
-  };
-
-  const handleOpenUpdatePresetModal = () => {
-    setShowUpdatePresetModal(true);
-  };
-
-  const handleCloseUpdatePresetModal = () => {
-    setShowUpdatePresetModal(false);
-    updatePreset.reset();
-  };
-
-  const handleOpenDeletePresetModal = () => {
-    setShowDeletePresetModal(true);
-  };
-
-  const handleCloseDeletePresetModal = () => {
-    setShowDeletePresetModal(false);
-    deletePreset.reset();
-  };
-
   return (
     <Page>
       <PrimarySection minSize overflow="hidden" style={{ width: "24rem" }}>
@@ -137,13 +68,13 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
               {canEdit && (
                 <EditButton
                   variantSize="medium"
-                  onClick={handleOpenUpdatePresetModal}
+                  onClick={() => setShowUpdate(true)}
                 />
               )}
               {canEdit && (
                 <DeleteButton
                   variantSize="medium"
-                  onClick={handleOpenDeletePresetModal}
+                  onClick={() => setShowDelete(true)}
                 />
               )}
             </Row>
@@ -180,7 +111,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
         {canEdit && (
           <Button
             variantIntent={auctionButtonIntent}
-            onClick={() => setShowCreateAuctionModal(true)}
+            onClick={() => setShowCreate(true)}
           >
             경매 생성
           </Button>
@@ -189,34 +120,32 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
       <PresetMemberEditor guildId={guildId} presetId={presetId} />
 
-      {preset && showUpdatePresetModal && (
+      {preset && showUpdate && (
         <UpdatePresetModal
+          guildId={guildId}
+          presetId={presetId}
           preset={preset}
-          onClose={handleCloseUpdatePresetModal}
-          onSubmit={handleUpdate}
-          isPending={updatePreset.isPending}
-          error={updatePreset.isError ? updatePreset.error : undefined}
+          onClose={() => setShowUpdate(false)}
         />
       )}
 
-      {showDeletePresetModal && (
+      {showDelete && (
         <DeletePresetModal
-          onClose={handleCloseDeletePresetModal}
-          onConfirm={handleDelete}
-          isPending={deletePreset.isPending}
-          error={deletePreset.isError ? deletePreset.error : undefined}
+          guildId={guildId}
+          presetId={presetId}
+          onClose={() => setShowDelete(false)}
         />
       )}
 
-      {showCreateAuctionModal && (
+      {showCreate && (
         <CreateAuctionModal
-          onClose={() => {
-            setShowCreateAuctionModal(false);
-            createAuction.reset();
+          guildId={guildId}
+          presetId={presetId}
+          onClose={() => setShowCreate(false)}
+          onSuccess={(auctionId) => {
+            setShowCreate(false);
+            setCreatedAuctionId(auctionId);
           }}
-          onSubmit={handleStartAuction}
-          isPending={createAuction.isPending}
-          error={createAuction.isError ? createAuction.error : undefined}
           isHardError={!canStartAuction}
         />
       )}

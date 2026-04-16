@@ -3,30 +3,29 @@ import { Modal, ModalForm, ModalFooter } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import { AddTierSchema, type AddTierDTO } from "@dtos/tier";
-import type { AppError } from "@utils/error";
+import { AddTierSchema } from "@dtos/tier";
+import { useAddTier } from "@hooks/tier";
 
 interface AddTierModalProps {
+  guildId: string;
+  presetId: number;
   onClose: () => void;
-  onSubmit: (dto: AddTierDTO) => void | Promise<void>;
-  isPending: boolean;
-  error?: AppError;
 }
 
 export function AddTierModal({
+  guildId,
+  presetId,
   onClose,
-  onSubmit,
-  isPending,
-  error,
 }: AddTierModalProps) {
   const [name, setName] = useState("");
   const [iconUrl, setIconUrl] = useState("");
+  const addTier = useAddTier();
   const parseResult = AddTierSchema.safeParse({ name, iconUrl });
   const isFormValid = parseResult.success;
   const formId = "add-tier-form";
 
   const handleClose = () => {
-    if (isPending) return;
+    if (addTier.isPending) return;
     setName("");
     setIconUrl("");
     onClose();
@@ -36,7 +35,7 @@ export function AddTierModal({
     e.preventDefault();
     if (!parseResult.success) return;
     try {
-      await onSubmit(parseResult.data);
+      await addTier.mutateAsync({ guildId, presetId, dto: parseResult.data });
       handleClose();
     } catch {}
   };
@@ -44,7 +43,7 @@ export function AddTierModal({
   return (
     <Modal onClose={handleClose} title="티어 추가">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error && <Error error={error} />}
+        {addTier.isError && <Error error={addTier.error} />}
         <LabelInput
           label="티어 이름"
           type="text"
@@ -60,13 +59,13 @@ export function AddTierModal({
         />
       </ModalForm>
       <ModalFooter>
-        <SecondaryButton onClick={handleClose} disabled={isPending}>
+        <SecondaryButton onClick={handleClose} disabled={addTier.isPending}>
           취소
         </SecondaryButton>
         <PrimaryButton
           type="submit"
           form={formId}
-          disabled={isPending || !isFormValid}
+          disabled={addTier.isPending || !isFormValid}
         >
           추가
         </PrimaryButton>

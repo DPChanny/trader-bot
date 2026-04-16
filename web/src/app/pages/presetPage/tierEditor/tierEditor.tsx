@@ -1,10 +1,5 @@
 import { useState } from "preact/hooks";
-import {
-  useAddTier,
-  useDeleteTier,
-  useTiers,
-  useUpdateTier,
-} from "@hooks/tier";
+import { useTiers } from "@hooks/tier";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
 import { Loading } from "@components/molecules/loading";
@@ -12,15 +7,12 @@ import { Error } from "@components/molecules/error";
 import { PrimaryButton } from "@components/atoms/button";
 import { Row, Scroll } from "@components/atoms/layout";
 import { AddTierModal } from "./addTierModal";
-import { UpdateTierModal } from "./updateTierModal";
-import { DeleteTierModal } from "./deleteTierModal";
 import { TierCard } from "./tierCard";
 import {
   SecondarySection,
   TertiarySection,
 } from "@components/molecules/section";
 import { Title } from "@components/atoms/text";
-import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@dtos/tier";
 
 interface TierEditorProps {
   guildId: string;
@@ -28,83 +20,17 @@ interface TierEditorProps {
 }
 
 export function TierEditor({ guildId, presetId }: TierEditorProps) {
-  const [showAddTierModal, setShowAddTierModal] = useState(false);
-  const [updatingTier, setUpdatingTier] = useState<TierDTO | null>(null);
-  const [deletingTierId, setDeletingTierId] = useState<number | null>(null);
+  const [showAdd, setShowAdd] = useState(false);
 
   const { data: tiers, isLoading, error } = useTiers(guildId, presetId);
-  const addTier = useAddTier();
-  const updateTier = useUpdateTier();
-  const deleteTier = useDeleteTier();
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
-
-  const handleOpenAddTierModal = () => {
-    setShowAddTierModal(true);
-  };
-
-  const handleCloseAddTierModal = () => {
-    setShowAddTierModal(false);
-    addTier.reset();
-  };
-
-  const handleAddTier = async (dto: AddTierDTO) => {
-    await addTier.mutateAsync({ guildId, presetId, dto });
-  };
-
-  const handleUpdateTier = (dto: UpdateTierDTO) => {
-    if (!updatingTier) return;
-    updateTier.mutate(
-      {
-        guildId,
-        presetId,
-        tierId: updatingTier.tierId,
-        dto,
-      },
-      {
-        onSuccess: () => {
-          setUpdatingTier(null);
-          updateTier.reset();
-        },
-      },
-    );
-  };
-
-  const handleCloseUpdateTierModal = () => {
-    setUpdatingTier(null);
-    updateTier.reset();
-  };
-
-  const handleOpenDeleteTierModal = (tierId: number) => {
-    setDeletingTierId(tierId);
-  };
-
-  const handleCloseDeleteTierModal = () => {
-    setDeletingTierId(null);
-    deleteTier.reset();
-  };
-
-  const handleDeleteTier = () => {
-    if (deletingTierId === null) return;
-    deleteTier.mutate(
-      {
-        guildId,
-        presetId,
-        tierId: deletingTierId,
-      },
-      {
-        onSuccess: () => {
-          handleCloseDeleteTierModal();
-        },
-      },
-    );
-  };
 
   return (
     <SecondarySection fill minSize>
       <Row justify="between" align="center">
         <Title>티어 목록</Title>
         {canEdit && (
-          <PrimaryButton onClick={handleOpenAddTierModal}>추가</PrimaryButton>
+          <PrimaryButton onClick={() => setShowAdd(true)}>추가</PrimaryButton>
         )}
       </Row>
       <TertiarySection fill>
@@ -119,38 +45,18 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
                 key={tier.tierId}
                 tier={tier}
                 guildId={guildId}
-                onEdit={() => setUpdatingTier(tier)}
-                onDelete={() => handleOpenDeleteTierModal(tier.tierId)}
-                isDeletePending={deleteTier.isPending}
+                presetId={presetId}
               />
             ))
           )}
         </Scroll>
       </TertiarySection>
 
-      {showAddTierModal && (
+      {showAdd && (
         <AddTierModal
-          onClose={handleCloseAddTierModal}
-          onSubmit={handleAddTier}
-          isPending={addTier.isPending}
-          error={addTier.isError ? addTier.error : undefined}
-        />
-      )}
-      {updatingTier && (
-        <UpdateTierModal
-          tier={updatingTier}
-          onClose={handleCloseUpdateTierModal}
-          onSubmit={handleUpdateTier}
-          isPending={updateTier.isPending}
-          error={updateTier.isError ? updateTier.error : undefined}
-        />
-      )}
-      {deletingTierId !== null && (
-        <DeleteTierModal
-          onClose={handleCloseDeleteTierModal}
-          onConfirm={handleDeleteTier}
-          isPending={deleteTier.isPending}
-          error={deleteTier.isError ? deleteTier.error : undefined}
+          guildId={guildId}
+          presetId={presetId}
+          onClose={() => setShowAdd(false)}
         />
       )}
     </SecondarySection>

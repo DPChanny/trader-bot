@@ -3,27 +3,26 @@ import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import { UpdateTierSchema, type TierDTO, type UpdateTierDTO } from "@dtos/tier";
+import { UpdateTierSchema, type TierDTO } from "@dtos/tier";
 import { buildPatchDto } from "@utils/dto";
-import type { AppError } from "@utils/error";
+import { useUpdateTier } from "@hooks/tier";
 
 interface UpdateTierModalProps {
+  guildId: string;
+  presetId: number;
   tier: TierDTO;
   onClose: () => void;
-  onSubmit: (dto: UpdateTierDTO) => void | Promise<void>;
-  isPending: boolean;
-  error?: AppError;
 }
 
 export function UpdateTierModal({
+  guildId,
+  presetId,
   tier,
   onClose,
-  onSubmit,
-  isPending,
-  error,
 }: UpdateTierModalProps) {
   const [name, setName] = useState(tier.name);
   const [iconUrl, setIconUrl] = useState(tier.iconUrl ?? "");
+  const updateTier = useUpdateTier();
 
   useEffect(() => {
     setName(tier.name);
@@ -39,20 +38,23 @@ export function UpdateTierModal({
   const formId = "update-tier-form";
 
   const handleClose = () => {
-    if (isPending) return;
+    if (updateTier.isPending) return;
     onClose();
   };
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
     if (!patchDto) return;
-    onSubmit(patchDto);
+    updateTier.mutate(
+      { guildId, presetId, tierId: tier.tierId, dto: patchDto },
+      { onSuccess: onClose },
+    );
   };
 
   return (
     <Modal onClose={handleClose} title="티어 수정">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error && <Error error={error} />}
+        {updateTier.isError && <Error error={updateTier.error} />}
         <LabelInput
           label="티어 이름"
           type="text"
@@ -68,13 +70,13 @@ export function UpdateTierModal({
         />
       </ModalForm>
       <ModalFooter>
-        <SecondaryButton onClick={handleClose} disabled={isPending}>
+        <SecondaryButton onClick={handleClose} disabled={updateTier.isPending}>
           취소
         </SecondaryButton>
         <PrimaryButton
           type="submit"
           form={formId}
-          disabled={isPending || !isFormValid || !hasChanges}
+          disabled={updateTier.isPending || !isFormValid || !hasChanges}
         >
           저장
         </PrimaryButton>
