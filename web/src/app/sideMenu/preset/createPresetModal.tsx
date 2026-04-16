@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import { Modal, ModalForm, ModalFooter, ModalRow } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
-import { Error } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
 import { CreatePresetSchema, type CreatePresetDTO } from "@dtos/preset";
 
 interface CreatePresetModalProps {

@@ -8,6 +8,7 @@ import {
   deletePresetMemberPosition,
 } from "@apis/presetMemberPosition";
 import { queryKeys } from "@utils/query";
+import type { AppError } from "@utils/error";
 
 type CreatePresetMemberPositionVariables = Parameters<
   typeof createPresetMemberPosition
@@ -21,7 +22,7 @@ type DeletePresetMemberPositionVariables = Parameters<
 
 export function useCreatePresetMemberPosition(): UseMutationResult<
   CreatePresetMemberPositionResult,
-  Error,
+  AppError,
   CreatePresetMemberPositionVariables,
   unknown
 > {
@@ -42,7 +43,7 @@ export function useCreatePresetMemberPosition(): UseMutationResult<
 
 export function useDeletePresetMemberPosition(): UseMutationResult<
   void,
-  Error,
+  AppError,
   DeletePresetMemberPositionVariables,
   unknown
 > {

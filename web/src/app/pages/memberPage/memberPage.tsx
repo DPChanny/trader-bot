@@ -9,7 +9,6 @@ import {
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
-import { normalizeError } from "@utils/error";
 import { MemberPanel } from "./memberPanel";
 import { Title } from "@components/atoms/text";
 import type { MemberDetailDTO } from "@dtos/member";
@@ -48,7 +47,7 @@ export function MemberPage({ guildId }: MemberPageProps) {
           <Title>멤버 목록</Title>
           {error ? (
             <TertiarySection fill>
-              <Error error={normalizeError(error)} />
+              <Error error={error} />
             </TertiarySection>
           ) : isLoading ? (
             <TertiarySection fill>

@@ -17,6 +17,7 @@ import {
   removeRefreshToken,
 } from "@utils/auth";
 import { AUTH_API_ENDPOINT } from "@utils/env";
+import { AppError, FrontendErrorCode } from "@utils/error";
 
 export function useLogin(redirect?: string) {
   return (): void => {
@@ -30,7 +31,7 @@ export function useLogin(redirect?: string) {
 
 export function useLogout(redirect?: string) {
   const queryClient = useQueryClient();
-  return useMutation<void, Error, void>({
+  return useMutation<void, AppError, void>({
     mutationFn: async (): Promise<void> => {},
     onSettled: () => {
       removeAccessToken();
@@ -70,7 +71,13 @@ export function useLoginCallback() {
 
 async function useRefreshToken(): Promise<JwtTokenDTO> {
   const refreshToken = getRefreshToken();
-  if (!refreshToken) throw new Error("No refresh token available");
+  if (!refreshToken) {
+    throw new AppError(
+      "No refresh token available",
+      FrontendErrorCode.MissingRefreshToken,
+      "AuthError",
+    );
+  }
   return refreshAuthToken({ refresh_token: refreshToken });
 }
 

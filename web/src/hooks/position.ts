@@ -14,6 +14,7 @@ import {
 } from "@apis/position";
 import { queryKeys } from "@utils/query";
 import type { PositionDTO } from "@dtos/position";
+import type { AppError } from "@utils/error";
 
 type AddPositionVariables = Parameters<typeof addPosition>[0];
 type AddPositionResult = Awaited<ReturnType<typeof addPosition>>;
@@ -24,7 +25,7 @@ type DeletePositionVariables = Parameters<typeof deletePosition>[0];
 export function usePositions(
   guildId: string,
   presetId: number,
-): UseQueryResult<PositionDTO[], Error> {
+): UseQueryResult<PositionDTO[], AppError> {
   return useQuery({
     queryKey: queryKeys.positions(guildId, presetId),
     queryFn: () => getPositions(guildId, presetId),
@@ -35,7 +36,7 @@ export function usePosition(
   guildId: string,
   presetId: number,
   positionId: number,
-): UseQueryResult<PositionDTO, Error> {
+): UseQueryResult<PositionDTO, AppError> {
   return useQuery({
     queryKey: queryKeys.position(guildId, presetId, positionId),
     queryFn: () => getPosition(guildId, presetId, positionId),
@@ -44,7 +45,7 @@ export function usePosition(
 
 export function useAddPosition(): UseMutationResult<
   AddPositionResult,
-  Error,
+  AppError,
   AddPositionVariables,
   unknown
 > {
@@ -68,7 +69,7 @@ export function useAddPosition(): UseMutationResult<
 
 export function useUpdatePosition(): UseMutationResult<
   UpdatePositionResult,
-  Error,
+  AppError,
   UpdatePositionVariables,
   unknown
 > {
@@ -92,7 +93,7 @@ export function useUpdatePosition(): UseMutationResult<
 
 export function useDeletePosition(): UseMutationResult<
   void,
-  Error,
+  AppError,
   DeletePositionVariables,
   unknown
 > {

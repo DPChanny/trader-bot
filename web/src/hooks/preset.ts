@@ -14,6 +14,7 @@ import {
 } from "@apis/preset";
 import { queryKeys } from "@utils/query";
 import type { PresetDTO } from "@dtos/preset";
+import type { AppError } from "@utils/error";
 
 type CreatePresetVariables = Parameters<typeof createPreset>[0];
 type CreatePresetResult = Awaited<ReturnType<typeof createPreset>>;
@@ -23,7 +24,7 @@ type DeletePresetVariables = Parameters<typeof deletePreset>[0];
 
 export function usePresets(
   guildId: string,
-): UseQueryResult<PresetDTO[], Error> {
+): UseQueryResult<PresetDTO[], AppError> {
   return useQuery({
     queryKey: queryKeys.presets(guildId),
     queryFn: () => getPresets(guildId),
@@ -33,7 +34,7 @@ export function usePresets(
 export function usePreset(
   guildId: string,
   presetId: number,
-): UseQueryResult<PresetDTO, Error> {
+): UseQueryResult<PresetDTO, AppError> {
   return useQuery({
     queryKey: queryKeys.preset(guildId, presetId),
     queryFn: () => getPreset(guildId, presetId),
@@ -42,7 +43,7 @@ export function usePreset(
 
 export function useCreatePreset(): UseMutationResult<
   CreatePresetResult,
-  Error,
+  AppError,
   CreatePresetVariables,
   unknown
 > {
@@ -60,7 +61,7 @@ export function useCreatePreset(): UseMutationResult<
 
 export function useUpdatePreset(): UseMutationResult<
   UpdatePresetResult,
-  Error,
+  AppError,
   UpdatePresetVariables,
   unknown
 > {
@@ -81,7 +82,7 @@ export function useUpdatePreset(): UseMutationResult<
 
 export function useDeletePreset(): UseMutationResult<
   void,
-  Error,
+  AppError,
   DeletePresetVariables,
   unknown
 > {

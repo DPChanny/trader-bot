@@ -7,9 +7,9 @@ import { AUCTION_WS_ENDPOINT } from "@utils/env";
 import { getAccessToken } from "@utils/auth";
 import {
   AUCTION_CONNECTION_FAILED_MESSAGE,
+  FrontendErrorCode,
   WSError,
   handleWsError,
-  normalizeError,
 } from "@utils/error";
 
 interface AuctionWebSocketHook {
@@ -197,7 +197,15 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       } catch (error) {
         console.error("Failed to parse WebSocket message:", error);
         if (mountedRef.current) {
-          setError(normalizeError(error) as WSError);
+          setError(
+            handleWsError({
+              code: FrontendErrorCode.InvalidWebSocketMessage,
+              reason:
+                error instanceof globalThis.Error
+                  ? error.message
+                  : AUCTION_CONNECTION_FAILED_MESSAGE,
+            }),
+          );
         }
       }
     };

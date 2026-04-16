@@ -22,9 +22,9 @@ import { getStatusEntries } from "@utils/enum";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { Status } from "@dtos/auction";
 import {
-  AuctionErrorCode,
   AUCTION_CONNECTION_FAILED_MESSAGE,
-  UnexpectedErrorCode,
+  FrontendErrorCode,
+  ServerErrorCode,
   type WSError,
 } from "@utils/error";
 
@@ -35,10 +35,10 @@ interface AuctionPageProps {
 
 function isBidErrorCode(code: number): boolean {
   switch (code) {
-    case AuctionErrorCode.BidTeamFull:
-    case AuctionErrorCode.BidTooHigh:
-    case AuctionErrorCode.BidTooLow:
-    case AuctionErrorCode.BidNotLeader:
+    case ServerErrorCode.Auction.BidTeamFull:
+    case ServerErrorCode.Auction.BidTooHigh:
+    case ServerErrorCode.Auction.BidTooLow:
+    case ServerErrorCode.Auction.BidNotLeader:
       return true;
     default:
       return false;
@@ -47,8 +47,10 @@ function isBidErrorCode(code: number): boolean {
 
 function isRuntimeErrorCode(code: number | null | undefined): boolean {
   return (
-    code === UnexpectedErrorCode.Internal ||
-    code === UnexpectedErrorCode.External
+    code === ServerErrorCode.Unexpected.Internal ||
+    code === ServerErrorCode.Unexpected.External ||
+    code === FrontendErrorCode.InvalidWebSocketMessage ||
+    code === FrontendErrorCode.WebSocketConnectionFailed
   );
 }
 

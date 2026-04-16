@@ -17,7 +17,6 @@ import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { CloseButton, SaveButton, Button } from "@components/atoms/button";
 import { Label, NameTitle } from "@components/atoms/text";
 import { Error } from "@components/molecules/error";
-import { normalizeError } from "@utils/error";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { Bar } from "@components/atoms/bar";
 import {
@@ -199,6 +198,12 @@ export function PresetMemberPanel({
     presetMemberPositions: previewPositions,
   };
 
+  const error =
+    updatePresetMember.error ||
+    createPresetMemberPosition.error ||
+    deletePresetMemberPosition.error ||
+    removePresetMember.error;
+
   return (
     <PrimarySection minSize style={{ width: "24rem" }}>
       <Column>
@@ -220,19 +225,7 @@ export function PresetMemberPanel({
         </Row>
       </Column>
 
-      {updatePresetMember.error ||
-      createPresetMemberPosition.error ||
-      deletePresetMemberPosition.error ||
-      removePresetMember.error ? (
-        <Error
-          error={normalizeError(
-            updatePresetMember.error ||
-              createPresetMemberPosition.error ||
-              deletePresetMemberPosition.error ||
-              removePresetMember.error,
-          )}
-        />
-      ) : null}
+      {error ? <Error error={error} /> : null}
 
       <Bar />
 

@@ -14,6 +14,7 @@ import {
 } from "@apis/presetMember";
 import { queryKeys } from "@utils/query";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import type { AppError } from "@utils/error";
 
 type CreatePresetMemberVariables = Parameters<typeof createPresetMember>[0];
 type CreatePresetMemberResult = Awaited<ReturnType<typeof createPresetMember>>;
@@ -24,7 +25,7 @@ type DeletePresetMemberVariables = Parameters<typeof deletePresetMember>[0];
 export function usePresetMembers(
   guildId: string,
   presetId: number,
-): UseQueryResult<PresetMemberDetailDTO[], Error> {
+): UseQueryResult<PresetMemberDetailDTO[], AppError> {
   return useQuery({
     queryKey: queryKeys.presetMembers(guildId, presetId),
     queryFn: () => getPresetMembers(guildId, presetId),
@@ -35,7 +36,7 @@ export function usePresetMember(
   guildId: string,
   presetId: number,
   presetMemberId: number,
-): UseQueryResult<PresetMemberDetailDTO, Error> {
+): UseQueryResult<PresetMemberDetailDTO, AppError> {
   return useQuery({
     queryKey: queryKeys.presetMember(guildId, presetId, presetMemberId),
     queryFn: () => getPresetMember(guildId, presetId, presetMemberId),
@@ -44,7 +45,7 @@ export function usePresetMember(
 
 export function useCreatePresetMember(): UseMutationResult<
   CreatePresetMemberResult,
-  Error,
+  AppError,
   CreatePresetMemberVariables,
   unknown
 > {
@@ -65,7 +66,7 @@ export function useCreatePresetMember(): UseMutationResult<
 
 export function useUpdatePresetMember(): UseMutationResult<
   UpdatePresetMemberResult,
-  Error,
+  AppError,
   UpdatePresetMemberVariables,
   unknown
 > {
@@ -86,7 +87,7 @@ export function useUpdatePresetMember(): UseMutationResult<
 
 export function useDeletePresetMember(): UseMutationResult<
   void,
-  Error,
+  AppError,
   DeletePresetMemberVariables,
   unknown
 > {

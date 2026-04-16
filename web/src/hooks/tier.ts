@@ -5,15 +5,10 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/preact-query";
-import {
-  getTiers,
-  getTier,
-  addTier,
-  updateTier,
-  deleteTier,
-} from "@apis/tier";
+import { getTiers, getTier, addTier, updateTier, deleteTier } from "@apis/tier";
 import { queryKeys } from "@utils/query";
 import type { TierDTO } from "@dtos/tier";
+import type { AppError } from "@utils/error";
 
 type AddTierVariables = Parameters<typeof addTier>[0];
 type AddTierResult = Awaited<ReturnType<typeof addTier>>;
@@ -24,7 +19,7 @@ type DeleteTierVariables = Parameters<typeof deleteTier>[0];
 export function useTiers(
   guildId: string,
   presetId: number,
-): UseQueryResult<TierDTO[], Error> {
+): UseQueryResult<TierDTO[], AppError> {
   return useQuery({
     queryKey: queryKeys.tiers(guildId, presetId),
     queryFn: () => getTiers(guildId, presetId),
@@ -35,7 +30,7 @@ export function useTier(
   guildId: string,
   presetId: number,
   tierId: number,
-): UseQueryResult<TierDTO, Error> {
+): UseQueryResult<TierDTO, AppError> {
   return useQuery({
     queryKey: queryKeys.tier(guildId, presetId, tierId),
     queryFn: () => getTier(guildId, presetId, tierId),
@@ -44,7 +39,7 @@ export function useTier(
 
 export function useAddTier(): UseMutationResult<
   AddTierResult,
-  Error,
+  AppError,
   AddTierVariables,
   unknown
 > {
@@ -68,7 +63,7 @@ export function useAddTier(): UseMutationResult<
 
 export function useUpdateTier(): UseMutationResult<
   UpdateTierResult,
-  Error,
+  AppError,
   UpdateTierVariables,
   unknown
 > {
@@ -92,7 +87,7 @@ export function useUpdateTier(): UseMutationResult<
 
 export function useDeleteTier(): UseMutationResult<
   void,
-  Error,
+  AppError,
   DeleteTierVariables,
   unknown
 > {

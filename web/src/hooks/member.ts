@@ -7,20 +7,16 @@ import {
 } from "@tanstack/preact-query";
 import type { MemberDetailDTO } from "@dtos/member";
 import { Role } from "@dtos/member";
-import {
-  getMember,
-  getMembers,
-  getMyMember,
-  updateMember,
-} from "@apis/member";
+import { getMember, getMembers, getMyMember, updateMember } from "@apis/member";
 import { queryKeys } from "@utils/query";
+import type { AppError } from "@utils/error";
 
 type UpdateMemberVariables = Parameters<typeof updateMember>[0];
 type UpdateMemberResult = Awaited<ReturnType<typeof updateMember>>;
 
 export function useMyMember(
   guildId: string,
-): UseQueryResult<MemberDetailDTO, Error> {
+): UseQueryResult<MemberDetailDTO, AppError> {
   return useQuery({
     queryKey: queryKeys.myMember(guildId),
     queryFn: (): Promise<MemberDetailDTO> => getMyMember(guildId),
@@ -29,7 +25,7 @@ export function useMyMember(
 
 export function useMembers(
   guildId: string,
-): UseQueryResult<MemberDetailDTO[], Error> {
+): UseQueryResult<MemberDetailDTO[], AppError> {
   return useQuery({
     queryKey: queryKeys.members(guildId),
     queryFn: (): Promise<MemberDetailDTO[]> => getMembers(guildId),
@@ -39,7 +35,7 @@ export function useMembers(
 export function useMember(
   guildId: string,
   memberId: number,
-): UseQueryResult<MemberDetailDTO, Error> {
+): UseQueryResult<MemberDetailDTO, AppError> {
   return useQuery({
     queryKey: queryKeys.member(guildId, memberId),
     queryFn: (): Promise<MemberDetailDTO> => getMember(guildId, memberId),
@@ -48,7 +44,7 @@ export function useMember(
 
 export function useUpdateMember(): UseMutationResult<
   UpdateMemberResult,
-  Error,
+  AppError,
   UpdateMemberVariables,
   unknown
 > {

@@ -8,7 +8,6 @@ import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberPanel } from "./presetMemberPanel";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
-import { normalizeError } from "@utils/error";
 import {
   PrimarySection,
   SecondarySection,
@@ -130,7 +129,7 @@ export function PresetMemberEditor({
           <Title>프리셋 멤버 목록</Title>
           {presetMembersError ? (
             <TertiarySection fill>
-              <Error error={normalizeError(presetMembersError)} />
+              <Error error={presetMembersError} />
             </TertiarySection>
           ) : presetMembersLoading ? (
             <TertiarySection fill>
@@ -153,7 +152,7 @@ export function PresetMemberEditor({
           <Title>멤버 목록</Title>
           {membersError ? (
             <TertiarySection fill>
-              <Error error={normalizeError(membersError)} />
+              <Error error={membersError} />
             </TertiarySection>
           ) : membersLoading ? (
             <TertiarySection fill>
@@ -161,11 +160,9 @@ export function PresetMemberEditor({
             </TertiarySection>
           ) : (
             <>
-              {canEdit &&
-                createPresetMember.isError &&
-                createPresetMember.error && (
-                  <Error error={normalizeError(createPresetMember.error)} />
-                )}
+              {canEdit && createPresetMember.error && (
+                <Error error={createPresetMember.error} />
+              )}
               <MemberGrid
                 members={candidateMembers}
                 onMemberClick={canEdit ? handleAddMember : undefined}

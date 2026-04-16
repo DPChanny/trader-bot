@@ -8,70 +8,97 @@ export const AUCTION_CONNECTION_FAILED_MESSAGE =
 export const AUCTION_RUNTIME_ERROR_MESSAGE =
   "경매 진행 중 오류가 발생했습니다.";
 
-export const AuthErrorCode = {
-  Unauthorized: 4101,
+// Frontend-generated errors (never passed from server)
+export const FrontendErrorCode = {
+  MissingRefreshToken: 9001,
+  InvalidWebSocketMessage: 9002,
+  WebSocketConnectionFailed: 9003,
 } as const;
 
-export const TokenErrorCode = {
-  IncorrectJWTToken: 4102,
-  ExpiredJWTToken: 4103,
-  ExchangeFailed: 4104,
+export const ServerErrorCode = {
+  Auth: {
+    Unauthorized: 4101,
+  },
+  Token: {
+    IncorrectJWTToken: 4102,
+    ExpiredJWTToken: 4103,
+    ExchangeFailed: 4104,
+  },
+  Validation: {
+    Invalid: 4201,
+  },
+  Auction: {
+    InsufficientLeaders: 4202,
+    BidTeamFull: 4203,
+    BidTooHigh: 4204,
+    BidTooLow: 4205,
+    ForbiddenAccess: 4301,
+    BidNotLeader: 4302,
+    NotFound: 4401,
+  },
+  Guild: {
+    NotFound: 4402,
+  },
+  Member: {
+    InsufficientRole: 4303,
+    ForbiddenRole: 4304,
+    NotMember: 4305,
+    NotFound: 4403,
+  },
+  Position: {
+    NotFound: 4404,
+  },
+  Preset: {
+    NotFound: 4405,
+  },
+  PresetMember: {
+    NotFound: 4406,
+  },
+  PresetMemberPosition: {
+    Duplicated: 4206,
+    NotFound: 4407,
+  },
+  Tier: {
+    NotFound: 4408,
+  },
+  User: {
+    NotFound: 4409,
+  },
+  Unexpected: {
+    Internal: 5001,
+    External: 5002,
+  },
 } as const;
 
-export const ValidationErrorCode = {
-  Invalid: 4201,
-} as const;
+// Backward-compatible aliases for existing imports
+export const AuthErrorCode = ServerErrorCode.Auth;
+export const TokenErrorCode = ServerErrorCode.Token;
+export const ValidationErrorCode = ServerErrorCode.Validation;
+export const AuctionErrorCode = ServerErrorCode.Auction;
+export const GuildErrorCode = ServerErrorCode.Guild;
+export const MemberErrorCode = ServerErrorCode.Member;
+export const PositionErrorCode = ServerErrorCode.Position;
+export const PresetErrorCode = ServerErrorCode.Preset;
+export const PresetMemberErrorCode = ServerErrorCode.PresetMember;
+export const PresetMemberPositionErrorCode =
+  ServerErrorCode.PresetMemberPosition;
+export const TierErrorCode = ServerErrorCode.Tier;
+export const UserErrorCode = ServerErrorCode.User;
+export const UnexpectedErrorCode = ServerErrorCode.Unexpected;
 
-export const AuctionErrorCode = {
-  InsufficientLeaders: 4202,
-  BidTeamFull: 4203,
-  BidTooHigh: 4204,
-  BidTooLow: 4205,
-  ForbiddenAccess: 4301,
-  BidNotLeader: 4302,
-  NotFound: 4401,
-} as const;
+export function isServerErrorCode(code: number): boolean {
+  const isHttpStatusCode = code >= 400 && code < 600;
+  const isAppServerCode = code >= 4000 && code < 6000;
+  return isHttpStatusCode || isAppServerCode;
+}
 
-export const GuildErrorCode = {
-  NotFound: 4402,
-} as const;
-
-export const MemberErrorCode = {
-  InsufficientRole: 4303,
-  ForbiddenRole: 4304,
-  NotMember: 4305,
-  NotFound: 4403,
-} as const;
-
-export const PresetErrorCode = {
-  NotFound: 4405,
-} as const;
-
-export const TierErrorCode = {
-  NotFound: 4408,
-} as const;
-
-export const UserErrorCode = {
-  NotFound: 4409,
-} as const;
-
-export const UnexpectedErrorCode = {
-  Internal: 5001,
-  External: 5002,
-} as const;
-
-export const PositionErrorCode = {
-  NotFound: 4404,
-} as const;
-
-export const PresetMemberErrorCode = {
-  NotFound: 4406,
-} as const;
-
-export const PresetMemberPositionErrorCode = {
-  Duplicated: 4206,
-  NotFound: 4407,
-} as const;
+export function isFrontendErrorCode(code: number): boolean {
+  return (
+    code === FrontendErrorCode.MissingRefreshToken ||
+    code === FrontendErrorCode.InvalidWebSocketMessage ||
+    code === FrontendErrorCode.WebSocketConnectionFailed
+  );
+}
 
 function getErrorMessage(code: number): string {
   switch (code) {
@@ -140,13 +167,20 @@ function getErrorMessage(code: number): string {
     case UnexpectedErrorCode.External:
       return "외부 연동 중 문제가 발생했습니다.";
 
+    case FrontendErrorCode.MissingRefreshToken:
+      return "리프레시 토큰이 없어 자동 로그인에 실패했습니다.";
+    case FrontendErrorCode.InvalidWebSocketMessage:
+      return "실시간 메시지를 처리하지 못했습니다.";
+    case FrontendErrorCode.WebSocketConnectionFailed:
+      return AUCTION_CONNECTION_FAILED_MESSAGE;
+
     default:
       return UNKNOWN_ERROR_MESSAGE;
   }
 }
 
 export class AppError extends Error {
-  code: number;
+  readonly code: number;
 
   constructor(message: string, code: number, name: string) {
     super(message);
@@ -156,17 +190,12 @@ export class AppError extends Error {
 }
 
 export class HTTPError extends AppError {
-  override code: number;
-
   constructor(code: number) {
     super(getErrorMessage(code), code, "HTTPError");
-    this.code = code;
   }
 }
 
 export class WSError extends AppError {
-  override code: number;
-
   constructor({ code, reason }: { code?: number; reason?: string }) {
     const parsedCode = typeof code === "number" ? code : null;
     const parsedReasonCode =
@@ -180,7 +209,6 @@ export class WSError extends AppError {
         ? getErrorMessage(resolvedCode)
         : (reason ?? UNKNOWN_ERROR_MESSAGE);
     super(message, resolvedCode, "WSError");
-    this.code = resolvedCode;
   }
 }
 
@@ -208,43 +236,41 @@ export interface WsErrorParams {
   reason?: string;
 }
 
+export function handleWsError(params: CloseEvent): WSError;
+export function handleWsError(params: WsErrorParams): WSError;
 export function handleWsError(params: WsErrorParams | CloseEvent): WSError {
   let code: number | undefined;
   let reason: string | undefined;
 
   if (params instanceof CloseEvent) {
-    code = params.code === 1000 ? undefined : params.code;
+    code =
+      params.code !== 1000 &&
+      (isServerErrorCode(params.code) || isFrontendErrorCode(params.code))
+        ? params.code
+        : undefined;
     reason = params.reason;
   } else {
     code = params.code;
     reason = params.reason;
   }
 
-  const resolvedCode = code ?? (reason ? parseInt(reason, 10) : undefined);
+  const reasonCode = reason ? Number(reason.trim()) : undefined;
+  const parsedReasonCode =
+    typeof reasonCode === "number" && Number.isInteger(reasonCode)
+      ? reasonCode
+      : undefined;
+  const resolvedCode =
+    code ??
+    (parsedReasonCode !== undefined &&
+    (isServerErrorCode(parsedReasonCode) ||
+      isFrontendErrorCode(parsedReasonCode))
+      ? parsedReasonCode
+      : undefined) ??
+    FrontendErrorCode.WebSocketConnectionFailed;
   const resolvedReason = reason !== reason?.trim() ? reason?.trim() : reason;
 
   return new WSError({
     code: resolvedCode,
     reason: resolvedReason,
   });
-}
-
-export function normalizeError(error: unknown): AppError {
-  if (error instanceof AppError) {
-    return error;
-  }
-
-  if (error instanceof globalThis.Error) {
-    // 일반 Error는 UnexpectedErrorCode.External로 변환
-    return new AppError(
-      error.message,
-      UnexpectedErrorCode.External,
-      error.name,
-    );
-  }
-
-  // Error가 아닌 경우도 처리
-  const message =
-    typeof error === "string" ? error : String(error ?? UNKNOWN_ERROR_MESSAGE);
-  return new AppError(message, UnexpectedErrorCode.External, "UnknownError");
 }

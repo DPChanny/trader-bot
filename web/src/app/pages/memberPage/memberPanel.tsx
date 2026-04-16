@@ -5,7 +5,6 @@ import { CloseButton, SaveButton } from "@components/atoms/button";
 import { Link } from "@components/atoms/link";
 import { LabelInput } from "@components/molecules/labelInput";
 import { Error } from "@components/molecules/error";
-import { normalizeError } from "@utils/error";
 import { Bar } from "@components/atoms/bar";
 import {
   PrimarySection,
@@ -89,9 +88,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
         </Row>
       </Row>
 
-      {updateMember.isError && updateMember.error && (
-        <Error error={normalizeError(updateMember.error)} />
-      )}
+      {updateMember.error && <Error error={updateMember.error} />}
 
       <Bar />
 
