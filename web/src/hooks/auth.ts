@@ -6,6 +6,7 @@ import {
   exchangeToken as exchangeAuthToken,
   refreshToken as refreshAuthToken,
 } from "@apis/auth";
+import { getMyUser } from "@apis/user";
 import {
   setJWTToken,
   getAccessToken,
@@ -53,7 +54,8 @@ export function useLoginCallback() {
         });
 
         setJWTToken(data.access_token, data.refresh_token);
-        queryClient.invalidateQueries({ queryKey: queryKeys.me() });
+        const me = await getMyUser();
+        queryClient.setQueryData(queryKeys.me(), me);
         route("/", true);
       } catch {
         logout.mutate();
@@ -83,7 +85,8 @@ export function useRefreshToken() {
 
         const data = await refreshAuthToken({ refresh_token: refreshToken });
         setJWTToken(data.access_token, data.refresh_token);
-        queryClient.invalidateQueries({ queryKey: queryKeys.me() });
+        const me = await getMyUser();
+        queryClient.setQueryData(queryKeys.me(), me);
       } catch {
         logout.mutate();
       }

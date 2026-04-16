@@ -1,6 +1,6 @@
 import { Modal, ModalFooter } from "@components/modal";
 import { Link } from "@components/atoms/link";
-import { SecondaryButton } from "@components/atoms/button";
+import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Text } from "@components/atoms/text";
 
 interface AuctionCreatedModalProps {
@@ -19,15 +19,15 @@ export function AuctionCreatedModal({
     <Modal onClose={onClose} title="경매 생성 완료">
       <Text>
         <Link href={auctionHref} onClick={onClose}>
-          경매
+          경매 링크
         </Link>
         가 생성되었습니다.
       </Text>
       <ModalFooter>
         <SecondaryButton onClick={onClose}>닫기</SecondaryButton>
-        <SecondaryButton onClick={() => navigator.clipboard.writeText(link)}>
+        <PrimaryButton onClick={() => navigator.clipboard.writeText(link)}>
           링크 복사
-        </SecondaryButton>
+        </PrimaryButton>
       </ModalFooter>
     </Modal>
   );

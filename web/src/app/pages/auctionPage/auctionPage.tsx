@@ -16,7 +16,7 @@ import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberCard } from "@components/presetMemberCard";
 import { Input } from "@components/atoms/input";
 import { Text, Title } from "@components/atoms/text";
-import { RuntimeErrorModal } from "./runtimeErrorModal";
+import { UnexpectedErrorModal } from "./unexpectedErrorModal";
 import { getStatusEntries } from "@utils/enum";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { Status } from "@dtos/auction";
@@ -43,12 +43,11 @@ function isBidErrorCode(code: number): boolean {
   }
 }
 
-function isRuntimeErrorCode(code: number | null | undefined): boolean {
+function isUnexpectedErrorCode(code: number | null | undefined): boolean {
   return (
     code === BackendErrorCode.Unexpected.Internal ||
     code === BackendErrorCode.Unexpected.External ||
     code === FrontendErrorCode.Auction.InvalidMessage ||
-    code === FrontendErrorCode.Auction.ConnectionFailed ||
     code === FrontendErrorCode.Unexpected.Internal ||
     code === FrontendErrorCode.Unexpected.External
   );
@@ -57,7 +56,7 @@ function isRuntimeErrorCode(code: number | null | undefined): boolean {
 export function AuctionPage({ auctionId }: AuctionPageProps) {
   const [bidAmount, setBidAmount] = useState<string>("");
   const [bidError, setBidError] = useState<WSError | null>(null);
-  const [runtimeError, setRuntimeError] = useState<WSError | null>(null);
+  const [unexpectedError, setUnexpectedError] = useState<WSError | null>(null);
 
   const { state, connect, placeBid, isConnected, wasConnected, error } =
     useAuctionWebSocket();
@@ -65,7 +64,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   useEffect(() => {
     if (error === null) {
       setBidError(null);
-      setRuntimeError(null);
+      setUnexpectedError(null);
     }
   }, [error]);
 
@@ -100,26 +99,24 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     if (
       !isCompleted &&
       websocketError &&
-      isRuntimeErrorCode(websocketError.code)
+      isUnexpectedErrorCode(websocketError.code)
     ) {
-      setRuntimeError(websocketError);
+      setUnexpectedError(websocketError);
     }
   }, [isCompleted, websocketError]);
 
-  const isRuntimeError = isRuntimeErrorCode(websocketError?.code);
+  const isUnexpectedError = isUnexpectedErrorCode(websocketError?.code);
 
   const isBlockingError =
     !isCompleted &&
-    ((websocketError !== null && !isRuntimeError) ||
+    ((websocketError !== null && !isUnexpectedError) ||
       (wasConnected && !isConnected));
 
   if (isBlockingError && websocketError) {
     return (
       <Page>
         <PrimarySection fill align="stretch" justify="center">
-          <Error error={websocketError}>
-            경매 진행 상태를 정상적으로 불러오지 못했습니다.
-          </Error>
+          <Error error={websocketError}>경매 정보를 불러오지 못했습니다.</Error>
         </PrimarySection>
       </Page>
     );
@@ -192,16 +189,12 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   const isValidBidAmount =
     parsedBidAmount > 0 && parsedBidAmount % pointScale === 0;
 
-  const handleCloseRuntimeErrorModal = () => {
-    setRuntimeError(null);
-  };
-
   return (
     <Page>
-      {runtimeError && (
-        <RuntimeErrorModal
-          error={runtimeError}
-          onClose={handleCloseRuntimeErrorModal}
+      {unexpectedError && (
+        <UnexpectedErrorModal
+          error={unexpectedError}
+          onClose={() => setUnexpectedError(null)}
         />
       )}
 
@@ -264,7 +257,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
               {isLeader && !isClientTeamFull && (
                 <Row>
                   {bidError && (
-                    <Error error={bidError}>입찰을 반영하지 못했습니다.</Error>
+                    <Error error={bidError}>입찰 처리에 실패했습니다.</Error>
                   )}
                   <FlexItem>
                     <Input

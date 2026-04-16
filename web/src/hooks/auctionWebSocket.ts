@@ -216,13 +216,13 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
                 (isBackendErrorCode(event.code) ||
                   isFrontendErrorCode(event.code))
               ? event.code
-              : FrontendErrorCode.Auction.ConnectionFailed;
+              : FrontendErrorCode.Auction.Disconnected;
         handleError(code);
         return;
       }
 
       if (!opened) {
-        handleError(FrontendErrorCode.Auction.ConnectionFailed);
+        handleError(FrontendErrorCode.Auction.Disconnected);
         return;
       }
 
@@ -231,7 +231,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
     ws.onerror = () => {
       setIsConnected(false);
-      handleError(FrontendErrorCode.Auction.ConnectionFailed);
+      handleError(FrontendErrorCode.Auction.Disconnected);
     };
 
     wsRef.current = ws;
