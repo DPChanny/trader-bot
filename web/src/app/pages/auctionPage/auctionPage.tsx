@@ -22,9 +22,8 @@ import { getStatusEntries } from "@utils/enum";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { Status } from "@dtos/auction";
 import {
-  AUCTION_CONNECTION_FAILED_MESSAGE,
   FrontendErrorCode,
-  ServerErrorCode,
+  BackendErrorCode,
   type WSError,
 } from "@utils/error";
 
@@ -35,10 +34,10 @@ interface AuctionPageProps {
 
 function isBidErrorCode(code: number): boolean {
   switch (code) {
-    case ServerErrorCode.Auction.BidTeamFull:
-    case ServerErrorCode.Auction.BidTooHigh:
-    case ServerErrorCode.Auction.BidTooLow:
-    case ServerErrorCode.Auction.BidNotLeader:
+    case BackendErrorCode.Auction.BidTeamFull:
+    case BackendErrorCode.Auction.BidTooHigh:
+    case BackendErrorCode.Auction.BidTooLow:
+    case BackendErrorCode.Auction.BidNotLeader:
       return true;
     default:
       return false;
@@ -47,8 +46,8 @@ function isBidErrorCode(code: number): boolean {
 
 function isRuntimeErrorCode(code: number | null | undefined): boolean {
   return (
-    code === ServerErrorCode.Unexpected.Internal ||
-    code === ServerErrorCode.Unexpected.External ||
+    code === BackendErrorCode.Unexpected.Internal ||
+    code === BackendErrorCode.Unexpected.External ||
     code === FrontendErrorCode.InvalidWebSocketMessage ||
     code === FrontendErrorCode.WebSocketConnectionFailed
   );
@@ -128,11 +127,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     ((websocketError !== null && !isRuntimeError) ||
       (wasConnected && !isConnected));
 
-  const blockingErrorMessage = isBlockingError
-    ? AUCTION_CONNECTION_FAILED_MESSAGE
-    : null;
-
-  if (blockingErrorMessage && websocketError) {
+  if (isBlockingError && websocketError) {
     return (
       <Page>
         <PrimarySection fill align="stretch" justify="center">

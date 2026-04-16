@@ -1,3 +1,7 @@
+error
+    query client
+    frontend
+    backend
 prop drilling
     except atoms
     except molecules

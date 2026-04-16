@@ -6,10 +6,11 @@ import { toCamelCase } from "@utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@utils/env";
 import { getAccessToken } from "@utils/auth";
 import {
-  AUCTION_CONNECTION_FAILED_MESSAGE,
   FrontendErrorCode,
   WSError,
   handleWsError,
+  isBackendErrorCode,
+  isFrontendErrorCode,
 } from "@utils/error";
 
 interface AuctionWebSocketHook {
@@ -137,7 +138,15 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       case AuctionMessageType.ERROR: {
         const code = dto?.code;
         if (typeof code === "number" && mountedRef.current) {
-          setError(handleWsError({ code }));
+          try {
+            handleWsError(code);
+          } catch (error) {
+            setError(
+              error instanceof WSError
+                ? error
+                : new WSError(FrontendErrorCode.WebSocketConnectionFailed),
+            );
+          }
         }
         break;
       }
@@ -169,10 +178,6 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
           token: token,
         });
         if (!auth_payload_result.success) {
-          console.error(
-            "Invalid AUTH payload",
-            auth_payload_result.error.flatten(),
-          );
           return;
         }
 
@@ -195,17 +200,16 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
           handleWebSocketMessage(message);
         }
       } catch (error) {
-        console.error("Failed to parse WebSocket message:", error);
         if (mountedRef.current) {
-          setError(
-            handleWsError({
-              code: FrontendErrorCode.InvalidWebSocketMessage,
-              reason:
-                error instanceof globalThis.Error
-                  ? error.message
-                  : AUCTION_CONNECTION_FAILED_MESSAGE,
-            }),
-          );
+          try {
+            handleWsError(FrontendErrorCode.InvalidWebSocketMessage);
+          } catch (error) {
+            setError(
+              error instanceof WSError
+                ? error
+                : new WSError(FrontendErrorCode.WebSocketConnectionFailed),
+            );
+          }
         }
       }
     };
@@ -216,20 +220,47 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         setError((prev) => {
           if (prev) return prev;
           if (event.reason || event.code !== 1000) {
-            return handleWsError(event);
+            const code =
+              event.code !== 1000 &&
+              (isBackendErrorCode(event.code) ||
+                isFrontendErrorCode(event.code))
+                ? event.code
+                : FrontendErrorCode.WebSocketConnectionFailed;
+            try {
+              handleWsError(code);
+            } catch (error) {
+              return error instanceof WSError
+                ? error
+                : new WSError(FrontendErrorCode.WebSocketConnectionFailed);
+            }
           }
           if (!opened) {
-            return handleWsError({ reason: AUCTION_CONNECTION_FAILED_MESSAGE });
+            try {
+              handleWsError(FrontendErrorCode.WebSocketConnectionFailed);
+            } catch (error) {
+              return error instanceof WSError
+                ? error
+                : new WSError(FrontendErrorCode.WebSocketConnectionFailed);
+            }
           }
           return null;
         });
       }
     };
 
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
+    ws.onerror = () => {
       if (mountedRef.current) {
         setIsConnected(false);
+        setError((prev) => {
+          if (prev) return prev;
+          try {
+            handleWsError(FrontendErrorCode.WebSocketConnectionFailed);
+          } catch (error) {
+            return error instanceof WSError
+              ? error
+              : new WSError(FrontendErrorCode.WebSocketConnectionFailed);
+          }
+        });
       }
     };
 
@@ -245,10 +276,6 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       amount: amount,
     });
     if (!place_bid_payload_result.success) {
-      console.error(
-        "Invalid PLACE_BID payload",
-        place_bid_payload_result.error.flatten(),
-      );
       return;
     }
 
