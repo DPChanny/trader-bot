@@ -1,9 +1,7 @@
-error
 prop drilling
     except atoms
     except molecules
 component
-    member panel disable bug
     modal position
     status dot
     bar

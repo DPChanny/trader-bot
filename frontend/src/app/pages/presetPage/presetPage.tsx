@@ -35,6 +35,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
   const preset = usePreset(guildId, presetId);
   const presetMembers = usePresetMembers(guildId, presetId);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
+  const canCreateAuction = useVerifyRole(guildId, Role.ADMIN);
   const teamSize = preset.data?.teamSize ?? 0;
   const leaderCount =
     presetMembers.data?.filter((pm) => pm.isLeader).length ?? 0;
@@ -72,7 +73,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
                   onClick={() => setShowUpdate(true)}
                 />
               )}
-              {canEdit && (
+              {canCreateAuction && (
                 <DeleteButton
                   variantSize="medium"
                   onClick={() => setShowDelete(true)}
@@ -110,7 +111,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
         <TierEditor guildId={guildId} presetId={presetId} />
         <PositionEditor guildId={guildId} presetId={presetId} />
 
-        {canEdit && (
+        {canCreateAuction && (
           <Button
             variantIntent={auctionButtonIntent}
             onClick={() => setShowCreate(true)}
@@ -161,4 +162,3 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
     </Page>
   );
 }
-

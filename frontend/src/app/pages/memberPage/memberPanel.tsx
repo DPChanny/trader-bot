@@ -43,8 +43,9 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
     setRole(member.role);
   }, [member.memberId, member.alias, member.infoUrl, member.role]);
 
-  const canEdit = useVerifyRole(member.guildId, Role.EDITOR);
+  const canEdit = useVerifyRole(member.guildId, Role.ADMIN);
   const canEditRole = useVerifyRole(member.guildId, Role.ADMIN);
+  const isOwnerMember = member.role === Role.OWNER;
 
   const parseResult = UpdateMemberSchema.safeParse({ alias, infoUrl });
   const isFormValid = parseResult.success;
@@ -58,7 +59,10 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
       )
     : null;
   const roleChanged =
-    canEditRole && role !== member.role && role !== Role.OWNER;
+    canEditRole &&
+    !isOwnerMember &&
+    role !== member.role &&
+    role !== Role.OWNER;
   const hasChanges = patchDto !== null || roleChanged;
 
   const handleSave = () => {
@@ -132,8 +136,13 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
                       key={key}
                       variantColor={color}
                       isPressed={role === key}
-                      disabled={!canEditRole || key === Role.OWNER}
-                      onClick={() => setRole(key)}
+                      disabled={
+                        !canEditRole || isOwnerMember || key === Role.OWNER
+                      }
+                      onClick={() => {
+                        if (isOwnerMember) return;
+                        setRole(key);
+                      }}
                     >
                       {displayName}
                     </Toggle>
@@ -147,4 +156,3 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
     </PrimarySection>
   );
 }
-
