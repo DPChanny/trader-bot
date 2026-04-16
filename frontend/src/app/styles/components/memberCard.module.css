@@ -7,6 +7,10 @@
   min-height: 1.375rem;
 }
 
+.name {
+  width: 5rem;
+}
+
 .topLeft {
   position: absolute;
   top: var(--space-xs);

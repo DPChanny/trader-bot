@@ -31,7 +31,9 @@ export function MemberCard({ member }: MemberCardProps) {
         variantContent="avatar"
         variantSize="large"
       />
-      <Name variantSize="small">{displayName}</Name>
+      <Name className={styles.name} variantSize="small">
+        {displayName}
+      </Name>
     </Card>
   );
 }

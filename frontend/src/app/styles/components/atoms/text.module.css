@@ -1,6 +1,11 @@
 .title {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.text {
+  text-align: center;
 }
 
 .weightNormal {

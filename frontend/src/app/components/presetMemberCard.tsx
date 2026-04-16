@@ -65,7 +65,7 @@ export function PresetMemberCard({ presetMember }: PresetMemberCardProps) {
         variantContent="avatar"
         variantSize="large"
       />
-      <Name variantSize="small">
+      <Name className={styles.name} variantSize="small">
         {member.alias || member.name || member.user.name}
       </Name>
       <Row center gap="xs" className={styles.positions}>

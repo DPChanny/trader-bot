@@ -48,6 +48,7 @@ export function Text({
   return (
     <span
       className={clsx(
+        styles.text,
         textVariants({
           variantWeight,
           variantSize,
