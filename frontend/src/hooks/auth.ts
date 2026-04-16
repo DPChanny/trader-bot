@@ -73,7 +73,7 @@ export function useRefreshToken() {
     async function tryRefresh() {
       if (!checkJWTToken(getRefreshToken())) return;
       const token = getAccessToken();
-      if (token && checkJWTToken(token, 5 * 60)) {
+      if (token && checkJWTToken(token)) {
         return;
       }
       try {
@@ -95,5 +95,11 @@ export function useRefreshToken() {
     tryRefresh();
     const interval = setInterval(tryRefresh, 60 * 1000);
     return () => clearInterval(interval);
+  }, []);
+}
+
+export function useAuthGuard() {
+  useEffect(() => {
+    if (!checkJWTToken(getRefreshToken())) route("/", true);
   }, []);
 }

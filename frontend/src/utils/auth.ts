@@ -64,13 +64,7 @@ export function removeJWTToken(): void {
   removeRefreshToken();
 }
 
-export function checkJWTToken(
-  jwtToken: string | null,
-  minExpiresInSeconds = 0,
-): boolean {
+export function checkJWTToken(jwtToken: string | null): boolean {
   const expires = getJWTTokenExp(jwtToken);
-  return (
-    expires !== null &&
-    expires.getTime() > Date.now() + minExpiresInSeconds * 1000
-  );
+  return expires !== null && expires.getTime() > Date.now() + 5 * 60 * 1000;
 }

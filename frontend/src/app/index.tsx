@@ -14,9 +14,9 @@ import {
   useLogin,
   useLoginCallback,
   useLogout,
+  useAuthGuard,
 } from "@hooks/auth";
 import { useMyUser } from "@hooks/user";
-import { checkJWTToken, getRefreshToken } from "@utils/auth";
 import { queryClient } from "@utils/query";
 import "@styles/app.css";
 
@@ -37,9 +37,7 @@ function LoginCallbackRoute({}: RoutableProps) {
 }
 
 function MemberRoute({ guildId }: RoutableProps & { guildId?: string }) {
-  useEffect(() => {
-    if (!checkJWTToken(getRefreshToken())) route("/", true);
-  }, []);
+  useAuthGuard();
 
   if (!guildId) {
     route("/", true);
@@ -53,9 +51,7 @@ function PresetRoute({
   guildId,
   presetId,
 }: RoutableProps & { guildId?: string; presetId?: string }) {
-  useEffect(() => {
-    if (!checkJWTToken(getRefreshToken())) route("/", true);
-  }, []);
+  useAuthGuard();
 
   if (!guildId || !presetId) {
     route("/", true);
