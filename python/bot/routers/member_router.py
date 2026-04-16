@@ -24,9 +24,7 @@ def include_member_router(bot: commands.Bot) -> None:
     async def on_member_update(before: Member, after: Member, session: AsyncSession):
         if after.bot:
             return
-        if before.nick == after.nick and before.guild_avatar == after.guild_avatar:
-            return
-        await on_member_update_service(after, session)
+        await on_member_update_service(before, after, session)
 
     @bot.event
     @bot_router

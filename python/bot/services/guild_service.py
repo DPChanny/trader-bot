@@ -12,12 +12,7 @@ from .member_service import sync_member_service
 
 async def sync_guild_service(guild: Guild, session: AsyncSession) -> dict:
     guild_id = guild.id
-    guild_entity = await upsert_guild(
-        guild_id,
-        guild.name,
-        guild.icon.key if guild.icon else None,
-        session,
-    )
+    guild_entity = await upsert_guild(guild, session)
 
     synced_member_ids: set[int] = set()
     async for member in guild.fetch_members():
@@ -27,6 +22,12 @@ async def sync_guild_service(guild: Guild, session: AsyncSession) -> dict:
         synced_member_ids.add(member.id)
 
     await session.flush()
+
+    for member in guild.members:
+        if member.bot:
+            continue
+        if member.guild_permissions.administrator and member.id != guild.owner_id:
+            await update_member_role(guild_id, member.id, Role.ADMIN, session)
 
     owner_member = await update_member_role(
         guild_id,
@@ -67,12 +68,7 @@ async def on_guild_update_service(
     event,
 ) -> None:
     guild_id = after.id
-    guild_entity = await upsert_guild(
-        guild_id,
-        after.name,
-        after.icon.key if after.icon else None,
-        session,
-    )
+    guild_entity = await upsert_guild(after, session)
     event |= guild_entity.model_dump()
     if before.owner_id != after.owner_id:
         await update_member_role(

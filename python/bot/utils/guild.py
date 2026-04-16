@@ -1,3 +1,4 @@
+from discord import Guild as DiscordGuild
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild import GuildDTO
@@ -6,9 +7,10 @@ from shared.repositories.guild_repository import GuildRepository
 from shared.utils.error import AppError, GuildErrorCode
 
 
-async def upsert_guild(
-    guild_id: int, name: str, icon_hash: str | None, session: AsyncSession
-) -> GuildDTO:
+async def upsert_guild(guild: DiscordGuild, session: AsyncSession) -> GuildDTO:
+    guild_id = guild.id
+    name = guild.name
+    icon_hash = guild.icon.key if guild.icon else None
     repo = GuildRepository(session)
     entity = await repo.get_by_id(guild_id)
     if entity is None:
