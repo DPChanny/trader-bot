@@ -7,10 +7,9 @@ import {
 import { PrimaryButton } from "@components/atoms/button";
 import { CreatePresetModal } from "./createPresetModal";
 import { PresetCard } from "./presetCard";
-import { useCreatePreset, usePresets } from "@hooks/preset";
+import { usePresets } from "@hooks/preset";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
-import type { CreatePresetDTO } from "@dtos/preset";
 import { Title } from "@components/atoms/text";
 
 interface PresetListProps {
@@ -19,24 +18,10 @@ interface PresetListProps {
 }
 
 export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
-  const [showCreatePresetModal, setShowCreatePresetModal] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
 
   const { data: presets = [] } = usePresets(guildId);
-  const createPreset = useCreatePreset();
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
-
-  const handleOpenCreatePresetModal = () => {
-    setShowCreatePresetModal(true);
-  };
-
-  const handleCloseCreatePresetModal = () => {
-    setShowCreatePresetModal(false);
-    createPreset.reset();
-  };
-
-  const handleCreatePreset = async (dto: CreatePresetDTO) => {
-    await createPreset.mutateAsync({ guildId, dto });
-  };
 
   return (
     <>
@@ -44,7 +29,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
         <Row justify="between" align="center">
           <Title>프리셋 관리</Title>
           {canEdit && (
-            <PrimaryButton onClick={handleOpenCreatePresetModal}>
+            <PrimaryButton onClick={() => setShowCreate(true)}>
               추가
             </PrimaryButton>
           )}
@@ -63,12 +48,10 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
         </TertiarySection>
       </SecondarySection>
 
-      {showCreatePresetModal && (
+      {showCreate && (
         <CreatePresetModal
-          onClose={handleCloseCreatePresetModal}
-          onSubmit={handleCreatePreset}
-          isPending={createPreset.isPending}
-          error={createPreset.isError ? createPreset.error : undefined}
+          guildId={guildId}
+          onClose={() => setShowCreate(false)}
         />
       )}
     </>

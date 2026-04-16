@@ -88,53 +88,60 @@ export function PresetMemberPanel({
     selectedPositionIds.some((id) => !initialPositionIds.includes(id));
 
   const handleSave = async () => {
-    try {
-      const memberDto = buildPatchDto(
-        { isLeader, tierId },
-        {
-          isLeader: presetMember.isLeader,
-          tierId: presetMember.tierId ?? null,
-        },
-      );
-      if (memberDto) {
-        await updatePresetMember.mutateAsync({
+    const patchDto = buildPatchDto(
+      { isLeader, tierId },
+      {
+        isLeader: presetMember.isLeader,
+        tierId: presetMember.tierId ?? null,
+      },
+    );
+    if (patchDto) {
+      const [result] = await Promise.allSettled([
+        updatePresetMember.mutateAsync({
           guildId,
           presetId,
           presetMemberId: presetMember.presetMemberId,
-          dto: memberDto,
-        });
-      }
+          dto: patchDto,
+        }),
+      ]);
+      if (result.status === "rejected") return;
+    }
 
-      const positionIdsToAdd = selectedPositionIds.filter(
-        (id) => !initialPositionIds.includes(id),
-      );
-      const positionIdsToRemove = initialPositionIds.filter(
-        (id) => !selectedPositionIds.includes(id),
-      );
+    const positionIdsToAdd = selectedPositionIds.filter(
+      (id) => !initialPositionIds.includes(id),
+    );
+    const positionIdsToRemove = initialPositionIds.filter(
+      (id) => !selectedPositionIds.includes(id),
+    );
 
-      for (const positionId of positionIdsToRemove) {
-        const entry = presetMember.presetMemberPositions?.find(
-          (p) => p.positionId === positionId,
-        );
-        if (entry) {
-          await deletePresetMemberPosition.mutateAsync({
+    for (const positionId of positionIdsToRemove) {
+      const entry = presetMember.presetMemberPositions?.find(
+        (p) => p.positionId === positionId,
+      );
+      if (entry) {
+        const [result] = await Promise.allSettled([
+          deletePresetMemberPosition.mutateAsync({
             guildId,
             presetId,
             presetMemberId: presetMember.presetMemberId,
             presetMemberPositionId: entry.presetMemberPositionId,
-          });
-        }
+          }),
+        ]);
+        if (result.status === "rejected") return;
       }
+    }
 
-      for (const positionId of positionIdsToAdd) {
-        await createPresetMemberPosition.mutateAsync({
+    for (const positionId of positionIdsToAdd) {
+      const [result] = await Promise.allSettled([
+        createPresetMemberPosition.mutateAsync({
           guildId,
           presetId,
           presetMemberId: presetMember.presetMemberId,
           dto: { positionId },
-        });
-      }
-    } catch {}
+        }),
+      ]);
+      if (result.status === "rejected") return;
+    }
   };
 
   const handleTogglePosition = (positionId: number) => {
@@ -203,6 +210,10 @@ export function PresetMemberPanel({
     createPresetMemberPosition.error ||
     deletePresetMemberPosition.error ||
     removePresetMember.error;
+  const isSavePending =
+    updatePresetMember.isPending ||
+    createPresetMemberPosition.isPending ||
+    deletePresetMemberPosition.isPending;
 
   return (
     <PrimarySection minSize style={{ width: "24rem" }}>
@@ -217,7 +228,7 @@ export function PresetMemberPanel({
             {canEdit && (
               <SaveButton
                 onClick={handleSave}
-                disabled={updatePresetMember.isPending || !hasChanges}
+                disabled={isSavePending || !hasChanges}
               />
             )}
             <CloseButton onClick={onClose} />

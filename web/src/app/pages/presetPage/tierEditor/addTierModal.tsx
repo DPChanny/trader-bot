@@ -31,13 +31,13 @@ export function AddTierModal({
     onClose();
   };
 
-  const handleSubmit = async (e: Event) => {
+  const handleSubmit = (e: Event) => {
     e.preventDefault();
     if (!parseResult.success) return;
-    try {
-      await addTier.mutateAsync({ guildId, presetId, dto: parseResult.data });
-      handleClose();
-    } catch {}
+    addTier.mutate(
+      { guildId, presetId, dto: parseResult.data },
+      { onSuccess: handleClose },
+    );
   };
 
   return (

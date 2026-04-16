@@ -3,27 +3,24 @@ import { Modal, ModalForm, ModalFooter, ModalRow } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import { CreatePresetSchema, type CreatePresetDTO } from "@dtos/preset";
-import type { AppError } from "@utils/error";
+import { CreatePresetSchema } from "@dtos/preset";
+import { useCreatePreset } from "@hooks/preset";
 
 interface CreatePresetModalProps {
+  guildId: string;
   onClose: () => void;
-  onSubmit: (dto: CreatePresetDTO) => void | Promise<void>;
-  isPending: boolean;
-  error?: AppError;
 }
 
 export function CreatePresetModal({
+  guildId,
   onClose,
-  onSubmit,
-  isPending,
-  error,
 }: CreatePresetModalProps) {
   const [name, setName] = useState("");
   const [points, setPoints] = useState("");
   const [pointScale, setPointScale] = useState("");
   const [timer, setTimer] = useState("");
   const [teamSize, setTeamSize] = useState("");
+  const createPreset = useCreatePreset();
 
   const pointScaleNum = Number(pointScale) || 1;
   const parseResult = CreatePresetSchema.safeParse({
@@ -37,7 +34,7 @@ export function CreatePresetModal({
   const formId = "create-preset-form";
 
   const handleClose = () => {
-    if (isPending) return;
+    if (createPreset.isPending) return;
     setName("");
     setPoints("");
     setPointScale("");
@@ -46,19 +43,19 @@ export function CreatePresetModal({
     onClose();
   };
 
-  const handleSubmit = async (e: Event) => {
+  const handleSubmit = (e: Event) => {
     e.preventDefault();
     if (!parseResult.success) return;
-    try {
-      await onSubmit(parseResult.data);
-      handleClose();
-    } catch {}
+    createPreset.mutate(
+      { guildId, dto: parseResult.data },
+      { onSuccess: handleClose },
+    );
   };
 
   return (
     <Modal onClose={handleClose} title="프리셋 추가">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error && <Error error={error} />}
+        {createPreset.isError && <Error error={createPreset.error} />}
         <LabelInput
           label="프리셋 이름"
           type="text"
@@ -104,13 +101,16 @@ export function CreatePresetModal({
         </ModalRow>
       </ModalForm>
       <ModalFooter>
-        <SecondaryButton onClick={handleClose} disabled={isPending}>
+        <SecondaryButton
+          onClick={handleClose}
+          disabled={createPreset.isPending}
+        >
           취소
         </SecondaryButton>
         <PrimaryButton
           type="submit"
           form={formId}
-          disabled={isPending || !isFormValid}
+          disabled={createPreset.isPending || !isFormValid}
         >
           추가
         </PrimaryButton>

@@ -31,17 +31,17 @@ export function AddPositionModal({
     onClose();
   };
 
-  const handleSubmit = async (e: Event) => {
+  const handleSubmit = (e: Event) => {
     e.preventDefault();
     if (!parseResult.success) return;
-    try {
-      await addPosition.mutateAsync({
+    addPosition.mutate(
+      {
         guildId,
         presetId,
         dto: parseResult.data,
-      });
-      handleClose();
-    } catch {}
+      },
+      { onSuccess: handleClose },
+    );
   };
 
   return (

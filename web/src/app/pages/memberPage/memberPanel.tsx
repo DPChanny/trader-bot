@@ -48,7 +48,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
 
   const parseResult = UpdateMemberSchema.safeParse({ alias, infoUrl });
   const isFormValid = parseResult.success;
-  const basePatchDto = parseResult.success
+  const patchDto = parseResult.success
     ? buildPatchDto(
         {
           alias: parseResult.data.alias ?? null,
@@ -59,12 +59,12 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
     : null;
   const roleChanged =
     canEditRole && role !== member.role && role !== Role.OWNER;
-  const hasChanges = basePatchDto !== null || roleChanged;
+  const hasChanges = patchDto !== null || roleChanged;
 
   const handleSave = () => {
     if (!isFormValid) return;
     if (!hasChanges) return;
-    const dto: UpdateMemberDTO = { ...basePatchDto };
+    const dto: UpdateMemberDTO = { ...patchDto };
     if (roleChanged) dto.role = role;
     updateMember.mutate({
       guildId: member.guildId,
