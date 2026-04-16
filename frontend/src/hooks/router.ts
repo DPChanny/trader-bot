@@ -2,7 +2,7 @@ import { useMemo } from "preact/hooks";
 import { useRouter } from "preact-router";
 import { FrontendErrorCode, handleAppError } from "@utils/error";
 
-function useRoutePathname() {
+export function useRoutePath() {
   const [router] = useRouter();
   return useMemo(
     () => new URL(router.url, window.location.origin).pathname,
@@ -19,12 +19,12 @@ function getRequiredRouteParam<T>(value: T | null): T {
 }
 
 export function useOptionalGuildId() {
-  const pathname = useRoutePathname();
+  const routePath = useRoutePath();
 
   return useMemo(() => {
-    const match = pathname.match(/^\/guild\/([^\/]+)/);
+    const match = routePath.match(/^\/guild\/([^\/]+)/);
     return match ? match[1]! : null;
-  }, [pathname]);
+  }, [routePath]);
 }
 
 export function useGuildId() {
@@ -32,12 +32,12 @@ export function useGuildId() {
 }
 
 export function useOptionalPresetId() {
-  const pathname = useRoutePathname();
+  const routePath = useRoutePath();
 
   return useMemo(() => {
-    const match = pathname.match(/\/preset\/(\d+)/);
+    const match = routePath.match(/\/preset\/(\d+)/);
     return match ? parseInt(match[1]!, 10) : null;
-  }, [pathname]);
+  }, [routePath]);
 }
 
 export function usePresetId() {
@@ -45,10 +45,10 @@ export function usePresetId() {
 }
 
 export function useAuctionId() {
-  const pathname = useRoutePathname();
+  const routePath = useRoutePath();
 
   return useMemo(() => {
-    const match = pathname.match(/^\/auction\/([^\/]+)/);
+    const match = routePath.match(/^\/auction\/([^\/]+)/);
     return getRequiredRouteParam(match ? match[1]! : null);
-  }, [pathname]);
+  }, [routePath]);
 }

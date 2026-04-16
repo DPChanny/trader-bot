@@ -13,6 +13,10 @@ import { useTiers } from "@hooks/tier";
 import { usePositions } from "@hooks/position";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
+import {
+  UpdatePresetMemberSchema,
+  type UpdatePresetMemberDTO,
+} from "@dtos/presetMember";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { CloseButton, SaveButton, Button } from "@components/atoms/button";
 import { Label, NameTitle } from "@components/atoms/text";
@@ -26,7 +30,7 @@ import {
   TertiarySection,
 } from "@components/molecules/section";
 import { Column, Row, Scroll } from "@components/atoms/layout";
-import { buildPatchDto, nullableUrlSchema } from "@utils/dto";
+import { buildPatchDto } from "@utils/dto";
 
 interface PresetMemberPanelProps {
   presetMember: PresetMemberDetailDTO;
@@ -111,31 +115,13 @@ export function PresetMemberPanel({
     presetMember.presetMemberPositions,
   ]);
 
-  const parsedInfoUrl = nullableUrlSchema.safeParse(infoUrl);
-  const normalizedInfoUrl = parsedInfoUrl.success ? parsedInfoUrl.data : null;
-  const infoUrlChanged =
-    parsedInfoUrl.success && normalizedInfoUrl !== savedSnapshot.infoUrl;
-
-  const sortedSelectedPositionIds = [...selectedPositionIds].sort(
-    (a, b) => a - b,
-  );
-  const sortedSavedPositionIds = [...savedSnapshot.positionIds].sort(
-    (a, b) => a - b,
-  );
-  const hasChanges =
-    isLeader !== savedSnapshot.isLeader ||
-    tierId !== savedSnapshot.tierId ||
-    infoUrlChanged ||
-    sortedSelectedPositionIds.length !== sortedSavedPositionIds.length ||
-    sortedSelectedPositionIds.some(
-      (id, index) => id !== sortedSavedPositionIds[index],
-    );
-
-  const handleSave = async () => {
-    if (isSaving || !hasChanges) return;
-    setIsSaving(true);
-    try {
-      const patchDto = buildPatchDto(
+  const parseResult = UpdatePresetMemberSchema.safeParse({ infoUrl });
+  const isFormValid = parseResult.success;
+  const normalizedInfoUrl = parseResult.success
+    ? (parseResult.data.infoUrl ?? null)
+    : null;
+  const patchDto = parseResult.success
+    ? buildPatchDto(
         {
           isLeader,
           tierId,
@@ -146,14 +132,34 @@ export function PresetMemberPanel({
           tierId: savedSnapshot.tierId,
           infoUrl: savedSnapshot.infoUrl,
         },
-      );
+      )
+    : null;
+
+  const sortedSelectedPositionIds = [...selectedPositionIds].sort(
+    (a, b) => a - b,
+  );
+  const sortedSavedPositionIds = [...savedSnapshot.positionIds].sort(
+    (a, b) => a - b,
+  );
+  const hasChanges =
+    patchDto !== null ||
+    sortedSelectedPositionIds.length !== sortedSavedPositionIds.length ||
+    sortedSelectedPositionIds.some(
+      (id, index) => id !== sortedSavedPositionIds[index],
+    );
+
+  const handleSave = async () => {
+    if (!isFormValid || isSaving || !hasChanges) return;
+    setIsSaving(true);
+    try {
       if (patchDto) {
+        const dto: UpdatePresetMemberDTO = { ...patchDto };
         const [result] = await Promise.allSettled([
           updatePresetMember.mutateAsync({
             guildId,
             presetId,
             presetMemberId: presetMember.presetMemberId,
-            dto: patchDto,
+            dto,
           }),
         ]);
         if (result.status === "rejected") return;
@@ -300,7 +306,7 @@ export function PresetMemberPanel({
     tierId: tierId,
     tier: previewTier,
     isLeader: isLeader,
-    infoUrl: normalizedInfoUrl,
+    infoUrl: parseResult.success ? normalizedInfoUrl : savedSnapshot.infoUrl,
     presetMemberPositions: previewPositions,
   };
 
@@ -322,7 +328,7 @@ export function PresetMemberPanel({
             {canEdit && (
               <SaveButton
                 onClick={handleSave}
-                disabled={isSaving || !hasChanges}
+                disabled={isSaving || !hasChanges || !isFormValid}
               />
             )}
             <CloseButton onClick={onClose} />
@@ -347,7 +353,6 @@ export function PresetMemberPanel({
             >
               팀장
             </LabelToggle>
-
             <LabelInput
               label="프로필 링크"
               value={infoUrl}
@@ -355,7 +360,6 @@ export function PresetMemberPanel({
               placeholder={presetMember.member.infoUrl ?? undefined}
               disabled={!canEdit || isSaving}
             />
-
             <Column gap="xs">
               <Label>티어</Label>
               <TertiarySection>

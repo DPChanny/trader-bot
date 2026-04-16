@@ -16,21 +16,33 @@ import {
 } from "@utils/auth";
 import { AUTH_API_ENDPOINT } from "@utils/env";
 import { AppError } from "@utils/error";
+import { useRoutePath } from "@hooks/router";
+
+function isRedirect(path: string | null): path is string {
+  return (
+    typeof path === "string" && path.startsWith("/") && !path.startsWith("//")
+  );
+}
 
 export function useLogin() {
+  const routePath = useRoutePath();
+
   return (): void => {
-    window.location.href = `${AUTH_API_ENDPOINT}/login`;
+    const loginUrl = new URL(`${AUTH_API_ENDPOINT}/login`);
+    loginUrl.searchParams.set("redirect", routePath);
+    window.location.href = loginUrl.toString();
   };
 }
 
 export function useLogout() {
+  const routePath = useRoutePath();
   const queryClient = useQueryClient();
   return useMutation<void, AppError, void>({
     mutationFn: async (): Promise<void> => {},
     onSettled: () => {
       removeJWTToken();
       queryClient.setQueryData(queryKeys.me(), null);
-      route("/", true);
+      route(routePath, true);
     },
   });
 }
@@ -56,7 +68,8 @@ export function useLoginCallback() {
         setJWTToken(data.access_token, data.refresh_token);
         const me = await getMyUser();
         queryClient.setQueryData(queryKeys.me(), me);
-        route("/", true);
+        const redirect = params.get("redirect");
+        route(isRedirect(redirect) ? redirect : "/", true);
       } catch {
         logout.mutate();
       }

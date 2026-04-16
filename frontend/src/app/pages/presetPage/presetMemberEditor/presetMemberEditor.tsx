@@ -107,7 +107,7 @@ export function PresetMemberEditor() {
       {
         guildId,
         presetId,
-        dto: { memberId, tierId: null, isLeader: false },
+        dto: { memberId, tierId: null, isLeader: false, infoUrl: null },
       },
       {
         onError: () => {
