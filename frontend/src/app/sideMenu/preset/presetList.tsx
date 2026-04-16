@@ -24,29 +24,27 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
 
   return (
-    <>
-      <SecondarySection fill minSize>
-        <Row justify="between" align="center">
-          <Title>프리셋 관리</Title>
-          {canEdit && (
-            <PrimaryButton onClick={() => setShowCreate(true)}>
-              생성
-            </PrimaryButton>
-          )}
-        </Row>
-        <TertiarySection fill>
-          <Scroll axis="y">
-            {(presets.data ?? []).map((preset) => (
-              <PresetCard
-                key={preset.presetId}
-                preset={preset}
-                guildId={guildId}
-                isSelected={selectedPresetId === preset.presetId}
-              />
-            ))}
-          </Scroll>
-        </TertiarySection>
-      </SecondarySection>
+    <SecondarySection fill minSize>
+      <Row justify="between" align="center">
+        <Title>프리셋 관리</Title>
+        {canEdit && (
+          <PrimaryButton onClick={() => setShowCreate(true)}>
+            생성
+          </PrimaryButton>
+        )}
+      </Row>
+      <TertiarySection fill>
+        <Scroll axis="y">
+          {(presets.data ?? []).map((preset) => (
+            <PresetCard
+              key={preset.presetId}
+              preset={preset}
+              guildId={guildId}
+              isSelected={selectedPresetId === preset.presetId}
+            />
+          ))}
+        </Scroll>
+      </TertiarySection>
 
       {showCreate && (
         <CreatePresetModal
@@ -54,6 +52,6 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
           onClose={() => setShowCreate(false)}
         />
       )}
-    </>
+    </SecondarySection>
   );
 }

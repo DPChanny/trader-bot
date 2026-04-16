@@ -28,31 +28,29 @@ export function Header(props: HeaderProps) {
           <Title>Trader</Title>
         </Link>
 
-        <Row align="center" gap="sm">
-          {props.user ? (
-            <>
-              {props.user.avatarUrl && (
-                <Image
-                  src={props.user.avatarUrl}
-                  alt={props.user.name}
-                  variantContent="avatar"
-                />
-              )}
-              <Name>{props.user.name}</Name>
-              <DangerButton variantSize="small" onClick={props.onLogout}>
-                로그아웃
-              </DangerButton>
-            </>
-          ) : (
-            <Button
-              variantIntent="primary"
-              variantSize="small"
-              onClick={props.onLogin}
-            >
-              로그인
-            </Button>
-          )}
-        </Row>
+        {props.user ? (
+          <Row align="center" gap="sm">
+            {props.user.avatarUrl && (
+              <Image
+                src={props.user.avatarUrl}
+                alt={props.user.name}
+                variantContent="avatar"
+              />
+            )}
+            <Name>{props.user.name}</Name>
+            <DangerButton variantSize="small" onClick={props.onLogout}>
+              로그아웃
+            </DangerButton>
+          </Row>
+        ) : (
+          <Button
+            variantIntent="primary"
+            variantSize="small"
+            onClick={props.onLogin}
+          >
+            로그인
+          </Button>
+        )}
       </Row>
     </header>
   );

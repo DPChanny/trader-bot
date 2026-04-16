@@ -45,6 +45,7 @@ function isBidErrorCode(code: number): boolean {
 
 function isUnexpectedErrorCode(code: number | null | undefined): boolean {
   return (
+    code === BackendErrorCode.Validation.Invalid ||
     code === BackendErrorCode.Unexpected.Internal ||
     code === BackendErrorCode.Unexpected.External ||
     code === FrontendErrorCode.Auction.InvalidMessage ||

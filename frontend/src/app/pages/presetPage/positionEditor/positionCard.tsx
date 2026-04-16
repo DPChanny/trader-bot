@@ -26,34 +26,28 @@ export function PositionCard({
   const [showDelete, setShowDelete] = useState(false);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   return (
-    <>
-      <Card direction="row" justify="between" align="center">
-        <Badge variantColor="blue" variantSize="large">
-          {position.iconUrl ? (
-            <Image
-              src={position.iconUrl}
-              alt={position.name}
-              variantSize="auto"
-            />
-          ) : (
-            position.name.charAt(0)
-          )}
-        </Badge>
-        <Name>{position.name}</Name>
-        {canEdit && (
-          <Row align="center">
-            <EditButton
-              variantSize="small"
-              onClick={() => setShowUpdate(true)}
-            />
-            <DeleteButton
-              variantSize="small"
-              onClick={() => setShowDelete(true)}
-            />
-          </Row>
+    <Card direction="row" justify="between" align="center">
+      <Badge variantColor="blue" variantSize="large">
+        {position.iconUrl ? (
+          <Image
+            src={position.iconUrl}
+            alt={position.name}
+            variantSize="auto"
+          />
+        ) : (
+          position.name.charAt(0)
         )}
-      </Card>
-
+      </Badge>
+      <Name>{position.name}</Name>
+      {canEdit && (
+        <Row align="center">
+          <EditButton variantSize="small" onClick={() => setShowUpdate(true)} />
+          <DeleteButton
+            variantSize="small"
+            onClick={() => setShowDelete(true)}
+          />
+        </Row>
+      )}
       {showUpdate && (
         <UpdatePositionModal
           guildId={guildId}
@@ -70,6 +64,6 @@ export function PositionCard({
           onClose={() => setShowDelete(false)}
         />
       )}
-    </>
+    </Card>
   );
 }

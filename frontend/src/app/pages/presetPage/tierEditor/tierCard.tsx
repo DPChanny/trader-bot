@@ -22,30 +22,25 @@ export function TierCard({ tier, guildId, presetId }: TierCardProps) {
   const [showDelete, setShowDelete] = useState(false);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   return (
-    <>
-      <Card direction="row" justify="between" align="center">
-        <Badge variantColor="red" variantSize="large">
-          {tier.iconUrl ? (
-            <Image src={tier.iconUrl} alt={tier.name} variantSize="auto" />
-          ) : (
-            tier.name.charAt(0)
-          )}
-        </Badge>
-        <Name>{tier.name}</Name>
-
-        {canEdit && (
-          <Row align="center">
-            <EditButton
-              variantSize="small"
-              onClick={() => setShowUpdate(true)}
-            />
-            <DeleteButton
-              variantSize="small"
-              onClick={() => setShowDelete(true)}
-            />
-          </Row>
+    <Card direction="row" justify="between" align="center">
+      <Badge variantColor="red" variantSize="large">
+        {tier.iconUrl ? (
+          <Image src={tier.iconUrl} alt={tier.name} variantSize="auto" />
+        ) : (
+          tier.name.charAt(0)
         )}
-      </Card>
+      </Badge>
+      <Name>{tier.name}</Name>
+
+      {canEdit && (
+        <Row align="center">
+          <EditButton variantSize="small" onClick={() => setShowUpdate(true)} />
+          <DeleteButton
+            variantSize="small"
+            onClick={() => setShowDelete(true)}
+          />
+        </Row>
+      )}
 
       {showUpdate && (
         <UpdateTierModal
@@ -63,6 +58,6 @@ export function TierCard({ tier, guildId, presetId }: TierCardProps) {
           onClose={() => setShowDelete(false)}
         />
       )}
-    </>
+    </Card>
   );
 }
