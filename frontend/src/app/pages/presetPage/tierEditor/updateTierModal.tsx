@@ -44,6 +44,7 @@ export function UpdateTierModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
+    if (updateTier.isPending) return;
     if (!patchDto) return;
     updateTier.mutate(
       { guildId, presetId, tierId: tier.tierId, dto: patchDto },
@@ -86,4 +87,3 @@ export function UpdateTierModal({
     </Modal>
   );
 }
-

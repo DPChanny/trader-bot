@@ -33,6 +33,7 @@ export function AddTierModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
+    if (addTier.isPending) return;
     if (!parseResult.success) return;
     addTier.mutate(
       { guildId, presetId, dto: parseResult.data },
@@ -75,4 +76,3 @@ export function AddTierModal({
     </Modal>
   );
 }
-

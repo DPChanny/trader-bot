@@ -45,6 +45,7 @@ export function CreatePresetModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
+    if (createPreset.isPending) return;
     if (!parseResult.success) return;
     createPreset.mutate(
       { guildId, dto: parseResult.data },
@@ -120,4 +121,3 @@ export function CreatePresetModal({
     </Modal>
   );
 }
-

@@ -30,17 +30,29 @@ interface MemberPanelProps {
 }
 
 export function MemberPanel({ member, onClose }: MemberPanelProps) {
+  const [isSaving, setIsSaving] = useState(false);
   const updateMember = useUpdateMember();
   const roleEntries = Object.values(getRoleEntries());
 
   const [alias, setAlias] = useState(member.alias ?? "");
   const [infoUrl, setInfoUrl] = useState(member.infoUrl ?? "");
   const [role, setRole] = useState(member.role);
+  const [savedSnapshot, setSavedSnapshot] = useState({
+    alias: member.alias,
+    infoUrl: member.infoUrl,
+    role: member.role,
+  });
 
   useEffect(() => {
     setAlias(member.alias ?? "");
     setInfoUrl(member.infoUrl ?? "");
     setRole(member.role);
+    setSavedSnapshot({
+      alias: member.alias,
+      infoUrl: member.infoUrl,
+      role: member.role,
+    });
+    setIsSaving(false);
   }, [member.memberId, member.alias, member.infoUrl, member.role]);
 
   const canEdit = useVerifyRole(member.guildId, Role.ADMIN);
@@ -49,32 +61,54 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
 
   const parseResult = UpdateMemberSchema.safeParse({ alias, infoUrl });
   const isFormValid = parseResult.success;
+  const normalizedAlias = parseResult.success
+    ? (parseResult.data.alias ?? null)
+    : null;
+  const normalizedInfoUrl = parseResult.success
+    ? (parseResult.data.infoUrl ?? null)
+    : null;
   const patchDto = parseResult.success
     ? buildPatchDto(
         {
-          alias: parseResult.data.alias ?? null,
-          infoUrl: parseResult.data.infoUrl ?? null,
+          alias: normalizedAlias,
+          infoUrl: normalizedInfoUrl,
         },
-        { alias: member.alias, infoUrl: member.infoUrl },
+        { alias: savedSnapshot.alias, infoUrl: savedSnapshot.infoUrl },
       )
     : null;
   const roleChanged =
     canEditRole &&
     !isOwnerMember &&
-    role !== member.role &&
+    role !== savedSnapshot.role &&
     role !== Role.OWNER;
   const hasChanges = patchDto !== null || roleChanged;
 
   const handleSave = () => {
     if (!isFormValid) return;
     if (!hasChanges) return;
+    if (isSaving) return;
     const dto: UpdateMemberDTO = { ...patchDto };
     if (roleChanged) dto.role = role;
-    updateMember.mutate({
-      guildId: member.guildId,
-      memberId: member.memberId,
-      dto,
-    });
+    setIsSaving(true);
+    updateMember.mutate(
+      {
+        guildId: member.guildId,
+        memberId: member.memberId,
+        dto,
+      },
+      {
+        onSuccess: () => {
+          setSavedSnapshot({
+            alias: normalizedAlias,
+            infoUrl: normalizedInfoUrl,
+            role,
+          });
+        },
+        onSettled: () => {
+          setIsSaving(false);
+        },
+      },
+    );
   };
 
   return (
@@ -85,7 +119,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
           {canEdit && (
             <SaveButton
               onClick={handleSave}
-              disabled={updateMember.isPending || !hasChanges || !isFormValid}
+              disabled={isSaving || !hasChanges || !isFormValid}
             />
           )}
           <CloseButton onClick={onClose} />
@@ -113,13 +147,13 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
               value={alias}
               onValueChange={setAlias}
               placeholder={member.alias || member.name || member.user.name}
-              disabled={!canEdit}
+              disabled={!canEdit || isSaving}
             />
             <LabelInput
               label="프로필 링크"
               value={infoUrl}
               onValueChange={setInfoUrl}
-              disabled={!canEdit}
+              disabled={!canEdit || isSaving}
             />
             {infoUrl && (
               <Link href={infoUrl} target="_blank" rel="noopener noreferrer">
@@ -137,12 +171,12 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
                       variantColor={color}
                       isPressed={role === key}
                       disabled={
-                        !canEditRole || isOwnerMember || key === Role.OWNER
+                        !canEditRole ||
+                        isOwnerMember ||
+                        key === Role.OWNER ||
+                        isSaving
                       }
-                      onClick={() => {
-                        if (isOwnerMember) return;
-                        setRole(key);
-                      }}
+                      onClick={() => setRole(key)}
                     >
                       {displayName}
                     </Toggle>

@@ -66,6 +66,7 @@ export function UpdatePresetModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
+    if (updatePreset.isPending) return;
     if (!patchDto) return;
     updatePreset.mutate(
       { guildId, presetId, dto: patchDto },
@@ -138,4 +139,3 @@ export function UpdatePresetModal({
     </Modal>
   );
 }
-

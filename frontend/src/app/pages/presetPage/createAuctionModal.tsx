@@ -32,6 +32,7 @@ export function CreateAuctionModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
+    if (createAuction.isPending || isHardError) return;
     createAuction.mutate(
       { guildId, presetId, dto: { isPublic, sendInvite } },
       { onSuccess: (result) => onSuccess(result.auctionId) },

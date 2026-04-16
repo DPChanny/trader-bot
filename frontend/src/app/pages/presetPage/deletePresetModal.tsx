@@ -25,6 +25,7 @@ export function DeletePresetModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
+    if (deletePreset.isPending) return;
     deletePreset.mutate(
       { guildId, presetId },
       { onSuccess: () => route(`/guild/${guildId}/member`) },
@@ -57,4 +58,3 @@ export function DeletePresetModal({
     </Modal>
   );
 }
-

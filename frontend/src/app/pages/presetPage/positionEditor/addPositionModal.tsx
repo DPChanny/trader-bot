@@ -33,6 +33,7 @@ export function AddPositionModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
+    if (addPosition.isPending) return;
     if (!parseResult.success) return;
     addPosition.mutate(
       {
@@ -79,4 +80,3 @@ export function AddPositionModal({
     </Modal>
   );
 }
-

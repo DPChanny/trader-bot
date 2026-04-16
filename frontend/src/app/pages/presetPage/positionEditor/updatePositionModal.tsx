@@ -44,6 +44,7 @@ export function UpdatePositionModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
+    if (updatePosition.isPending) return;
     if (!patchDto) return;
     updatePosition.mutate(
       { guildId, presetId, positionId: position.positionId, dto: patchDto },
@@ -55,9 +56,7 @@ export function UpdatePositionModal({
     <Modal onClose={handleClose} title="포지션 수정">
       <ModalForm id={formId} onSubmit={handleSubmit}>
         {updatePosition.error && (
-          <Error error={updatePosition.error}>
-            포지션 수정에 실패했습니다
-          </Error>
+          <Error error={updatePosition.error}>포지션 수정에 실패했습니다</Error>
         )}
         <LabelInput
           label="포지션 이름"
@@ -91,4 +90,3 @@ export function UpdatePositionModal({
     </Modal>
   );
 }
-

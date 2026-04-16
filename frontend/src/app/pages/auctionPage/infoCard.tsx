@@ -10,7 +10,7 @@ interface InfoCardProps {
 
 export function InfoCard({ label, children }: InfoCardProps) {
   return (
-    <Card fill>
+    <Card fill center>
       <Text variantWeight="bold">{label}</Text>
       <Fill center>{children}</Fill>
     </Card>

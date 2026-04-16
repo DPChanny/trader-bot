@@ -67,12 +67,37 @@ export function PresetMemberPanel({
   const [selectedPositionIds, setSelectedPositionIds] = useState<number[]>(
     presetMember.presetMemberPositions?.map((p) => p.positionId) || [],
   );
+  const [savedPositionEntries, setSavedPositionEntries] = useState(
+    () =>
+      presetMember.presetMemberPositions?.map((p) => ({
+        positionId: p.positionId,
+        presetMemberPositionId: p.presetMemberPositionId,
+      })) || [],
+  );
+  const [savedSnapshot, setSavedSnapshot] = useState(() => ({
+    isLeader: presetMember.isLeader,
+    tierId: presetMember.tierId ?? null,
+    positionIds:
+      presetMember.presetMemberPositions?.map((p) => p.positionId) || [],
+  }));
   useEffect(() => {
     setIsLeader(presetMember.isLeader);
     setTierId(presetMember.tierId || null);
-    setSelectedPositionIds(
-      presetMember.presetMemberPositions?.map((p) => p.positionId) || [],
-    );
+    const positionIds =
+      presetMember.presetMemberPositions?.map((p) => p.positionId) || [];
+    const positionEntries =
+      presetMember.presetMemberPositions?.map((p) => ({
+        positionId: p.positionId,
+        presetMemberPositionId: p.presetMemberPositionId,
+      })) || [];
+    setSelectedPositionIds(positionIds);
+    setSavedPositionEntries(positionEntries);
+    setSavedSnapshot({
+      isLeader: presetMember.isLeader,
+      tierId: presetMember.tierId ?? null,
+      positionIds,
+    });
+    setIsSaving(false);
   }, [
     presetMember.presetMemberId,
     presetMember.isLeader,
@@ -80,22 +105,29 @@ export function PresetMemberPanel({
     presetMember.presetMemberPositions,
   ]);
 
-  const initialPositionIds =
-    presetMember.presetMemberPositions?.map((p) => p.positionId) || [];
+  const sortedSelectedPositionIds = [...selectedPositionIds].sort(
+    (a, b) => a - b,
+  );
+  const sortedSavedPositionIds = [...savedSnapshot.positionIds].sort(
+    (a, b) => a - b,
+  );
   const hasChanges =
-    isLeader !== presetMember.isLeader ||
-    tierId !== presetMember.tierId ||
-    selectedPositionIds.length !== initialPositionIds.length ||
-    selectedPositionIds.some((id) => !initialPositionIds.includes(id));
+    isLeader !== savedSnapshot.isLeader ||
+    tierId !== savedSnapshot.tierId ||
+    sortedSelectedPositionIds.length !== sortedSavedPositionIds.length ||
+    sortedSelectedPositionIds.some(
+      (id, index) => id !== sortedSavedPositionIds[index],
+    );
 
   const handleSave = async () => {
+    if (isSaving || !hasChanges) return;
     setIsSaving(true);
     try {
       const patchDto = buildPatchDto(
         { isLeader, tierId },
         {
-          isLeader: presetMember.isLeader,
-          tierId: presetMember.tierId ?? null,
+          isLeader: savedSnapshot.isLeader,
+          tierId: savedSnapshot.tierId,
         },
       );
       if (patchDto) {
@@ -110,28 +142,44 @@ export function PresetMemberPanel({
         if (result.status === "rejected") return;
       }
 
-      const positionIdsToAdd = selectedPositionIds.filter(
-        (id) => !initialPositionIds.includes(id),
+      let nextSavedPositionEntries = [...savedPositionEntries];
+      const savedPositionEntryMap = new Map(
+        nextSavedPositionEntries.map((entry) => [
+          entry.positionId,
+          entry.presetMemberPositionId,
+        ]),
       );
-      const positionIdsToRemove = initialPositionIds.filter(
+      const savedPositionIds = nextSavedPositionEntries.map(
+        (entry) => entry.positionId,
+      );
+      const positionIdsToAdd = selectedPositionIds.filter(
+        (id) => !savedPositionIds.includes(id),
+      );
+      const positionIdsToRemove = savedPositionIds.filter(
         (id) => !selectedPositionIds.includes(id),
       );
 
       for (const positionId of positionIdsToRemove) {
-        const entry = presetMember.presetMemberPositions?.find(
+        const existingId = savedPositionEntryMap.get(positionId);
+        const fallbackEntry = presetMember.presetMemberPositions?.find(
           (p) => p.positionId === positionId,
         );
-        if (entry) {
-          const [result] = await Promise.allSettled([
-            deletePresetMemberPosition.mutateAsync({
-              guildId,
-              presetId,
-              presetMemberId: presetMember.presetMemberId,
-              presetMemberPositionId: entry.presetMemberPositionId,
-            }),
-          ]);
-          if (result.status === "rejected") return;
-        }
+        const presetMemberPositionId =
+          existingId ?? fallbackEntry?.presetMemberPositionId;
+        if (!presetMemberPositionId) return;
+        const [result] = await Promise.allSettled([
+          deletePresetMemberPosition.mutateAsync({
+            guildId,
+            presetId,
+            presetMemberId: presetMember.presetMemberId,
+            presetMemberPositionId,
+          }),
+        ]);
+        if (result.status === "rejected") return;
+        nextSavedPositionEntries = nextSavedPositionEntries.filter(
+          (entry) => entry.positionId !== positionId,
+        );
+        savedPositionEntryMap.delete(positionId);
       }
 
       for (const positionId of positionIdsToAdd) {
@@ -144,7 +192,27 @@ export function PresetMemberPanel({
           }),
         ]);
         if (result.status === "rejected") return;
+        nextSavedPositionEntries = [
+          ...nextSavedPositionEntries.filter(
+            (entry) => entry.positionId !== positionId,
+          ),
+          {
+            positionId: result.value.positionId,
+            presetMemberPositionId: result.value.presetMemberPositionId,
+          },
+        ];
+        savedPositionEntryMap.set(
+          result.value.positionId,
+          result.value.presetMemberPositionId,
+        );
       }
+
+      setSavedPositionEntries(nextSavedPositionEntries);
+      setSavedSnapshot({
+        isLeader,
+        tierId,
+        positionIds: nextSavedPositionEntries.map((entry) => entry.positionId),
+      });
     } finally {
       setIsSaving(false);
     }
@@ -187,13 +255,19 @@ export function PresetMemberPanel({
 
   const previewPositions = selectedPositionIds
     .map((id) => {
-      const existingEntry = presetMember.presetMemberPositions?.find(
+      const existingEntry = savedPositionEntries.find(
+        (entry) => entry.positionId === id,
+      );
+      const fallbackEntry = presetMember.presetMemberPositions?.find(
         (p) => p.positionId === id,
       );
       const position = positionsMap.get(id);
       if (!position) return null;
       return {
-        presetMemberPositionId: existingEntry?.presetMemberPositionId || 0,
+        presetMemberPositionId:
+          existingEntry?.presetMemberPositionId ||
+          fallbackEntry?.presetMemberPositionId ||
+          0,
         presetMemberId: presetMember.presetMemberId,
         positionId: id,
         position,
@@ -249,8 +323,8 @@ export function PresetMemberPanel({
               label="팀장"
               isPressed={isLeader}
               variantColor="gold"
-              disabled={!canEdit}
-              onClick={() => canEdit && setIsLeader(!isLeader)}
+              disabled={!canEdit || isSaving}
+              onClick={() => setIsLeader(!isLeader)}
             >
               팀장
             </LabelToggle>
@@ -262,8 +336,8 @@ export function PresetMemberPanel({
                   <Toggle
                     isPressed={tierId === null}
                     variantColor="red"
-                    disabled={!canEdit}
-                    onClick={() => canEdit && setTierId(null)}
+                    disabled={!canEdit || isSaving}
+                    onClick={() => setTierId(null)}
                   >
                     없음
                   </Toggle>
@@ -272,8 +346,8 @@ export function PresetMemberPanel({
                       key={tier.tierId}
                       isPressed={tierId === tier.tierId}
                       variantColor="red"
-                      disabled={!canEdit}
-                      onClick={() => canEdit && handleToggleTier(tier.tierId)}
+                      disabled={!canEdit || isSaving}
+                      onClick={() => handleToggleTier(tier.tierId)}
                     >
                       {tier.name}
                     </Toggle>
@@ -289,8 +363,8 @@ export function PresetMemberPanel({
                   <Toggle
                     isPressed={selectedPositionIds.length === 0}
                     variantColor="blue"
-                    disabled={!canEdit}
-                    onClick={() => canEdit && setSelectedPositionIds([])}
+                    disabled={!canEdit || isSaving}
+                    onClick={() => setSelectedPositionIds([])}
                   >
                     없음
                   </Toggle>
@@ -301,10 +375,8 @@ export function PresetMemberPanel({
                         position.positionId,
                       )}
                       variantColor="blue"
-                      disabled={!canEdit}
-                      onClick={() =>
-                        canEdit && handleTogglePosition(position.positionId)
-                      }
+                      disabled={!canEdit || isSaving}
+                      onClick={() => handleTogglePosition(position.positionId)}
                     >
                       {position.name}
                     </Toggle>

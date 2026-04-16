@@ -26,6 +26,7 @@ export function DeleteTierModal({
 
   const handleSubmit = (e: Event) => {
     e.preventDefault();
+    if (deleteTier.isPending) return;
     deleteTier.mutate({ guildId, presetId, tierId }, { onSuccess: onClose });
   };
 
@@ -52,4 +53,3 @@ export function DeleteTierModal({
     </Modal>
   );
 }
-
