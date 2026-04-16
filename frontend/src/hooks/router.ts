@@ -1,5 +1,6 @@
 import { useMemo } from "preact/hooks";
 import { useRouter } from "preact-router";
+import { FrontendErrorCode, handleAppError } from "@utils/error";
 
 function useRoutePathname() {
   const [router] = useRouter();
@@ -9,9 +10,9 @@ function useRoutePathname() {
   );
 }
 
-function getRequiredRouteParam<T>(value: T | null, name: string): T {
+function getRequiredRouteParam<T>(value: T | null): T {
   if (value === null) {
-    throw new Error(`${name} is not available on the current route.`);
+    handleAppError(FrontendErrorCode.Unexpected.Internal);
   }
 
   return value;
@@ -27,7 +28,7 @@ export function useOptionalGuildId() {
 }
 
 export function useGuildId() {
-  return getRequiredRouteParam(useOptionalGuildId(), "guildId");
+  return getRequiredRouteParam(useOptionalGuildId());
 }
 
 export function useOptionalPresetId() {
@@ -40,7 +41,7 @@ export function useOptionalPresetId() {
 }
 
 export function usePresetId() {
-  return getRequiredRouteParam(useOptionalPresetId(), "presetId");
+  return getRequiredRouteParam(useOptionalPresetId());
 }
 
 export function useAuctionId() {
@@ -48,6 +49,6 @@ export function useAuctionId() {
 
   return useMemo(() => {
     const match = pathname.match(/^\/auction\/([^\/]+)/);
-    return getRequiredRouteParam(match ? match[1]! : null, "auctionId");
+    return getRequiredRouteParam(match ? match[1]! : null);
   }, [pathname]);
 }
