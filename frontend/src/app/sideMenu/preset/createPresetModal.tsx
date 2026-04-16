@@ -56,7 +56,7 @@ export function CreatePresetModal({
     <Modal onClose={handleClose} title="프리셋 생성">
       <ModalForm id={formId} onSubmit={handleSubmit}>
         {createPreset.error && (
-          <Error error={createPreset.error}>프리셋 생성에 실패했습니다.</Error>
+          <Error error={createPreset.error}>프리셋 생성에 실패했습니다</Error>
         )}
         <LabelInput
           label="프리셋 이름"
@@ -120,3 +120,4 @@ export function CreatePresetModal({
     </Modal>
   );
 }
+

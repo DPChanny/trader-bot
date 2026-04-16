@@ -5,13 +5,13 @@
       "label": "Run Web Dev",
       "type": "shell",
       "command": "npm run dev",
-      "options": { "cwd": "${workspaceFolder}/web" },
+      "options": { "cwd": "${workspaceFolder}/frontend" },
       "presentation": { "panel": "dedicated" }
     },
     {
       "label": "Run API Dev",
       "type": "shell",
-      "command": "uv run python -m uvicorn api.main:app --reload --host localhost --port 8000",
+      "command": "uv run python -m uvicorn backend.main:app --reload --host localhost --port 8000",
       "options": { "cwd": "${workspaceFolder}/python" },
       "presentation": { "panel": "dedicated" }
     },
@@ -26,7 +26,7 @@
       "label": "Watch CSS",
       "type": "shell",
       "command": "npm run css:dts",
-      "options": { "cwd": "${workspaceFolder}/web" },
+      "options": { "cwd": "${workspaceFolder}/frontend" },
       "runOptions": { "runOn": "folderOpen" },
       "presentation": { "reveal": "silent", "panel": "shared" }
     },

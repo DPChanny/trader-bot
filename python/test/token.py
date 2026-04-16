@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 
-from api.utils.token import AccessToken, RefreshToken
+from backend.utils.token import AccessToken, RefreshToken
 
 
 def _parse_args() -> argparse.Namespace:

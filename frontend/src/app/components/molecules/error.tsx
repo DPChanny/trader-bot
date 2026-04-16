@@ -11,8 +11,6 @@ type ErrorProps = JSX.IntrinsicElements["div"] & {
 };
 
 export function Error({ className, error, children, ...props }: ErrorProps) {
-  const message = `#${error.code}: ${error.message}`;
-
   return (
     <Column
       align="center"
@@ -21,7 +19,9 @@ export function Error({ className, error, children, ...props }: ErrorProps) {
       {...props}
     >
       <Text>{children}</Text>
-      <Text variantSize="small">{message}</Text>
+      <Text variantSize="small">
+        {error.message} #{error.code}
+      </Text>
     </Column>
   );
 }

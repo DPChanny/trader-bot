@@ -44,7 +44,7 @@ export function AddTierModal({
     <Modal onClose={handleClose} title="티어 추가">
       <ModalForm id={formId} onSubmit={handleSubmit}>
         {addTier.error && (
-          <Error error={addTier.error}>티어 추가에 실패했습니다.</Error>
+          <Error error={addTier.error}>티어 추가에 실패했습니다</Error>
         )}
         <LabelInput
           label="티어 이름"
@@ -75,3 +75,4 @@ export function AddTierModal({
     </Modal>
   );
 }
+

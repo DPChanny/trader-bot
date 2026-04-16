@@ -81,6 +81,7 @@ class UnexpectedErrorCode(IntEnum):
 
 type AppErrorCode = (
     AuthErrorCode
+    | TokenErrorCode
     | ValidationErrorCode
     | AuctionErrorCode
     | GuildErrorCode

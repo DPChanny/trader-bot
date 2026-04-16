@@ -89,7 +89,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
       </Row>
 
       {updateMember.error && (
-        <Error error={updateMember.error}>멤버 수정에 실패했습니다.</Error>
+        <Error error={updateMember.error}>멤버 수정에 실패했습니다</Error>
       )}
 
       <Bar />
@@ -147,3 +147,4 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
     </PrimarySection>
   );
 }
+

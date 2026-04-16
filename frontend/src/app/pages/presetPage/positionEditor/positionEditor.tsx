@@ -37,7 +37,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
         <Scroll axis="y">
           {positions.error ? (
             <Error error={positions.error}>
-              포지션 목록을 불러오지 못했습니다.
+              포지션 목록을 불러오지 못했습니다
             </Error>
           ) : positions.isLoading ? (
             <Loading />
@@ -64,3 +64,4 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
     </SecondarySection>
   );
 }
+

@@ -75,82 +75,93 @@ export function isFrontendErrorCode(code: number): boolean {
 function getErrorMessage(code: number): string {
   switch (code) {
     case BackendErrorCode.Auth.Unauthorized:
-      return "로그인이 필요합니다.";
+      return "로그인이 필요합니다";
     case BackendErrorCode.Token.IncorrectJWTToken:
-      return "잘못된 토큰입니다.";
+      return "잘못된 인증 토큰입니다";
     case BackendErrorCode.Token.ExpiredJWTToken:
-      return "만료된 토큰입니다.";
+      return "만료된 인증 토큰입니다";
     case BackendErrorCode.Token.ExchangeFailed:
-      return "토큰 갱신에 실패했습니다.";
+      return "인증 토큰 교환에 실패했습니다";
 
     case BackendErrorCode.Validation.Invalid:
-      return "유효하지 않은 입력입니다.";
+      return "유효하지 않은 입력입니다";
 
     case BackendErrorCode.Auction.InsufficientLeaders:
-      return "리더가 부족합니다.";
+      return "팀장이 부족합니다";
     case BackendErrorCode.Auction.ForbiddenAccess:
-      return "경매 접근 권한이 없습니다.";
+      return "경매 접근 권한이 없습니다";
     case BackendErrorCode.Auction.NotFound:
-      return "경매를 찾을 수 없습니다.";
+      return "경매를 찾을 수 없습니다";
 
     case BackendErrorCode.Auction.BidTeamFull:
-      return "팀 인원을 초과해 입찰할 수 없습니다.";
+      return "팀 인원을 초과해 입찰할 수 없습니다";
     case BackendErrorCode.Auction.BidTooHigh:
-      return "입찰 금액이 너무 높아 입찰할 수 없습니다.";
+      return "입찰 금액이 너무 높아 입찰할 수 없습니다";
     case BackendErrorCode.Auction.BidTooLow:
-      return "입찰 금액이 너무 낮아 입찰할 수 없습니다.";
+      return "입찰 금액이 너무 낮아 입찰할 수 없습니다";
     case BackendErrorCode.Auction.BidNotLeader:
-      return "리더가 아니면 입찰할 수 없습니다.";
+      return "팀장이 아니면 입찰할 수 없습니다";
 
     case BackendErrorCode.Guild.NotFound:
-      return "길드를 찾을 수 없습니다.";
+      return "길드를 찾을 수 없습니다";
 
     case BackendErrorCode.Member.InsufficientRole:
-      return "권한이 부족합니다.";
+      return "권한이 부족합니다";
     case BackendErrorCode.Member.ForbiddenRole:
-      return "소유자 권한은 수정할 수 없습니다.";
+      return "소유자 권한은 수정할 수 없습니다";
     case BackendErrorCode.Member.NotMember:
-      return "길드의 멤버가 아닙니다.";
+      return "길드의 멤버가 아닙니다";
     case BackendErrorCode.Member.NotFound:
-      return "멤버를 찾을 수 없습니다.";
+      return "멤버를 찾을 수 없습니다";
 
     case BackendErrorCode.Position.NotFound:
-      return "포지션을 찾을 수 없습니다.";
+      return "포지션을 찾을 수 없습니다";
 
     case BackendErrorCode.Preset.NotFound:
-      return "프리셋을 찾을 수 없습니다.";
+      return "프리셋을 찾을 수 없습니다";
 
     case BackendErrorCode.PresetMember.NotFound:
-      return "프리셋 멤버를 찾을 수 없습니다.";
+      return "프리셋 멤버를 찾을 수 없습니다";
 
     case BackendErrorCode.PresetMemberPosition.Duplicated:
-      return "이미 존재하는 프리셋 멤버 포지션입니다.";
+      return "이미 존재하는 프리셋 멤버 포지션입니다";
     case BackendErrorCode.PresetMemberPosition.NotFound:
-      return "프리셋 멤버 포지션을 찾을 수 없습니다.";
+      return "프리셋 멤버 포지션을 찾을 수 없습니다";
 
     case BackendErrorCode.Tier.NotFound:
-      return "티어를 찾을 수 없습니다.";
+      return "티어를 찾을 수 없습니다";
 
     case BackendErrorCode.User.NotFound:
-      return "사용자를 찾을 수 없습니다.";
+      return "사용자를 찾을 수 없습니다";
 
     case BackendErrorCode.Unexpected.Internal:
-      return "서버 내부에서 예기치 못한 문제가 발생했습니다.";
+      return "서버 내부에서 예기치 못한 문제가 발생했습니다";
     case BackendErrorCode.Unexpected.External:
-      return "서버 외부에서 예기치 못한 문제가 발생했습니다.";
+      return "서버 외부에서 예기치 못한 문제가 발생했습니다";
 
     case FrontendErrorCode.Auction.InvalidMessage:
-      return "경매 메시지를 처리하지 못했습니다.";
+      return "경매 메시지를 처리하지 못했습니다";
     case FrontendErrorCode.Auction.Disconnected:
-      return "경매 서버 연결이 끊겼습니다.";
+      return "경매 서버 연결이 끊겼습니다";
 
     case FrontendErrorCode.Unexpected.Internal:
-      return "클라이언트 내부에서 예기치 못한 문제가 발생했습니다.";
+      return "클라이언트 내부에서 예기치 못한 문제가 발생했습니다";
     case FrontendErrorCode.Unexpected.External:
-      return "클라이언트 외부에서 예기치 못한 문제가 발생했습니다.";
+      return "클라이언트 외부에서 예기치 못한 문제가 발생했습니다";
+
+    case 401:
+      return "로그인이 필요합니다";
+    case 403:
+      return "권한이 부족합니다";
+    case 404:
+      return "요청한 리소스를 찾을 수 없습니다";
+    case 422:
+      return "유효하지 않은 입력입니다";
+    case 500:
+      return "서버 내부에서 예기치 못한 문제가 발생했습니다";
 
     default:
-      return "알 수 없는 오류가 발생했습니다.";
+      return "알 수 없는 오류가 발생했습니다";
   }
 }
 

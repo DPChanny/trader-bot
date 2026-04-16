@@ -56,7 +56,7 @@ export function UpdatePositionModal({
       <ModalForm id={formId} onSubmit={handleSubmit}>
         {updatePosition.error && (
           <Error error={updatePosition.error}>
-            포지션 수정에 실패했습니다.
+            포지션 수정에 실패했습니다
           </Error>
         )}
         <LabelInput
@@ -91,3 +91,4 @@ export function UpdatePositionModal({
     </Modal>
   );
 }
+

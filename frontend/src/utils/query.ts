@@ -1,5 +1,4 @@
 import { QueryClient } from "@tanstack/preact-query";
-import { AppError } from "./error";
 
 export const queryKeys = {
   me: () => ["me"] as const,
@@ -40,14 +39,7 @@ export const queryClient = new QueryClient({
       staleTime: 1000 * 60 * 10,
       gcTime: 1000 * 60 * 30,
       refetchOnWindowFocus: false,
-      retry: (failureCount, error) => {
-        if (error instanceof AppError) {
-          const isHttpClientCode = error.code >= 400 && error.code < 500;
-          const isAppClientCode = error.code >= 4000 && error.code < 5000;
-          if (isHttpClientCode || isAppClientCode) return false;
-        }
-        return failureCount < 2;
-      },
+      retry: false,
     },
     mutations: {
       retry: false,

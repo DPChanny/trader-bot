@@ -29,7 +29,7 @@ jobs:
             git fetch origin master
             git reset --hard origin/master
 
-            cat << EOF > ~/trader/api/.env
+            cat << EOF > ~/trader/backend/.env
             DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}
             ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
@@ -58,7 +58,7 @@ jobs:
             npm run build
             nohup serve -s dist -l tcp://0.0.0.0:8080 > output.log 2>&1 &
 
-            cd ~/trader/api
+            cd ~/trader/backend
             conda activate trader
             conda env update
             nohup uvicorn main:app --host 0.0.0.0 --port 8000 > output.log 2>&1 &
