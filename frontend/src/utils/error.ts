@@ -149,17 +149,6 @@ function getErrorMessage(code: number): string {
     case FrontendErrorCode.Unexpected.External:
       return "클라이언트 외부에서 예기치 못한 문제가 발생했습니다";
 
-    case 401:
-      return "로그인이 필요합니다";
-    case 403:
-      return "권한이 부족합니다";
-    case 404:
-      return "요청한 리소스를 찾을 수 없습니다";
-    case 422:
-      return "유효하지 않은 입력입니다";
-    case 500:
-      return "서버 내부에서 예기치 못한 문제가 발생했습니다";
-
     default:
       return "알 수 없는 오류가 발생했습니다";
   }

@@ -1,4 +1,5 @@
 import { useEffect } from "preact/hooks";
+import { useState } from "preact/hooks";
 import { render } from "preact";
 import Router, { route } from "preact-router";
 import type { RoutableProps } from "preact-router";
@@ -9,6 +10,9 @@ import { HomePage } from "@pages/homePage/homePage";
 import { AuctionPage } from "@pages/auctionPage/auctionPage";
 import { Header } from "./header";
 import { SideMenu } from "./sideMenu/sideMenu";
+import { Modal, ModalFooter } from "./components/modal";
+import { Error } from "./components/molecules/error";
+import { PrimaryButton } from "./components/atoms/button";
 import {
   useRefreshToken,
   useLogin,
@@ -18,6 +22,7 @@ import {
 } from "@hooks/auth";
 import { useMyUser } from "@hooks/user";
 import { queryClient } from "@utils/query";
+import { AppError, FrontendErrorCode } from "@utils/error";
 import "@styles/app.css";
 
 function RootRoute({}: RoutableProps) {
@@ -75,6 +80,38 @@ function App() {
   const myUser = useMyUser();
   const login = useLogin();
   const logout = useLogout();
+  const [globalError, setGlobalError] = useState<AppError | null>(null);
+
+  useEffect(() => {
+    const handleWindowError = (event: ErrorEvent) => {
+      const error = event.error;
+      setGlobalError(
+        error instanceof AppError
+          ? error
+          : new AppError(FrontendErrorCode.Unexpected.Internal),
+      );
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
+      setGlobalError(
+        reason instanceof AppError
+          ? reason
+          : new AppError(FrontendErrorCode.Unexpected.Internal),
+      );
+    };
+
+    window.addEventListener("error", handleWindowError);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener("error", handleWindowError);
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection,
+      );
+    };
+  }, []);
 
   const handleLogout = () => {
     logout.mutate();
@@ -82,6 +119,16 @@ function App() {
 
   return (
     <div className="app-container">
+      {globalError && (
+        <Modal title="오류" onClose={() => setGlobalError(null)}>
+          <Error error={globalError}>예기치 못한 오류가 발생했습니다</Error>
+          <ModalFooter>
+            <PrimaryButton onClick={() => setGlobalError(null)}>
+              확인
+            </PrimaryButton>
+          </ModalFooter>
+        </Modal>
+      )}
       {myUser.data ? (
         <Header user={myUser.data} onLogout={handleLogout} />
       ) : (

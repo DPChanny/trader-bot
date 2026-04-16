@@ -25,19 +25,19 @@ export function Header(props: HeaderProps) {
     <header className={styles.header}>
       <Row align="center" justify="end" className={styles.headerContent}>
         <Link href="/" className={styles.headerLogo}>
-          <Title>Trader</Title>
+          <Title>Trader Bot</Title>
         </Link>
 
         {props.user ? (
-          <Row align="center" gap="sm">
-            {props.user.avatarUrl && (
+          <Row align="center" gap="lg">
+            <Row align="center" gap="sm">
               <Image
                 src={props.user.avatarUrl}
                 alt={props.user.name}
                 variantContent="avatar"
               />
-            )}
-            <Name>{props.user.name}</Name>
+              <Name>{props.user.name}</Name>
+            </Row>
             <DangerButton variantSize="small" onClick={props.onLogout}>
               로그아웃
             </DangerButton>
