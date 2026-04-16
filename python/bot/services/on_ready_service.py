@@ -4,8 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.repositories.guild_repository import GuildRepository
 from shared.utils.service import bot_service
 
-from ..utils.guild import delete_guild
-from .guild_service import sync_guild_service
+from ..utils.guild import delete_guild, sync_guild
 
 
 @bot_service
@@ -13,7 +12,7 @@ async def on_ready_service(bot: commands.Bot, session: AsyncSession, event) -> N
     synced_guild_ids: set[int] = set()
 
     for guild in bot.guilds:
-        await sync_guild_service(guild, session)
+        await sync_guild(guild, session)
         synced_guild_ids.add(guild.id)
 
     guild_repo = GuildRepository(session)

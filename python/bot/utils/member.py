@@ -6,6 +6,8 @@ from shared.entities.member import Member
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import AppError, MemberErrorCode
 
+from .user import sync_user
+
 
 async def upsert_member(
     member: DiscordMember,
@@ -46,6 +48,33 @@ async def update_member_role(
     entity.role = role
 
     return MemberDTO.model_validate(entity)
+
+
+async def sync_member_admin_role(
+    guild_id: int,
+    user_id: int,
+    is_admin: bool,
+    session: AsyncSession,
+) -> MemberDTO | None:
+    repo = MemberRepository(session)
+    entity = await repo.get_by_user_id(user_id, guild_id)
+    if entity is None:
+        raise AppError(MemberErrorCode.NotFound)
+
+    if is_admin and entity.role < Role.ADMIN:
+        entity.role = Role.ADMIN
+        return MemberDTO.model_validate(entity)
+
+    if not is_admin and entity.role == Role.ADMIN:
+        entity.role = Role.VIEWER
+        return MemberDTO.model_validate(entity)
+
+    return None
+
+
+async def sync_member(member: DiscordMember, session: AsyncSession) -> MemberDTO:
+    await sync_user(member, session)
+    return await upsert_member(member, session)
 
 
 async def delete_member(
