@@ -4,12 +4,13 @@ import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { AddTierSchema, type AddTierDTO } from "@dtos/tier";
+import type { AppError } from "@utils/error";
 
 interface AddTierModalProps {
   onClose: () => void;
   onSubmit: (dto: AddTierDTO) => void | Promise<void>;
   isPending: boolean;
-  error?: any;
+  error?: AppError;
 }
 
 export function AddTierModal({
@@ -43,7 +44,7 @@ export function AddTierModal({
   return (
     <Modal onClose={handleClose} title="티어 추가">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error ? <Error error={error} /> : null}
+        {error && <Error error={error} />}
         <LabelInput
           label="티어 이름"
           type="text"

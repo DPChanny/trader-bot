@@ -46,23 +46,30 @@ export function useLoginCallback() {
   const queryClient = useQueryClient();
   useEffect(() => {
     async function handleLoginCallback() {
-      const params = new URLSearchParams(window.location.search);
-      const exchangeToken = params.get("exchangeToken");
-      const callbackRedirect = params.get("redirect") ?? "/";
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const exchangeToken = params.get("exchangeToken");
+        const callbackRedirect = params.get("redirect") ?? "/";
 
-      if (!exchangeToken) {
+        if (!exchangeToken) {
+          route("/", true);
+          return;
+        }
+
+        const data = await exchangeAuthToken({
+          exchange_token: exchangeToken,
+        });
+
+        setAccessToken(data.access_token);
+        setRefreshToken(data.refresh_token);
+        queryClient.invalidateQueries({ queryKey: queryKeys.me() });
+        route(callbackRedirect, true);
+      } catch {
+        removeAccessToken();
+        removeRefreshToken();
+        queryClient.setQueryData(queryKeys.me(), null);
         route("/", true);
-        return;
       }
-
-      const data = await exchangeAuthToken({
-        exchange_token: exchangeToken,
-      });
-
-      setAccessToken(data.access_token);
-      setRefreshToken(data.refresh_token);
-      queryClient.invalidateQueries({ queryKey: queryKeys.me() });
-      route(callbackRedirect, true);
     }
 
     void handleLoginCallback();
@@ -105,7 +112,11 @@ export function useAutoRefreshToken() {
         setAccessToken(data.access_token);
         setRefreshToken(data.refresh_token);
         queryClient.invalidateQueries({ queryKey: queryKeys.me() });
-      } catch {}
+      } catch {
+        removeAccessToken();
+        removeRefreshToken();
+        queryClient.setQueryData(queryKeys.me(), null);
+      }
     }
 
     tryRefresh();

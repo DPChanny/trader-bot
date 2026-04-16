@@ -4,12 +4,13 @@ import { LabelToggle } from "@components/molecules/labelToggle";
 import { SecondaryButton, Button } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import type { CreateAuctionDTO } from "@dtos/auction";
+import type { AppError } from "@utils/error";
 
 interface CreateAuctionModalProps {
   onClose: () => void;
   onSubmit: (dto: CreateAuctionDTO) => void | Promise<void>;
   isPending: boolean;
-  error?: any;
+  error?: AppError;
   isHardError: boolean;
 }
 

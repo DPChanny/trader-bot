@@ -4,12 +4,13 @@ import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { CreatePresetSchema, type CreatePresetDTO } from "@dtos/preset";
+import type { AppError } from "@utils/error";
 
 interface CreatePresetModalProps {
   onClose: () => void;
   onSubmit: (dto: CreatePresetDTO) => void | Promise<void>;
   isPending: boolean;
-  error?: any;
+  error?: AppError;
 }
 
 export function CreatePresetModal({
@@ -57,7 +58,7 @@ export function CreatePresetModal({
   return (
     <Modal onClose={handleClose} title="프리셋 추가">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error ? <Error error={error} /> : null}
+        {error && <Error error={error} />}
         <LabelInput
           label="프리셋 이름"
           type="text"

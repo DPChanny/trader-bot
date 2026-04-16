@@ -195,7 +195,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
           onClose={handleCloseUpdatePresetModal}
           onSubmit={handleUpdate}
           isPending={updatePreset.isPending}
-          error={updatePreset.error}
+          error={updatePreset.isError ? updatePreset.error : undefined}
         />
       )}
 

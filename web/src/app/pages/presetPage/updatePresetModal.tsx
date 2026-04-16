@@ -9,13 +9,14 @@ import {
   type UpdatePresetDTO,
 } from "@dtos/preset";
 import { buildPatchDto } from "@utils/dto";
+import type { AppError } from "@utils/error";
 
 interface UpdatePresetModalProps {
   preset: PresetDTO;
   onClose: () => void;
   onSubmit: (dto: UpdatePresetDTO) => void | Promise<void>;
   isPending: boolean;
-  error?: any;
+  error?: AppError;
 }
 
 export function UpdatePresetModal({

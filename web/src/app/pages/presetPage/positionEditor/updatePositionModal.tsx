@@ -9,13 +9,14 @@ import {
   type UpdatePositionDTO,
 } from "@dtos/position";
 import { buildPatchDto } from "@utils/dto";
+import type { AppError } from "@utils/error";
 
 interface UpdatePositionModalProps {
   position: PositionDTO;
   onClose: () => void;
   onSubmit: (dto: UpdatePositionDTO) => void | Promise<void>;
   isPending: boolean;
-  error?: any;
+  error?: AppError;
 }
 
 export function UpdatePositionModal({
@@ -55,7 +56,7 @@ export function UpdatePositionModal({
   return (
     <Modal onClose={handleClose} title="포지션 수정">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error ? <Error error={error} /> : null}
+        {error && <Error error={error} />}
         <LabelInput
           label="포지션 이름"
           type="text"

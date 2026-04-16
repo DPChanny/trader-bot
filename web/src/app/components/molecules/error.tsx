@@ -1,4 +1,4 @@
-import { Column } from "../atoms/layout";
+import { Layout } from "../atoms/layout";
 import styles from "@styles/components/molecules/error.module.css";
 import { clsx } from "clsx";
 import { Text } from "../atoms/text";
@@ -13,13 +13,8 @@ export function Error({ className, error, ...props }: ErrorProps) {
   const message = `#${error.code}: ${error.message}`;
 
   return (
-    <Column
-      align="center"
-      gap="xs"
-      className={clsx(styles.error, className)}
-      {...props}
-    >
+    <Layout center className={clsx(styles.error, className)} {...props}>
       <Text>{message}</Text>
-    </Column>
+    </Layout>
   );
 }

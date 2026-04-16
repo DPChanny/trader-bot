@@ -4,12 +4,13 @@ import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { AddPositionSchema, type AddPositionDTO } from "@dtos/position";
+import type { AppError } from "@utils/error";
 
 interface AddPositionModalProps {
   onClose: () => void;
   onSubmit: (dto: AddPositionDTO) => void | Promise<void>;
   isPending: boolean;
-  error?: any;
+  error?: AppError;
 }
 
 export function AddPositionModal({
@@ -43,7 +44,7 @@ export function AddPositionModal({
   return (
     <Modal onClose={handleClose} title="포지션 추가">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error ? <Error error={error} /> : null}
+        {error && <Error error={error} />}
         <LabelInput
           label="포지션 이름"
           type="text"

@@ -5,13 +5,14 @@ import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { UpdateTierSchema, type TierDTO, type UpdateTierDTO } from "@dtos/tier";
 import { buildPatchDto } from "@utils/dto";
+import type { AppError } from "@utils/error";
 
 interface UpdateTierModalProps {
   tier: TierDTO;
   onClose: () => void;
   onSubmit: (dto: UpdateTierDTO) => void | Promise<void>;
   isPending: boolean;
-  error?: any;
+  error?: AppError;
 }
 
 export function UpdateTierModal({
@@ -51,7 +52,7 @@ export function UpdateTierModal({
   return (
     <Modal onClose={handleClose} title="티어 수정">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error ? <Error error={error} /> : null}
+        {error && <Error error={error} />}
         <LabelInput
           label="티어 이름"
           type="text"

@@ -225,7 +225,7 @@ export function PresetMemberPanel({
         </Row>
       </Column>
 
-      {error ? <Error error={error} /> : null}
+      {error && <Error error={error} />}
 
       <Bar />
 

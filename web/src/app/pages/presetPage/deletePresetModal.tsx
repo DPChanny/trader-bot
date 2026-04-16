@@ -1,12 +1,13 @@
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
+import type { AppError } from "@utils/error";
 
 interface DeletePresetModalProps {
   onClose: () => void;
   onConfirm: () => void | Promise<void>;
   isPending: boolean;
-  error?: any;
+  error?: AppError;
 }
 
 export function DeletePresetModal({
