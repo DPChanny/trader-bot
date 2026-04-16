@@ -24,8 +24,7 @@ export function DeletePositionModal({
     onClose();
   };
 
-  const handleSubmit = (e: Event) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (deletePosition.isPending) return;
     deletePosition.mutate(
       { guildId, presetId, positionId },
@@ -35,7 +34,11 @@ export function DeletePositionModal({
 
   return (
     <Modal onClose={handleClose} title="포지션 삭제">
-      <ModalForm id={formId} onSubmit={handleSubmit}>
+      <ModalForm
+        id={formId}
+        onSubmit={handleSubmit}
+        disabled={deletePosition.isPending}
+      >
         정말 이 포지션을 삭제하시겠습니까?
         {deletePosition.error && (
           <Error error={deletePosition.error}>포지션 삭제에 실패했습니다</Error>

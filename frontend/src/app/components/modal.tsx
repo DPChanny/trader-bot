@@ -41,15 +41,38 @@ export function Modal({ onClose, title, children }: ModalProps) {
 }
 
 export interface ModalFormProps {
-  onSubmit: (e: Event) => void | Promise<void>;
+  onSubmit: () => void | Promise<void>;
   children: ComponentChildren;
   id?: string;
+  disabled: boolean;
 }
 
-export function ModalForm({ onSubmit, children, id }: ModalFormProps) {
+export function ModalForm({
+  onSubmit,
+  children,
+  id,
+  disabled,
+}: ModalFormProps) {
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    if (disabled) return;
+    return onSubmit();
+  };
+
   return (
-    <form id={id} onSubmit={onSubmit}>
-      <Column>{children}</Column>
+    <form id={id} onSubmit={handleSubmit}>
+      <fieldset
+        disabled={disabled}
+        style={{
+          border: 0,
+          margin: 0,
+          padding: 0,
+          minInlineSize: 0,
+          pointerEvents: disabled ? "none" : undefined,
+        }}
+      >
+        <Column>{children}</Column>
+      </fieldset>
     </form>
   );
 }

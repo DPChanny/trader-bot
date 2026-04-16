@@ -43,8 +43,7 @@ export function CreatePresetModal({
     onClose();
   };
 
-  const handleSubmit = (e: Event) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (createPreset.isPending) return;
     if (!parseResult.success) return;
     createPreset.mutate(
@@ -55,7 +54,11 @@ export function CreatePresetModal({
 
   return (
     <Modal onClose={handleClose} title="프리셋 생성">
-      <ModalForm id={formId} onSubmit={handleSubmit}>
+      <ModalForm
+        id={formId}
+        onSubmit={handleSubmit}
+        disabled={createPreset.isPending}
+      >
         {createPreset.error && (
           <Error error={createPreset.error}>프리셋 생성에 실패했습니다</Error>
         )}

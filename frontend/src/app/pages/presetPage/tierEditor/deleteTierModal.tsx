@@ -24,15 +24,18 @@ export function DeleteTierModal({
     onClose();
   };
 
-  const handleSubmit = (e: Event) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (deleteTier.isPending) return;
     deleteTier.mutate({ guildId, presetId, tierId }, { onSuccess: onClose });
   };
 
   return (
     <Modal onClose={handleClose} title="티어 삭제">
-      <ModalForm id={formId} onSubmit={handleSubmit}>
+      <ModalForm
+        id={formId}
+        onSubmit={handleSubmit}
+        disabled={deleteTier.isPending}
+      >
         정말 이 티어를 삭제하시겠습니까?
         {deleteTier.error && (
           <Error error={deleteTier.error}>티어 삭제에 실패했습니다</Error>

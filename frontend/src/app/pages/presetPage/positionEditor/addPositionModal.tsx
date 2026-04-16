@@ -31,8 +31,7 @@ export function AddPositionModal({
     onClose();
   };
 
-  const handleSubmit = (e: Event) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (addPosition.isPending) return;
     if (!parseResult.success) return;
     addPosition.mutate(
@@ -47,7 +46,11 @@ export function AddPositionModal({
 
   return (
     <Modal onClose={handleClose} title="포지션 추가">
-      <ModalForm id={formId} onSubmit={handleSubmit}>
+      <ModalForm
+        id={formId}
+        onSubmit={handleSubmit}
+        disabled={addPosition.isPending}
+      >
         {addPosition.error && (
           <Error error={addPosition.error}>포지션 추가에 실패했습니다</Error>
         )}

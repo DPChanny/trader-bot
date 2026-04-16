@@ -42,8 +42,7 @@ export function UpdateTierModal({
     onClose();
   };
 
-  const handleSubmit = (e: Event) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (updateTier.isPending) return;
     if (!patchDto) return;
     updateTier.mutate(
@@ -54,7 +53,11 @@ export function UpdateTierModal({
 
   return (
     <Modal onClose={handleClose} title="티어 수정">
-      <ModalForm id={formId} onSubmit={handleSubmit}>
+      <ModalForm
+        id={formId}
+        onSubmit={handleSubmit}
+        disabled={updateTier.isPending}
+      >
         {updateTier.error && (
           <Error error={updateTier.error}>티어 수정에 실패했습니다</Error>
         )}

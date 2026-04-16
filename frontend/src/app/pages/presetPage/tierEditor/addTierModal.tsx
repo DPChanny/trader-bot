@@ -31,8 +31,7 @@ export function AddTierModal({
     onClose();
   };
 
-  const handleSubmit = (e: Event) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (addTier.isPending) return;
     if (!parseResult.success) return;
     addTier.mutate(
@@ -43,7 +42,11 @@ export function AddTierModal({
 
   return (
     <Modal onClose={handleClose} title="티어 추가">
-      <ModalForm id={formId} onSubmit={handleSubmit}>
+      <ModalForm
+        id={formId}
+        onSubmit={handleSubmit}
+        disabled={addTier.isPending}
+      >
         {addTier.error && (
           <Error error={addTier.error}>티어 추가에 실패했습니다</Error>
         )}

@@ -42,8 +42,7 @@ export function UpdatePositionModal({
     onClose();
   };
 
-  const handleSubmit = (e: Event) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (updatePosition.isPending) return;
     if (!patchDto) return;
     updatePosition.mutate(
@@ -54,7 +53,11 @@ export function UpdatePositionModal({
 
   return (
     <Modal onClose={handleClose} title="포지션 수정">
-      <ModalForm id={formId} onSubmit={handleSubmit}>
+      <ModalForm
+        id={formId}
+        onSubmit={handleSubmit}
+        disabled={updatePosition.isPending}
+      >
         {updatePosition.error && (
           <Error error={updatePosition.error}>포지션 수정에 실패했습니다</Error>
         )}
