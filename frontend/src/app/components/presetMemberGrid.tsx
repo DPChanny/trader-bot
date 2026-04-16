@@ -9,7 +9,6 @@ interface PresetMemberGridProps {
   presetMembers: PresetMemberDetailDTO[];
   selectedMemberId?: number | null;
   onMemberClick?: (presetMemberId: number) => void;
-  className?: string;
   connectedMemberIds?: number[];
   clientMemberId?: number;
 }
@@ -18,7 +17,6 @@ export function PresetMemberGrid({
   presetMembers,
   selectedMemberId,
   onMemberClick,
-  className,
   connectedMemberIds,
   clientMemberId,
 }: PresetMemberGridProps) {
@@ -29,7 +27,7 @@ export function PresetMemberGrid({
   return (
     <TertiarySection fill>
       <Scroll axis="both">
-        <Row wrap className={className}>
+        <Row wrap>
           {sorted.map((presetMember) => {
             const isSelected = selectedMemberId === presetMember.presetMemberId;
 

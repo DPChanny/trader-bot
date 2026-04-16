@@ -9,22 +9,19 @@ interface MemberGridProps {
   members: MemberDetailDTO[];
   onMemberClick?: (memberId: number) => void;
   selectedMemberId?: number | null;
-  className?: string;
 }
 
 export function MemberGrid({
   members,
   onMemberClick,
   selectedMemberId,
-  className,
 }: MemberGridProps) {
   return (
     <TertiarySection fill>
       <Scroll axis="both">
-        <Row wrap className={className}>
+        <Row wrap>
           {members.map((member) => {
             const isSelected = selectedMemberId === member.memberId;
-
             return (
               <PressedButton
                 key={member.memberId}
