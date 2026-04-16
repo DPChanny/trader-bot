@@ -20,7 +20,6 @@ import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionCreatedModal } from "./auctionCreatedModal";
 import { NameTitle, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
-import { Loading } from "@components/molecules/loading";
 
 interface PresetPageProps {
   guildId: string;
@@ -62,23 +61,27 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
   return (
     <Page>
       <PrimarySection minSize overflow="hidden" style={{ width: "25rem" }}>
-        <Row justify="between" align="center">
-          {preset.data ? <NameTitle>{preset.data.name}</NameTitle> : <Fill />}
-          <Row gap="sm" align="center">
-            {canEdit && (
-              <EditButton
-                variantSize="medium"
-                onClick={() => setShowUpdate(true)}
-              />
-            )}
-            {canCreateAuction && (
-              <DeleteButton
-                variantSize="medium"
-                onClick={() => setShowDelete(true)}
-              />
-            )}
+        {preset.error ? (
+          <Error error={preset.error}>프리셋 정보를 불러오지 못했습니다</Error>
+        ) : (
+          <Row justify="between" align="center">
+            <NameTitle>{preset.data ? preset.data.name : "로딩중"}</NameTitle>
+            <Row gap="sm" align="center">
+              {canEdit && (
+                <EditButton
+                  variantSize="medium"
+                  onClick={() => setShowUpdate(true)}
+                />
+              )}
+              {canCreateAuction && (
+                <DeleteButton
+                  variantSize="medium"
+                  onClick={() => setShowDelete(true)}
+                />
+              )}
+            </Row>
           </Row>
-        </Row>
+        )}
 
         <Bar />
 
@@ -97,7 +100,9 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
               <Text>{preset.data.timer} 초</Text>
             </Row>
           ) : (
-            <Loading />
+            <Fill center>
+              <Text>로딩중</Text>
+            </Fill>
           )}
         </SecondarySection>
 
