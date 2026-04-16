@@ -208,15 +208,23 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       setIsConnected(false);
       if (event.reason || event.code !== 1000) {
         const reasonCode = Number.parseInt(event.reason, 10);
-        const code =
+        const isReasonAppCode =
           Number.isInteger(reasonCode) &&
-          (isBackendErrorCode(reasonCode) || isFrontendErrorCode(reasonCode))
-            ? reasonCode
-            : event.code !== 1000 &&
-                (isBackendErrorCode(event.code) ||
-                  isFrontendErrorCode(event.code))
-              ? event.code
-              : FrontendErrorCode.Auction.Disconnected;
+          ((reasonCode >= 4000 &&
+            reasonCode < 6000 &&
+            isBackendErrorCode(reasonCode)) ||
+            isFrontendErrorCode(reasonCode));
+        const isCloseAppCode =
+          event.code !== 1000 &&
+          ((event.code >= 4000 &&
+            event.code < 6000 &&
+            isBackendErrorCode(event.code)) ||
+            isFrontendErrorCode(event.code));
+        const code = isReasonAppCode
+          ? reasonCode
+          : isCloseAppCode
+            ? event.code
+            : FrontendErrorCode.Auction.Disconnected;
         handleError(code);
         return;
       }

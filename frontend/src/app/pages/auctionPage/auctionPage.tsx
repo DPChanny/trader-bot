@@ -81,42 +81,46 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
   const isCompleted = state?.status === Status.COMPLETED;
   const isRunning = state?.status === Status.RUNNING;
-
-  const incomingBidError =
+  const isBidError =
     error !== null &&
     typeof error.code === "number" &&
-    isBidErrorCode(error.code)
-      ? error
-      : null;
+    isBidErrorCode(error.code);
 
   useEffect(() => {
-    setBidError(incomingBidError);
-  }, [incomingBidError]);
+    if (isBidError && error !== null) {
+      setBidError(error);
+      return;
+    }
 
-  const websocketError = incomingBidError ? null : error;
+    if (error !== null) {
+      setBidError(null);
+    }
+  }, [error, isBidError]);
 
   useEffect(() => {
     if (
       !isCompleted &&
-      websocketError &&
-      isUnexpectedErrorCode(websocketError.code)
+      error !== null &&
+      !isBidError &&
+      isUnexpectedErrorCode(error.code)
     ) {
-      setUnexpectedError(websocketError);
+      setUnexpectedError(error);
     }
-  }, [isCompleted, websocketError]);
+  }, [error, isBidError, isCompleted]);
 
-  const isUnexpectedError = isUnexpectedErrorCode(websocketError?.code);
+  const isUnexpectedError = !isBidError && isUnexpectedErrorCode(error?.code);
 
   const isBlockingError =
     !isCompleted &&
-    ((websocketError !== null && !isUnexpectedError) ||
-      (wasConnected && !isConnected));
+    error !== null &&
+    !isBidError &&
+    (state === null || !isUnexpectedError);
 
-  if (isBlockingError && websocketError) {
+  if (isBlockingError && error !== null) {
     return (
       <Page>
         <PrimarySection fill align="stretch" justify="center">
-          <Error error={websocketError}>경매 정보를 불러오지 못했습니다</Error>
+          <Error error={error}>경매 정보를 불러오지 못했습니다</Error>
         </PrimarySection>
       </Page>
     );
@@ -132,7 +136,14 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     );
   }
 
-  const snapshot = state!.presetSnapshot as {
+  if (!state)
+    return (
+      <Page>
+        <Loading />
+      </Page>
+    );
+
+  const snapshot = state.presetSnapshot as {
     presetMembers: PresetMemberDetailDTO[];
     teamSize: number;
     pointScale: number;
@@ -146,11 +157,11 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     presetMembers.map((pm) => [pm.memberId, pm]),
   );
 
-  const auctionQueuePresetMembers = state!.auctionQueue
+  const auctionQueuePresetMembers = state.auctionQueue
     .map((memberId) => presetMemberMap.get(memberId))
     .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
-  const unsoldQueuePresetMembers = state!.unsoldQueue
+  const unsoldQueuePresetMembers = state.unsoldQueue
     .map((memberId) => presetMemberMap.get(memberId))
     .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
