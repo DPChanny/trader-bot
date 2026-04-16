@@ -30,10 +30,14 @@ NullableNameStr = Annotated[
 UrlStr = Annotated[
     str,
     BeforeValidator(_strip_str),
-    StringConstraints(min_length=1, max_length=2048),
+    StringConstraints(min_length=1, max_length=2048, pattern=r"^https?://[^\s]+$"),
 ]
 NullableUrlStr = Annotated[
-    Annotated[str, StringConstraints(min_length=1, max_length=2048)] | None,
+    Annotated[
+        str,
+        StringConstraints(min_length=1, max_length=2048, pattern=r"^https?://[^\s]+$"),
+    ]
+    | None,
     BeforeValidator(_strip_str),
     BeforeValidator(_nullable_str),
 ]
