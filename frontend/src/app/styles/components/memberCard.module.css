@@ -3,6 +3,10 @@
   height: 9rem;
 }
 
+.positions {
+  min-height: 1.375rem;
+}
+
 .topLeft {
   position: absolute;
   top: var(--space-xs);
@@ -13,22 +17,4 @@
   position: absolute;
   top: var(--space-xs);
   right: var(--space-xs);
-}
-
-.statusDot {
-  width: 0.625rem;
-  height: 0.625rem;
-  border-radius: var(--radius-full);
-}
-
-.statusDotOnline {
-  background-color: var(--color-status-online);
-}
-
-.statusDotOffline {
-  background-color: var(--color-status-offline);
-}
-
-.statusDotClient {
-  background-color: var(--color-status-client);
 }

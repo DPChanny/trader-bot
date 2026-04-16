@@ -1,0 +1,17 @@
+.dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: var(--radius-full);
+}
+
+.colorRed {
+  background-color: var(--color-status-offline);
+}
+
+.colorBlue {
+  background-color: var(--color-status-client);
+}
+
+.colorGreen {
+  background-color: var(--color-status-online);
+}

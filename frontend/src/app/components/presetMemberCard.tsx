@@ -1,10 +1,21 @@
 import styles from "@styles/components/memberCard.module.css";
 import { Card } from "./molecules/card";
+import { Dot, type DotProps } from "./molecules/dot";
 import { Badge } from "./atoms/badge";
 import { Image } from "./atoms/image";
 import { Column, Row } from "./atoms/layout";
 import { Name } from "./atoms/text";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+
+function getDotColor(
+  isConnected?: boolean,
+  isClientMember?: boolean,
+): DotProps["variantColor"] {
+  if (isClientMember) return "blue";
+  if (isConnected === true) return "green";
+  if (isConnected === false) return "red";
+  return undefined;
+}
 
 export type PresetMemberCardProps = {
   presetMember: PresetMemberDetailDTO;
@@ -18,13 +29,8 @@ export function PresetMemberCard({
   isClientMember,
 }: PresetMemberCardProps) {
   const { member, tier, presetMemberPositions, isLeader } = presetMember;
-
-  const statusClass = (() => {
-    if (isClientMember) return styles.statusDotClient;
-    if (isConnected === true) return styles.statusDotOnline;
-    if (isConnected === false) return styles.statusDotOffline;
-    return null;
-  })();
+  const visiblePositions = presetMemberPositions?.slice(0, 3) ?? [];
+  const variantColor = getDotColor(isConnected, isClientMember);
 
   return (
     <Card
@@ -34,9 +40,7 @@ export function PresetMemberCard({
       className={styles.memberCard}
     >
       <div class={styles.topLeft}>
-        {statusClass && (
-          <div className={`${styles.statusDot} ${statusClass}`} />
-        )}
+        {variantColor && <Dot variantColor={variantColor} />}
       </div>
       <div class={styles.topRight}>
         {tier && (
@@ -61,23 +65,27 @@ export function PresetMemberCard({
           {member.alias || member.name || member.user.name}
         </Name>
       </Column>
-      {presetMemberPositions?.length > 0 && (
-        <Row wrap align="center" justify="center" gap="xs">
-          {presetMemberPositions.slice(0, 3).map((pmp) => (
-            <Badge key={pmp.positionId} variantColor="blue">
-              {pmp.position.iconUrl ? (
-                <Image
-                  src={pmp.position.iconUrl}
-                  alt={pmp.position.name}
-                  variantSize="auto"
-                />
-              ) : (
-                pmp.position.name.charAt(0)
-              )}
-            </Badge>
-          ))}
-        </Row>
-      )}
+      <Row
+        wrap
+        align="center"
+        justify="center"
+        gap="xs"
+        className={styles.positions}
+      >
+        {visiblePositions.map((pmp) => (
+          <Badge key={pmp.positionId} variantColor="blue">
+            {pmp.position.iconUrl ? (
+              <Image
+                src={pmp.position.iconUrl}
+                alt={pmp.position.name}
+                variantSize="auto"
+              />
+            ) : (
+              pmp.position.name.charAt(0)
+            )}
+          </Badge>
+        ))}
+      </Row>
     </Card>
   );
 }
