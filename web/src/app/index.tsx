@@ -10,13 +10,13 @@ import { AuctionPage } from "@pages/auctionPage/auctionPage";
 import { Header } from "./header";
 import { SideMenu } from "./sideMenu/sideMenu";
 import {
-  useAutoRefreshToken,
+  useRefreshToken,
   useLogin,
   useLoginCallback,
   useLogout,
 } from "@hooks/auth";
 import { useMyUser } from "@hooks/user";
-import { checkRefreshToken } from "@utils/auth";
+import { checkJWTToken, getRefreshToken } from "@utils/auth";
 import { queryClient } from "@utils/query";
 import "@styles/app.css";
 
@@ -38,7 +38,7 @@ function LoginCallbackRoute({}: RoutableProps) {
 
 function MemberRoute({ guildId }: RoutableProps & { guildId?: string }) {
   useEffect(() => {
-    if (!checkRefreshToken()) route("/", true);
+    if (!checkJWTToken(getRefreshToken())) route("/", true);
   }, []);
 
   if (!guildId) {
@@ -54,7 +54,7 @@ function PresetRoute({
   presetId,
 }: RoutableProps & { guildId?: string; presetId?: string }) {
   useEffect(() => {
-    if (!checkRefreshToken()) route("/", true);
+    if (!checkJWTToken(getRefreshToken())) route("/", true);
   }, []);
 
   if (!guildId || !presetId) {
@@ -70,7 +70,7 @@ function AuctionRoute({ auctionId }: RoutableProps & { auctionId?: string }) {
 }
 
 function App() {
-  useAutoRefreshToken();
+  useRefreshToken();
   const myUser = useMyUser();
   const login = useLogin();
   const logout = useLogout();

@@ -2,54 +2,46 @@ import { useMutation, useQueryClient } from "@tanstack/preact-query";
 import { useEffect } from "preact/hooks";
 import { queryKeys } from "@utils/query";
 import { route } from "preact-router";
-import type { JwtTokenDTO } from "@dtos/auth";
 import {
   exchangeToken as exchangeAuthToken,
   refreshToken as refreshAuthToken,
 } from "@apis/auth";
 import {
-  setAccessToken,
+  setJWTToken,
   getAccessToken,
-  checkRefreshToken,
+  checkJWTToken,
   getRefreshToken,
-  setRefreshToken,
-  removeAccessToken,
-  removeRefreshToken,
+  removeJWTToken,
 } from "@utils/auth";
 import { AUTH_API_ENDPOINT } from "@utils/env";
-import { AppError, FrontendErrorCode, handleAppError } from "@utils/error";
+import { AppError } from "@utils/error";
 
-export function useLogin(redirect?: string) {
+export function useLogin() {
   return (): void => {
-    const base = `${AUTH_API_ENDPOINT}/login`;
-    const url = redirect
-      ? `${base}?redirect=${encodeURIComponent(redirect)}`
-      : base;
-    window.location.href = url;
+    window.location.href = `${AUTH_API_ENDPOINT}/login`;
   };
 }
 
-export function useLogout(redirect?: string) {
+export function useLogout() {
   const queryClient = useQueryClient();
   return useMutation<void, AppError, void>({
     mutationFn: async (): Promise<void> => {},
     onSettled: () => {
-      removeAccessToken();
-      removeRefreshToken();
+      removeJWTToken();
       queryClient.setQueryData(queryKeys.me(), null);
-      route(redirect ?? "/", true);
+      route("/", true);
     },
   });
 }
 
 export function useLoginCallback() {
+  const logout = useLogout();
   const queryClient = useQueryClient();
   useEffect(() => {
     async function handleLoginCallback() {
       try {
         const params = new URLSearchParams(window.location.search);
         const exchangeToken = params.get("exchangeToken");
-        const callbackRedirect = params.get("redirect") ?? "/";
 
         if (!exchangeToken) {
           route("/", true);
@@ -60,15 +52,11 @@ export function useLoginCallback() {
           exchange_token: exchangeToken,
         });
 
-        setAccessToken(data.access_token);
-        setRefreshToken(data.refresh_token);
+        setJWTToken(data.access_token, data.refresh_token);
         queryClient.invalidateQueries({ queryKey: queryKeys.me() });
-        route(callbackRedirect, true);
-      } catch {
-        removeAccessToken();
-        removeRefreshToken();
-        queryClient.setQueryData(queryKeys.me(), null);
         route("/", true);
+      } catch {
+        logout.mutate();
       }
     }
 
@@ -76,42 +64,28 @@ export function useLoginCallback() {
   }, []);
 }
 
-async function useRefreshToken(): Promise<JwtTokenDTO> {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) {
-    handleAppError(FrontendErrorCode.Token.MissingRefreshToken);
-  }
-  return refreshAuthToken({ refresh_token: refreshToken });
-}
-
-export function useAutoRefreshToken() {
+export function useRefreshToken() {
+  const logout = useLogout();
   const queryClient = useQueryClient();
   useEffect(() => {
     async function tryRefresh() {
-      if (!checkRefreshToken()) return;
+      if (!checkJWTToken(getRefreshToken())) return;
       const token = getAccessToken();
-      if (token) {
-        try {
-          const parts = token.split(".");
-          if (parts.length !== 3) return;
-          const payload = JSON.parse(
-            atob(parts[1]!.replace(/-/g, "+").replace(/_/g, "/")),
-          );
-          const expiresIn = payload.exp - Date.now() / 1000;
-          if (expiresIn >= 5 * 60) return;
-        } catch {
-          return;
-        }
+      if (token && checkJWTToken(token, 5 * 60)) {
+        return;
       }
       try {
-        const data = await useRefreshToken();
-        setAccessToken(data.access_token);
-        setRefreshToken(data.refresh_token);
+        const refreshToken = getRefreshToken();
+        if (!refreshToken) {
+          logout.mutate();
+          return;
+        }
+
+        const data = await refreshAuthToken({ refresh_token: refreshToken });
+        setJWTToken(data.access_token, data.refresh_token);
         queryClient.invalidateQueries({ queryKey: queryKeys.me() });
       } catch {
-        removeAccessToken();
-        removeRefreshToken();
-        queryClient.setQueryData(queryKeys.me(), null);
+        logout.mutate();
       }
     }
 

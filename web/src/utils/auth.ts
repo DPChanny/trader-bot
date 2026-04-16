@@ -1,7 +1,8 @@
 const ACCESS_TOKEN_COOKIE_NAME = "accessToken";
 const REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
 
-function getJwtTokenExp(jwtToken: string): Date | null {
+export function getJWTTokenExp(jwtToken: string | null): Date | null {
+  if (!jwtToken) return null;
   try {
     const parts = jwtToken.split(".");
     if (parts.length !== 3) return null;
@@ -15,8 +16,8 @@ function getJwtTokenExp(jwtToken: string): Date | null {
   }
 }
 
-function setJwtTokenCookie(name: string, jwtToken: string): void {
-  const expires = getJwtTokenExp(jwtToken);
+function setJWTCookie(name: string, jwtToken: string): void {
+  const expires = getJWTTokenExp(jwtToken);
   if (!expires) return;
   document.cookie = `${name}=${jwtToken}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
 }
@@ -30,7 +31,7 @@ function getCookie(name: string): string | null {
 }
 
 export function setAccessToken(token: string): void {
-  setJwtTokenCookie(ACCESS_TOKEN_COOKIE_NAME, token);
+  setJWTCookie(ACCESS_TOKEN_COOKIE_NAME, token);
 }
 
 export function getAccessToken(): string | null {
@@ -42,7 +43,12 @@ export function removeAccessToken(): void {
 }
 
 export function setRefreshToken(token: string): void {
-  setJwtTokenCookie(REFRESH_TOKEN_COOKIE_NAME, token);
+  setJWTCookie(REFRESH_TOKEN_COOKIE_NAME, token);
+}
+
+export function setJWTToken(accessToken: string, refreshToken: string): void {
+  setAccessToken(accessToken);
+  setRefreshToken(refreshToken);
 }
 
 export function getRefreshToken(): string | null {
@@ -53,9 +59,18 @@ export function removeRefreshToken(): void {
   document.cookie = `${REFRESH_TOKEN_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 }
 
-export function checkRefreshToken(): boolean {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) return false;
-  const expires = getJwtTokenExp(refreshToken);
-  return expires !== null && expires > new Date();
+export function removeJWTToken(): void {
+  removeAccessToken();
+  removeRefreshToken();
+}
+
+export function checkJWTToken(
+  jwtToken: string | null,
+  minExpiresInSeconds = 0,
+): boolean {
+  const expires = getJWTTokenExp(jwtToken);
+  return (
+    expires !== null &&
+    expires.getTime() > Date.now() + minExpiresInSeconds * 1000
+  );
 }

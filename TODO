@@ -1,8 +1,5 @@
 error
-    frontend
-        logout
     backend
-hook
 prop drilling
     except atoms
     except molecules

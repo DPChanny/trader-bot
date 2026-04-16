@@ -1,7 +1,3 @@
-import { route } from "preact-router";
-import { removeAccessToken, removeRefreshToken } from "./auth";
-import { queryClient, queryKeys } from "./query";
-
 export const FrontendErrorCode = {
   Token: {
     MissingRefreshToken: 9101,
@@ -190,13 +186,6 @@ export function handleAppError(code: number): never {
 }
 
 export async function handleHTTPError(response: Response): Promise<never> {
-  if (response.status === 401) {
-    removeAccessToken();
-    removeRefreshToken();
-    queryClient.setQueryData(queryKeys.me(), null);
-    route("/");
-  }
-
   let code: number;
   try {
     const body = await response.json();
