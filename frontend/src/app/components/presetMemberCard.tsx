@@ -39,10 +39,10 @@ export function PresetMemberCard({
       className={styles.memberCard}
       gap="xs"
     >
-      <div class={styles.topLeft}>
+      <div className={styles.topLeft}>
         {variantColor && <Dot variantColor={variantColor} />}
       </div>
-      <div class={styles.topRight}>
+      <div className={styles.topRight}>
         {tier && (
           <Badge variantColor="red">
             {tier.iconUrl ? (
