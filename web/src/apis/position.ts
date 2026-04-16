@@ -5,7 +5,7 @@ import type {
 } from "@dtos/position";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getPositionEndpoint } from "@utils/env";
-import { handleHttpError } from "@utils/error";
+import { handleHTTPError } from "@utils/error";
 import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
 export async function getPositions(
@@ -15,7 +15,7 @@ export async function getPositions(
   const response = await fetch(getPositionEndpoint(guildId, presetId), {
     headers: getHeaders(getAuthHeader()),
   });
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PositionDTO[]>(json);
 }
@@ -31,7 +31,7 @@ export async function getPosition(
       headers: getHeaders(getAuthHeader()),
     },
   );
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PositionDTO>(json);
 }
@@ -50,7 +50,7 @@ export async function addPosition({
     headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PositionDTO>(json);
 }
@@ -74,7 +74,7 @@ export async function updatePosition({
       body: JSON.stringify(toSnakeCase(dto)),
     },
   );
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PositionDTO>(json);
 }
@@ -95,5 +95,5 @@ export async function deletePosition({
       headers: getHeaders(getAuthHeader()),
     },
   );
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
 }

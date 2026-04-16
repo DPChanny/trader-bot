@@ -1,7 +1,7 @@
 import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@dtos/tier";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getTierEndpoint } from "@utils/env";
-import { handleHttpError } from "@utils/error";
+import { handleHTTPError } from "@utils/error";
 import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
 export async function getTiers(
@@ -11,7 +11,7 @@ export async function getTiers(
   const response = await fetch(getTierEndpoint(guildId, presetId), {
     headers: getHeaders(getAuthHeader()),
   });
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<TierDTO[]>(json);
 }
@@ -25,7 +25,7 @@ export async function getTier(
     `${getTierEndpoint(guildId, presetId)}/${tierId}`,
     { headers: getHeaders(getAuthHeader()) },
   );
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<TierDTO>(json);
 }
@@ -44,7 +44,7 @@ export async function addTier({
     headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<TierDTO>(json);
 }
@@ -68,7 +68,7 @@ export async function updateTier({
       body: JSON.stringify(toSnakeCase(dto)),
     },
   );
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<TierDTO>(json);
 }
@@ -89,5 +89,5 @@ export async function deleteTier({
       headers: getHeaders(getAuthHeader(), getJsonHeader()),
     },
   );
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
 }

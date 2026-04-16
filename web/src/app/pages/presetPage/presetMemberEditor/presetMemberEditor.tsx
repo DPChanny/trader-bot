@@ -148,6 +148,10 @@ export function PresetMemberEditor({
           )}
         </SecondarySection>
 
+        {canEdit && createPresetMember.error && (
+          <Error error={createPresetMember.error} />
+        )}
+
         <SecondarySection fill>
           <Title>멤버 목록</Title>
           {membersError ? (
@@ -159,15 +163,10 @@ export function PresetMemberEditor({
               <Loading />
             </TertiarySection>
           ) : (
-            <>
-              {canEdit && createPresetMember.error && (
-                <Error error={createPresetMember.error} />
-              )}
-              <MemberGrid
-                members={candidateMembers}
-                onMemberClick={canEdit ? handleAddMember : undefined}
-              />
-            </>
+            <MemberGrid
+              members={candidateMembers}
+              onMemberClick={canEdit ? handleAddMember : undefined}
+            />
           )}
         </SecondarySection>
       </PrimarySection>

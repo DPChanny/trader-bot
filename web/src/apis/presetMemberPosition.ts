@@ -4,7 +4,7 @@ import type {
 } from "@dtos/presetMemberPosition";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getPresetMemberPositionEndpoint } from "@utils/env";
-import { handleHttpError } from "@utils/error";
+import { handleHTTPError } from "@utils/error";
 import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
 export async function createPresetMemberPosition({
@@ -26,7 +26,7 @@ export async function createPresetMemberPosition({
       body: JSON.stringify(toSnakeCase(dto)),
     },
   );
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PresetMemberPositionDTO>(json);
 }
@@ -49,5 +49,5 @@ export async function deletePresetMemberPosition({
       headers: getHeaders(getAuthHeader(), getJsonHeader()),
     },
   );
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
 }

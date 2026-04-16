@@ -3,9 +3,17 @@ import { removeAccessToken, removeRefreshToken } from "./auth";
 import { queryClient, queryKeys } from "./query";
 
 export const FrontendErrorCode = {
-  MissingRefreshToken: 9001,
-  InvalidWebSocketMessage: 9002,
-  WebSocketConnectionFailed: 9003,
+  Token: {
+    MissingRefreshToken: 9101,
+  },
+  Auction: {
+    InvalidMessage: 9201,
+    ConnectionFailed: 9202,
+  },
+  Unexpected: {
+    Internal: 9501,
+    External: 9502,
+  },
 } as const;
 
 export const BackendErrorCode = {
@@ -68,11 +76,7 @@ export function isBackendErrorCode(code: number): boolean {
 }
 
 export function isFrontendErrorCode(code: number): boolean {
-  return (
-    code === FrontendErrorCode.MissingRefreshToken ||
-    code === FrontendErrorCode.InvalidWebSocketMessage ||
-    code === FrontendErrorCode.WebSocketConnectionFailed
-  );
+  return code >= 9000 && code < 10000;
 }
 
 function getErrorMessage(code: number): string {
@@ -138,16 +142,21 @@ function getErrorMessage(code: number): string {
       return "사용자를 찾을 수 없습니다.";
 
     case BackendErrorCode.Unexpected.Internal:
-      return "서버 내부에서 문제가 발생했습니다.";
+      return "서버 내부에서 예기치 못한 문제가 발생했습니다.";
     case BackendErrorCode.Unexpected.External:
-      return "외부 연동 중 문제가 발생했습니다.";
+      return "서버 외부에서 예기치 못한 문제가 발생했습니다.";
 
-    case FrontendErrorCode.MissingRefreshToken:
-      return "리프레시 토큰이 없어 자동 로그인에 실패했습니다.";
-    case FrontendErrorCode.InvalidWebSocketMessage:
-      return "실시간 메시지를 처리하지 못했습니다.";
-    case FrontendErrorCode.WebSocketConnectionFailed:
+    case FrontendErrorCode.Token.MissingRefreshToken:
+      return "자동 로그인에 실패했습니다.";
+    case FrontendErrorCode.Auction.InvalidMessage:
+      return "경매 메시지를 처리하지 못했습니다.";
+    case FrontendErrorCode.Auction.ConnectionFailed:
       return "경매 서버에 연결하지 못했습니다.";
+
+    case FrontendErrorCode.Unexpected.Internal:
+      return "클라이언트 내부에서 예기치 못한 문제가 발생했습니다.";
+    case FrontendErrorCode.Unexpected.External:
+      return "클라이언트 외부에서 예기치 못한 문제가 발생했습니다.";
 
     default:
       return "알 수 없는 오류가 발생했습니다.";
@@ -157,8 +166,8 @@ function getErrorMessage(code: number): string {
 export class AppError extends Error {
   readonly code: number;
 
-  constructor(message: string, code: number, name: string) {
-    super(message);
+  constructor(code: number, name = "AppError") {
+    super(getErrorMessage(code));
     this.code = code;
     this.name = name;
   }
@@ -166,17 +175,21 @@ export class AppError extends Error {
 
 export class HTTPError extends AppError {
   constructor(code: number) {
-    super(getErrorMessage(code), code, "HTTPError");
+    super(code, "HTTPError");
   }
 }
 
 export class WSError extends AppError {
   constructor(code: number) {
-    super(getErrorMessage(code), code, "WSError");
+    super(code, "WSError");
   }
 }
 
-export async function handleHttpError(response: Response): Promise<never> {
+export function handleAppError(code: number): never {
+  throw new AppError(code);
+}
+
+export async function handleHTTPError(response: Response): Promise<never> {
   if (response.status === 401) {
     removeAccessToken();
     removeRefreshToken();
@@ -195,6 +208,6 @@ export async function handleHttpError(response: Response): Promise<never> {
   throw new HTTPError(code);
 }
 
-export function handleWsError(code: number): never {
+export function handleWSError(code: number): never {
   throw new WSError(code);
 }

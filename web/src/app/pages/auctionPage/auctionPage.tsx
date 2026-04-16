@@ -47,8 +47,10 @@ function isRuntimeErrorCode(code: number | null | undefined): boolean {
   return (
     code === BackendErrorCode.Unexpected.Internal ||
     code === BackendErrorCode.Unexpected.External ||
-    code === FrontendErrorCode.InvalidWebSocketMessage ||
-    code === FrontendErrorCode.WebSocketConnectionFailed
+    code === FrontendErrorCode.Auction.InvalidMessage ||
+    code === FrontendErrorCode.Auction.ConnectionFailed ||
+    code === FrontendErrorCode.Unexpected.Internal ||
+    code === FrontendErrorCode.Unexpected.External
   );
 }
 

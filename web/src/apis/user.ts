@@ -2,7 +2,7 @@ import type { UserDetailDTO } from "@dtos/user";
 import { getAccessToken } from "@utils/auth";
 import { USER_API_ENDPOINT } from "@utils/env";
 import { toCamelCase } from "@utils/dto";
-import { handleHttpError } from "@utils/error";
+import { handleHTTPError } from "@utils/error";
 import { getAuthHeader, getHeaders } from "@utils/api";
 
 export async function getMyUser(): Promise<UserDetailDTO | null> {
@@ -12,7 +12,7 @@ export async function getMyUser(): Promise<UserDetailDTO | null> {
     headers: getHeaders(getAuthHeader()),
   });
   if (response.status === 401) return null;
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<UserDetailDTO>(json);
 }

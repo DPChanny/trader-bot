@@ -7,8 +7,8 @@ import { AUCTION_WS_ENDPOINT } from "@utils/env";
 import { getAccessToken } from "@utils/auth";
 import {
   FrontendErrorCode,
+  handleWSError,
   WSError,
-  handleWsError,
   isBackendErrorCode,
   isFrontendErrorCode,
 } from "@utils/error";
@@ -30,15 +30,11 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
   const wsRef = useRef<WebSocket | null>(null);
 
   const handleError = (code: number) => {
-    setError(() => {
-      try {
-        handleWsError(code);
-      } catch (error) {
-        return error instanceof WSError
-          ? error
-          : new WSError(FrontendErrorCode.WebSocketConnectionFailed);
-      }
-    });
+    try {
+      handleWSError(code);
+    } catch (error) {
+      setError(error as WSError);
+    }
   };
 
   const handleWebSocketMessage = (message: AuctionMessageEnvelopeDTO) => {
@@ -204,24 +200,29 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         const message = JSON.parse(event.data) as AuctionMessageEnvelopeDTO;
         handleWebSocketMessage(message);
       } catch {
-        handleError(FrontendErrorCode.InvalidWebSocketMessage);
+        handleError(FrontendErrorCode.Auction.InvalidMessage);
       }
     };
 
     ws.onclose = (event) => {
       setIsConnected(false);
       if (event.reason || event.code !== 1000) {
+        const reasonCode = Number.parseInt(event.reason, 10);
         const code =
-          event.code !== 1000 &&
-          (isBackendErrorCode(event.code) || isFrontendErrorCode(event.code))
-            ? event.code
-            : FrontendErrorCode.WebSocketConnectionFailed;
+          Number.isInteger(reasonCode) &&
+          (isBackendErrorCode(reasonCode) || isFrontendErrorCode(reasonCode))
+            ? reasonCode
+            : event.code !== 1000 &&
+                (isBackendErrorCode(event.code) ||
+                  isFrontendErrorCode(event.code))
+              ? event.code
+              : FrontendErrorCode.Auction.ConnectionFailed;
         handleError(code);
         return;
       }
 
       if (!opened) {
-        handleError(FrontendErrorCode.WebSocketConnectionFailed);
+        handleError(FrontendErrorCode.Auction.ConnectionFailed);
         return;
       }
 
@@ -230,7 +231,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
     ws.onerror = () => {
       setIsConnected(false);
-      handleError(FrontendErrorCode.WebSocketConnectionFailed);
+      handleError(FrontendErrorCode.Auction.ConnectionFailed);
     };
 
     wsRef.current = ws;

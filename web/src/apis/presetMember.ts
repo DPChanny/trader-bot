@@ -5,7 +5,7 @@ import type {
 } from "@dtos/presetMember";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getPresetMemberEndpoint } from "@utils/env";
-import { handleHttpError } from "@utils/error";
+import { handleHTTPError } from "@utils/error";
 import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
 export async function getPresetMembers(
@@ -15,7 +15,7 @@ export async function getPresetMembers(
   const response = await fetch(getPresetMemberEndpoint(guildId, presetId), {
     headers: getHeaders(getAuthHeader()),
   });
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PresetMemberDetailDTO[]>(json);
 }
@@ -29,7 +29,7 @@ export async function getPresetMember(
     `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
     { headers: getHeaders(getAuthHeader()) },
   );
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PresetMemberDetailDTO>(json);
 }
@@ -48,7 +48,7 @@ export async function createPresetMember({
     headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PresetMemberDetailDTO>(json);
 }
@@ -72,7 +72,7 @@ export async function updatePresetMember({
       body: JSON.stringify(toSnakeCase(dto)),
     },
   );
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PresetMemberDetailDTO>(json);
 }
@@ -93,5 +93,5 @@ export async function deletePresetMember({
       headers: getHeaders(getAuthHeader(), getJsonHeader()),
     },
   );
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
 }

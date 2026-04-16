@@ -1,18 +1,14 @@
-import type {
-  PresetDTO,
-  CreatePresetDTO,
-  UpdatePresetDTO,
-} from "@dtos/preset";
+import type { PresetDTO, CreatePresetDTO, UpdatePresetDTO } from "@dtos/preset";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getPresetEndpoint } from "@utils/env";
-import { handleHttpError } from "@utils/error";
+import { handleHTTPError } from "@utils/error";
 import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
 export async function getPresets(guildId: string): Promise<PresetDTO[]> {
   const response = await fetch(getPresetEndpoint(guildId), {
     headers: getHeaders(getAuthHeader()),
   });
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PresetDTO[]>(json);
 }
@@ -24,7 +20,7 @@ export async function getPreset(
   const response = await fetch(`${getPresetEndpoint(guildId)}/${presetId}`, {
     headers: getHeaders(getAuthHeader()),
   });
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PresetDTO>(json);
 }
@@ -41,7 +37,7 @@ export async function createPreset({
     headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PresetDTO>(json);
 }
@@ -60,7 +56,7 @@ export async function updatePreset({
     headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<PresetDTO>(json);
 }
@@ -76,5 +72,5 @@ export async function deletePreset({
     method: "DELETE",
     headers: getHeaders(getAuthHeader()),
   });
-  if (!response.ok) await handleHttpError(response);
+  if (!response.ok) await handleHTTPError(response);
 }

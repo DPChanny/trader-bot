@@ -4,7 +4,7 @@ import type {
   RefreshTokenDTO,
 } from "@dtos/auth";
 import { AUTH_API_ENDPOINT } from "@utils/env";
-import { handleHttpError } from "@utils/error";
+import { handleHTTPError } from "@utils/error";
 
 export async function exchangeToken(
   dto: ExchangeTokenDTO,
@@ -18,7 +18,7 @@ export async function exchangeToken(
   });
 
   if (!response.ok) {
-    await handleHttpError(response);
+    await handleHTTPError(response);
   }
 
   return response.json();
@@ -34,7 +34,7 @@ export async function refreshToken(dto: RefreshTokenDTO): Promise<JwtTokenDTO> {
   });
 
   if (!response.ok) {
-    await handleHttpError(response);
+    await handleHTTPError(response);
   }
 
   return response.json();
