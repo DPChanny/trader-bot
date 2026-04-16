@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { useAuctionWebSocket } from "@hooks/auctionWebSocket";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
@@ -17,7 +17,6 @@ import { PresetMemberCard } from "@components/presetMemberCard";
 import { Input } from "@components/atoms/input";
 import { Text, Title } from "@components/atoms/text";
 import { RuntimeErrorModal } from "./runtimeErrorModal";
-import { checkRefreshToken } from "@utils/auth";
 import { getStatusEntries } from "@utils/enum";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { Status } from "@dtos/auction";
@@ -57,7 +56,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   const [bidAmount, setBidAmount] = useState<string>("");
   const [bidError, setBidError] = useState<WSError | null>(null);
   const [runtimeError, setRuntimeError] = useState<WSError | null>(null);
-  const reconnectedRef = useRef(false);
 
   const { state, connect, placeBid, isConnected, wasConnected, error } =
     useAuctionWebSocket();
@@ -79,20 +77,6 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   const teamId = state?.teamId ?? null;
   const isLeader = teamId !== null;
   const connectedMemberIds = state?.connectedMemberIds ?? [];
-
-  useEffect(() => {
-    if (
-      state !== null &&
-      memberId === null &&
-      isConnected &&
-      !reconnectedRef.current &&
-      checkRefreshToken() &&
-      auctionId !== undefined
-    ) {
-      reconnectedRef.current = true;
-      connect(auctionId);
-    }
-  }, [state, memberId, isConnected, auctionId]);
 
   const isCompleted = state?.status === Status.COMPLETED;
   const isRunning = state?.status === Status.RUNNING;

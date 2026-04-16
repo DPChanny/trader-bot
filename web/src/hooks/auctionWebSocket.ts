@@ -28,7 +28,18 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
   const [state, setState] = useState<InitPayloadDTO | null>(null);
   const [error, setError] = useState<WSError | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
-  const mountedRef = useRef(true);
+
+  const handleError = (code: number) => {
+    setError(() => {
+      try {
+        handleWsError(code);
+      } catch (error) {
+        return error instanceof WSError
+          ? error
+          : new WSError(FrontendErrorCode.WebSocketConnectionFailed);
+      }
+    });
+  };
 
   const handleWebSocketMessage = (message: AuctionMessageEnvelopeDTO) => {
     const rawPayload = message.payload;
@@ -137,16 +148,8 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
       case AuctionMessageType.ERROR: {
         const code = dto?.code;
-        if (typeof code === "number" && mountedRef.current) {
-          try {
-            handleWsError(code);
-          } catch (error) {
-            setError(
-              error instanceof WSError
-                ? error
-                : new WSError(FrontendErrorCode.WebSocketConnectionFailed),
-            );
-          }
+        if (typeof code === "number") {
+          handleError(code);
         }
         break;
       }
@@ -158,6 +161,10 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
   const cleanupConnection = () => {
     if (wsRef.current) {
+      wsRef.current.onopen = null;
+      wsRef.current.onmessage = null;
+      wsRef.current.onclose = null;
+      wsRef.current.onerror = null;
       wsRef.current.close();
       wsRef.current = null;
     }
@@ -165,6 +172,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
   const connect = (auctionId: string) => {
     cleanupConnection();
+    setIsConnected(false);
     setError(null);
 
     const token = getAccessToken();
@@ -173,95 +181,56 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     let opened = false;
 
     ws.onopen = () => {
-      if (mountedRef.current) {
-        const auth_payload_result = AuthPayloadSchema.safeParse({
-          token: token,
-        });
-        if (!auth_payload_result.success) {
-          return;
-        }
-
-        ws.send(
-          JSON.stringify({
-            type: AuctionMessageType.AUTH,
-            payload: auth_payload_result.data,
-          } satisfies AuctionMessageEnvelopeDTO<{ token: string | null }>),
-        );
-        opened = true;
-        setIsConnected(true);
-        setWasConnected(true);
+      const auth_payload_result = AuthPayloadSchema.safeParse({
+        token: token,
+      });
+      if (!auth_payload_result.success) {
+        return;
       }
+
+      ws.send(
+        JSON.stringify({
+          type: AuctionMessageType.AUTH,
+          payload: auth_payload_result.data,
+        } satisfies AuctionMessageEnvelopeDTO<{ token: string | null }>),
+      );
+      opened = true;
+      setIsConnected(true);
+      setWasConnected(true);
     };
 
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data) as AuctionMessageEnvelopeDTO;
-        if (mountedRef.current) {
-          handleWebSocketMessage(message);
-        }
-      } catch (error) {
-        if (mountedRef.current) {
-          try {
-            handleWsError(FrontendErrorCode.InvalidWebSocketMessage);
-          } catch (error) {
-            setError(
-              error instanceof WSError
-                ? error
-                : new WSError(FrontendErrorCode.WebSocketConnectionFailed),
-            );
-          }
-        }
+        handleWebSocketMessage(message);
+      } catch {
+        handleError(FrontendErrorCode.InvalidWebSocketMessage);
       }
     };
 
     ws.onclose = (event) => {
-      if (mountedRef.current) {
-        setIsConnected(false);
-        setError((prev) => {
-          if (prev) return prev;
-          if (event.reason || event.code !== 1000) {
-            const code =
-              event.code !== 1000 &&
-              (isBackendErrorCode(event.code) ||
-                isFrontendErrorCode(event.code))
-                ? event.code
-                : FrontendErrorCode.WebSocketConnectionFailed;
-            try {
-              handleWsError(code);
-            } catch (error) {
-              return error instanceof WSError
-                ? error
-                : new WSError(FrontendErrorCode.WebSocketConnectionFailed);
-            }
-          }
-          if (!opened) {
-            try {
-              handleWsError(FrontendErrorCode.WebSocketConnectionFailed);
-            } catch (error) {
-              return error instanceof WSError
-                ? error
-                : new WSError(FrontendErrorCode.WebSocketConnectionFailed);
-            }
-          }
-          return null;
-        });
+      setIsConnected(false);
+      if (event.reason || event.code !== 1000) {
+        const code =
+          event.code !== 1000 &&
+          (isBackendErrorCode(event.code) || isFrontendErrorCode(event.code))
+            ? event.code
+            : FrontendErrorCode.WebSocketConnectionFailed;
+        handleError(code);
+        return;
       }
+
+      if (!opened) {
+        handleError(FrontendErrorCode.WebSocketConnectionFailed);
+        return;
+      }
+
+      setError(null);
     };
 
     ws.onerror = () => {
-      if (mountedRef.current) {
-        setIsConnected(false);
-        setError((prev) => {
-          if (prev) return prev;
-          try {
-            handleWsError(FrontendErrorCode.WebSocketConnectionFailed);
-          } catch (error) {
-            return error instanceof WSError
-              ? error
-              : new WSError(FrontendErrorCode.WebSocketConnectionFailed);
-          }
-        });
-      }
+      setIsConnected(false);
+      handleError(FrontendErrorCode.WebSocketConnectionFailed);
     };
 
     wsRef.current = ws;
@@ -288,9 +257,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
   };
 
   useEffect(() => {
-    mountedRef.current = true;
     return () => {
-      mountedRef.current = false;
       cleanupConnection();
     };
   }, []);
