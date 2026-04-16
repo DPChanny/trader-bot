@@ -1,21 +1,17 @@
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { useDeleteTier } from "@hooks/tier";
 
 interface DeleteTierModalProps {
-  guildId: string;
-  presetId: number;
   tierId: number;
   onClose: () => void;
 }
 
-export function DeleteTierModal({
-  guildId,
-  presetId,
-  tierId,
-  onClose,
-}: DeleteTierModalProps) {
+export function DeleteTierModal({ tierId, onClose }: DeleteTierModalProps) {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const deleteTier = useDeleteTier();
   const formId = "delete-tier-form";
 

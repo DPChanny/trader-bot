@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { usePositions } from "@hooks/position";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
@@ -14,12 +15,9 @@ import { Title } from "@components/atoms/text";
 import { AddPositionModal } from "./addPositionModal";
 import { PositionCard } from "./positionCard";
 
-interface PositionEditorProps {
-  guildId: string;
-  presetId: number;
-}
-
-export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
+export function PositionEditor() {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const [showAdd, setShowAdd] = useState(false);
 
   const positions = usePositions(guildId, presetId);
@@ -43,25 +41,13 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
             <Loading />
           ) : (
             positions.data?.map((position) => (
-              <PositionCard
-                key={position.positionId}
-                position={position}
-                guildId={guildId}
-                presetId={presetId}
-              />
+              <PositionCard key={position.positionId} position={position} />
             ))
           )}
         </Scroll>
       </TertiarySection>
 
-      {showAdd && (
-        <AddPositionModal
-          guildId={guildId}
-          presetId={presetId}
-          onClose={() => setShowAdd(false)}
-        />
-      )}
+      {showAdd && <AddPositionModal onClose={() => setShowAdd(false)} />}
     </SecondarySection>
   );
 }
-

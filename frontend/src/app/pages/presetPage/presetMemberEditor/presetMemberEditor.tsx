@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { useMembers } from "@hooks/member";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
@@ -15,15 +16,9 @@ import {
 } from "@components/molecules/section";
 import { Title } from "@components/atoms/text";
 
-interface PresetMemberEditorProps {
-  guildId: string;
-  presetId: number;
-}
-
-export function PresetMemberEditor({
-  guildId,
-  presetId,
-}: PresetMemberEditorProps) {
+export function PresetMemberEditor() {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const [selectedPresetMemberId, setSelectedPresetMemberId] = useState<
     number | null
   >(null);

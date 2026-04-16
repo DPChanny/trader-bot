@@ -4,19 +4,16 @@ import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { AddPositionSchema } from "@dtos/position";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { useAddPosition } from "@hooks/position";
 
 interface AddPositionModalProps {
-  guildId: string;
-  presetId: number;
   onClose: () => void;
 }
 
-export function AddPositionModal({
-  guildId,
-  presetId,
-  onClose,
-}: AddPositionModalProps) {
+export function AddPositionModal({ onClose }: AddPositionModalProps) {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const [name, setName] = useState("");
   const [iconUrl, setIconUrl] = useState("");
   const addPosition = useAddPosition();

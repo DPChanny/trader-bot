@@ -2,14 +2,15 @@ import { Card } from "@components/molecules/card";
 import { Link } from "@components/atoms/link";
 import { Name } from "@components/atoms/text";
 import type { PresetDTO } from "@dtos/preset";
+import { useGuildId } from "@hooks/router";
 
 type PresetCardProps = {
   preset: PresetDTO;
-  guildId: string;
   isSelected?: boolean;
 };
 
-export function PresetCard({ preset, guildId, isSelected }: PresetCardProps) {
+export function PresetCard({ preset, isSelected }: PresetCardProps) {
+  const guildId = useGuildId()!;
   return (
     <Link
       href={`/guild/${guildId}/preset/${preset.presetId}`}

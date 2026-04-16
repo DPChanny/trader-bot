@@ -4,22 +4,21 @@ import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { UpdatePositionSchema, type PositionDTO } from "@dtos/position";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { buildPatchDto } from "@utils/dto";
 import { useUpdatePosition } from "@hooks/position";
 
 interface UpdatePositionModalProps {
-  guildId: string;
-  presetId: number;
   position: PositionDTO;
   onClose: () => void;
 }
 
 export function UpdatePositionModal({
-  guildId,
-  presetId,
   position,
   onClose,
 }: UpdatePositionModalProps) {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const [name, setName] = useState(position.name);
   const [iconUrl, setIconUrl] = useState(position.iconUrl ?? "");
   const updatePosition = useUpdatePosition();

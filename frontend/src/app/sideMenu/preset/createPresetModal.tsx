@@ -4,17 +4,15 @@ import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { CreatePresetSchema } from "@dtos/preset";
+import { useGuildId } from "@hooks/router";
 import { useCreatePreset } from "@hooks/preset";
 
 interface CreatePresetModalProps {
-  guildId: string;
   onClose: () => void;
 }
 
-export function CreatePresetModal({
-  guildId,
-  onClose,
-}: CreatePresetModalProps) {
+export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
+  const guildId = useGuildId()!;
   const [name, setName] = useState("");
   const [points, setPoints] = useState("");
   const [pointScale, setPointScale] = useState("");

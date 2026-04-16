@@ -1,20 +1,17 @@
 import { route } from "preact-router";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { useDeletePreset } from "@hooks/preset";
 
 interface DeletePresetModalProps {
-  guildId: string;
-  presetId: number;
   onClose: () => void;
 }
 
-export function DeletePresetModal({
-  guildId,
-  presetId,
-  onClose,
-}: DeletePresetModalProps) {
+export function DeletePresetModal({ onClose }: DeletePresetModalProps) {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const deletePreset = useDeletePreset();
   const formId = "delete-preset-form";
 

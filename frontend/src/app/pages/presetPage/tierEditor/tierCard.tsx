@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { useGuildId } from "@hooks/router";
 import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/atoms/badge";
 import { Card } from "@components/molecules/card";
@@ -13,11 +14,10 @@ import { DeleteTierModal } from "./deleteTierModal";
 
 type TierCardProps = {
   tier: TierDTO;
-  guildId: string;
-  presetId: number;
 };
 
-export function TierCard({ tier, guildId, presetId }: TierCardProps) {
+export function TierCard({ tier }: TierCardProps) {
+  const guildId = useGuildId()!;
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
@@ -43,17 +43,10 @@ export function TierCard({ tier, guildId, presetId }: TierCardProps) {
       )}
 
       {showUpdate && (
-        <UpdateTierModal
-          guildId={guildId}
-          presetId={presetId}
-          tier={tier}
-          onClose={() => setShowUpdate(false)}
-        />
+        <UpdateTierModal tier={tier} onClose={() => setShowUpdate(false)} />
       )}
       {showDelete && (
         <DeleteTierModal
-          guildId={guildId}
-          presetId={presetId}
           tierId={tier.tierId}
           onClose={() => setShowDelete(false)}
         />

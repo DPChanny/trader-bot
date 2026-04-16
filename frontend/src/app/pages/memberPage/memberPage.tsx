@@ -12,12 +12,10 @@ import { Error } from "@components/molecules/error";
 import { MemberPanel } from "./memberPanel";
 import { Title } from "@components/atoms/text";
 import type { MemberDetailDTO } from "@dtos/member";
+import { useGuildId } from "@hooks/router";
 
-interface MemberPageProps {
-  guildId: string;
-}
-
-export function MemberPage({ guildId }: MemberPageProps) {
+export function MemberPage() {
+  const guildId = useGuildId()!;
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
 
   const members = useMembers(guildId);
@@ -76,4 +74,3 @@ export function MemberPage({ guildId }: MemberPageProps) {
     </Page>
   );
 }
-

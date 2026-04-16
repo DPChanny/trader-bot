@@ -62,9 +62,7 @@ export function SideMenu() {
                     guilds={guilds.data ?? []}
                     activeGuildId={guildId}
                   />
-                  {guildId && (
-                    <PresetList guildId={guildId} selectedPresetId={presetId} />
-                  )}
+                  {guildId && <PresetList selectedPresetId={presetId} />}
                 </Fill>
               </Fill>
             </div>

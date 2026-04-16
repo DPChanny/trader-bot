@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { usePreset } from "@hooks/preset";
 import { usePresetMembers } from "@hooks/presetMember";
 import { Role } from "@dtos/member";
@@ -21,12 +22,9 @@ import { AuctionCreatedModal } from "./auctionCreatedModal";
 import { NameTitle, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
 
-interface PresetPageProps {
-  guildId: string;
-  presetId: number;
-}
-
-export function PresetPage({ guildId, presetId }: PresetPageProps) {
+export function PresetPage() {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
@@ -106,8 +104,8 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
           )}
         </SecondarySection>
 
-        <TierEditor guildId={guildId} presetId={presetId} />
-        <PositionEditor guildId={guildId} presetId={presetId} />
+        <TierEditor />
+        <PositionEditor />
 
         {canCreateAuction && (
           <Button
@@ -119,29 +117,19 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
         )}
       </PrimarySection>
 
-      <PresetMemberEditor guildId={guildId} presetId={presetId} />
+      <PresetMemberEditor />
 
       {preset.data && showUpdate && (
         <UpdatePresetModal
-          guildId={guildId}
-          presetId={presetId}
           preset={preset.data}
           onClose={() => setShowUpdate(false)}
         />
       )}
 
-      {showDelete && (
-        <DeletePresetModal
-          guildId={guildId}
-          presetId={presetId}
-          onClose={() => setShowDelete(false)}
-        />
-      )}
+      {showDelete && <DeletePresetModal onClose={() => setShowDelete(false)} />}
 
       {showCreate && (
         <CreateAuctionModal
-          guildId={guildId}
-          presetId={presetId}
           onClose={() => setShowCreate(false)}
           onSuccess={(auctionId) => {
             setShowCreate(false);

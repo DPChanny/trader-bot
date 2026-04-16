@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { SecondaryButton, Button } from "@components/atoms/button";
@@ -6,20 +7,18 @@ import { Error } from "@components/molecules/error";
 import { useCreateAuction } from "@hooks/auction";
 
 interface CreateAuctionModalProps {
-  guildId: string;
-  presetId: number;
   onClose: () => void;
   onSuccess: (auctionId: string) => void;
   isHardError: boolean;
 }
 
 export function CreateAuctionModal({
-  guildId,
-  presetId,
   onClose,
   onSuccess,
   isHardError,
 }: CreateAuctionModalProps) {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const [isPublic, setIsPublic] = useState(true);
   const [sendInvite, setSendInvite] = useState(true);
   const createAuction = useCreateAuction();

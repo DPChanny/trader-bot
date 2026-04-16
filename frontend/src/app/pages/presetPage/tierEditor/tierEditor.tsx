@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { useTiers } from "@hooks/tier";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
@@ -14,12 +15,9 @@ import {
 } from "@components/molecules/section";
 import { Title } from "@components/atoms/text";
 
-interface TierEditorProps {
-  guildId: string;
-  presetId: number;
-}
-
-export function TierEditor({ guildId, presetId }: TierEditorProps) {
+export function TierEditor() {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const [showAdd, setShowAdd] = useState(false);
 
   const tiers = useTiers(guildId, presetId);
@@ -41,25 +39,13 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
             <Loading />
           ) : (
             tiers.data?.map((tier) => (
-              <TierCard
-                key={tier.tierId}
-                tier={tier}
-                guildId={guildId}
-                presetId={presetId}
-              />
+              <TierCard key={tier.tierId} tier={tier} />
             ))
           )}
         </Scroll>
       </TertiarySection>
 
-      {showAdd && (
-        <AddTierModal
-          guildId={guildId}
-          presetId={presetId}
-          onClose={() => setShowAdd(false)}
-        />
-      )}
+      {showAdd && <AddTierModal onClose={() => setShowAdd(false)} />}
     </SecondarySection>
   );
 }
-

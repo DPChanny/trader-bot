@@ -36,12 +36,8 @@ export const queryKeys = {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 10,
-      gcTime: 1000 * 60 * 30,
-      refetchOnWindowFocus: false,
-      retry: false,
-    },
-    mutations: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       retry: false,
     },
   },

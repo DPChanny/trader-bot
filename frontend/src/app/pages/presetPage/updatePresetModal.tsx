@@ -1,4 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { Modal, ModalFooter, ModalForm, ModalRow } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
@@ -8,18 +9,13 @@ import { buildPatchDto } from "@utils/dto";
 import { useUpdatePreset } from "@hooks/preset";
 
 interface UpdatePresetModalProps {
-  guildId: string;
-  presetId: number;
   preset: PresetDTO;
   onClose: () => void;
 }
 
-export function UpdatePresetModal({
-  guildId,
-  presetId,
-  preset,
-  onClose,
-}: UpdatePresetModalProps) {
+export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const [name, setName] = useState(preset.name);
   const [displayPoints, setDisplayPoints] = useState(
     String(preset.points * preset.pointScale),

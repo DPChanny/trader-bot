@@ -10,14 +10,15 @@ import { PresetCard } from "./presetCard";
 import { usePresets } from "@hooks/preset";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
+import { useGuildId } from "@hooks/router";
 import { Title } from "@components/atoms/text";
 
 interface PresetListProps {
-  guildId: string;
   selectedPresetId: number | null;
 }
 
-export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
+export function PresetList({ selectedPresetId }: PresetListProps) {
+  const guildId = useGuildId()!;
   const [showCreate, setShowCreate] = useState(false);
 
   const presets = usePresets(guildId);
@@ -39,19 +40,13 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
             <PresetCard
               key={preset.presetId}
               preset={preset}
-              guildId={guildId}
               isSelected={selectedPresetId === preset.presetId}
             />
           ))}
         </Scroll>
       </TertiarySection>
 
-      {showCreate && (
-        <CreatePresetModal
-          guildId={guildId}
-          onClose={() => setShowCreate(false)}
-        />
-      )}
+      {showCreate && <CreatePresetModal onClose={() => setShowCreate(false)} />}
     </SecondarySection>
   );
 }

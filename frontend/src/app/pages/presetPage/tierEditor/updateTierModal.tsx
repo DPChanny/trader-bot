@@ -1,4 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
@@ -8,18 +9,13 @@ import { buildPatchDto } from "@utils/dto";
 import { useUpdateTier } from "@hooks/tier";
 
 interface UpdateTierModalProps {
-  guildId: string;
-  presetId: number;
   tier: TierDTO;
   onClose: () => void;
 }
 
-export function UpdateTierModal({
-  guildId,
-  presetId,
-  tier,
-  onClose,
-}: UpdateTierModalProps) {
+export function UpdateTierModal({ tier, onClose }: UpdateTierModalProps) {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const [name, setName] = useState(tier.name);
   const [iconUrl, setIconUrl] = useState(tier.iconUrl ?? "");
   const updateTier = useUpdateTier();

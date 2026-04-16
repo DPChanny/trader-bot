@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { useGuildId, usePresetId } from "@hooks/router";
 import { Modal, ModalForm, ModalFooter } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
@@ -7,16 +8,12 @@ import { AddTierSchema } from "@dtos/tier";
 import { useAddTier } from "@hooks/tier";
 
 interface AddTierModalProps {
-  guildId: string;
-  presetId: number;
   onClose: () => void;
 }
 
-export function AddTierModal({
-  guildId,
-  presetId,
-  onClose,
-}: AddTierModalProps) {
+export function AddTierModal({ onClose }: AddTierModalProps) {
+  const guildId = useGuildId()!;
+  const presetId = usePresetId()!;
   const [name, setName] = useState("");
   const [iconUrl, setIconUrl] = useState("");
   const addTier = useAddTier();
@@ -42,11 +39,7 @@ export function AddTierModal({
 
   return (
     <Modal onClose={handleClose} title="티어 추가">
-      <ModalForm
-        id={formId}
-        onSubmit={onSubmit}
-        disabled={addTier.isPending}
-      >
+      <ModalForm id={formId} onSubmit={onSubmit} disabled={addTier.isPending}>
         {addTier.error && (
           <Error error={addTier.error}>티어 추가에 실패했습니다</Error>
         )}

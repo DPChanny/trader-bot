@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { useGuildId } from "@hooks/router";
 import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/atoms/badge";
 import { Card } from "@components/molecules/card";
@@ -13,15 +14,10 @@ import { DeletePositionModal } from "./deletePositionModal";
 
 type PositionCardProps = {
   position: PositionDTO;
-  guildId: string;
-  presetId: number;
 };
 
-export function PositionCard({
-  position,
-  guildId,
-  presetId,
-}: PositionCardProps) {
+export function PositionCard({ position }: PositionCardProps) {
+  const guildId = useGuildId()!;
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
@@ -50,16 +46,12 @@ export function PositionCard({
       )}
       {showUpdate && (
         <UpdatePositionModal
-          guildId={guildId}
-          presetId={presetId}
           position={position}
           onClose={() => setShowUpdate(false)}
         />
       )}
       {showDelete && (
         <DeletePositionModal
-          guildId={guildId}
-          presetId={presetId}
           positionId={position.positionId}
           onClose={() => setShowDelete(false)}
         />

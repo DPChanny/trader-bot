@@ -44,7 +44,7 @@ function MemberRoute({ guildId }: RoutableProps & { guildId?: string }) {
     return null;
   }
 
-  return <MemberPage guildId={guildId} />;
+  return <MemberPage />;
 }
 
 function PresetRoute({
@@ -58,7 +58,7 @@ function PresetRoute({
     return null;
   }
 
-  return <PresetPage guildId={guildId} presetId={parseInt(presetId, 10)} />;
+  return <PresetPage />;
 }
 
 function AuctionRoute({ auctionId }: RoutableProps & { auctionId?: string }) {
