@@ -37,6 +37,13 @@ export function useCreatePresetMemberPosition(): UseMutationResult<
           variables.presetId,
         ),
       });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.presetMember(
+          variables.guildId,
+          variables.presetId,
+          variables.presetMemberId,
+        ),
+      });
     },
   });
 }
@@ -56,6 +63,13 @@ export function useDeletePresetMemberPosition(): UseMutationResult<
         queryKey: queryKeys.presetMembers(
           variables.guildId,
           variables.presetId,
+        ),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.presetMember(
+          variables.guildId,
+          variables.presetId,
+          variables.presetMemberId,
         ),
       });
     },

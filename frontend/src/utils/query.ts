@@ -1,5 +1,10 @@
 import { QueryClient } from "@tanstack/preact-query";
 
+export const queryStaleTimes = {
+  interactive: 60 * 1000,
+  default: 5 * 60 * 1000,
+} as const;
+
 export const queryKeys = {
   me: () => ["me"] as const,
   guilds: () => ["guilds"] as const,
@@ -36,7 +41,7 @@ export const queryKeys = {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,
+      staleTime: queryStaleTimes.default,
       gcTime: 10 * 60 * 1000,
       retry: false,
     },

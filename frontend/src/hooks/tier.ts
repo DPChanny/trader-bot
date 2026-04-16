@@ -76,6 +76,13 @@ export function useUpdateTier(): UseMutationResult<
         queryKey: queryKeys.tiers(variables.guildId, variables.presetId),
       });
       queryClient.invalidateQueries({
+        queryKey: queryKeys.tier(
+          variables.guildId,
+          variables.presetId,
+          variables.tierId,
+        ),
+      });
+      queryClient.invalidateQueries({
         queryKey: queryKeys.presetMembers(
           variables.guildId,
           variables.presetId,

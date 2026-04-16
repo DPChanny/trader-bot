@@ -82,6 +82,13 @@ export function useUpdatePosition(): UseMutationResult<
         queryKey: queryKeys.positions(variables.guildId, variables.presetId),
       });
       queryClient.invalidateQueries({
+        queryKey: queryKeys.position(
+          variables.guildId,
+          variables.presetId,
+          variables.positionId,
+        ),
+      });
+      queryClient.invalidateQueries({
         queryKey: queryKeys.presetMembers(
           variables.guildId,
           variables.presetId,

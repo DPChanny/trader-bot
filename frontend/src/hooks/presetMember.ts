@@ -12,7 +12,7 @@ import {
   updatePresetMember,
   deletePresetMember,
 } from "@apis/presetMember";
-import { queryKeys } from "@utils/query";
+import { queryKeys, queryStaleTimes } from "@utils/query";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import type { AppError } from "@utils/error";
 
@@ -29,6 +29,7 @@ export function usePresetMembers(
   return useQuery({
     queryKey: queryKeys.presetMembers(guildId, presetId),
     queryFn: () => getPresetMembers(guildId, presetId),
+    staleTime: queryStaleTimes.interactive,
   });
 }
 
@@ -40,6 +41,7 @@ export function usePresetMember(
   return useQuery({
     queryKey: queryKeys.presetMember(guildId, presetId, presetMemberId),
     queryFn: () => getPresetMember(guildId, presetId, presetMemberId),
+    staleTime: queryStaleTimes.interactive,
   });
 }
 
@@ -79,6 +81,13 @@ export function useUpdatePresetMember(): UseMutationResult<
         queryKey: queryKeys.presetMembers(
           variables.guildId,
           variables.presetId,
+        ),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.presetMember(
+          variables.guildId,
+          variables.presetId,
+          variables.presetMemberId,
         ),
       });
     },

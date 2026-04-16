@@ -8,7 +8,7 @@ import {
 import type { MemberDetailDTO } from "@dtos/member";
 import { Role } from "@dtos/member";
 import { getMember, getMembers, getMyMember, updateMember } from "@apis/member";
-import { queryKeys } from "@utils/query";
+import { queryKeys, queryStaleTimes } from "@utils/query";
 import type { AppError } from "@utils/error";
 
 type UpdateMemberVariables = Parameters<typeof updateMember>[0];
@@ -20,6 +20,7 @@ export function useMyMember(
   return useQuery({
     queryKey: queryKeys.myMember(guildId),
     queryFn: (): Promise<MemberDetailDTO> => getMyMember(guildId),
+    staleTime: queryStaleTimes.interactive,
   });
 }
 
@@ -29,6 +30,7 @@ export function useMembers(
   return useQuery({
     queryKey: queryKeys.members(guildId),
     queryFn: (): Promise<MemberDetailDTO[]> => getMembers(guildId),
+    staleTime: queryStaleTimes.interactive,
   });
 }
 
@@ -39,6 +41,7 @@ export function useMember(
   return useQuery({
     queryKey: queryKeys.member(guildId, memberId),
     queryFn: (): Promise<MemberDetailDTO> => getMember(guildId, memberId),
+    staleTime: queryStaleTimes.interactive,
   });
 }
 
