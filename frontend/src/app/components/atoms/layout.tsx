@@ -76,9 +76,7 @@ const layoutVariants = cva(styles.layout, {
 });
 
 export type LayoutProps = JSX.IntrinsicElements["div"] &
-  VariantProps<typeof layoutVariants> & {
-    className?: string;
-  };
+  VariantProps<typeof layoutVariants>;
 
 export function Layout({
   direction = "column",
