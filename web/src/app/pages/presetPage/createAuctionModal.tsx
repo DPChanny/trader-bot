@@ -41,7 +41,7 @@ export function CreateAuctionModal({
   return (
     <Modal onClose={handleClose} title="경매 생성">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {createAuction.isError && <Error error={createAuction.error} />}
+        {createAuction.error && <Error error={createAuction.error} />}
         <LabelToggle
           label="퍼블릭 허용"
           isPressed={isPublic}

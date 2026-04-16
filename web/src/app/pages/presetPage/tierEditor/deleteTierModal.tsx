@@ -33,7 +33,7 @@ export function DeleteTierModal({
     <Modal onClose={handleClose} title="티어 삭제">
       <ModalForm id={formId} onSubmit={handleSubmit}>
         정말 이 티어를 삭제하시겠습니까?
-        {deleteTier.isError && <Error error={deleteTier.error} />}
+        {deleteTier.error && <Error error={deleteTier.error} />}
       </ModalForm>
       <ModalFooter>
         <SecondaryButton onClick={handleClose} disabled={deleteTier.isPending}>

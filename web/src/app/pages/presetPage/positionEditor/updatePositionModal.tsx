@@ -54,7 +54,7 @@ export function UpdatePositionModal({
   return (
     <Modal onClose={handleClose} title="포지션 수정">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {updatePosition.isError && <Error error={updatePosition.error} />}
+        {updatePosition.error && <Error error={updatePosition.error} />}
         <LabelInput
           label="포지션 이름"
           type="text"

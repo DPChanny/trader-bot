@@ -54,7 +54,7 @@ export function UpdateTierModal({
   return (
     <Modal onClose={handleClose} title="티어 수정">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {updateTier.isError && <Error error={updateTier.error} />}
+        {updateTier.error && <Error error={updateTier.error} />}
         <LabelInput
           label="티어 이름"
           type="text"

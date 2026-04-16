@@ -1,11 +1,14 @@
 error
-    query client
     frontend
+        websocket
+        detail
+        logout
     backend
 prop drilling
     except atoms
     except molecules
 component
+    modal position
     status dot
     bar
     sidemenu

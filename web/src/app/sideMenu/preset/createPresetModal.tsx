@@ -55,7 +55,7 @@ export function CreatePresetModal({
   return (
     <Modal onClose={handleClose} title="프리셋 추가">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {createPreset.isError && <Error error={createPreset.error} />}
+        {createPreset.error && <Error error={createPreset.error} />}
         <LabelInput
           label="프리셋 이름"
           type="text"
