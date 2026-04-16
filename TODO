@@ -3,7 +3,6 @@ prop drilling
     except molecules
 component
     status dot
-    bar
     sidemenu
     grid
 layout

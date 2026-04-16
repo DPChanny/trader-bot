@@ -40,6 +40,7 @@ export function PresetMemberPanel({
   onRemoveStart,
   onRemoveRollback,
 }: PresetMemberPanelProps) {
+  const [isSaving, setIsSaving] = useState(false);
   const updatePresetMember = useUpdatePresetMember();
   const removePresetMember = useDeletePresetMember();
   const createPresetMemberPosition = useCreatePresetMemberPosition();
@@ -88,59 +89,64 @@ export function PresetMemberPanel({
     selectedPositionIds.some((id) => !initialPositionIds.includes(id));
 
   const handleSave = async () => {
-    const patchDto = buildPatchDto(
-      { isLeader, tierId },
-      {
-        isLeader: presetMember.isLeader,
-        tierId: presetMember.tierId ?? null,
-      },
-    );
-    if (patchDto) {
-      const [result] = await Promise.allSettled([
-        updatePresetMember.mutateAsync({
-          guildId,
-          presetId,
-          presetMemberId: presetMember.presetMemberId,
-          dto: patchDto,
-        }),
-      ]);
-      if (result.status === "rejected") return;
-    }
-
-    const positionIdsToAdd = selectedPositionIds.filter(
-      (id) => !initialPositionIds.includes(id),
-    );
-    const positionIdsToRemove = initialPositionIds.filter(
-      (id) => !selectedPositionIds.includes(id),
-    );
-
-    for (const positionId of positionIdsToRemove) {
-      const entry = presetMember.presetMemberPositions?.find(
-        (p) => p.positionId === positionId,
+    setIsSaving(true);
+    try {
+      const patchDto = buildPatchDto(
+        { isLeader, tierId },
+        {
+          isLeader: presetMember.isLeader,
+          tierId: presetMember.tierId ?? null,
+        },
       );
-      if (entry) {
+      if (patchDto) {
         const [result] = await Promise.allSettled([
-          deletePresetMemberPosition.mutateAsync({
+          updatePresetMember.mutateAsync({
             guildId,
             presetId,
             presetMemberId: presetMember.presetMemberId,
-            presetMemberPositionId: entry.presetMemberPositionId,
+            dto: patchDto,
           }),
         ]);
         if (result.status === "rejected") return;
       }
-    }
 
-    for (const positionId of positionIdsToAdd) {
-      const [result] = await Promise.allSettled([
-        createPresetMemberPosition.mutateAsync({
-          guildId,
-          presetId,
-          presetMemberId: presetMember.presetMemberId,
-          dto: { positionId },
-        }),
-      ]);
-      if (result.status === "rejected") return;
+      const positionIdsToAdd = selectedPositionIds.filter(
+        (id) => !initialPositionIds.includes(id),
+      );
+      const positionIdsToRemove = initialPositionIds.filter(
+        (id) => !selectedPositionIds.includes(id),
+      );
+
+      for (const positionId of positionIdsToRemove) {
+        const entry = presetMember.presetMemberPositions?.find(
+          (p) => p.positionId === positionId,
+        );
+        if (entry) {
+          const [result] = await Promise.allSettled([
+            deletePresetMemberPosition.mutateAsync({
+              guildId,
+              presetId,
+              presetMemberId: presetMember.presetMemberId,
+              presetMemberPositionId: entry.presetMemberPositionId,
+            }),
+          ]);
+          if (result.status === "rejected") return;
+        }
+      }
+
+      for (const positionId of positionIdsToAdd) {
+        const [result] = await Promise.allSettled([
+          createPresetMemberPosition.mutateAsync({
+            guildId,
+            presetId,
+            presetMemberId: presetMember.presetMemberId,
+            dto: { positionId },
+          }),
+        ]);
+        if (result.status === "rejected") return;
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -210,11 +216,6 @@ export function PresetMemberPanel({
     createPresetMemberPosition.error ||
     deletePresetMemberPosition.error ||
     removePresetMember.error;
-  const isSavePending =
-    updatePresetMember.isPending ||
-    createPresetMemberPosition.isPending ||
-    deletePresetMemberPosition.isPending;
-
   return (
     <PrimarySection minSize style={{ width: "24rem" }}>
       <Column>
@@ -228,7 +229,7 @@ export function PresetMemberPanel({
             {canEdit && (
               <SaveButton
                 onClick={handleSave}
-                disabled={isSavePending || !hasChanges}
+                disabled={isSaving || !hasChanges}
               />
             )}
             <CloseButton onClick={onClose} />
