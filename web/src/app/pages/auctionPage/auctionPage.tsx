@@ -117,7 +117,9 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     return (
       <Page>
         <PrimarySection fill align="stretch" justify="center">
-          <Error error={websocketError} />
+          <Error error={websocketError}>
+            경매 진행 상태를 정상적으로 불러오지 못했습니다.
+          </Error>
         </PrimarySection>
       </Page>
     );
@@ -261,7 +263,9 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             <TertiarySection>
               {isLeader && !isClientTeamFull && (
                 <Row>
-                  {bidError && <Error error={bidError} />}
+                  {bidError && (
+                    <Error error={bidError}>입찰을 반영하지 못했습니다.</Error>
+                  )}
                   <FlexItem>
                     <Input
                       type="number"

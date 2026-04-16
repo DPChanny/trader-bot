@@ -88,7 +88,9 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
         </Row>
       </Row>
 
-      {updateMember.error && <Error error={updateMember.error} />}
+      {updateMember.error && (
+        <Error error={updateMember.error}>멤버 수정에 실패했습니다.</Error>
+      )}
 
       <Bar />
 

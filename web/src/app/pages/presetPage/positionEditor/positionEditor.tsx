@@ -36,7 +36,9 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
       <TertiarySection fill>
         <Scroll axis="y">
           {positions.error ? (
-            <Error error={positions.error} />
+            <Error error={positions.error}>
+              포지션 목록을 불러오지 못했습니다.
+            </Error>
           ) : positions.isLoading ? (
             <Loading />
           ) : (

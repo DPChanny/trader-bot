@@ -30,7 +30,7 @@ export function PresetList({ guildId, selectedPresetId }: PresetListProps) {
           <Title>프리셋 관리</Title>
           {canEdit && (
             <PrimaryButton onClick={() => setShowCreate(true)}>
-              추가
+              생성
             </PrimaryButton>
           )}
         </Row>

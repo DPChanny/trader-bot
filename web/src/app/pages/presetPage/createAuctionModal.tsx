@@ -41,7 +41,9 @@ export function CreateAuctionModal({
   return (
     <Modal onClose={handleClose} title="경매 생성">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {createAuction.error && <Error error={createAuction.error} />}
+        {createAuction.error && (
+          <Error error={createAuction.error}>경매 생성에 실패했습니다.</Error>
+        )}
         <LabelToggle
           label="퍼블릭 허용"
           isPressed={isPublic}

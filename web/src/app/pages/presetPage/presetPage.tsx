@@ -61,7 +61,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
     <Page>
       <PrimarySection minSize overflow="hidden" style={{ width: "24rem" }}>
         {preset.error ? (
-          <Error error={preset.error} />
+          <Error error={preset.error}>프리셋 정보를 불러오지 못했습니다.</Error>
         ) : (
           <Row justify="between" align="center">
             <NameTitle>{preset.data ? preset.data.name : "?"}</NameTitle>
@@ -85,7 +85,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
         <Bar />
 
         {preset.error ? (
-          <Error error={preset.error} />
+          <Error error={preset.error}>프리셋 정보를 불러오지 못했습니다.</Error>
         ) : preset.data ? (
           <SecondarySection>
             <Row justify="between" align="center">

@@ -49,7 +49,9 @@ export function MemberPage({ guildId }: MemberPageProps) {
           <Title>멤버 목록</Title>
           {members.error ? (
             <TertiarySection fill>
-              <Error error={members.error} />
+              <Error error={members.error}>
+                멤버 목록을 불러오지 못했습니다.
+              </Error>
             </TertiarySection>
           ) : members.isLoading ? (
             <TertiarySection fill>

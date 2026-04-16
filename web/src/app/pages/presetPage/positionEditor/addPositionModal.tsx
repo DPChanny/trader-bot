@@ -47,7 +47,9 @@ export function AddPositionModal({
   return (
     <Modal onClose={handleClose} title="포지션 추가">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {addPosition.error && <Error error={addPosition.error} />}
+        {addPosition.error && (
+          <Error error={addPosition.error}>포지션 추가에 실패했습니다.</Error>
+        )}
         <LabelInput
           label="포지션 이름"
           type="text"

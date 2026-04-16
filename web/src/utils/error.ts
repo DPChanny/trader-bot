@@ -1,7 +1,4 @@
 export const FrontendErrorCode = {
-  Token: {
-    MissingRefreshToken: 9101,
-  },
   Auction: {
     InvalidMessage: 9201,
     ConnectionFailed: 9202,
@@ -142,8 +139,6 @@ function getErrorMessage(code: number): string {
     case BackendErrorCode.Unexpected.External:
       return "서버 외부에서 예기치 못한 문제가 발생했습니다.";
 
-    case FrontendErrorCode.Token.MissingRefreshToken:
-      return "자동 로그인에 실패했습니다.";
     case FrontendErrorCode.Auction.InvalidMessage:
       return "경매 메시지를 처리하지 못했습니다.";
     case FrontendErrorCode.Auction.ConnectionFailed:

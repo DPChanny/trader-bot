@@ -236,7 +236,7 @@ export function PresetMemberPanel({
         </Row>
       </Column>
 
-      {error && <Error error={error} />}
+      {error && <Error error={error}>프리셋 멤버 변경에 실패했습니다.</Error>}
 
       <Bar />
 
