@@ -61,7 +61,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
 
   return (
     <Page>
-      <PrimarySection minSize overflow="hidden" style={{ width: "24rem" }}>
+      <PrimarySection minSize overflow="hidden" style={{ width: "25rem" }}>
         <Row justify="between" align="center">
           {preset.data ? <NameTitle>{preset.data.name}</NameTitle> : <Fill />}
           <Row gap="sm" align="center">

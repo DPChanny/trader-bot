@@ -18,7 +18,7 @@ export function SideMenu() {
   return (
     <>
       {isOpen && (
-        <PrimarySection minSize overflow="y" style={{ width: "24rem" }}>
+        <PrimarySection minSize overflow="y" style={{ width: "25rem" }}>
           <Row justify="between">
             <Title>메뉴</Title>
             <CloseButton

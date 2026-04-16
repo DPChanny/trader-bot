@@ -111,7 +111,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
   };
 
   return (
-    <PrimarySection minSize style={{ width: "24rem" }}>
+    <PrimarySection minSize style={{ width: "25rem" }}>
       <Row justify="between" align="center">
         <NameTitle>{member.alias || member.user.name}</NameTitle>
         <Row gap="sm" align="center">

@@ -291,7 +291,7 @@ export function PresetMemberPanel({
     deletePresetMemberPosition.error ||
     removePresetMember.error;
   return (
-    <PrimarySection minSize style={{ width: "24rem" }}>
+    <PrimarySection minSize style={{ width: "25rem" }}>
       <Column>
         <Row justify="between">
           <NameTitle>
