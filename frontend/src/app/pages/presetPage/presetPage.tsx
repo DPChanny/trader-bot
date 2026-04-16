@@ -10,7 +10,7 @@ import {
   PrimarySection,
   SecondarySection,
 } from "@components/molecules/section";
-import { Row } from "@components/atoms/layout";
+import { Fill, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { EditButton, DeleteButton, Button } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
@@ -20,6 +20,7 @@ import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionCreatedModal } from "./auctionCreatedModal";
 import { NameTitle, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
+import { Loading } from "@components/molecules/loading";
 
 interface PresetPageProps {
   guildId: string;
@@ -61,34 +62,32 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
   return (
     <Page>
       <PrimarySection minSize overflow="hidden" style={{ width: "24rem" }}>
-        {preset.error ? (
-          <Error error={preset.error}>프리셋 정보를 불러오지 못했습니다</Error>
-        ) : (
-          <Row justify="between" align="center">
-            <NameTitle>{preset.data ? preset.data.name : "?"}</NameTitle>
-            <Row gap="sm" align="center">
-              {canEdit && (
-                <EditButton
-                  variantSize="medium"
-                  onClick={() => setShowUpdate(true)}
-                />
-              )}
-              {canCreateAuction && (
-                <DeleteButton
-                  variantSize="medium"
-                  onClick={() => setShowDelete(true)}
-                />
-              )}
-            </Row>
+        <Row justify="between" align="center">
+          {preset.data ? <NameTitle>{preset.data.name}</NameTitle> : <Fill />}
+          <Row gap="sm" align="center">
+            {canEdit && (
+              <EditButton
+                variantSize="medium"
+                onClick={() => setShowUpdate(true)}
+              />
+            )}
+            {canCreateAuction && (
+              <DeleteButton
+                variantSize="medium"
+                onClick={() => setShowDelete(true)}
+              />
+            )}
           </Row>
-        )}
+        </Row>
 
         <Bar />
 
-        {preset.error ? (
-          <Error error={preset.error}>프리셋 정보를 불러오지 못했습니다</Error>
-        ) : preset.data ? (
-          <SecondarySection>
+        <SecondarySection>
+          {preset.error ? (
+            <Error error={preset.error}>
+              프리셋 정보를 불러오지 못했습니다
+            </Error>
+          ) : preset.data ? (
             <Row justify="between" align="center">
               <Text>{teamSize} 명</Text>
               <Text>
@@ -97,16 +96,10 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
               </Text>
               <Text>{preset.data.timer} 초</Text>
             </Row>
-          </SecondarySection>
-        ) : (
-          <SecondarySection>
-            <Row justify="between" align="center">
-              <Text>? 명</Text>
-              <Text>? / ? 포인트</Text>
-              <Text>? 초</Text>
-            </Row>
-          </SecondarySection>
-        )}
+          ) : (
+            <Loading />
+          )}
+        </SecondarySection>
 
         <TierEditor guildId={guildId} presetId={presetId} />
         <PositionEditor guildId={guildId} presetId={presetId} />

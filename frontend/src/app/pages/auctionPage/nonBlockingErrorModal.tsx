@@ -3,18 +3,18 @@ import { Modal, ModalFooter } from "@components/modal";
 import { Error } from "@components/molecules/error";
 import type { WSError } from "@utils/error";
 
-interface UnexpectedErrorModalProps {
+interface NonBlockingErrorModalProps {
   error: WSError;
   onClose: () => void;
 }
 
-export function UnexpectedErrorModal({
+export function NonBlockingErrorModal({
   error,
   onClose,
-}: UnexpectedErrorModalProps) {
+}: NonBlockingErrorModalProps) {
   return (
-    <Modal onClose={onClose} title="예기치 못한 오류">
-      <Error error={error}>예기치 못한 오류</Error>
+    <Modal onClose={onClose} title="경매 진행 오류">
+      <Error error={error}>경매 진행 오류가 발생했습니다</Error>
       <ModalFooter>
         <PrimaryButton onClick={onClose}>확인</PrimaryButton>
       </ModalFooter>

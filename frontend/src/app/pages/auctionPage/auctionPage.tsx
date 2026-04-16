@@ -16,7 +16,7 @@ import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberCard } from "@components/presetMemberCard";
 import { Input } from "@components/atoms/input";
 import { Text, Title } from "@components/atoms/text";
-import { UnexpectedErrorModal } from "./unexpectedErrorModal";
+import { NonBlockingErrorModal } from "./nonBlockingErrorModal";
 import { getStatusEntries } from "@utils/enum";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { Status } from "@dtos/auction";
@@ -43,7 +43,7 @@ function isBidErrorCode(code: number): boolean {
   }
 }
 
-function isUnexpectedErrorCode(code: number | null | undefined): boolean {
+function isNonBlockingErrorCode(code: number | null | undefined): boolean {
   return (
     code === BackendErrorCode.Validation.Invalid ||
     code === BackendErrorCode.Unexpected.Internal ||
@@ -57,7 +57,9 @@ function isUnexpectedErrorCode(code: number | null | undefined): boolean {
 export function AuctionPage({ auctionId }: AuctionPageProps) {
   const [bidAmount, setBidAmount] = useState<string>("");
   const [bidError, setBidError] = useState<WSError | null>(null);
-  const [unexpectedError, setUnexpectedError] = useState<WSError | null>(null);
+  const [nonBlockingError, setNonBlockingError] = useState<WSError | null>(
+    null,
+  );
 
   const { state, connect, placeBid, isConnected, wasConnected, error } =
     useAuctionWebSocket();
@@ -65,7 +67,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   useEffect(() => {
     if (error === null) {
       setBidError(null);
-      setUnexpectedError(null);
+      setNonBlockingError(null);
     }
   }, [error]);
 
@@ -103,19 +105,19 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
       !isCompleted &&
       error !== null &&
       !isBidError &&
-      isUnexpectedErrorCode(error.code)
+      isNonBlockingErrorCode(error.code)
     ) {
-      setUnexpectedError(error);
+      setNonBlockingError(error);
     }
   }, [error, isBidError, isCompleted]);
 
-  const isUnexpectedError = !isBidError && isUnexpectedErrorCode(error?.code);
+  const isNonBlockingError = !isBidError && isNonBlockingErrorCode(error?.code);
 
   const isBlockingError =
     !isCompleted &&
     error !== null &&
     !isBidError &&
-    (state === null || !isUnexpectedError);
+    (state === null || !isNonBlockingError);
 
   if (isBlockingError && error !== null) {
     return (
@@ -203,10 +205,10 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
 
   return (
     <Page>
-      {unexpectedError && (
-        <UnexpectedErrorModal
-          error={unexpectedError}
-          onClose={() => setUnexpectedError(null)}
+      {nonBlockingError && (
+        <NonBlockingErrorModal
+          error={nonBlockingError}
+          onClose={() => setNonBlockingError(null)}
         />
       )}
 

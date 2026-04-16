@@ -13,14 +13,16 @@ type ErrorProps = JSX.IntrinsicElements["div"] & {
 export function Error({ className, error, children, ...props }: ErrorProps) {
   return (
     <Column
-      align="center"
-      gap="xs"
+      center
+      gap="none"
       className={clsx(styles.error, className)}
       {...props}
     >
-      <Text>{children}</Text>
+      <Text variantSize="small" variantWeight="bold">
+        {children}
+      </Text>
       <Text variantSize="small">
-        {error.message} #{error.code}
+        #{error.code} {error.message}
       </Text>
     </Column>
   );
