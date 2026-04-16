@@ -59,7 +59,7 @@ export function MemberPage() {
             <MemberGrid
               members={sortedMembers}
               selectedMemberId={selectedMemberId}
-              onMemberClick={setSelectedMemberId}
+              onClick={setSelectedMemberId}
             />
           )}
         </SecondarySection>

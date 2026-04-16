@@ -140,7 +140,7 @@ export function PresetMemberEditor() {
                 ) ?? []
               }
               selectedMemberId={selectedPresetMemberId}
-              onMemberClick={(id: number) => setSelectedPresetMemberId(id)}
+              onClick={(id: number) => setSelectedPresetMemberId(id)}
             />
           )}
         </SecondarySection>
@@ -166,7 +166,7 @@ export function PresetMemberEditor() {
           ) : (
             <MemberGrid
               members={candidateMembers}
-              onMemberClick={canEdit ? handleAddMember : undefined}
+              onClick={canEdit ? handleAddMember : undefined}
             />
           )}
         </SecondarySection>

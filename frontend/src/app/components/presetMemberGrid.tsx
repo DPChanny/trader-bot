@@ -8,17 +8,13 @@ import { TertiarySection } from "./molecules/section";
 interface PresetMemberGridProps {
   presetMembers: PresetMemberDetailDTO[];
   selectedMemberId?: number | null;
-  onMemberClick?: (presetMemberId: number) => void;
-  connectedMemberIds?: number[];
-  clientMemberId?: number;
+  onClick?: (presetMemberId: number) => void;
 }
 
 export function PresetMemberGrid({
   presetMembers,
   selectedMemberId,
-  onMemberClick,
-  connectedMemberIds,
-  clientMemberId,
+  onClick,
 }: PresetMemberGridProps) {
   const leaders = presetMembers.filter((pm) => pm.isLeader);
   const nonLeaders = presetMembers.filter((pm) => !pm.isLeader);
@@ -36,26 +32,14 @@ export function PresetMemberGrid({
                 key={presetMember.presetMemberId}
                 className={styles.gridButton}
                 onClick={
-                  onMemberClick
-                    ? () => onMemberClick(presetMember.presetMemberId)
+                  onClick
+                    ? () => onClick(presetMember.presetMemberId)
                     : undefined
                 }
                 isPressed={isSelected}
-                disabled={!onMemberClick}
+                disabled={!onClick}
               >
-                <PresetMemberCard
-                  presetMember={presetMember}
-                  isConnected={
-                    connectedMemberIds
-                      ? connectedMemberIds.includes(presetMember.memberId)
-                      : undefined
-                  }
-                  isClientMember={
-                    clientMemberId
-                      ? clientMemberId === presetMember.memberId
-                      : undefined
-                  }
-                />
+                <PresetMemberCard presetMember={presetMember} />
               </PressedButton>
             );
           })}

@@ -6,6 +6,8 @@ import { Image } from "./atoms/image";
 import { Row } from "./atoms/layout";
 import { Name } from "./atoms/text";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import { useContext } from "preact/hooks";
+import { AuctionPageContext } from "@pages/auctionPage/auctionPageContext";
 
 function getDotColor(
   isConnected?: boolean,
@@ -19,15 +21,18 @@ function getDotColor(
 
 export type PresetMemberCardProps = {
   presetMember: PresetMemberDetailDTO;
-  isConnected?: boolean;
-  isClientMember?: boolean;
 };
 
-export function PresetMemberCard({
-  presetMember,
-  isConnected,
-  isClientMember,
-}: PresetMemberCardProps) {
+export function PresetMemberCard({ presetMember }: PresetMemberCardProps) {
+  const context = useContext(AuctionPageContext);
+  const isConnected = context
+    ? context.connectedMemberIds.includes(presetMember.memberId)
+    : undefined;
+  const isClientMember =
+    context?.clientMemberId !== undefined
+      ? context.clientMemberId === presetMember.memberId
+      : undefined;
+
   const { member, tier, presetMemberPositions, isLeader } = presetMember;
   const visiblePositions = presetMemberPositions?.slice(0, 3) ?? [];
   const variantColor = getDotColor(isConnected, isClientMember);

@@ -10,8 +10,6 @@ type TeamCardProps = {
   members: PresetMemberDetailDTO[];
   teamSize: number;
   pointScale: number;
-  connectedMemberIds?: number[];
-  clientMemberId?: number;
   variantColor?: "blue" | "gold" | "green" | "gray";
 };
 
@@ -20,8 +18,6 @@ export function TeamCard({
   members,
   teamSize,
   pointScale,
-  connectedMemberIds,
-  clientMemberId,
   variantColor,
 }: TeamCardProps) {
   const leader = members.find((member) => member.isLeader);
@@ -37,11 +33,7 @@ export function TeamCard({
         <Name>{teamName}</Name>
         <Text variantWeight="bold">{team.points * pointScale} 포인트</Text>
       </Row>
-      <PresetMemberGrid
-        presetMembers={members}
-        connectedMemberIds={connectedMemberIds}
-        clientMemberId={clientMemberId}
-      />
+      <PresetMemberGrid presetMembers={members} />
     </Card>
   );
 }

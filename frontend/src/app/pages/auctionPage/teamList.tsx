@@ -9,8 +9,6 @@ interface TeamListProps {
   presetMemberMap: Map<number, PresetMemberDetailDTO>;
   teamSize: number;
   pointScale: number;
-  connectedMemberIds?: number[];
-  clientMemberId?: number;
 }
 
 export function TeamList({
@@ -18,8 +16,6 @@ export function TeamList({
   presetMemberMap,
   teamSize,
   pointScale,
-  connectedMemberIds,
-  clientMemberId,
 }: TeamListProps) {
   return (
     <TertiarySection fill>
@@ -36,8 +32,6 @@ export function TeamList({
               members={members}
               teamSize={teamSize}
               pointScale={pointScale}
-              connectedMemberIds={connectedMemberIds}
-              clientMemberId={clientMemberId}
             />
           );
         })}

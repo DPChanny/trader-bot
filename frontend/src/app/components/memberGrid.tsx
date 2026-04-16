@@ -7,13 +7,13 @@ import { TertiarySection } from "./molecules/section";
 
 interface MemberGridProps {
   members: MemberDetailDTO[];
-  onMemberClick?: (memberId: number) => void;
+  onClick?: (memberId: number) => void;
   selectedMemberId?: number | null;
 }
 
 export function MemberGrid({
   members,
-  onMemberClick,
+  onClick,
   selectedMemberId,
 }: MemberGridProps) {
   return (
@@ -26,13 +26,9 @@ export function MemberGrid({
               <PressedButton
                 key={member.memberId}
                 className={styles.gridButton}
-                onClick={
-                  onMemberClick
-                    ? () => onMemberClick(member.memberId)
-                    : undefined
-                }
+                onClick={onClick ? () => onClick(member.memberId) : undefined}
                 isPressed={isSelected}
-                disabled={!onMemberClick}
+                disabled={!onClick}
               >
                 <MemberCard member={member} />
               </PressedButton>
