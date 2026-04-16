@@ -5,7 +5,11 @@ import { AuthPayloadSchema, PlaceBidPayloadSchema } from "@dtos/auction";
 import { toCamelCase } from "@utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@utils/env";
 import { getAccessToken } from "@utils/auth";
-import { AUCTION_CONNECTION_FAILED_MESSAGE, WSError } from "@utils/error";
+import {
+  AUCTION_CONNECTION_FAILED_MESSAGE,
+  WSError,
+  handleWsError,
+} from "@utils/error";
 
 interface AuctionWebSocketHook {
   state: InitPayloadDTO | null;
@@ -132,7 +136,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       case AuctionMessageType.ERROR: {
         const code = dto?.code;
         if (typeof code === "number" && mountedRef.current) {
-          setError(new WSError({ code }));
+          setError(handleWsError({ code }));
         }
         break;
       }
@@ -199,11 +203,11 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         setIsConnected(false);
         setError((prev) => {
           if (prev) return prev;
-          if (event.reason) {
-            return new WSError({ reason: event.reason });
+          if (event.reason || event.code !== 1000) {
+            return handleWsError(event);
           }
           if (!opened) {
-            return new WSError({ reason: AUCTION_CONNECTION_FAILED_MESSAGE });
+            return handleWsError({ reason: AUCTION_CONNECTION_FAILED_MESSAGE });
           }
           return null;
         });

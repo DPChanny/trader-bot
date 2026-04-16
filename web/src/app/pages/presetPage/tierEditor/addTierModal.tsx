@@ -43,9 +43,7 @@ export function AddTierModal({
   return (
     <Modal onClose={handleClose} title="티어 추가">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error ? (
-          <ErrorMessage error={error}>티어를 추가하지 못했습니다.</ErrorMessage>
-        ) : null}
+        {error ? <ErrorMessage error={error} /> : null}
         <LabelInput
           label="티어 이름"
           type="text"

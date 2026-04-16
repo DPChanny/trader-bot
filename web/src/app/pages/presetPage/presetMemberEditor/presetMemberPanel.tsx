@@ -233,9 +233,7 @@ export function PresetMemberPanel({
             deletePresetMemberPosition.error ||
             removePresetMember.error
           }
-        >
-          프리셋 멤버를 수정하지 못했습니다.
-        </ErrorMessage>
+        />
       )}
 
       <Bar />

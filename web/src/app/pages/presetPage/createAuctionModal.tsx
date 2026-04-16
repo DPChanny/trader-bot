@@ -10,7 +10,6 @@ interface CreateAuctionModalProps {
   onSubmit: (dto: CreateAuctionDTO) => void | Promise<void>;
   isPending: boolean;
   error?: any;
-  message?: string;
   isHardError: boolean;
 }
 
@@ -19,7 +18,6 @@ export function CreateAuctionModal({
   onSubmit,
   isPending,
   error,
-  message,
   isHardError,
 }: CreateAuctionModalProps) {
   const [isPublic, setIsPublic] = useState(true);
@@ -39,10 +37,7 @@ export function CreateAuctionModal({
   return (
     <Modal onClose={handleClose} title="경매 생성">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {message && <ErrorMessage>{message}</ErrorMessage>}
-        {error && (
-          <ErrorMessage error={error}>경매를 생성하지 못했습니다.</ErrorMessage>
-        )}
+        {error && <ErrorMessage error={error} />}
         <LabelToggle
           label="퍼블릭 허용"
           isPressed={isPublic}

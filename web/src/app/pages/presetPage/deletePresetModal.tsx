@@ -31,11 +31,7 @@ export function DeletePresetModal({
     <Modal onClose={handleClose} title="프리셋 삭제">
       <ModalForm id={formId} onSubmit={handleSubmit}>
         정말 이 프리셋을 삭제하시겠습니까?
-        {error && (
-          <ErrorMessage error={error}>
-            프리셋을 삭제하지 못했습니다.
-          </ErrorMessage>
-        )}
+        {error && <ErrorMessage error={error} />}
       </ModalForm>
       <ModalFooter>
         <SecondaryButton onClick={handleClose} disabled={isPending}>

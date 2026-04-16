@@ -5,14 +5,3 @@
   border-radius: var(--radius-md);
   border: var(--border-width-default) solid var(--color-error-border);
 }
-
-.toggle {
-  background: none;
-  border: none;
-  color: var(--color-error-text);
-  cursor: pointer;
-}
-
-.detail {
-  opacity: 0.75;
-}

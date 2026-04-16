@@ -51,9 +51,7 @@ export function UpdateTierModal({
   return (
     <Modal onClose={handleClose} title="티어 수정">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error ? (
-          <ErrorMessage error={error}>티어를 수정하지 못했습니다.</ErrorMessage>
-        ) : null}
+        {error ? <ErrorMessage error={error} /> : null}
         <LabelInput
           label="티어 이름"
           type="text"

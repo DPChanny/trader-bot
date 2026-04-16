@@ -146,9 +146,9 @@ function getErrorMessage(code: number): string {
 }
 
 export class AppError extends Error {
-  code: number | null;
+  code: number;
 
-  constructor(message: string, code: number | null, name: string) {
+  constructor(message: string, code: number, name: string) {
     super(message);
     this.code = code;
     this.name = name;
@@ -165,7 +165,7 @@ export class HTTPError extends AppError {
 }
 
 export class WSError extends AppError {
-  override code: number | null;
+  override code: number;
 
   constructor({ code, reason }: { code?: number; reason?: string }) {
     const parsedCode = typeof code === "number" ? code : null;
@@ -173,7 +173,8 @@ export class WSError extends AppError {
       typeof reason === "string" && /^\d+$/.test(reason.trim())
         ? Number(reason)
         : null;
-    const resolvedCode = parsedCode ?? parsedReasonCode;
+    const resolvedCode =
+      parsedCode ?? parsedReasonCode ?? UnexpectedErrorCode.External;
     const message =
       typeof resolvedCode === "number"
         ? getErrorMessage(resolvedCode)
@@ -200,4 +201,30 @@ export async function handleHttpError(response: Response): Promise<never> {
   }
 
   throw new HTTPError(code);
+}
+
+export interface WsErrorParams {
+  code?: number;
+  reason?: string;
+}
+
+export function handleWsError(params: WsErrorParams | CloseEvent): WSError {
+  let code: number | undefined;
+  let reason: string | undefined;
+
+  if (params instanceof CloseEvent) {
+    code = params.code === 1000 ? undefined : params.code;
+    reason = params.reason;
+  } else {
+    code = params.code;
+    reason = params.reason;
+  }
+
+  const resolvedCode = code ?? (reason ? parseInt(reason, 10) : undefined);
+  const resolvedReason = reason !== reason?.trim() ? reason?.trim() : reason;
+
+  return new WSError({
+    code: resolvedCode,
+    reason: resolvedReason,
+  });
 }

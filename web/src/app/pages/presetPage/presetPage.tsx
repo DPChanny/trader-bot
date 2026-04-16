@@ -129,9 +129,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
     <Page>
       <PrimarySection minSize overflow="hidden" style={{ width: "24rem" }}>
         {presetError ? (
-          <ErrorMessage error={presetError}>
-            프리셋을 불러오지 못했습니다.
-          </ErrorMessage>
+          <ErrorMessage error={presetError} />
         ) : (
           <Row justify="between" align="center">
             <NameTitle>{preset ? preset.name : "?"}</NameTitle>
@@ -155,9 +153,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
         <Bar />
 
         {presetError ? (
-          <ErrorMessage error={presetError}>
-            프리셋을 불러오지 못했습니다.
-          </ErrorMessage>
+          <ErrorMessage error={presetError} />
         ) : preset ? (
           <SecondarySection>
             <Row justify="between" align="center">
@@ -221,7 +217,6 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
           onSubmit={handleStartAuction}
           isPending={createAuction.isPending}
           error={createAuction.isError ? createAuction.error : undefined}
-          message={presetValidMessage || undefined}
           isHardError={!canStartAuction}
         />
       )}

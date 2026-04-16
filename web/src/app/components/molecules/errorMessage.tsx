@@ -1,36 +1,24 @@
 import { Column } from "../atoms/layout";
-import { useState } from "preact/hooks";
 import styles from "@styles/components/molecules/error.module.css";
 import { clsx } from "clsx";
 import { Text } from "../atoms/text";
-import { AppError, UNKNOWN_ERROR_MESSAGE } from "@utils/error";
-import type { ComponentChildren, JSX } from "preact";
+import { UNKNOWN_ERROR_MESSAGE, AppError } from "@utils/error";
+import type { JSX } from "preact";
 
-type ErrorPropsWithError = {
+type ErrorProps = JSX.IntrinsicElements["div"] & {
   error: unknown;
-  children: ComponentChildren;
 };
 
-type ErrorPropsWithoutError = {
-  error?: undefined;
-  children?: ComponentChildren;
-};
+export function ErrorMessage({ className, error, ...props }: ErrorProps) {
+  let message = UNKNOWN_ERROR_MESSAGE;
 
-export type ErrorProps = JSX.IntrinsicElements["div"] &
-  (ErrorPropsWithError | ErrorPropsWithoutError);
-
-export function ErrorMessage({
-  children,
-  className,
-  error,
-  ...props
-}: ErrorProps) {
-  const [showDetail, setShowDetail] = useState(false);
-
-  const detail = error instanceof globalThis.Error ? error.message : undefined;
-  const code =
-    error instanceof AppError ? (error.code ?? undefined) : undefined;
-  const text = children ?? detail ?? UNKNOWN_ERROR_MESSAGE;
+  if (error instanceof globalThis.Error) {
+    if (error instanceof AppError) {
+      message = `#${error.code}: ${error.message}`;
+    } else {
+      message = error.message;
+    }
+  }
 
   return (
     <Column
@@ -39,21 +27,7 @@ export function ErrorMessage({
       className={clsx(styles.error, className)}
       {...props}
     >
-      {detail ? (
-        <button
-          className={styles.toggle}
-          onClick={() => setShowDetail((v) => !v)}
-        >
-          <Text>{text}</Text>
-        </button>
-      ) : (
-        <Text>{text}</Text>
-      )}
-      {showDetail && (
-        <Text variantSize="small" className={styles.detail}>
-          {code !== undefined ? `#${code}: ${detail}` : detail}
-        </Text>
-      )}
+      <Text>{message}</Text>
     </Column>
   );
 }

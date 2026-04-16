@@ -110,9 +110,7 @@ export function TierEditor({ guildId, presetId }: TierEditorProps) {
       <TertiarySection fill>
         <Scroll axis="y">
           {error ? (
-            <ErrorMessage error={error}>
-              티어 목록을 불러오지 못했습니다.
-            </ErrorMessage>
+            <ErrorMessage error={error} />
           ) : isLoading ? (
             <Loading />
           ) : (

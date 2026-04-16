@@ -129,9 +129,7 @@ export function PresetMemberEditor({
           <Title>프리셋 멤버 목록</Title>
           {presetMembersError ? (
             <TertiarySection fill>
-              <ErrorMessage error={presetMembersError}>
-                프리셋 멤버 목록을 불러오지 못했습니다.
-              </ErrorMessage>
+              <ErrorMessage error={presetMembersError} />
             </TertiarySection>
           ) : presetMembersLoading ? (
             <TertiarySection fill>
@@ -154,9 +152,7 @@ export function PresetMemberEditor({
           <Title>멤버 목록</Title>
           {membersError ? (
             <TertiarySection fill>
-              <ErrorMessage error={membersError}>
-                멤버 목록을 불러오지 못했습니다.
-              </ErrorMessage>
+              <ErrorMessage error={membersError} />
             </TertiarySection>
           ) : membersLoading ? (
             <TertiarySection fill>

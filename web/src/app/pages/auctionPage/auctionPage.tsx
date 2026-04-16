@@ -134,9 +134,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     return (
       <Page>
         <PrimarySection fill align="stretch" justify="center">
-          <ErrorMessage error={websocketError}>
-            {blockingErrorMessage}
-          </ErrorMessage>
+          <ErrorMessage error={websocketError} />
         </PrimarySection>
       </Page>
     );
@@ -280,11 +278,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             <TertiarySection>
               {isLeader && !isClientTeamFull && (
                 <Row>
-                  {bidError && (
-                    <ErrorMessage error={bidError}>
-                      입찰에 실패했습니다.
-                    </ErrorMessage>
-                  )}
+                  {bidError && <ErrorMessage error={bidError} />}
                   <FlexItem>
                     <Input
                       type="number"
