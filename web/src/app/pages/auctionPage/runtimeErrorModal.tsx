@@ -1,6 +1,6 @@
 import { PrimaryButton } from "@components/atoms/button";
 import { Modal, ModalFooter } from "@components/modal";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
 import type { WSError } from "@utils/error";
 
 interface RuntimeErrorModalProps {
@@ -11,7 +11,7 @@ interface RuntimeErrorModalProps {
 export function RuntimeErrorModal({ error, onClose }: RuntimeErrorModalProps) {
   return (
     <Modal onClose={onClose} title="경매 오류">
-      <ErrorMessage error={error} />
+      <Error error={error} />
       <ModalFooter>
         <PrimaryButton onClick={onClose}>확인</PrimaryButton>
       </ModalFooter>

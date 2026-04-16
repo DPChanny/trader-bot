@@ -7,7 +7,8 @@ import { MemberGrid } from "@components/memberGrid";
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberPanel } from "./presetMemberPanel";
 import { Loading } from "@components/molecules/loading";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
+import { normalizeError } from "@utils/error";
 import {
   PrimarySection,
   SecondarySection,
@@ -129,7 +130,7 @@ export function PresetMemberEditor({
           <Title>프리셋 멤버 목록</Title>
           {presetMembersError ? (
             <TertiarySection fill>
-              <ErrorMessage error={presetMembersError} />
+              <Error error={normalizeError(presetMembersError)} />
             </TertiarySection>
           ) : presetMembersLoading ? (
             <TertiarySection fill>
@@ -152,7 +153,7 @@ export function PresetMemberEditor({
           <Title>멤버 목록</Title>
           {membersError ? (
             <TertiarySection fill>
-              <ErrorMessage error={membersError} />
+              <Error error={normalizeError(membersError)} />
             </TertiarySection>
           ) : membersLoading ? (
             <TertiarySection fill>
@@ -160,11 +161,11 @@ export function PresetMemberEditor({
             </TertiarySection>
           ) : (
             <>
-              {canEdit && createPresetMember.isError && (
-                <ErrorMessage error={createPresetMember.error}>
-                  프리셋 멤버를 추가하지 못했습니다.
-                </ErrorMessage>
-              )}
+              {canEdit &&
+                createPresetMember.isError &&
+                createPresetMember.error && (
+                  <Error error={normalizeError(createPresetMember.error)} />
+                )}
               <MemberGrid
                 members={candidateMembers}
                 onMemberClick={canEdit ? handleAddMember : undefined}

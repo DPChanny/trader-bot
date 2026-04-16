@@ -1,6 +1,6 @@
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
 
 interface DeleteTierModalProps {
   onClose: () => void;
@@ -31,7 +31,7 @@ export function DeleteTierModal({
     <Modal onClose={handleClose} title="티어 삭제">
       <ModalForm id={formId} onSubmit={handleSubmit}>
         정말 이 티어를 삭제하시겠습니까?
-        {error && <ErrorMessage error={error} />}
+        {error && <Error error={error} />}
       </ModalForm>
       <ModalFooter>
         <SecondaryButton onClick={handleClose} disabled={isPending}>

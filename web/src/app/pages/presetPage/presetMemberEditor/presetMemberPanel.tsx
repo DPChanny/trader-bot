@@ -16,7 +16,8 @@ import { useVerifyRole } from "@hooks/member";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { CloseButton, SaveButton, Button } from "@components/atoms/button";
 import { Label, NameTitle } from "@components/atoms/text";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
+import { normalizeError } from "@utils/error";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { Bar } from "@components/atoms/bar";
 import {
@@ -172,12 +173,6 @@ export function PresetMemberPanel({
     );
   };
 
-  const hasError =
-    updatePresetMember.isError ||
-    createPresetMemberPosition.isError ||
-    deletePresetMemberPosition.isError ||
-    removePresetMember.isError;
-
   const previewPositions = selectedPositionIds
     .map((id) => {
       const existingEntry = presetMember.presetMemberPositions?.find(
@@ -225,16 +220,19 @@ export function PresetMemberPanel({
         </Row>
       </Column>
 
-      {hasError && (
-        <ErrorMessage
-          error={
+      {updatePresetMember.error ||
+      createPresetMemberPosition.error ||
+      deletePresetMemberPosition.error ||
+      removePresetMember.error ? (
+        <Error
+          error={normalizeError(
             updatePresetMember.error ||
-            createPresetMemberPosition.error ||
-            deletePresetMemberPosition.error ||
-            removePresetMember.error
-          }
+              createPresetMemberPosition.error ||
+              deletePresetMemberPosition.error ||
+              removePresetMember.error,
+          )}
         />
-      )}
+      ) : null}
 
       <Bar />
 

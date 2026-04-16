@@ -8,7 +8,8 @@ import {
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
 import { Loading } from "@components/molecules/loading";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
+import { normalizeError } from "@utils/error";
 import { PrimaryButton } from "@components/atoms/button";
 import { Row, Scroll } from "@components/atoms/layout";
 import {
@@ -120,7 +121,7 @@ export function PositionEditor({ guildId, presetId }: PositionEditorProps) {
       <TertiarySection fill>
         <Scroll axis="y">
           {error ? (
-            <ErrorMessage error={error} />
+            <Error error={normalizeError(error)} />
           ) : isLoading ? (
             <Loading />
           ) : (

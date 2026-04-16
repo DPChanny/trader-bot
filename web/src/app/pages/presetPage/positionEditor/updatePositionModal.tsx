@@ -2,7 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
 import {
   UpdatePositionSchema,
   type PositionDTO,
@@ -55,7 +55,7 @@ export function UpdatePositionModal({
   return (
     <Modal onClose={handleClose} title="포지션 수정">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error ? <ErrorMessage error={error} /> : null}
+        {error ? <Error error={error} /> : null}
         <LabelInput
           label="포지션 이름"
           type="text"

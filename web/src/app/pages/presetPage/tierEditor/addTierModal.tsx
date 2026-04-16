@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import { Modal, ModalForm, ModalFooter } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
 import { AddTierSchema, type AddTierDTO } from "@dtos/tier";
 
 interface AddTierModalProps {
@@ -43,7 +43,7 @@ export function AddTierModal({
   return (
     <Modal onClose={handleClose} title="티어 추가">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error ? <ErrorMessage error={error} /> : null}
+        {error ? <Error error={error} /> : null}
         <LabelInput
           label="티어 이름"
           type="text"

@@ -1,6 +1,6 @@
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
 
 interface DeletePresetModalProps {
   onClose: () => void;
@@ -31,7 +31,7 @@ export function DeletePresetModal({
     <Modal onClose={handleClose} title="프리셋 삭제">
       <ModalForm id={formId} onSubmit={handleSubmit}>
         정말 이 프리셋을 삭제하시겠습니까?
-        {error && <ErrorMessage error={error} />}
+        {error && <Error error={error} />}
       </ModalForm>
       <ModalFooter>
         <SecondaryButton onClick={handleClose} disabled={isPending}>

@@ -15,7 +15,8 @@ import {
 import { Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { EditButton, DeleteButton, Button } from "@components/atoms/button";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
+import { normalizeError } from "@utils/error";
 import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
 import { CreateAuctionModal } from "./createAuctionModal";
@@ -129,7 +130,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
     <Page>
       <PrimarySection minSize overflow="hidden" style={{ width: "24rem" }}>
         {presetError ? (
-          <ErrorMessage error={presetError} />
+          <Error error={normalizeError(presetError)} />
         ) : (
           <Row justify="between" align="center">
             <NameTitle>{preset ? preset.name : "?"}</NameTitle>
@@ -153,7 +154,7 @@ export function PresetPage({ guildId, presetId }: PresetPageProps) {
         <Bar />
 
         {presetError ? (
-          <ErrorMessage error={presetError} />
+          <Error error={normalizeError(presetError)} />
         ) : preset ? (
           <SecondarySection>
             <Row justify="between" align="center">

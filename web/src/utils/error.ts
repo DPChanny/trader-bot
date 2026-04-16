@@ -228,3 +228,23 @@ export function handleWsError(params: WsErrorParams | CloseEvent): WSError {
     reason: resolvedReason,
   });
 }
+
+export function normalizeError(error: unknown): AppError {
+  if (error instanceof AppError) {
+    return error;
+  }
+
+  if (error instanceof globalThis.Error) {
+    // 일반 Error는 UnexpectedErrorCode.External로 변환
+    return new AppError(
+      error.message,
+      UnexpectedErrorCode.External,
+      error.name,
+    );
+  }
+
+  // Error가 아닌 경우도 처리
+  const message =
+    typeof error === "string" ? error : String(error ?? UNKNOWN_ERROR_MESSAGE);
+  return new AppError(message, UnexpectedErrorCode.External, "UnknownError");
+}

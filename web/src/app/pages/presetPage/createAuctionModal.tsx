@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { SecondaryButton, Button } from "@components/atoms/button";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
 import type { CreateAuctionDTO } from "@dtos/auction";
 
 interface CreateAuctionModalProps {
@@ -37,7 +37,7 @@ export function CreateAuctionModal({
   return (
     <Modal onClose={handleClose} title="경매 생성">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error && <ErrorMessage error={error} />}
+        {error && <Error error={error} />}
         <LabelToggle
           label="퍼블릭 허용"
           isPressed={isPublic}

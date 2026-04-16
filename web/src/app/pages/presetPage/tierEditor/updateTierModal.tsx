@@ -2,7 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
 import { UpdateTierSchema, type TierDTO, type UpdateTierDTO } from "@dtos/tier";
 import { buildPatchDto } from "@utils/dto";
 
@@ -51,7 +51,7 @@ export function UpdateTierModal({
   return (
     <Modal onClose={handleClose} title="티어 수정">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error ? <ErrorMessage error={error} /> : null}
+        {error ? <Error error={error} /> : null}
         <LabelInput
           label="티어 이름"
           type="text"

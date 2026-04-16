@@ -9,6 +9,7 @@ import {
   AUCTION_CONNECTION_FAILED_MESSAGE,
   WSError,
   handleWsError,
+  normalizeError,
 } from "@utils/error";
 
 interface AuctionWebSocketHook {
@@ -195,6 +196,9 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
         }
       } catch (error) {
         console.error("Failed to parse WebSocket message:", error);
+        if (mountedRef.current) {
+          setError(normalizeError(error) as WSError);
+        }
       }
     };
 

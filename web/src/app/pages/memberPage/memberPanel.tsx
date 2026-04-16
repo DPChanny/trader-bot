@@ -4,7 +4,8 @@ import { useUpdateMember } from "@hooks/member";
 import { CloseButton, SaveButton } from "@components/atoms/button";
 import { Link } from "@components/atoms/link";
 import { LabelInput } from "@components/molecules/labelInput";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
+import { normalizeError } from "@utils/error";
 import { Bar } from "@components/atoms/bar";
 import {
   PrimarySection,
@@ -88,7 +89,9 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
         </Row>
       </Row>
 
-      {updateMember.isError && <ErrorMessage error={updateMember.error} />}
+      {updateMember.isError && updateMember.error && (
+        <Error error={normalizeError(updateMember.error)} />
+      )}
 
       <Bar />
 

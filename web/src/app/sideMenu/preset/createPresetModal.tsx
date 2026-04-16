@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import { Modal, ModalForm, ModalFooter, ModalRow } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/errorMessage";
 import { CreatePresetSchema, type CreatePresetDTO } from "@dtos/preset";
 
 interface CreatePresetModalProps {
@@ -57,7 +57,7 @@ export function CreatePresetModal({
   return (
     <Modal onClose={handleClose} title="프리셋 추가">
       <ModalForm id={formId} onSubmit={handleSubmit}>
-        {error ? <ErrorMessage error={error} /> : null}
+        {error ? <Error error={error} /> : null}
         <LabelInput
           label="프리셋 이름"
           type="text"

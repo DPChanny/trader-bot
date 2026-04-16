@@ -10,7 +10,7 @@ import {
 import { Column, FlexItem, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
-import { ErrorMessage } from "@components/molecules/errorMessage";
+import { Error } from "@components/molecules/error";
 import { PrimaryButton } from "@components/atoms/button";
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberCard } from "@components/presetMemberCard";
@@ -130,11 +130,11 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
     ? AUCTION_CONNECTION_FAILED_MESSAGE
     : null;
 
-  if (blockingErrorMessage) {
+  if (blockingErrorMessage && websocketError) {
     return (
       <Page>
         <PrimarySection fill align="stretch" justify="center">
-          <ErrorMessage error={websocketError} />
+          <Error error={websocketError} />
         </PrimarySection>
       </Page>
     );
@@ -278,7 +278,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
             <TertiarySection>
               {isLeader && !isClientTeamFull && (
                 <Row>
-                  {bidError && <ErrorMessage error={bidError} />}
+                  {bidError && <Error error={bidError} />}
                   <FlexItem>
                     <Input
                       type="number"
