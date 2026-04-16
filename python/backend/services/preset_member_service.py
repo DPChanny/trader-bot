@@ -91,6 +91,7 @@ async def add_preset_member_service(
         member_id=dto.member_id,
         tier_id=dto.tier_id,
         is_leader=dto.is_leader,
+        info_url=dto.info_url,
     )
     session.add(preset_member)
     await session.flush()

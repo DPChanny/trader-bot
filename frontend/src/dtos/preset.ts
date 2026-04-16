@@ -10,13 +10,7 @@ export const CreatePresetSchema = z.object({
   pointScale: z.coerce.number().int().min(1).max(10),
 });
 
-export const UpdatePresetSchema = z.object({
-  name: nameSchema.optional(),
-  points: z.coerce.number().int().min(0).max(1000).optional(),
-  timer: z.coerce.number().int().min(1).max(60).optional(),
-  teamSize: z.coerce.number().int().min(1).max(10).optional(),
-  pointScale: z.coerce.number().int().min(1).max(10).optional(),
-});
+export const UpdatePresetSchema = CreatePresetSchema.partial();
 
 export type CreatePresetDTO = z.infer<typeof CreatePresetSchema>;
 export type UpdatePresetDTO = z.infer<typeof UpdatePresetSchema>;

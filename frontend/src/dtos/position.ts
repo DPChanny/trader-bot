@@ -6,10 +6,7 @@ export const AddPositionSchema = z.object({
   iconUrl: nullableUrlSchema,
 });
 
-export const UpdatePositionSchema = z.object({
-  name: nameSchema.optional(),
-  iconUrl: nullableUrlSchema.optional(),
-});
+export const UpdatePositionSchema = AddPositionSchema.partial();
 
 export type AddPositionDTO = z.infer<typeof AddPositionSchema>;
 export type UpdatePositionDTO = z.infer<typeof UpdatePositionSchema>;

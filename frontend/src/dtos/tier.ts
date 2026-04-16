@@ -6,10 +6,7 @@ export const AddTierSchema = z.object({
   iconUrl: nullableUrlSchema,
 });
 
-export const UpdateTierSchema = z.object({
-  name: nameSchema.optional(),
-  iconUrl: nullableUrlSchema.optional(),
-});
+export const UpdateTierSchema = AddTierSchema.partial();
 
 export type AddTierDTO = z.infer<typeof AddTierSchema>;
 export type UpdateTierDTO = z.infer<typeof UpdateTierSchema>;

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, ForeignKey
+from sqlalchemy import Boolean, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
@@ -28,6 +28,7 @@ class PresetMember(BaseEntity):
         ForeignKey("tier.tier_id", ondelete="SET NULL"),
     )
     is_leader: Mapped[bool] = mapped_column(Boolean)
+    info_url: Mapped[str | None] = mapped_column(String(2048))
 
     member: Mapped[Member] = relationship("Member", viewonly=True)
     tier: Mapped[Tier | None] = relationship("Tier", viewonly=True)

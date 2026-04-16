@@ -18,6 +18,7 @@ import { CloseButton, SaveButton, Button } from "@components/atoms/button";
 import { Label, NameTitle } from "@components/atoms/text";
 import { Error } from "@components/molecules/error";
 import { LabelToggle } from "@components/molecules/labelToggle";
+import { LabelInput } from "@components/molecules/labelInput";
 import { Bar } from "@components/atoms/bar";
 import {
   PrimarySection,
@@ -25,7 +26,7 @@ import {
   TertiarySection,
 } from "@components/molecules/section";
 import { Column, Row, Scroll } from "@components/atoms/layout";
-import { buildPatchDto } from "@utils/dto";
+import { buildPatchDto, nullableUrlSchema } from "@utils/dto";
 
 interface PresetMemberPanelProps {
   presetMember: PresetMemberDetailDTO;
@@ -64,6 +65,7 @@ export function PresetMemberPanel({
   const [tierId, setTierId] = useState<number | null>(
     presetMember.tierId || null,
   );
+  const [infoUrl, setInfoUrl] = useState(presetMember.infoUrl ?? "");
   const [selectedPositionIds, setSelectedPositionIds] = useState<number[]>(
     presetMember.presetMemberPositions?.map((p) => p.positionId) || [],
   );
@@ -77,12 +79,14 @@ export function PresetMemberPanel({
   const [savedSnapshot, setSavedSnapshot] = useState(() => ({
     isLeader: presetMember.isLeader,
     tierId: presetMember.tierId ?? null,
+    infoUrl: presetMember.infoUrl,
     positionIds:
       presetMember.presetMemberPositions?.map((p) => p.positionId) || [],
   }));
   useEffect(() => {
     setIsLeader(presetMember.isLeader);
     setTierId(presetMember.tierId || null);
+    setInfoUrl(presetMember.infoUrl ?? "");
     const positionIds =
       presetMember.presetMemberPositions?.map((p) => p.positionId) || [];
     const positionEntries =
@@ -95,6 +99,7 @@ export function PresetMemberPanel({
     setSavedSnapshot({
       isLeader: presetMember.isLeader,
       tierId: presetMember.tierId ?? null,
+      infoUrl: presetMember.infoUrl,
       positionIds,
     });
     setIsSaving(false);
@@ -102,8 +107,14 @@ export function PresetMemberPanel({
     presetMember.presetMemberId,
     presetMember.isLeader,
     presetMember.tierId,
+    presetMember.infoUrl,
     presetMember.presetMemberPositions,
   ]);
+
+  const parsedInfoUrl = nullableUrlSchema.safeParse(infoUrl);
+  const normalizedInfoUrl = parsedInfoUrl.success ? parsedInfoUrl.data : null;
+  const infoUrlChanged =
+    parsedInfoUrl.success && normalizedInfoUrl !== savedSnapshot.infoUrl;
 
   const sortedSelectedPositionIds = [...selectedPositionIds].sort(
     (a, b) => a - b,
@@ -114,6 +125,7 @@ export function PresetMemberPanel({
   const hasChanges =
     isLeader !== savedSnapshot.isLeader ||
     tierId !== savedSnapshot.tierId ||
+    infoUrlChanged ||
     sortedSelectedPositionIds.length !== sortedSavedPositionIds.length ||
     sortedSelectedPositionIds.some(
       (id, index) => id !== sortedSavedPositionIds[index],
@@ -124,10 +136,15 @@ export function PresetMemberPanel({
     setIsSaving(true);
     try {
       const patchDto = buildPatchDto(
-        { isLeader, tierId },
+        {
+          isLeader,
+          tierId,
+          infoUrl: normalizedInfoUrl,
+        },
         {
           isLeader: savedSnapshot.isLeader,
           tierId: savedSnapshot.tierId,
+          infoUrl: savedSnapshot.infoUrl,
         },
       );
       if (patchDto) {
@@ -211,6 +228,7 @@ export function PresetMemberPanel({
       setSavedSnapshot({
         isLeader,
         tierId,
+        infoUrl: normalizedInfoUrl,
         positionIds: nextSavedPositionEntries.map((entry) => entry.positionId),
       });
     } finally {
@@ -282,6 +300,7 @@ export function PresetMemberPanel({
     tierId: tierId,
     tier: previewTier,
     isLeader: isLeader,
+    infoUrl: normalizedInfoUrl,
     presetMemberPositions: previewPositions,
   };
 
@@ -328,6 +347,14 @@ export function PresetMemberPanel({
             >
               팀장
             </LabelToggle>
+
+            <LabelInput
+              label="프로필 링크"
+              value={infoUrl}
+              onValueChange={setInfoUrl}
+              placeholder={presetMember.member.infoUrl ?? undefined}
+              disabled={!canEdit || isSaving}
+            />
 
             <Column gap="xs">
               <Label>티어</Label>
