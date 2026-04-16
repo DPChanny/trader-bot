@@ -24,3 +24,11 @@
   left: 50%;
   transform: translateX(-50%);
 }
+
+.logoIcon {
+  width: 2rem;
+  height: 2rem;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
