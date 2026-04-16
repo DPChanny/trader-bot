@@ -12,8 +12,8 @@ interface AddTierModalProps {
 }
 
 export function AddTierModal({ onClose }: AddTierModalProps) {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const [name, setName] = useState("");
   const [iconUrl, setIconUrl] = useState("");
   const addTier = useAddTier();

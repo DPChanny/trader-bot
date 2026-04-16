@@ -10,7 +10,7 @@ type PresetCardProps = {
 };
 
 export function PresetCard({ preset, isSelected }: PresetCardProps) {
-  const guildId = useGuildId()!;
+  const guildId = useGuildId();
   return (
     <Link
       href={`/guild/${guildId}/preset/${preset.presetId}`}

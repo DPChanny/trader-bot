@@ -16,8 +16,8 @@ import { AddPositionModal } from "./addPositionModal";
 import { PositionCard } from "./positionCard";
 
 export function PositionEditor() {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const [showAdd, setShowAdd] = useState(false);
 
   const positions = usePositions(guildId, presetId);

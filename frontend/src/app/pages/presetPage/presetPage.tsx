@@ -23,8 +23,8 @@ import { NameTitle, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
 
 export function PresetPage() {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [showCreate, setShowCreate] = useState(false);

@@ -17,8 +17,8 @@ export function CreateAuctionModal({
   onSuccess,
   isHardError,
 }: CreateAuctionModalProps) {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const [isPublic, setIsPublic] = useState(true);
   const [sendInvite, setSendInvite] = useState(true);
   const createAuction = useCreateAuction();

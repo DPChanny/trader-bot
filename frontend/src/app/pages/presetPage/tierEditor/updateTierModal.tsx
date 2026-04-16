@@ -14,8 +14,8 @@ interface UpdateTierModalProps {
 }
 
 export function UpdateTierModal({ tier, onClose }: UpdateTierModalProps) {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const [name, setName] = useState(tier.name);
   const [iconUrl, setIconUrl] = useState(tier.iconUrl ?? "");
   const updateTier = useUpdateTier();

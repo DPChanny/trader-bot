@@ -17,8 +17,8 @@ import {
 import { Title } from "@components/atoms/text";
 
 export function PresetMemberEditor() {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const [selectedPresetMemberId, setSelectedPresetMemberId] = useState<
     number | null
   >(null);

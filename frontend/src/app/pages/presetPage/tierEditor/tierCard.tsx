@@ -17,7 +17,7 @@ type TierCardProps = {
 };
 
 export function TierCard({ tier }: TierCardProps) {
-  const guildId = useGuildId()!;
+  const guildId = useGuildId();
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);

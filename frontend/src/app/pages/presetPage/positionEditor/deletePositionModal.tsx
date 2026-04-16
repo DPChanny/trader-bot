@@ -13,8 +13,8 @@ export function DeletePositionModal({
   positionId,
   onClose,
 }: DeletePositionModalProps) {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const deletePosition = useDeletePosition();
   const formId = "delete-position-form";
 

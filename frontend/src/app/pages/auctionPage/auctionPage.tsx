@@ -1,5 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { useAuctionWebSocket } from "@hooks/auctionWebSocket";
+import { useAuctionId } from "@hooks/router";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import {
@@ -26,11 +27,6 @@ import {
   type WSError,
 } from "@utils/error";
 
-interface AuctionPageProps {
-  path?: string;
-  auctionId?: string;
-}
-
 function isBidErrorCode(code: number): boolean {
   switch (code) {
     case BackendErrorCode.Auction.BidTeamFull:
@@ -54,7 +50,8 @@ function isNonBlockingErrorCode(code: number | null | undefined): boolean {
   );
 }
 
-export function AuctionPage({ auctionId }: AuctionPageProps) {
+export function AuctionPage() {
+  const auctionId = useAuctionId();
   const [bidAmount, setBidAmount] = useState<string>("");
   const [bidError, setBidError] = useState<WSError | null>(null);
   const [nonBlockingError, setNonBlockingError] = useState<WSError | null>(
@@ -72,9 +69,7 @@ export function AuctionPage({ auctionId }: AuctionPageProps) {
   }, [error]);
 
   useEffect(() => {
-    if (auctionId !== undefined) {
-      connect(auctionId);
-    }
+    connect(auctionId);
   }, [auctionId]);
 
   const memberId = state?.memberId ?? null;

@@ -17,8 +17,8 @@ export function UpdatePositionModal({
   position,
   onClose,
 }: UpdatePositionModalProps) {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const [name, setName] = useState(position.name);
   const [iconUrl, setIconUrl] = useState(position.iconUrl ?? "");
   const updatePosition = useUpdatePosition();

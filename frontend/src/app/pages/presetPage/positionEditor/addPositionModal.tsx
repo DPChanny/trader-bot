@@ -12,8 +12,8 @@ interface AddPositionModalProps {
 }
 
 export function AddPositionModal({ onClose }: AddPositionModalProps) {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const [name, setName] = useState("");
   const [iconUrl, setIconUrl] = useState("");
   const addPosition = useAddPosition();

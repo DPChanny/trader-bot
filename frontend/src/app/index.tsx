@@ -62,7 +62,12 @@ function PresetRoute({
 }
 
 function AuctionRoute({ auctionId }: RoutableProps & { auctionId?: string }) {
-  return <AuctionPage auctionId={auctionId} />;
+  if (!auctionId) {
+    route("/", true);
+    return null;
+  }
+
+  return <AuctionPage />;
 }
 
 function App() {

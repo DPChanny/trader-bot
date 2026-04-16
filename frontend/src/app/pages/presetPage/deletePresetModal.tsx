@@ -10,8 +10,8 @@ interface DeletePresetModalProps {
 }
 
 export function DeletePresetModal({ onClose }: DeletePresetModalProps) {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const deletePreset = useDeletePreset();
   const formId = "delete-preset-form";
 

@@ -1,6 +1,4 @@
-prop drilling
-    except atoms
-    except molecules
+auction prop drilling
 component
     sidemenu
 layout

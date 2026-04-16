@@ -16,8 +16,8 @@ import {
 import { Title } from "@components/atoms/text";
 
 export function TierEditor() {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const [showAdd, setShowAdd] = useState(false);
 
   const tiers = useTiers(guildId, presetId);

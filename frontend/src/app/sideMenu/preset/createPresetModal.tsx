@@ -12,7 +12,7 @@ interface CreatePresetModalProps {
 }
 
 export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
-  const guildId = useGuildId()!;
+  const guildId = useGuildId();
   const [name, setName] = useState("");
   const [points, setPoints] = useState("");
   const [pointScale, setPointScale] = useState("");

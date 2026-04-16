@@ -14,8 +14,8 @@ interface UpdatePresetModalProps {
 }
 
 export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const [name, setName] = useState(preset.name);
   const [displayPoints, setDisplayPoints] = useState(
     String(preset.points * preset.pointScale),

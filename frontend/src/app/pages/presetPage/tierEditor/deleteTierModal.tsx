@@ -10,8 +10,8 @@ interface DeleteTierModalProps {
 }
 
 export function DeleteTierModal({ tierId, onClose }: DeleteTierModalProps) {
-  const guildId = useGuildId()!;
-  const presetId = usePresetId()!;
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const deleteTier = useDeleteTier();
   const formId = "delete-tier-form";
 

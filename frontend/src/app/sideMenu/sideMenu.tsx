@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import styles from "@styles/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@hooks/guild";
-import { useGuildId, usePresetId } from "@hooks/router";
+import { useOptionalGuildId, useOptionalPresetId } from "@hooks/router";
 import { CloseButton } from "@components/atoms/button";
 import { Fill, Layout, Row } from "@components/atoms/layout";
 import { Title } from "@components/atoms/text";
@@ -11,8 +11,8 @@ import { PresetList } from "./preset/presetList";
 
 export function SideMenu() {
   const guilds = useGuilds();
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const guildId = useOptionalGuildId();
+  const presetId = useOptionalPresetId();
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 

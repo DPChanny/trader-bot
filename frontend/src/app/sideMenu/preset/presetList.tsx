@@ -18,7 +18,7 @@ interface PresetListProps {
 }
 
 export function PresetList({ selectedPresetId }: PresetListProps) {
-  const guildId = useGuildId()!;
+  const guildId = useGuildId();
   const [showCreate, setShowCreate] = useState(false);
 
   const presets = usePresets(guildId);

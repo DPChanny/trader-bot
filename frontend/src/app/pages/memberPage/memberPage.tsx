@@ -15,7 +15,7 @@ import type { MemberDetailDTO } from "@dtos/member";
 import { useGuildId } from "@hooks/router";
 
 export function MemberPage() {
-  const guildId = useGuildId()!;
+  const guildId = useGuildId();
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
 
   const members = useMembers(guildId);
