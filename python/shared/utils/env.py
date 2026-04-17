@@ -60,4 +60,8 @@ def get_log_level() -> str:
 
 
 def get_log_text() -> bool:
-    return "LOG_TEXT" in os.environ
+    return os.getenv("LOG_TEXT", "false").lower() == "true"
+
+
+def get_log_file() -> bool:
+    return os.getenv("LOG_FILE", "false").lower() == "true"

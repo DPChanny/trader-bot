@@ -14,7 +14,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-from .env import get_log_level, get_log_text
+from .env import get_log_file, get_log_level, get_log_text
 
 
 REDACT_KEYS = {"access_token", "refresh_token", "exchange_token"}
@@ -62,6 +62,12 @@ class Event:
 
 
 def _patcher(record: dict[str, Any]) -> None:
+    log_file = get_log_file()
+    log_text = get_log_text()
+
+    if not log_file and not log_text:
+        return
+
     extra = dict(record["extra"])
     event = extra.pop("event", None)
     request = extra.pop("request", None)
@@ -90,10 +96,10 @@ def _patcher(record: dict[str, Any]) -> None:
     if extra:
         log["extra"] = extra
 
-    record["extra"]["json"] = json.dumps(log, ensure_ascii=False, default=str)
-    record["extra"]["text"] = None
+    if log_file:
+        record["extra"]["json"] = json.dumps(log, ensure_ascii=False, default=str)
 
-    if not get_log_text():
+    if not log_text:
         return
 
     parts = [f"{log['timestamp']} | {log['level']:<8} | {log['source']}"]
@@ -141,26 +147,28 @@ def setup_logging(log_dir: str | Path, log_name: str) -> None:
     resolved_log_dir.mkdir(parents=True, exist_ok=True)
     log_name = resolved_log_dir / log_name
 
-    logger.add(
-        str(log_name),
-        level=log_level,
-        format="{extra[json]}",
-        rotation="64 MB",
-        retention="7 days",
-        compression="zip",
-        enqueue=True,
-        backtrace=False,
-        diagnose=False,
-    )
+    if get_log_file():
+        logger.add(
+            str(log_name),
+            level=log_level,
+            format="{extra[json]}",
+            rotation="64 MB",
+            retention="7 days",
+            compression="zip",
+            enqueue=True,
+            backtrace=False,
+            diagnose=False,
+        )
 
-    logger.add(
-        sys.stderr,
-        level=log_level,
-        format="{extra[text]}",
-        enqueue=True,
-        backtrace=False,
-        diagnose=False,
-    )
+    if get_log_text():
+        logger.add(
+            sys.stderr,
+            level=log_level,
+            format="{extra[text]}",
+            enqueue=True,
+            backtrace=False,
+            diagnose=False,
+        )
 
     logging.root.handlers = [_LoguruHandler()]
     logging.root.setLevel(logging.NOTSET)
@@ -194,13 +202,11 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                     if request.client is not None
                     else None
                 )
-                url = request.url.path
-                if request.url.query:
-                    url += f"?{request.url.query}"
                 logger.bind(
                     request={
                         "method": request.method,
-                        "url": url,
+                        "path": request.url.path,
+                        "query": request.url.query,
                         "client_ip": client_ip,
                         "user_agent": request.headers.get("user-agent"),
                         "status_code": status_code,
