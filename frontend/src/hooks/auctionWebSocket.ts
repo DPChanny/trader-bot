@@ -10,7 +10,6 @@ import {
   handleWSError,
   WSError,
   isBackendErrorCode,
-  isFrontendErrorCode,
 } from "@utils/error";
 
 interface AuctionWebSocketHook {
@@ -37,7 +36,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     }
   };
 
-  const handleWebSocketMessage = (message: AuctionMessageEnvelopeDTO) => {
+  const handleAuctionMessage = (message: AuctionMessageEnvelopeDTO) => {
     const rawPayload = message.payload;
     const dto = toCamelCase(rawPayload);
 
@@ -143,10 +142,7 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
       }
 
       case AuctionMessageType.ERROR: {
-        const code = dto?.code;
-        if (typeof code === "number") {
-          handleError(code);
-        }
+        handleError(dto.code);
         break;
       }
 
@@ -155,19 +151,8 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     }
   };
 
-  const cleanupConnection = () => {
-    if (wsRef.current) {
-      wsRef.current.onopen = null;
-      wsRef.current.onmessage = null;
-      wsRef.current.onclose = null;
-      wsRef.current.onerror = null;
-      wsRef.current.close();
-      wsRef.current = null;
-    }
-  };
-
   const connect = (auctionId: string) => {
-    cleanupConnection();
+    wsRef.current?.close();
     setIsConnected(false);
     setError(null);
 
@@ -198,48 +183,23 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data) as AuctionMessageEnvelopeDTO;
-        handleWebSocketMessage(message);
+        handleAuctionMessage(message);
       } catch {
-        handleError(FrontendErrorCode.Auction.InvalidMessage);
+        handleError(FrontendErrorCode.Validation.Invalid);
       }
     };
 
     ws.onclose = (event) => {
+      if (wsRef.current !== ws) return;
       setIsConnected(false);
-      if (event.reason || event.code !== 1000) {
-        const reasonCode = Number.parseInt(event.reason, 10);
-        const isReasonAppCode =
-          Number.isInteger(reasonCode) &&
-          ((reasonCode >= 4000 &&
-            reasonCode < 6000 &&
-            isBackendErrorCode(reasonCode)) ||
-            isFrontendErrorCode(reasonCode));
-        const isCloseAppCode =
-          event.code !== 1000 &&
-          ((event.code >= 4000 &&
-            event.code < 6000 &&
-            isBackendErrorCode(event.code)) ||
-            isFrontendErrorCode(event.code));
-        const code = isReasonAppCode
-          ? reasonCode
-          : isCloseAppCode
-            ? event.code
-            : FrontendErrorCode.Auction.Disconnected;
-        handleError(code);
+      const reasonCode = Number.parseInt(event.reason, 10);
+      if (Number.isInteger(reasonCode) && isBackendErrorCode(reasonCode)) {
+        handleError(reasonCode);
         return;
       }
-
-      if (!opened) {
-        handleError(FrontendErrorCode.Auction.Disconnected);
-        return;
+      if (event.code === 1000 && opened) {
+        setError(null);
       }
-
-      setError(null);
-    };
-
-    ws.onerror = () => {
-      setIsConnected(false);
-      handleError(FrontendErrorCode.Auction.Disconnected);
     };
 
     wsRef.current = ws;
@@ -267,7 +227,8 @@ export function useAuctionWebSocket(): AuctionWebSocketHook {
 
   useEffect(() => {
     return () => {
-      cleanupConnection();
+      wsRef.current?.close();
+      wsRef.current = null;
     };
   }, []);
 

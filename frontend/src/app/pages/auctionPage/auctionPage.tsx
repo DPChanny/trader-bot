@@ -45,7 +45,7 @@ function isNonBlockingErrorCode(code: number | null | undefined): boolean {
     code === BackendErrorCode.Validation.Invalid ||
     code === BackendErrorCode.Unexpected.Internal ||
     code === BackendErrorCode.Unexpected.External ||
-    code === FrontendErrorCode.Auction.InvalidMessage ||
+    code === FrontendErrorCode.Validation.Invalid ||
     code === FrontendErrorCode.Unexpected.Internal ||
     code === FrontendErrorCode.Unexpected.External
   );

@@ -1,7 +1,6 @@
 export const FrontendErrorCode = {
-  Auction: {
-    InvalidMessage: 9201,
-    Disconnected: 9202,
+  Validation: {
+    Invalid: 9101,
   },
   Unexpected: {
     Internal: 9501,
@@ -139,10 +138,8 @@ function getErrorMessage(code: number): string {
     case BackendErrorCode.Unexpected.External:
       return "서버 외부에서 예기치 못한 문제가 발생했습니다";
 
-    case FrontendErrorCode.Auction.InvalidMessage:
-      return "경매 메시지를 처리하지 못했습니다";
-    case FrontendErrorCode.Auction.Disconnected:
-      return "경매 서버 연결이 끊겼습니다";
+    case FrontendErrorCode.Validation.Invalid:
+      return "유효하지 않은 입력입니다";
 
     case FrontendErrorCode.Unexpected.Internal:
       return "클라이언트 내부에서 예기치 못한 문제가 발생했습니다";
