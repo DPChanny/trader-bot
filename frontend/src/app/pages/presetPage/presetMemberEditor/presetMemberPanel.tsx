@@ -354,7 +354,7 @@ export function PresetMemberPanel({
               팀장
             </LabelToggle>
             <LabelInput
-              label="프로필 링크"
+              label="정보 링크"
               value={infoUrl}
               onValueChange={setInfoUrl}
               placeholder={presetMember.member.infoUrl ?? undefined}

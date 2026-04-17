@@ -149,7 +149,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
               disabled={!canEdit || isSaving}
             />
             <LabelInput
-              label="프로필 링크"
+              label="정보 링크"
               value={infoUrl}
               onValueChange={setInfoUrl}
               disabled={!canEdit || isSaving}
