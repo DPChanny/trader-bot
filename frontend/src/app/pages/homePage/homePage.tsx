@@ -2,6 +2,7 @@ import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Link } from "@components/atoms/link";
 import { Column, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text } from "@components/atoms/text";
+import { Card } from "@components/molecules/card";
 import {
   PrimarySection,
   SecondarySection,
@@ -57,7 +58,7 @@ export function HomePage() {
             </Column>
 
             <dl className={styles.metricList}>
-              <div className={styles.metricCard}>
+              <Card variantColor="gray">
                 <dt>
                   <Text variantSize="small" className={styles.metricLabel}>
                     핵심 흐름
@@ -68,8 +69,8 @@ export function HomePage() {
                     {`${BOT_INVITE_URL_TEXT} → 길드 선택 → 프리셋 구성 → 경매 생성`}
                   </Text>
                 </dd>
-              </div>
-              <div className={styles.metricCard}>
+              </Card>
+              <Card variantColor="gray">
                 <dt>
                   <Text variantSize="small" className={styles.metricLabel}>
                     운영 길드
@@ -86,7 +87,7 @@ export function HomePage() {
                     </Link>
                   </Text>
                 </dd>
-              </div>
+              </Card>
             </dl>
           </PrimarySection>
 

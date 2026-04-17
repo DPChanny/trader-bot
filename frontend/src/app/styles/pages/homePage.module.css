@@ -41,15 +41,6 @@
   gap: var(--space-4);
 }
 
-.metricCard {
-  display: grid;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.04);
-  border: var(--border-width-default) solid rgba(255, 255, 255, 0.08);
-}
-
 .metricLabel {
   display: block;
   text-align: left;

@@ -1,5 +1,7 @@
 import { Link } from "@components/atoms/link";
-import { Column, Page, Scroll } from "@components/atoms/layout";
+import { Column, Page, Row, Scroll } from "@components/atoms/layout";
+import { Text } from "@components/atoms/text";
+import { Card } from "./card";
 import { PrimarySection, SecondarySection, TertiarySection } from "./section";
 import { HtmlContent } from "./htmlContent";
 import type { ComponentChildren } from "preact";
@@ -36,62 +38,83 @@ export function MarkedPage({
   supplementaryContent,
 }: MarkedPageProps) {
   return (
-    <Page className={styles.pageShell}>
-      <Scroll axis="y" className={styles.pageScroll}>
+    <Page>
+      <Scroll axis="y">
         <Column gap="xl" className={styles.container}>
-          <PrimarySection className={styles.heroSection}>
-            <header className={styles.heroHeader}>
-              <p className={styles.eyebrow}>{eyebrow}</p>
-              <h1 className={styles.heroTitle}>{title}</h1>
-              <p className={styles.heroDescription}>{intro}</p>
-              {meta && <p className={styles.meta}>{meta}</p>}
+          <PrimarySection gap="lg" className={styles.heroSection}>
+            <header>
+              <Column gap="md">
+                <Text
+                  variantSize="small"
+                  variantWeight="bold"
+                  className={styles.eyebrow}
+                >
+                  {eyebrow}
+                </Text>
+                <h1 className={styles.heroTitle}>{title}</h1>
+                <Text className={styles.heroDescription}>{intro}</Text>
+                {meta && (
+                  <Text variantSize="small" className={styles.meta}>
+                    {meta}
+                  </Text>
+                )}
+              </Column>
             </header>
-            <div className={styles.heroActions}>
+            <Row gap="md" wrap>
               {heroActions ?? <Link href="/">홈으로 돌아가기</Link>}
-            </div>
+            </Row>
           </PrimarySection>
 
-          <SecondarySection className={styles.sectionShell}>
-            <section className={styles.sectionBody}>
-              <HtmlContent html={bodyHtml} />
-            </section>
+          <SecondarySection gap="md">
+            <HtmlContent html={bodyHtml} />
           </SecondarySection>
 
-          {(supplementaryContent || footerHtml) && (
-            <TertiarySection className={styles.sectionShell}>
-              <section className={styles.sectionBody}>
-                {(supplementaryTitle || supplementaryDescription) && (
-                  <header className={styles.sectionHeader}>
+          {(supplementaryTitle ||
+            supplementaryDescription ||
+            supplementaryItems ||
+            supplementaryContent ||
+            footerHtml) && (
+            <TertiarySection gap="md">
+              {(supplementaryTitle || supplementaryDescription) && (
+                <header>
+                  <Column gap="sm">
                     {supplementaryTitle && (
                       <h2 className={styles.sectionTitle}>
                         {supplementaryTitle}
                       </h2>
                     )}
                     {supplementaryDescription && (
-                      <p className={styles.sectionDescription}>
+                      <Text className={styles.sectionDescription}>
                         {supplementaryDescription}
-                      </p>
+                      </Text>
                     )}
-                  </header>
-                )}
+                  </Column>
+                </header>
+              )}
 
-                {supplementaryItems && (
-                  <dl className={styles.infoList}>
-                    {supplementaryItems.map((item, index) => (
-                      <div key={index} className={styles.infoRow}>
-                        <dt className={styles.infoLabel}>{item.label}</dt>
-                        <dd className={styles.infoValue}>{item.value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
+              {supplementaryItems && supplementaryItems.length > 0 && (
+                <Column gap="md">
+                  {supplementaryItems.map((item, index) => (
+                    <Card key={index} variantColor="gray">
+                      <Text variantSize="small" className={styles.infoLabel}>
+                        {item.label}
+                      </Text>
+                      <Text
+                        variantWeight="semibold"
+                        className={styles.infoValue}
+                      >
+                        {item.value}
+                      </Text>
+                    </Card>
+                  ))}
+                </Column>
+              )}
 
-                {supplementaryContent}
+              {supplementaryContent}
 
-                {footerHtml && (
-                  <HtmlContent html={footerHtml} variantTone="muted" />
-                )}
-              </section>
+              {footerHtml && (
+                <HtmlContent html={footerHtml} variantTone="muted" />
+              )}
             </TertiarySection>
           )}
         </Column>
