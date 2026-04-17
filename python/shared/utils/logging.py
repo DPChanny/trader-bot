@@ -147,14 +147,14 @@ class _LoguruHandler(logging.Handler):
         )
 
 
-def setup_logging(log_dir: str | Path, log_name: str) -> None:
+def setup_logging(log_dir: str | Path) -> None:
     log_level = get_log_level()
     logger.remove()
     logger.configure(patcher=_patcher)
 
     resolved_log_dir = Path(log_dir)
     resolved_log_dir.mkdir(parents=True, exist_ok=True)
-    log_name = resolved_log_dir / log_name
+    log_name = resolved_log_dir / "log.log"
 
     if get_log_file():
         logger.add(

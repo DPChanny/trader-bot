@@ -15,9 +15,7 @@ from .routers import (
 )
 
 
-setup_logging(
-    log_dir=Path(__file__).resolve().parent / "logs", log_name="{time:YYMMDDHHMMSS}.log"
-)
+setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 
 
 async def main() -> None:
