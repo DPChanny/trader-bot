@@ -2,7 +2,7 @@ import json
 import logging
 import sys
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import UTC
 from pathlib import Path
 from typing import Any
@@ -63,9 +63,9 @@ def _normalize_event_response(value: Any) -> dict[str, Any]:
 @dataclass
 class Event:
     function: str
-    request: dict[str, Any] | list[Any] | BaseModel = field(default_factory=dict)
+    request: dict[str, Any] | list[Any] | BaseModel | None = None
     response: dict[str, Any] | list[Any] | BaseModel | None = None
-    detail: dict[str, Any] | list[Any] | BaseModel = field(default_factory=dict)
+    detail: dict[str, Any] | list[Any] | BaseModel | None = None
 
     def __iter__(self):
         yield "function", self.function

@@ -135,8 +135,7 @@ def _build_event(error: AppError, fallback_function: str) -> Event:
 
     return Event(
         function=error.function or fallback_function,
-        request=error.request or {},
-        response={},
+        request=error.request,
         detail=detail,
     )
 

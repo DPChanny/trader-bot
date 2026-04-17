@@ -15,7 +15,7 @@ EXCLUDED_REQUEST_ARG_NAMES = {"session", "ws", "websocket", "bot"}
 
 def _extract_request(
     sig: inspect.Signature, args: tuple[Any, ...], kwargs: dict[str, Any]
-) -> dict[str, Any]:
+) -> dict[str, Any] | None:
     bound = sig.bind_partial(*args, **kwargs)
     dto_entries: list[tuple[str, BaseModel]] = []
 
@@ -35,20 +35,16 @@ def _extract_request(
     if len(dto_entries) > 1:
         return {name: dto.model_dump(exclude_unset=True) for name, dto in dto_entries}
 
-    return {}
+    return None
 
 
-def _build_event(
-    sig: inspect.Signature,
-    kwargs: dict[str, Any],
-    request: dict[str, Any],
-    function: str,
+def _inject_event(
+    sig: inspect.Signature, kwargs: dict[str, Any], function: str
 ) -> tuple[dict[str, Any], Event]:
-    event = Event(function=function, request=request)
-    injected_kwargs = dict(kwargs)
+    event = Event(function=function)
     if "event" in sig.parameters:
-        injected_kwargs["event"] = event
-    return injected_kwargs, event
+        kwargs["event"] = event
+    return kwargs, event
 
 
 def http_service(func):
@@ -56,11 +52,11 @@ def http_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        request = _extract_request(sig, args, kwargs)
-        call_kwargs, event = _build_event(sig, kwargs, request, func.__name__)
+        kwargs, event = _inject_event(sig, kwargs, func.__name__)
+        event.request = _extract_request(sig, args, kwargs)
 
         try:
-            response = await func(*args, **call_kwargs)
+            response = await func(*args, **kwargs)
             if event.response is None:
                 event.response = response
             logger.bind(event=event).info("succeeded")
@@ -69,12 +65,12 @@ def http_service(func):
             if error.function is None:
                 error.function = func.__name__
             if error.request is None:
-                error.request = request
+                error.request = event.request
             raise
         except Exception as error:
             http_error = HTTPError(UnexpectedErrorCode.Internal)
             http_error.function = func.__name__
-            http_error.request = request
+            http_error.request = event.request
             raise http_error from error
 
     return wrapper
@@ -85,11 +81,11 @@ def bot_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        request = _extract_request(sig, args, kwargs)
-        call_kwargs, event = _build_event(sig, kwargs, request, func.__name__)
+        kwargs, event = _inject_event(sig, kwargs, func.__name__)
+        event.request = _extract_request(sig, args, kwargs)
 
         try:
-            response = await func(*args, **call_kwargs)
+            response = await func(*args, **kwargs)
             if event.response is None:
                 event.response = response
             logger.bind(event=event).info("succeeded")
@@ -98,12 +94,12 @@ def bot_service(func):
             if error.function is None:
                 error.function = func.__name__
             if error.request is None:
-                error.request = request
+                error.request = event.request
             raise
         except Exception as error:
             app_error = AppError(UnexpectedErrorCode.Internal)
             app_error.function = func.__name__
-            app_error.request = request
+            app_error.request = event.request
             raise app_error from error
 
     return wrapper
@@ -114,23 +110,23 @@ def ws_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        request = _extract_request(sig, args, kwargs)
-        call_kwargs, _ = _build_event(sig, kwargs, request, func.__name__)
+        kwargs, event = _inject_event(sig, kwargs, func.__name__)
+        event.request = _extract_request(sig, args, kwargs)
 
         try:
-            return await func(*args, **call_kwargs)
+            return await func(*args, **kwargs)
         except WSError as error:
             if error.function is None:
                 error.function = func.__name__
             if error.request is None:
-                error.request = request
+                error.request = event.request
             raise
         except (ValidationError, JSONDecodeError):
             raise
         except Exception as error:
             ws_error = WSError(UnexpectedErrorCode.Internal)
             ws_error.function = func.__name__
-            ws_error.request = request
+            ws_error.request = event.request
             raise ws_error from error
 
     return wrapper

@@ -26,6 +26,8 @@ async def on_ready_service(
         await delete_guild(guild_entity.discord_id, session)
         removed_guild_count += 1
 
+    if event.detail is None:
+        event.detail = {}
     event.detail["removed_guild_count"] = removed_guild_count
     response = {"synced_guild_count": len(synced_guild_ids)}
     return response

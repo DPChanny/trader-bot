@@ -21,6 +21,8 @@ async def on_guild_update_service(
     guild_id = after.id
     guild_dto = await upsert_guild(after, session)
     if before.owner_id != after.owner_id:
+        if event.detail is None:
+            event.detail = {}
         before_owner_member = await update_member_role(
             guild_id, before.owner_id, Role.ADMIN, session
         )
