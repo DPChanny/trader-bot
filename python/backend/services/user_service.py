@@ -14,5 +14,5 @@ async def get_my_user_service(
     user = await user_repo.get_by_id(user_id)
     if user is None:
         raise HTTPError(UserErrorCode.NotFound)
-    event.response = UserDTO.model_validate(user)
+    event.result = UserDTO.model_validate(user)
     return UserDetailDTO.model_validate(user)

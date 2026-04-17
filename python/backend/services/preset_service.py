@@ -85,5 +85,5 @@ async def delete_preset_service(
     if preset is None:
         raise HTTPError(PresetErrorCode.NotFound)
 
-    event.response = PresetDTO.model_validate(preset)
+    event.result = PresetDTO.model_validate(preset)
     await session.delete(preset)

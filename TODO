@@ -1,5 +1,4 @@
 
-log
 home page
     policy
     annuncement
@@ -7,6 +6,9 @@ home page
 layout
     critical
 ********************publish********************
+    swap memory
+    t4g.small
+***********************************************
 layout
 surface
     section tone
@@ -16,8 +18,6 @@ css
     token
 sidemenu
 security
-    swap memory
-    t4g.small
 auction 
     opt
     route

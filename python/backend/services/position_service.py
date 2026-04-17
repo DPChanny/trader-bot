@@ -97,5 +97,5 @@ async def delete_position_service(
     if position is None:
         raise HTTPError(PositionErrorCode.NotFound)
 
-    event.response = PositionDTO.model_validate(position)
+    event.result = PositionDTO.model_validate(position)
     await session.delete(position)

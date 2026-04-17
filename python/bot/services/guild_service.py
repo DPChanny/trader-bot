@@ -12,7 +12,7 @@ from ..utils.member import update_member_role
 async def on_guild_join_service(
     guild: Guild, session: AsyncSession, event: Event
 ) -> None:
-    event.response = await sync_guild(guild, session)
+    event.result = await sync_guild(guild, session)
 
 
 @bot_service
@@ -33,11 +33,11 @@ async def on_guild_update_service(
             "after_owner_member_id": after_owner_member.member_id,
         }
 
-    event.response = guild_dto
+    event.result = guild_dto
 
 
 @bot_service
 async def on_guild_remove_service(
     guild: Guild, session: AsyncSession, event: Event
 ) -> None:
-    event.response = await delete_guild(guild.id, session)
+    event.result = await delete_guild(guild.id, session)

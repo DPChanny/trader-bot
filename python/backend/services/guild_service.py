@@ -16,10 +16,10 @@ async def get_guilds_service(
     guilds = await guild_repo.get_all_by_user_id(user_id)
 
     response: list[GuildDetailDTO] = []
-    event.response = []
+    event.result = []
     for guild in guilds:
         response.append(GuildDetailDTO.model_validate(guild))
-        event.response.append(GuildDTO.model_validate(guild))
+        event.result.append(GuildDTO.model_validate(guild))
 
     return response
 
@@ -35,5 +35,5 @@ async def get_guild_service(
     if guild is None:
         raise HTTPError(GuildErrorCode.NotFound)
 
-    event.response = GuildDTO.model_validate(guild)
+    event.result = GuildDTO.model_validate(guild)
     return GuildDetailDTO.model_validate(guild)

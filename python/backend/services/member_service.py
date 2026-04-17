@@ -16,7 +16,7 @@ async def get_my_member_service(
     member = await member_repo.get_detail_by_user_id(user_id, guild_id)
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
-    event.response = MemberDTO.model_validate(member)
+    event.result = MemberDTO.model_validate(member)
     return MemberDetailDTO.model_validate(member)
 
 
@@ -29,7 +29,7 @@ async def get_member_service(
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
-    event.response = MemberDTO.model_validate(member)
+    event.result = MemberDTO.model_validate(member)
     return MemberDetailDTO.model_validate(member)
 
 
@@ -42,10 +42,10 @@ async def get_members_service(
     members = await member_repo.get_all_by_guild_id(guild_id)
 
     response: list[MemberDetailDTO] = []
-    event.response = []
+    event.result = []
     for member in members:
         response.append(MemberDetailDTO.model_validate(member))
-        event.response.append(MemberDTO.model_validate(member))
+        event.result.append(MemberDTO.model_validate(member))
 
     return response
 
@@ -76,5 +76,5 @@ async def update_member_service(
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
-    event.response = MemberDTO.model_validate(member)
+    event.result = MemberDTO.model_validate(member)
     return MemberDetailDTO.model_validate(member)

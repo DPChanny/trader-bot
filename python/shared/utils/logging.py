@@ -60,13 +60,13 @@ def redact(value: Any) -> Any:
 class Event:
     function: str
     request: LogValue | None = None
-    response: LogValue | None = None
+    result: LogValue | None = None
     detail: LogValue | None = None
 
     def __iter__(self):
         yield "function", self.function
         yield ("request", redact(self.request))
-        yield ("response", redact(self.response))
+        yield ("result", redact(self.result))
         yield ("detail", redact(self.detail))
 
 

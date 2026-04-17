@@ -10,4 +10,4 @@ from ..utils.user import sync_user
 async def on_user_update_service(
     user: User, session: AsyncSession, event: Event
 ) -> None:
-    event.response = await sync_user(user, session)
+    event.result = await sync_user(user, session)

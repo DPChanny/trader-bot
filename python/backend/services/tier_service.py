@@ -93,5 +93,5 @@ async def delete_tier_service(
     if tier is None:
         raise HTTPError(TierErrorCode.NotFound)
 
-    event.response = TierDTO.model_validate(tier)
+    event.result = TierDTO.model_validate(tier)
     await session.delete(tier)

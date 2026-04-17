@@ -66,7 +66,7 @@ async def add_preset_member_position_service(
     if preset_member_position is None:
         raise HTTPError(PresetMemberPositionErrorCode.NotFound)
 
-    event.response = PresetMemberPositionDTO.model_validate(preset_member_position)
+    event.result = PresetMemberPositionDTO.model_validate(preset_member_position)
     return PresetMemberPositionDetailDTO.model_validate(preset_member_position)
 
 
@@ -89,5 +89,5 @@ async def delete_preset_member_position_service(
     if preset_member_position is None:
         raise HTTPError(PresetMemberPositionErrorCode.NotFound)
 
-    event.response = PresetMemberPositionDTO.model_validate(preset_member_position)
+    event.result = PresetMemberPositionDTO.model_validate(preset_member_position)
     await session.delete(preset_member_position)

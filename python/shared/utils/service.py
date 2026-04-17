@@ -40,11 +40,11 @@ def http_service(func):
         kwargs, event = _inject_event(sig, args, kwargs, func.__name__)
 
         try:
-            response = await func(*args, **kwargs)
-            if event.response is None:
-                event.response = response
+            result = await func(*args, **kwargs)
+            if event.result is None:
+                event.result = result
             logger.bind(event=event).info("succeeded")
-            return response
+            return result
         except HTTPError as error:
             if error.event is None:
                 error.event = event
@@ -65,11 +65,9 @@ def bot_service(func):
         kwargs, event = _inject_event(sig, args, kwargs, func.__name__)
 
         try:
-            response = await func(*args, **kwargs)
-            if event.response is None:
-                event.response = response
+            result = await func(*args, **kwargs)
             logger.bind(event=event).info("succeeded")
-            return response
+            return result
         except AppError as error:
             if error.event is None:
                 error.event = event
@@ -90,7 +88,9 @@ def ws_service(func):
         kwargs, event = _inject_event(sig, args, kwargs, func.__name__)
 
         try:
-            return await func(*args, **kwargs)
+            result = await func(*args, **kwargs)
+            logger.bind(event=event).info("succeeded")
+            return result
         except WSError as error:
             if error.event is None:
                 error.event = event
