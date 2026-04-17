@@ -43,7 +43,7 @@ class BidDTO(BaseDTO):
 
 class AuctionDTO(BaseDTO):
     auction_id: BigInt
-    guild_id: int
+    guild_id: BigInt
     preset_id: int
     status: Status
     current_member_id: int | None

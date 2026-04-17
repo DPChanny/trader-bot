@@ -9,7 +9,7 @@ export enum Status {
 
 export interface AuctionDTO {
   auctionId: string;
-  guildId: number;
+  guildId: string;
   presetId: number;
   status: Status;
   currentMemberId: number | null;
