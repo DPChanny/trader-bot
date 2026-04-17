@@ -204,13 +204,13 @@ export function AuctionPage() {
 
         <PrimarySection minSize style={{ flex: 2 }}>
           <SecondarySection fill>
-            <Row justify="between">
+            <Row justify="between" align="center">
               <Title>경매 정보</Title>
               <Text>{getStatusText(auction.status)}</Text>
             </Row>
             <Column fill>
               <TertiarySection fill>
-                <Column fill align="center">
+                <Column fill center>
                   {currentMember && (
                     <PresetMemberCard presetMember={currentMember} />
                   )}
@@ -242,9 +242,8 @@ export function AuctionPage() {
                   </FlexItem>
                 </Row>
               </TertiarySection>
-
-              <TertiarySection>
-                {isLeader && !isClientTeamFull && (
+              {isLeader && !isClientTeamFull && (
+                <TertiarySection>
                   <Row>
                     {bidError && (
                       <Error error={bidError}>입찰 처리에 실패했습니다</Error>
@@ -265,8 +264,8 @@ export function AuctionPage() {
                       입찰하기
                     </PrimaryButton>
                   </Row>
-                )}
-              </TertiarySection>
+                </TertiarySection>
+              )}
             </Column>
           </SecondarySection>
         </PrimarySection>

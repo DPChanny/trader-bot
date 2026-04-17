@@ -130,8 +130,10 @@
 
 .overflowX {
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .overflowY {
+  overflow-x: hidden;
   overflow-y: auto;
 }

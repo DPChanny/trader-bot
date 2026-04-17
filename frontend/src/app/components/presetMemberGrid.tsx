@@ -23,7 +23,7 @@ export function PresetMemberGrid({
   return (
     <TertiarySection fill>
       <Scroll axis="both">
-        <Row wrap>
+        <Row wrap center>
           {sorted.map((presetMember) => {
             const isSelected = selectedMemberId === presetMember.presetMemberId;
 
