@@ -14,10 +14,15 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-from .env import get_log_level
+from .env import get_log_level, get_log_text
 
 
 REDACT_KEYS = {"access_token", "refresh_token", "exchange_token"}
+
+
+type JSONPrimitive = str | int | float | bool | None
+type JSONValue = JSONPrimitive | list[JSONValue] | dict[str, JSONValue]
+type LogValue = JSONValue | BaseModel
 
 
 def redact(value: Any) -> Any:
@@ -31,7 +36,13 @@ def redact(value: Any) -> Any:
         return redacted
 
     if isinstance(value, list):
-        return [redact(item) for item in value]
+        redacted_items = [redact(item) for item in value[:3]]
+        if len(value) > 3:
+            redacted_items.append("[REDACTED]")
+        return redacted_items
+
+    if isinstance(value, BaseModel):
+        return redact(value.model_dump(mode="json", exclude_unset=True))
 
     return value
 
@@ -39,36 +50,15 @@ def redact(value: Any) -> Any:
 @dataclass
 class Event:
     function: str
-    request: dict[str, Any] | list[Any] | BaseModel | None = None
-    response: dict[str, Any] | list[Any] | BaseModel | None = None
-    detail: dict[str, Any] | list[Any] | BaseModel | None = None
+    request: LogValue | None = None
+    response: LogValue | None = None
+    detail: LogValue | None = None
 
     def __iter__(self):
         yield "function", self.function
-        yield (
-            "request",
-            redact(
-                self.request.model_dump(mode="json", exclude_unset=True)
-                if isinstance(self.request, BaseModel)
-                else self.request
-            ),
-        )
-        yield (
-            "response",
-            redact(
-                self.response.model_dump(mode="json", exclude_unset=True)
-                if isinstance(self.response, BaseModel)
-                else self.response
-            ),
-        )
-        yield (
-            "detail",
-            redact(
-                self.detail.model_dump(mode="json", exclude_unset=True)
-                if isinstance(self.detail, BaseModel)
-                else self.detail
-            ),
-        )
+        yield ("request", redact(self.request))
+        yield ("response", redact(self.response))
+        yield ("detail", redact(self.detail))
 
 
 def _patcher(record: dict[str, Any]) -> None:
@@ -100,6 +90,12 @@ def _patcher(record: dict[str, Any]) -> None:
     if extra:
         log["extra"] = extra
 
+    record["extra"]["json"] = json.dumps(log, ensure_ascii=False, default=str)
+    record["extra"]["text"] = None
+
+    if not get_log_text():
+        return
+
     parts = [f"{log['timestamp']} | {log['level']:<8} | {log['source']}"]
     if "message" in log:
         parts.append(log["message"])
@@ -116,7 +112,6 @@ def _patcher(record: dict[str, Any]) -> None:
             log["request"], ensure_ascii=False, indent=2, default=str
         )
 
-    record["extra"]["json"] = json.dumps(log, ensure_ascii=False, default=str)
     record["extra"]["text"] = text
 
 
@@ -175,8 +170,6 @@ def setup_logging(log_dir: str | Path, log_name: str) -> None:
         log.handlers = []
         log.propagate = True
 
-    logging.getLogger("uvicorn.access").propagate = False
-
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
@@ -193,10 +186,23 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 return response
             finally:
                 duration = round((time.perf_counter() - start) * 1000)
+                forwarded_for = request.headers.get("x-forwarded-for")
+                client_ip = (
+                    forwarded_for.split(",", maxsplit=1)[0].strip()
+                    if forwarded_for
+                    else request.client.host
+                    if request.client is not None
+                    else None
+                )
+                url = request.url.path
+                if request.url.query:
+                    url += f"?{request.url.query}"
                 logger.bind(
                     request={
                         "method": request.method,
-                        "route": request.url.path,
+                        "url": url,
+                        "client_ip": client_ip,
+                        "user_agent": request.headers.get("user-agent"),
                         "status_code": status_code,
                         "duration": duration,
                     }
