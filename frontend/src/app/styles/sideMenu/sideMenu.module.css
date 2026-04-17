@@ -35,6 +35,15 @@
   pointer-events: none;
 }
 
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  pointer-events: auto;
+}
+
 .shell {
   position: fixed;
   inset: var(--side-menu-header-offset) auto 0 0;

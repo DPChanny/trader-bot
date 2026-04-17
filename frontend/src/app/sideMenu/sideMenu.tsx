@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useState } from "preact/hooks";
 import styles from "@styles/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@hooks/guild";
 import { useOptionalGuildId, useOptionalPresetId } from "@hooks/router";
@@ -14,25 +14,6 @@ export function SideMenu() {
   const guildId = useOptionalGuildId();
   const presetId = useOptionalPresetId();
   const [isOpen, setIsOpen] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!panelRef.current?.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown, true);
-
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown, true);
-    };
-  }, [isOpen]);
 
   return (
     <Layout
@@ -49,8 +30,15 @@ export function SideMenu() {
       />
       {isOpen && (
         <Layout className={styles.layer}>
+          <button
+            type="button"
+            className={styles.backdrop}
+            onClick={() => setIsOpen(false)}
+            aria-label="사이드메뉴 닫기"
+            tabIndex={-1}
+          />
           <Layout className={styles.shell} style={{ width: "20rem" }}>
-            <div ref={panelRef} className={styles.panelHost}>
+            <div className={styles.panelHost}>
               <Fill padding="lg" className={styles.panel}>
                 <Row justify="between" align="center">
                   <Title>메뉴</Title>

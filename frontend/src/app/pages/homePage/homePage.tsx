@@ -9,9 +9,11 @@ import { SecondaryActionLink } from "@components/molecules/secondaryActionLink";
 import { SplitLayout } from "@components/molecules/splitLayout";
 import { useLogin } from "@hooks/auth";
 import {
-  SITE_DISCORD_SERVER_URL,
+  GUILD_INVITE_GUIDE_TEXT,
+  BOT_INVITE_URL_TEXT,
+  GUILD_INVITE_URL,
+  GUILD_INVITE_URL,
   SITE_NAME,
-  getBotInviteUrl,
 } from "@utils/env";
 
 export function HomePage() {
@@ -20,20 +22,27 @@ export function HomePage() {
   return (
     <InfoPage>
       <PageHero
-        eyebrow="DISCORD TEAM AUCTION"
-        title={`${SITE_NAME}으로 팀 경매 운영 흐름을 일관되게 관리하세요.`}
-        description="디스코드 계정 로그인 후 길드 멤버 조회, 운영용 설정, 프리셋 구성, 실시간 팀 경매 진행까지 연결하는 운영자용 웹 도구입니다."
+        eyebrow="Team Auction with Trader Bot"
+        title={`${SITE_NAME}으로 팀원 경매를 간편하게 운영하세요`}
+        description="Discord 길드 멤버를 통해 팀원 경매 프리셋을 간편하게 운영하세요"
         actions={
           <>
             <Button variantSize="large" onClick={login}>
-              디스코드로 시작하기
+              로그인하여 시작하기
             </Button>
             <SecondaryActionLink
-              href={getBotInviteUrl()}
+              href={BOT_INVITE_URL}
               target="_blank"
               rel="noreferrer"
             >
-              봇 초대 링크
+              {BOT_INVITE_URL_TEXT}
+            </SecondaryActionLink>
+            <SecondaryActionLink
+              href={GUILD_INVITE_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {BOT_INVITE_URL_TEXT}
             </SecondaryActionLink>
           </>
         }
@@ -41,8 +50,8 @@ export function HomePage() {
         <MetricList
           items={[
             {
-              label: "운영 대상",
-              value: "디스코드 길드 운영자",
+              label: "운영자",
+              value: "디스코드 길드 운영팀",
             },
             {
               label: "핵심 흐름",
@@ -71,7 +80,7 @@ export function HomePage() {
           <ContentList
             ordered
             items={[
-              "디스코드 계정으로 로그인하고 봇을 운영할 길드에 초대합니다.",
+              GUILD_INVITE_GUIDE_TEXT,
               "운영할 길드를 선택하고 멤버 정보와 운영용 설정을 확인한 뒤 프리셋을 구성합니다.",
               "공개 여부와 초대 전송 여부를 선택해 팀 경매를 생성합니다.",
             ]}
@@ -97,11 +106,7 @@ export function HomePage() {
           description="점검 공지와 운영 문의는 공식 채널 기준으로 안내하는 방식으로 운영합니다."
           variantSurface="tertiary"
           actions={
-            <Link
-              href={SITE_DISCORD_SERVER_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <Link href={GUILD_INVITE_URL} target="_blank" rel="noreferrer">
               공식 채널 바로가기
             </Link>
           }
