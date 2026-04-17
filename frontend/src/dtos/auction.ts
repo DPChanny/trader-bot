@@ -25,7 +25,8 @@ export interface AuctionDetailDTO extends AuctionDTO {
   presetSnapshot: PresetDetailDTO | null;
 }
 
-export interface InitPayloadDTO extends AuctionDetailDTO {
+export interface InitPayloadDTO {
+  auction: AuctionDetailDTO;
   teamId: number | null;
   memberId: number | null;
 }

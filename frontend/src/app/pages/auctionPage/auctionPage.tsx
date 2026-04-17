@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import { useAuctionWebSocket } from "@hooks/auctionWebSocket";
+import { useAuction } from "@hooks/auction";
 import { useAuctionId } from "@hooks/router";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
@@ -57,25 +57,25 @@ export function AuctionPage() {
   const [modalError, setModalError] = useState<WSError | null>(null);
 
   const {
-    state,
+    auction,
+    teamId,
+    memberId,
     connect,
     placeBid,
     isConnected,
     wasConnected,
     error: rawError,
-  } = useAuctionWebSocket();
+  } = useAuction();
 
   useEffect(() => {
     connect(auctionId);
   }, [auctionId]);
 
-  const memberId = state?.memberId ?? null;
-  const teamId = state?.teamId ?? null;
   const isLeader = teamId !== null;
-  const connectedMemberIds = state?.connectedMemberIds ?? [];
+  const connectedMemberIds = auction?.connectedMemberIds ?? [];
 
-  const isCompleted = state?.status === Status.COMPLETED;
-  const isRunning = state?.status === Status.RUNNING;
+  const isCompleted = auction?.status === Status.COMPLETED;
+  const isRunning = auction?.status === Status.RUNNING;
 
   const bidError =
     !isCompleted && rawError !== null && isBidErrorCode(rawError.code)
@@ -85,7 +85,7 @@ export function AuctionPage() {
   useEffect(() => {
     if (
       isCompleted ||
-      state === null ||
+      auction === null ||
       rawError === null ||
       bidError !== null
     ) {
@@ -99,12 +99,12 @@ export function AuctionPage() {
     }
 
     setModalError(null);
-  }, [rawError, isCompleted, state, bidError]);
+  }, [rawError, isCompleted, auction, bidError]);
 
   if (
     !isCompleted &&
     rawError !== null &&
-    (state === null || (bidError === null && modalError === null))
+    (auction === null || (bidError === null && modalError === null))
   ) {
     return (
       <Page>
@@ -115,7 +115,7 @@ export function AuctionPage() {
     );
   }
 
-  const isLoading = !state || (!isConnected && !wasConnected);
+  const isLoading = !auction || (!isConnected && !wasConnected);
 
   if (isLoading) {
     return (
@@ -125,26 +125,27 @@ export function AuctionPage() {
     );
   }
 
-  const snapshot = state.presetSnapshot;
+  const presetSnapshot = auction.presetSnapshot;
 
-  const presetMembers: PresetMemberDetailDTO[] = snapshot?.presetMembers ?? [];
-  const teamSize: number = snapshot?.teamSize ?? 5;
-  const pointScale: number = snapshot?.pointScale ?? 1;
+  const presetMembers: PresetMemberDetailDTO[] =
+    presetSnapshot?.presetMembers ?? [];
+  const teamSize: number = presetSnapshot?.teamSize ?? 5;
+  const pointScale: number = presetSnapshot?.pointScale ?? 1;
 
   const presetMemberMap = new Map<number, PresetMemberDetailDTO>(
     presetMembers.map((pm) => [pm.memberId, pm]),
   );
 
-  const auctionQueuePresetMembers = state.auctionQueue
+  const auctionQueuePresetMembers = auction.auctionQueue
     .map((memberId) => presetMemberMap.get(memberId))
     .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
-  const unsoldQueuePresetMembers = state.unsoldQueue
+  const unsoldQueuePresetMembers = auction.unsoldQueue
     .map((memberId) => presetMemberMap.get(memberId))
     .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
   const clientTeam =
-    teamId !== null ? state.teams.find((t) => t.teamId === teamId) : null;
+    teamId !== null ? auction.teams.find((t) => t.teamId === teamId) : null;
   const clientTeamSize = clientTeam ? clientTeam.memberIds.length : 0;
   const isClientTeamFull = clientTeamSize >= teamSize;
   const statusEntries = getStatusEntries();
@@ -154,11 +155,11 @@ export function AuctionPage() {
     return statusEntries[status].displayName;
   };
 
-  const currentMember = state.currentMemberId
-    ? presetMemberMap.get(state.currentMemberId)
+  const currentMember = auction.currentMemberId
+    ? presetMemberMap.get(auction.currentMemberId)
     : null;
 
-  const currentBidLeaderId = state.currentBid?.leaderId;
+  const currentBidLeaderId = auction.currentBid?.leaderId;
   const currentBidLeader =
     currentBidLeaderId !== null && currentBidLeaderId !== undefined
       ? presetMemberMap.get(currentBidLeaderId)
@@ -193,7 +194,7 @@ export function AuctionPage() {
           <SecondarySection fill>
             <Title>팀 목록</Title>
             <TeamList
-              teams={state.teams}
+              teams={auction.teams}
               presetMemberMap={presetMemberMap}
               teamSize={teamSize}
               pointScale={pointScale}
@@ -205,7 +206,7 @@ export function AuctionPage() {
           <SecondarySection fill>
             <Row justify="between">
               <Title>경매 정보</Title>
-              <Text>{getStatusText(state.status)}</Text>
+              <Text>{getStatusText(auction.status)}</Text>
             </Row>
             <Column fill>
               <TertiarySection fill>
@@ -222,12 +223,12 @@ export function AuctionPage() {
                     <Column>
                       <InfoCard label="남은 시간">
                         <Text variantWeight="bold" variantSize="large">
-                          {state.timer}
+                          {auction.timer}
                         </Text>
                       </InfoCard>
                       <InfoCard label="입찰 포인트">
                         <Text variantWeight="bold" variantSize="large">
-                          {(state.currentBid?.amount || 0) * pointScale}
+                          {(auction.currentBid?.amount || 0) * pointScale}
                         </Text>
                       </InfoCard>
                     </Column>

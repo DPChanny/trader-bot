@@ -59,7 +59,8 @@ class AuctionDetailDTO(AuctionDTO):
     preset_snapshot: PresetDetailDTO | None
 
 
-class InitPayloadDTO(AuctionDetailDTO):
+class InitPayloadDTO(BaseDTO):
+    auction: AuctionDetailDTO
     team_id: int | None
     member_id: int | None
 

@@ -99,7 +99,7 @@ async def auction_ws(
 
         auction_detail_dto = AuctionDetailDTO.model_validate(auction)
         init_payload_dto = InitPayloadDTO(
-            **auction_detail_dto.model_dump(),
+            auction=auction_detail_dto,
             team_id=team_id,
             member_id=member_id,
         )
