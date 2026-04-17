@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@styles/components/atoms/layout.module.css";
-import type { JSX } from "preact";
+import type { JSX, Ref } from "preact";
 
 const layoutVariants = cva(styles.layout, {
   variants: {
@@ -75,8 +75,10 @@ const layoutVariants = cva(styles.layout, {
   },
 });
 
-export type LayoutProps = JSX.IntrinsicElements["div"] &
-  VariantProps<typeof layoutVariants>;
+export type LayoutProps = Omit<JSX.IntrinsicElements["div"], "ref"> &
+  VariantProps<typeof layoutVariants> & {
+    ref?: Ref<HTMLDivElement>;
+  };
 
 export function Layout({
   direction = "column",
@@ -89,6 +91,7 @@ export function Layout({
   fill = false,
   minSize = false,
   overflow = "visible",
+  ref,
   className,
   children,
   ...props
@@ -107,7 +110,7 @@ export function Layout({
   });
 
   return (
-    <div className={clsx(baseClass, className)} {...props}>
+    <div ref={ref} className={clsx(baseClass, className)} {...props}>
       {children}
     </div>
   );

@@ -119,8 +119,8 @@ export function PresetMemberEditor() {
 
   return (
     <>
-      <PrimarySection fill minSize>
-        <SecondarySection fill>
+      <PrimarySection minSize fill>
+        <SecondarySection minSize fill>
           <Title>프리셋 멤버 목록</Title>
           {presetMembersError ? (
             <TertiarySection fill>
@@ -151,7 +151,7 @@ export function PresetMemberEditor() {
           </Error>
         )}
 
-        <SecondarySection fill>
+        <SecondarySection minSize fill>
           <Title>멤버 목록</Title>
           {membersError ? (
             <TertiarySection fill>

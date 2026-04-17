@@ -17,8 +17,8 @@ export function MemberGrid({
   selectedMemberId,
 }: MemberGridProps) {
   return (
-    <TertiarySection minSize>
-      <Scroll axis="both" fill>
+    <TertiarySection minSize fill>
+      <Scroll axis="both">
         <Row wrap center>
           {members.map((member) => {
             const isSelected = selectedMemberId === member.memberId;
