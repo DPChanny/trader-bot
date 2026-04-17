@@ -39,9 +39,13 @@ export function useLogout() {
   const queryClient = useQueryClient();
   return useMutation<void, AppError, void>({
     mutationFn: async (): Promise<void> => {},
-    onSettled: () => {
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.me() });
       removeJWTToken();
       queryClient.setQueryData(queryKeys.me(), null);
+      queryClient.removeQueries({ queryKey: queryKeys.me() });
+    },
+    onSettled: () => {
       route(routePath, true);
     },
   });

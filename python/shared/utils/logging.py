@@ -1,5 +1,6 @@
 import json
 import logging
+import sys
 import time
 from dataclasses import dataclass, field
 from datetime import UTC
@@ -48,7 +49,7 @@ class Event:
         yield "detail", redact(self.detail)
 
 
-def _build_log(record) -> dict:
+def _patcher(record: dict[str, Any]) -> None:
     extra = dict(record["extra"])
     event = extra.pop("event", None)
     request = extra.pop("request", None)
@@ -59,7 +60,7 @@ def _build_log(record) -> dict:
 
     source = f"{record['name']}:{record['function']}:{record['line']}"
 
-    data: dict = {
+    log = {
         "timestamp": record["time"]
         .astimezone(UTC)
         .strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
@@ -69,41 +70,32 @@ def _build_log(record) -> dict:
     }
 
     if record["message"]:
-        data["message"] = record["message"]
+        log["message"] = record["message"]
     if event is not None:
-        data["event"] = event
+        log["event"] = event
     if request is not None:
-        data["request"] = request
+        log["request"] = request
     if extra:
-        data["extra"] = extra
+        log["extra"] = extra
 
-    return data
+    parts = [f"{log['timestamp']} | {log['level']:<8} | {log['source']}"]
+    if "message" in log:
+        parts.append(log["message"])
+    if "extra" in log:
+        parts.append(json.dumps(log["extra"], ensure_ascii=False, default=str))
 
-
-def _json_formatter(record) -> str:
-    return json.dumps(_build_log(record), ensure_ascii=False)
-
-
-def _text_formatter(record) -> str:
-    data = _build_log(record)
-
-    parts = [f"{data['timestamp']} | {data['level']:<8} | {data['source']}"]
-    if "message" in data:
-        parts.append(data["message"])
-    if "extra" in data:
-        parts.append(json.dumps(data["extra"], ensure_ascii=False, default=str))
-
-    output = " | ".join(parts)
-    if "event" in data:
-        output += "\n" + json.dumps(
-            data["event"], ensure_ascii=False, indent=2, default=str
+    text = " | ".join(parts)
+    if "event" in log:
+        text += "\n" + json.dumps(
+            log["event"], ensure_ascii=False, indent=2, default=str
         )
-    if "request" in data:
-        output += "\n" + json.dumps(
-            data["request"], ensure_ascii=False, indent=2, default=str
+    if "request" in log:
+        text += "\n" + json.dumps(
+            log["request"], ensure_ascii=False, indent=2, default=str
         )
 
-    return output
+    record["extra"]["json"] = json.dumps(log, ensure_ascii=False, default=str)
+    record["extra"]["text"] = text
 
 
 class _LoguruHandler(logging.Handler):
@@ -124,11 +116,11 @@ class _LoguruHandler(logging.Handler):
 
 
 def setup_logging(log_dir: str | Path, log_name: str) -> None:
-    from .env import get_log_format, get_log_level
+    from .env import get_log_level
 
     log_level = get_log_level()
-    log_format = get_log_format()
     logger.remove()
+    logger.configure(patcher=_patcher)
 
     resolved_log_dir = Path(log_dir)
     resolved_log_dir.mkdir(parents=True, exist_ok=True)
@@ -137,10 +129,19 @@ def setup_logging(log_dir: str | Path, log_name: str) -> None:
     logger.add(
         str(log_name),
         level=log_level,
-        format=_json_formatter if log_format == "json" else _text_formatter,
+        format="{extra[json]}",
         rotation="10 MB",
         retention="7 days",
         compression="zip",
+        enqueue=True,
+        backtrace=False,
+        diagnose=False,
+    )
+
+    logger.add(
+        sys.stderr,
+        level=log_level,
+        format="{extra[text]}",
         enqueue=True,
         backtrace=False,
         diagnose=False,

@@ -57,7 +57,3 @@ def get_aws_region() -> str:
 
 def get_log_level() -> str:
     return os.getenv("LOG_LEVEL", "INFO")
-
-
-def get_log_format() -> str:
-    return os.getenv("LOG_FORMAT", "text")
