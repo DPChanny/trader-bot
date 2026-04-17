@@ -1,7 +1,0 @@
-﻿.error {
-  padding: var(--padding-md) var(--padding-lg);
-  background-color: var(--color-error-bg);
-  color: var(--color-error-text);
-  border-radius: var(--radius-md);
-  border: var(--border-width-default) solid var(--color-error-border);
-}

@@ -77,6 +77,30 @@
   border-color: var(--color-card-green-border-hover);
 }
 
+.card.colorRed {
+  background: var(--color-card-red-bg);
+  border-color: var(--color-card-red-border);
+  color: var(--color-card-red-text);
+}
+
+.card.colorRed:hover {
+  background: var(--color-card-red-bg-hover);
+  border-color: var(--color-card-red-border-hover);
+}
+
+:global([aria-pressed="true"]) > .card.colorRed,
+:global([aria-current="page"]) > .card.colorRed {
+  background: var(--color-card-red-bg-active);
+  border-color: var(--color-card-red-border-active);
+  color: var(--color-card-red-text-active);
+}
+
+:global([aria-pressed="true"]) > .card.colorRed:hover,
+:global([aria-current="page"]) > .card.colorRed:hover {
+  background: var(--color-card-red-bg-hover);
+  border-color: var(--color-card-red-border-hover);
+}
+
 .card.colorGray {
   background: var(--color-card-gray-bg);
   border-color: var(--color-card-gray-border);

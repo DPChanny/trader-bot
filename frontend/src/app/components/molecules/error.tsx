@@ -1,5 +1,5 @@
+import { Card } from "./card";
 import { Column } from "../atoms/layout";
-import styles from "@styles/components/molecules/error.module.css";
 import { clsx } from "clsx";
 import { Text } from "../atoms/text";
 import { AppError } from "@utils/error";
@@ -12,18 +12,21 @@ type ErrorProps = JSX.IntrinsicElements["div"] & {
 
 export function Error({ className, error, children, ...props }: ErrorProps) {
   return (
-    <Column
+    <Card
       center
       gap="none"
-      className={clsx(styles.error, className)}
+      variantColor="red"
+      className={clsx(className)}
       {...props}
     >
-      <Text variantSize="small" variantWeight="bold">
-        {children}
-      </Text>
-      <Text variantSize="small">
-        #{error.code} {error.message}
-      </Text>
-    </Column>
+      <Column center gap="none">
+        <Text variantSize="small" variantWeight="bold">
+          {children}
+        </Text>
+        <Text variantSize="small">
+          #{error.code} {error.message}
+        </Text>
+      </Column>
+    </Card>
   );
 }

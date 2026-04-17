@@ -141,15 +141,44 @@ export function HomePage() {
             <Title>주의 사항</Title>
 
             <Card variantColor="red">
-              <Column gap="md">
-                <Text variantWeight="semibold">
-                  길드 사용 조건이 먼저 충족되어야 합니다.
-                </Text>
-                <Text>
-                  길드 소유자 또는 관리자 권한이 있는 계정으로 로그인해야 수정
-                  권한이 있습니다
-                </Text>
-              </Column>
+              <Text variantWeight="semibold">
+                {BOT_INVITE_URL_TEXT}가 선행되어야 길드가 서비스에 자동
+                등록됩니다.
+              </Text>
+            </Card>
+            <Card variantColor="red">
+              <Text variantWeight="semibold">
+                소유자 역할은 Trader Bot에 의해서만 자동 부여됩니다.
+              </Text>
+            </Card>
+            <Card variantColor="red">
+              <Text variantWeight="semibold">
+                길드 관리자는 관리자 역할이 자동 부여됩니다.
+              </Text>
+              <Text>
+                길드 관리자 권한이 박탈되면 편집자 역할이 아닐 경우 열람자
+                역할이 자동 부여됩니다.
+              </Text>
+            </Card>
+            <Card variantColor="red">
+              <Text variantWeight="semibold">
+                일반 길드 멤버는 열람자 역할이 자동 부여됩니다.
+              </Text>
+            </Card>
+            <Card variantColor="red">
+              <Text variantWeight="semibold">
+                편집자 역할부터 생성, 추가, 편집을 할 수 있습니다.
+              </Text>
+            </Card>
+            <Card variantColor="red">
+              <Text variantWeight="semibold">
+                관리자 역할부터 삭제, 프리셋 추가, 경매 생성을 할 수 있습니다.
+              </Text>
+            </Card>
+            <Card variantColor="red">
+              <Text variantWeight="semibold">
+                소유자 역할을 제외한 역할은 관리자 역할부터 부여할 수 있습니다.
+              </Text>
             </Card>
           </SecondarySection>
 
