@@ -2,6 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@styles/components/atoms/layout.module.css";
 import type { JSX, Ref } from "preact";
+import { useLayoutEffect, useRef, useState } from "preact/hooks";
 
 const layoutVariants = cva(styles.layout, {
   variants: {
@@ -77,6 +78,7 @@ const layoutVariants = cva(styles.layout, {
 
 export type LayoutProps = Omit<JSX.IntrinsicElements["div"], "ref"> &
   VariantProps<typeof layoutVariants> & {
+    centerOnWrap?: boolean;
     ref?: Ref<HTMLDivElement>;
   };
 
@@ -87,6 +89,7 @@ export function Layout({
   justify,
   align,
   center = false,
+  centerOnWrap = false,
   wrap = false,
   fill = false,
   minSize = false,
@@ -96,13 +99,65 @@ export function Layout({
   children,
   ...props
 }: LayoutProps) {
+  const layoutRef = useRef<HTMLDivElement>(null);
+  const [isWrapped, setIsWrapped] = useState(false);
+
+  useLayoutEffect(() => {
+    const layout = layoutRef.current;
+
+    if (!centerOnWrap || !wrap || !layout) {
+      setIsWrapped(false);
+      return;
+    }
+
+    let frameId = 0;
+
+    const measureWrap = () => {
+      const firstChild = layout.firstElementChild as HTMLElement | null;
+
+      if (!firstChild) {
+        setIsWrapped(false);
+        return;
+      }
+
+      const firstTop = firstChild.offsetTop;
+      const wrapped = Array.from(layout.children).some(
+        (child) => (child as HTMLElement).offsetTop !== firstTop,
+      );
+
+      setIsWrapped(wrapped);
+    };
+
+    const scheduleMeasure = () => {
+      cancelAnimationFrame(frameId);
+      frameId = requestAnimationFrame(measureWrap);
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      scheduleMeasure();
+    });
+
+    resizeObserver.observe(layout);
+    Array.from(layout.children).forEach((child) => {
+      if (child instanceof HTMLElement) {
+        resizeObserver.observe(child);
+      }
+    });
+    scheduleMeasure();
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      resizeObserver.disconnect();
+    };
+  }, [centerOnWrap, wrap, children]);
+
   const baseClass = layoutVariants({
     direction,
     gap,
     padding,
     justify,
     align,
-    center,
+    center: center || (centerOnWrap && isWrapped),
     wrap,
     fill,
     minSize,
@@ -110,7 +165,22 @@ export function Layout({
   });
 
   return (
-    <div ref={ref} className={clsx(baseClass, className)} {...props}>
+    <div
+      ref={(element) => {
+        layoutRef.current = element;
+
+        if (typeof ref === "function") {
+          ref(element);
+          return;
+        }
+
+        if (ref) {
+          ref.current = element;
+        }
+      }}
+      className={clsx(baseClass, className)}
+      {...props}
+    >
       {children}
     </div>
   );
