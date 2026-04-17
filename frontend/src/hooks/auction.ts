@@ -168,14 +168,12 @@ export function useAuction(): {
     setIsConnected(false);
     setError(null);
 
-    const token = getAccessToken();
-    const url = `${AUCTION_WS_ENDPOINT}/${auctionId}`;
-    const ws = new WebSocket(url);
+    const ws = new WebSocket(`${AUCTION_WS_ENDPOINT}/${auctionId}`);
     let opened = false;
 
     ws.onopen = () => {
       const auth_payload_result = AuthPayloadSchema.safeParse({
-        token: token,
+        access_token: getAccessToken(),
       });
       if (!auth_payload_result.success) {
         return;
@@ -185,7 +183,7 @@ export function useAuction(): {
         JSON.stringify({
           type: AuctionMessageType.AUTH,
           payload: auth_payload_result.data,
-        } satisfies AuctionMessageEnvelopeDTO<{ token: string | null }>),
+        } satisfies AuctionMessageEnvelopeDTO<{ access_token: string | null }>),
       );
       opened = true;
       setIsConnected(true);

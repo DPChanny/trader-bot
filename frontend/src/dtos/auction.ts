@@ -117,11 +117,11 @@ export interface TimerPayloadDTO {
 }
 
 export interface AuthPayloadDTO {
-  token: string | null;
+  access_token: string | null;
 }
 
 export const AuthPayloadSchema = z.object({
-  token: z.string().nullable(),
+  access_token: z.string().nullable(),
 });
 
 export const PlaceBidPayloadSchema = z.object({

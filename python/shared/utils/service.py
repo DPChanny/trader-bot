@@ -10,18 +10,12 @@ from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
 
 
 SENSITIVE_KEYS = {
-    "token",
     "access_token",
     "refresh_token",
     "exchange_token",
-    "code",
 }
 
 EXCLUDED_REQUEST_ARG_NAMES = {"session", "ws", "websocket", "bot"}
-
-
-def _is_dto_argument(name: str) -> bool:
-    return name == "dto"
 
 
 def _sanitize_payload(value: Any) -> Any:
@@ -50,10 +44,10 @@ def _extract_request_dto(
         if name in EXCLUDED_REQUEST_ARG_NAMES:
             continue
 
-        if _is_dto_argument(name) and not isinstance(value, BaseModel):
+        if name == "dto" and not isinstance(value, BaseModel):
             raise TypeError(f"'{name}' must be a pydantic BaseModel")
 
-        if _is_dto_argument(name):
+        if name == "dto":
             dto_entries.append((name, value))
 
     if len(dto_entries) == 1:
@@ -94,12 +88,12 @@ def http_service(func):
             result = await func(*args, **kwargs)
             logger.bind(
                 event={
-                    "name": func.__name__,
+                    "function": func.__name__,
                     "request_dto": _sanitize_payload(request_dto),
                     "result_dto": _sanitize_payload(_extract_result_dto(result)),
                     "summary": {},
                 }
-            ).info("")
+            ).info("succeeded")
             return result
         except HTTPError as error:
             if error.function is None:

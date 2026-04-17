@@ -118,12 +118,12 @@ async def connect_service(
     if not auction:
         raise WSError(AuctionErrorCode.NotFound)
 
-    token = dto.token
+    access_token = dto.access_token
 
     member_id: int | None = None
-    if token:
+    if access_token:
         try:
-            user_id = AccessToken.decode(token).user_id
+            user_id = AccessToken.decode(access_token).user_id
             pm = await PresetMemberRepository(session).get_by_user_id(
                 user_id, auction.preset_id, auction.guild_id
             )

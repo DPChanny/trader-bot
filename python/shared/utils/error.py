@@ -126,29 +126,33 @@ class WSError(AppError):
 def handle_app_error(error: AppError, fallback_function: str) -> None:
     function = error.function or fallback_function
     event = {
-        "name": function,
+        "function": function,
         "request_dto": {},
         "result_dto": {},
-        "summary": {"error_code": error.code},
+        "summary": {},
     }
     if error.code < 5000:
-        logger.bind(event=event).warning("")
+        logger.bind(event=event).warning(f"failed {error.code}")
     else:
-        logger.opt(exception=error.__cause__).bind(event=event).error("")
+        logger.opt(exception=error.__cause__).bind(event=event).error(
+            f"failed {error.code}"
+        )
 
 
 def handle_http_error(error: HTTPError, fallback_function: str) -> JSONResponse:
     function = error.function or fallback_function
     event = {
-        "name": function,
+        "function": function,
         "request_dto": {},
         "result_dto": {},
-        "summary": {"error_code": error.code},
+        "summary": {},
     }
     if error.status_code < 500:
-        logger.bind(event=event).warning("")
+        logger.bind(event=event).warning(f"failed {error.code}")
     else:
-        logger.opt(exception=error.__cause__).bind(event=event).error("")
+        logger.opt(exception=error.__cause__).bind(event=event).error(
+            f"failed {error.code}"
+        )
 
     return JSONResponse(
         status_code=error.status_code,
@@ -162,12 +166,14 @@ def handle_ws_error(
 ) -> None:
     function = error.function or fallback_function
     event = {
-        "name": function,
+        "function": function,
         "request_dto": {},
         "result_dto": {},
-        "summary": {"error_code": error.code},
+        "summary": {},
     }
     if error.code < 5000:
-        logger.bind(event=event).warning("")
+        logger.bind(event=event).warning(f"failed {error.code}")
     else:
-        logger.opt(exception=error.__cause__).bind(event=event).error("")
+        logger.opt(exception=error.__cause__).bind(event=event).error(
+            f"failed {error.code}"
+        )

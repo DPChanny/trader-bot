@@ -99,7 +99,7 @@ class PlaceBidPayloadDTO(BaseDTO):
 
 
 class AuthPayloadDTO(BaseDTO):
-    token: str | None
+    access_token: str | None
 
 
 class BidPlacedPayloadDTO(BaseDTO):
