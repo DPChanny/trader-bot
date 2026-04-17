@@ -20,7 +20,7 @@ async def on_ready_service(
         synced_guild_ids.add(guild.id)
 
     guild_repo = GuildRepository(session)
-    guild_entities = await guild_repo.get_list()
+    guild_entities = await guild_repo.get_all()
     removed_guild_count = 0
     for guild_entity in guild_entities:
         if guild_entity.discord_id in synced_guild_ids:

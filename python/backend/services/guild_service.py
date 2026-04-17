@@ -13,7 +13,7 @@ async def get_guilds_service(
     user_id: int, session: AsyncSession
 ) -> list[GuildDetailDTO]:
     guild_repo = GuildRepository(session)
-    guilds = await guild_repo.get_list_by_user_id(user_id)
+    guilds = await guild_repo.get_all_by_user_id(user_id)
     return [GuildDetailDTO.model_validate(g) for g in guilds]
 
 

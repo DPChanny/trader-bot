@@ -37,7 +37,7 @@ async def get_members_service(
 ) -> list[MemberDetailDTO]:
     await verify_role(guild_id, user_id, session)
     member_repo = MemberRepository(session)
-    members = await member_repo.get_list_by_guild_id(guild_id)
+    members = await member_repo.get_all_by_guild_id(guild_id)
     return [MemberDetailDTO.model_validate(m) for m in members]
 
 

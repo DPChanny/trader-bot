@@ -8,7 +8,7 @@ from . import BaseRepository
 
 
 class PositionRepository(BaseRepository):
-    async def get_list_by_preset_id(
+    async def get_all_by_preset_id(
         self, preset_id: int, guild_id: int
     ) -> list[Position]:
         result = await self.session.execute(

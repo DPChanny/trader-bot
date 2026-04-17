@@ -30,9 +30,7 @@ class MemberRepository(BaseRepository):
         )
         return result.scalar_one_or_none()
 
-    async def get_by_user_id(
-        self, user_id: int, guild_id: int
-    ) -> Member | None:
+    async def get_by_user_id(self, user_id: int, guild_id: int) -> Member | None:
         result = await self.session.execute(
             select(Member).where(
                 Member.user_id == user_id,
@@ -41,9 +39,7 @@ class MemberRepository(BaseRepository):
         )
         return result.scalar_one_or_none()
 
-    async def get_detail_by_user_id(
-        self, user_id: int, guild_id: int
-    ) -> Member | None:
+    async def get_detail_by_user_id(self, user_id: int, guild_id: int) -> Member | None:
         result = await self.session.execute(
             select(Member)
             .options(
@@ -56,7 +52,7 @@ class MemberRepository(BaseRepository):
         )
         return result.scalar_one_or_none()
 
-    async def get_list_by_guild_id(self, guild_id: int) -> list[Member]:
+    async def get_all_by_guild_id(self, guild_id: int) -> list[Member]:
         result = await self.session.execute(
             select(Member)
             .options(

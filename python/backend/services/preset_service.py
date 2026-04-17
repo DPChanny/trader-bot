@@ -56,7 +56,7 @@ async def get_presets_service(
     await verify_role(guild_id, user_id, session, Role.VIEWER)
 
     preset_repo = PresetRepository(session)
-    presets = await preset_repo.get_list_by_guild_id(guild_id)
+    presets = await preset_repo.get_all_by_guild_id(guild_id)
     return [PresetDTO.model_validate(p) for p in presets]
 
 

@@ -8,7 +8,7 @@ from . import BaseRepository
 
 
 class TierRepository(BaseRepository):
-    async def get_list_by_preset_id(self, preset_id: int, guild_id: int) -> list[Tier]:
+    async def get_all_by_preset_id(self, preset_id: int, guild_id: int) -> list[Tier]:
         result = await self.session.execute(
             select(Tier)
             .join(Preset)

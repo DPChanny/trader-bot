@@ -29,7 +29,7 @@ async def get_tiers_service(
         raise HTTPError(PresetErrorCode.NotFound)
 
     tier_repo = TierRepository(session)
-    tiers = await tier_repo.get_list_by_preset_id(preset_id, guild_id)
+    tiers = await tier_repo.get_all_by_preset_id(preset_id, guild_id)
     return [TierDTO.model_validate(t) for t in tiers]
 
 

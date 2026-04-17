@@ -37,7 +37,7 @@ async def get_preset_members_service(
         raise HTTPError(PresetErrorCode.NotFound)
 
     preset_member_repo = PresetMemberRepository(session)
-    members = await preset_member_repo.get_list_detail_by_preset_id(preset_id, guild_id)
+    members = await preset_member_repo.get_all_detail_by_preset_id(preset_id, guild_id)
     return [PresetMemberDetailDTO.model_validate(m) for m in members]
 
 

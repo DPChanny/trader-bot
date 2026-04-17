@@ -14,11 +14,11 @@ class GuildRepository(BaseRepository):
         )
         return result.scalar_one_or_none()
 
-    async def get_list(self) -> list[Guild]:
+    async def get_all(self) -> list[Guild]:
         result = await self.session.execute(select(Guild))
         return list(result.scalars().all())
 
-    async def get_list_by_user_id(self, user_id: int) -> list[Guild]:
+    async def get_all_by_user_id(self, user_id: int) -> list[Guild]:
         result = await self.session.execute(
             select(Guild)
             .join(Member, Member.guild_id == Guild.discord_id)

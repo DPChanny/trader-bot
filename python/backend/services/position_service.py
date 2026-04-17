@@ -29,7 +29,7 @@ async def get_positions_service(
         raise HTTPError(PresetErrorCode.NotFound)
 
     position_repo = PositionRepository(session)
-    positions = await position_repo.get_list_by_preset_id(preset_id, guild_id)
+    positions = await position_repo.get_all_by_preset_id(preset_id, guild_id)
     return [PositionDTO.model_validate(p) for p in positions]
 
 

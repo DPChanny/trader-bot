@@ -1,6 +1,8 @@
 layout
 log
     analysis
+    opt
+query opt
 home page
     policy
     annuncement
@@ -14,7 +16,7 @@ security
     swap memory
     t4g.small
 auction 
-    optimization
+    opt
     route
     get
 pagenation & sorting & search

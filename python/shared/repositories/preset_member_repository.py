@@ -11,7 +11,7 @@ from . import BaseRepository
 
 
 class PresetMemberRepository(BaseRepository):
-    async def get_list_detail_by_preset_id(
+    async def get_all_detail_by_preset_id(
         self, preset_id: int, guild_id: int
     ) -> list[PresetMember]:
         result = await self.session.execute(

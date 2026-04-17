@@ -62,7 +62,7 @@ async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict:
 
     member_repo = MemberRepository(session)
     removed_member_count = 0
-    member_entities = await member_repo.get_list_by_guild_id(guild.id)
+    member_entities = await member_repo.get_all_by_guild_id(guild.id)
     for member_entity in member_entities:
         if member_entity.user_id in synced_member_ids:
             continue
