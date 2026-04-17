@@ -21,7 +21,6 @@ export type MarkedDocument = {
   intro: string;
   effectiveDate?: string;
   sections: MarkedSection[];
-  footerBlocks?: MarkedBlock[];
 };
 
 function toBlocks(token: Tokens.Generic): MarkedBlock[] {
@@ -60,7 +59,6 @@ export function parseMarkedDocument(markdown: string): MarkedDocument {
   let effectiveDate: string | undefined;
   const introParts: string[] = [];
   const sections: MarkedSection[] = [];
-  const footerBlocks: MarkedBlock[] = [];
 
   let hasReachedBody = false;
   let isFooter = false;
@@ -96,7 +94,6 @@ export function parseMarkedDocument(markdown: string): MarkedDocument {
     }
 
     if (isFooter) {
-      footerBlocks.push(...toBlocks(token));
       continue;
     }
 
@@ -115,6 +112,5 @@ export function parseMarkedDocument(markdown: string): MarkedDocument {
     intro: introParts.join(" "),
     effectiveDate,
     sections,
-    footerBlocks: footerBlocks.length ? footerBlocks : undefined,
   };
 }

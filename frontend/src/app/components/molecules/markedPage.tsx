@@ -1,25 +1,19 @@
-import { Link } from "@components/atoms/link";
-import { Column, Page, Row, Scroll } from "@components/atoms/layout";
+import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
 import { Card } from "./card";
 import { PrimarySection, SecondarySection, TertiarySection } from "./section";
 import type { ComponentChildren } from "preact";
 import type { MarkedBlock, MarkedSection } from "@utils/marked";
+import { GUILD_INVITE_URL, SITE_OPERATOR } from "@utils/env";
+import { Link } from "@components//atoms/link";
 
 export type MarkedPageProps = {
   eyebrow: ComponentChildren;
   title: ComponentChildren;
   intro: ComponentChildren;
-  meta?: ComponentChildren;
-  heroActions?: ComponentChildren;
+  effectiveDate?: string;
   sections: MarkedSection[];
-  footerBlocks?: MarkedBlock[];
-  supplementaryTitle?: ComponentChildren;
-  supplementaryDescription?: ComponentChildren;
-  supplementaryItems?: Array<{
-    label: ComponentChildren;
-    value: ComponentChildren;
-  }>;
+  supplementaryItems?: ComponentChildren[];
   supplementaryContent?: ComponentChildren;
 };
 
@@ -27,28 +21,17 @@ export function MarkedPage({
   eyebrow,
   title,
   intro,
-  meta,
-  heroActions,
-  supplementaryTitle,
-  supplementaryDescription,
+  effectiveDate,
   supplementaryItems,
   supplementaryContent,
   sections,
-  footerBlocks,
 }: MarkedPageProps) {
-  const renderBlocks = (blocks: MarkedBlock[], tone: "default" | "muted") => (
+  const renderBlocks = (blocks: MarkedBlock[]) => (
     <Column gap="md">
       {blocks.map((block, index) => {
         if (block.type === "paragraph") {
           return (
-            <Text
-              key={index}
-              as="p"
-              block
-              align="start"
-              tone={tone}
-              variantSize={tone === "muted" ? "small" : "medium"}
-            >
+            <Text key={index} align="start" variantSize="medium">
               {block.text}
             </Text>
           );
@@ -57,14 +40,7 @@ export function MarkedPage({
         return (
           <Column key={index} gap="sm">
             {block.items.map((item) => (
-              <Text
-                key={item}
-                as="div"
-                block
-                align="start"
-                tone={tone}
-                variantSize={tone === "muted" ? "small" : "medium"}
-              >
+              <Text key={item} align="start" variantSize="medium">
                 {`• ${item}`}
               </Text>
             ))}
@@ -78,42 +54,57 @@ export function MarkedPage({
     <Page>
       <Scroll axis="y">
         <Column gap="xl" width="page" self="center">
-          <PrimarySection gap="lg">
-            <header>
-              <Column gap="md" width="measure" align="start">
-                <Text
-                  as="div"
-                  block
-                  align="start"
-                  variantSize="small"
-                  variantWeight="bold"
-                  tone="accent"
-                >
-                  {eyebrow}
-                </Text>
-                <Title as="h1" variantSize="hero" align="start">
-                  {title}
-                </Title>
-                <Text as="p" block align="start">
-                  {intro}
-                </Text>
-                {meta && (
-                  <Text
-                    as="p"
-                    block
-                    align="start"
-                    variantSize="small"
-                    tone="muted"
-                  >
-                    {meta}
+          <PrimarySection>
+            <Column gap="md">
+              <Text
+                align="start"
+                variantSize="small"
+                variantWeight="bold"
+                tone="accent"
+              >
+                {eyebrow}
+              </Text>
+              <Title as="h1" variantSize="hero" align="start">
+                {title}
+              </Title>
+              <Text align="start">{intro}</Text>
+              <Row>
+                <Fill center>
+                  <Text>{`${SITE_OPERATOR} 작성`}</Text>
+                </Fill>
+                <Fill center>
+                  <Text>
+                    {effectiveDate ? `시행일 ${effectiveDate}` : undefined}
                   </Text>
-                )}
-              </Column>
-            </header>
-            <Row gap="md" wrap>
-              {heroActions ?? <Link href="/">홈으로 돌아가기</Link>}
-            </Row>
+                </Fill>
+                <Fill center>
+                  <Link
+                    href={GUILD_INVITE_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    문의하기
+                  </Link>
+                </Fill>
+              </Row>
+            </Column>
           </PrimarySection>
+
+          {(supplementaryItems || supplementaryContent) && (
+            <TertiarySection gap="md">
+              {supplementaryItems && supplementaryItems.length > 0 && (
+                <Row gap="md">
+                  {supplementaryItems.map((item, index) => (
+                    <Card fill key={index} variantColor="gray">
+                      <Text variantWeight="semibold">{item}</Text>
+                    </Card>
+                  ))}
+                </Row>
+              )}
+
+              {supplementaryContent}
+            </TertiarySection>
+          )}
 
           <SecondarySection gap="md">
             <Column gap="xl">
@@ -122,66 +113,11 @@ export function MarkedPage({
                   <Title as="h2" align="start" variantSize="medium">
                     {section.title}
                   </Title>
-                  {renderBlocks(section.blocks, "default")}
+                  {renderBlocks(section.blocks)}
                 </Column>
               ))}
             </Column>
           </SecondarySection>
-
-          {(supplementaryTitle ||
-            supplementaryDescription ||
-            supplementaryItems ||
-            supplementaryContent ||
-            footerBlocks) && (
-            <TertiarySection gap="md">
-              {(supplementaryTitle || supplementaryDescription) && (
-                <header>
-                  <Column gap="sm" align="start">
-                    {supplementaryTitle && (
-                      <Title as="h2" align="start" variantSize="medium">
-                        {supplementaryTitle}
-                      </Title>
-                    )}
-                    {supplementaryDescription && (
-                      <Text as="p" block align="start">
-                        {supplementaryDescription}
-                      </Text>
-                    )}
-                  </Column>
-                </header>
-              )}
-
-              {supplementaryItems && supplementaryItems.length > 0 && (
-                <Column gap="md">
-                  {supplementaryItems.map((item, index) => (
-                    <Card key={index} variantColor="gray" align="start">
-                      <Text
-                        as="div"
-                        block
-                        align="start"
-                        variantSize="small"
-                        tone="muted"
-                      >
-                        {item.label}
-                      </Text>
-                      <Text
-                        as="div"
-                        block
-                        align="start"
-                        variantWeight="semibold"
-                      >
-                        {item.value}
-                      </Text>
-                    </Card>
-                  ))}
-                </Column>
-              )}
-
-              {supplementaryContent}
-
-              {footerBlocks && renderBlocks(footerBlocks, "muted")}
-            </TertiarySection>
-          )}
         </Column>
       </Scroll>
     </Page>

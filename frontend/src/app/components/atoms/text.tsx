@@ -64,9 +64,7 @@ const titleVariants = cva(styles.title, {
 });
 
 type TextProps = JSX.IntrinsicElements["span"] &
-  VariantProps<typeof textVariants> & {
-    as?: "span" | "div" | "p";
-  };
+  VariantProps<typeof textVariants>;
 
 export type LabelProps = JSX.IntrinsicElements["label"] & {
   required?: boolean;
@@ -81,7 +79,6 @@ type TitleProps = JSX.IntrinsicElements["h3"] & {
 
 export function Text({
   className,
-  block,
   align,
   tone,
   variantWeight,
@@ -94,7 +91,6 @@ export function Text({
       className={clsx(
         styles.text,
         textVariants({
-          block,
           align,
           tone,
           variantWeight,
