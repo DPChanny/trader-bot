@@ -1,6 +1,5 @@
 import functools
 import inspect
-from dataclasses import dataclass, field
 from json import JSONDecodeError
 from typing import Any
 
@@ -8,20 +7,6 @@ from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
-
-
-@dataclass(slots=True)
-class ServiceEvent:
-    name: str
-    request_dto: dict[str, Any] = field(default_factory=dict)
-    result_dto: dict[str, Any] = field(default_factory=dict)
-    summary: dict[str, Any] = field(default_factory=dict)
-
-    def __iter__(self):
-        yield "name", self.name
-        yield "request_dto", self.request_dto
-        yield "result_dto", self.result_dto
-        yield "summary", self.summary
 
 
 SENSITIVE_KEYS = {
@@ -33,6 +18,10 @@ SENSITIVE_KEYS = {
 }
 
 EXCLUDED_REQUEST_ARG_NAMES = {"session", "ws", "websocket", "bot"}
+
+
+def _is_dto_argument(name: str) -> bool:
+    return name == "dto"
 
 
 def _sanitize_payload(value: Any) -> Any:
@@ -51,60 +40,47 @@ def _sanitize_payload(value: Any) -> Any:
     return value
 
 
-def _to_log_dict(value: Any) -> dict[str, Any] | None:
-    if isinstance(value, BaseModel):
-        return _sanitize_payload(value.model_dump(exclude_unset=True))
-    if isinstance(value, dict):
-        return _sanitize_payload(value)
-    return None
-
-
-def _is_safe_scalar(value: Any) -> bool:
-    return isinstance(value, (int, float, bool)) or value is None
-
-
-def _set_default_request_dto(
-    sig: inspect.Signature,
-    args: tuple[Any, ...],
-    kwargs: dict[str, Any],
-    event: ServiceEvent,
-) -> None:
-    if event.request_dto:
-        return
-
+def _extract_request_dto(
+    sig: inspect.Signature, args: tuple[Any, ...], kwargs: dict[str, Any]
+) -> dict[str, Any]:
     bound = sig.bind_partial(*args, **kwargs)
-    request: dict[str, Any] = {}
-    dto_entries: list[tuple[str, dict[str, Any]]] = []
+    dto_entries: list[tuple[str, BaseModel]] = []
 
     for name, value in bound.arguments.items():
         if name in EXCLUDED_REQUEST_ARG_NAMES:
             continue
 
-        dto_dict = _to_log_dict(value)
-        if dto_dict is not None:
-            dto_entries.append((name, dto_dict))
-            continue
+        if _is_dto_argument(name) and not isinstance(value, BaseModel):
+            raise TypeError(f"'{name}' must be a pydantic BaseModel")
 
-        if _is_safe_scalar(value):
-            request[name] = value
+        if _is_dto_argument(name):
+            dto_entries.append((name, value))
 
-    if len(dto_entries) == 1 and dto_entries[0][0] == "dto":
-        request |= dto_entries[0][1]
-    else:
-        for name, dto_value in dto_entries:
-            request[name] = dto_value
+    if len(dto_entries) == 1:
+        return dto_entries[0][1].model_dump(exclude_unset=True)
 
-    if request:
-        event.request_dto = request
+    if len(dto_entries) > 1:
+        return {name: dto.model_dump(exclude_unset=True) for name, dto in dto_entries}
+
+    return {}
 
 
-def _set_default_result_dto(result: Any, event: ServiceEvent) -> None:
-    if event.result_dto:
-        return
+def _extract_result_dto(result: Any) -> dict[str, Any]:
+    if isinstance(result, BaseModel):
+        return result.model_dump(exclude_unset=True)
 
-    result_dto = _to_log_dict(result)
-    if result_dto is not None:
-        event.result_dto = result_dto
+    if isinstance(result, dict):
+        return result
+
+    if isinstance(result, list):
+        if all(isinstance(item, BaseModel) for item in result):
+            return {
+                "items": [item.model_dump(exclude_unset=True) for item in result],
+            }
+        if all(isinstance(item, dict) for item in result):
+            return {"items": result}
+
+    return {}
 
 
 def http_service(func):
@@ -112,13 +88,18 @@ def http_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        event = ServiceEvent(name=func.__name__)
-        _set_default_request_dto(sig, args, kwargs, event)
+        request_dto = _extract_request_dto(sig, args, kwargs)
 
         try:
             result = await func(*args, **kwargs)
-            _set_default_result_dto(result, event)
-            logger.bind(event=dict(event)).info("")
+            logger.bind(
+                event={
+                    "name": func.__name__,
+                    "request_dto": _sanitize_payload(request_dto),
+                    "result_dto": _sanitize_payload(_extract_result_dto(result)),
+                    "summary": {},
+                }
+            ).info("")
             return result
         except HTTPError as error:
             if error.function is None:
@@ -133,18 +114,10 @@ def http_service(func):
 
 
 def bot_service(func):
-    sig = inspect.signature(func)
-
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        event = ServiceEvent(name=func.__name__)
-        _set_default_request_dto(sig, args, kwargs, event)
-
         try:
-            result = await func(*args, **kwargs)
-            _set_default_result_dto(result, event)
-            logger.bind(event=dict(event)).info("")
-            return result
+            return await func(*args, **kwargs)
         except AppError as error:
             if error.function is None:
                 error.function = func.__name__
@@ -158,18 +131,10 @@ def bot_service(func):
 
 
 def ws_service(func):
-    sig = inspect.signature(func)
-
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        event = ServiceEvent(name=func.__name__)
-        _set_default_request_dto(sig, args, kwargs, event)
-
         try:
-            result = await func(*args, **kwargs)
-            _set_default_result_dto(result, event)
-            logger.bind(event=dict(event)).info("")
-            return result
+            return await func(*args, **kwargs)
         except WSError as error:
             if error.function is None:
                 error.function = func.__name__

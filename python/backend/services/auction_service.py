@@ -110,7 +110,7 @@ async def create_auction_service(
 async def connect_service(
     ws: WebSocket,
     auction_id: int,
-    auth_payload_dto: AuthPayloadDTO,
+    dto: AuthPayloadDTO,
     session: AsyncSession,
 ) -> tuple["Auction", int | None, int | None]:
     auction = AuctionManager.get_auction(auction_id)
@@ -118,7 +118,7 @@ async def connect_service(
     if not auction:
         raise WSError(AuctionErrorCode.NotFound)
 
-    token = auth_payload_dto.token
+    token = dto.token
 
     member_id: int | None = None
     if token:
@@ -151,12 +151,12 @@ async def connect_service(
 async def place_bid_service(
     auction: Auction,
     member_id: int | None,
-    place_bid_payload_dto: PlaceBidPayloadDTO,
+    dto: PlaceBidPayloadDTO,
 ) -> None:
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)
 
-    await auction.place_bid(member_id, place_bid_payload_dto.amount)
+    await auction.place_bid(member_id, dto.amount)
 
 
 @ws_service
