@@ -17,11 +17,16 @@ import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberCard } from "@components/presetMemberCard";
 import { Input } from "@components/atoms/input";
 import { Text, Title } from "@components/atoms/text";
+import { ErrorModal } from "./errorModal";
 import { AuctionPageContextProvider } from "./auctionPageContext";
 import { getStatusEntries } from "@utils/enum";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { Status } from "@dtos/auction";
-import { BackendErrorCode } from "@utils/error";
+import {
+  BackendErrorCode,
+  FrontendErrorCode,
+  type WSError,
+} from "@utils/error";
 
 function isBidErrorCode(code: number): boolean {
   switch (code) {
@@ -35,12 +40,30 @@ function isBidErrorCode(code: number): boolean {
   }
 }
 
+function isModalErrorCode(code: number): boolean {
+  return (
+    code === BackendErrorCode.Validation.Invalid ||
+    code === BackendErrorCode.Unexpected.Internal ||
+    code === BackendErrorCode.Unexpected.External ||
+    code === FrontendErrorCode.Validation.Invalid ||
+    code === FrontendErrorCode.Unexpected.Internal ||
+    code === FrontendErrorCode.Unexpected.External
+  );
+}
+
 export function AuctionPage() {
   const auctionId = useAuctionId();
   const [bidAmount, setBidAmount] = useState<string>("");
+  const [modalError, setModalError] = useState<WSError | null>(null);
 
-  const { state, connect, placeBid, isConnected, wasConnected, error } =
-    useAuctionWebSocket();
+  const {
+    state,
+    connect,
+    placeBid,
+    isConnected,
+    wasConnected,
+    error: rawError,
+  } = useAuctionWebSocket();
 
   useEffect(() => {
     connect(auctionId);
@@ -55,13 +78,38 @@ export function AuctionPage() {
   const isRunning = state?.status === Status.RUNNING;
 
   const bidError =
-    !isCompleted && error !== null && isBidErrorCode(error.code) ? error : null;
+    !isCompleted && rawError !== null && isBidErrorCode(rawError.code)
+      ? rawError
+      : null;
 
-  if (!isCompleted && error !== null && bidError === null) {
+  useEffect(() => {
+    if (
+      isCompleted ||
+      state === null ||
+      rawError === null ||
+      bidError !== null
+    ) {
+      setModalError(null);
+      return;
+    }
+
+    if (isModalErrorCode(rawError.code)) {
+      setModalError(rawError);
+      return;
+    }
+
+    setModalError(null);
+  }, [rawError, isCompleted, state, bidError]);
+
+  if (
+    !isCompleted &&
+    rawError !== null &&
+    (state === null || (bidError === null && modalError === null))
+  ) {
     return (
       <Page>
         <PrimarySection fill align="stretch" justify="center">
-          <Error error={error}>경매 정보를 불러오지 못했습니다</Error>
+          <Error error={rawError}>경매 정보를 불러오지 못했습니다</Error>
         </PrimarySection>
       </Page>
     );
@@ -77,11 +125,7 @@ export function AuctionPage() {
     );
   }
 
-  const snapshot = state.presetSnapshot as {
-    presetMembers: PresetMemberDetailDTO[];
-    teamSize: number;
-    pointScale: number;
-  } | null;
+  const snapshot = state.presetSnapshot;
 
   const presetMembers: PresetMemberDetailDTO[] = snapshot?.presetMembers ?? [];
   const teamSize: number = snapshot?.teamSize ?? 5;
@@ -141,6 +185,10 @@ export function AuctionPage() {
   return (
     <AuctionPageContextProvider value={viewContext}>
       <Page>
+        {modalError && (
+          <ErrorModal error={modalError} onClose={() => setModalError(null)} />
+        )}
+
         <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
           <SecondarySection fill>
             <Title>팀 목록</Title>
