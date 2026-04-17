@@ -2,7 +2,7 @@ from discord import User
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.user import UserDTO
-from shared.utils.service import Event, bot_service, set_event_response
+from shared.utils.service import Event, bot_service
 
 from ..utils.user import sync_user
 
@@ -14,4 +14,4 @@ async def on_user_update_service(
     event: Event,
 ) -> UserDTO:
     response = await sync_user(user, session)
-    return set_event_response(event, response)
+    return response

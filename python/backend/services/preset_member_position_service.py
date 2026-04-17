@@ -19,7 +19,7 @@ from shared.utils.error import (
     PresetMemberErrorCode,
     PresetMemberPositionErrorCode,
 )
-from shared.utils.service import Event, http_service, set_event_response
+from shared.utils.service import Event, http_service
 
 from ..utils.member import verify_role
 
@@ -68,7 +68,7 @@ async def add_preset_member_position_service(
         raise HTTPError(PresetMemberPositionErrorCode.NotFound)
 
     response = PresetMemberPositionDetailDTO.model_validate(preset_member_position)
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -92,4 +92,4 @@ async def delete_preset_member_position_service(
 
     response = PresetMemberPositionDTO.model_validate(preset_member_position)
     await session.delete(preset_member_position)
-    return set_event_response(event, response)
+    return response

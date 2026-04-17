@@ -10,7 +10,7 @@ from shared.entities.position import Position
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PositionErrorCode, PresetErrorCode
-from shared.utils.service import Event, http_service, set_event_response
+from shared.utils.service import Event, http_service
 
 from ..utils.member import verify_role
 
@@ -32,7 +32,7 @@ async def get_positions_service(
     position_repo = PositionRepository(session)
     positions = await position_repo.get_all_by_preset_id(preset_id, guild_id)
     response = [PositionDTO.model_validate(p) for p in positions]
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -51,7 +51,7 @@ async def get_position_service(
     if position is None:
         raise HTTPError(PositionErrorCode.NotFound)
     response = PositionDTO.model_validate(position)
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -77,7 +77,7 @@ async def add_position_service(
     session.add(position)
     await session.flush()
     response = PositionDTO.model_validate(position)
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -101,7 +101,7 @@ async def update_position_service(
         setattr(position, key, getattr(dto, key))
 
     response = PositionDTO.model_validate(position)
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -122,4 +122,4 @@ async def delete_position_service(
 
     response = PositionDTO.model_validate(position)
     await session.delete(position)
-    return set_event_response(event, response)
+    return response

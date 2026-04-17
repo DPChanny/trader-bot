@@ -10,7 +10,7 @@ from shared.entities.tier import Tier
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
 from shared.utils.error import HTTPError, PresetErrorCode, TierErrorCode
-from shared.utils.service import Event, http_service, set_event_response
+from shared.utils.service import Event, http_service
 
 from ..utils.member import verify_role
 
@@ -32,7 +32,7 @@ async def get_tiers_service(
     tier_repo = TierRepository(session)
     tiers = await tier_repo.get_all_by_preset_id(preset_id, guild_id)
     response = [TierDTO.model_validate(t) for t in tiers]
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -51,7 +51,7 @@ async def get_tier_service(
     if tier is None:
         raise HTTPError(TierErrorCode.NotFound)
     response = TierDTO.model_validate(tier)
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -73,7 +73,7 @@ async def add_tier_service(
     session.add(tier)
     await session.flush()
     response = TierDTO.model_validate(tier)
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -97,7 +97,7 @@ async def update_tier_service(
         setattr(tier, key, getattr(dto, key))
 
     response = TierDTO.model_validate(tier)
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -118,4 +118,4 @@ async def delete_tier_service(
 
     response = TierDTO.model_validate(tier)
     await session.delete(tier)
-    return set_event_response(event, response)
+    return response

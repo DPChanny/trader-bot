@@ -9,7 +9,7 @@ from shared.dtos.preset import (
 from shared.entities.preset import Preset
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PresetErrorCode
-from shared.utils.service import Event, http_service, set_event_response
+from shared.utils.service import Event, http_service
 
 from ..utils.member import verify_role
 
@@ -29,7 +29,7 @@ async def get_preset_service(
     if preset is None:
         raise HTTPError(PresetErrorCode.NotFound)
     response = PresetDTO.model_validate(preset)
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -53,7 +53,7 @@ async def create_preset_service(
     session.add(preset)
     await session.flush()
     response = PresetDTO.model_validate(preset)
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -65,7 +65,7 @@ async def get_presets_service(
     preset_repo = PresetRepository(session)
     presets = await preset_repo.get_all_by_guild_id(guild_id)
     response = [PresetDTO.model_validate(p) for p in presets]
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -88,7 +88,7 @@ async def update_preset_service(
         setattr(preset, key, getattr(dto, key))
 
     response = PresetDTO.model_validate(preset)
-    return set_event_response(event, response)
+    return response
 
 
 @http_service
@@ -108,4 +108,4 @@ async def delete_preset_service(
 
     response = PresetDTO.model_validate(preset)
     await session.delete(preset)
-    return set_event_response(event, response)
+    return response

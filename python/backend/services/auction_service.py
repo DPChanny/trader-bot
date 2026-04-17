@@ -22,7 +22,7 @@ from shared.utils.error import (
     TokenError,
     WSError,
 )
-from shared.utils.service import Event, http_service, set_event_response, ws_service
+from shared.utils.service import Event, http_service, ws_service
 
 from ..auction import Auction, AuctionManager
 from ..utils.discord import send_message
@@ -103,7 +103,7 @@ async def create_auction_service(
         )
 
     response = AuctionDTO.model_validate(auction)
-    return set_event_response(event, response)
+    return response
 
 
 @ws_service

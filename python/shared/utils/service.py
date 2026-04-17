@@ -10,11 +10,6 @@ from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
 from .logging import Event
 
 
-def set_event_response(event: Event, value: Any) -> Any:
-    event.response = value
-    return value
-
-
 EXCLUDED_REQUEST_ARG_NAMES = {"session", "ws", "websocket", "bot"}
 
 
