@@ -7,6 +7,7 @@ import {
 } from "@tanstack/preact-query";
 import type { MemberDetailDTO } from "@dtos/member";
 import { Role } from "@dtos/member";
+import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { getMember, getMembers, getMyMember, updateMember } from "@apis/member";
 import { queryKeys, queryStaleTimes } from "@utils/query";
 import type { AppError } from "@utils/error";
@@ -52,16 +53,22 @@ export function useUpdateMember(): UseMutationResult<
 
   return useMutation({
     mutationFn: updateMember,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.members(variables.guildId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.member(variables.guildId, variables.memberId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembersByGuild(variables.guildId),
-      });
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<MemberDetailDTO[]>(
+        queryKeys.members(variables.guildId),
+        (old) => old?.map((m) => (m.memberId === data.memberId ? data : m)),
+      );
+      queryClient.setQueryData<MemberDetailDTO>(
+        queryKeys.member(variables.guildId, variables.memberId),
+        data,
+      );
+      queryClient.setQueriesData<PresetMemberDetailDTO[]>(
+        { queryKey: queryKeys.presetMembersByGuild(variables.guildId) },
+        (old) =>
+          old?.map((pm) =>
+            pm.member.memberId === data.memberId ? { ...pm, member: data } : pm,
+          ),
+      );
     },
   });
 }

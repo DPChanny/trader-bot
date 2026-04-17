@@ -9,6 +9,7 @@ import { getTiers, getTier, addTier, updateTier, deleteTier } from "@apis/tier";
 import { queryKeys } from "@utils/query";
 import type { TierDTO } from "@dtos/tier";
 import type { AppError } from "@utils/error";
+import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
 export function useTiers(
   guildId: string,
@@ -41,16 +42,11 @@ export function useAddTier(): UseMutationResult<
 
   return useMutation({
     mutationFn: addTier,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tiers(variables.guildId, variables.presetId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembers(
-          variables.guildId,
-          variables.presetId,
-        ),
-      });
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<TierDTO[]>(
+        queryKeys.tiers(variables.guildId, variables.presetId),
+        (old) => (old ? [...old, data] : [data]),
+      );
     },
   });
 }
@@ -65,23 +61,22 @@ export function useUpdateTier(): UseMutationResult<
 
   return useMutation({
     mutationFn: updateTier,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tiers(variables.guildId, variables.presetId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tier(
-          variables.guildId,
-          variables.presetId,
-          variables.tierId,
-        ),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembers(
-          variables.guildId,
-          variables.presetId,
-        ),
-      });
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<TierDTO[]>(
+        queryKeys.tiers(variables.guildId, variables.presetId),
+        (old) => old?.map((t) => (t.tierId === data.tierId ? data : t)),
+      );
+      queryClient.setQueryData<TierDTO>(
+        queryKeys.tier(variables.guildId, variables.presetId, variables.tierId),
+        data,
+      );
+      queryClient.setQueryData<PresetMemberDetailDTO[]>(
+        queryKeys.presetMembers(variables.guildId, variables.presetId),
+        (old) =>
+          old?.map((pm) =>
+            pm.tier?.tierId === data.tierId ? { ...pm, tier: data } : pm,
+          ),
+      );
     },
   });
 }

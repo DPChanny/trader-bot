@@ -45,10 +45,11 @@ export function useCreatePreset(): UseMutationResult<
 
   return useMutation({
     mutationFn: createPreset,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presets(variables.guildId),
-      });
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<PresetDTO[]>(
+        queryKeys.presets(variables.guildId),
+        (old) => (old ? [...old, data] : [data]),
+      );
     },
   });
 }
@@ -63,13 +64,15 @@ export function useUpdatePreset(): UseMutationResult<
 
   return useMutation({
     mutationFn: updatePreset,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presets(variables.guildId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.preset(variables.guildId, variables.presetId),
-      });
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<PresetDTO[]>(
+        queryKeys.presets(variables.guildId),
+        (old) => old?.map((p) => (p.presetId === data.presetId ? data : p)),
+      );
+      queryClient.setQueryData<PresetDTO>(
+        queryKeys.preset(variables.guildId, variables.presetId),
+        data,
+      );
     },
   });
 }

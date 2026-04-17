@@ -15,6 +15,7 @@ import {
 import { queryKeys } from "@utils/query";
 import type { PositionDTO } from "@dtos/position";
 import type { AppError } from "@utils/error";
+import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
 export function usePositions(
   guildId: string,
@@ -47,16 +48,11 @@ export function useAddPosition(): UseMutationResult<
 
   return useMutation({
     mutationFn: addPosition,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.positions(variables.guildId, variables.presetId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembers(
-          variables.guildId,
-          variables.presetId,
-        ),
-      });
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<PositionDTO[]>(
+        queryKeys.positions(variables.guildId, variables.presetId),
+        (old) => (old ? [...old, data] : [data]),
+      );
     },
   });
 }
@@ -71,23 +67,31 @@ export function useUpdatePosition(): UseMutationResult<
 
   return useMutation({
     mutationFn: updatePosition,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.positions(variables.guildId, variables.presetId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.position(
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<PositionDTO[]>(
+        queryKeys.positions(variables.guildId, variables.presetId),
+        (old) => old?.map((p) => (p.positionId === data.positionId ? data : p)),
+      );
+      queryClient.setQueryData<PositionDTO>(
+        queryKeys.position(
           variables.guildId,
           variables.presetId,
           variables.positionId,
         ),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembers(
-          variables.guildId,
-          variables.presetId,
-        ),
-      });
+        data,
+      );
+      queryClient.setQueryData<PresetMemberDetailDTO[]>(
+        queryKeys.presetMembers(variables.guildId, variables.presetId),
+        (old) =>
+          old?.map((pm) => ({
+            ...pm,
+            presetMemberPositions: pm.presetMemberPositions.map((pmp) =>
+              pmp.position.positionId === data.positionId
+                ? { ...pmp, position: data }
+                : pmp,
+            ),
+          })),
+      );
     },
   });
 }

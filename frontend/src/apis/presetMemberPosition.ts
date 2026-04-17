@@ -1,6 +1,6 @@
 import type {
   AddPresetMemberPositionDTO,
-  PresetMemberPositionDTO,
+  PresetMemberPositionDetailDTO,
 } from "@dtos/presetMemberPosition";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getPresetMemberPositionEndpoint } from "@utils/env";
@@ -17,7 +17,7 @@ export async function createPresetMemberPosition({
   presetId: number;
   presetMemberId: number;
   dto: AddPresetMemberPositionDTO;
-}): Promise<PresetMemberPositionDTO> {
+}): Promise<PresetMemberPositionDetailDTO> {
   const response = await fetch(
     getPresetMemberPositionEndpoint(guildId, presetId, presetMemberId),
     {
@@ -28,7 +28,7 @@ export async function createPresetMemberPosition({
   );
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
-  return toCamelCase<PresetMemberPositionDTO>(json);
+  return toCamelCase<PresetMemberPositionDetailDTO>(json);
 }
 
 export async function deletePresetMemberPosition({

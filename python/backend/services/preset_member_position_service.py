@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.member import Role
 from shared.dtos.preset_member_position import (
     AddPresetMemberPositionDTO,
+    PresetMemberPositionDetailDTO,
     PresetMemberPositionDTO,
 )
 from shared.entities.preset_member_position import PresetMemberPosition
@@ -31,7 +32,7 @@ async def add_preset_member_position_service(
     preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
     session: AsyncSession,
-) -> PresetMemberPositionDTO:
+) -> PresetMemberPositionDetailDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(session)
@@ -45,6 +46,7 @@ async def add_preset_member_position_service(
     if await position_repo.get_by_id(dto.position_id, preset_id, guild_id) is None:
         raise HTTPError(PositionErrorCode.NotFound)
 
+    pmp_repo = PresetMemberPositionRepository(session)
     preset_member_position = PresetMemberPosition(
         preset_member_id=preset_member_id,
         position_id=dto.position_id,
@@ -55,7 +57,16 @@ async def add_preset_member_position_service(
     except IntegrityError:
         raise HTTPError(PresetMemberPositionErrorCode.Duplicated) from None
 
-    return PresetMemberPositionDTO.model_validate(preset_member_position)
+    preset_member_position = await pmp_repo.get_detail_by_id(
+        preset_member_position.preset_member_position_id,
+        preset_member_id,
+        preset_id,
+        guild_id,
+    )
+    if preset_member_position is None:
+        raise HTTPError(PresetMemberPositionErrorCode.NotFound)
+
+    return PresetMemberPositionDetailDTO.model_validate(preset_member_position)
 
 
 @http_service

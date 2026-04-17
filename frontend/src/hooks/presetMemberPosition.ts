@@ -9,6 +9,7 @@ import {
 } from "@apis/presetMemberPosition";
 import { queryKeys } from "@utils/query";
 import type { AppError } from "@utils/error";
+import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
 export function useCreatePresetMemberPosition(): UseMutationResult<
   Awaited<ReturnType<typeof createPresetMemberPosition>>,
@@ -20,20 +21,27 @@ export function useCreatePresetMemberPosition(): UseMutationResult<
 
   return useMutation({
     mutationFn: createPresetMemberPosition,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembers(
-          variables.guildId,
-          variables.presetId,
-        ),
+    onSuccess: (data, variables) => {
+      const appendPmp = (pm: PresetMemberDetailDTO): PresetMemberDetailDTO => ({
+        ...pm,
+        presetMemberPositions: [...pm.presetMemberPositions, data],
       });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMember(
+
+      queryClient.setQueryData<PresetMemberDetailDTO[]>(
+        queryKeys.presetMembers(variables.guildId, variables.presetId),
+        (old) =>
+          old?.map((pm) =>
+            pm.presetMemberId === variables.presetMemberId ? appendPmp(pm) : pm,
+          ),
+      );
+      queryClient.setQueryData<PresetMemberDetailDTO>(
+        queryKeys.presetMember(
           variables.guildId,
           variables.presetId,
           variables.presetMemberId,
         ),
-      });
+        (old) => (old ? appendPmp(old) : undefined),
+      );
     },
   });
 }
@@ -49,19 +57,28 @@ export function useDeletePresetMemberPosition(): UseMutationResult<
   return useMutation({
     mutationFn: deletePresetMemberPosition,
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembers(
-          variables.guildId,
-          variables.presetId,
+      const removePmp = (pm: PresetMemberDetailDTO): PresetMemberDetailDTO => ({
+        ...pm,
+        presetMemberPositions: pm.presetMemberPositions.filter(
+          (pmp) =>
+            pmp.presetMemberPositionId !== variables.presetMemberPositionId,
         ),
       });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMember(
+      queryClient.setQueryData<PresetMemberDetailDTO[]>(
+        queryKeys.presetMembers(variables.guildId, variables.presetId),
+        (old) =>
+          old?.map((pm) =>
+            pm.presetMemberId === variables.presetMemberId ? removePmp(pm) : pm,
+          ),
+      );
+      queryClient.setQueryData<PresetMemberDetailDTO>(
+        queryKeys.presetMember(
           variables.guildId,
           variables.presetId,
           variables.presetMemberId,
         ),
-      });
+        (old) => (old ? removePmp(old) : undefined),
+      );
     },
   });
 }

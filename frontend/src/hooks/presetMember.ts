@@ -49,13 +49,11 @@ export function useCreatePresetMember(): UseMutationResult<
 
   return useMutation({
     mutationFn: createPresetMember,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembers(
-          variables.guildId,
-          variables.presetId,
-        ),
-      });
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<PresetMemberDetailDTO[]>(
+        queryKeys.presetMembers(variables.guildId, variables.presetId),
+        (old) => (old ? [...old, data] : [data]),
+      );
     },
   });
 }
@@ -70,20 +68,22 @@ export function useUpdatePresetMember(): UseMutationResult<
 
   return useMutation({
     mutationFn: updatePresetMember,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembers(
-          variables.guildId,
-          variables.presetId,
-        ),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMember(
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<PresetMemberDetailDTO[]>(
+        queryKeys.presetMembers(variables.guildId, variables.presetId),
+        (old) =>
+          old?.map((pm) =>
+            pm.presetMemberId === data.presetMemberId ? data : pm,
+          ),
+      );
+      queryClient.setQueryData<PresetMemberDetailDTO>(
+        queryKeys.presetMember(
           variables.guildId,
           variables.presetId,
           variables.presetMemberId,
         ),
-      });
+        data,
+      );
     },
   });
 }

@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.preset_member_position import (
     AddPresetMemberPositionDTO,
+    PresetMemberPositionDetailDTO,
     PresetMemberPositionDTO,
 )
 from shared.utils.database import get_session
@@ -20,7 +21,7 @@ preset_member_position_router = APIRouter(
 )
 
 
-@preset_member_position_router.post("", response_model=PresetMemberPositionDTO)
+@preset_member_position_router.post("", response_model=PresetMemberPositionDetailDTO)
 async def add_preset_member_position_route(
     guild_id: int,
     preset_id: int,
