@@ -157,8 +157,9 @@ export function AuctionPage() {
     : statusEntries[auction.status].displayName;
 
   const currentMember = auction.currentMemberId
-    ? presetMemberMap.get(auction.currentMemberId)
+    ? (presetMemberMap.get(auction.currentMemberId) ?? null)
     : null;
+  const showCurrentMember = isWaiting || isCompleted || currentMember === null;
 
   const currentBidLeaderId = auction.currentBid?.leaderId;
   const currentBidLeader =
@@ -209,7 +210,7 @@ export function AuctionPage() {
             <Column fill>
               <TertiarySection fill>
                 <Column fill center>
-                  {isWaiting || !currentMember ? (
+                  {showCurrentMember ? (
                     <Text>{statusText}</Text>
                   ) : (
                     <PresetMemberCard presetMember={currentMember} />
