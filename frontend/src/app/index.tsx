@@ -6,7 +6,7 @@ import type { RoutableProps } from "preact-router";
 import { QueryClientProvider } from "@tanstack/preact-query";
 import { MemberPage } from "@pages/memberPage/memberPage";
 import { PresetPage } from "@pages/presetPage/presetPage";
-import { HomePage } from "@pages/homePage/homePage";
+import { HomePage } from "@pages/homePage";
 import { AuctionPage } from "@pages/auctionPage/auctionPage";
 import { TermsOfServicePage } from "@pages/legalPage/termsOfServicePage";
 import { PrivacyPolicyPage } from "@pages/legalPage/privacyPolicyPage";

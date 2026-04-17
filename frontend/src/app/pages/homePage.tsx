@@ -19,7 +19,7 @@ import {
 
 export function HomePage() {
   const login = useLogin();
-  const user = useMyUser();
+  const myUser = useMyUser();
 
   return (
     <Page>
@@ -44,7 +44,7 @@ export function HomePage() {
               </Text>
             </SecondarySection>
             <Row>
-              {user ? null : (
+              {myUser.data ? null : (
                 <Fill>
                   <PrimaryButton variantSize="large" onClick={login}>
                     로그인하여 시작하기
@@ -54,7 +54,7 @@ export function HomePage() {
               <Fill>
                 <Link href={BOT_INVITE_URL} target="_blank" rel="noreferrer">
                   <Fill>
-                    {user ? (
+                    {myUser.data ? (
                       <PrimaryButton variantSize="large">
                         {BOT_INVITE_URL_TEXT}
                       </PrimaryButton>
