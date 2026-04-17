@@ -1,21 +1,71 @@
 import json
 import logging
 import time
+from dataclasses import dataclass, field
 from datetime import UTC
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
 from loguru import logger
+from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
+
+
+SENSITIVE_KEYS = {
+    "access_token",
+    "refresh_token",
+    "exchange_token",
+}
+
+
+def redact(value: Any) -> Any:
+    if isinstance(value, BaseModel):
+        return redact(value.model_dump(exclude_unset=True))
+
+    if isinstance(value, dict):
+        sanitized: dict[str, Any] = {}
+        for key, item in value.items():
+            if isinstance(key, str) and key.lower() in SENSITIVE_KEYS:
+                sanitized[key] = "[REDACTED]"
+            else:
+                sanitized[key] = redact(item)
+        return sanitized
+
+    if isinstance(value, list):
+        return [redact(item) for item in value]
+
+    return value
+
+
+@dataclass
+class Event:
+    function: str
+    request_dto: Any = field(default_factory=dict)
+    result_dto: Any = field(default_factory=dict)
+    detail: dict[str, Any] = field(default_factory=dict)
+
+    def __iter__(self):
+        redacted_result_dto = redact(self.result_dto)
+        if not isinstance(redacted_result_dto, (dict, list)):
+            redacted_result_dto = {}
+
+        yield "function", self.function
+        yield "request_dto", redact(self.request_dto)
+        yield "result_dto", redacted_result_dto
+        yield "detail", redact(self.detail)
 
 
 def _build_log(record) -> dict:
     extra = dict(record["extra"])
     event = extra.pop("event", None)
     request = extra.pop("request", None)
-    event = event if isinstance(event, dict) else None
+    if isinstance(event, Event):
+        event = dict(event)
+    elif not isinstance(event, dict):
+        event = None
 
     source = f"{record['name']}:{record['function']}:{record['line']}"
 

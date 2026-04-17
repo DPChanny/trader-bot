@@ -7,32 +7,10 @@ from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
+from .logging import Event
 
 
 EXCLUDED_REQUEST_ARG_NAMES = {"session", "ws", "websocket", "bot"}
-
-
-def _redact(value: Any) -> Any:
-    if isinstance(value, BaseModel):
-        return _redact(value.model_dump(exclude_unset=True))
-
-    if isinstance(value, dict):
-        sanitized: dict[str, Any] = {}
-        for key, item in value.items():
-            if isinstance(key, str) and key.lower() in {
-                "access_token",
-                "refresh_token",
-                "exchange_token",
-            }:
-                sanitized[key] = "[REDACTED]"
-            else:
-                sanitized[key] = _redact(item)
-        return sanitized
-
-    if isinstance(value, list):
-        return [_redact(item) for item in value]
-
-    return value
 
 
 def _extract_request_dto(
@@ -75,23 +53,6 @@ def _build_detail(
     return injected_kwargs, detail
 
 
-def _build_event(
-    function: str,
-    request_dto: BaseModel,
-    result_dto: Any,
-    detail: dict[str, Any],
-) -> dict[str, Any]:
-    redacted_result_dto = _redact(result_dto)
-    if not isinstance(redacted_result_dto, (dict, list)):
-        redacted_result_dto = {}
-    return {
-        "function": function,
-        "request_dto": _redact(request_dto),
-        "result_dto": redacted_result_dto,
-        "detail": _redact(detail),
-    }
-
-
 def http_service(func):
     sig = inspect.signature(func)
 
@@ -103,7 +64,12 @@ def http_service(func):
         try:
             result = await func(*args, **call_kwargs)
             logger.bind(
-                event=_build_event(func.__name__, request_dto, result, detail)
+                event=Event(
+                    function=func.__name__,
+                    request_dto=request_dto,
+                    result_dto=result,
+                    detail=detail,
+                )
             ).info("succeeded")
             return result
         except HTTPError as error:
@@ -132,7 +98,12 @@ def bot_service(func):
         try:
             result = await func(*args, **call_kwargs)
             logger.bind(
-                event=_build_event(func.__name__, request_dto, result, detail)
+                event=Event(
+                    function=func.__name__,
+                    request_dto=request_dto,
+                    result_dto=result,
+                    detail=detail,
+                )
             ).info("succeeded")
             return result
         except AppError as error:

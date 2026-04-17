@@ -13,6 +13,8 @@ from typing import Any
 from fastapi.responses import JSONResponse
 from loguru import logger
 
+from .logging import Event
+
 
 class AuthErrorCode(IntEnum):
     Unauthorized = 4101
@@ -126,22 +128,20 @@ class WSError(AppError):
         super().__init__(code)
 
 
-def _build_event(error: AppError, fallback_function: str) -> dict[str, Any]:
-    event = {
-        "function": error.function or fallback_function,
-        "request_dto": error.request_dto or {},
-        "result_dto": {},
-        "detail": {},
-    }
-
+def _build_event(error: AppError, fallback_function: str) -> Event:
+    detail = {}
     if error.__cause__ is not None:
-        event["detail"]["exception"] = "".join(
+        detail["exception"] = "".join(
             traceback.format_exception(
                 type(error.__cause__), error.__cause__, error.__cause__.__traceback__
             )
         )
 
-    return event
+    return Event(
+        function=error.function or fallback_function,
+        request_dto=error.request_dto or {},
+        detail=detail,
+    )
 
 
 def handle_app_error(error: AppError, fallback_function: str) -> None:
