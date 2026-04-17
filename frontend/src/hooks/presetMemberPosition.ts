@@ -10,20 +10,10 @@ import {
 import { queryKeys } from "@utils/query";
 import type { AppError } from "@utils/error";
 
-type CreatePresetMemberPositionVariables = Parameters<
-  typeof createPresetMemberPosition
->[0];
-type CreatePresetMemberPositionResult = Awaited<
-  ReturnType<typeof createPresetMemberPosition>
->;
-type DeletePresetMemberPositionVariables = Parameters<
-  typeof deletePresetMemberPosition
->[0];
-
 export function useCreatePresetMemberPosition(): UseMutationResult<
-  CreatePresetMemberPositionResult,
+  Awaited<ReturnType<typeof createPresetMemberPosition>>,
   AppError,
-  CreatePresetMemberPositionVariables,
+  Parameters<typeof createPresetMemberPosition>[0],
   unknown
 > {
   const queryClient = useQueryClient();
@@ -51,7 +41,7 @@ export function useCreatePresetMemberPosition(): UseMutationResult<
 export function useDeletePresetMemberPosition(): UseMutationResult<
   void,
   AppError,
-  DeletePresetMemberPositionVariables,
+  Parameters<typeof deletePresetMemberPosition>[0],
   unknown
 > {
   const queryClient = useQueryClient();

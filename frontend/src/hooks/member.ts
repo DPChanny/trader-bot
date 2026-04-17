@@ -11,9 +11,6 @@ import { getMember, getMembers, getMyMember, updateMember } from "@apis/member";
 import { queryKeys, queryStaleTimes } from "@utils/query";
 import type { AppError } from "@utils/error";
 
-type UpdateMemberVariables = Parameters<typeof updateMember>[0];
-type UpdateMemberResult = Awaited<ReturnType<typeof updateMember>>;
-
 export function useMyMember(
   guildId: string,
 ): UseQueryResult<MemberDetailDTO, AppError> {
@@ -46,9 +43,9 @@ export function useMember(
 }
 
 export function useUpdateMember(): UseMutationResult<
-  UpdateMemberResult,
+  Awaited<ReturnType<typeof updateMember>>,
   AppError,
-  UpdateMemberVariables,
+  Parameters<typeof updateMember>[0],
   unknown
 > {
   const queryClient = useQueryClient();

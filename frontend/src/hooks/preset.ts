@@ -16,12 +16,6 @@ import { queryKeys } from "@utils/query";
 import type { PresetDTO } from "@dtos/preset";
 import type { AppError } from "@utils/error";
 
-type CreatePresetVariables = Parameters<typeof createPreset>[0];
-type CreatePresetResult = Awaited<ReturnType<typeof createPreset>>;
-type UpdatePresetVariables = Parameters<typeof updatePreset>[0];
-type UpdatePresetResult = Awaited<ReturnType<typeof updatePreset>>;
-type DeletePresetVariables = Parameters<typeof deletePreset>[0];
-
 export function usePresets(
   guildId: string,
 ): UseQueryResult<PresetDTO[], AppError> {
@@ -42,9 +36,9 @@ export function usePreset(
 }
 
 export function useCreatePreset(): UseMutationResult<
-  CreatePresetResult,
+  Awaited<ReturnType<typeof createPreset>>,
   AppError,
-  CreatePresetVariables,
+  Parameters<typeof createPreset>[0],
   unknown
 > {
   const queryClient = useQueryClient();
@@ -60,9 +54,9 @@ export function useCreatePreset(): UseMutationResult<
 }
 
 export function useUpdatePreset(): UseMutationResult<
-  UpdatePresetResult,
+  Awaited<ReturnType<typeof updatePreset>>,
   AppError,
-  UpdatePresetVariables,
+  Parameters<typeof updatePreset>[0],
   unknown
 > {
   const queryClient = useQueryClient();
@@ -83,7 +77,7 @@ export function useUpdatePreset(): UseMutationResult<
 export function useDeletePreset(): UseMutationResult<
   void,
   AppError,
-  DeletePresetVariables,
+  Parameters<typeof deletePreset>[0],
   unknown
 > {
   const queryClient = useQueryClient();

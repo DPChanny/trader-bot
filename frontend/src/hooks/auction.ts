@@ -19,10 +19,7 @@ import { toCamelCase } from "@utils/dto";
 import { AUCTION_WS_ENDPOINT } from "@utils/env";
 import { getAccessToken } from "@utils/auth";
 
-type CreateAuctionVariables = Parameters<typeof createAuction>[0];
-type CreateAuctionResult = Awaited<ReturnType<typeof createAuction>>;
-
-interface UseAuctionResult {
+export function useAuction(): {
   auction: AuctionDetailDTO | null;
   teamId: number | null;
   memberId: number | null;
@@ -31,9 +28,7 @@ interface UseAuctionResult {
   isConnected: boolean;
   wasConnected: boolean;
   error: WSError | null;
-}
-
-export function useAuction(): UseAuctionResult {
+} {
   const [isConnected, setIsConnected] = useState(false);
   const [wasConnected, setWasConnected] = useState(false);
   const [auction, setAuction] = useState<AuctionDetailDTO | null>(null);
@@ -262,9 +257,9 @@ export function useAuction(): UseAuctionResult {
 }
 
 export function useCreateAuction(): UseMutationResult<
-  CreateAuctionResult,
+  Awaited<ReturnType<typeof createAuction>>,
   AppError,
-  CreateAuctionVariables,
+  Parameters<typeof createAuction>[0],
   unknown
 > {
   return useMutation({

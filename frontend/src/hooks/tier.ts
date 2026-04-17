@@ -10,12 +10,6 @@ import { queryKeys } from "@utils/query";
 import type { TierDTO } from "@dtos/tier";
 import type { AppError } from "@utils/error";
 
-type AddTierVariables = Parameters<typeof addTier>[0];
-type AddTierResult = Awaited<ReturnType<typeof addTier>>;
-type UpdateTierVariables = Parameters<typeof updateTier>[0];
-type UpdateTierResult = Awaited<ReturnType<typeof updateTier>>;
-type DeleteTierVariables = Parameters<typeof deleteTier>[0];
-
 export function useTiers(
   guildId: string,
   presetId: number,
@@ -38,9 +32,9 @@ export function useTier(
 }
 
 export function useAddTier(): UseMutationResult<
-  AddTierResult,
+  Awaited<ReturnType<typeof addTier>>,
   AppError,
-  AddTierVariables,
+  Parameters<typeof addTier>[0],
   unknown
 > {
   const queryClient = useQueryClient();
@@ -62,9 +56,9 @@ export function useAddTier(): UseMutationResult<
 }
 
 export function useUpdateTier(): UseMutationResult<
-  UpdateTierResult,
+  Awaited<ReturnType<typeof updateTier>>,
   AppError,
-  UpdateTierVariables,
+  Parameters<typeof updateTier>[0],
   unknown
 > {
   const queryClient = useQueryClient();
@@ -95,7 +89,7 @@ export function useUpdateTier(): UseMutationResult<
 export function useDeleteTier(): UseMutationResult<
   void,
   AppError,
-  DeleteTierVariables,
+  Parameters<typeof deleteTier>[0],
   unknown
 > {
   const queryClient = useQueryClient();

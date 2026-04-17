@@ -16,12 +16,6 @@ import { queryKeys } from "@utils/query";
 import type { PositionDTO } from "@dtos/position";
 import type { AppError } from "@utils/error";
 
-type AddPositionVariables = Parameters<typeof addPosition>[0];
-type AddPositionResult = Awaited<ReturnType<typeof addPosition>>;
-type UpdatePositionVariables = Parameters<typeof updatePosition>[0];
-type UpdatePositionResult = Awaited<ReturnType<typeof updatePosition>>;
-type DeletePositionVariables = Parameters<typeof deletePosition>[0];
-
 export function usePositions(
   guildId: string,
   presetId: number,
@@ -44,9 +38,9 @@ export function usePosition(
 }
 
 export function useAddPosition(): UseMutationResult<
-  AddPositionResult,
+  Awaited<ReturnType<typeof addPosition>>,
   AppError,
-  AddPositionVariables,
+  Parameters<typeof addPosition>[0],
   unknown
 > {
   const queryClient = useQueryClient();
@@ -68,9 +62,9 @@ export function useAddPosition(): UseMutationResult<
 }
 
 export function useUpdatePosition(): UseMutationResult<
-  UpdatePositionResult,
+  Awaited<ReturnType<typeof updatePosition>>,
   AppError,
-  UpdatePositionVariables,
+  Parameters<typeof updatePosition>[0],
   unknown
 > {
   const queryClient = useQueryClient();
@@ -101,7 +95,7 @@ export function useUpdatePosition(): UseMutationResult<
 export function useDeletePosition(): UseMutationResult<
   void,
   AppError,
-  DeletePositionVariables,
+  Parameters<typeof deletePosition>[0],
   unknown
 > {
   const queryClient = useQueryClient();
