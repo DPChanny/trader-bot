@@ -17,16 +17,11 @@ import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberCard } from "@components/presetMemberCard";
 import { Input } from "@components/atoms/input";
 import { Text, Title } from "@components/atoms/text";
-import { NonBlockingErrorModal } from "./nonBlockingErrorModal";
 import { AuctionPageContextProvider } from "./auctionPageContext";
 import { getStatusEntries } from "@utils/enum";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import { Status } from "@dtos/auction";
-import {
-  FrontendErrorCode,
-  BackendErrorCode,
-  type WSError,
-} from "@utils/error";
+import { BackendErrorCode } from "@utils/error";
 
 function isBidErrorCode(code: number): boolean {
   switch (code) {
@@ -40,34 +35,12 @@ function isBidErrorCode(code: number): boolean {
   }
 }
 
-function isNonBlockingErrorCode(code: number | null | undefined): boolean {
-  return (
-    code === BackendErrorCode.Validation.Invalid ||
-    code === BackendErrorCode.Unexpected.Internal ||
-    code === BackendErrorCode.Unexpected.External ||
-    code === FrontendErrorCode.Validation.Invalid ||
-    code === FrontendErrorCode.Unexpected.Internal ||
-    code === FrontendErrorCode.Unexpected.External
-  );
-}
-
 export function AuctionPage() {
   const auctionId = useAuctionId();
   const [bidAmount, setBidAmount] = useState<string>("");
-  const [bidError, setBidError] = useState<WSError | null>(null);
-  const [nonBlockingError, setNonBlockingError] = useState<WSError | null>(
-    null,
-  );
 
   const { state, connect, placeBid, isConnected, wasConnected, error } =
     useAuctionWebSocket();
-
-  useEffect(() => {
-    if (error === null) {
-      setBidError(null);
-      setNonBlockingError(null);
-    }
-  }, [error]);
 
   useEffect(() => {
     connect(auctionId);
@@ -80,42 +53,11 @@ export function AuctionPage() {
 
   const isCompleted = state?.status === Status.COMPLETED;
   const isRunning = state?.status === Status.RUNNING;
-  const isBidError =
-    error !== null &&
-    typeof error.code === "number" &&
-    isBidErrorCode(error.code);
 
-  useEffect(() => {
-    if (isBidError && error !== null) {
-      setBidError(error);
-      return;
-    }
+  const bidError =
+    !isCompleted && error !== null && isBidErrorCode(error.code) ? error : null;
 
-    if (error !== null) {
-      setBidError(null);
-    }
-  }, [error, isBidError]);
-
-  useEffect(() => {
-    if (
-      !isCompleted &&
-      error !== null &&
-      !isBidError &&
-      isNonBlockingErrorCode(error.code)
-    ) {
-      setNonBlockingError(error);
-    }
-  }, [error, isBidError, isCompleted]);
-
-  const isNonBlockingError = !isBidError && isNonBlockingErrorCode(error?.code);
-
-  const isBlockingError =
-    !isCompleted &&
-    error !== null &&
-    !isBidError &&
-    (state === null || !isNonBlockingError);
-
-  if (isBlockingError && error !== null) {
+  if (!isCompleted && error !== null && bidError === null) {
     return (
       <Page>
         <PrimarySection fill align="stretch" justify="center">
@@ -125,7 +67,7 @@ export function AuctionPage() {
     );
   }
 
-  const isLoading = !isCompleted && (!isConnected || !state);
+  const isLoading = !state || (!isConnected && !wasConnected);
 
   if (isLoading) {
     return (
@@ -134,13 +76,6 @@ export function AuctionPage() {
       </Page>
     );
   }
-
-  if (!state)
-    return (
-      <Page>
-        <Loading />
-      </Page>
-    );
 
   const snapshot = state.presetSnapshot as {
     presetMembers: PresetMemberDetailDTO[];
@@ -189,7 +124,6 @@ export function AuctionPage() {
     const displayAmount = Number.parseInt(bidAmount, 10);
     if (displayAmount > 0 && displayAmount % pointScale === 0) {
       const actualAmount = displayAmount / pointScale;
-      setBidError(null);
       placeBid(actualAmount);
       setBidAmount("");
     }
@@ -207,13 +141,6 @@ export function AuctionPage() {
   return (
     <AuctionPageContextProvider value={viewContext}>
       <Page>
-        {nonBlockingError && (
-          <NonBlockingErrorModal
-            error={nonBlockingError}
-            onClose={() => setNonBlockingError(null)}
-          />
-        )}
-
         <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
           <SecondarySection fill>
             <Title>팀 목록</Title>
@@ -278,10 +205,7 @@ export function AuctionPage() {
                         type="number"
                         placeholder={`입찰 금액 (${pointScale}의 배수)`}
                         value={bidAmount}
-                        onValueChange={(value) => {
-                          setBidError(null);
-                          setBidAmount(value);
-                        }}
+                        onValueChange={setBidAmount}
                         disabled={!isRunning}
                       />
                     </FlexItem>
