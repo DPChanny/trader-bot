@@ -6,7 +6,7 @@ from shared.entities.position import Position
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PositionErrorCode, PresetErrorCode
-from shared.utils.service import http_service
+from shared.utils.service import Event, http_service
 
 from ..utils.member import verify_role
 
@@ -83,8 +83,13 @@ async def update_position_service(
 
 @http_service
 async def delete_position_service(
-    guild_id: int, user_id: int, preset_id: int, position_id: int, session: AsyncSession
-) -> PositionDTO:
+    guild_id: int,
+    user_id: int,
+    preset_id: int,
+    position_id: int,
+    session: AsyncSession,
+    event: Event,
+) -> None:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     position_repo = PositionRepository(session)
@@ -92,6 +97,5 @@ async def delete_position_service(
     if position is None:
         raise HTTPError(PositionErrorCode.NotFound)
 
-    response = PositionDTO.model_validate(position)
+    event.response = PositionDTO.model_validate(position)
     await session.delete(position)
-    return response

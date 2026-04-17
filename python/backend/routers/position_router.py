@@ -75,6 +75,4 @@ async def delete_position_route(
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),
 ):
-    return await delete_position_service(
-        guild_id, user_id, preset_id, position_id, session
-    )
+    await delete_position_service(guild_id, user_id, preset_id, position_id, session)

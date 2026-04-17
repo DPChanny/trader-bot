@@ -5,7 +5,7 @@ from shared.dtos.preset import CreatePresetDTO, PresetDTO, UpdatePresetDTO
 from shared.entities.preset import Preset
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PresetErrorCode
-from shared.utils.service import http_service
+from shared.utils.service import Event, http_service
 
 from ..utils.member import verify_role
 
@@ -76,8 +76,8 @@ async def update_preset_service(
 
 @http_service
 async def delete_preset_service(
-    guild_id: int, user_id: int, preset_id: int, session: AsyncSession
-) -> PresetDTO:
+    guild_id: int, user_id: int, preset_id: int, session: AsyncSession, event: Event
+) -> None:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
@@ -85,6 +85,5 @@ async def delete_preset_service(
     if preset is None:
         raise HTTPError(PresetErrorCode.NotFound)
 
-    response = PresetDTO.model_validate(preset)
+    event.response = PresetDTO.model_validate(preset)
     await session.delete(preset)
-    return response

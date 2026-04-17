@@ -35,5 +35,7 @@ async def on_guild_update_service(
 
 
 @bot_service
-async def on_guild_remove_service(guild: Guild, session: AsyncSession) -> GuildDTO:
-    return await delete_guild(guild.id, session)
+async def on_guild_remove_service(
+    guild: Guild, session: AsyncSession, event: Event
+) -> None:
+    event.response = await delete_guild(guild.id, session)

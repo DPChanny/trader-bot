@@ -79,6 +79,6 @@ async def delete_preset_member_route(
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),
 ):
-    return await delete_preset_member_service(
+    await delete_preset_member_service(
         guild_id, user_id, preset_id, preset_member_id, session
     )

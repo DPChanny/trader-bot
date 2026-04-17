@@ -6,7 +6,7 @@ from shared.entities.tier import Tier
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
 from shared.utils.error import HTTPError, PresetErrorCode, TierErrorCode
-from shared.utils.service import http_service
+from shared.utils.service import Event, http_service
 
 from ..utils.member import verify_role
 
@@ -79,8 +79,13 @@ async def update_tier_service(
 
 @http_service
 async def delete_tier_service(
-    guild_id: int, user_id: int, preset_id: int, tier_id: int, session: AsyncSession
-) -> TierDTO:
+    guild_id: int,
+    user_id: int,
+    preset_id: int,
+    tier_id: int,
+    session: AsyncSession,
+    event: Event,
+) -> None:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     tier_repo = TierRepository(session)
@@ -88,6 +93,5 @@ async def delete_tier_service(
     if tier is None:
         raise HTTPError(TierErrorCode.NotFound)
 
-    response = TierDTO.model_validate(tier)
+    event.response = TierDTO.model_validate(tier)
     await session.delete(tier)
-    return response

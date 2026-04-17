@@ -78,7 +78,8 @@ async def delete_preset_member_position_service(
     preset_member_id: int,
     preset_member_position_id: int,
     session: AsyncSession,
-) -> PresetMemberPositionDTO:
+    event: Event,
+) -> None:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     pmp_repo = PresetMemberPositionRepository(session)
@@ -88,6 +89,5 @@ async def delete_preset_member_position_service(
     if preset_member_position is None:
         raise HTTPError(PresetMemberPositionErrorCode.NotFound)
 
-    response = PresetMemberPositionDTO.model_validate(preset_member_position)
+    event.response = PresetMemberPositionDTO.model_validate(preset_member_position)
     await session.delete(preset_member_position)
-    return response

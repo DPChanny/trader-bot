@@ -126,6 +126,8 @@ async def connect_service(
 
     await auction.connect(ws, member_id)
 
+    event.response = {"auction_id": auction.auction_id, "member_id": member_id}
+
     return auction, member_id, team_id
 
 
