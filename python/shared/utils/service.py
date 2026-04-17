@@ -9,27 +9,28 @@ from pydantic import BaseModel, ValidationError
 from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
 
 
-SENSITIVE_KEYS = {
-    "access_token",
-    "refresh_token",
-    "exchange_token",
-}
-
 EXCLUDED_REQUEST_ARG_NAMES = {"session", "ws", "websocket", "bot"}
 
 
-def _sanitize_payload(value: Any) -> Any:
+def _redact(value: Any) -> Any:
+    if isinstance(value, BaseModel):
+        return _redact(value.model_dump(exclude_unset=True))
+
     if isinstance(value, dict):
         sanitized: dict[str, Any] = {}
         for key, item in value.items():
-            if isinstance(key, str) and key.lower() in SENSITIVE_KEYS:
-                sanitized[key] = "***"
+            if isinstance(key, str) and key.lower() in {
+                "access_token",
+                "refresh_token",
+                "exchange_token",
+            }:
+                sanitized[key] = "[REDACTED]"
             else:
-                sanitized[key] = _sanitize_payload(item)
+                sanitized[key] = _redact(item)
         return sanitized
 
     if isinstance(value, list):
-        return [_sanitize_payload(item) for item in value]
+        return [_redact(item) for item in value]
 
     return value
 
@@ -59,38 +60,25 @@ def _extract_request_dto(
     return {}
 
 
-def _extract_result_dto(result: Any) -> dict[str, Any]:
-    if isinstance(result, BaseModel):
-        return result.model_dump(exclude_unset=True)
-
-    if isinstance(result, dict):
-        return result
-
-    if isinstance(result, list):
-        if all(isinstance(item, BaseModel) for item in result):
-            return {
-                "items": [item.model_dump(exclude_unset=True) for item in result],
-            }
-        if all(isinstance(item, dict) for item in result):
-            return {"items": result}
-
-    return {}
-
-
 def http_service(func):
     sig = inspect.signature(func)
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        request_dto = _extract_request_dto(sig, args, kwargs)
+        request_dto = _redact(_extract_request_dto(sig, args, kwargs))
 
         try:
             result = await func(*args, **kwargs)
+            sanitized_result = _redact(result)
+            result_dto = (
+                sanitized_result if isinstance(sanitized_result, (dict, list)) else {}
+            )
+
             logger.bind(
                 event={
                     "function": func.__name__,
-                    "request_dto": _sanitize_payload(request_dto),
-                    "result_dto": _sanitize_payload(_extract_result_dto(result)),
+                    "request_dto": request_dto,
+                    "result_dto": result_dto,
                     "summary": {},
                 }
             ).info("succeeded")
@@ -98,46 +86,63 @@ def http_service(func):
         except HTTPError as error:
             if error.function is None:
                 error.function = func.__name__
+            if error.request_dto is None:
+                error.request_dto = request_dto
             raise
         except Exception as error:
             http_error = HTTPError(UnexpectedErrorCode.Internal)
             http_error.function = func.__name__
+            http_error.request_dto = request_dto
             raise http_error from error
 
     return wrapper
 
 
 def bot_service(func):
+    sig = inspect.signature(func)
+
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
+        request_dto = _redact(_extract_request_dto(sig, args, kwargs))
+
         try:
             return await func(*args, **kwargs)
         except AppError as error:
             if error.function is None:
                 error.function = func.__name__
+            if error.request_dto is None:
+                error.request_dto = request_dto
             raise
         except Exception as error:
             app_error = AppError(UnexpectedErrorCode.Internal)
             app_error.function = func.__name__
+            app_error.request_dto = request_dto
             raise app_error from error
 
     return wrapper
 
 
 def ws_service(func):
+    sig = inspect.signature(func)
+
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
+        request_dto = _redact(_extract_request_dto(sig, args, kwargs))
+
         try:
             return await func(*args, **kwargs)
         except WSError as error:
             if error.function is None:
                 error.function = func.__name__
+            if error.request_dto is None:
+                error.request_dto = request_dto
             raise
         except (ValidationError, JSONDecodeError):
             raise
         except Exception as error:
             ws_error = WSError(UnexpectedErrorCode.Internal)
             ws_error.function = func.__name__
+            ws_error.request_dto = request_dto
             raise ws_error from error
 
     return wrapper

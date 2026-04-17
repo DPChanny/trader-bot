@@ -7,6 +7,7 @@
 """
 
 from enum import IntEnum
+from typing import Any
 
 from fastapi.responses import JSONResponse
 from loguru import logger
@@ -103,6 +104,7 @@ class AppError(Exception):
     def __init__(self, code: AppErrorCode) -> None:
         self.code: int = code.value
         self.function: str | None = None
+        self.request_dto: dict[str, Any] | None = None
         super().__init__(str(code.value))
 
 
@@ -127,7 +129,7 @@ def handle_app_error(error: AppError, fallback_function: str) -> None:
     function = error.function or fallback_function
     event = {
         "function": function,
-        "request_dto": {},
+        "request_dto": error.request_dto or {},
         "result_dto": {},
         "summary": {},
     }
@@ -143,7 +145,7 @@ def handle_http_error(error: HTTPError, fallback_function: str) -> JSONResponse:
     function = error.function or fallback_function
     event = {
         "function": function,
-        "request_dto": {},
+        "request_dto": error.request_dto or {},
         "result_dto": {},
         "summary": {},
     }
@@ -167,7 +169,7 @@ def handle_ws_error(
     function = error.function or fallback_function
     event = {
         "function": function,
-        "request_dto": {},
+        "request_dto": error.request_dto or {},
         "result_dto": {},
         "summary": {},
     }

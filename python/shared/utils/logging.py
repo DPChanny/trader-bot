@@ -1,9 +1,9 @@
 import json
 import logging
-import sys
 import time
-from dataclasses import asdict, is_dataclass
+import traceback
 from datetime import UTC
+from pathlib import Path
 from uuid import uuid4
 
 from loguru import logger
@@ -12,42 +12,14 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 
-def _normalize_event(event) -> dict | None:
-    if event is None:
-        return None
-
-    if is_dataclass(event):
-        event = asdict(event)
-
-    if isinstance(event, dict):
-        return {
-            "name": event.get("name"),
-            "request_dto": event.get("request_dto", {}),
-            "result_dto": event.get("result_dto", {}),
-            "summary": event.get("summary", {}),
-        }
-
-    return {
-        "name": None,
-        "request_dto": {},
-        "result_dto": {"value": str(event)},
-        "summary": {},
-    }
-
-
-def _pop_extra(record) -> tuple[dict, dict | None, dict | None]:
+def _build_log(record) -> dict:
     extra = dict(record["extra"])
     event = extra.pop("event", None)
     request = extra.pop("request", None)
-    return extra, event, request
-
-
-def _json_sink(message) -> None:
-    record = message.record
-    extra, event, request = _pop_extra(record)
-    event = _normalize_event(event)
+    event = event if isinstance(event, dict) else None
 
     source = f"{record['name']}:{record['function']}:{record['line']}"
+
     data: dict = {
         "timestamp": record["time"]
         .astimezone(UTC)
@@ -64,41 +36,38 @@ def _json_sink(message) -> None:
     if request is not None:
         data["request"] = request
     if extra:
-        data.update(extra)
+        data["extra"] = extra
     if record["exception"]:
-        import traceback
-
         data["exception"] = "".join(traceback.format_exception(*record["exception"]))
-    print(json.dumps(data, ensure_ascii=False), flush=True)
+    return data
 
 
-def _text_sink(message) -> None:
-    record = message.record
-    timestamp = record["time"].strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-    extra, event, request = _pop_extra(record)
-    event = _normalize_event(event)
+def _json_formatter(record) -> str:
+    return json.dumps(_build_log(record), ensure_ascii=False)
 
-    source = f"{record['name']}:{record['function']}:{record['line']}"
 
-    parts = [f"{timestamp} | {record['level'].name:<8} | {source}"]
-    if extra:
-        parts.append(json.dumps(extra, ensure_ascii=False, default=str))
-    if record["message"]:
-        parts.append(record["message"])
+def _text_formatter(record) -> str:
+    data = _build_log(record)
+
+    parts = [f"{data['timestamp']} | {data['level']:<8} | {data['source']}"]
+    if "message" in data:
+        parts.append(data["message"])
+    if "extra" in data:
+        parts.append(json.dumps(data["extra"], ensure_ascii=False, default=str))
 
     output = " | ".join(parts)
-    if event is not None:
-        output += "\n" + json.dumps(event, ensure_ascii=False, indent=2, default=str)
-    if request is not None:
-        output += "\n" + json.dumps(request, ensure_ascii=False, indent=2, default=str)
-    if record["exception"]:
-        import traceback
-
-        output = (
-            f"{output}\n{''.join(traceback.format_exception(*record['exception']))}"
+    if "event" in data:
+        output += "\n" + json.dumps(
+            data["event"], ensure_ascii=False, indent=2, default=str
         )
+    if "request" in data:
+        output += "\n" + json.dumps(
+            data["request"], ensure_ascii=False, indent=2, default=str
+        )
+    if "exception" in data:
+        output = f"{output}\n{data['exception']}"
 
-    print(output, file=sys.stdout, flush=True)
+    return output
 
 
 class _LoguruHandler(logging.Handler):
@@ -125,10 +94,21 @@ def setup_logging() -> None:
     log_format = get_log_format()
     logger.remove()
 
-    if log_format == "json":
-        logger.add(_json_sink, level=log_level)
-    else:
-        logger.add(_text_sink, level=log_level)
+    log_dir = Path(__file__).resolve().parents[2] / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / "trader_{time:YYYY-MM-DD}.log"
+
+    logger.add(
+        str(log_path),
+        level=log_level,
+        format=_json_formatter if log_format == "json" else _text_formatter,
+        rotation="10 MB",
+        retention="10 days",
+        compression="zip",
+        enqueue=True,
+        backtrace=False,
+        diagnose=False,
+    )
 
     logging.root.handlers = [_LoguruHandler()]
     logging.root.setLevel(logging.NOTSET)
