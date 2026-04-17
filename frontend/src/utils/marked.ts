@@ -1,8 +1,15 @@
 import { marked } from "marked";
 import type { Tokens } from "marked";
-import type { LegalDocument } from "./legalDocumentPage";
 
-export function parseLegalMarkdown(markdown: string): LegalDocument {
+export type MarkedDocument = {
+  title: string;
+  intro: string;
+  effectiveDate?: string;
+  bodyHtml: string;
+  footerHtml?: string;
+};
+
+export function parseMarkedDocument(markdown: string): MarkedDocument {
   const tokens = marked.lexer(markdown, { gfm: true });
   let title = "";
   let effectiveDate: string | undefined;
