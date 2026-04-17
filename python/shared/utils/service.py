@@ -60,27 +60,50 @@ def _extract_request_dto(
     return {}
 
 
+def _build_detail(
+    sig: inspect.Signature, kwargs: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    if "detail" not in sig.parameters:
+        return kwargs, {}
+
+    injected_kwargs = dict(kwargs)
+    detail = injected_kwargs.get("detail")
+    if not isinstance(detail, dict):
+        detail = {}
+        injected_kwargs["detail"] = detail
+
+    return injected_kwargs, detail
+
+
+def _build_event(
+    function: str,
+    request_dto: BaseModel,
+    result_dto: Any,
+    detail: dict[str, Any],
+) -> dict[str, Any]:
+    redacted_result_dto = _redact(result_dto)
+    if not isinstance(redacted_result_dto, (dict, list)):
+        redacted_result_dto = {}
+    return {
+        "function": function,
+        "request_dto": _redact(request_dto),
+        "result_dto": redacted_result_dto,
+        "detail": _redact(detail),
+    }
+
+
 def http_service(func):
     sig = inspect.signature(func)
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        request_dto = _redact(_extract_request_dto(sig, args, kwargs))
+        call_kwargs, detail = _build_detail(sig, kwargs)
+        request_dto = _extract_request_dto(sig, args, kwargs)
 
         try:
-            result = await func(*args, **kwargs)
-            sanitized_result = _redact(result)
-            result_dto = (
-                sanitized_result if isinstance(sanitized_result, (dict, list)) else {}
-            )
-
+            result = await func(*args, **call_kwargs)
             logger.bind(
-                event={
-                    "function": func.__name__,
-                    "request_dto": request_dto,
-                    "result_dto": result_dto,
-                    "summary": {},
-                }
+                event=_build_event(func.__name__, request_dto, result, detail)
             ).info("succeeded")
             return result
         except HTTPError as error:
@@ -103,10 +126,15 @@ def bot_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        request_dto = _redact(_extract_request_dto(sig, args, kwargs))
+        call_kwargs, detail = _build_detail(sig, kwargs)
+        request_dto = _extract_request_dto(sig, args, kwargs)
 
         try:
-            return await func(*args, **kwargs)
+            result = await func(*args, **call_kwargs)
+            logger.bind(
+                event=_build_event(func.__name__, request_dto, result, detail)
+            ).info("succeeded")
+            return result
         except AppError as error:
             if error.function is None:
                 error.function = func.__name__
@@ -127,10 +155,11 @@ def ws_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        request_dto = _redact(_extract_request_dto(sig, args, kwargs))
+        call_kwargs, _ = _build_detail(sig, kwargs)
+        request_dto = _extract_request_dto(sig, args, kwargs)
 
         try:
-            return await func(*args, **kwargs)
+            return await func(*args, **call_kwargs)
         except WSError as error:
             if error.function is None:
                 error.function = func.__name__

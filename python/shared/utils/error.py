@@ -6,6 +6,7 @@
 50xx 500 Unexpected
 """
 
+import traceback
 from enum import IntEnum
 from typing import Any
 
@@ -125,36 +126,38 @@ class WSError(AppError):
         super().__init__(code)
 
 
-def handle_app_error(error: AppError, fallback_function: str) -> None:
-    function = error.function or fallback_function
+def _build_event(error: AppError, fallback_function: str) -> dict[str, Any]:
     event = {
-        "function": function,
+        "function": error.function or fallback_function,
         "request_dto": error.request_dto or {},
         "result_dto": {},
-        "summary": {},
+        "detail": {},
     }
+
+    if error.__cause__ is not None:
+        event["detail"]["exception"] = "".join(
+            traceback.format_exception(
+                type(error.__cause__), error.__cause__, error.__cause__.__traceback__
+            )
+        )
+
+    return event
+
+
+def handle_app_error(error: AppError, fallback_function: str) -> None:
+    event = _build_event(error, fallback_function)
     if error.code < 5000:
         logger.bind(event=event).warning(f"failed {error.code}")
     else:
-        logger.opt(exception=error.__cause__).bind(event=event).error(
-            f"failed {error.code}"
-        )
+        logger.bind(event=event).error(f"failed {error.code}")
 
 
 def handle_http_error(error: HTTPError, fallback_function: str) -> JSONResponse:
-    function = error.function or fallback_function
-    event = {
-        "function": function,
-        "request_dto": error.request_dto or {},
-        "result_dto": {},
-        "summary": {},
-    }
+    event = _build_event(error, fallback_function)
     if error.status_code < 500:
         logger.bind(event=event).warning(f"failed {error.code}")
     else:
-        logger.opt(exception=error.__cause__).bind(event=event).error(
-            f"failed {error.code}"
-        )
+        logger.bind(event=event).error(f"failed {error.code}")
 
     return JSONResponse(
         status_code=error.status_code,
@@ -166,16 +169,8 @@ def handle_ws_error(
     error: WSError,
     fallback_function: str,
 ) -> None:
-    function = error.function or fallback_function
-    event = {
-        "function": function,
-        "request_dto": error.request_dto or {},
-        "result_dto": {},
-        "summary": {},
-    }
+    event = _build_event(error, fallback_function)
     if error.code < 5000:
         logger.bind(event=event).warning(f"failed {error.code}")
     else:
-        logger.opt(exception=error.__cause__).bind(event=event).error(
-            f"failed {error.code}"
-        )
+        logger.bind(event=event).error(f"failed {error.code}")

@@ -1,7 +1,6 @@
 import json
 import logging
 import time
-import traceback
 from datetime import UTC
 from pathlib import Path
 from uuid import uuid4
@@ -37,8 +36,6 @@ def _build_log(record) -> dict:
         data["request"] = request
     if extra:
         data["extra"] = extra
-    if record["exception"]:
-        data["exception"] = "".join(traceback.format_exception(*record["exception"]))
     return data
 
 
@@ -64,8 +61,6 @@ def _text_formatter(record) -> str:
         output += "\n" + json.dumps(
             data["request"], ensure_ascii=False, indent=2, default=str
         )
-    if "exception" in data:
-        output = f"{output}\n{data['exception']}"
 
     return output
 
