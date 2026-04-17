@@ -35,6 +35,10 @@ jobs:
             AWS_REGION=${{ vars.AWS_REGION }}
             EOF
 
+            if [ -n "${{ vars.LOG_LEVEL }}" ]; then
+              echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> python/.env
+            fi
+
             cat << EOF > frontend/.env
             VITE_API_ORIGIN=https://${{ vars.EC2_HOST }}
             VITE_WS_ORIGIN=wss://${{ vars.EC2_HOST }}
