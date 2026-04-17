@@ -53,6 +53,14 @@ export function useAddPosition(): UseMutationResult<
         queryKeys.positions(variables.guildId, variables.presetId),
         (old) => (old ? [...old, data] : [data]),
       );
+      queryClient.setQueryData<PositionDTO>(
+        queryKeys.position(
+          variables.guildId,
+          variables.presetId,
+          data.positionId,
+        ),
+        data,
+      );
     },
   });
 }
@@ -92,6 +100,25 @@ export function useUpdatePosition(): UseMutationResult<
             ),
           })),
       );
+      queryClient.setQueriesData<PresetMemberDetailDTO>(
+        {
+          queryKey: queryKeys.presetMemberPresetScope(
+            variables.guildId,
+            variables.presetId,
+          ),
+        },
+        (old) =>
+          old
+            ? {
+                ...old,
+                presetMemberPositions: old.presetMemberPositions.map((pmp) =>
+                  pmp.position.positionId === data.positionId
+                    ? { ...pmp, position: data }
+                    : pmp,
+                ),
+              }
+            : old,
+      );
     },
   });
 }
@@ -107,9 +134,10 @@ export function useDeletePosition(): UseMutationResult<
   return useMutation({
     mutationFn: deletePosition,
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.positions(variables.guildId, variables.presetId),
-      });
+      queryClient.setQueryData<PositionDTO[]>(
+        queryKeys.positions(variables.guildId, variables.presetId),
+        (old) => old?.filter((p) => p.positionId !== variables.positionId),
+      );
       queryClient.removeQueries({
         queryKey: queryKeys.position(
           variables.guildId,
@@ -117,12 +145,33 @@ export function useDeletePosition(): UseMutationResult<
           variables.positionId,
         ),
       });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembers(
-          variables.guildId,
-          variables.presetId,
-        ),
-      });
+      queryClient.setQueryData<PresetMemberDetailDTO[]>(
+        queryKeys.presetMembers(variables.guildId, variables.presetId),
+        (old) =>
+          old?.map((pm) => ({
+            ...pm,
+            presetMemberPositions: pm.presetMemberPositions.filter(
+              (pmp) => pmp.position.positionId !== variables.positionId,
+            ),
+          })),
+      );
+      queryClient.setQueriesData<PresetMemberDetailDTO>(
+        {
+          queryKey: queryKeys.presetMemberPresetScope(
+            variables.guildId,
+            variables.presetId,
+          ),
+        },
+        (old) =>
+          old
+            ? {
+                ...old,
+                presetMemberPositions: old.presetMemberPositions.filter(
+                  (pmp) => pmp.position.positionId !== variables.positionId,
+                ),
+              }
+            : old,
+      );
     },
   });
 }

@@ -28,7 +28,7 @@ export const nullableUrlSchema = z
   .transform((v) => (v.length === 0 ? null : v))
   .pipe(urlSchema.nullable());
 
-export function buildPatchDto<T extends object>(
+export function buildPatchDTO<T extends object>(
   parsed: T,
   original: { [K in keyof T]?: unknown },
 ): Partial<T> | null {

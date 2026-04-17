@@ -5,7 +5,7 @@ import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { UpdatePresetSchema, type PresetDTO } from "@dtos/preset";
-import { buildPatchDto } from "@utils/dto";
+import { buildPatchDTO } from "@utils/dto";
 import { useUpdatePreset } from "@hooks/preset";
 
 interface UpdatePresetModalProps {
@@ -49,10 +49,10 @@ export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
     pointScale,
   });
   const isFormValid = parseResult.success;
-  const patchDto = parseResult.success
-    ? buildPatchDto(parseResult.data, preset)
+  const patchDTO = parseResult.success
+    ? buildPatchDTO(parseResult.data, preset)
     : null;
-  const hasChanges = patchDto !== null;
+  const hasChanges = patchDTO !== null;
   const formId = "update-preset-form";
 
   const handleClose = () => {
@@ -62,9 +62,9 @@ export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
 
   const onSubmit = () => {
     if (updatePreset.isPending) return;
-    if (!patchDto) return;
+    if (!patchDTO) return;
     updatePreset.mutate(
-      { guildId, presetId, dto: patchDto },
+      { guildId, presetId, dto: patchDTO },
       { onSuccess: onClose },
     );
   };

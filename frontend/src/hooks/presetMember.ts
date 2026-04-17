@@ -54,6 +54,14 @@ export function useCreatePresetMember(): UseMutationResult<
         queryKeys.presetMembers(variables.guildId, variables.presetId),
         (old) => (old ? [...old, data] : [data]),
       );
+      queryClient.setQueryData<PresetMemberDetailDTO>(
+        queryKeys.presetMember(
+          variables.guildId,
+          variables.presetId,
+          data.presetMemberId,
+        ),
+        data,
+      );
     },
   });
 }
@@ -99,12 +107,11 @@ export function useDeletePresetMember(): UseMutationResult<
   return useMutation({
     mutationFn: deletePresetMember,
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembers(
-          variables.guildId,
-          variables.presetId,
-        ),
-      });
+      queryClient.setQueryData<PresetMemberDetailDTO[]>(
+        queryKeys.presetMembers(variables.guildId, variables.presetId),
+        (old) =>
+          old?.filter((pm) => pm.presetMemberId !== variables.presetMemberId),
+      );
       queryClient.removeQueries({
         queryKey: queryKeys.presetMember(
           variables.guildId,

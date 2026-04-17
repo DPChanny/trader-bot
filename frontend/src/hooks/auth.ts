@@ -3,8 +3,8 @@ import { useEffect } from "preact/hooks";
 import { queryKeys } from "@utils/query";
 import { route } from "preact-router";
 import {
-  exchangeToken as exchangeAuthToken,
-  refreshToken as refreshAuthToken,
+  exchangeToken as exchangeTokenAPI,
+  refreshToken as refreshTokenAPI,
 } from "@apis/auth";
 import { getMyUser } from "@apis/user";
 import {
@@ -61,7 +61,7 @@ export function useLoginCallback() {
           return;
         }
 
-        const data = await exchangeAuthToken({
+        const data = await exchangeTokenAPI({
           exchange_token: exchangeToken,
         });
 
@@ -96,7 +96,7 @@ export function useRefreshToken() {
           return;
         }
 
-        const data = await refreshAuthToken({ refresh_token: refreshToken });
+        const data = await refreshTokenAPI({ refresh_token: refreshToken });
         setJWTToken(data.access_token, data.refresh_token);
         const me = await getMyUser();
         queryClient.setQueryData(queryKeys.me(), me);

@@ -24,7 +24,11 @@ export function useCreatePresetMemberPosition(): UseMutationResult<
     onSuccess: (data, variables) => {
       const appendPmp = (pm: PresetMemberDetailDTO): PresetMemberDetailDTO => ({
         ...pm,
-        presetMemberPositions: [...pm.presetMemberPositions, data],
+        presetMemberPositions: pm.presetMemberPositions.some(
+          (pmp) => pmp.presetMemberPositionId === data.presetMemberPositionId,
+        )
+          ? pm.presetMemberPositions
+          : [...pm.presetMemberPositions, data],
       });
 
       queryClient.setQueryData<PresetMemberDetailDTO[]>(

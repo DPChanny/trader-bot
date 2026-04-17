@@ -5,7 +5,7 @@ import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { UpdateTierSchema, type TierDTO } from "@dtos/tier";
-import { buildPatchDto } from "@utils/dto";
+import { buildPatchDTO } from "@utils/dto";
 import { useUpdateTier } from "@hooks/tier";
 
 interface UpdateTierModalProps {
@@ -27,10 +27,10 @@ export function UpdateTierModal({ tier, onClose }: UpdateTierModalProps) {
 
   const parseResult = UpdateTierSchema.safeParse({ name, iconUrl });
   const isFormValid = parseResult.success;
-  const patchDto = parseResult.success
-    ? buildPatchDto(parseResult.data, tier)
+  const patchDTO = parseResult.success
+    ? buildPatchDTO(parseResult.data, tier)
     : null;
-  const hasChanges = patchDto !== null;
+  const hasChanges = patchDTO !== null;
   const formId = "update-tier-form";
 
   const handleClose = () => {
@@ -40,9 +40,9 @@ export function UpdateTierModal({ tier, onClose }: UpdateTierModalProps) {
 
   const onSubmit = () => {
     if (updateTier.isPending) return;
-    if (!patchDto) return;
+    if (!patchDTO) return;
     updateTier.mutate(
-      { guildId, presetId, tierId: tier.tierId, dto: patchDto },
+      { guildId, presetId, tierId: tier.tierId, dto: patchDTO },
       { onSuccess: onClose },
     );
   };

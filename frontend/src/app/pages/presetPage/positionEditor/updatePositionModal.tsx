@@ -5,7 +5,7 @@ import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { UpdatePositionSchema, type PositionDTO } from "@dtos/position";
 import { useGuildId, usePresetId } from "@hooks/router";
-import { buildPatchDto } from "@utils/dto";
+import { buildPatchDTO } from "@utils/dto";
 import { useUpdatePosition } from "@hooks/position";
 
 interface UpdatePositionModalProps {
@@ -30,10 +30,10 @@ export function UpdatePositionModal({
 
   const parseResult = UpdatePositionSchema.safeParse({ name, iconUrl });
   const isFormValid = parseResult.success;
-  const patchDto = parseResult.success
-    ? buildPatchDto(parseResult.data, position)
+  const patchDTO = parseResult.success
+    ? buildPatchDTO(parseResult.data, position)
     : null;
-  const hasChanges = patchDto !== null;
+  const hasChanges = patchDTO !== null;
   const formId = "update-position-form";
 
   const handleClose = () => {
@@ -43,9 +43,9 @@ export function UpdatePositionModal({
 
   const onSubmit = () => {
     if (updatePosition.isPending) return;
-    if (!patchDto) return;
+    if (!patchDTO) return;
     updatePosition.mutate(
-      { guildId, presetId, positionId: position.positionId, dto: patchDto },
+      { guildId, presetId, positionId: position.positionId, dto: patchDTO },
       { onSuccess: onClose },
     );
   };

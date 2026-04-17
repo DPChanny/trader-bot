@@ -50,6 +50,10 @@ export function useCreatePreset(): UseMutationResult<
         queryKeys.presets(variables.guildId),
         (old) => (old ? [...old, data] : [data]),
       );
+      queryClient.setQueryData<PresetDTO>(
+        queryKeys.preset(variables.guildId, data.presetId),
+        data,
+      );
     },
   });
 }
@@ -88,9 +92,10 @@ export function useDeletePreset(): UseMutationResult<
   return useMutation({
     mutationFn: deletePreset,
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presets(variables.guildId),
-      });
+      queryClient.setQueryData<PresetDTO[]>(
+        queryKeys.presets(variables.guildId),
+        (old) => old?.filter((p) => p.presetId !== variables.presetId),
+      );
       queryClient.removeQueries({
         queryKey: queryKeys.preset(variables.guildId, variables.presetId),
       });
@@ -101,7 +106,7 @@ export function useDeletePreset(): UseMutationResult<
         ),
       });
       queryClient.removeQueries({
-        queryKey: queryKeys.presetMemberAll(
+        queryKey: queryKeys.presetMemberPresetScope(
           variables.guildId,
           variables.presetId,
         ),
@@ -110,13 +115,19 @@ export function useDeletePreset(): UseMutationResult<
         queryKey: queryKeys.tiers(variables.guildId, variables.presetId),
       });
       queryClient.removeQueries({
-        queryKey: queryKeys.tierAll(variables.guildId, variables.presetId),
+        queryKey: queryKeys.tierPresetScope(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
       queryClient.removeQueries({
         queryKey: queryKeys.positions(variables.guildId, variables.presetId),
       });
       queryClient.removeQueries({
-        queryKey: queryKeys.positionAll(variables.guildId, variables.presetId),
+        queryKey: queryKeys.positionPresetScope(
+          variables.guildId,
+          variables.presetId,
+        ),
       });
     },
   });

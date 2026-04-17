@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/preact-query";
 
 export const queryStaleTimes = {
   interactive: 60 * 1000,
-  default: 5 * 60 * 1000,
+  default: 10 * 60 * 1000,
 } as const;
 
 export const queryKeys = {
@@ -21,20 +21,20 @@ export const queryKeys = {
   position: (guildId: string, presetId: number, positionId: number) =>
     ["position", guildId, presetId, positionId] as const,
   members: (guildId: string) => ["members", guildId] as const,
-  myMember: (guildId: string) => ["members", guildId, "me"] as const,
+  myMember: (guildId: string) => ["member", guildId, "me"] as const,
   member: (guildId: string, memberId: number) =>
-    ["members", guildId, memberId] as const,
+    ["member", guildId, memberId] as const,
   presetMembers: (guildId: string, presetId: number) =>
     ["presetMembers", guildId, presetId] as const,
-  presetMembersByGuild: (guildId: string) =>
+  presetMembersGuildScope: (guildId: string) =>
     ["presetMembers", guildId] as const,
   presetMember: (guildId: string, presetId: number, presetMemberId: number) =>
     ["presetMember", guildId, presetId, presetMemberId] as const,
-  presetMemberAll: (guildId: string, presetId: number) =>
+  presetMemberPresetScope: (guildId: string, presetId: number) =>
     ["presetMember", guildId, presetId] as const,
-  tierAll: (guildId: string, presetId: number) =>
+  tierPresetScope: (guildId: string, presetId: number) =>
     ["tier", guildId, presetId] as const,
-  positionAll: (guildId: string, presetId: number) =>
+  positionPresetScope: (guildId: string, presetId: number) =>
     ["position", guildId, presetId] as const,
 };
 

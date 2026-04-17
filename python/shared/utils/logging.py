@@ -13,7 +13,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 
-REDACT_TARGET_KEYS = {
+REDACT_KEYS = {
     "access_token",
     "refresh_token",
     "exchange_token",
@@ -23,7 +23,7 @@ REDACT_TARGET_KEYS = {
 def redact(value: dict[str, Any]) -> dict[str, Any]:
     redacted: dict[str, Any] = {}
     for key, item in value.items():
-        if isinstance(key, str) and key.lower() in REDACT_TARGET_KEYS:
+        if isinstance(key, str) and key in REDACT_KEYS:
             redacted[key] = "[REDACTED]"
         elif isinstance(item, dict):
             redacted[key] = redact(item)
@@ -67,15 +67,16 @@ def _build_log(record) -> dict:
         "level": record["level"].name,
         "source": source,
     }
+
     if record["message"]:
         data["message"] = record["message"]
-
     if event is not None:
         data["event"] = event
     if request is not None:
         data["request"] = request
     if extra:
         data["extra"] = extra
+
     return data
 
 

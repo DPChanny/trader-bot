@@ -47,6 +47,10 @@ export function useAddTier(): UseMutationResult<
         queryKeys.tiers(variables.guildId, variables.presetId),
         (old) => (old ? [...old, data] : [data]),
       );
+      queryClient.setQueryData<TierDTO>(
+        queryKeys.tier(variables.guildId, variables.presetId, data.tierId),
+        data,
+      );
     },
   });
 }
@@ -77,6 +81,16 @@ export function useUpdateTier(): UseMutationResult<
             pm.tier?.tierId === data.tierId ? { ...pm, tier: data } : pm,
           ),
       );
+      queryClient.setQueriesData<PresetMemberDetailDTO>(
+        {
+          queryKey: queryKeys.presetMemberPresetScope(
+            variables.guildId,
+            variables.presetId,
+          ),
+        },
+        (old) =>
+          old?.tier?.tierId === data.tierId ? { ...old, tier: data } : old,
+      );
     },
   });
 }
@@ -92,9 +106,10 @@ export function useDeleteTier(): UseMutationResult<
   return useMutation({
     mutationFn: deleteTier,
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.tiers(variables.guildId, variables.presetId),
-      });
+      queryClient.setQueryData<TierDTO[]>(
+        queryKeys.tiers(variables.guildId, variables.presetId),
+        (old) => old?.filter((t) => t.tierId !== variables.tierId),
+      );
       queryClient.removeQueries({
         queryKey: queryKeys.tier(
           variables.guildId,
@@ -102,12 +117,23 @@ export function useDeleteTier(): UseMutationResult<
           variables.tierId,
         ),
       });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.presetMembers(
-          variables.guildId,
-          variables.presetId,
-        ),
-      });
+      queryClient.setQueryData<PresetMemberDetailDTO[]>(
+        queryKeys.presetMembers(variables.guildId, variables.presetId),
+        (old) =>
+          old?.map((pm) =>
+            pm.tier?.tierId === variables.tierId ? { ...pm, tier: null } : pm,
+          ),
+      );
+      queryClient.setQueriesData<PresetMemberDetailDTO>(
+        {
+          queryKey: queryKeys.presetMemberPresetScope(
+            variables.guildId,
+            variables.presetId,
+          ),
+        },
+        (old) =>
+          old?.tier?.tierId === variables.tierId ? { ...old, tier: null } : old,
+      );
     },
   });
 }

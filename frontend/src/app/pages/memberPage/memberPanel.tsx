@@ -20,7 +20,7 @@ import {
 } from "@dtos/member";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
-import { buildPatchDto } from "@utils/dto";
+import { buildPatchDTO } from "@utils/dto";
 import { getRoleEntries } from "@utils/enum";
 
 interface MemberPanelProps {
@@ -66,8 +66,8 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
   const normalizedInfoUrl = parseResult.success
     ? (parseResult.data.infoUrl ?? null)
     : null;
-  const patchDto = parseResult.success
-    ? buildPatchDto(
+  const patchDTO = parseResult.success
+    ? buildPatchDTO(
         {
           alias: normalizedAlias,
           infoUrl: normalizedInfoUrl,
@@ -80,13 +80,13 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
     !isOwnerMember &&
     role !== savedSnapshot.role &&
     role !== Role.OWNER;
-  const hasChanges = patchDto !== null || roleChanged;
+  const hasChanges = patchDTO !== null || roleChanged;
 
   const handleSave = () => {
     if (!isFormValid) return;
     if (!hasChanges) return;
     if (isSaving) return;
-    const dto: UpdateMemberDTO = { ...patchDto };
+    const dto: UpdateMemberDTO = { ...patchDTO };
     if (roleChanged) dto.role = role;
     setIsSaving(true);
     updateMember.mutate(

@@ -62,12 +62,23 @@ export function useUpdateMember(): UseMutationResult<
         queryKeys.member(variables.guildId, variables.memberId),
         data,
       );
+      queryClient.setQueryData<MemberDetailDTO>(
+        queryKeys.myMember(variables.guildId),
+        (old) => (old?.memberId === data.memberId ? data : old),
+      );
       queryClient.setQueriesData<PresetMemberDetailDTO[]>(
-        { queryKey: queryKeys.presetMembersByGuild(variables.guildId) },
+        { queryKey: queryKeys.presetMembersGuildScope(variables.guildId) },
         (old) =>
           old?.map((pm) =>
             pm.member.memberId === data.memberId ? { ...pm, member: data } : pm,
           ),
+      );
+      queryClient.setQueriesData<PresetMemberDetailDTO>(
+        { queryKey: ["presetMember", variables.guildId] as const },
+        (old) =>
+          old?.member.memberId === data.memberId
+            ? { ...old, member: data }
+            : old,
       );
     },
   });

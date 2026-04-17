@@ -30,7 +30,7 @@ import {
   TertiarySection,
 } from "@components/molecules/section";
 import { Column, Row, Scroll } from "@components/atoms/layout";
-import { buildPatchDto } from "@utils/dto";
+import { buildPatchDTO } from "@utils/dto";
 
 interface PresetMemberPanelProps {
   presetMember: PresetMemberDetailDTO;
@@ -120,8 +120,8 @@ export function PresetMemberPanel({
   const normalizedInfoUrl = parseResult.success
     ? (parseResult.data.infoUrl ?? null)
     : null;
-  const patchDto = parseResult.success
-    ? buildPatchDto(
+  const patchDTO = parseResult.success
+    ? buildPatchDTO(
         {
           isLeader,
           tierId,
@@ -142,7 +142,7 @@ export function PresetMemberPanel({
     (a, b) => a - b,
   );
   const hasChanges =
-    patchDto !== null ||
+    patchDTO !== null ||
     sortedSelectedPositionIds.length !== sortedSavedPositionIds.length ||
     sortedSelectedPositionIds.some(
       (id, index) => id !== sortedSavedPositionIds[index],
@@ -152,8 +152,8 @@ export function PresetMemberPanel({
     if (!isFormValid || isSaving || !hasChanges) return;
     setIsSaving(true);
     try {
-      if (patchDto) {
-        const dto: UpdatePresetMemberDTO = { ...patchDto };
+      if (patchDTO) {
+        const dto: UpdatePresetMemberDTO = { ...patchDTO };
         const [result] = await Promise.allSettled([
           updatePresetMember.mutateAsync({
             guildId,
