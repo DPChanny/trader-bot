@@ -52,7 +52,7 @@ def get_db_name() -> str:
 
 
 def get_aws_region() -> str:
-    return os.getenv("AWS_REGION", "ap-northeast-2")
+    return os.getenv("AWS_REGION", "")
 
 
 def get_log_level() -> str:
@@ -64,4 +64,4 @@ def get_log_text() -> bool:
 
 
 def get_log_file() -> bool:
-    return os.getenv("LOG_FILE", "false").lower() == "true"
+    return os.getenv("LOG_FILE", "true").lower() == "true"

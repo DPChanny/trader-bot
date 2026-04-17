@@ -1,0 +1,42 @@
+.richText {
+  color: var(--color-text);
+}
+
+.richText > * + * {
+  margin-top: var(--space-4);
+}
+
+.richText h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-header-text);
+}
+
+.richText p {
+  font-size: var(--font-size-base);
+  color: inherit;
+  text-align: left;
+}
+
+.richText ul,
+.richText ol {
+  display: grid;
+  gap: var(--space-3);
+  padding-left: var(--space-6);
+}
+
+.richText li {
+  text-align: left;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.muted > * + * {
+  margin-top: var(--space-2);
+}
+
+.muted p {
+  font-size: var(--font-size-sm);
+}

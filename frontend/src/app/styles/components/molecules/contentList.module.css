@@ -1,0 +1,10 @@
+.list {
+  display: grid;
+  gap: var(--space-3);
+  padding-left: var(--space-6);
+  color: var(--color-text);
+}
+
+.item {
+  text-align: left;
+}

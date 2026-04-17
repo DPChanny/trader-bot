@@ -1,64 +1,49 @@
-name: "Deploy to EC2"
+name: Deploy Trader Bot
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: EC2 Deploy
+      - name: Deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ vars.EC2_HOST }}
           username: ${{ vars.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          port: 22
-          command_timeout: 5m
+          key: ${{ secrets.EC2_SECRET }}
           script: |
-            lsof -t -i :8080 | xargs -r kill -9 || true
-            lsof -t -i :8000 | xargs -r kill -9 || true
-
-            cd ~/trader
+            cd /var/www/trader-bot
             git fetch origin master
             git reset --hard origin/master
 
-            cat << EOF > ~/trader/backend/.env
+            cat << EOF > python/backend/.env
             DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}
-            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+            DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
+            DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}
+            APP_ORIGIN=https://${{ vars.EC2_HOST }}
+            API_ORIGIN=https://${{ vars.EC2_HOST }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
-            JWT_ALGORITHM=HS256
-            APP_HOST=${{ vars.EC2_HOST }}
-            APP_PORT=8080
-            API_HOST=${{ vars.EC2_HOST }}
-            API_PORT=8000
             DB_HOST=${{ vars.DB_HOST }}
-            DB_PORT=3306
-            DB_USER=${{ vars.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_NAME=${{ vars.DB_NAME }}
-            AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
-            AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
             AWS_REGION=${{ vars.AWS_REGION }}
-            AWS_BUCKET_NAME=${{ vars.AWS_BUCKET_NAME }}
+            LOG_LEVEL=${{ secrets.LOG_LEVEL }}
             EOF
 
-            cat << EOF > ~/trader/app/.env
-            VITE_API_HOST=${{ vars.EC2_HOST }}
+            cat << EOF > frontend/.env
+            VITE_API_ORIGIN=https://${{ vars.EC2_HOST }}
+            VITE_WS_ORIGIN=wss://${{ vars.EC2_HOST }}
+            VITE_DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
+            VITE_DISCORD_SERVER_URL=${{ secrets.DISCORD_SERVER_URL }}
             EOF
 
-            cd ~/trader/app
-            npm install
-            npm run build
-            nohup serve -s dist -l tcp://0.0.0.0:8080 > output.log 2>&1 &
+            cd python && uv sync && cd ..
+            cd frontend && npm install && npm run build && cd ..
 
-            cd ~/trader/backend
-            conda activate trader
-            conda env update
-            nohup uvicorn main:app --host 0.0.0.0 --port 8000 > output.log 2>&1 &
+            pm2 reload trader-api || pm2 start "uv run uvicorn main:app --port 8000" --name trader-api
+            pm2 reload trader-bot || pm2 start "uv run python -m bot.py" --name trader-bot
+            pm2 save
