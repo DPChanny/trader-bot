@@ -95,6 +95,7 @@ class Auction:
 
         self._member_id_to_ws_sets: dict[int, set[WebSocket]] = {}
         self._public_ws_set: set[WebSocket] = set()
+        self._ws_to_member_id: dict[WebSocket, int | None] = {}
         self._bid_placed: dict[int, float] = {}
 
         self._timer_task: asyncio.Task | None = None
@@ -112,12 +113,14 @@ class Auction:
             return
         if member_id is None:
             self._public_ws_set.add(ws)
+            self._ws_to_member_id[ws] = None
             return
 
         is_new = member_id not in self._member_id_to_ws_sets
         if is_new:
             self._member_id_to_ws_sets[member_id] = set()
         self._member_id_to_ws_sets[member_id].add(ws)
+        self._ws_to_member_id[ws] = member_id
 
         if is_new:
             await self._broadcast(
@@ -134,13 +137,9 @@ class Auction:
 
     async def disconnect(self, ws: WebSocket, member_id: int | None) -> None:
         if member_id is None:
-            for (
-                connected_member_id,
-                member_ws_set,
-            ) in self._member_id_to_ws_sets.items():
-                if ws in member_ws_set:
-                    member_id = connected_member_id
-                    break
+            member_id = self._ws_to_member_id.pop(ws, None)
+        else:
+            self._ws_to_member_id.pop(ws, None)
 
         if member_id is None:
             self._public_ws_set.discard(ws)
@@ -180,18 +179,18 @@ class Auction:
                 ws_list.extend(member_ws_set)
             ws_list.extend(self._public_ws_set)
 
-        disconnected_websockets: list[WebSocket] = []
-        message_envelope_dto = AuctionMessageEnvelopeDTO(
+        disconnected_ws_set: set[WebSocket] = set()
+        message_envelope = AuctionMessageEnvelopeDTO(
             type=message_type,
             payload=message_payload_dto.model_dump(),
         ).model_dump()
         for ws in ws_list:
             try:
-                await ws.send_json(message_envelope_dto)
+                await ws.send_json(message_envelope)
             except Exception:
-                disconnected_websockets.append(ws)
+                disconnected_ws_set.add(ws)
 
-        for ws in disconnected_websockets:
+        for ws in disconnected_ws_set:
             await self.disconnect(ws, None)
 
     async def set_status(self, new_status: Status):

@@ -143,10 +143,7 @@ async def auction_ws(
                 break
 
     except WebSocketDisconnect:
+        pass
+    finally:
         if auction is not None:
             await disconnect_service(auction, member_id, ws)
-
-    except Exception:
-        if auction is not None:
-            await disconnect_service(auction, member_id, ws)
-        raise

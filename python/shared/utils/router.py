@@ -76,6 +76,9 @@ def ws_router[**P, T](
             if not isinstance(ws, WebSocket):
                 raise RuntimeError("No WebSocket")
 
+            close_code: int | None = None
+            close_reason: str | None = None
+
             try:
                 return await routed_func(*args, **kwargs)
             except WSError as error:
@@ -84,8 +87,8 @@ def ws_router[**P, T](
                     func.__name__,
                     lambda code: send_error_message(ws, code),
                 )
-                with contextlib.suppress(Exception):
-                    await ws.close(code=4000, reason=str(error.code))
+                close_code = 4000
+                close_reason = str(error.code)
                 return None
             except Exception as error:
                 ws_error = WSError(UnexpectedErrorCode.Internal)
@@ -96,9 +99,12 @@ def ws_router[**P, T](
                     func.__name__,
                     lambda code: send_error_message(ws, code),
                 )
-                with contextlib.suppress(Exception):
-                    await ws.close(code=4000, reason=str(ws_error.code))
+                close_code = 4000
+                close_reason = str(ws_error.code)
                 return None
+            finally:
+                with contextlib.suppress(Exception):
+                    await ws.close(code=close_code, reason=close_reason)
 
         signature = inspect.signature(func)
         wrapper.__signature__ = signature.replace(
