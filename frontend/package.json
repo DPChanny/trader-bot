@@ -13,6 +13,7 @@
     "@tanstack/preact-query": "latest",
     "class-variance-authority": "latest",
     "clsx": "latest",
+    "marked": "latest",
     "preact": "latest",
     "preact-router": "latest",
     "zod": "latest"

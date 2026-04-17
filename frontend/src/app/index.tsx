@@ -8,6 +8,8 @@ import { MemberPage } from "@pages/memberPage/memberPage";
 import { PresetPage } from "@pages/presetPage/presetPage";
 import { HomePage } from "@pages/homePage/homePage";
 import { AuctionPage } from "@pages/auctionPage/auctionPage";
+import { TermsPage } from "@pages/legalPage/termsPage";
+import { PrivacyPage } from "@pages/legalPage/privacyPage";
 import { Header } from "./header";
 import { SideMenu } from "./sideMenu/sideMenu";
 import { Modal, ModalFooter } from "./components/modal";
@@ -25,8 +27,16 @@ import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import "@styles/app.css";
 
-function RootRoute({}: RoutableProps) {
+function HomeRoute({}: RoutableProps) {
   return <HomePage />;
+}
+
+function TermsRoute({}: RoutableProps) {
+  return <TermsPage />;
+}
+
+function PrivacyRoute({}: RoutableProps) {
+  return <PrivacyPage />;
 }
 
 function DefaultRoute({}: RoutableProps) {
@@ -139,7 +149,9 @@ function App() {
         <div className="app-content">
           <Router>
             <LoginCallbackRoute path="/auth/login/callback" />
-            <RootRoute path="/" />
+            <HomeRoute path="/" />
+            <TermsRoute path="/terms" />
+            <PrivacyRoute path="/privacy" />
             <PresetRoute path="/guild/:guildId/preset/:presetId" />
             <MemberRoute path="/guild/:guildId/member" />
             <AuctionRoute path="/auction/:auctionId" />

@@ -1,9 +1,14 @@
 const API_ORIGIN = import.meta.env["VITE_API_ORIGIN"];
 const WS_ORIGIN = import.meta.env["VITE_WS_ORIGIN"];
 const DISCORD_CLIENT_ID = import.meta.env["VITE_DISCORD_CLIENT_ID"];
+const DISCORD_SERVER_URL = import.meta.env["VITE_DISCORD_SERVER_URL"];
 
 const API_ENDPOINT = `${API_ORIGIN}/api`;
 const WS_ENDPOINT = `${WS_ORIGIN}/ws`;
+
+export const SITE_NAME = "Trader Bot";
+export const SITE_OPERATOR = "Trader Bot 운영팀";
+export const SITE_DISCORD_SERVER_URL = DISCORD_SERVER_URL;
 
 export const AUTH_API_ENDPOINT = `${API_ENDPOINT}/auth`;
 export const USER_API_ENDPOINT = `${API_ENDPOINT}/user`;
