@@ -35,18 +35,17 @@ export function useLogin() {
 }
 
 export function useLogout() {
-  const routePath = useRoutePath();
   const queryClient = useQueryClient();
+
   return useMutation<void, AppError, void>({
     mutationFn: async (): Promise<void> => {},
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.me() });
+      await queryClient.cancelQueries();
       removeJWTToken();
-      queryClient.setQueryData(queryKeys.me(), null);
-      queryClient.removeQueries({ queryKey: queryKeys.me() });
+      queryClient.clear();
     },
     onSettled: () => {
-      route(routePath, true);
+      route("/", true);
     },
   });
 }
@@ -54,6 +53,7 @@ export function useLogout() {
 export function useLoginCallback() {
   const logout = useLogout();
   const queryClient = useQueryClient();
+
   useEffect(() => {
     async function handleLoginCallback() {
       try {
@@ -86,20 +86,23 @@ export function useLoginCallback() {
 export function useRefreshToken() {
   const logout = useLogout();
   const queryClient = useQueryClient();
+
   useEffect(() => {
     async function tryRefresh() {
-      if (!checkJWTToken(getRefreshToken())) return;
-      const token = getAccessToken();
-      if (token && checkJWTToken(token)) {
+      const refreshToken = getRefreshToken();
+      if (!refreshToken || !checkJWTToken(refreshToken)) {
+        if (getAccessToken()) {
+          logout.mutate();
+        }
         return;
       }
-      try {
-        const refreshToken = getRefreshToken();
-        if (!refreshToken) {
-          logout.mutate();
-          return;
-        }
 
+      const accessToken = getAccessToken();
+      if (accessToken && checkJWTToken(accessToken)) {
+        return;
+      }
+
+      try {
         const data = await refreshTokenAPI({ refresh_token: refreshToken });
         setJWTToken(data.access_token, data.refresh_token);
         const me = await getMyUser();
@@ -109,7 +112,7 @@ export function useRefreshToken() {
       }
     }
 
-    tryRefresh();
+    void tryRefresh();
     const interval = setInterval(tryRefresh, 60 * 1000);
     return () => clearInterval(interval);
   }, []);

@@ -58,6 +58,7 @@ export function useAuction(): {
         setMemberId(initPayload.memberId);
         break;
       }
+
       case AuctionMessageType.MEMBER_CONNECTED: {
         setAuction((prev) =>
           prev
@@ -73,6 +74,7 @@ export function useAuction(): {
         );
         break;
       }
+
       case AuctionMessageType.MEMBER_DISCONNECTED: {
         setAuction((prev) =>
           prev
@@ -112,6 +114,20 @@ export function useAuction(): {
                 unsoldQueue: dto.unsoldQueue,
               }
             : prev;
+        });
+        break;
+      }
+
+      case AuctionMessageType.MEMBER_UNSOLD: {
+        setAuction((prev) => {
+          if (!prev) return prev;
+
+          return {
+            ...prev,
+            unsoldQueue: prev.unsoldQueue.includes(dto.memberId)
+              ? prev.unsoldQueue
+              : [...prev.unsoldQueue, dto.memberId],
+          };
         });
         break;
       }
@@ -166,23 +182,27 @@ export function useAuction(): {
   const connect = (auctionId: string) => {
     wsRef.current?.close();
     setIsConnected(false);
+    setWasConnected(false);
+    setAuction(null);
+    setTeamId(null);
+    setMemberId(null);
     setError(null);
 
     const ws = new WebSocket(`${AUCTION_WS_ENDPOINT}/${auctionId}`);
     let opened = false;
 
     ws.onopen = () => {
-      const auth_payload_result = AuthPayloadSchema.safeParse({
+      const authPayloadResult = AuthPayloadSchema.safeParse({
         access_token: getAccessToken(),
       });
-      if (!auth_payload_result.success) {
+      if (!authPayloadResult.success) {
         return;
       }
 
       ws.send(
         JSON.stringify({
           type: AuctionMessageType.AUTH,
-          payload: auth_payload_result.data,
+          payload: authPayloadResult.data,
         } satisfies AuctionMessageEnvelopeDTO<{ access_token: string | null }>),
       );
       opened = true;
@@ -220,16 +240,16 @@ export function useAuction(): {
       return;
     }
 
-    const place_bid_payload_result = PlaceBidPayloadSchema.safeParse({
-      amount: amount,
+    const placeBidPayloadResult = PlaceBidPayloadSchema.safeParse({
+      amount,
     });
-    if (!place_bid_payload_result.success) {
+    if (!placeBidPayloadResult.success) {
       return;
     }
 
     const message: AuctionMessageEnvelopeDTO<{ amount: number }> = {
       type: AuctionMessageType.PLACE_BID,
-      payload: place_bid_payload_result.data,
+      payload: placeBidPayloadResult.data,
     };
 
     wsRef.current.send(JSON.stringify(message));

@@ -17,6 +17,25 @@ import type { PositionDTO } from "@dtos/position";
 import type { AppError } from "@utils/error";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
+function invalidatePositionRelatedQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  guildId: string,
+  presetId: number,
+): void {
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.positions(guildId, presetId),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.positionPresetScope(guildId, presetId),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.presetMembers(guildId, presetId),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.presetMemberPresetScope(guildId, presetId),
+  });
+}
+
 export function usePositions(
   guildId: string,
   presetId: number,
@@ -60,6 +79,11 @@ export function useAddPosition(): UseMutationResult<
           data.positionId,
         ),
         data,
+      );
+      invalidatePositionRelatedQueries(
+        queryClient,
+        variables.guildId,
+        variables.presetId,
       );
     },
   });
@@ -119,6 +143,11 @@ export function useUpdatePosition(): UseMutationResult<
               }
             : old,
       );
+      invalidatePositionRelatedQueries(
+        queryClient,
+        variables.guildId,
+        variables.presetId,
+      );
     },
   });
 }
@@ -171,6 +200,11 @@ export function useDeletePosition(): UseMutationResult<
                 ),
               }
             : old,
+      );
+      invalidatePositionRelatedQueries(
+        queryClient,
+        variables.guildId,
+        variables.presetId,
       );
     },
   });

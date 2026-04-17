@@ -11,6 +11,19 @@ import { queryKeys } from "@utils/query";
 import type { AppError } from "@utils/error";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
+function invalidatePresetMemberPositionQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  guildId: string,
+  presetId: number,
+): void {
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.presetMembers(guildId, presetId),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.presetMemberPresetScope(guildId, presetId),
+  });
+}
+
 export function useCreatePresetMemberPosition(): UseMutationResult<
   Awaited<ReturnType<typeof createPresetMemberPosition>>,
   AppError,
@@ -45,6 +58,11 @@ export function useCreatePresetMemberPosition(): UseMutationResult<
           variables.presetMemberId,
         ),
         (old) => (old ? appendPmp(old) : undefined),
+      );
+      invalidatePresetMemberPositionQueries(
+        queryClient,
+        variables.guildId,
+        variables.presetId,
       );
     },
   });
@@ -82,6 +100,11 @@ export function useDeletePresetMemberPosition(): UseMutationResult<
           variables.presetMemberId,
         ),
         (old) => (old ? removePmp(old) : undefined),
+      );
+      invalidatePresetMemberPositionQueries(
+        queryClient,
+        variables.guildId,
+        variables.presetId,
       );
     },
   });

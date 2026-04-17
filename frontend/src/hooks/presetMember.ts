@@ -16,6 +16,19 @@ import { queryKeys, queryStaleTimes } from "@utils/query";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import type { AppError } from "@utils/error";
 
+function invalidatePresetMemberQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  guildId: string,
+  presetId: number,
+): void {
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.presetMembers(guildId, presetId),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.presetMemberPresetScope(guildId, presetId),
+  });
+}
+
 export function usePresetMembers(
   guildId: string,
   presetId: number,
@@ -62,6 +75,11 @@ export function useCreatePresetMember(): UseMutationResult<
         ),
         data,
       );
+      invalidatePresetMemberQueries(
+        queryClient,
+        variables.guildId,
+        variables.presetId,
+      );
     },
   });
 }
@@ -92,6 +110,11 @@ export function useUpdatePresetMember(): UseMutationResult<
         ),
         data,
       );
+      invalidatePresetMemberQueries(
+        queryClient,
+        variables.guildId,
+        variables.presetId,
+      );
     },
   });
 }
@@ -119,6 +142,11 @@ export function useDeletePresetMember(): UseMutationResult<
           variables.presetMemberId,
         ),
       });
+      invalidatePresetMemberQueries(
+        queryClient,
+        variables.guildId,
+        variables.presetId,
+      );
     },
   });
 }

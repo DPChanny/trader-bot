@@ -11,6 +11,55 @@ import type { TierDTO } from "@dtos/tier";
 import type { AppError } from "@utils/error";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
+function replacePresetMemberTier(
+  presetMember: PresetMemberDetailDTO,
+  tier: TierDTO,
+): PresetMemberDetailDTO {
+  if (presetMember.tier?.tierId !== tier.tierId) {
+    return presetMember;
+  }
+
+  return {
+    ...presetMember,
+    tierId: tier.tierId,
+    tier,
+  };
+}
+
+function clearPresetMemberTier(
+  presetMember: PresetMemberDetailDTO,
+  tierId: number,
+): PresetMemberDetailDTO {
+  if (presetMember.tierId !== tierId && presetMember.tier?.tierId !== tierId) {
+    return presetMember;
+  }
+
+  return {
+    ...presetMember,
+    tierId: null,
+    tier: null,
+  };
+}
+
+function invalidateTierRelatedQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  guildId: string,
+  presetId: number,
+): void {
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.tiers(guildId, presetId),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.tierPresetScope(guildId, presetId),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.presetMembers(guildId, presetId),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: queryKeys.presetMemberPresetScope(guildId, presetId),
+  });
+}
+
 export function useTiers(
   guildId: string,
   presetId: number,
@@ -51,6 +100,11 @@ export function useAddTier(): UseMutationResult<
         queryKeys.tier(variables.guildId, variables.presetId, data.tierId),
         data,
       );
+      invalidateTierRelatedQueries(
+        queryClient,
+        variables.guildId,
+        variables.presetId,
+      );
     },
   });
 }
@@ -76,10 +130,7 @@ export function useUpdateTier(): UseMutationResult<
       );
       queryClient.setQueryData<PresetMemberDetailDTO[]>(
         queryKeys.presetMembers(variables.guildId, variables.presetId),
-        (old) =>
-          old?.map((pm) =>
-            pm.tier?.tierId === data.tierId ? { ...pm, tier: data } : pm,
-          ),
+        (old) => old?.map((pm) => replacePresetMemberTier(pm, data)),
       );
       queryClient.setQueriesData<PresetMemberDetailDTO>(
         {
@@ -88,8 +139,12 @@ export function useUpdateTier(): UseMutationResult<
             variables.presetId,
           ),
         },
-        (old) =>
-          old?.tier?.tierId === data.tierId ? { ...old, tier: data } : old,
+        (old) => (old ? replacePresetMemberTier(old, data) : old),
+      );
+      invalidateTierRelatedQueries(
+        queryClient,
+        variables.guildId,
+        variables.presetId,
       );
     },
   });
@@ -119,10 +174,7 @@ export function useDeleteTier(): UseMutationResult<
       });
       queryClient.setQueryData<PresetMemberDetailDTO[]>(
         queryKeys.presetMembers(variables.guildId, variables.presetId),
-        (old) =>
-          old?.map((pm) =>
-            pm.tier?.tierId === variables.tierId ? { ...pm, tier: null } : pm,
-          ),
+        (old) => old?.map((pm) => clearPresetMemberTier(pm, variables.tierId)),
       );
       queryClient.setQueriesData<PresetMemberDetailDTO>(
         {
@@ -131,8 +183,12 @@ export function useDeleteTier(): UseMutationResult<
             variables.presetId,
           ),
         },
-        (old) =>
-          old?.tier?.tierId === variables.tierId ? { ...old, tier: null } : old,
+        (old) => (old ? clearPresetMemberTier(old, variables.tierId) : old),
+      );
+      invalidateTierRelatedQueries(
+        queryClient,
+        variables.guildId,
+        variables.presetId,
       );
     },
   });
