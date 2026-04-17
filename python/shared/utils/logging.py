@@ -21,7 +21,10 @@ REDACT_KEYS = {"access_token", "refresh_token", "exchange_token"}
 
 
 type JSONPrimitive = str | int | float | bool | None
-type JSONValue = JSONPrimitive | list[JSONValue] | dict[str, JSONValue]
+type JSONPrimitiveTuple = tuple[JSONPrimitive, ...]
+type JSONValue = (
+    JSONPrimitive | JSONPrimitiveTuple | list[JSONValue] | dict[str, JSONValue]
+)
 type LogValue = JSONValue | BaseModel
 
 
@@ -36,10 +39,16 @@ def redact(value: Any) -> Any:
         return redacted
 
     if isinstance(value, list):
-        redacted_items = [redact(item) for item in value[:3]]
+        redacted = [redact(item) for item in value[:3]]
         if len(value) > 3:
-            redacted_items.append("[REDACTED]")
-        return redacted_items
+            redacted.append("[REDACTED]")
+        return redacted
+
+    if isinstance(value, tuple):
+        redacted = tuple(redact(item) for item in value[:3])
+        if len(value) > 3:
+            return (*redacted, "[REDACTED]")
+        return redacted
 
     if isinstance(value, BaseModel):
         return redact(value.model_dump(mode="json", exclude_unset=True))

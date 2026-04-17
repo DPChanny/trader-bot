@@ -7,34 +7,28 @@ from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
-from .logging import Event
+from .logging import Event, LogValue
 
 
 def _extract_request(
     sig: inspect.Signature, args: tuple[Any, ...], kwargs: dict[str, Any]
-) -> dict[str, Any] | None:
+) -> dict[str, LogValue] | None:
     bound = sig.bind_partial(*args, **kwargs)
-    dtos = [
-        (name, value)
-        for name, value in bound.arguments.items()
-        if isinstance(value, BaseModel)
-    ]
 
-    if len(dtos) == 1:
-        return dtos[0][1].model_dump(exclude_unset=True)
-
-    if len(dtos) > 1:
-        return {name: dto.model_dump(exclude_unset=True) for name, dto in dtos}
+    dto = bound.arguments.get("dto")
+    if isinstance(dto, BaseModel):
+        return {"dto": dto}
 
     return None
 
 
 def _inject_event(
-    sig: inspect.Signature, kwargs: dict[str, Any], function: str
+    sig: inspect.Signature, args, kwargs: dict[str, Any], function: str
 ) -> tuple[dict[str, Any], Event]:
     event = Event(function=function)
     if "event" in sig.parameters:
         kwargs["event"] = event
+    event.request = _extract_request(sig, args, kwargs)
     return kwargs, event
 
 
@@ -43,8 +37,7 @@ def http_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        kwargs, event = _inject_event(sig, kwargs, func.__name__)
-        event.request = _extract_request(sig, args, kwargs)
+        kwargs, event = _inject_event(sig, args, kwargs, func.__name__)
 
         try:
             response = await func(*args, **kwargs)
@@ -69,8 +62,7 @@ def bot_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        kwargs, event = _inject_event(sig, kwargs, func.__name__)
-        event.request = _extract_request(sig, args, kwargs)
+        kwargs, event = _inject_event(sig, args, kwargs, func.__name__)
 
         try:
             response = await func(*args, **kwargs)
@@ -95,8 +87,7 @@ def ws_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        kwargs, event = _inject_event(sig, kwargs, func.__name__)
-        event.request = _extract_request(sig, args, kwargs)
+        kwargs, event = _inject_event(sig, args, kwargs, func.__name__)
 
         try:
             return await func(*args, **kwargs)

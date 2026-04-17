@@ -22,7 +22,7 @@ from shared.utils.error import (
     TokenError,
     WSError,
 )
-from shared.utils.service import http_service, ws_service
+from shared.utils.service import Event, http_service, ws_service
 
 from ..auction import Auction, AuctionManager
 from ..utils.discord import send_message
@@ -87,8 +87,14 @@ async def create_auction_service(
 
 @ws_service
 async def connect_service(
-    ws: WebSocket, auction_id: int, dto: AuthPayloadDTO, session: AsyncSession
+    ws: WebSocket,
+    auction_id: int,
+    dto: AuthPayloadDTO,
+    session: AsyncSession,
+    event: Event,
 ) -> tuple["Auction", int | None, int | None]:
+    event.request = {"auction_id": auction_id}
+
     auction = AuctionManager.get_auction(auction_id)
 
     if not auction:
@@ -125,8 +131,10 @@ async def connect_service(
 
 @ws_service
 async def place_bid_service(
-    auction: Auction, member_id: int | None, dto: PlaceBidPayloadDTO
+    auction: Auction, member_id: int | None, dto: PlaceBidPayloadDTO, event: Event
 ) -> None:
+    event.request = {"auction_id": auction.auction_id, "member_id": member_id}
+
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)
 
@@ -135,6 +143,7 @@ async def place_bid_service(
 
 @ws_service
 async def disconnect_service(
-    auction: Auction, member_id: int | None, ws: WebSocket
+    auction: Auction, member_id: int | None, ws: WebSocket, event: Event
 ) -> None:
+    event.request = {"auction_id": auction.auction_id, "member_id": member_id}
     await auction.disconnect(ws, member_id)
