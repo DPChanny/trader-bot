@@ -14,4 +14,5 @@ async def on_user_update_service(
     event: Event,
 ) -> UserDTO:
     response = await sync_user(user, session)
+    event.response = response
     return response

@@ -32,6 +32,7 @@ async def get_positions_service(
     position_repo = PositionRepository(session)
     positions = await position_repo.get_all_by_preset_id(preset_id, guild_id)
     response = [PositionDTO.model_validate(p) for p in positions]
+    event.response = response
     return response
 
 
@@ -51,6 +52,7 @@ async def get_position_service(
     if position is None:
         raise HTTPError(PositionErrorCode.NotFound)
     response = PositionDTO.model_validate(position)
+    event.response = response
     return response
 
 
@@ -77,6 +79,7 @@ async def add_position_service(
     session.add(position)
     await session.flush()
     response = PositionDTO.model_validate(position)
+    event.response = response
     return response
 
 
@@ -101,6 +104,7 @@ async def update_position_service(
         setattr(position, key, getattr(dto, key))
 
     response = PositionDTO.model_validate(position)
+    event.response = response
     return response
 
 
@@ -122,4 +126,5 @@ async def delete_position_service(
 
     response = PositionDTO.model_validate(position)
     await session.delete(position)
+    event.response = response
     return response

@@ -4,6 +4,7 @@ from shared.dtos.member import Role
 from shared.dtos.preset_member import (
     AddPresetMemberDTO,
     PresetMemberDetailDTO,
+    PresetMemberDTO,
     UpdatePresetMemberDTO,
 )
 from shared.entities.preset_member import PresetMember
@@ -40,6 +41,7 @@ async def get_preset_members_service(
     preset_member_repo = PresetMemberRepository(session)
     members = await preset_member_repo.get_all_detail_by_preset_id(preset_id, guild_id)
     response = [PresetMemberDetailDTO.model_validate(m) for m in members]
+    event.response = [PresetMemberDTO.model_validate(item) for item in response]
     return response
 
 
@@ -61,6 +63,7 @@ async def get_preset_member_service(
     if preset_member is None:
         raise HTTPError(PresetMemberErrorCode.NotFound)
     response = PresetMemberDetailDTO.model_validate(preset_member)
+    event.response = PresetMemberDTO.model_validate(response)
     return response
 
 
@@ -105,6 +108,7 @@ async def add_preset_member_service(
     if preset_member is None:
         raise HTTPError(PresetMemberErrorCode.NotFound)
     response = PresetMemberDetailDTO.model_validate(preset_member)
+    event.response = PresetMemberDTO.model_validate(response)
     return response
 
 
@@ -140,6 +144,7 @@ async def update_preset_member_service(
         preset_member_id, preset_id, guild_id
     )
     response = PresetMemberDetailDTO.model_validate(preset_member)
+    event.response = PresetMemberDTO.model_validate(response)
     return response
 
 
@@ -169,4 +174,5 @@ async def delete_preset_member_service(
 
     response = PresetMemberDetailDTO.model_validate(preset_member_detail)
     await session.delete(preset_member)
+    event.response = PresetMemberDTO.model_validate(response)
     return response

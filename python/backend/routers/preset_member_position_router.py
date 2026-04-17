@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.preset_member_position import (
     AddPresetMemberPositionDTO,
     PresetMemberPositionDetailDTO,
-    PresetMemberPositionDTO,
 )
 from shared.utils.database import get_session
 

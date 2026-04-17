@@ -30,4 +30,5 @@ async def on_ready_service(
 
     event.detail["removed_guild_count"] = removed_guild_count
     response = {"synced_guild_count": len(synced_guild_ids)}
+    event.response = response
     return response

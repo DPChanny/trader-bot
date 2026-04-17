@@ -9,6 +9,7 @@ from typing import Any
 from uuid import uuid4
 
 from loguru import logger
+from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
@@ -66,9 +67,9 @@ def _normalize_event_response(value: Any) -> dict[str, Any]:
 @dataclass
 class Event:
     function: str
-    request: dict[str, Any] = field(default_factory=dict)
-    response: dict[str, Any] | list[Any] | None = None
-    detail: dict[str, Any] = field(default_factory=dict)
+    request: dict[str, Any] | list[Any] | BaseModel = field(default_factory=dict)
+    response: dict[str, Any] | list[Any] | BaseModel | None = None
+    detail: dict[str, Any] | list[Any] | BaseModel = field(default_factory=dict)
 
     def __iter__(self):
         yield "function", self.function

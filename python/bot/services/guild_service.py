@@ -14,6 +14,7 @@ async def on_guild_join_service(
     guild: Guild, session: AsyncSession, event: Event
 ) -> dict:
     response = await sync_guild(guild, session)
+    event.response = response
     return response
 
 
@@ -35,6 +36,7 @@ async def on_guild_update_service(
         )
         event.detail["before_owner_member"] = before_owner_member.model_dump()
         event.detail["after_owner_member"] = after_owner_member.model_dump()
+    event.response = guild_dto
     return guild_dto
 
 
@@ -43,4 +45,5 @@ async def on_guild_remove_service(
     guild: Guild, session: AsyncSession, event: Event
 ) -> GuildDTO:
     response = await delete_guild(guild.id, session)
+    event.response = response
     return response

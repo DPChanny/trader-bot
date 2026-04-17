@@ -103,6 +103,7 @@ async def create_auction_service(
         )
 
     response = AuctionDTO.model_validate(auction)
+    event.response = response
     return response
 
 

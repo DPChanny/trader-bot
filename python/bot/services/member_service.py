@@ -14,6 +14,7 @@ async def on_member_join_service(
     event: Event,
 ) -> MemberDTO:
     response = await sync_member(member, session)
+    event.response = response
     return response
 
 
@@ -29,6 +30,7 @@ async def on_member_update_service(
         member_dto = await sync_member_admin_role(
             after.guild.id, after.id, after.guild_permissions.administrator, session
         )
+    event.response = member_dto
     return member_dto
 
 
@@ -39,4 +41,5 @@ async def on_member_remove_service(
     event: Event,
 ) -> MemberDTO:
     response = await delete_member(member.guild.id, member.id, session)
+    event.response = response
     return response

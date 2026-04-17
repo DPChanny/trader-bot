@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.member import MemberDetailDTO, Role
+from shared.dtos.member import MemberDetailDTO, MemberDTO, Role
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import HTTPError, MemberErrorCode
 from shared.utils.service import Event, http_service
@@ -17,6 +17,7 @@ async def get_my_member_service(
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
     response = MemberDetailDTO.model_validate(member)
+    event.response = MemberDTO.model_validate(response)
     return response
 
 
@@ -30,6 +31,7 @@ async def get_member_service(
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
     response = MemberDetailDTO.model_validate(member)
+    event.response = MemberDTO.model_validate(response)
     return response
 
 
@@ -41,6 +43,7 @@ async def get_members_service(
     member_repo = MemberRepository(session)
     members = await member_repo.get_all_by_guild_id(guild_id)
     response = [MemberDetailDTO.model_validate(m) for m in members]
+    event.response = [MemberDTO.model_validate(item) for item in response]
     return response
 
 
@@ -71,4 +74,5 @@ async def update_member_service(
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
     response = MemberDetailDTO.model_validate(member)
+    event.response = MemberDTO.model_validate(response)
     return response

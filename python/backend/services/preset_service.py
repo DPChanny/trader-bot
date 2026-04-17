@@ -29,6 +29,7 @@ async def get_preset_service(
     if preset is None:
         raise HTTPError(PresetErrorCode.NotFound)
     response = PresetDTO.model_validate(preset)
+    event.response = response
     return response
 
 
@@ -53,6 +54,7 @@ async def create_preset_service(
     session.add(preset)
     await session.flush()
     response = PresetDTO.model_validate(preset)
+    event.response = response
     return response
 
 
@@ -65,6 +67,7 @@ async def get_presets_service(
     preset_repo = PresetRepository(session)
     presets = await preset_repo.get_all_by_guild_id(guild_id)
     response = [PresetDTO.model_validate(p) for p in presets]
+    event.response = response
     return response
 
 
@@ -88,6 +91,7 @@ async def update_preset_service(
         setattr(preset, key, getattr(dto, key))
 
     response = PresetDTO.model_validate(preset)
+    event.response = response
     return response
 
 
@@ -108,4 +112,5 @@ async def delete_preset_service(
 
     response = PresetDTO.model_validate(preset)
     await session.delete(preset)
+    event.response = response
     return response

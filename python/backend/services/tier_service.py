@@ -32,6 +32,7 @@ async def get_tiers_service(
     tier_repo = TierRepository(session)
     tiers = await tier_repo.get_all_by_preset_id(preset_id, guild_id)
     response = [TierDTO.model_validate(t) for t in tiers]
+    event.response = response
     return response
 
 
@@ -51,6 +52,7 @@ async def get_tier_service(
     if tier is None:
         raise HTTPError(TierErrorCode.NotFound)
     response = TierDTO.model_validate(tier)
+    event.response = response
     return response
 
 
@@ -73,6 +75,7 @@ async def add_tier_service(
     session.add(tier)
     await session.flush()
     response = TierDTO.model_validate(tier)
+    event.response = response
     return response
 
 
@@ -97,6 +100,7 @@ async def update_tier_service(
         setattr(tier, key, getattr(dto, key))
 
     response = TierDTO.model_validate(tier)
+    event.response = response
     return response
 
 
@@ -118,4 +122,5 @@ async def delete_tier_service(
 
     response = TierDTO.model_validate(tier)
     await session.delete(tier)
+    event.response = response
     return response
