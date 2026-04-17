@@ -18,7 +18,7 @@ export function TeamList({
   pointScale,
 }: TeamListProps) {
   return (
-    <TertiarySection fill>
+    <TertiarySection fill minSize>
       <Scroll axis="y" fill>
         {teams.map((team) => {
           const members = team.memberIds

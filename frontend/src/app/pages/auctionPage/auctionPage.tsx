@@ -76,6 +76,8 @@ export function AuctionPage() {
 
   const isCompleted = auction?.status === Status.COMPLETED;
   const isRunning = auction?.status === Status.RUNNING;
+  const isWaiting = auction?.status === Status.WAITING;
+  const isDisconnected = wasConnected && !isConnected && !isCompleted;
 
   const bidError =
     !isCompleted && rawError !== null && isBidErrorCode(rawError.code)
@@ -129,7 +131,7 @@ export function AuctionPage() {
 
   const presetMembers: PresetMemberDetailDTO[] =
     presetSnapshot?.presetMembers ?? [];
-  const teamSize: number = presetSnapshot?.teamSize ?? 5;
+  const teamSize: number = presetSnapshot?.teamSize ?? 0;
   const pointScale: number = presetSnapshot?.pointScale ?? 1;
 
   const presetMemberMap = new Map<number, PresetMemberDetailDTO>(
@@ -148,12 +150,11 @@ export function AuctionPage() {
     teamId !== null ? auction.teams.find((t) => t.teamId === teamId) : null;
   const clientTeamSize = clientTeam ? clientTeam.memberIds.length : 0;
   const isClientTeamFull = clientTeamSize >= teamSize;
+  const canBid = isRunning && isLeader && !isClientTeamFull;
   const statusEntries = getStatusEntries();
-
-  const getStatusText = (status: Status) => {
-    if (wasConnected && !isConnected && !isCompleted) return "연결 끊김";
-    return statusEntries[status].displayName;
-  };
+  const statusText = isDisconnected
+    ? "연결 끊김"
+    : statusEntries[auction.status].displayName;
 
   const currentMember = auction.currentMemberId
     ? presetMemberMap.get(auction.currentMemberId)
@@ -191,7 +192,7 @@ export function AuctionPage() {
         )}
 
         <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
-          <SecondarySection fill>
+          <SecondarySection fill minSize>
             <Title>팀 목록</Title>
             <TeamList
               teams={auction.teams}
@@ -203,15 +204,14 @@ export function AuctionPage() {
         </PrimarySection>
 
         <PrimarySection minSize style={{ flex: 2 }}>
-          <SecondarySection fill>
-            <Row justify="between" align="center">
-              <Title>경매 정보</Title>
-              <Text>{getStatusText(auction.status)}</Text>
-            </Row>
+          <SecondarySection fill minSize>
+            <Title>{presetSnapshot?.name}</Title>
             <Column fill>
               <TertiarySection fill>
                 <Column fill center>
-                  {currentMember && (
+                  {isWaiting || !currentMember ? (
+                    <Text>{statusText}</Text>
+                  ) : (
                     <PresetMemberCard presetMember={currentMember} />
                   )}
                 </Column>
@@ -242,7 +242,7 @@ export function AuctionPage() {
                   </FlexItem>
                 </Row>
               </TertiarySection>
-              {isLeader && !isClientTeamFull && (
+              {canBid && (
                 <TertiarySection>
                   <Row>
                     {bidError && (
@@ -254,12 +254,11 @@ export function AuctionPage() {
                         placeholder={`입찰 금액 (${pointScale}의 배수)`}
                         value={bidAmount}
                         onValueChange={setBidAmount}
-                        disabled={!isRunning}
                       />
                     </FlexItem>
                     <PrimaryButton
                       onClick={handlePlaceBid}
-                      disabled={!isRunning || !bidAmount || !isValidBidAmount}
+                      disabled={!bidAmount || !isValidBidAmount}
                     >
                       입찰하기
                     </PrimaryButton>
@@ -270,14 +269,14 @@ export function AuctionPage() {
           </SecondarySection>
         </PrimarySection>
 
-        <PrimarySection style={{ flex: 3 }}>
-          <Column fill>
-            <SecondarySection fill overflow="hidden">
+        <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
+          <Column fill minSize>
+            <SecondarySection fill minSize overflow="hidden">
               <Title>경매 순서</Title>
               <PresetMemberGrid presetMembers={auctionQueuePresetMembers} />
             </SecondarySection>
 
-            <SecondarySection fill overflow="hidden">
+            <SecondarySection fill minSize overflow="hidden">
               <Title>유찰 목록</Title>
               <PresetMemberGrid presetMembers={unsoldQueuePresetMembers} />
             </SecondarySection>

@@ -10,6 +10,9 @@
 
 .content {
   min-width: 25rem;
+  max-width: min(42rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  min-height: 0;
 }
 
 .fieldset {

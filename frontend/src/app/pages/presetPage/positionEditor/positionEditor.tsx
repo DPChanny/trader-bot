@@ -31,7 +31,7 @@ export function PositionEditor() {
           <PrimaryButton onClick={() => setShowAdd(true)}>추가</PrimaryButton>
         )}
       </Row>
-      <TertiarySection fill>
+      <TertiarySection fill minSize>
         <Scroll axis="y">
           {positions.error ? (
             <Error error={positions.error}>

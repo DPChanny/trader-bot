@@ -34,7 +34,7 @@ export function PresetList({ selectedPresetId }: PresetListProps) {
           </PrimaryButton>
         )}
       </Row>
-      <TertiarySection fill>
+      <TertiarySection fill minSize>
         <Scroll axis="y">
           {(presets.data ?? []).map((preset) => (
             <PresetCard

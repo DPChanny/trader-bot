@@ -31,7 +31,7 @@ export function TierEditor() {
           <PrimaryButton onClick={() => setShowAdd(true)}>추가</PrimaryButton>
         )}
       </Row>
-      <TertiarySection fill>
+      <TertiarySection fill minSize>
         <Scroll axis="y">
           {tiers.error ? (
             <Error error={tiers.error}>티어 목록을 불러오지 못했습니다</Error>

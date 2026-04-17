@@ -16,7 +16,7 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
   return (
     <SecondarySection fill minSize>
       <Title>길드 관리</Title>
-      <TertiarySection fill>
+      <TertiarySection fill minSize>
         <Scroll axis="y">
           {guilds.map((g) => (
             <GuildCard
