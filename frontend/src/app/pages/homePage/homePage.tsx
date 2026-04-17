@@ -1,6 +1,7 @@
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Link } from "@components/atoms/link";
 import { Column, Page, Row, Scroll } from "@components/atoms/layout";
+import { Text } from "@components/atoms/text";
 import {
   PrimarySection,
   SecondarySection,
@@ -14,116 +15,127 @@ import {
   GUILD_INVITE_URL,
   GUILD_INVITE_URL_TEXT,
   SITE_NAME,
-  SITE_OPERATOR,
 } from "@utils/env";
 
 export function HomePage() {
   const login = useLogin();
 
   return (
-    <Page className={styles.pageShell}>
-      <Scroll axis="y" className={styles.pageScroll}>
+    <Page>
+      <Scroll axis="y">
         <Column gap="xl" className={styles.container}>
-          <PrimarySection className={styles.heroSection}>
-            <header className={styles.heroHeader}>
-              <p className={styles.eyebrow}>Team Auction with Trader Bot</p>
-              <h1 className={styles.heroTitle}>
-                {`${SITE_NAME}으로 팀원 경매를 간편하게 운영하세요`}
-              </h1>
-              <p className={styles.heroDescription}>
-                Discord 길드 멤버를 바탕으로 프리셋을 구성하고 경매를 간편하게
-                생성하세요
-              </p>
-            </header>
-            <Row gap="md" wrap className={styles.heroActions}>
-              <PrimaryButton variantSize="large" onClick={login}>
-                로그인하여 시작하기
-              </PrimaryButton>
-              <Link href={BOT_INVITE_URL} target="_blank" rel="noreferrer">
-                <SecondaryButton variantTone="outline" variantSize="large">
-                  {BOT_INVITE_URL_TEXT}
-                </SecondaryButton>
-              </Link>
-            </Row>
+          <PrimarySection gap="lg" className={styles.heroSection}>
+            <Column gap="md">
+              <header>
+                <Column gap="md">
+                  <Text
+                    variantSize="small"
+                    variantWeight="bold"
+                    className={styles.eyebrow}
+                  >
+                    Team Auction with Trader Bot
+                  </Text>
+                  <h1 className={styles.heroTitle}>
+                    {`${SITE_NAME}으로 팀원 경매를 간편하게 운영하세요`}
+                  </h1>
+                  <Text className={styles.heroDescription}>
+                    Discord 길드 멤버를 바탕으로 프리셋을 구성하고 경매를
+                    간편하게 생성하세요
+                  </Text>
+                </Column>
+              </header>
+              <Row gap="md" wrap>
+                <PrimaryButton variantSize="large" onClick={login}>
+                  로그인하여 시작하기
+                </PrimaryButton>
+                <Link href={BOT_INVITE_URL} target="_blank" rel="noreferrer">
+                  <SecondaryButton variantTone="outline" variantSize="large">
+                    {BOT_INVITE_URL_TEXT}
+                  </SecondaryButton>
+                </Link>
+              </Row>
+            </Column>
 
             <dl className={styles.metricList}>
               <div className={styles.metricCard}>
-                <dt className={styles.metricLabel}>운영자</dt>
-                <dd className={styles.metricValue}>{SITE_OPERATOR}</dd>
-              </div>
-              <div className={styles.metricCard}>
-                <dt className={styles.metricLabel}>핵심 흐름</dt>
-                <dd className={styles.metricValue}>
-                  {`${BOT_INVITE_URL_TEXT} → 길드 선택 → 프리셋 구성 → 경매 생성`}
+                <dt>
+                  <Text variantSize="small" className={styles.metricLabel}>
+                    핵심 흐름
+                  </Text>
+                </dt>
+                <dd>
+                  <Text variantWeight="semibold" className={styles.metricValue}>
+                    {`${BOT_INVITE_URL_TEXT} → 길드 선택 → 프리셋 구성 → 경매 생성`}
+                  </Text>
                 </dd>
               </div>
               <div className={styles.metricCard}>
-                <dt className={styles.metricLabel}>운영 길드</dt>
-                <dd className={styles.metricValue}>
-                  <Link
-                    href={GUILD_INVITE_URL}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {GUILD_INVITE_URL_TEXT}
-                  </Link>
+                <dt>
+                  <Text variantSize="small" className={styles.metricLabel}>
+                    운영 길드
+                  </Text>
+                </dt>
+                <dd>
+                  <Text variantWeight="semibold" className={styles.metricValue}>
+                    <Link
+                      href={GUILD_INVITE_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {GUILD_INVITE_URL_TEXT}
+                    </Link>
+                  </Text>
                 </dd>
               </div>
             </dl>
           </PrimarySection>
 
-          <SecondarySection>
-            <section className={styles.sectionBody}>
-              <header className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>핵심 기능</h2>
-              </header>
-              <ol>
-                <li>
-                  {`Discord 계정으로 로그인하고 ${BOT_INVITE_URL_TEXT}를 진행합니다.`}
-                </li>
-                <li>
-                  운영할 길드를 선택하고 멤버 정보와 운영용 설정을 확인한 뒤
-                  프리셋을 구성합니다.
-                </li>
-                <li>공개 여부와 초대 전송 여부를 선택해 경매를 생성합니다.</li>
-              </ol>
-            </section>
+          <SecondarySection gap="md">
+            <header>
+              <h2 className={styles.sectionTitle}>핵심 기능</h2>
+            </header>
+            <ol className={styles.contentList}>
+              <li>
+                {`Discord 계정으로 로그인하고 ${BOT_INVITE_URL_TEXT}를 진행합니다.`}
+              </li>
+              <li>
+                운영할 길드를 선택하고 멤버 정보와 운영용 설정을 확인한 뒤
+                프리셋을 구성합니다.
+              </li>
+              <li>공개 여부와 초대 전송 여부를 선택해 경매를 생성합니다.</li>
+            </ol>
           </SecondarySection>
 
-          <Column gap="md">
-            <TertiarySection>
-              <section className={styles.sectionBody}>
-                <header className={styles.sectionHeader}>
+          <Row align="stretch" gap="md">
+            <TertiarySection gap="md" fill>
+              <header>
+                <Column gap="sm">
                   <h2 className={styles.sectionTitle}>법률 문서</h2>
-                  <p className={styles.sectionDescription}>
+                  <Text className={styles.sectionDescription}>
                     외부 매체 등록과 공개 운영을 위한 기본 문서를 제공합니다.
-                  </p>
-                </header>
-                <div className={styles.sectionActions}>
-                  <Link href="/terms">이용약관 보기</Link>
-                  <Link href="/privacy">개인정보처리방침 보기</Link>
-                </div>
-              </section>
+                  </Text>
+                </Column>
+              </header>
+              <Row gap="md" wrap>
+                <Link href="/terms">이용약관 보기</Link>
+                <Link href="/privacy">개인정보처리방침 보기</Link>
+              </Row>
             </TertiarySection>
 
-            <TertiarySection>
-              <section className={styles.sectionBody}>
+            <TertiarySection gap="md" fill>
+              <Column gap="sm">
                 <h2 className={styles.sectionTitle}>운영 길드</h2>
-                <p className={styles.sectionDescription}>
+                <Text className={styles.sectionDescription}>
                   점검 공지와 운영 문의는 운영 길드에서 확인할 수 있습니다.
-                </p>
-                <div className={styles.sectionActions}>
-                  <Link
-                    href={GUILD_INVITE_URL}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {GUILD_INVITE_URL_TEXT}
-                  </Link>
-                </div>
-              </section>
+                </Text>
+              </Column>
+              <Row gap="md" wrap>
+                <Link href={GUILD_INVITE_URL} target="_blank" rel="noreferrer">
+                  {GUILD_INVITE_URL_TEXT}
+                </Link>
+              </Row>
             </TertiarySection>
-          </Column>
+          </Row>
         </Column>
       </Scroll>
     </Page>
