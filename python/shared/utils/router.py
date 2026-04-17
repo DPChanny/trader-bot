@@ -52,7 +52,7 @@ def bot_router[**P, T](
 ) -> Callable[P, Awaitable[T | None]]:
     routed_func = router(func)
 
-    @functools.wraps(func)
+    @functools.wraps(routed_func)
     async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | None:
         try:
             return await routed_func(*args, **kwargs)
@@ -74,7 +74,7 @@ def ws_router[**P, T](
 ) -> Callable[P, Awaitable[T | None]]:
     routed_func = router(func)
 
-    @functools.wraps(func)
+    @functools.wraps(routed_func)
     async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | None:
         ws = next((arg for arg in args if isinstance(arg, WebSocket)), None)
         if ws is None:
