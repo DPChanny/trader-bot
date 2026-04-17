@@ -55,6 +55,7 @@ export function PresetMemberPanel({
   const { data: tiers = [] } = useTiers(guildId, presetId);
   const { data: positions = [] } = usePositions(guildId, presetId);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
+  const canDelete = useVerifyRole(guildId, Role.ADMIN);
 
   const tiersMap = useMemo(
     () => new Map(tiers.map((t) => [t.tierId, t])),
@@ -419,7 +420,7 @@ export function PresetMemberPanel({
         </Column>
       </Scroll>
 
-      {canEdit && (
+      {canDelete && (
         <Button
           variantIntent="warning"
           onClick={handleRemoveMember}

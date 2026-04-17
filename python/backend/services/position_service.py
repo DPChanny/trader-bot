@@ -47,7 +47,7 @@ async def add_position_service(
     dto: AddPositionDTO,
     session: AsyncSession,
 ) -> PositionDTO:
-    await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
@@ -90,7 +90,7 @@ async def delete_position_service(
     session: AsyncSession,
     event: Event,
 ) -> None:
-    await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)

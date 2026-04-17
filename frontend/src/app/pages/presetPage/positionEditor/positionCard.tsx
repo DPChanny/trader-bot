@@ -21,6 +21,7 @@ export function PositionCard({ position }: PositionCardProps) {
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
+  const canDelete = useVerifyRole(guildId, Role.ADMIN);
   return (
     <Card direction="row" justify="between" align="center">
       <Badge variantColor="blue" variantSize="large">
@@ -35,13 +36,20 @@ export function PositionCard({ position }: PositionCardProps) {
         )}
       </Badge>
       <Name>{position.name}</Name>
-      {canEdit && (
+      {(canEdit || canDelete) && (
         <Row align="center">
-          <EditButton variantSize="small" onClick={() => setShowUpdate(true)} />
-          <DeleteButton
-            variantSize="small"
-            onClick={() => setShowDelete(true)}
-          />
+          {canEdit && (
+            <EditButton
+              variantSize="small"
+              onClick={() => setShowUpdate(true)}
+            />
+          )}
+          {canDelete && (
+            <DeleteButton
+              variantSize="small"
+              onClick={() => setShowDelete(true)}
+            />
+          )}
         </Row>
       )}
       {showUpdate && (

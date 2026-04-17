@@ -54,7 +54,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
     setIsSaving(false);
   }, [member.memberId, member.alias, member.infoUrl, member.role]);
 
-  const canEdit = useVerifyRole(member.guildId, Role.ADMIN);
+  const canEdit = useVerifyRole(member.guildId, Role.EDITOR);
   const canEditRole = useVerifyRole(member.guildId, Role.ADMIN);
   const isOwnerMember = member.role === Role.OWNER;
 
@@ -86,7 +86,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
     if (!isFormValid) return;
     if (!hasChanges) return;
     if (isSaving) return;
-    const dto: UpdateMemberDTO = { ...patchDTO };
+    const dto: UpdateMemberDTO = { ...(patchDTO ?? {}) };
     if (roleChanged) dto.role = role;
     setIsSaving(true);
     updateMember.mutate(

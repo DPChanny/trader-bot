@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.member import MemberDetailDTO, MemberDTO, Role
+from shared.dtos.member import MemberDetailDTO, MemberDTO, Role, UpdateMemberDTO
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import HTTPError, MemberErrorCode
 from shared.utils.service import Event, http_service
@@ -55,11 +55,15 @@ async def update_member_service(
     guild_id: int,
     user_id: int,
     member_id: int,
-    dto,
+    dto: UpdateMemberDTO,
     session: AsyncSession,
     event: Event,
 ) -> MemberDetailDTO:
-    await verify_role(guild_id, user_id, session, Role.ADMIN)
+    await verify_role(guild_id, user_id, session, Role.EDITOR)
+
+    if "role" in dto.model_fields_set:
+        await verify_role(guild_id, user_id, session, Role.ADMIN)
+
     member_repo = MemberRepository(session)
     member = await member_repo.get_by_id(member_id, guild_id)
     if member is None:

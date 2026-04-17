@@ -43,7 +43,7 @@ async def get_tier_service(
 async def add_tier_service(
     guild_id: int, user_id: int, preset_id: int, dto: AddTierDTO, session: AsyncSession
 ) -> TierDTO:
-    await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
@@ -86,7 +86,7 @@ async def delete_tier_service(
     session: AsyncSession,
     event: Event,
 ) -> None:
-    await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)

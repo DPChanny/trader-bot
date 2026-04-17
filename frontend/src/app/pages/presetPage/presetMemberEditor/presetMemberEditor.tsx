@@ -70,7 +70,7 @@ export function PresetMemberEditor() {
 
   const createPresetMember = useCreatePresetMember();
   const deletePresetMember = useDeletePresetMember();
-  const canEdit = useVerifyRole(guildId, Role.EDITOR);
+  const canManage = useVerifyRole(guildId, Role.ADMIN);
 
   const presetMemberIds = useMemo(
     () => new Set(presetMembers?.map((pm) => pm.memberId) ?? []),
@@ -149,7 +149,7 @@ export function PresetMemberEditor() {
     presetMember: PresetMemberDetailDTO,
     event: MouseEvent,
   ) => {
-    if (canEdit && (event.ctrlKey || event.shiftKey || event.metaKey)) {
+    if (canManage && (event.ctrlKey || event.shiftKey || event.metaKey)) {
       handleRemovePresetMember(presetMember);
       return;
     }
@@ -185,13 +185,13 @@ export function PresetMemberEditor() {
           )}
         </SecondarySection>
 
-        {canEdit && createPresetMember.error && (
+        {canManage && createPresetMember.error && (
           <Error error={createPresetMember.error}>
             프리셋 멤버 추가에 실패했습니다
           </Error>
         )}
 
-        {canEdit && deletePresetMember.error && (
+        {canManage && deletePresetMember.error && (
           <Error error={deletePresetMember.error}>
             프리셋 멤버 제거에 실패했습니다
           </Error>
@@ -212,7 +212,7 @@ export function PresetMemberEditor() {
           ) : (
             <MemberGrid
               members={candidateMembers}
-              onClick={canEdit ? handleAddMember : undefined}
+              onClick={canManage ? handleAddMember : undefined}
             />
           )}
         </SecondarySection>

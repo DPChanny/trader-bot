@@ -27,7 +27,7 @@ async def get_preset_service(
 async def create_preset_service(
     guild_id: int, user_id: int, dto: CreatePresetDTO, session: AsyncSession
 ) -> PresetDTO:
-    await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset = Preset(
         guild_id=guild_id,

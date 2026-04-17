@@ -22,13 +22,13 @@ export function PresetList({ selectedPresetId }: PresetListProps) {
   const [showCreate, setShowCreate] = useState(false);
 
   const presets = usePresets(guildId);
-  const canEdit = useVerifyRole(guildId, Role.EDITOR);
+  const canCreate = useVerifyRole(guildId, Role.ADMIN);
 
   return (
     <SecondarySection fill minSize>
       <Row justify="between" align="center">
         <Title>프리셋 관리</Title>
-        {canEdit && (
+        {canCreate && (
           <PrimaryButton onClick={() => setShowCreate(true)}>
             생성
           </PrimaryButton>

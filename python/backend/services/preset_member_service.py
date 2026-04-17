@@ -76,7 +76,7 @@ async def add_preset_member_service(
     session: AsyncSession,
     event: Event,
 ) -> PresetMemberDetailDTO:
-    await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     member_repo = MemberRepository(session)
     preset_repo = PresetRepository(session)
@@ -155,7 +155,7 @@ async def delete_preset_member_service(
     session: AsyncSession,
     event: Event,
 ) -> None:
-    await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_member_repo = PresetMemberRepository(session)
     preset_member = await preset_member_repo.get_by_id(

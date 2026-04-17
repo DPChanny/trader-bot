@@ -21,13 +21,13 @@ export function TierEditor() {
   const [showAdd, setShowAdd] = useState(false);
 
   const tiers = useTiers(guildId, presetId);
-  const canEdit = useVerifyRole(guildId, Role.EDITOR);
+  const canCreate = useVerifyRole(guildId, Role.ADMIN);
 
   return (
     <SecondarySection fill minSize>
       <Row justify="between" align="center">
         <Title>티어 목록</Title>
-        {canEdit && (
+        {canCreate && (
           <PrimaryButton onClick={() => setShowAdd(true)}>추가</PrimaryButton>
         )}
       </Row>
