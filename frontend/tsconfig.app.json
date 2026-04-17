@@ -14,7 +14,8 @@
       "@apis/*": ["./src/apis/*"],
       "@hooks/*": ["./src/hooks/*"],
       "@dtos/*": ["./src/dtos/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@docs/*": ["./src/docs/*"]
     },
     "types": ["vite/client"],
 

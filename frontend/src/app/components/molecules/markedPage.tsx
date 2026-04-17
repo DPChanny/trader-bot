@@ -1,29 +1,22 @@
 import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
-import { Card } from "./card";
-import { PrimarySection, SecondarySection, TertiarySection } from "./section";
+import { PrimarySection, SecondarySection } from "./section";
 import type { ComponentChildren } from "preact";
 import type { MarkedBlock, MarkedSection } from "@utils/marked";
 import { GUILD_INVITE_URL, SITE_OPERATOR } from "@utils/env";
-import { Link } from "@components//atoms/link";
+import { Link } from "@components/atoms/link";
 
 export type MarkedPageProps = {
-  eyebrow: ComponentChildren;
   title: ComponentChildren;
   intro: ComponentChildren;
   effectiveDate?: string;
   sections: MarkedSection[];
-  supplementaryItems?: ComponentChildren[];
-  supplementaryContent?: ComponentChildren;
 };
 
 export function MarkedPage({
-  eyebrow,
   title,
   intro,
   effectiveDate,
-  supplementaryItems,
-  supplementaryContent,
   sections,
 }: MarkedPageProps) {
   const renderBlocks = (blocks: MarkedBlock[]) => (
@@ -31,7 +24,7 @@ export function MarkedPage({
       {blocks.map((block, index) => {
         if (block.type === "paragraph") {
           return (
-            <Text key={index} align="start" variantSize="medium">
+            <Text key={index} align="start">
               {block.text}
             </Text>
           );
@@ -40,7 +33,7 @@ export function MarkedPage({
         return (
           <Column key={index} gap="sm">
             {block.items.map((item) => (
-              <Text key={item} align="start" variantSize="medium">
+              <Text key={item} align="start">
                 {`• ${item}`}
               </Text>
             ))}
@@ -56,14 +49,6 @@ export function MarkedPage({
         <Column gap="xl" width="page" self="center">
           <PrimarySection>
             <Column gap="md">
-              <Text
-                align="start"
-                variantSize="small"
-                variantWeight="bold"
-                tone="accent"
-              >
-                {eyebrow}
-              </Text>
               <Title as="h1" variantSize="hero" align="start">
                 {title}
               </Title>
@@ -90,27 +75,11 @@ export function MarkedPage({
             </Column>
           </PrimarySection>
 
-          {(supplementaryItems || supplementaryContent) && (
-            <TertiarySection gap="md">
-              {supplementaryItems && supplementaryItems.length > 0 && (
-                <Row gap="md">
-                  {supplementaryItems.map((item, index) => (
-                    <Card fill key={index} variantColor="gray">
-                      <Text variantWeight="semibold">{item}</Text>
-                    </Card>
-                  ))}
-                </Row>
-              )}
-
-              {supplementaryContent}
-            </TertiarySection>
-          )}
-
           <SecondarySection gap="md">
             <Column gap="xl">
               {sections.map((section) => (
                 <Column key={section.title} gap="md">
-                  <Title as="h2" align="start" variantSize="medium">
+                  <Title as="h2" align="start">
                     {section.title}
                   </Title>
                   {renderBlocks(section.blocks)}

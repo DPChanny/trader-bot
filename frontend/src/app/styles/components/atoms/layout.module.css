@@ -87,10 +87,6 @@
   align-items: center;
 }
 
-.alignEnd {
-  align-items: flex-end;
-}
-
 .alignStretch {
   align-items: stretch;
 }
@@ -124,10 +120,6 @@
 
 .selfCenter {
   align-self: center;
-}
-
-.selfEnd {
-  align-self: flex-end;
 }
 
 .selfStretch {

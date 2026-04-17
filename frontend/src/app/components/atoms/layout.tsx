@@ -36,7 +36,6 @@ const layoutVariants = cva(styles.layout, {
     align: {
       start: styles.alignStart,
       center: styles.alignCenter,
-      end: styles.alignEnd,
       stretch: styles.alignStretch,
     },
     center: {
@@ -60,7 +59,6 @@ const layoutVariants = cva(styles.layout, {
       auto: "",
       start: styles.selfStart,
       center: styles.selfCenter,
-      end: styles.selfEnd,
       stretch: styles.selfStretch,
     },
     minSize: {

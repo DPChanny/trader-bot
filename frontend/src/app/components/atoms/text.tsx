@@ -5,19 +5,13 @@ import type { JSX } from "preact";
 
 const textVariants = cva("", {
   variants: {
-    block: {
-      true: styles.displayBlock,
-      false: "",
-    },
     align: {
       start: styles.alignStart,
       center: styles.alignCenter,
-      end: styles.alignEnd,
     },
     tone: {
-      default: styles.toneDefault,
-      muted: styles.toneMuted,
       accent: styles.toneAccent,
+      default: "",
     },
     variantWeight: {
       normal: styles.weightNormal,
@@ -35,7 +29,6 @@ const textVariants = cva("", {
     },
   },
   defaultVariants: {
-    block: false,
     align: "center",
     tone: "default",
     variantWeight: "normal",
@@ -49,11 +42,9 @@ const titleVariants = cva(styles.title, {
     align: {
       start: styles.alignStart,
       center: styles.alignCenter,
-      end: styles.alignEnd,
     },
     variantSize: {
       medium: styles.titleMedium,
-      large: styles.titleLarge,
       hero: styles.titleHero,
     },
   },
@@ -89,7 +80,6 @@ export function Text({
   return (
     <span
       className={clsx(
-        styles.text,
         textVariants({
           align,
           tone,

@@ -8,8 +8,8 @@ import { MemberPage } from "@pages/memberPage/memberPage";
 import { PresetPage } from "@pages/presetPage/presetPage";
 import { HomePage } from "@pages/homePage/homePage";
 import { AuctionPage } from "@pages/auctionPage/auctionPage";
-import { TermsPage } from "@pages/legalPage/termsPage";
-import { PrivacyPage } from "@pages/legalPage/privacyPage";
+import { TermsOfServicePage } from "@pages/legalPage/termsOfServicePage";
+import { PrivacyPolicyPage } from "@pages/legalPage/privacyPolicyPage";
 import { Header } from "./header";
 import { SideMenu } from "./sideMenu/sideMenu";
 import { Modal, ModalFooter } from "./components/modal";
@@ -32,11 +32,11 @@ function HomeRoute({}: RoutableProps) {
 }
 
 function TermsRoute({}: RoutableProps) {
-  return <TermsPage />;
+  return <TermsOfServicePage />;
 }
 
 function PrivacyRoute({}: RoutableProps) {
-  return <PrivacyPage />;
+  return <PrivacyPolicyPage />;
 }
 
 function DefaultRoute({}: RoutableProps) {

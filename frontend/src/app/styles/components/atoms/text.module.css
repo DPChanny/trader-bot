@@ -2,13 +2,6 @@
   font-weight: var(--font-weight-bold);
 }
 
-.text {
-}
-
-.displayBlock {
-  display: block;
-}
-
 .alignStart {
   text-align: left;
 }
@@ -17,28 +10,12 @@
   text-align: center;
 }
 
-.alignEnd {
-  text-align: right;
-}
-
-.toneDefault {
-  color: inherit;
-}
-
-.toneMuted {
-  color: var(--color-text-muted);
-}
-
 .toneAccent {
   color: var(--color-text-accent);
 }
 
 .titleMedium {
   font-size: var(--font-size-xl);
-}
-
-.titleLarge {
-  font-size: var(--font-size-2xl);
 }
 
 .titleHero {
