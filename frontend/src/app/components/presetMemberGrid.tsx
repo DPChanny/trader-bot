@@ -21,8 +21,8 @@ export function PresetMemberGrid({
   const sorted = [...leaders, ...nonLeaders];
 
   return (
-    <TertiarySection fill>
-      <Scroll axis="both">
+    <TertiarySection minSize>
+      <Scroll axis="both" fill>
         <Row wrap center>
           {sorted.map((presetMember) => {
             const isSelected = selectedMemberId === presetMember.presetMemberId;
