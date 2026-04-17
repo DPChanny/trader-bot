@@ -42,7 +42,7 @@ async def lifespan(_):
     yield
 
 
-app = FastAPI(title="Trader API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Trader Bot API", version="1.0.0", lifespan=lifespan)
 
 
 @app.exception_handler(HTTPError)

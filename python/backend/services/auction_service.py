@@ -66,7 +66,7 @@ async def create_auction_service(
             role = "팀장" if pm.is_leader else "선수"
             embed = [
                 {
-                    "title": "Trader 경매",
+                    "title": "Trader Bot 경매",
                     "fields": [
                         {"name": "길드", "value": preset.guild.name, "inline": True},
                         {"name": "프리셋", "value": preset.name, "inline": True},

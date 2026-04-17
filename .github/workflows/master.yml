@@ -18,11 +18,13 @@ jobs:
           username: ${{ vars.EC2_USER }}
           key: ${{ secrets.EC2_SECRET }}
           script: |
+            set -e
+
             cd /var/www/trader-bot
             git fetch origin master
             git reset --hard origin/master
 
-            cat << EOF > python/backend/.env
+            cat << EOF > python/.env
             DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}
             DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
             DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}
@@ -31,7 +33,6 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             DB_HOST=${{ vars.DB_HOST }}
             AWS_REGION=${{ vars.AWS_REGION }}
-            LOG_LEVEL=${{ secrets.LOG_LEVEL }}
             EOF
 
             cat << EOF > frontend/.env
@@ -44,6 +45,7 @@ jobs:
             cd python && uv sync && cd ..
             cd frontend && npm install && npm run build && cd ..
 
-            pm2 reload trader-api || pm2 start "uv run uvicorn main:app --port 8000" --name trader-api
-            pm2 reload trader-bot || pm2 start "uv run python -m bot.py" --name trader-bot
+            cd python
+            pm2 reload trader-bot-api || pm2 start "uv run python -m uvicorn backend.main:app --host localhost --port 8000" --name trader-bot-api
+            pm2 reload trader-bot || pm2 start "uv run python -m bot.main" --name trader-bot
             pm2 save

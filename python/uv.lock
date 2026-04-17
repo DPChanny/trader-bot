@@ -1127,7 +1127,7 @@ wheels = [
 ]
 
 [[package]]
-name = "trader"
+name = "trader-bot"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
