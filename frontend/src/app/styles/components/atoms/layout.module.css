@@ -110,6 +110,30 @@
   height: 100%;
 }
 
+.widthPage {
+  width: min(100%, 70rem);
+}
+
+.widthMeasure {
+  width: min(100%, 42rem);
+}
+
+.selfStart {
+  align-self: flex-start;
+}
+
+.selfCenter {
+  align-self: center;
+}
+
+.selfEnd {
+  align-self: flex-end;
+}
+
+.selfStretch {
+  align-self: stretch;
+}
+
 .flexItem {
   flex: 1;
   min-width: 0;

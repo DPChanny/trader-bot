@@ -21,8 +21,8 @@ export function TermsPage() {
           ? `시행일 ${termsDocument.effectiveDate}`
           : undefined
       }
-      bodyHtml={termsDocument.bodyHtml}
-      footerHtml={termsDocument.footerHtml}
+      sections={termsDocument.sections}
+      footerBlocks={termsDocument.footerBlocks}
       supplementaryTitle="운영 길드"
       supplementaryDescription="서비스 공지와 문의는 운영 길드에서 확인할 수 있습니다."
       supplementaryItems={[

@@ -21,8 +21,8 @@ export function PrivacyPage() {
           ? `시행일 ${privacyDocument.effectiveDate}`
           : undefined
       }
-      bodyHtml={privacyDocument.bodyHtml}
-      footerHtml={privacyDocument.footerHtml}
+      sections={privacyDocument.sections}
+      footerBlocks={privacyDocument.footerBlocks}
       supplementaryTitle="운영 길드"
       supplementaryDescription="서비스 공지와 문의는 운영 길드에서 확인할 수 있습니다."
       supplementaryItems={[

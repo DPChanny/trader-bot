@@ -1,11 +1,49 @@
 .title {
-  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
-  text-align: center;
 }
 
 .text {
+}
+
+.displayBlock {
+  display: block;
+}
+
+.alignStart {
+  text-align: left;
+}
+
+.alignCenter {
   text-align: center;
+}
+
+.alignEnd {
+  text-align: right;
+}
+
+.toneDefault {
+  color: inherit;
+}
+
+.toneMuted {
+  color: var(--color-text-muted);
+}
+
+.toneAccent {
+  color: var(--color-text-accent);
+}
+
+.titleMedium {
+  font-size: var(--font-size-xl);
+}
+
+.titleLarge {
+  font-size: var(--font-size-2xl);
+}
+
+.titleHero {
+  font-size: 3.5rem;
+  line-height: 1.05;
 }
 
 .weightNormal {

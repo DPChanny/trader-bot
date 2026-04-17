@@ -1,11 +1,10 @@
 import { Link } from "@components/atoms/link";
 import { Column, Page, Row, Scroll } from "@components/atoms/layout";
-import { Text } from "@components/atoms/text";
+import { Text, Title } from "@components/atoms/text";
 import { Card } from "./card";
 import { PrimarySection, SecondarySection, TertiarySection } from "./section";
-import { HtmlContent } from "./htmlContent";
 import type { ComponentChildren } from "preact";
-import styles from "@styles/components/molecules/markedPage.module.css";
+import type { MarkedBlock, MarkedSection } from "@utils/marked";
 
 export type MarkedPageProps = {
   eyebrow: ComponentChildren;
@@ -13,8 +12,8 @@ export type MarkedPageProps = {
   intro: ComponentChildren;
   meta?: ComponentChildren;
   heroActions?: ComponentChildren;
-  bodyHtml: string;
-  footerHtml?: string;
+  sections: MarkedSection[];
+  footerBlocks?: MarkedBlock[];
   supplementaryTitle?: ComponentChildren;
   supplementaryDescription?: ComponentChildren;
   supplementaryItems?: Array<{
@@ -30,31 +29,82 @@ export function MarkedPage({
   intro,
   meta,
   heroActions,
-  bodyHtml,
-  footerHtml,
   supplementaryTitle,
   supplementaryDescription,
   supplementaryItems,
   supplementaryContent,
+  sections,
+  footerBlocks,
 }: MarkedPageProps) {
+  const renderBlocks = (blocks: MarkedBlock[], tone: "default" | "muted") => (
+    <Column gap="md">
+      {blocks.map((block, index) => {
+        if (block.type === "paragraph") {
+          return (
+            <Text
+              key={index}
+              as="p"
+              block
+              align="start"
+              tone={tone}
+              variantSize={tone === "muted" ? "small" : "medium"}
+            >
+              {block.text}
+            </Text>
+          );
+        }
+
+        return (
+          <Column key={index} gap="sm">
+            {block.items.map((item) => (
+              <Text
+                key={item}
+                as="div"
+                block
+                align="start"
+                tone={tone}
+                variantSize={tone === "muted" ? "small" : "medium"}
+              >
+                {`• ${item}`}
+              </Text>
+            ))}
+          </Column>
+        );
+      })}
+    </Column>
+  );
+
   return (
     <Page>
       <Scroll axis="y">
-        <Column gap="xl" className={styles.container}>
-          <PrimarySection gap="lg" className={styles.heroSection}>
+        <Column gap="xl" width="page" self="center">
+          <PrimarySection gap="lg">
             <header>
-              <Column gap="md">
+              <Column gap="md" width="measure" align="start">
                 <Text
+                  as="div"
+                  block
+                  align="start"
                   variantSize="small"
                   variantWeight="bold"
-                  className={styles.eyebrow}
+                  tone="accent"
                 >
                   {eyebrow}
                 </Text>
-                <h1 className={styles.heroTitle}>{title}</h1>
-                <Text className={styles.heroDescription}>{intro}</Text>
+                <Title as="h1" variantSize="hero" align="start">
+                  {title}
+                </Title>
+                <Text as="p" block align="start">
+                  {intro}
+                </Text>
                 {meta && (
-                  <Text variantSize="small" className={styles.meta}>
+                  <Text
+                    as="p"
+                    block
+                    align="start"
+                    variantSize="small"
+                    tone="muted"
+                  >
                     {meta}
                   </Text>
                 )}
@@ -66,25 +116,34 @@ export function MarkedPage({
           </PrimarySection>
 
           <SecondarySection gap="md">
-            <HtmlContent html={bodyHtml} />
+            <Column gap="xl">
+              {sections.map((section) => (
+                <Column key={section.title} gap="md">
+                  <Title as="h2" align="start" variantSize="medium">
+                    {section.title}
+                  </Title>
+                  {renderBlocks(section.blocks, "default")}
+                </Column>
+              ))}
+            </Column>
           </SecondarySection>
 
           {(supplementaryTitle ||
             supplementaryDescription ||
             supplementaryItems ||
             supplementaryContent ||
-            footerHtml) && (
+            footerBlocks) && (
             <TertiarySection gap="md">
               {(supplementaryTitle || supplementaryDescription) && (
                 <header>
-                  <Column gap="sm">
+                  <Column gap="sm" align="start">
                     {supplementaryTitle && (
-                      <h2 className={styles.sectionTitle}>
+                      <Title as="h2" align="start" variantSize="medium">
                         {supplementaryTitle}
-                      </h2>
+                      </Title>
                     )}
                     {supplementaryDescription && (
-                      <Text className={styles.sectionDescription}>
+                      <Text as="p" block align="start">
                         {supplementaryDescription}
                       </Text>
                     )}
@@ -95,13 +154,21 @@ export function MarkedPage({
               {supplementaryItems && supplementaryItems.length > 0 && (
                 <Column gap="md">
                   {supplementaryItems.map((item, index) => (
-                    <Card key={index} variantColor="gray">
-                      <Text variantSize="small" className={styles.infoLabel}>
+                    <Card key={index} variantColor="gray" align="start">
+                      <Text
+                        as="div"
+                        block
+                        align="start"
+                        variantSize="small"
+                        tone="muted"
+                      >
                         {item.label}
                       </Text>
                       <Text
+                        as="div"
+                        block
+                        align="start"
                         variantWeight="semibold"
-                        className={styles.infoValue}
                       >
                         {item.value}
                       </Text>
@@ -112,9 +179,7 @@ export function MarkedPage({
 
               {supplementaryContent}
 
-              {footerHtml && (
-                <HtmlContent html={footerHtml} variantTone="muted" />
-              )}
+              {footerBlocks && renderBlocks(footerBlocks, "muted")}
             </TertiarySection>
           )}
         </Column>

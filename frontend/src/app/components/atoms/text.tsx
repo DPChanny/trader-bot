@@ -5,6 +5,20 @@ import type { JSX } from "preact";
 
 const textVariants = cva("", {
   variants: {
+    block: {
+      true: styles.displayBlock,
+      false: "",
+    },
+    align: {
+      start: styles.alignStart,
+      center: styles.alignCenter,
+      end: styles.alignEnd,
+    },
+    tone: {
+      default: styles.toneDefault,
+      muted: styles.toneMuted,
+      accent: styles.toneAccent,
+    },
     variantWeight: {
       normal: styles.weightNormal,
       semibold: styles.weightSemibold,
@@ -21,25 +35,55 @@ const textVariants = cva("", {
     },
   },
   defaultVariants: {
+    block: false,
+    align: "center",
+    tone: "default",
     variantWeight: "normal",
     variantSize: "medium",
     truncate: false,
   },
 });
 
+const titleVariants = cva(styles.title, {
+  variants: {
+    align: {
+      start: styles.alignStart,
+      center: styles.alignCenter,
+      end: styles.alignEnd,
+    },
+    variantSize: {
+      medium: styles.titleMedium,
+      large: styles.titleLarge,
+      hero: styles.titleHero,
+    },
+  },
+  defaultVariants: {
+    align: "center",
+    variantSize: "medium",
+  },
+});
+
 type TextProps = JSX.IntrinsicElements["span"] &
-  VariantProps<typeof textVariants>;
+  VariantProps<typeof textVariants> & {
+    as?: "span" | "div" | "p";
+  };
 
 export type LabelProps = JSX.IntrinsicElements["label"] & {
   required?: boolean;
 };
 
 type TitleProps = JSX.IntrinsicElements["h3"] & {
+  as?: "h1" | "h2" | "h3";
+  align?: VariantProps<typeof titleVariants>["align"];
+  variantSize?: VariantProps<typeof titleVariants>["variantSize"];
   truncate?: boolean;
 };
 
 export function Text({
   className,
+  block,
+  align,
+  tone,
   variantWeight,
   variantSize,
   truncate,
@@ -50,6 +94,9 @@ export function Text({
       className={clsx(
         styles.text,
         textVariants({
+          block,
+          align,
+          tone,
           variantWeight,
           variantSize,
           truncate,
@@ -65,10 +112,21 @@ export function Name({ ...props }: TextProps) {
   return <Text variantWeight="semibold" truncate {...props} />;
 }
 
-export function Title({ className, truncate, ...props }: TitleProps) {
+export function Title({
+  as: Component = "h3",
+  className,
+  align,
+  variantSize,
+  truncate,
+  ...props
+}: TitleProps) {
   return (
-    <h3
-      className={clsx(styles.title, className, truncate && styles.truncate)}
+    <Component
+      className={clsx(
+        titleVariants({ align, variantSize }),
+        className,
+        truncate && styles.truncate,
+      )}
       {...props}
     />
   );

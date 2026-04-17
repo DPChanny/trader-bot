@@ -9,7 +9,6 @@ import {
   TertiarySection,
 } from "@components/molecules/section";
 import { useLogin } from "@hooks/auth";
-import styles from "@styles/pages/homePage.module.css";
 import {
   BOT_INVITE_URL,
   BOT_INVITE_URL_TEXT,
@@ -24,22 +23,25 @@ export function HomePage() {
   return (
     <Page>
       <Scroll axis="y" center>
-        <Column gap="xl">
-          <PrimarySection gap="lg" className={styles.heroSection}>
-            <Column gap="md">
+        <Column gap="xl" width="page" self="center">
+          <PrimarySection gap="lg">
+            <Column gap="md" align="start">
               <header>
-                <Column gap="md">
+                <Column gap="md" width="measure" align="start">
                   <Text
+                    as="div"
+                    block
+                    align="start"
                     variantSize="small"
                     variantWeight="bold"
-                    className={styles.eyebrow}
+                    tone="accent"
                   >
                     Team Auction with Trader Bot
                   </Text>
-                  <h1 className={styles.heroTitle}>
+                  <Title as="h1" variantSize="hero" align="start">
                     {`${SITE_NAME}으로 팀원 경매를 간편하게 운영하세요`}
-                  </h1>
-                  <Text>
+                  </Title>
+                  <Text as="p" block align="start">
                     Discord 길드 멤버를 바탕으로 프리셋을 구성하고 경매를
                     간편하게 생성하세요
                   </Text>
@@ -57,16 +59,32 @@ export function HomePage() {
               </Row>
             </Column>
 
-            <Row fill>
-              <Card fill>
-                <Text variantSize="small">핵심 흐름</Text>
-                <Text variantWeight="semibold">
+            <Row fill gap="md" wrap>
+              <Card fill align="start">
+                <Text
+                  as="div"
+                  block
+                  align="start"
+                  variantSize="small"
+                  tone="muted"
+                >
+                  핵심 흐름
+                </Text>
+                <Text as="div" block align="start" variantWeight="semibold">
                   {`${BOT_INVITE_URL_TEXT} → 길드 선택 → 프리셋 구성 → 경매 생성`}
                 </Text>
               </Card>
-              <Card fill>
-                <Text variantSize="small">운영 길드</Text>
-                <Text variantWeight="semibold">
+              <Card fill align="start">
+                <Text
+                  as="div"
+                  block
+                  align="start"
+                  variantSize="small"
+                  tone="muted"
+                >
+                  운영 길드
+                </Text>
+                <Text as="div" block align="start" variantWeight="semibold">
                   <Link
                     href={GUILD_INVITE_URL}
                     target="_blank"
@@ -80,16 +98,18 @@ export function HomePage() {
           </PrimarySection>
 
           <SecondarySection gap="md">
-            <Title>핵심 기능</Title>
-            <Column center>
-              <Text>
+            <Title as="h2" align="start">
+              핵심 기능
+            </Title>
+            <Column gap="sm" align="start">
+              <Text as="p" block align="start">
                 {`Discord 계정으로 로그인하고 ${BOT_INVITE_URL_TEXT}를 진행합니다.`}
               </Text>
-              <Text>
+              <Text as="p" block align="start">
                 운영할 길드를 선택하고 멤버 정보와 운영용 설정을 확인한 뒤
                 프리셋을 구성합니다.
               </Text>
-              <Text>
+              <Text as="p" block align="start">
                 공개 여부와 초대 전송 여부를 선택해 경매를 생성합니다.
               </Text>
             </Column>
@@ -98,9 +118,11 @@ export function HomePage() {
           <Row align="stretch" gap="md">
             <TertiarySection gap="md" fill>
               <header>
-                <Column gap="sm">
-                  <Title>법률 문서</Title>
-                  <Text>
+                <Column gap="sm" align="start">
+                  <Title as="h2" align="start">
+                    법률 문서
+                  </Title>
+                  <Text as="p" block align="start">
                     외부 매체 등록과 공개 운영을 위한 기본 문서를 제공합니다.
                   </Text>
                 </Column>
@@ -116,9 +138,11 @@ export function HomePage() {
             </TertiarySection>
 
             <TertiarySection gap="md" fill>
-              <Column gap="sm">
-                <Title>운영 길드</Title>
-                <Text>
+              <Column gap="sm" align="start">
+                <Title as="h2" align="start">
+                  운영 길드
+                </Title>
+                <Text as="p" block align="start">
                   점검 공지와 운영 문의는 운영 길드에서 확인할 수 있습니다.
                 </Text>
               </Column>
