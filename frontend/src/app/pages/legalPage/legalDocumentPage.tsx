@@ -53,7 +53,7 @@ export function LegalDocumentPage({
             <section>
               <h2 className={styles.sectionTitle}>공식 채널</h2>
               <p className={styles.bodyText}>
-                서비스 공지와 문의는 공식 디스코드 서버 기준으로 운영합니다.
+                서비스 공지와 문의는 공식 채널 기준으로 운영합니다.
               </p>
               <dl className={styles.contactList}>
                 <div className={styles.contactRow}>
@@ -61,7 +61,7 @@ export function LegalDocumentPage({
                   <dd className={styles.contactValue}>{SITE_OPERATOR}</dd>
                 </div>
                 <div className={styles.contactRow}>
-                  <dt className={styles.contactLabel}>디스코드</dt>
+                  <dt className={styles.contactLabel}>공식 채널</dt>
                   <dd className={styles.contactValue}>
                     <a
                       href={SITE_DISCORD_SERVER_URL}
@@ -69,7 +69,7 @@ export function LegalDocumentPage({
                       rel="noreferrer"
                       className={styles.inlineLink}
                     >
-                      공식 디스코드 서버
+                      공식 채널 바로가기
                     </a>
                   </dd>
                 </div>
