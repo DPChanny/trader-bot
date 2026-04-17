@@ -4,7 +4,6 @@ css
     component
     token
 log
-    file rotation
     analysis
 home page
     policy
@@ -28,23 +27,3 @@ web auction effect
 web effect
 web language
 code layout
-
-
-from loguru import logger
-import sys
-
-# 기본 핸들러 제거 (콘솔 중복 출력 방지)
-logger.remove()
-
-# 1. 콘솔 출력 (개발용: 색상 지원)
-logger.add(sys.stdout, colorize=True, format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>")
-
-# 2. 파일 로깅 (안정성 핵심: 로테이션 및 압축)
-logger.add(
-    "logs/trader_{time:YYYY-MM-DD}.log", 
-    rotation="10 MB",    # 10MB마다 새 파일 생성
-    retention="10 days", # 10일치 로그만 보관 (디스크 관리)
-    compression="zip",   # 지난 로그는 압축해서 용량 절약
-    level="INFO",        # 운영 단계에선 INFO 이상만 기록
-    enqueue=True         # 별도 쓰레드에서 비동기로 처리 (FastAPI 성능 저하 방지)
-)

@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 
 from discord import Intents
 from discord.ext import commands
@@ -14,7 +15,10 @@ from .routers import (
 )
 
 
-setup_logging()
+setup_logging(
+    log_dir=Path(__file__).resolve().parent / "logs",
+    log_name="{time:YYMMDDHHMMSS}.log",
+)
 
 
 async def main() -> None:

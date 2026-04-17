@@ -87,23 +87,23 @@ class _LoguruHandler(logging.Handler):
         )
 
 
-def setup_logging() -> None:
+def setup_logging(log_dir: str | Path, log_name: str) -> None:
     from .env import get_log_format, get_log_level
 
     log_level = get_log_level()
     log_format = get_log_format()
     logger.remove()
 
-    log_dir = Path(__file__).resolve().parents[2] / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_path = log_dir / "trader_{time:YYYY-MM-DD}.log"
+    resolved_log_dir = Path(log_dir)
+    resolved_log_dir.mkdir(parents=True, exist_ok=True)
+    log_name = resolved_log_dir / log_name
 
     logger.add(
-        str(log_path),
+        str(log_name),
         level=log_level,
         format=_json_formatter if log_format == "json" else _text_formatter,
         rotation="10 MB",
-        retention="10 days",
+        retention="7 days",
         compression="zip",
         enqueue=True,
         backtrace=False,

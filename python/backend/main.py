@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -30,7 +31,10 @@ from .routers import (
 )
 
 
-setup_logging()
+setup_logging(
+    log_dir=Path(__file__).resolve().parent / "logs",
+    log_name="{time:YYMMDDHHMMSS}.log",
+)
 
 
 @asynccontextmanager
