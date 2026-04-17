@@ -6,8 +6,8 @@ import type { JSX } from "preact";
 const linkVariants = cva(styles.link, {
   variants: {
     variantContent: {
-      text: "",
-      div: styles.contentDiv,
+      text: styles.contentText,
+      div: "",
     },
   },
   defaultVariants: {

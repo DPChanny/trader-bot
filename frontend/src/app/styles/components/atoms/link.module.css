@@ -1,15 +1,29 @@
 .link {
   outline: none;
-}
-
-.contentDiv,
-.contentDiv:hover {
-  display: block;
   color: inherit;
   text-decoration: none;
 }
 
-.link:focus-visible {
-  outline: var(--space-0-5) solid transparent;
-  outline-offset: var(--space-0-5);
+.link:hover {
+  color: inherit;
+}
+
+.contentText {
+  color: var(--color-text-accent);
+  font-weight: var(--font-weight-medium);
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 0.08em;
+}
+
+.contentText:visited {
+  color: var(--color-text-accent);
+}
+
+.contentText:hover {
+  color: var(--color-text-accent-hover);
+  text-decoration-thickness: 0.11em;
+}
+
+.contentText:active {
+  text-decoration-thickness: 0.13em;
 }
