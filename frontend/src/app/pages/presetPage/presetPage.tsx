@@ -33,7 +33,8 @@ export function PresetPage() {
   const preset = usePreset(guildId, presetId);
   const presetMembers = usePresetMembers(guildId, presetId);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
-  const canCreateAuction = useVerifyRole(guildId, Role.ADMIN);
+  const isAdmin = useVerifyRole(guildId, Role.ADMIN);
+  const canCreateAuction = isAdmin;
   const teamSize = preset.data?.teamSize ?? 0;
   const leaderCount =
     presetMembers.data?.filter((pm) => pm.isLeader).length ?? 0;
@@ -71,7 +72,7 @@ export function PresetPage() {
                   onClick={() => setShowUpdate(true)}
                 />
               )}
-              {canCreateAuction && (
+              {isAdmin && (
                 <DeleteButton
                   variantSize="medium"
                   onClick={() => setShowDelete(true)}

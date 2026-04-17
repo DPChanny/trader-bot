@@ -174,13 +174,14 @@ export function HomePage() {
             </Card>
             <Card variantColor="red">
               <Text variantWeight="semibold">
-                편집자 역할부터 프리셋을 구성할 수 있습니다.
+                편집자 역할부터 길드 멤버 및 프리셋 멤버 정보를 수정할 수
+                있습니다.
               </Text>
             </Card>
             <Card variantColor="red">
               <Column gap="md">
                 <Text variantWeight="semibold">
-                  관리자 역할부터 프리셋을 삭제 및 경매를 생성할 수 있습니다.
+                  관리자 역할부터 프리셋을 구성할 수 있습니다.
                 </Text>
               </Column>
             </Card>
