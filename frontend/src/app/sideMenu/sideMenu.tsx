@@ -10,16 +10,55 @@ import { Bar } from "@components/atoms/bar";
 import { GuildList } from "./guild/guildList";
 import { PresetList } from "./preset/presetList";
 
-const DRAG_OPEN_THRESHOLD_PX = 100;
+const SIDE_MENU_WIDTH_REM = 20;
+const DRAG_OPEN_THRESHOLD_RATIO = 0.5;
+const SIDE_MENU_TRANSITION_MS = 250;
+
+function getSideMenuWidthPx() {
+  if (typeof window === "undefined") {
+    return SIDE_MENU_WIDTH_REM * 16;
+  }
+
+  const rootFontSize = Number.parseFloat(
+    window.getComputedStyle(document.documentElement).fontSize,
+  );
+
+  return SIDE_MENU_WIDTH_REM * (Number.isNaN(rootFontSize) ? 16 : rootFontSize);
+}
 
 export function SideMenu() {
   const guilds = useGuilds();
   const guildId = useOptionalGuildId();
   const presetId = useOptionalPresetId();
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpening, setIsOpening] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [isDraggingOpen, setIsDraggingOpen] = useState(false);
   const [dragOffsetPx, setDragOffsetPx] = useState(0);
   const dragStartXRef = useRef<number | null>(null);
+  const openFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (openFrameRef.current !== null) {
+        window.cancelAnimationFrame(openFrameRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isClosing) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setIsClosing(false);
+    }, SIDE_MENU_TRANSITION_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [isClosing]);
 
   useEffect(() => {
     if (!isDraggingOpen) {
@@ -33,8 +72,11 @@ export function SideMenu() {
       }
 
       const nextOffsetPx = Math.max(0, event.clientX - dragStartX);
+      const nextOffsetRatio = nextOffsetPx / getSideMenuWidthPx();
 
-      if (nextOffsetPx >= DRAG_OPEN_THRESHOLD_PX) {
+      if (nextOffsetRatio >= DRAG_OPEN_THRESHOLD_RATIO) {
+        setIsOpening(false);
+        setIsClosing(false);
         setIsOpen(true);
         setIsDraggingOpen(false);
         setDragOffsetPx(0);
@@ -76,7 +118,41 @@ export function SideMenu() {
     setIsDraggingOpen(true);
   };
 
-  const shouldRenderLayer = isOpen || isDraggingOpen;
+  const handleOpen = () => {
+    if (isOpen || isOpening || isDraggingOpen) {
+      return;
+    }
+
+    if (openFrameRef.current !== null) {
+      window.cancelAnimationFrame(openFrameRef.current);
+    }
+
+    setIsOpening(true);
+    setIsClosing(false);
+    setIsOpen(false);
+    setDragOffsetPx(0);
+    openFrameRef.current = window.requestAnimationFrame(() => {
+      setIsOpen(true);
+      setIsOpening(false);
+      openFrameRef.current = null;
+    });
+  };
+
+  const handleClose = () => {
+    if (openFrameRef.current !== null) {
+      window.cancelAnimationFrame(openFrameRef.current);
+      openFrameRef.current = null;
+    }
+
+    setIsOpening(false);
+    setIsOpen(false);
+    setIsClosing(true);
+    setIsDraggingOpen(false);
+    setDragOffsetPx(0);
+    dragStartXRef.current = null;
+  };
+
+  const shouldRenderLayer = isOpen || isOpening || isDraggingOpen || isClosing;
   const shellTranslateX = isOpen ? "0" : `calc(-100% + ${dragOffsetPx}px)`;
 
   return (
@@ -87,7 +163,7 @@ export function SideMenu() {
       <button
         type="button"
         className={styles.edgeTrigger}
-        onClick={() => setIsOpen(true)}
+        onClick={handleOpen}
         onPointerDown={handleOpenDragStart}
         title="사이드메뉴 펼치기"
       />
@@ -96,12 +172,13 @@ export function SideMenu() {
           <button
             type="button"
             className={styles.backdrop}
-            onClick={() => setIsOpen(false)}
+            onClick={handleClose}
             aria-label="사이드메뉴 닫기"
           />
           <div
             className={clsx(
               styles.shell,
+              isClosing && styles.shellInactive,
               isDraggingOpen && styles.shellDragging,
             )}
             style={{
@@ -113,7 +190,7 @@ export function SideMenu() {
               <Fill padding="lg" className={styles.panel}>
                 <Row justify="between" align="center">
                   <Title>사이드 메뉴</Title>
-                  <CloseButton onClick={() => setIsOpen(false)} />
+                  <CloseButton onClick={handleClose} />
                 </Row>
                 <Bar />
                 <Fill>

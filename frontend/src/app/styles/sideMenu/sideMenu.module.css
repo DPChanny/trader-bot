@@ -55,6 +55,10 @@
   transition: transform 250ms ease-out;
 }
 
+.shellInactive {
+  pointer-events: none;
+}
+
 .shellDragging {
   pointer-events: none;
   transition: none;

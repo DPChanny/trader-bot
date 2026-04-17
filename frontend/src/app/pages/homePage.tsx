@@ -26,7 +26,7 @@ export function HomePage() {
       <Scroll axis="y" center>
         <Column gap="xl" width="page" self="center">
           <PrimarySection>
-            <Title> Discord 연동으로 팀원 경매를 간편하게!</Title>
+            <Title> Discord 연동으로 팀원 경매를</Title>
             <SecondarySection>
               <Title>하나의 흐름으로</Title>
               <Card>
@@ -36,11 +36,22 @@ export function HomePage() {
               </Card>
             </SecondarySection>
             <SecondarySection>
-              <Title></Title>
-              <TertiarySection>
-                <Text></Text>
-              </TertiarySection>
+              <Title>복잡한 등록 없이</Title>
+              <Card>
+                <Text variantWeight="semibold">
+                  {`Discord 로그인만으로 바로 사용 가능! (길드 관리 권한 필요)`}
+                </Text>
+              </Card>
             </SecondarySection>
+            <SecondarySection>
+              <Title>다양한 조합으로</Title>
+              <Card>
+                <Text variantWeight="semibold">
+                  {`Discord 로그인만으로 바로 사용 가능! (길드 관리 권한 필요)`}
+                </Text>
+              </Card>
+            </SecondarySection>
+            <Title>간편하게!</Title>
             <Row>
               {myUser.data ? null : (
                 <Fill>
