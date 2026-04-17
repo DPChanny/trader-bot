@@ -10,7 +10,5 @@ from ..utils.user import sync_user
 async def on_user_update_service(
     user: User,
     session: AsyncSession,
-    event,
 ) -> None:
-    user_dto = await sync_user(user, session)
-    event |= user_dto.model_dump()
+    await sync_user(user, session)

@@ -4,7 +4,6 @@ from shared.dtos.member import Role
 from shared.dtos.preset_member import (
     AddPresetMemberDTO,
     PresetMemberDetailDTO,
-    PresetMemberDTO,
     UpdatePresetMemberDTO,
 )
 from shared.entities.preset_member import PresetMember
@@ -68,7 +67,6 @@ async def add_preset_member_service(
     preset_id: int,
     dto: AddPresetMemberDTO,
     session: AsyncSession,
-    event,
 ) -> PresetMemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -101,9 +99,7 @@ async def add_preset_member_service(
     )
     if preset_member is None:
         raise HTTPError(PresetMemberErrorCode.NotFound)
-    result = PresetMemberDetailDTO.model_validate(preset_member)
-    event |= PresetMemberDTO.model_validate(result.model_dump()).model_dump()
-    return result
+    return PresetMemberDetailDTO.model_validate(preset_member)
 
 
 @http_service
@@ -114,7 +110,6 @@ async def update_preset_member_service(
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
     session: AsyncSession,
-    event,
 ) -> PresetMemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -137,9 +132,7 @@ async def update_preset_member_service(
     preset_member = await preset_member_repo.get_detail_by_id(
         preset_member_id, preset_id, guild_id
     )
-    result = PresetMemberDetailDTO.model_validate(preset_member)
-    event |= PresetMemberDTO.model_validate(result.model_dump()).model_dump()
-    return result
+    return PresetMemberDetailDTO.model_validate(preset_member)
 
 
 @http_service
@@ -149,7 +142,6 @@ async def delete_preset_member_service(
     preset_id: int,
     preset_member_id: int,
     session: AsyncSession,
-    event,
 ) -> None:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -161,4 +153,3 @@ async def delete_preset_member_service(
         raise HTTPError(PresetMemberErrorCode.NotFound)
 
     await session.delete(preset_member)
-    event |= PresetMemberDTO.model_validate(preset_member).model_dump()

@@ -37,7 +37,6 @@ async def create_auction_service(
     preset_id: int,
     dto: CreateAuctionDTO,
     session: AsyncSession,
-    event,
 ) -> AuctionDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
@@ -60,7 +59,6 @@ async def create_auction_service(
     )
 
     result = AuctionDTO.model_validate(auction)
-    event |= result.model_dump()
 
     app_origin = get_app_origin()
     auction_url = f"{app_origin}/auction/{result.auction_id}"
@@ -114,7 +112,6 @@ async def connect_service(
     auction_id: int,
     auth_payload_dto: AuthPayloadDTO,
     session: AsyncSession,
-    event: dict,
 ) -> tuple["Auction", int | None, int | None]:
     auction = AuctionManager.get_auction(auction_id)
 
@@ -145,8 +142,6 @@ async def connect_service(
     if member_id is None and not auction.is_public:
         raise WSError(AuctionErrorCode.ForbiddenAccess)
 
-    event |= {"auction_id": auction_id, "member_id": member_id}
-
     await auction.connect(ws, member_id)
 
     return auction, member_id, team_id
@@ -157,14 +152,11 @@ async def place_bid_service(
     auction: Auction,
     member_id: int | None,
     place_bid_payload_dto: PlaceBidPayloadDTO,
-    event: dict,
 ) -> None:
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)
 
     await auction.place_bid(member_id, place_bid_payload_dto.amount)
-
-    event |= {"member_id": member_id, "amount": place_bid_payload_dto.amount}
 
 
 @ws_service
@@ -172,7 +164,5 @@ async def disconnect_service(
     auction: Auction,
     member_id: int | None,
     ws: WebSocket,
-    event: dict,
 ) -> None:
     await auction.disconnect(ws, member_id)
-    event |= {"member_id": member_id}

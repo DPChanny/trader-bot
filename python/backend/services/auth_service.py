@@ -22,7 +22,7 @@ async def login_service(redirect: str | None = None) -> RedirectResponse:
 
 @http_service
 async def callback_service(
-    code: str, state: str | None, session: AsyncSession, event
+    code: str, state: str | None, session: AsyncSession
 ) -> RedirectResponse:
     user_data = await get_me(code)
 
@@ -31,7 +31,6 @@ async def callback_service(
     avatar_hash = user_data.get("avatar")
 
     user = await upsert_user(discord_id, name, avatar_hash, session)
-    event |= user.model_dump()
 
     access_token, _ = AccessToken.create(user.discord_id)
     refresh_token, _ = RefreshToken.create(user.discord_id)
@@ -62,12 +61,11 @@ async def exchange_token_service(dto: ExchangeTokenDTO) -> JWTTokenDTO:
 
 
 @http_service
-async def refresh_token_service(dto: RefreshTokenDTO, event) -> JWTTokenDTO:
+async def refresh_token_service(dto: RefreshTokenDTO) -> JWTTokenDTO:
     try:
         rt_payload = RefreshToken.decode(dto.refresh_token)
     except TokenError as e:
         raise HTTPError(e.code) from None
     access_token, _ = AccessToken.create(rt_payload.user_id)
     new_refresh_token, _ = RefreshToken.create(rt_payload.user_id)
-    event |= {"discord_id": rt_payload.user_id}
     return JWTTokenDTO(access_token=access_token, refresh_token=new_refresh_token)

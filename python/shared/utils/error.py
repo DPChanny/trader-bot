@@ -127,7 +127,8 @@ def handle_app_error(error: AppError, fallback_function: str) -> None:
     function = error.function or fallback_function
     event = {
         "name": function,
-        "entity": {},
+        "request_dto": {},
+        "result_dto": {},
         "summary": {"error_code": error.code},
     }
     if error.code < 5000:
@@ -140,7 +141,8 @@ def handle_http_error(error: HTTPError, fallback_function: str) -> JSONResponse:
     function = error.function or fallback_function
     event = {
         "name": function,
-        "entity": {},
+        "request_dto": {},
+        "result_dto": {},
         "summary": {"error_code": error.code},
     }
     if error.status_code < 500:
@@ -161,7 +163,8 @@ def handle_ws_error(
     function = error.function or fallback_function
     event = {
         "name": function,
-        "entity": {},
+        "request_dto": {},
+        "result_dto": {},
         "summary": {"error_code": error.code},
     }
     if error.code < 5000:

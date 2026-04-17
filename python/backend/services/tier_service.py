@@ -57,7 +57,6 @@ async def add_tier_service(
     preset_id: int,
     dto: AddTierDTO,
     session: AsyncSession,
-    event,
 ) -> TierDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -69,7 +68,6 @@ async def add_tier_service(
     session.add(tier)
     await session.flush()
     result = TierDTO.model_validate(tier)
-    event |= result.model_dump()
     return result
 
 
@@ -81,7 +79,6 @@ async def update_tier_service(
     tier_id: int,
     dto: UpdateTierDTO,
     session: AsyncSession,
-    event,
 ) -> TierDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -94,7 +91,6 @@ async def update_tier_service(
         setattr(tier, key, getattr(dto, key))
 
     result = TierDTO.model_validate(tier)
-    event |= result.model_dump()
     return result
 
 
@@ -105,7 +101,6 @@ async def delete_tier_service(
     preset_id: int,
     tier_id: int,
     session: AsyncSession,
-    event,
 ) -> None:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -115,4 +110,3 @@ async def delete_tier_service(
         raise HTTPError(TierErrorCode.NotFound)
 
     await session.delete(tier)
-    event |= TierDTO.model_validate(tier).model_dump()

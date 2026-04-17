@@ -20,25 +20,17 @@ def _normalize_event(event) -> dict | None:
         event = asdict(event)
 
     if isinstance(event, dict):
-        if all(key in event for key in ("name", "entity", "summary")):
-            return event
-
-        if all(key in event for key in ("name", "dto", "summary")):
-            return {
-                "name": event["name"],
-                "entity": event["dto"],
-                "summary": event["summary"],
-            }
-
         return {
-            "name": None,
-            "entity": event,
-            "summary": {},
+            "name": event.get("name"),
+            "request_dto": event.get("request_dto", {}),
+            "result_dto": event.get("result_dto", {}),
+            "summary": event.get("summary", {}),
         }
 
     return {
         "name": None,
-        "entity": {"value": str(event)},
+        "request_dto": {},
+        "result_dto": {"value": str(event)},
         "summary": {},
     }
 

@@ -57,7 +57,6 @@ async def add_position_service(
     preset_id: int,
     dto: AddPositionDTO,
     session: AsyncSession,
-    event,
 ) -> PositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -72,9 +71,7 @@ async def add_position_service(
     )
     session.add(position)
     await session.flush()
-    result = PositionDTO.model_validate(position)
-    event |= result.model_dump()
-    return result
+    return PositionDTO.model_validate(position)
 
 
 @http_service
@@ -85,7 +82,6 @@ async def update_position_service(
     position_id: int,
     dto: UpdatePositionDTO,
     session: AsyncSession,
-    event,
 ) -> PositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -97,9 +93,7 @@ async def update_position_service(
     for key in dto.model_fields_set:
         setattr(position, key, getattr(dto, key))
 
-    result = PositionDTO.model_validate(position)
-    event |= result.model_dump()
-    return result
+    return PositionDTO.model_validate(position)
 
 
 @http_service
@@ -109,7 +103,6 @@ async def delete_position_service(
     preset_id: int,
     position_id: int,
     session: AsyncSession,
-    event,
 ) -> None:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -119,4 +112,3 @@ async def delete_position_service(
         raise HTTPError(PositionErrorCode.NotFound)
 
     await session.delete(position)
-    event |= PositionDTO.model_validate(position).model_dump()

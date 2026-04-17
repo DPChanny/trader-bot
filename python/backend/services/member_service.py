@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.member import MemberDetailDTO, MemberDTO, Role
+from shared.dtos.member import MemberDetailDTO, Role
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import HTTPError, MemberErrorCode
 from shared.utils.service import http_service
@@ -48,7 +48,6 @@ async def update_member_service(
     member_id: int,
     dto,
     session: AsyncSession,
-    event,
 ) -> MemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
     member_repo = MemberRepository(session)
@@ -67,6 +66,4 @@ async def update_member_service(
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
-    result = MemberDetailDTO.model_validate(member)
-    event |= MemberDTO.model_validate(result.model_dump()).model_dump()
-    return result
+    return MemberDetailDTO.model_validate(member)
