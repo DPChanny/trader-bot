@@ -10,7 +10,7 @@ from ..utils.guild import delete_guild, sync_guild
 @bot_service
 async def on_ready_service(
     bot: commands.Bot, session: AsyncSession, event: Event
-) -> dict[str, int]:
+) -> None:
     synced_guild_ids: set[int] = set()
 
     for guild in bot.guilds:
@@ -26,8 +26,7 @@ async def on_ready_service(
         await delete_guild(guild_entity.discord_id, session)
         removed_guild_count += 1
 
-    if event.detail is None:
-        event.detail = {}
-    event.detail["removed_guild_count"] = removed_guild_count
-    response = {"synced_guild_count": len(synced_guild_ids)}
-    return response
+    event.detail = {
+        "synced_guild_count": len(synced_guild_ids),
+        "removed_guild_count": removed_guild_count,
+    }

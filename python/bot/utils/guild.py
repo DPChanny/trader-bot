@@ -7,6 +7,7 @@ from shared.entities.guild import Guild
 from shared.repositories.guild_repository import GuildRepository
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import AppError, GuildErrorCode
+from shared.utils.logging import Event
 
 from .member import (
     delete_member,
@@ -43,7 +44,7 @@ async def delete_guild(guild_id: int, session: AsyncSession) -> GuildDTO:
     return dto
 
 
-async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict:
+async def sync_guild(guild: DiscordGuild, session: AsyncSession, event: Event) -> dict:
     guild_id = guild.id
     await upsert_guild(guild, session)
 
@@ -69,7 +70,7 @@ async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict:
         await delete_member(guild.id, member_entity.user_id, session)
         removed_member_count += 1
 
-    return {
+    event.detail = {
         "synced_member_count": len(synced_member_ids),
         "removed_member_count": removed_member_count,
     }

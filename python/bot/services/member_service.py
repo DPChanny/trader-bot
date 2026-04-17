@@ -8,20 +8,22 @@ from ..utils.member import delete_member, sync_member, sync_member_admin_role
 
 
 @bot_service
-async def on_member_join_service(member: Member, session: AsyncSession) -> MemberDTO:
-    return await sync_member(member, session)
+async def on_member_join_service(
+    member: Member, session: AsyncSession, event: Event
+) -> None:
+    event.response = await sync_member(member, session)
 
 
 @bot_service
 async def on_member_update_service(
-    before: Member, after: Member, session: AsyncSession
-) -> MemberDTO:
+    before: Member, after: Member, session: AsyncSession, event: Event
+) -> None:
     member_dto = await sync_member(after, session)
     if before.guild_permissions.administrator != after.guild_permissions.administrator:
         member_dto = await sync_member_admin_role(
             after.guild.id, after.id, after.guild_permissions.administrator, session
         )
-    return member_dto
+    event.response = member_dto
 
 
 @bot_service
