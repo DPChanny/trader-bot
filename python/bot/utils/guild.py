@@ -10,8 +10,8 @@ from shared.utils.error import AppError, GuildErrorCode
 
 from .member import (
     delete_member,
-    sync_member_admin_role,
     sync_member,
+    sync_member_admin_role,
     update_member_role,
 )
 

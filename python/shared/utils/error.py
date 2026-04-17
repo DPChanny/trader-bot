@@ -6,8 +6,6 @@
 50xx 500 Unexpected
 """
 
-import contextlib
-from collections.abc import Awaitable, Callable
 from enum import IntEnum
 
 from fastapi.responses import JSONResponse
@@ -156,10 +154,9 @@ def handle_http_error(error: HTTPError, fallback_function: str) -> JSONResponse:
     )
 
 
-async def handle_ws_error(
+def handle_ws_error(
     error: WSError,
     fallback_function: str,
-    send_error_message: Callable[[int], Awaitable[None]],
 ) -> None:
     function = error.function or fallback_function
     event = {
@@ -171,6 +168,3 @@ async def handle_ws_error(
         logger.bind(event=event).warning("")
     else:
         logger.opt(exception=error.__cause__).bind(event=event).error("")
-
-    with contextlib.suppress(Exception):
-        await send_error_message(error.code)

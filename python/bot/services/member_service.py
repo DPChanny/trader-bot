@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.utils.service import bot_service
 
-from ..utils.member import delete_member, sync_member_admin_role, sync_member
+from ..utils.member import delete_member, sync_member, sync_member_admin_role
 
 
 @bot_service

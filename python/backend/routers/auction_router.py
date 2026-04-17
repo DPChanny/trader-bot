@@ -53,15 +53,6 @@ async def create_auction_route(
     return await create_auction_service(guild_id, user_id, preset_id, dto, session)
 
 
-async def _send_error_message(ws: WebSocket, code: int) -> None:
-    await ws.send_json(
-        AuctionMessageEnvelopeDTO(
-            type=AuctionMessageType.ERROR,
-            payload=ErrorPayloadDTO(code=code).model_dump(),
-        ).model_dump()
-    )
-
-
 def _get_message_envelope_dto(message: str) -> AuctionMessageEnvelopeDTO:
     if len(message) > 1024:
         raise WSError(ValidationErrorCode.Invalid)
@@ -83,7 +74,7 @@ def _get_message_payload_dto[TPayloadDTO: BaseModel](
 
 
 @auction_ws_router.websocket("/{auction_id}")
-@ws_router(_send_error_message)
+@ws_router
 async def auction_ws(
     ws: WebSocket,
     auction_id: int,
@@ -132,10 +123,12 @@ async def auction_ws(
                 )
                 await place_bid_service(auction, member_id, place_bid_payload_dto)
             except WSError as e:
-                await handle_ws_error(
-                    e,
-                    auction_ws.__name__,
-                    lambda code: _send_error_message(ws, code),
+                handle_ws_error(e, auction_ws.__name__)
+                await ws.send_json(
+                    AuctionMessageEnvelopeDTO(
+                        type=AuctionMessageType.ERROR,
+                        payload=ErrorPayloadDTO(code=e.code).model_dump(),
+                    ).model_dump()
                 )
                 continue
 
