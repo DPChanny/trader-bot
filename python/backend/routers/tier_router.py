@@ -1,11 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.tier import (
-    AddTierDTO,
-    TierDTO,
-    UpdateTierDTO,
-)
+from shared.dtos.tier import AddTierDTO, TierDTO, UpdateTierDTO
 from shared.utils.database import get_session
 
 from ..services.tier_service import (

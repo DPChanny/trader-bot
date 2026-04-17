@@ -38,9 +38,7 @@ _engine = create_async_engine(
 )
 
 _sessionmaker = async_sessionmaker(
-    bind=_engine,
-    autoflush=False,
-    expire_on_commit=False,
+    bind=_engine, autoflush=False, expire_on_commit=False
 )
 
 

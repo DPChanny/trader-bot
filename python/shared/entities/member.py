@@ -20,12 +20,10 @@ class Member(BaseEntity):
 
     member_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     guild_id: Mapped[int] = mapped_column(
-        BigInteger,
-        ForeignKey("guild.discord_id", ondelete="CASCADE"),
+        BigInteger, ForeignKey("guild.discord_id", ondelete="CASCADE")
     )
     user_id: Mapped[int] = mapped_column(
-        BigInteger,
-        ForeignKey("user.discord_id", ondelete="CASCADE"),
+        BigInteger, ForeignKey("user.discord_id", ondelete="CASCADE")
     )
     name: Mapped[str | None] = mapped_column(String(256))
     alias: Mapped[str | None] = mapped_column(String(256))

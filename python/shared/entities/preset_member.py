@@ -19,13 +19,13 @@ class PresetMember(BaseEntity):
 
     preset_member_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     preset_id: Mapped[int] = mapped_column(
-        ForeignKey("preset.preset_id", ondelete="CASCADE"),
+        ForeignKey("preset.preset_id", ondelete="CASCADE")
     )
     member_id: Mapped[int] = mapped_column(
-        ForeignKey("member.member_id", ondelete="CASCADE"),
+        ForeignKey("member.member_id", ondelete="CASCADE")
     )
     tier_id: Mapped[int | None] = mapped_column(
-        ForeignKey("tier.tier_id", ondelete="SET NULL"),
+        ForeignKey("tier.tier_id", ondelete="SET NULL")
     )
     is_leader: Mapped[bool] = mapped_column(Boolean)
     info_url: Mapped[str | None] = mapped_column(String(2048))
@@ -33,6 +33,5 @@ class PresetMember(BaseEntity):
     member: Mapped[Member] = relationship("Member", viewonly=True)
     tier: Mapped[Tier | None] = relationship("Tier", viewonly=True)
     preset_member_positions: Mapped[list[PresetMemberPosition]] = relationship(
-        "PresetMemberPosition",
-        viewonly=True,
+        "PresetMemberPosition", viewonly=True
     )

@@ -22,7 +22,7 @@ from shared.utils.error import (
     TokenError,
     WSError,
 )
-from shared.utils.service import Event, http_service, ws_service
+from shared.utils.service import http_service, ws_service
 
 from ..auction import Auction, AuctionManager
 from ..utils.discord import send_message
@@ -37,7 +37,6 @@ async def create_auction_service(
     preset_id: int,
     dto: CreateAuctionDTO,
     session: AsyncSession,
-    event: Event,
 ) -> AuctionDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
@@ -55,8 +54,7 @@ async def create_auction_service(
 
     preset_snapshot = PresetDetailDTO.model_validate(preset)
     auction = AuctionManager.create_auction(
-        preset_snapshot=preset_snapshot,
-        is_public=dto.is_public,
+        preset_snapshot=preset_snapshot, is_public=dto.is_public
     )
 
     app_origin = get_app_origin()
@@ -70,26 +68,10 @@ async def create_auction_service(
                 {
                     "title": "Trader 경매",
                     "fields": [
-                        {
-                            "name": "길드",
-                            "value": preset.guild.name,
-                            "inline": True,
-                        },
-                        {
-                            "name": "프리셋",
-                            "value": preset.name,
-                            "inline": True,
-                        },
-                        {
-                            "name": "역할",
-                            "value": role,
-                            "inline": True,
-                        },
-                        {
-                            "name": "참가 링크",
-                            "value": auction_url,
-                            "inline": False,
-                        },
+                        {"name": "길드", "value": preset.guild.name, "inline": True},
+                        {"name": "프리셋", "value": preset.name, "inline": True},
+                        {"name": "역할", "value": role, "inline": True},
+                        {"name": "참가 링크", "value": auction_url, "inline": False},
                     ],
                 }
             ]
@@ -98,21 +80,14 @@ async def create_auction_service(
             pass
 
     if dto.send_invite:
-        await asyncio.gather(
-            *[_send_invite(pm) for pm in preset_members],
-        )
+        await asyncio.gather(*[_send_invite(pm) for pm in preset_members])
 
-    response = AuctionDTO.model_validate(auction)
-    event.response = response
-    return response
+    return AuctionDTO.model_validate(auction)
 
 
 @ws_service
 async def connect_service(
-    ws: WebSocket,
-    auction_id: int,
-    dto: AuthPayloadDTO,
-    session: AsyncSession,
+    ws: WebSocket, auction_id: int, dto: AuthPayloadDTO, session: AsyncSession
 ) -> tuple["Auction", int | None, int | None]:
     auction = AuctionManager.get_auction(auction_id)
 
@@ -150,9 +125,7 @@ async def connect_service(
 
 @ws_service
 async def place_bid_service(
-    auction: Auction,
-    member_id: int | None,
-    dto: PlaceBidPayloadDTO,
+    auction: Auction, member_id: int | None, dto: PlaceBidPayloadDTO
 ) -> None:
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)
@@ -162,8 +135,6 @@ async def place_bid_service(
 
 @ws_service
 async def disconnect_service(
-    auction: Auction,
-    member_id: int | None,
-    ws: WebSocket,
+    auction: Auction, member_id: int | None, ws: WebSocket
 ) -> None:
     await auction.disconnect(ws, member_id)

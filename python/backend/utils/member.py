@@ -6,10 +6,7 @@ from shared.utils.error import HTTPError, MemberErrorCode
 
 
 async def verify_role(
-    guild_id: int,
-    user_id: int,
-    db: AsyncSession,
-    min_role: Role = Role.VIEWER,
+    guild_id: int, user_id: int, db: AsyncSession, min_role: Role = Role.VIEWER
 ) -> Role:
     member_repo = MemberRepository(db)
     member = await member_repo.get_by_user_id(user_id, guild_id)

@@ -53,8 +53,6 @@ def _build_event(
 
 def http_service(func):
     sig = inspect.signature(func)
-    if "event" not in sig.parameters:
-        raise TypeError(f"'{func.__name__}' must define an 'event: Event' parameter")
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
@@ -84,8 +82,6 @@ def http_service(func):
 
 def bot_service(func):
     sig = inspect.signature(func)
-    if "event" not in sig.parameters:
-        raise TypeError(f"'{func.__name__}' must define an 'event: Event' parameter")
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):

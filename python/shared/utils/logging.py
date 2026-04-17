@@ -15,11 +15,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 
-REDACT_KEYS = {
-    "access_token",
-    "refresh_token",
-    "exchange_token",
-}
+REDACT_KEYS = {"access_token", "refresh_token", "exchange_token"}
 
 
 def redact(value: Any) -> Any:

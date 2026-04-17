@@ -30,11 +30,7 @@ class JWTToken:
     @classmethod
     def create(cls, user_id: int) -> tuple[str, "JWTToken.Payload"]:
         exp = datetime.now(UTC) + cls._exp_delta
-        payload = cls.Payload(
-            user_id=user_id,
-            exp=int(exp.timestamp()),
-            type=cls._type,
-        )
+        payload = cls.Payload(user_id=user_id, exp=int(exp.timestamp()), type=cls._type)
         token = jwt.encode(
             dataclasses.asdict(payload), get_jwt_secret(), algorithm=get_jwt_algorithm()
         )
@@ -44,9 +40,7 @@ class JWTToken:
     def decode(cls, jwt_token: str) -> "JWTToken.Payload":
         try:
             data = jwt.decode(
-                jwt_token,
-                get_jwt_secret(),
-                algorithms=[get_jwt_algorithm()],
+                jwt_token, get_jwt_secret(), algorithms=[get_jwt_algorithm()]
             )
             if data.get("type") != cls._type:
                 raise TokenError(TokenErrorCode.IncorrectJWTToken)

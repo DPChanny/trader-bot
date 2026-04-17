@@ -14,10 +14,7 @@ class PositionRepository(BaseRepository):
         result = await self.session.execute(
             select(Position)
             .join(Preset)
-            .where(
-                Position.preset_id == preset_id,
-                Preset.guild_id == guild_id,
-            )
+            .where(Position.preset_id == preset_id, Preset.guild_id == guild_id)
         )
         return list(result.scalars().all())
 

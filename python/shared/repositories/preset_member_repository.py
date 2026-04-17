@@ -17,19 +17,14 @@ class PresetMemberRepository(BaseRepository):
         result = await self.session.execute(
             select(PresetMember)
             .options(
-                joinedload(PresetMember.member).options(
-                    joinedload(Member.user),
-                ),
+                joinedload(PresetMember.member).options(joinedload(Member.user)),
                 joinedload(PresetMember.tier),
                 selectinload(PresetMember.preset_member_positions).joinedload(
                     PresetMemberPosition.position
                 ),
             )
             .join(Preset)
-            .where(
-                PresetMember.preset_id == preset_id,
-                Preset.guild_id == guild_id,
-            )
+            .where(PresetMember.preset_id == preset_id, Preset.guild_id == guild_id)
         )
         return list(result.unique().scalars().all())
 
@@ -48,17 +43,12 @@ class PresetMemberRepository(BaseRepository):
         return result.scalar_one_or_none()
 
     async def get_detail_by_id(
-        self,
-        preset_member_id: int,
-        preset_id: int,
-        guild_id: int,
+        self, preset_member_id: int, preset_id: int, guild_id: int
     ) -> PresetMember | None:
         result = await self.session.execute(
             select(PresetMember)
             .options(
-                joinedload(PresetMember.member).options(
-                    joinedload(Member.user),
-                ),
+                joinedload(PresetMember.member).options(joinedload(Member.user)),
                 joinedload(PresetMember.tier),
                 selectinload(PresetMember.preset_member_positions).joinedload(
                     PresetMemberPosition.position

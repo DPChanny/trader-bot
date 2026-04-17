@@ -43,8 +43,7 @@ async def _upsert_preset(session, guild_id: int) -> Preset:
     preset = (
         await session.execute(
             select(Preset).where(
-                Preset.guild_id == guild_id,
-                Preset.name == TEST_PRESET_NAME,
+                Preset.guild_id == guild_id, Preset.name == TEST_PRESET_NAME
             )
         )
     ).scalar_one_or_none()
@@ -122,12 +121,7 @@ async def main() -> None:
 
                 await upsert_user(user_id, user_name, None, session)
                 await upsert_member(
-                    guild.discord_id,
-                    user_id,
-                    session,
-                    user_name,
-                    None,
-                    role,
+                    guild.discord_id, user_id, session, user_name, None, role
                 )
 
             preset = await _upsert_preset(session, guild.discord_id)

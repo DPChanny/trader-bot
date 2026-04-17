@@ -10,20 +10,13 @@ from ..utils.member import update_member_role
 
 
 @bot_service
-async def on_guild_join_service(
-    guild: Guild, session: AsyncSession, event: Event
-) -> dict:
-    response = await sync_guild(guild, session)
-    event.response = response
-    return response
+async def on_guild_join_service(guild: Guild, session: AsyncSession) -> dict:
+    return await sync_guild(guild, session)
 
 
 @bot_service
 async def on_guild_update_service(
-    before: Guild,
-    after: Guild,
-    session: AsyncSession,
-    event: Event,
+    before: Guild, after: Guild, session: AsyncSession, event: Event
 ) -> GuildDTO:
     guild_id = after.id
     guild_dto = await upsert_guild(after, session)
@@ -36,14 +29,9 @@ async def on_guild_update_service(
         )
         event.detail["before_owner_member"] = before_owner_member.model_dump()
         event.detail["after_owner_member"] = after_owner_member.model_dump()
-    event.response = guild_dto
     return guild_dto
 
 
 @bot_service
-async def on_guild_remove_service(
-    guild: Guild, session: AsyncSession, event: Event
-) -> GuildDTO:
-    response = await delete_guild(guild.id, session)
-    event.response = response
-    return response
+async def on_guild_remove_service(guild: Guild, session: AsyncSession) -> GuildDTO:
+    return await delete_guild(guild.id, session)

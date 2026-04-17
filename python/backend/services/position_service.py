@@ -1,27 +1,19 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import Role
-from shared.dtos.position import (
-    AddPositionDTO,
-    PositionDTO,
-    UpdatePositionDTO,
-)
+from shared.dtos.position import AddPositionDTO, PositionDTO, UpdatePositionDTO
 from shared.entities.position import Position
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PositionErrorCode, PresetErrorCode
-from shared.utils.service import Event, http_service
+from shared.utils.service import http_service
 
 from ..utils.member import verify_role
 
 
 @http_service
 async def get_positions_service(
-    guild_id: int,
-    user_id: int,
-    preset_id: int,
-    session: AsyncSession,
-    event: Event,
+    guild_id: int, user_id: int, preset_id: int, session: AsyncSession
 ) -> list[PositionDTO]:
     await verify_role(guild_id, user_id, session, Role.VIEWER)
 
@@ -31,19 +23,12 @@ async def get_positions_service(
 
     position_repo = PositionRepository(session)
     positions = await position_repo.get_all_by_preset_id(preset_id, guild_id)
-    response = [PositionDTO.model_validate(p) for p in positions]
-    event.response = response
-    return response
+    return [PositionDTO.model_validate(p) for p in positions]
 
 
 @http_service
 async def get_position_service(
-    guild_id: int,
-    user_id: int,
-    preset_id: int,
-    position_id: int,
-    session: AsyncSession,
-    event: Event,
+    guild_id: int, user_id: int, preset_id: int, position_id: int, session: AsyncSession
 ) -> PositionDTO:
     await verify_role(guild_id, user_id, session, Role.VIEWER)
 
@@ -51,9 +36,7 @@ async def get_position_service(
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
         raise HTTPError(PositionErrorCode.NotFound)
-    response = PositionDTO.model_validate(position)
-    event.response = response
-    return response
+    return PositionDTO.model_validate(position)
 
 
 @http_service
@@ -63,7 +46,6 @@ async def add_position_service(
     preset_id: int,
     dto: AddPositionDTO,
     session: AsyncSession,
-    event: Event,
 ) -> PositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -71,16 +53,10 @@ async def add_position_service(
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
         raise HTTPError(PresetErrorCode.NotFound)
 
-    position = Position(
-        preset_id=preset_id,
-        name=dto.name,
-        icon_url=dto.icon_url,
-    )
+    position = Position(preset_id=preset_id, name=dto.name, icon_url=dto.icon_url)
     session.add(position)
     await session.flush()
-    response = PositionDTO.model_validate(position)
-    event.response = response
-    return response
+    return PositionDTO.model_validate(position)
 
 
 @http_service
@@ -91,7 +67,6 @@ async def update_position_service(
     position_id: int,
     dto: UpdatePositionDTO,
     session: AsyncSession,
-    event: Event,
 ) -> PositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -103,19 +78,12 @@ async def update_position_service(
     for key in dto.model_fields_set:
         setattr(position, key, getattr(dto, key))
 
-    response = PositionDTO.model_validate(position)
-    event.response = response
-    return response
+    return PositionDTO.model_validate(position)
 
 
 @http_service
 async def delete_position_service(
-    guild_id: int,
-    user_id: int,
-    preset_id: int,
-    position_id: int,
-    session: AsyncSession,
-    event: Event,
+    guild_id: int, user_id: int, preset_id: int, position_id: int, session: AsyncSession
 ) -> PositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -126,5 +94,4 @@ async def delete_position_service(
 
     response = PositionDTO.model_validate(position)
     await session.delete(position)
-    event.response = response
     return response

@@ -6,10 +6,7 @@ from ..repositories.user_repository import UserRepository
 
 
 async def upsert_user(
-    discord_id: int,
-    name: str,
-    avatar_hash: str | None,
-    session: AsyncSession,
+    discord_id: int, name: str, avatar_hash: str | None, session: AsyncSession
 ) -> UserDTO:
     repo = UserRepository(session)
     entity = await repo.get_by_id(discord_id)

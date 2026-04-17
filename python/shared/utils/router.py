@@ -20,9 +20,7 @@ P = ParamSpec("P")
 T = TypeVar("T")
 
 
-def router[**P, T](
-    func: Callable[P, Awaitable[T]],
-) -> Callable[P, Awaitable[T]]:
+def router[**P, T](func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
     @functools.wraps(func)
     async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
         has_session = False

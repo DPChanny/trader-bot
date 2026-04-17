@@ -12,10 +12,7 @@ class TierRepository(BaseRepository):
         result = await self.session.execute(
             select(Tier)
             .join(Preset)
-            .where(
-                Tier.preset_id == preset_id,
-                Preset.guild_id == guild_id,
-            )
+            .where(Tier.preset_id == preset_id, Preset.guild_id == guild_id)
         )
         return list(result.scalars().all())
 

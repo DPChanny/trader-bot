@@ -9,9 +9,7 @@ from .member_service import (
     on_member_update_service,
 )
 from .on_ready_service import on_ready_service
-from .user_service import (
-    on_user_update_service,
-)
+from .user_service import on_user_update_service
 
 
 __all__ = [

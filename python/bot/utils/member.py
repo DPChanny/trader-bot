@@ -9,10 +9,7 @@ from shared.utils.error import AppError, MemberErrorCode
 from .user import sync_user
 
 
-async def upsert_member(
-    member: DiscordMember,
-    session: AsyncSession,
-) -> MemberDTO:
+async def upsert_member(member: DiscordMember, session: AsyncSession) -> MemberDTO:
     guild_id = member.guild.id
     user_id = member.id
     repo = MemberRepository(session)
@@ -35,10 +32,7 @@ async def upsert_member(
 
 
 async def update_member_role(
-    guild_id: int,
-    user_id: int,
-    role: Role,
-    session: AsyncSession,
+    guild_id: int, user_id: int, role: Role, session: AsyncSession
 ) -> MemberDTO:
     repo = MemberRepository(session)
     entity = await repo.get_by_user_id(user_id, guild_id)
@@ -51,10 +45,7 @@ async def update_member_role(
 
 
 async def sync_member_admin_role(
-    guild_id: int,
-    user_id: int,
-    is_admin: bool,
-    session: AsyncSession,
+    guild_id: int, user_id: int, is_admin: bool, session: AsyncSession
 ) -> MemberDTO | None:
     repo = MemberRepository(session)
     entity = await repo.get_by_user_id(user_id, guild_id)
@@ -78,9 +69,7 @@ async def sync_member(member: DiscordMember, session: AsyncSession) -> MemberDTO
 
 
 async def delete_member(
-    guild_id: int,
-    user_id: int,
-    session: AsyncSession,
+    guild_id: int, user_id: int, session: AsyncSession
 ) -> MemberDTO:
     repo = MemberRepository(session)
     entity = await repo.get_by_user_id(user_id, guild_id)

@@ -24,12 +24,7 @@ async def main() -> None:
     try:
         async for session in get_session():
             await upsert_member(
-                args.guild_id,
-                args.user_id,
-                session,
-                args.name,
-                args.avatar_hash,
-                role,
+                args.guild_id, args.user_id, session, args.name, args.avatar_hash, role
             )
     except Exception:
         raise

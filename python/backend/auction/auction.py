@@ -48,10 +48,7 @@ class Auction:
     _exp_delta = timedelta(minutes=_AUCTION_EXPIRATION_MINUTES)
 
     def __init__(
-        self,
-        auction_id: int,
-        preset_snapshot: PresetDetailDTO,
-        is_public: bool,
+        self, auction_id: int, preset_snapshot: PresetDetailDTO, is_public: bool
     ):
         self.auction_id = auction_id
         self.preset_snapshot = preset_snapshot
@@ -169,9 +166,7 @@ class Auction:
         return self._leader_member_ids.issubset(self._member_id_to_ws_sets.keys())
 
     async def _broadcast(
-        self,
-        message_type: AuctionMessageType,
-        message_payload_dto: BaseDTO,
+        self, message_type: AuctionMessageType, message_payload_dto: BaseDTO
     ) -> None:
         ws_list: list[WebSocket] = []
         async with self._broadcast_lock:
@@ -181,8 +176,7 @@ class Auction:
 
         disconnected_ws_set: set[WebSocket] = set()
         message_envelope = AuctionMessageEnvelopeDTO(
-            type=message_type,
-            payload=message_payload_dto,
+            type=message_type, payload=message_payload_dto
         ).model_dump(mode="json")
         for ws in ws_list:
             try:
@@ -232,8 +226,7 @@ class Auction:
             self.status = new_status
 
         await self._broadcast(
-            AuctionMessageType.STATUS,
-            StatusPayloadDTO(status=self.status),
+            AuctionMessageType.STATUS, StatusPayloadDTO(status=self.status)
         )
 
         if next_member:
@@ -280,9 +273,7 @@ class Auction:
                 message = (
                     AuctionMessageType.MEMBER_SOLD,
                     MemberSoldPayloadDTO(
-                        teams=self.teams,
-                        auction_queue=[],
-                        unsold_queue=[],
+                        teams=self.teams, auction_queue=[], unsold_queue=[]
                     ),
                 )
                 completed = True
@@ -321,8 +312,7 @@ class Auction:
         try:
             while self.timer > 0:
                 await self._broadcast(
-                    AuctionMessageType.TIMER,
-                    TimerPayloadDTO(timer=self.timer),
+                    AuctionMessageType.TIMER, TimerPayloadDTO(timer=self.timer)
                 )
 
                 await asyncio.sleep(1)
@@ -385,10 +375,7 @@ class Auction:
             self.current_bid = Bid(amount=amount, leader_id=leader_id)
             message = (
                 AuctionMessageType.BID_PLACED,
-                BidPlacedPayloadDTO(
-                    leader_id=leader_id,
-                    amount=amount,
-                ),
+                BidPlacedPayloadDTO(leader_id=leader_id, amount=amount),
             )
 
         await self._broadcast(*message)

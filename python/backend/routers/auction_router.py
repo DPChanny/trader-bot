@@ -75,11 +75,7 @@ def _get_message_payload_dto[TPayloadDTO: BaseModel](
 
 @auction_ws_router.websocket("/{auction_id}")
 @ws_router
-async def auction_ws(
-    ws: WebSocket,
-    auction_id: int,
-    session: AsyncSession,
-):
+async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
     member_id: int | None = None
     auction = None
     try:
@@ -89,9 +85,7 @@ async def auction_ws(
         if auth_envelope.type != AuctionMessageType.AUTH:
             raise WSError(AuthErrorCode.Unauthorized)
         auth_payload_dto = _get_message_payload_dto(
-            auth_envelope,
-            AuthPayloadDTO,
-            AuthErrorCode.Unauthorized,
+            auth_envelope, AuthPayloadDTO, AuthErrorCode.Unauthorized
         )
         auction, member_id, team_id = await connect_service(
             ws, auction_id, auth_payload_dto, session
@@ -99,14 +93,11 @@ async def auction_ws(
 
         auction_detail_dto = AuctionDetailDTO.model_validate(auction)
         init_payload_dto = InitPayloadDTO(
-            auction=auction_detail_dto,
-            team_id=team_id,
-            member_id=member_id,
+            auction=auction_detail_dto, team_id=team_id, member_id=member_id
         )
         await ws.send_json(
             AuctionMessageEnvelopeDTO(
-                type=AuctionMessageType.INIT,
-                payload=init_payload_dto,
+                type=AuctionMessageType.INIT, payload=init_payload_dto
             ).model_dump(mode="json")
         )
 
@@ -117,9 +108,7 @@ async def auction_ws(
                     raise WSError(ValidationErrorCode.Invalid)
 
                 place_bid_payload_dto = _get_message_payload_dto(
-                    place_bid_envelope,
-                    PlaceBidPayloadDTO,
-                    ValidationErrorCode.Invalid,
+                    place_bid_envelope, PlaceBidPayloadDTO, ValidationErrorCode.Invalid
                 )
                 await place_bid_service(auction, member_id, place_bid_payload_dto)
             except WSError as e:

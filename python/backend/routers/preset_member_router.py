@@ -19,8 +19,7 @@ from ..utils.token import verify_access_token
 
 
 preset_member_router = APIRouter(
-    prefix="/guild/{guild_id}/preset/{preset_id}/member",
-    tags=["preset_member"],
+    prefix="/guild/{guild_id}/preset/{preset_id}/member", tags=["preset_member"]
 )
 
 

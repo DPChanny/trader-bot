@@ -24,16 +24,12 @@ class AuctionManager:
 
     @classmethod
     def create_auction(
-        cls,
-        preset_snapshot: PresetDetailDTO,
-        is_public: bool,
+        cls, preset_snapshot: PresetDetailDTO, is_public: bool
     ) -> Auction:
         cls._purge()
         auction_id = uuid.uuid4().int
         auction = Auction(
-            auction_id=auction_id,
-            preset_snapshot=preset_snapshot,
-            is_public=is_public,
+            auction_id=auction_id, preset_snapshot=preset_snapshot, is_public=is_public
         )
         cls._auctions[auction_id] = auction
         return auction

@@ -49,8 +49,7 @@ async def add_preset_member_position_service(
 
     pmp_repo = PresetMemberPositionRepository(session)
     preset_member_position = PresetMemberPosition(
-        preset_member_id=preset_member_id,
-        position_id=dto.position_id,
+        preset_member_id=preset_member_id, position_id=dto.position_id
     )
     session.add(preset_member_position)
     try:
@@ -80,7 +79,6 @@ async def delete_preset_member_position_service(
     preset_member_id: int,
     preset_member_position_id: int,
     session: AsyncSession,
-    event: Event,
 ) -> PresetMemberPositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -93,5 +91,4 @@ async def delete_preset_member_position_service(
 
     response = PresetMemberPositionDTO.model_validate(preset_member_position)
     await session.delete(preset_member_position)
-    event.response = response
     return response

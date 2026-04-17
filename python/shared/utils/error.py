@@ -114,13 +114,9 @@ class AppError(Exception):
 class HTTPError(AppError):
     def __init__(self, code: AppErrorCode) -> None:
         super().__init__(code)
-        self.status_code: int = {
-            41: 401,
-            42: 422,
-            43: 403,
-            44: 404,
-            50: 500,
-        }[self.code // 100]
+        self.status_code: int = {41: 401, 42: 422, 43: 403, 44: 404, 50: 500}[
+            self.code // 100
+        ]
 
 
 class WSError(AppError):
@@ -160,16 +156,10 @@ def handle_http_error(error: HTTPError, fallback_function: str) -> JSONResponse:
     else:
         logger.bind(event=event).error("failled")
 
-    return JSONResponse(
-        status_code=error.status_code,
-        content={"code": error.code},
-    )
+    return JSONResponse(status_code=error.status_code, content={"code": error.code})
 
 
-def handle_ws_error(
-    error: WSError,
-    fallback_function: str,
-) -> None:
+def handle_ws_error(error: WSError, fallback_function: str) -> None:
     event = _build_event(error, fallback_function)
     if error.code < 5000:
         logger.bind(event=event).warning("failled")

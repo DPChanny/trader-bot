@@ -19,12 +19,7 @@ async def main() -> None:
     args = _parse_args()
     try:
         async for session in get_session():
-            await upsert_guild(
-                args.guild_id,
-                args.name,
-                args.icon_hash,
-                session,
-            )
+            await upsert_guild(args.guild_id, args.name, args.icon_hash, session)
     except Exception:
         raise
 

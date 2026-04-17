@@ -9,9 +9,7 @@ from ..utils.guild import delete_guild, sync_guild
 
 @bot_service
 async def on_ready_service(
-    bot: commands.Bot,
-    session: AsyncSession,
-    event: Event,
+    bot: commands.Bot, session: AsyncSession, event: Event
 ) -> dict[str, int]:
     synced_guild_ids: set[int] = set()
 
@@ -30,5 +28,4 @@ async def on_ready_service(
 
     event.detail["removed_guild_count"] = removed_guild_count
     response = {"synced_guild_count": len(synced_guild_ids)}
-    event.response = response
     return response
