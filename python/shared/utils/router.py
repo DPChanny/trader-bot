@@ -1,3 +1,4 @@
+import contextlib
 import functools
 import inspect
 from collections.abc import Awaitable, Callable
@@ -82,8 +83,9 @@ def ws_router[**P, T](
                     error,
                     func.__name__,
                     lambda code: send_error_message(ws, code),
-                    lambda code, reason: ws.close(code=code, reason=reason),
                 )
+                with contextlib.suppress(Exception):
+                    await ws.close(code=4000, reason=str(error.code))
                 return None
             except Exception as error:
                 ws_error = WSError(UnexpectedErrorCode.Internal)
@@ -93,8 +95,9 @@ def ws_router[**P, T](
                     ws_error,
                     func.__name__,
                     lambda code: send_error_message(ws, code),
-                    lambda code, reason: ws.close(code=code, reason=reason),
                 )
+                with contextlib.suppress(Exception):
+                    await ws.close(code=4000, reason=str(ws_error.code))
                 return None
 
         signature = inspect.signature(func)

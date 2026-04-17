@@ -1,11 +1,42 @@
 import functools
 import inspect
+from dataclasses import dataclass, field
 from json import JSONDecodeError
+from typing import Any
 
 from loguru import logger
 from pydantic import ValidationError
 
 from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
+
+
+@dataclass(slots=True)
+class ServiceEvent:
+    name: str
+    entity: dict[str, Any] = field(default_factory=dict)
+    summary: dict[str, Any] = field(default_factory=dict)
+
+    # Backward compatibility for code that still references event.dto.
+    @property
+    def dto(self) -> dict[str, Any]:
+        return self.entity
+
+    @dto.setter
+    def dto(self, value: dict[str, Any]) -> None:
+        self.entity = value
+
+    def __ior__(self, other):
+        if isinstance(other, dict):
+            self.entity |= other
+            return self
+        raise TypeError("ServiceEvent supports only dict merge with '|='")
+
+    def to_log_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "entity": self.entity,
+            "summary": self.summary,
+        }
 
 
 def http_service(func):
@@ -14,16 +45,16 @@ def http_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        event: dict | None = None
+        event: ServiceEvent | None = None
         if has_event:
-            if "event" not in kwargs or kwargs["event"] is None:
-                kwargs["event"] = {}
+            if not isinstance(kwargs.get("event"), ServiceEvent):
+                kwargs["event"] = ServiceEvent(name=func.__name__)
             event = kwargs["event"]
 
         try:
             result = await func(*args, **kwargs)
             if has_event:
-                logger.bind(function=func.__name__, event=event).info("")
+                logger.bind(event=event.to_log_dict()).info("")
             return result
         except HTTPError as error:
             if error.function is None:
@@ -43,16 +74,16 @@ def bot_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        event: dict | None = None
+        event: ServiceEvent | None = None
         if has_event:
-            if "event" not in kwargs or kwargs["event"] is None:
-                kwargs["event"] = {}
+            if not isinstance(kwargs.get("event"), ServiceEvent):
+                kwargs["event"] = ServiceEvent(name=func.__name__)
             event = kwargs["event"]
 
         try:
             result = await func(*args, **kwargs)
             if has_event:
-                logger.bind(function=func.__name__, event=event).info("")
+                logger.bind(event=event.to_log_dict()).info("")
             return result
         except AppError as error:
             if error.function is None:
@@ -72,16 +103,16 @@ def ws_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        event: dict | None = None
+        event: ServiceEvent | None = None
         if has_event:
-            if "event" not in kwargs or kwargs["event"] is None:
-                kwargs["event"] = {}
+            if not isinstance(kwargs.get("event"), ServiceEvent):
+                kwargs["event"] = ServiceEvent(name=func.__name__)
             event = kwargs["event"]
 
         try:
             result = await func(*args, **kwargs)
             if has_event:
-                logger.bind(function=func.__name__, event=event).info("")
+                logger.bind(event=event.to_log_dict()).info("")
             return result
         except WSError as error:
             if error.function is None:

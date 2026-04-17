@@ -127,22 +127,28 @@ class WSError(AppError):
 
 def handle_app_error(error: AppError, fallback_function: str) -> None:
     function = error.function or fallback_function
+    event = {
+        "name": function,
+        "entity": {},
+        "summary": {"error_code": error.code},
+    }
     if error.code < 5000:
-        logger.bind(function=function, error_code=error.code).warning("")
+        logger.bind(event=event).warning("")
     else:
-        logger.opt(exception=error.__cause__).bind(
-            function=function, error_code=error.code
-        ).error("")
+        logger.opt(exception=error.__cause__).bind(event=event).error("")
 
 
 def handle_http_error(error: HTTPError, fallback_function: str) -> JSONResponse:
     function = error.function or fallback_function
+    event = {
+        "name": function,
+        "entity": {},
+        "summary": {"error_code": error.code},
+    }
     if error.status_code < 500:
-        logger.bind(function=function, error_code=error.code).warning("")
+        logger.bind(event=event).warning("")
     else:
-        logger.opt(exception=error.__cause__).bind(
-            function=function, error_code=error.code
-        ).error("")
+        logger.opt(exception=error.__cause__).bind(event=event).error("")
 
     return JSONResponse(
         status_code=error.status_code,
@@ -154,18 +160,17 @@ async def handle_ws_error(
     error: WSError,
     fallback_function: str,
     send_error_message: Callable[[int], Awaitable[None]],
-    close_ws: Callable[[int, str], Awaitable[None]],
 ) -> None:
     function = error.function or fallback_function
+    event = {
+        "name": function,
+        "entity": {},
+        "summary": {"error_code": error.code},
+    }
     if error.code < 5000:
-        logger.bind(function=function, error_code=error.code).warning("")
+        logger.bind(event=event).warning("")
     else:
-        logger.opt(exception=error.__cause__).bind(
-            function=function, error_code=error.code
-        ).error("")
+        logger.opt(exception=error.__cause__).bind(event=event).error("")
 
     with contextlib.suppress(Exception):
         await send_error_message(error.code)
-
-    with contextlib.suppress(Exception):
-        await close_ws(4000, str(error.code))

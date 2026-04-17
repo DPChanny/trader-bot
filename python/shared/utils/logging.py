@@ -2,6 +2,7 @@ import json
 import logging
 import sys
 import time
+from dataclasses import asdict, is_dataclass
 from datetime import UTC
 from uuid import uuid4
 
@@ -11,19 +12,50 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 
-def _pop_extra(record) -> tuple[dict, str | None, dict | None, dict | None]:
+def _normalize_event(event) -> dict | None:
+    if event is None:
+        return None
+
+    if is_dataclass(event):
+        event = asdict(event)
+
+    if isinstance(event, dict):
+        if all(key in event for key in ("name", "entity", "summary")):
+            return event
+
+        if all(key in event for key in ("name", "dto", "summary")):
+            return {
+                "name": event["name"],
+                "entity": event["dto"],
+                "summary": event["summary"],
+            }
+
+        return {
+            "name": None,
+            "entity": event,
+            "summary": {},
+        }
+
+    return {
+        "name": None,
+        "entity": {"value": str(event)},
+        "summary": {},
+    }
+
+
+def _pop_extra(record) -> tuple[dict, dict | None, dict | None]:
     extra = dict(record["extra"])
-    function = extra.pop("function", None)
     event = extra.pop("event", None)
     request = extra.pop("request", None)
-    return extra, function, event, request
+    return extra, event, request
 
 
 def _json_sink(message) -> None:
     record = message.record
-    extra, function, event, request = _pop_extra(record)
+    extra, event, request = _pop_extra(record)
+    event = _normalize_event(event)
 
-    source = function or f"{record['name']}:{record['function']}:{record['line']}"
+    source = f"{record['name']}:{record['function']}:{record['line']}"
     data: dict = {
         "timestamp": record["time"]
         .astimezone(UTC)
@@ -51,9 +83,10 @@ def _json_sink(message) -> None:
 def _text_sink(message) -> None:
     record = message.record
     timestamp = record["time"].strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-    extra, function, event, request = _pop_extra(record)
+    extra, event, request = _pop_extra(record)
+    event = _normalize_event(event)
 
-    source = function or f"{record['name']}:{record['function']}:{record['line']}"
+    source = f"{record['name']}:{record['function']}:{record['line']}"
 
     parts = [f"{timestamp} | {record['level'].name:<8} | {source}"]
     if extra:

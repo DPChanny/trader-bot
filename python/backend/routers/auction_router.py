@@ -2,7 +2,6 @@ import json
 from json import JSONDecodeError
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
-from loguru import logger
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,6 +23,7 @@ from shared.utils.error import (
     AuthErrorCode,
     ValidationErrorCode,
     WSError,
+    handle_ws_error,
 )
 from shared.utils.router import ws_router
 
@@ -132,9 +132,11 @@ async def auction_ws(
                 )
                 await place_bid_service(auction, member_id, place_bid_payload_dto)
             except WSError as e:
-                function = e.function or auction_ws.__name__
-                logger.bind(function=function, error_code=e.code).warning("")
-                await _send_error_message(ws, e.code)
+                await handle_ws_error(
+                    e,
+                    auction_ws.__name__,
+                    lambda code: _send_error_message(ws, code),
+                )
                 continue
 
             if auction.status == Status.COMPLETED:
