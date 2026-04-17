@@ -103,7 +103,7 @@ async def delete_position_service(
     preset_id: int,
     position_id: int,
     session: AsyncSession,
-) -> None:
+) -> PositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     position_repo = PositionRepository(session)
@@ -111,4 +111,6 @@ async def delete_position_service(
     if position is None:
         raise HTTPError(PositionErrorCode.NotFound)
 
+    response = PositionDTO.model_validate(position)
     await session.delete(position)
+    return response

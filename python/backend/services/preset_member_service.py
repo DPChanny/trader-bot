@@ -142,7 +142,7 @@ async def delete_preset_member_service(
     preset_id: int,
     preset_member_id: int,
     session: AsyncSession,
-) -> None:
+) -> PresetMemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(session)
@@ -152,4 +152,12 @@ async def delete_preset_member_service(
     if preset_member is None:
         raise HTTPError(PresetMemberErrorCode.NotFound)
 
+    preset_member_detail = await preset_member_repo.get_detail_by_id(
+        preset_member_id, preset_id, guild_id
+    )
+    if preset_member_detail is None:
+        raise HTTPError(PresetMemberErrorCode.NotFound)
+
+    response = PresetMemberDetailDTO.model_validate(preset_member_detail)
     await session.delete(preset_member)
+    return response

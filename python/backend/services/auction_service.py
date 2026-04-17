@@ -58,10 +58,8 @@ async def create_auction_service(
         is_public=dto.is_public,
     )
 
-    result = AuctionDTO.model_validate(auction)
-
     app_origin = get_app_origin()
-    auction_url = f"{app_origin}/auction/{result.auction_id}"
+    auction_url = f"{app_origin}/auction/{auction.auction_id}"
 
     async def _send_invite(pm: PresetMember):
         try:
@@ -103,7 +101,7 @@ async def create_auction_service(
             *[_send_invite(pm) for pm in preset_members],
         )
 
-    return result
+    return AuctionDTO.model_validate(auction)
 
 
 @ws_service

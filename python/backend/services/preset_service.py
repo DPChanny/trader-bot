@@ -46,8 +46,7 @@ async def create_preset_service(
     )
     session.add(preset)
     await session.flush()
-    result = PresetDTO.model_validate(preset)
-    return result
+    return PresetDTO.model_validate(preset)
 
 
 @http_service
@@ -79,8 +78,7 @@ async def update_preset_service(
     for key in dto.model_fields_set:
         setattr(preset, key, getattr(dto, key))
 
-    result = PresetDTO.model_validate(preset)
-    return result
+    return PresetDTO.model_validate(preset)
 
 
 @http_service
@@ -89,7 +87,7 @@ async def delete_preset_service(
     user_id: int,
     preset_id: int,
     session: AsyncSession,
-) -> None:
+) -> PresetDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
@@ -97,4 +95,6 @@ async def delete_preset_service(
     if preset is None:
         raise HTTPError(PresetErrorCode.NotFound)
 
+    response = PresetDTO.model_validate(preset)
     await session.delete(preset)
+    return response

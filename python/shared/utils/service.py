@@ -74,16 +74,16 @@ def http_service(func):
         request = _extract_request(sig, args, kwargs)
 
         try:
-            result = await func(*args, **call_kwargs)
+            response = await func(*args, **call_kwargs)
             logger.bind(
                 event=Event(
                     function=func.__name__,
                     request=request,
-                    response=normalize_result_dto(result),
+                    response=normalize_result_dto(response),
                     detail=detail,
                 )
             ).info("succeeded")
-            return result
+            return response
         except HTTPError as error:
             if error.function is None:
                 error.function = func.__name__
@@ -108,16 +108,16 @@ def bot_service(func):
         request = _extract_request(sig, args, kwargs)
 
         try:
-            result = await func(*args, **call_kwargs)
+            response = await func(*args, **call_kwargs)
             logger.bind(
                 event=Event(
                     function=func.__name__,
                     request=request,
-                    response=normalize_result_dto(result),
+                    response=normalize_result_dto(response),
                     detail=detail,
                 )
             ).info("succeeded")
-            return result
+            return response
         except AppError as error:
             if error.function is None:
                 error.function = func.__name__

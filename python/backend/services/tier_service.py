@@ -67,8 +67,7 @@ async def add_tier_service(
     tier = Tier(preset_id=preset_id, name=dto.name, icon_url=dto.icon_url)
     session.add(tier)
     await session.flush()
-    result = TierDTO.model_validate(tier)
-    return result
+    return TierDTO.model_validate(tier)
 
 
 @http_service
@@ -90,8 +89,7 @@ async def update_tier_service(
     for key in dto.model_fields_set:
         setattr(tier, key, getattr(dto, key))
 
-    result = TierDTO.model_validate(tier)
-    return result
+    return TierDTO.model_validate(tier)
 
 
 @http_service
@@ -101,7 +99,7 @@ async def delete_tier_service(
     preset_id: int,
     tier_id: int,
     session: AsyncSession,
-) -> None:
+) -> TierDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     tier_repo = TierRepository(session)
@@ -109,4 +107,6 @@ async def delete_tier_service(
     if tier is None:
         raise HTTPError(TierErrorCode.NotFound)
 
+    response = TierDTO.model_validate(tier)
     await session.delete(tier)
+    return response
