@@ -44,7 +44,7 @@ async def delete_guild(guild_id: int, session: AsyncSession) -> GuildDTO:
     return dto
 
 
-async def sync_guild(guild: DiscordGuild, session: AsyncSession, event: Event) -> dict:
+async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> None:
     guild_id = guild.id
     await upsert_guild(guild, session)
 
@@ -70,7 +70,7 @@ async def sync_guild(guild: DiscordGuild, session: AsyncSession, event: Event) -
         await delete_member(guild.id, member_entity.user_id, session)
         removed_member_count += 1
 
-    event.detail = {
+    return {
         "synced_member_count": len(synced_member_ids),
         "removed_member_count": removed_member_count,
     }
