@@ -14,8 +14,13 @@ async def get_guilds_service(
 ) -> list[GuildDetailDTO]:
     guild_repo = GuildRepository(session)
     guilds = await guild_repo.get_all_by_user_id(user_id)
-    response = [GuildDetailDTO.model_validate(g) for g in guilds]
-    event.response = [GuildDTO.model_validate(item) for item in response]
+
+    response: list[GuildDetailDTO] = []
+    event.response = []
+    for guild in guilds:
+        response.append(GuildDetailDTO.model_validate(guild))
+        event.response.append(GuildDTO.model_validate(guild))
+
     return response
 
 
@@ -30,6 +35,5 @@ async def get_guild_service(
     if guild is None:
         raise HTTPError(GuildErrorCode.NotFound)
 
-    response = GuildDetailDTO.model_validate(guild)
-    event.response = GuildDTO.model_validate(response)
-    return response
+    event.response = GuildDTO.model_validate(guild)
+    return GuildDetailDTO.model_validate(guild)

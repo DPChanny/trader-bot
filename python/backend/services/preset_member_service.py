@@ -36,8 +36,13 @@ async def get_preset_members_service(
 
     preset_member_repo = PresetMemberRepository(session)
     members = await preset_member_repo.get_all_detail_by_preset_id(preset_id, guild_id)
-    response = [PresetMemberDetailDTO.model_validate(m) for m in members]
-    event.response = [PresetMemberDTO.model_validate(item) for item in response]
+
+    response: list[PresetMemberDetailDTO] = []
+    event.response = []
+    for member in members:
+        response.append(PresetMemberDetailDTO.model_validate(member))
+        event.response.append(PresetMemberDTO.model_validate(member))
+
     return response
 
 
@@ -58,9 +63,8 @@ async def get_preset_member_service(
     )
     if preset_member is None:
         raise HTTPError(PresetMemberErrorCode.NotFound)
-    response = PresetMemberDetailDTO.model_validate(preset_member)
-    event.response = PresetMemberDTO.model_validate(response)
-    return response
+    event.response = PresetMemberDTO.model_validate(preset_member)
+    return PresetMemberDetailDTO.model_validate(preset_member)
 
 
 @http_service
@@ -103,9 +107,8 @@ async def add_preset_member_service(
     )
     if preset_member is None:
         raise HTTPError(PresetMemberErrorCode.NotFound)
-    response = PresetMemberDetailDTO.model_validate(preset_member)
-    event.response = PresetMemberDTO.model_validate(response)
-    return response
+    event.response = PresetMemberDTO.model_validate(preset_member)
+    return PresetMemberDetailDTO.model_validate(preset_member)
 
 
 @http_service
@@ -139,9 +142,8 @@ async def update_preset_member_service(
     preset_member = await preset_member_repo.get_detail_by_id(
         preset_member_id, preset_id, guild_id
     )
-    response = PresetMemberDetailDTO.model_validate(preset_member)
-    event.response = PresetMemberDTO.model_validate(response)
-    return response
+    event.response = PresetMemberDTO.model_validate(preset_member)
+    return PresetMemberDetailDTO.model_validate(preset_member)
 
 
 @http_service
@@ -168,7 +170,6 @@ async def delete_preset_member_service(
     if preset_member_detail is None:
         raise HTTPError(PresetMemberErrorCode.NotFound)
 
-    response = PresetMemberDetailDTO.model_validate(preset_member_detail)
     await session.delete(preset_member)
-    event.response = PresetMemberDTO.model_validate(response)
-    return response
+    event.response = PresetMemberDTO.model_validate(preset_member_detail)
+    return PresetMemberDetailDTO.model_validate(preset_member_detail)

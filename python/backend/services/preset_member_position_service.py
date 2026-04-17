@@ -66,9 +66,8 @@ async def add_preset_member_position_service(
     if preset_member_position is None:
         raise HTTPError(PresetMemberPositionErrorCode.NotFound)
 
-    response = PresetMemberPositionDetailDTO.model_validate(preset_member_position)
-    event.response = PresetMemberPositionDTO.model_validate(response)
-    return response
+    event.response = PresetMemberPositionDTO.model_validate(preset_member_position)
+    return PresetMemberPositionDetailDTO.model_validate(preset_member_position)
 
 
 @http_service
