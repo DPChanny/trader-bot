@@ -8,6 +8,7 @@ import { GuildCard } from "./guildCard";
 import type { GuildDetailDTO } from "@dtos/guild";
 import { BOT_INVITE_URL, BOT_INVITE_URL_TEXT } from "@utils/env";
 import { Title } from "@components/atoms/text";
+import { Link } from "@components/atoms/link";
 
 interface GuildListProps {
   guilds: GuildDetailDTO[];
@@ -19,9 +20,9 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
     <SecondarySection fill minSize>
       <Row justify="between" align="center">
         <Title>길드 관리</Title>
-        <PrimaryButton onClick={() => window.open(BOT_INVITE_URL, "_blank")}>
-          {BOT_INVITE_URL_TEXT}
-        </PrimaryButton>
+        <Link href={BOT_INVITE_URL} target="_blank" rel="noreferrer">
+          <PrimaryButton>{BOT_INVITE_URL_TEXT}</PrimaryButton>
+        </Link>
       </Row>
       <TertiarySection fill>
         <Scroll axis="y">

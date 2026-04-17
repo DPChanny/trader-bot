@@ -49,7 +49,7 @@ export function HomePage() {
             },
             {
               label: "핵심 흐름",
-              value: "봇 초대 → 길드 선택 → 프리셋 구성 → 팀 경매 진행",
+              value: `${BOT_INVITE_URL_TEXT} → 길드 선택 → 프리셋 구성 → 경매 생성`,
             },
             {
               label: "운영 길드",
