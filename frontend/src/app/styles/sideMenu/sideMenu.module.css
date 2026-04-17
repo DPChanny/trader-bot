@@ -18,6 +18,7 @@
   padding: 0;
   cursor: pointer;
   opacity: 1;
+  touch-action: none;
 }
 
 .edgeTrigger:hover,
@@ -38,10 +39,12 @@
 .backdrop {
   position: absolute;
   inset: 0;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.18);
   border: none;
   padding: 0;
-  pointer-events: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
 }
 
 .shell {
@@ -49,6 +52,18 @@
   inset: var(--side-menu-header-offset) auto 0 0;
   z-index: 1;
   pointer-events: none;
+  transform: translateX(calc(-100% + var(--side-menu-rail-width)));
+  transition: transform 220ms ease;
+}
+
+.layerOpen .backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.layerOpen .shell {
+  pointer-events: auto;
+  transform: translateX(0);
 }
 
 .panelHost {

@@ -3,7 +3,11 @@ import { useGuildId, usePresetId } from "@hooks/router";
 import { useMembers } from "@hooks/member";
 import { Role } from "@dtos/member";
 import { useVerifyRole } from "@hooks/member";
-import { useCreatePresetMember, usePresetMembers } from "@hooks/presetMember";
+import {
+  useCreatePresetMember,
+  useDeletePresetMember,
+  usePresetMembers,
+} from "@hooks/presetMember";
 import { MemberGrid } from "@components/memberGrid";
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberPanel } from "./presetMemberPanel";
@@ -15,6 +19,7 @@ import {
   TertiarySection,
 } from "@components/molecules/section";
 import { Title } from "@components/atoms/text";
+import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 
 export function PresetMemberEditor() {
   const guildId = useGuildId();
@@ -64,6 +69,7 @@ export function PresetMemberEditor() {
   } = useMembers(guildId);
 
   const createPresetMember = useCreatePresetMember();
+  const deletePresetMember = useDeletePresetMember();
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
 
   const presetMemberIds = useMemo(
@@ -117,6 +123,40 @@ export function PresetMemberEditor() {
     );
   };
 
+  const handleRemovePresetMember = (presetMember: PresetMemberDetailDTO) => {
+    if (deletePresetMember.isPending) return;
+
+    addMemberIdToRemoving(presetMember.memberId);
+    setSelectedPresetMemberId((prev) =>
+      prev === presetMember.presetMemberId ? null : prev,
+    );
+
+    deletePresetMember.mutate(
+      {
+        guildId,
+        presetId,
+        presetMemberId: presetMember.presetMemberId,
+      },
+      {
+        onError: () => {
+          removeMemberIdFromRemoving(presetMember.memberId);
+        },
+      },
+    );
+  };
+
+  const handlePresetMemberClick = (
+    presetMember: PresetMemberDetailDTO,
+    event: MouseEvent,
+  ) => {
+    if (canEdit && (event.ctrlKey || event.shiftKey || event.metaKey)) {
+      handleRemovePresetMember(presetMember);
+      return;
+    }
+
+    setSelectedPresetMemberId(presetMember.presetMemberId);
+  };
+
   return (
     <>
       <PrimarySection minSize fill>
@@ -140,7 +180,7 @@ export function PresetMemberEditor() {
                 ) ?? []
               }
               selectedMemberId={selectedPresetMemberId}
-              onClick={(id: number) => setSelectedPresetMemberId(id)}
+              onClick={handlePresetMemberClick}
             />
           )}
         </SecondarySection>
@@ -148,6 +188,12 @@ export function PresetMemberEditor() {
         {canEdit && createPresetMember.error && (
           <Error error={createPresetMember.error}>
             프리셋 멤버 추가에 실패했습니다
+          </Error>
+        )}
+
+        {canEdit && deletePresetMember.error && (
+          <Error error={deletePresetMember.error}>
+            프리셋 멤버 제거에 실패했습니다
           </Error>
         )}
 

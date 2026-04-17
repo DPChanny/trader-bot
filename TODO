@@ -1,8 +1,17 @@
-
+preset template
+    preset copy -> 운영 길드 flow
 home page
-    tutorial
-layout
-    critical
+    tutorial    
+
+query batch
+pagenation & sorting & search
+auction
+    opt
+    path
+    get
+
+iframe
+bot command
 layout
 surface
     section tone
@@ -10,20 +19,9 @@ surface
 css
     component
     token
-sidemenu
 security
-auction 
-    opt
-    route
-    get
-pagenation & sorting & search
-iframe
-web mobile
-preset template
-    preset copy -> 운영 길드 flow
+mobile
 auction result
-bot command
-web auction effect
-web effect
-web language
-code layout
+auction effect
+effect
+language

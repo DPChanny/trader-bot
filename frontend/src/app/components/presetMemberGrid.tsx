@@ -1,3 +1,4 @@
+import type { JSX } from "preact";
 import { PresetMemberCard } from "./presetMemberCard";
 import { PressedButton } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
@@ -8,7 +9,10 @@ import { TertiarySection } from "./molecules/section";
 interface PresetMemberGridProps {
   presetMembers: PresetMemberDetailDTO[];
   selectedMemberId?: number | null;
-  onClick?: (presetMemberId: number) => void;
+  onClick?: (
+    presetMember: PresetMemberDetailDTO,
+    event: JSX.TargetedMouseEvent<HTMLButtonElement>,
+  ) => void;
 }
 
 export function PresetMemberGrid({
@@ -32,9 +36,7 @@ export function PresetMemberGrid({
                 key={presetMember.presetMemberId}
                 className={styles.gridButton}
                 onClick={
-                  onClick
-                    ? () => onClick(presetMember.presetMemberId)
-                    : undefined
+                  onClick ? (event) => onClick(presetMember, event) : undefined
                 }
                 isPressed={isSelected}
                 disabled={!onClick}
