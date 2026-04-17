@@ -50,7 +50,7 @@ async def create_preset_service(
 
 
 @http_service
-async def get_preset_list_service(
+async def get_presets_service(
     guild_id: int, user_id: int, session: AsyncSession
 ) -> list[PresetDTO]:
     await verify_role(guild_id, user_id, session, Role.VIEWER)

@@ -1,16 +1,16 @@
-sidemenu
 layout
-css
-    component
-    token
 log
     analysis
 home page
     policy
     annuncement
     tutorial
-security
 ********************publish********************
+css
+    component
+    token
+sidemenu
+security
     swap memory
     t4g.small
 auction 

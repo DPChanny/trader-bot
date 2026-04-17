@@ -9,7 +9,7 @@ from ..utils.member import verify_role
 
 
 @http_service
-async def get_guild_list_service(
+async def get_guilds_service(
     user_id: int, session: AsyncSession
 ) -> list[GuildDetailDTO]:
     guild_repo = GuildRepository(session)

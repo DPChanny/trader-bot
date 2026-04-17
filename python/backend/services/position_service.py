@@ -16,7 +16,7 @@ from ..utils.member import verify_role
 
 
 @http_service
-async def get_position_list_service(
+async def get_positions_service(
     guild_id: int,
     user_id: int,
     preset_id: int,

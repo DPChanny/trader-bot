@@ -11,8 +11,8 @@ from shared.utils.database import get_session
 from ..services.position_service import (
     add_position_service,
     delete_position_service,
-    get_position_list_service,
     get_position_service,
+    get_positions_service,
     update_position_service,
 )
 from ..utils.token import verify_access_token
@@ -24,13 +24,13 @@ position_router = APIRouter(
 
 
 @position_router.get("", response_model=list[PositionDTO])
-async def get_position_list_route(
+async def get_positions_route(
     guild_id: int,
     preset_id: int,
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),
 ):
-    return await get_position_list_service(guild_id, user_id, preset_id, session)
+    return await get_positions_service(guild_id, user_id, preset_id, session)
 
 
 @position_router.get("/{position_id}", response_model=PositionDTO)

@@ -24,7 +24,7 @@ from ..utils.member import verify_role
 
 
 @http_service
-async def get_preset_member_list_service(
+async def get_preset_members_service(
     guild_id: int,
     user_id: int,
     preset_id: int,

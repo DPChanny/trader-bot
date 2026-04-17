@@ -11,8 +11,8 @@ from shared.utils.database import get_session
 from ..services.preset_member_service import (
     add_preset_member_service,
     delete_preset_member_service,
-    get_preset_member_list_service,
     get_preset_member_service,
+    get_preset_members_service,
     update_preset_member_service,
 )
 from ..utils.token import verify_access_token
@@ -25,15 +25,13 @@ preset_member_router = APIRouter(
 
 
 @preset_member_router.get("", response_model=list[PresetMemberDetailDTO])
-async def get_preset_member_list_route(
+async def get_preset_members_route(
     guild_id: int,
     preset_id: int,
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),
 ):
-    return await get_preset_member_list_service(
-        guild_id, user_id, preset_id, session
-    )
+    return await get_preset_members_service(guild_id, user_id, preset_id, session)
 
 
 @preset_member_router.get("/{preset_member_id}", response_model=PresetMemberDetailDTO)
@@ -57,9 +55,7 @@ async def add_preset_member_route(
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),
 ):
-    return await add_preset_member_service(
-        guild_id, user_id, preset_id, dto, session
-    )
+    return await add_preset_member_service(guild_id, user_id, preset_id, dto, session)
 
 
 @preset_member_router.patch("/{preset_member_id}", response_model=PresetMemberDetailDTO)

@@ -11,8 +11,8 @@ from shared.utils.database import get_session
 from ..services.preset_service import (
     create_preset_service,
     delete_preset_service,
-    get_preset_list_service,
     get_preset_service,
+    get_presets_service,
     update_preset_service,
 )
 from ..utils.token import verify_access_token
@@ -32,12 +32,12 @@ async def create_preset_route(
 
 
 @preset_router.get("", response_model=list[PresetDTO])
-async def get_preset_list_route(
+async def get_presets_route(
     guild_id: int,
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),
 ):
-    return await get_preset_list_service(guild_id, user_id, session)
+    return await get_presets_service(guild_id, user_id, session)
 
 
 @preset_router.get("/{preset_id}", response_model=PresetDTO)

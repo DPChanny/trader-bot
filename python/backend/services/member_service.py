@@ -32,7 +32,7 @@ async def get_member_service(
 
 
 @http_service
-async def get_member_list_service(
+async def get_members_service(
     guild_id: int, user_id: int, session: AsyncSession
 ) -> list[MemberDetailDTO]:
     await verify_role(guild_id, user_id, session)

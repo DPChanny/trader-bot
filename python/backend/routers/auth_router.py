@@ -6,8 +6,8 @@ from shared.dtos.auth import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
 from shared.utils.database import get_session
 
 from ..services.auth_service import (
-    callback_service,
     exchange_token_service,
+    login_callback_service,
     login_service,
     refresh_token_service,
 )
@@ -24,12 +24,12 @@ async def login_route(
 
 
 @auth_router.get("/login/callback")
-async def callback_route(
+async def login_callback_route(
     code: str = Query(),
     state: str | None = Query(default=None),
     session: AsyncSession = Depends(get_session),
 ) -> RedirectResponse:
-    return await callback_service(code, state, session)
+    return await login_callback_service(code, state, session)
 
 
 @auth_router.post("/token/exchange", response_model=JWTTokenDTO)

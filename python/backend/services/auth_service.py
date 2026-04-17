@@ -21,7 +21,7 @@ async def login_service(redirect: str | None = None) -> RedirectResponse:
 
 
 @http_service
-async def callback_service(
+async def login_callback_service(
     code: str, state: str | None, session: AsyncSession
 ) -> RedirectResponse:
     user_data = await get_me(code)
