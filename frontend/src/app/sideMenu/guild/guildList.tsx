@@ -6,7 +6,7 @@ import {
 import { PrimaryButton } from "@components/atoms/button";
 import { GuildCard } from "./guildCard";
 import type { GuildDetailDTO } from "@dtos/guild";
-import { GUILD_INVITE_BUTTON_TEXT, GUILD_INVITE_URL } from "@utils/env";
+import { BOT_INVITE_URL, BOT_INVITE_URL_TEXT } from "@utils/env";
 import { Title } from "@components/atoms/text";
 
 interface GuildListProps {
@@ -19,8 +19,8 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
     <SecondarySection fill minSize>
       <Row justify="between" align="center">
         <Title>길드 관리</Title>
-        <PrimaryButton onClick={() => window.open(GUILD_INVITE_URL, "_blank")}>
-          {GUILD_INVITE_BUTTON_TEXT}
+        <PrimaryButton onClick={() => window.open(BOT_INVITE_URL, "_blank")}>
+          {BOT_INVITE_URL_TEXT}
         </PrimaryButton>
       </Row>
       <TertiarySection fill>

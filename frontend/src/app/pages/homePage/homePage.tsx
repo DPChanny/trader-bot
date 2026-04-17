@@ -9,11 +9,12 @@ import { SecondaryActionLink } from "@components/molecules/secondaryActionLink";
 import { SplitLayout } from "@components/molecules/splitLayout";
 import { useLogin } from "@hooks/auth";
 import {
-  GUILD_INVITE_GUIDE_TEXT,
+  BOT_INVITE_URL,
   BOT_INVITE_URL_TEXT,
   GUILD_INVITE_URL,
-  GUILD_INVITE_URL,
+  GUILD_INVITE_URL_TEXT,
   SITE_NAME,
+  SITE_OPERATOR,
 } from "@utils/env";
 
 export function HomePage() {
@@ -37,13 +38,6 @@ export function HomePage() {
             >
               {BOT_INVITE_URL_TEXT}
             </SecondaryActionLink>
-            <SecondaryActionLink
-              href={GUILD_INVITE_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {BOT_INVITE_URL_TEXT}
-            </SecondaryActionLink>
           </>
         }
       >
@@ -51,7 +45,7 @@ export function HomePage() {
           items={[
             {
               label: "운영자",
-              value: "디스코드 길드 운영팀",
+              value: SITE_OPERATOR,
             },
             {
               label: "핵심 흐름",
@@ -59,7 +53,11 @@ export function HomePage() {
             },
             {
               label: "운영 채널",
-              value: "웹 대시보드 + 공식 채널",
+              value: (
+                <Link href={GUILD_INVITE_URL} target="_blank" rel="noreferrer">
+                  {GUILD_INVITE_URL_TEXT}
+                </Link>
+              ),
             },
           ]}
         />
@@ -80,7 +78,7 @@ export function HomePage() {
           <ContentList
             ordered
             items={[
-              GUILD_INVITE_GUIDE_TEXT,
+              `디스코드 계정으로 로그인하고 ${BOT_INVITE_URL_TEXT}를 진행합니다.`,
               "운영할 길드를 선택하고 멤버 정보와 운영용 설정을 확인한 뒤 프리셋을 구성합니다.",
               "공개 여부와 초대 전송 여부를 선택해 팀 경매를 생성합니다.",
             ]}
@@ -107,7 +105,7 @@ export function HomePage() {
           variantSurface="tertiary"
           actions={
             <Link href={GUILD_INVITE_URL} target="_blank" rel="noreferrer">
-              공식 채널 바로가기
+              {GUILD_INVITE_URL_TEXT}
             </Link>
           }
         />

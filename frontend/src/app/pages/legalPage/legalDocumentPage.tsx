@@ -4,7 +4,11 @@ import { HtmlContent } from "@components/molecules/htmlContent";
 import { InfoPage } from "@components/molecules/infoPage";
 import { PageHero } from "@components/molecules/pageHero";
 import { PageSection } from "@components/molecules/pageSection";
-import { GUILD_INVITE_URL, SITE_OPERATOR } from "@utils/env";
+import {
+  GUILD_INVITE_URL,
+  GUILD_INVITE_URL_TEXT,
+  SITE_OPERATOR,
+} from "@utils/env";
 
 export type LegalDocument = {
   title: string;
@@ -50,7 +54,7 @@ export function LegalDocumentPage({
               label: "공식 채널",
               value: (
                 <Link href={GUILD_INVITE_URL} target="_blank" rel="noreferrer">
-                  공식 채널 바로가기
+                  {GUILD_INVITE_URL_TEXT}
                 </Link>
               ),
             },
