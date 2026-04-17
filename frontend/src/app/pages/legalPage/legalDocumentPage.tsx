@@ -40,8 +40,8 @@ export function LegalDocumentPage({
       </PageSection>
 
       <PageSection
-        title="공식 채널"
-        description="서비스 공지와 문의는 공식 채널 기준으로 운영합니다."
+        title="공식 길드"
+        description="서비스 공지와 문의는 공식 길드 기준으로 운영합니다."
         variantSurface="tertiary"
       >
         <DefinitionList
@@ -51,7 +51,7 @@ export function LegalDocumentPage({
               value: SITE_OPERATOR,
             },
             {
-              label: "공식 채널",
+              label: "공식 길드",
               value: (
                 <Link href={GUILD_INVITE_URL} target="_blank" rel="noreferrer">
                   {GUILD_INVITE_URL_TEXT}

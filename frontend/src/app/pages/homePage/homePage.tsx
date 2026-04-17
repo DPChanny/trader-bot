@@ -52,7 +52,7 @@ export function HomePage() {
               value: "봇 초대 → 길드 선택 → 프리셋 구성 → 팀 경매 진행",
             },
             {
-              label: "운영 채널",
+              label: "운영 길드",
               value: (
                 <Link href={GUILD_INVITE_URL} target="_blank" rel="noreferrer">
                   {GUILD_INVITE_URL_TEXT}
@@ -100,8 +100,8 @@ export function HomePage() {
         />
 
         <PageSection
-          title="공식 채널"
-          description="점검 공지와 운영 문의는 공식 채널 기준으로 안내하는 방식으로 운영합니다."
+          title="공식 길드"
+          description="점검 공지와 운영 문의는 공식 길드 기준으로 안내하는 방식으로 운영합니다."
           variantSurface="tertiary"
           actions={
             <Link href={GUILD_INVITE_URL} target="_blank" rel="noreferrer">

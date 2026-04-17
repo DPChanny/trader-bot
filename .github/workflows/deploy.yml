@@ -63,7 +63,7 @@ jobs:
             VITE_API_ORIGIN=https://${{ vars.EC2_HOST }}
             VITE_WS_ORIGIN=wss://${{ vars.EC2_HOST }}
             VITE_DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
-            VITE_DISCORD_SERVER_URL=${{ secrets.DISCORD_SERVER_URL }}
+            VITE_GUILD_INVITE_URL=${{ vars.GUILD_INVITE_URL}}
             EOF
 
       - name: Python Dependencies
