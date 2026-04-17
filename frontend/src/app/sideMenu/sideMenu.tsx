@@ -4,70 +4,51 @@ import styles from "@styles/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@hooks/guild";
 import { useOptionalGuildId, useOptionalPresetId } from "@hooks/router";
 import { CloseButton } from "@components/atoms/button";
-import { Fill, Layout, Row } from "@components/atoms/layout";
+import { Fill, Row } from "@components/atoms/layout";
 import { Title } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
 import { GuildList } from "./guild/guildList";
 import { PresetList } from "./preset/presetList";
 
-const DRAG_OPEN_THRESHOLD_RATIO = 0.35;
-const DRAG_IGNORE_CLICK_MS = 250;
+const DRAG_OPEN_THRESHOLD_PX = 100;
 
 export function SideMenu() {
   const guilds = useGuilds();
   const guildId = useOptionalGuildId();
   const presetId = useOptionalPresetId();
   const [isOpen, setIsOpen] = useState(false);
-  const [dragOffset, setDragOffset] = useState<number | null>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const shellRef = useRef<HTMLDivElement>(null);
-  const dragStateRef = useRef<{
-    startX: number;
-    maxOffset: number;
-    didMove: boolean;
-  } | null>(null);
-  const ignoreClickUntilRef = useRef(0);
+  const [isDraggingOpen, setIsDraggingOpen] = useState(false);
+  const [dragOffsetPx, setDragOffsetPx] = useState(0);
+  const dragStartXRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (dragOffset === null) {
+    if (!isDraggingOpen) {
       return;
     }
 
     const handlePointerMove = (event: PointerEvent) => {
-      const dragState = dragStateRef.current;
-      if (!dragState) {
+      const dragStartX = dragStartXRef.current;
+      if (dragStartX === null) {
         return;
       }
 
-      const nextOffset = Math.min(
-        Math.max(event.clientX - dragState.startX, 0),
-        dragState.maxOffset,
-      );
+      const nextOffsetPx = Math.max(0, event.clientX - dragStartX);
 
-      if (nextOffset > 6) {
-        dragState.didMove = true;
+      if (nextOffsetPx >= DRAG_OPEN_THRESHOLD_PX) {
+        setIsOpen(true);
+        setIsDraggingOpen(false);
+        setDragOffsetPx(0);
+        dragStartXRef.current = null;
+        return;
       }
 
-      setDragOffset(nextOffset);
+      setDragOffsetPx(nextOffsetPx);
     };
 
     const handlePointerEnd = () => {
-      const dragState = dragStateRef.current;
-      if (!dragState) {
-        return;
-      }
-
-      const finalOffset = dragOffset ?? 0;
-      const shouldOpen =
-        finalOffset >= dragState.maxOffset * DRAG_OPEN_THRESHOLD_RATIO;
-
-      if (dragState.didMove) {
-        ignoreClickUntilRef.current = Date.now() + DRAG_IGNORE_CLICK_MS;
-      }
-
-      dragStateRef.current = null;
-      setDragOffset(null);
-      setIsOpen(shouldOpen);
+      setIsDraggingOpen(false);
+      setDragOffsetPx(0);
+      dragStartXRef.current = null;
     };
 
     window.addEventListener("pointermove", handlePointerMove);
@@ -79,94 +60,74 @@ export function SideMenu() {
       window.removeEventListener("pointerup", handlePointerEnd);
       window.removeEventListener("pointercancel", handlePointerEnd);
     };
-  }, [dragOffset]);
+  }, [isDraggingOpen]);
 
-  const handleOpenClick = () => {
-    if (Date.now() < ignoreClickUntilRef.current) {
+  const handleOpenDragStart = (event: PointerEvent) => {
+    if (isOpen) {
       return;
     }
 
-    setIsOpen(true);
+    if (event.button !== 0) {
+      return;
+    }
+
+    dragStartXRef.current = event.clientX;
+    setDragOffsetPx(0);
+    setIsDraggingOpen(true);
   };
 
-  const handleOpenDragStart = (event: PointerEvent) => {
-    const shellWidth = shellRef.current?.offsetWidth ?? 320;
-    const railWidth = rootRef.current?.offsetWidth ?? 12;
-    const maxOffset = Math.max(shellWidth - railWidth, 0);
-
-    dragStateRef.current = {
-      startX: event.clientX,
-      maxOffset,
-      didMove: false,
-    };
-    setDragOffset(0);
-  };
-
-  const isVisible = isOpen || dragOffset !== null;
-  const shellTransform =
-    dragOffset === null
-      ? undefined
-      : `translateX(${dragOffset - (shellRef.current?.offsetWidth ?? 320) + (rootRef.current?.offsetWidth ?? 12)}px)`;
-  const backdropOpacity =
-    dragOffset === null
-      ? undefined
-      : Math.min(
-          Math.max(dragOffset / (dragStateRef.current?.maxOffset ?? 1), 0),
-          1,
-        );
+  const shouldRenderLayer = isOpen || isDraggingOpen;
+  const shellTranslateX = isOpen ? "0" : `calc(-100% + ${dragOffsetPx}px)`;
 
   return (
-    <Layout
-      ref={rootRef}
+    <div
       className={styles.root}
-      style={{
-        width: "var(--side-menu-rail-width)",
-      }}
+      style={{ width: "var(--side-menu-rail-width)" }}
     >
       <button
         type="button"
         className={styles.edgeTrigger}
-        onClick={handleOpenClick}
+        onClick={() => setIsOpen(true)}
         onPointerDown={handleOpenDragStart}
         title="사이드메뉴 펼치기"
       />
-      <Layout className={clsx(styles.layer, isVisible && styles.layerOpen)}>
-        <button
-          type="button"
-          className={styles.backdrop}
-          onClick={() => setIsOpen(false)}
-          aria-label="사이드메뉴 닫기"
-          tabIndex={isVisible ? 0 : -1}
-          style={
-            backdropOpacity === undefined
-              ? undefined
-              : { opacity: backdropOpacity }
-          }
-        />
-        <Layout
-          ref={shellRef}
-          className={styles.shell}
-          style={
-            shellTransform
-              ? { width: "20rem", transform: shellTransform }
-              : { width: "20rem" }
-          }
-        >
-          <div className={styles.panelHost}>
-            <Fill padding="lg" className={styles.panel}>
-              <Row justify="between" align="center">
-                <Title>메뉴</Title>
-                <CloseButton onClick={() => setIsOpen(false)} />
-              </Row>
-              <Bar />
-              <Fill>
-                <GuildList guilds={guilds.data ?? []} activeGuildId={guildId} />
-                {guildId && <PresetList selectedPresetId={presetId} />}
+      {shouldRenderLayer && (
+        <div className={clsx(styles.layer, isOpen && styles.layerOpen)}>
+          <button
+            type="button"
+            className={styles.backdrop}
+            onClick={() => setIsOpen(false)}
+            aria-label="사이드메뉴 닫기"
+          />
+          <div
+            className={clsx(
+              styles.shell,
+              isDraggingOpen && styles.shellDragging,
+            )}
+            style={{
+              width: "20rem",
+              transform: `translateX(${shellTranslateX})`,
+            }}
+          >
+            <div className={styles.panelHost}>
+              <Fill padding="lg" className={styles.panel}>
+                <Row justify="between" align="center">
+                  <Title>사이드 메뉴</Title>
+                  <CloseButton onClick={() => setIsOpen(false)} />
+                </Row>
+                <Bar />
+                <Fill>
+                  <GuildList
+                    guilds={guilds.data ?? []}
+                    activeGuildId={guildId}
+                  />
+                  {guildId && <PresetList selectedPresetId={presetId} />}
+                </Fill>
               </Fill>
-            </Fill>
+            </div>
           </div>
-        </Layout>
-      </Layout>
-    </Layout>
+        </div>
+      )}
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Link } from "@components/atoms/link";
 import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
-import { Text } from "@components/atoms/text";
+import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/molecules/card";
 import {
   PrimarySection,
@@ -26,28 +26,26 @@ export function HomePage() {
       <Scroll axis="y" center>
         <Column gap="xl" width="page" self="center">
           <PrimarySection>
+            <Title> Discord 연동으로 팀원 경매를 간편하게!</Title>
             <SecondarySection>
+              <Title>하나의 흐름으로</Title>
               <Card>
                 <Text variantWeight="semibold">
-                  {`${BOT_INVITE_URL_TEXT} → 길드 선택 → 프리셋 구성 → 경매 생성을 하나의 흐름으로`}
+                  {`Discord 연동 -> ${BOT_INVITE_URL_TEXT} → 길드 선택 → 프리셋 구성 → 경매 생성`}
                 </Text>
               </Card>
-              <Text>
-                {`Discord 계정으로 로그인하고 ${BOT_INVITE_URL_TEXT}를 진행합니다.`}
-              </Text>
-              <Text>
-                운영할 길드를 선택하고 멤버 정보와 운영용 설정을 확인한 뒤
-                프리셋을 구성합니다.
-              </Text>
-              <Text>
-                공개 여부와 초대 전송 여부를 선택해 경매를 생성합니다.
-              </Text>
+            </SecondarySection>
+            <SecondarySection>
+              <Title></Title>
+              <TertiarySection>
+                <Text></Text>
+              </TertiarySection>
             </SecondarySection>
             <Row>
               {myUser.data ? null : (
                 <Fill>
                   <PrimaryButton variantSize="large" onClick={login}>
-                    로그인하여 시작하기
+                    로그인하여 Discord 연동하기
                   </PrimaryButton>
                 </Fill>
               )}

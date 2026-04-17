@@ -2,10 +2,9 @@
   --side-menu-header-offset: 3.5rem;
   --side-menu-rail-width: clamp(0.5rem, 1.2vw, 0.875rem);
   --side-menu-surface-bg: rgb(34, 48, 86);
-  --side-menu-surface-hover-bg: rgb(42, 58, 101);
   --side-menu-surface-border: rgba(255, 255, 255, 0.18);
-  --side-menu-surface-shadow: rgba(0, 0, 0, 0.28);
   position: relative;
+  height: 100%;
 }
 
 .edgeTrigger {
@@ -14,19 +13,14 @@
   background: var(--side-menu-surface-bg);
   border: none;
   border-right: 1px solid var(--side-menu-surface-border);
-  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.1);
   padding: 0;
   cursor: pointer;
-  opacity: 1;
   touch-action: none;
 }
 
 .edgeTrigger:hover,
 .edgeTrigger:focus-visible {
-  background: var(--side-menu-surface-hover-bg);
-  box-shadow:
-    inset -1px 0 0 rgba(255, 255, 255, 0.12),
-    0 0 0.75rem rgba(255, 255, 255, 0.12);
+  background: var(--side-menu-surface-bg);
 }
 
 .layer {
@@ -36,37 +30,38 @@
   pointer-events: none;
 }
 
+.layerOpen {
+  pointer-events: auto;
+}
+
 .backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.18);
+  background: transparent;
   border: none;
   padding: 0;
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 180ms ease;
+}
+
+.layerOpen .backdrop {
+  pointer-events: auto;
 }
 
 .shell {
   position: fixed;
   inset: var(--side-menu-header-offset) auto 0 0;
   z-index: 1;
+  pointer-events: auto;
+  transition: transform 250ms ease-out;
+}
+
+.shellDragging {
   pointer-events: none;
-  transform: translateX(calc(-100% + var(--side-menu-rail-width)));
-  transition: transform 220ms ease;
-}
-
-.layerOpen .backdrop {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.layerOpen .shell {
-  pointer-events: auto;
-  transform: translateX(0);
+  transition: none;
 }
 
 .panelHost {
+  display: flex;
   width: 100%;
   height: 100%;
   pointer-events: auto;
@@ -77,6 +72,5 @@
   background: var(--side-menu-surface-bg);
   color: var(--color-section-primary-text);
   border: var(--border-width-default) solid var(--side-menu-surface-border);
-  box-shadow: 0 2rem 4rem var(--side-menu-surface-shadow);
   pointer-events: auto;
 }
