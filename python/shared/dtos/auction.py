@@ -121,4 +121,4 @@ class ErrorPayloadDTO(BaseDTO):
 
 class AuctionMessageEnvelopeDTO(BaseDTO):
     type: AuctionMessageType
-    payload: dict[str, Any] | None
+    payload: BaseDTO | dict[str, Any] | None

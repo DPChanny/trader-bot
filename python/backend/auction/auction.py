@@ -182,8 +182,8 @@ class Auction:
         disconnected_ws_set: set[WebSocket] = set()
         message_envelope = AuctionMessageEnvelopeDTO(
             type=message_type,
-            payload=message_payload_dto.model_dump(),
-        ).model_dump()
+            payload=message_payload_dto,
+        ).model_dump(mode="json")
         for ws in ws_list:
             try:
                 await ws.send_json(message_envelope)
@@ -232,7 +232,8 @@ class Auction:
             self.status = new_status
 
         await self._broadcast(
-            AuctionMessageType.STATUS, StatusPayloadDTO(status=self.status)
+            AuctionMessageType.STATUS,
+            StatusPayloadDTO(status=self.status),
         )
 
         if next_member:

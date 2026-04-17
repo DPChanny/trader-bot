@@ -106,8 +106,8 @@ async def auction_ws(
         await ws.send_json(
             AuctionMessageEnvelopeDTO(
                 type=AuctionMessageType.INIT,
-                payload=init_payload_dto.model_dump(),
-            ).model_dump()
+                payload=init_payload_dto,
+            ).model_dump(mode="json")
         )
 
         while True:
@@ -127,8 +127,8 @@ async def auction_ws(
                 await ws.send_json(
                     AuctionMessageEnvelopeDTO(
                         type=AuctionMessageType.ERROR,
-                        payload=ErrorPayloadDTO(code=e.code).model_dump(),
-                    ).model_dump()
+                        payload=ErrorPayloadDTO(code=e.code),
+                    ).model_dump(mode="json")
                 )
                 continue
 
