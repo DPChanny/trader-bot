@@ -14,6 +14,7 @@ from .error import (
     handle_app_error,
     handle_ws_error,
 )
+from .logging import Event
 
 
 P = ParamSpec("P")
@@ -59,7 +60,7 @@ def bot_router[**P, T](
             return None
         except Exception as error:
             app_error = AppError(UnexpectedErrorCode.Internal)
-            app_error.function = func.__name__
+            app_error.event = Event(function=func.__name__)
             app_error.__cause__ = error
             handle_app_error(app_error, func.__name__)
             return None
@@ -92,7 +93,7 @@ def ws_router[**P, T](
             return None
         except Exception as error:
             ws_error = WSError(UnexpectedErrorCode.Internal)
-            ws_error.function = func.__name__
+            ws_error.event = Event(function=func.__name__)
             ws_error.__cause__ = error
             handle_ws_error(ws_error, func.__name__)
             close_code = 4000

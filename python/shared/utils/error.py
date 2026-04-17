@@ -8,7 +8,6 @@
 
 import traceback
 from enum import IntEnum
-from typing import Any
 
 from fastapi.responses import JSONResponse
 from loguru import logger
@@ -106,8 +105,7 @@ class TokenError(Exception):
 class AppError(Exception):
     def __init__(self, code: AppErrorCode) -> None:
         self.code: int = code.value
-        self.function: str | None = None
-        self.request: dict[str, Any] | None = None
+        self.event: Event | None = None
         super().__init__(str(code.value))
 
 
@@ -125,7 +123,10 @@ class WSError(AppError):
 
 
 def _build_event(error: AppError, fallback_function: str) -> Event:
+    event = error.event or Event(function=fallback_function)
+
     detail = {"error_code": error.code}
+
     if error.__cause__ is not None:
         detail["exception"] = "".join(
             traceback.format_exception(
@@ -133,11 +134,8 @@ def _build_event(error: AppError, fallback_function: str) -> Event:
             )
         )
 
-    return Event(
-        function=error.function or fallback_function,
-        request=error.request,
-        detail=detail,
-    )
+    event.detail = detail
+    return event
 
 
 def handle_app_error(error: AppError, fallback_function: str) -> None:

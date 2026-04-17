@@ -10,6 +10,7 @@ from fastapi import Header
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 from shared.utils.error import AuthErrorCode, HTTPError, TokenError, TokenErrorCode
+from shared.utils.logging import Event
 
 
 _ACCESS_TOKEN_EXPIRATION_MINUTES = 15
@@ -107,9 +108,9 @@ async def verify_access_token(authorization: str = Header(None)) -> int:
         return AccessToken.decode(token).user_id
     except TokenError as e:
         error = HTTPError(e.code)
-        error.function = verify_access_token.__name__
+        error.event = Event(function=verify_access_token.__name__)
         raise error from None
     except HTTPError as e:
-        if e.function is None:
-            e.function = verify_access_token.__name__
+        if e.event is None:
+            e.event = Event(function=verify_access_token.__name__)
         raise

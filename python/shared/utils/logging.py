@@ -14,6 +14,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
+from .env import get_log_level
+
 
 REDACT_KEYS = {"access_token", "refresh_token", "exchange_token"}
 
@@ -34,32 +36,6 @@ def redact(value: Any) -> Any:
     return value
 
 
-def _to_log_primitive(value: Any) -> Any:
-    if isinstance(value, dict):
-        return {key: _to_log_primitive(item) for key, item in value.items()}
-
-    if isinstance(value, list):
-        return [_to_log_primitive(item) for item in value]
-
-    model_dump = getattr(value, "model_dump", None)
-    if callable(model_dump):
-        return _to_log_primitive(model_dump(exclude_unset=True))
-
-    return value
-
-
-def _normalize_event_response(value: Any) -> dict[str, Any]:
-    if value is None:
-        return {}
-
-    normalized = _to_log_primitive(value)
-    if isinstance(normalized, list):
-        return {"items": normalized}
-    if isinstance(normalized, dict):
-        return normalized
-    return {"value": normalized}
-
-
 @dataclass
 class Event:
     function: str
@@ -69,9 +45,30 @@ class Event:
 
     def __iter__(self):
         yield "function", self.function
-        yield "request", redact(self.request)
-        yield "response", redact(_normalize_event_response(self.response))
-        yield "detail", redact(self.detail)
+        yield (
+            "request",
+            redact(
+                self.request.model_dump(mode="json", exclude_unset=True)
+                if isinstance(self.request, BaseModel)
+                else self.request
+            ),
+        )
+        yield (
+            "response",
+            redact(
+                self.response.model_dump(mode="json", exclude_unset=True)
+                if isinstance(self.response, BaseModel)
+                else self.response
+            ),
+        )
+        yield (
+            "detail",
+            redact(
+                self.detail.model_dump(mode="json", exclude_unset=True)
+                if isinstance(self.detail, BaseModel)
+                else self.detail
+            ),
+        )
 
 
 def _patcher(record: dict[str, Any]) -> None:
@@ -141,8 +138,6 @@ class _LoguruHandler(logging.Handler):
 
 
 def setup_logging(log_dir: str | Path, log_name: str) -> None:
-    from .env import get_log_level
-
     log_level = get_log_level()
     logger.remove()
     logger.configure(patcher=_patcher)
@@ -155,7 +150,7 @@ def setup_logging(log_dir: str | Path, log_name: str) -> None:
         str(log_name),
         level=log_level,
         format="{extra[json]}",
-        rotation="10 MB",
+        rotation="64 MB",
         retention="7 days",
         compression="zip",
         enqueue=True,
