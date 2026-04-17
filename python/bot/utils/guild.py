@@ -45,7 +45,7 @@ async def delete_guild(guild_id: int, session: AsyncSession) -> GuildDTO:
 
 async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict:
     guild_id = guild.id
-    guild_entity = await upsert_guild(guild, session)
+    await upsert_guild(guild, session)
 
     synced_member_ids: set[int] = set()
     async for member in guild.fetch_members():
@@ -58,9 +58,7 @@ async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict:
 
     await session.flush()
 
-    owner_member = await update_member_role(
-        guild_id, guild.owner_id, Role.OWNER, session
-    )
+    await update_member_role(guild_id, guild.owner_id, Role.OWNER, session)
 
     member_repo = MemberRepository(session)
     removed_member_count = 0
@@ -71,11 +69,7 @@ async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict:
         await delete_member(guild.id, member_entity.user_id, session)
         removed_member_count += 1
 
-    return (
-        guild_entity.model_dump()
-        | owner_member.model_dump()
-        | {
-            "synced_member_count": len(synced_member_ids),
-            "removed_member_count": removed_member_count,
-        }
-    )
+    return {
+        "synced_member_count": len(synced_member_ids),
+        "removed_member_count": removed_member_count,
+    }

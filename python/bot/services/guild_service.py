@@ -1,6 +1,7 @@
 from discord import Guild
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.dtos.guild import GuildDTO
 from shared.dtos.member import Role
 from shared.utils.service import bot_service
 
@@ -9,8 +10,8 @@ from ..utils.member import update_member_role
 
 
 @bot_service
-async def on_guild_join_service(guild: Guild, session: AsyncSession) -> None:
-    await sync_guild(guild, session)
+async def on_guild_join_service(guild: Guild, session: AsyncSession) -> dict:
+    return await sync_guild(guild, session)
 
 
 @bot_service
@@ -18,14 +19,22 @@ async def on_guild_update_service(
     before: Guild,
     after: Guild,
     session: AsyncSession,
-) -> None:
+    detail: dict[str, dict],
+) -> GuildDTO:
     guild_id = after.id
-    await upsert_guild(after, session)
+    guild_dto = await upsert_guild(after, session)
     if before.owner_id != after.owner_id:
-        await update_member_role(guild_id, before.owner_id, Role.ADMIN, session)
-        await update_member_role(guild_id, after.owner_id, Role.OWNER, session)
+        before_owner_member = await update_member_role(
+            guild_id, before.owner_id, Role.ADMIN, session
+        )
+        after_owner_member = await update_member_role(
+            guild_id, after.owner_id, Role.OWNER, session
+        )
+        detail["before_owner_member"] = before_owner_member.model_dump()
+        detail["after_owner_member"] = after_owner_member.model_dump()
+    return guild_dto
 
 
 @bot_service
-async def on_guild_remove_service(guild: Guild, session: AsyncSession) -> None:
-    await delete_guild(guild.id, session)
+async def on_guild_remove_service(guild: Guild, session: AsyncSession) -> GuildDTO:
+    return await delete_guild(guild.id, session)
