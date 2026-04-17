@@ -141,10 +141,12 @@ export function HomePage() {
             <Title>주의 사항</Title>
 
             <Card variantColor="red">
-              <Text variantWeight="semibold">
-                {BOT_INVITE_URL_TEXT}가 선행되어야 길드가 서비스에 자동
-                등록됩니다.
-              </Text>
+              <Column gap="md">
+                <Text variantWeight="semibold">
+                  Trader Bot이 길드에 초대되어야 해당 길드가 서비스에
+                  등록됩니다.
+                </Text>
+              </Column>
             </Card>
             <Card variantColor="red">
               <Text variantWeight="semibold">
@@ -153,32 +155,34 @@ export function HomePage() {
             </Card>
             <Card variantColor="red">
               <Text variantWeight="semibold">
-                길드 관리자는 관리자 역할이 자동 부여됩니다.
+                길드 관리자 권한이 있는 멤버는 관리자 역할이 자동 부여됩니다.
               </Text>
               <Text>
-                길드 관리자 권한이 박탈되면 편집자 역할이 아닐 경우 열람자
-                역할이 자동 부여됩니다.
+                길드 관리자 권한이 박탈되면 편집자를 제외하고 열람자 역할이 자동
+                부여됩니다.
               </Text>
             </Card>
             <Card variantColor="red">
               <Text variantWeight="semibold">
-                일반 길드 멤버는 열람자 역할이 자동 부여됩니다.
-              </Text>
-            </Card>
-            <Card variantColor="red">
-              <Text variantWeight="semibold">
-                편집자 역할부터 생성, 추가, 편집을 할 수 있습니다.
-              </Text>
-            </Card>
-            <Card variantColor="red">
-              <Text variantWeight="semibold">
-                관리자 역할부터 삭제, 프리셋 추가, 경매 생성을 할 수 있습니다.
+                일반 멤버는 열람자 역할이 자동 부여됩니다.
               </Text>
             </Card>
             <Card variantColor="red">
               <Text variantWeight="semibold">
                 소유자 역할을 제외한 역할은 관리자 역할부터 부여할 수 있습니다.
               </Text>
+            </Card>
+            <Card variantColor="red">
+              <Text variantWeight="semibold">
+                편집자 역할부터 프리셋을 구성할 수 있습니다.
+              </Text>
+            </Card>
+            <Card variantColor="red">
+              <Column gap="md">
+                <Text variantWeight="semibold">
+                  관리자 역할부터 프리셋을 삭제 및 경매를 생성할 수 있습니다.
+                </Text>
+              </Column>
             </Card>
           </SecondarySection>
 
