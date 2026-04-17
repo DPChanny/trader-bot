@@ -18,7 +18,7 @@ from shared.utils.error import (
     PresetMemberErrorCode,
     TierErrorCode,
 )
-from shared.utils.service import http_service
+from shared.utils.service import Event, http_service, set_event_response
 
 from ..utils.member import verify_role
 
@@ -29,6 +29,7 @@ async def get_preset_members_service(
     user_id: int,
     preset_id: int,
     session: AsyncSession,
+    event: Event,
 ) -> list[PresetMemberDetailDTO]:
     await verify_role(guild_id, user_id, session, Role.VIEWER)
 
@@ -38,7 +39,8 @@ async def get_preset_members_service(
 
     preset_member_repo = PresetMemberRepository(session)
     members = await preset_member_repo.get_all_detail_by_preset_id(preset_id, guild_id)
-    return [PresetMemberDetailDTO.model_validate(m) for m in members]
+    response = [PresetMemberDetailDTO.model_validate(m) for m in members]
+    return set_event_response(event, response)
 
 
 @http_service
@@ -48,6 +50,7 @@ async def get_preset_member_service(
     preset_id: int,
     preset_member_id: int,
     session: AsyncSession,
+    event: Event,
 ) -> PresetMemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.VIEWER)
 
@@ -57,7 +60,8 @@ async def get_preset_member_service(
     )
     if preset_member is None:
         raise HTTPError(PresetMemberErrorCode.NotFound)
-    return PresetMemberDetailDTO.model_validate(preset_member)
+    response = PresetMemberDetailDTO.model_validate(preset_member)
+    return set_event_response(event, response)
 
 
 @http_service
@@ -67,6 +71,7 @@ async def add_preset_member_service(
     preset_id: int,
     dto: AddPresetMemberDTO,
     session: AsyncSession,
+    event: Event,
 ) -> PresetMemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -99,7 +104,8 @@ async def add_preset_member_service(
     )
     if preset_member is None:
         raise HTTPError(PresetMemberErrorCode.NotFound)
-    return PresetMemberDetailDTO.model_validate(preset_member)
+    response = PresetMemberDetailDTO.model_validate(preset_member)
+    return set_event_response(event, response)
 
 
 @http_service
@@ -110,6 +116,7 @@ async def update_preset_member_service(
     preset_member_id: int,
     dto: UpdatePresetMemberDTO,
     session: AsyncSession,
+    event: Event,
 ) -> PresetMemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -132,7 +139,8 @@ async def update_preset_member_service(
     preset_member = await preset_member_repo.get_detail_by_id(
         preset_member_id, preset_id, guild_id
     )
-    return PresetMemberDetailDTO.model_validate(preset_member)
+    response = PresetMemberDetailDTO.model_validate(preset_member)
+    return set_event_response(event, response)
 
 
 @http_service
@@ -142,6 +150,7 @@ async def delete_preset_member_service(
     preset_id: int,
     preset_member_id: int,
     session: AsyncSession,
+    event: Event,
 ) -> PresetMemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -160,4 +169,4 @@ async def delete_preset_member_service(
 
     response = PresetMemberDetailDTO.model_validate(preset_member_detail)
     await session.delete(preset_member)
-    return response
+    return set_event_response(event, response)

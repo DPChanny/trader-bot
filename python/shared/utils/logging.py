@@ -21,31 +21,59 @@ REDACT_KEYS = {
 }
 
 
-def redact(value: dict[str, Any]) -> dict[str, Any]:
-    redacted: dict[str, Any] = {}
-    for key, item in value.items():
-        if isinstance(key, str) and key in REDACT_KEYS:
-            redacted[key] = "[REDACTED]"
-        elif isinstance(item, dict):
-            redacted[key] = redact(item)
-        elif isinstance(item, list):
-            redacted[key] = [redact(i) if isinstance(i, dict) else i for i in item]
-        else:
-            redacted[key] = item
-    return redacted
+def redact(value: Any) -> Any:
+    if isinstance(value, dict):
+        redacted: dict[str, Any] = {}
+        for key, item in value.items():
+            if isinstance(key, str) and key in REDACT_KEYS:
+                redacted[key] = "[REDACTED]"
+            else:
+                redacted[key] = redact(item)
+        return redacted
+
+    if isinstance(value, list):
+        return [redact(item) for item in value]
+
+    return value
+
+
+def _to_log_primitive(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: _to_log_primitive(item) for key, item in value.items()}
+
+    if isinstance(value, list):
+        return [_to_log_primitive(item) for item in value]
+
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        return _to_log_primitive(model_dump(exclude_unset=True))
+
+    return value
+
+
+def _normalize_event_response(value: Any) -> dict[str, Any]:
+    if value is None:
+        return {}
+
+    normalized = _to_log_primitive(value)
+    if isinstance(normalized, list):
+        return {"items": normalized}
+    if isinstance(normalized, dict):
+        return normalized
+    return {"value": normalized}
 
 
 @dataclass
 class Event:
     function: str
     request: dict[str, Any] = field(default_factory=dict)
-    response: dict[str, Any] = field(default_factory=dict)
+    response: dict[str, Any] | list[Any] | None = None
     detail: dict[str, Any] = field(default_factory=dict)
 
     def __iter__(self):
         yield "function", self.function
         yield "request", redact(self.request)
-        yield "response", redact(self.response)
+        yield "response", redact(_normalize_event_response(self.response))
         yield "detail", redact(self.detail)
 
 

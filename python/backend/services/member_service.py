@@ -3,42 +3,45 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.member import MemberDetailDTO, Role
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import HTTPError, MemberErrorCode
-from shared.utils.service import http_service
+from shared.utils.service import Event, http_service, set_event_response
 
 from ..utils.member import verify_role
 
 
 @http_service
 async def get_my_member_service(
-    guild_id: int, user_id: int, session: AsyncSession
+    guild_id: int, user_id: int, session: AsyncSession, event: Event
 ) -> MemberDetailDTO:
     member_repo = MemberRepository(session)
     member = await member_repo.get_detail_by_user_id(user_id, guild_id)
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
-    return MemberDetailDTO.model_validate(member)
+    response = MemberDetailDTO.model_validate(member)
+    return set_event_response(event, response)
 
 
 @http_service
 async def get_member_service(
-    guild_id: int, user_id: int, member_id: int, session: AsyncSession
+    guild_id: int, user_id: int, member_id: int, session: AsyncSession, event: Event
 ) -> MemberDetailDTO:
     await verify_role(guild_id, user_id, session)
     member_repo = MemberRepository(session)
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
-    return MemberDetailDTO.model_validate(member)
+    response = MemberDetailDTO.model_validate(member)
+    return set_event_response(event, response)
 
 
 @http_service
 async def get_members_service(
-    guild_id: int, user_id: int, session: AsyncSession
+    guild_id: int, user_id: int, session: AsyncSession, event: Event
 ) -> list[MemberDetailDTO]:
     await verify_role(guild_id, user_id, session)
     member_repo = MemberRepository(session)
     members = await member_repo.get_all_by_guild_id(guild_id)
-    return [MemberDetailDTO.model_validate(m) for m in members]
+    response = [MemberDetailDTO.model_validate(m) for m in members]
+    return set_event_response(event, response)
 
 
 @http_service
@@ -48,6 +51,7 @@ async def update_member_service(
     member_id: int,
     dto,
     session: AsyncSession,
+    event: Event,
 ) -> MemberDetailDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
     member_repo = MemberRepository(session)
@@ -66,4 +70,5 @@ async def update_member_service(
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
-    return MemberDetailDTO.model_validate(member)
+    response = MemberDetailDTO.model_validate(member)
+    return set_event_response(event, response)

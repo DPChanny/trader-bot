@@ -9,14 +9,18 @@ from shared.dtos.preset import (
 from shared.entities.preset import Preset
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PresetErrorCode
-from shared.utils.service import http_service
+from shared.utils.service import Event, http_service, set_event_response
 
 from ..utils.member import verify_role
 
 
 @http_service
 async def get_preset_service(
-    guild_id: int, user_id: int, preset_id: int, session: AsyncSession
+    guild_id: int,
+    user_id: int,
+    preset_id: int,
+    session: AsyncSession,
+    event: Event,
 ) -> PresetDTO:
     await verify_role(guild_id, user_id, session, Role.VIEWER)
 
@@ -24,7 +28,8 @@ async def get_preset_service(
     preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
         raise HTTPError(PresetErrorCode.NotFound)
-    return PresetDTO.model_validate(preset)
+    response = PresetDTO.model_validate(preset)
+    return set_event_response(event, response)
 
 
 @http_service
@@ -33,6 +38,7 @@ async def create_preset_service(
     user_id: int,
     dto: CreatePresetDTO,
     session: AsyncSession,
+    event: Event,
 ) -> PresetDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -46,18 +52,20 @@ async def create_preset_service(
     )
     session.add(preset)
     await session.flush()
-    return PresetDTO.model_validate(preset)
+    response = PresetDTO.model_validate(preset)
+    return set_event_response(event, response)
 
 
 @http_service
 async def get_presets_service(
-    guild_id: int, user_id: int, session: AsyncSession
+    guild_id: int, user_id: int, session: AsyncSession, event: Event
 ) -> list[PresetDTO]:
     await verify_role(guild_id, user_id, session, Role.VIEWER)
 
     preset_repo = PresetRepository(session)
     presets = await preset_repo.get_all_by_guild_id(guild_id)
-    return [PresetDTO.model_validate(p) for p in presets]
+    response = [PresetDTO.model_validate(p) for p in presets]
+    return set_event_response(event, response)
 
 
 @http_service
@@ -67,6 +75,7 @@ async def update_preset_service(
     preset_id: int,
     dto: UpdatePresetDTO,
     session: AsyncSession,
+    event: Event,
 ) -> PresetDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -78,7 +87,8 @@ async def update_preset_service(
     for key in dto.model_fields_set:
         setattr(preset, key, getattr(dto, key))
 
-    return PresetDTO.model_validate(preset)
+    response = PresetDTO.model_validate(preset)
+    return set_event_response(event, response)
 
 
 @http_service
@@ -87,6 +97,7 @@ async def delete_preset_service(
     user_id: int,
     preset_id: int,
     session: AsyncSession,
+    event: Event,
 ) -> PresetDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
@@ -97,4 +108,4 @@ async def delete_preset_service(
 
     response = PresetDTO.model_validate(preset)
     await session.delete(preset)
-    return response
+    return set_event_response(event, response)

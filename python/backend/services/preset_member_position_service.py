@@ -19,7 +19,7 @@ from shared.utils.error import (
     PresetMemberErrorCode,
     PresetMemberPositionErrorCode,
 )
-from shared.utils.service import http_service
+from shared.utils.service import Event, http_service, set_event_response
 
 from ..utils.member import verify_role
 
@@ -32,6 +32,7 @@ async def add_preset_member_position_service(
     preset_member_id: int,
     dto: AddPresetMemberPositionDTO,
     session: AsyncSession,
+    event: Event,
 ) -> PresetMemberPositionDetailDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -66,7 +67,8 @@ async def add_preset_member_position_service(
     if preset_member_position is None:
         raise HTTPError(PresetMemberPositionErrorCode.NotFound)
 
-    return PresetMemberPositionDetailDTO.model_validate(preset_member_position)
+    response = PresetMemberPositionDetailDTO.model_validate(preset_member_position)
+    return set_event_response(event, response)
 
 
 @http_service
@@ -77,6 +79,7 @@ async def delete_preset_member_position_service(
     preset_member_id: int,
     preset_member_position_id: int,
     session: AsyncSession,
+    event: Event,
 ) -> PresetMemberPositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
@@ -89,4 +92,4 @@ async def delete_preset_member_position_service(
 
     response = PresetMemberPositionDTO.model_validate(preset_member_position)
     await session.delete(preset_member_position)
-    return response
+    return set_event_response(event, response)

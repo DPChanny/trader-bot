@@ -2,7 +2,7 @@ from discord.ext import commands
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.repositories.guild_repository import GuildRepository
-from shared.utils.service import bot_service
+from shared.utils.service import Event, bot_service, set_event_response
 
 from ..utils.guild import delete_guild, sync_guild
 
@@ -11,7 +11,7 @@ from ..utils.guild import delete_guild, sync_guild
 async def on_ready_service(
     bot: commands.Bot,
     session: AsyncSession,
-    detail: dict[str, int],
+    event: Event,
 ) -> dict[str, int]:
     synced_guild_ids: set[int] = set()
 
@@ -28,5 +28,6 @@ async def on_ready_service(
         await delete_guild(guild_entity.discord_id, session)
         removed_guild_count += 1
 
-    detail["removed_guild_count"] = removed_guild_count
-    return {"synced_guild_count": len(synced_guild_ids)}
+    event.detail["removed_guild_count"] = removed_guild_count
+    response = {"synced_guild_count": len(synced_guild_ids)}
+    return set_event_response(event, response)

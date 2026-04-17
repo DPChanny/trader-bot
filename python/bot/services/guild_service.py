@@ -3,15 +3,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild import GuildDTO
 from shared.dtos.member import Role
-from shared.utils.service import bot_service
+from shared.utils.service import Event, bot_service, set_event_response
 
 from ..utils.guild import delete_guild, sync_guild, upsert_guild
 from ..utils.member import update_member_role
 
 
 @bot_service
-async def on_guild_join_service(guild: Guild, session: AsyncSession) -> dict:
-    return await sync_guild(guild, session)
+async def on_guild_join_service(
+    guild: Guild, session: AsyncSession, event: Event
+) -> dict:
+    response = await sync_guild(guild, session)
+    return set_event_response(event, response)
 
 
 @bot_service
@@ -19,7 +22,7 @@ async def on_guild_update_service(
     before: Guild,
     after: Guild,
     session: AsyncSession,
-    detail: dict[str, dict],
+    event: Event,
 ) -> GuildDTO:
     guild_id = after.id
     guild_dto = await upsert_guild(after, session)
@@ -30,11 +33,14 @@ async def on_guild_update_service(
         after_owner_member = await update_member_role(
             guild_id, after.owner_id, Role.OWNER, session
         )
-        detail["before_owner_member"] = before_owner_member.model_dump()
-        detail["after_owner_member"] = after_owner_member.model_dump()
-    return guild_dto
+        event.detail["before_owner_member"] = before_owner_member.model_dump()
+        event.detail["after_owner_member"] = after_owner_member.model_dump()
+    return set_event_response(event, guild_dto)
 
 
 @bot_service
-async def on_guild_remove_service(guild: Guild, session: AsyncSession) -> GuildDTO:
-    return await delete_guild(guild.id, session)
+async def on_guild_remove_service(
+    guild: Guild, session: AsyncSession, event: Event
+) -> GuildDTO:
+    response = await delete_guild(guild.id, session)
+    return set_event_response(event, response)

@@ -22,7 +22,7 @@ from shared.utils.error import (
     TokenError,
     WSError,
 )
-from shared.utils.service import http_service, ws_service
+from shared.utils.service import Event, http_service, set_event_response, ws_service
 
 from ..auction import Auction, AuctionManager
 from ..utils.discord import send_message
@@ -37,6 +37,7 @@ async def create_auction_service(
     preset_id: int,
     dto: CreateAuctionDTO,
     session: AsyncSession,
+    event: Event,
 ) -> AuctionDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
@@ -101,7 +102,8 @@ async def create_auction_service(
             *[_send_invite(pm) for pm in preset_members],
         )
 
-    return AuctionDTO.model_validate(auction)
+    response = AuctionDTO.model_validate(auction)
+    return set_event_response(event, response)
 
 
 @ws_service

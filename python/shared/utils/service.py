@@ -10,16 +10,9 @@ from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
 from .logging import Event
 
 
-def normalize_result_dto(value: Any) -> dict[str, Any]:
-    if isinstance(value, BaseModel):
-        return value.model_dump(exclude_unset=True)
-    if isinstance(value, dict):
-        return value
-    if isinstance(value, list):
-        return {"items": value}
-    if value is None:
-        return {}
-    return {"value": value}
+def set_event_response(event: Event, value: Any) -> Any:
+    event.response = value
+    return value
 
 
 EXCLUDED_REQUEST_ARG_NAMES = {"session", "ws", "websocket", "bot"}
@@ -50,39 +43,34 @@ def _extract_request(
     return {}
 
 
-def _build_detail(
-    sig: inspect.Signature, kwargs: dict[str, Any]
-) -> tuple[dict[str, Any], dict[str, Any]]:
-    if "detail" not in sig.parameters:
-        return kwargs, {}
-
+def _build_event(
+    sig: inspect.Signature,
+    kwargs: dict[str, Any],
+    request: dict[str, Any],
+    function: str,
+) -> tuple[dict[str, Any], Event]:
+    event = Event(function=function, request=request)
     injected_kwargs = dict(kwargs)
-    detail = injected_kwargs.get("detail")
-    if not isinstance(detail, dict):
-        detail = {}
-        injected_kwargs["detail"] = detail
-
-    return injected_kwargs, detail
+    if "event" in sig.parameters:
+        injected_kwargs["event"] = event
+    return injected_kwargs, event
 
 
 def http_service(func):
     sig = inspect.signature(func)
+    if "event" not in sig.parameters:
+        raise TypeError(f"'{func.__name__}' must define an 'event: Event' parameter")
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        call_kwargs, detail = _build_detail(sig, kwargs)
         request = _extract_request(sig, args, kwargs)
+        call_kwargs, event = _build_event(sig, kwargs, request, func.__name__)
 
         try:
             response = await func(*args, **call_kwargs)
-            logger.bind(
-                event=Event(
-                    function=func.__name__,
-                    request=request,
-                    response=normalize_result_dto(response),
-                    detail=detail,
-                )
-            ).info("succeeded")
+            if event.response is None:
+                event.response = response
+            logger.bind(event=event).info("succeeded")
             return response
         except HTTPError as error:
             if error.function is None:
@@ -101,22 +89,19 @@ def http_service(func):
 
 def bot_service(func):
     sig = inspect.signature(func)
+    if "event" not in sig.parameters:
+        raise TypeError(f"'{func.__name__}' must define an 'event: Event' parameter")
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        call_kwargs, detail = _build_detail(sig, kwargs)
         request = _extract_request(sig, args, kwargs)
+        call_kwargs, event = _build_event(sig, kwargs, request, func.__name__)
 
         try:
             response = await func(*args, **call_kwargs)
-            logger.bind(
-                event=Event(
-                    function=func.__name__,
-                    request=request,
-                    response=normalize_result_dto(response),
-                    detail=detail,
-                )
-            ).info("succeeded")
+            if event.response is None:
+                event.response = response
+            logger.bind(event=event).info("succeeded")
             return response
         except AppError as error:
             if error.function is None:
@@ -138,8 +123,8 @@ def ws_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        call_kwargs, _ = _build_detail(sig, kwargs)
         request = _extract_request(sig, args, kwargs)
+        call_kwargs, _ = _build_event(sig, kwargs, request, func.__name__)
 
         try:
             return await func(*args, **call_kwargs)
