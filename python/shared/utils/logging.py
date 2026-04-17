@@ -8,53 +8,43 @@ from typing import Any
 from uuid import uuid4
 
 from loguru import logger
-from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
 
-SENSITIVE_KEYS = {
+REDACT_TARGET_KEYS = {
     "access_token",
     "refresh_token",
     "exchange_token",
 }
 
 
-def redact(value: Any) -> Any:
-    if isinstance(value, BaseModel):
-        return redact(value.model_dump(exclude_unset=True))
-
-    if isinstance(value, dict):
-        sanitized: dict[str, Any] = {}
-        for key, item in value.items():
-            if isinstance(key, str) and key.lower() in SENSITIVE_KEYS:
-                sanitized[key] = "[REDACTED]"
-            else:
-                sanitized[key] = redact(item)
-        return sanitized
-
-    if isinstance(value, list):
-        return [redact(item) for item in value]
-
-    return value
+def redact(value: dict[str, Any]) -> dict[str, Any]:
+    redacted: dict[str, Any] = {}
+    for key, item in value.items():
+        if isinstance(key, str) and key.lower() in REDACT_TARGET_KEYS:
+            redacted[key] = "[REDACTED]"
+        elif isinstance(item, dict):
+            redacted[key] = redact(item)
+        elif isinstance(item, list):
+            redacted[key] = [redact(i) if isinstance(i, dict) else i for i in item]
+        else:
+            redacted[key] = item
+    return redacted
 
 
 @dataclass
 class Event:
     function: str
-    request_dto: Any = field(default_factory=dict)
-    result_dto: Any = field(default_factory=dict)
+    request: dict[str, Any] = field(default_factory=dict)
+    response: dict[str, Any] = field(default_factory=dict)
     detail: dict[str, Any] = field(default_factory=dict)
 
     def __iter__(self):
-        redacted_result_dto = redact(self.result_dto)
-        if not isinstance(redacted_result_dto, (dict, list)):
-            redacted_result_dto = {}
-
         yield "function", self.function
-        yield "request_dto", redact(self.request_dto)
-        yield "result_dto", redacted_result_dto
+        yield "request", redact(self.request)
+        yield "response", redact(self.response)
         yield "detail", redact(self.detail)
 
 

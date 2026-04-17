@@ -10,10 +10,22 @@ from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
 from .logging import Event
 
 
+def normalize_result_dto(value: Any) -> dict[str, Any]:
+    if isinstance(value, BaseModel):
+        return value.model_dump(exclude_unset=True)
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, list):
+        return {"items": value}
+    if value is None:
+        return {}
+    return {"value": value}
+
+
 EXCLUDED_REQUEST_ARG_NAMES = {"session", "ws", "websocket", "bot"}
 
 
-def _extract_request_dto(
+def _extract_request(
     sig: inspect.Signature, args: tuple[Any, ...], kwargs: dict[str, Any]
 ) -> dict[str, Any]:
     bound = sig.bind_partial(*args, **kwargs)
@@ -59,15 +71,15 @@ def http_service(func):
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
         call_kwargs, detail = _build_detail(sig, kwargs)
-        request_dto = _extract_request_dto(sig, args, kwargs)
+        request = _extract_request(sig, args, kwargs)
 
         try:
             result = await func(*args, **call_kwargs)
             logger.bind(
                 event=Event(
                     function=func.__name__,
-                    request_dto=request_dto,
-                    result_dto=result,
+                    request=request,
+                    response=normalize_result_dto(result),
                     detail=detail,
                 )
             ).info("succeeded")
@@ -75,13 +87,13 @@ def http_service(func):
         except HTTPError as error:
             if error.function is None:
                 error.function = func.__name__
-            if error.request_dto is None:
-                error.request_dto = request_dto
+            if error.request is None:
+                error.request = request
             raise
         except Exception as error:
             http_error = HTTPError(UnexpectedErrorCode.Internal)
             http_error.function = func.__name__
-            http_error.request_dto = request_dto
+            http_error.request = request
             raise http_error from error
 
     return wrapper
@@ -93,15 +105,15 @@ def bot_service(func):
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
         call_kwargs, detail = _build_detail(sig, kwargs)
-        request_dto = _extract_request_dto(sig, args, kwargs)
+        request = _extract_request(sig, args, kwargs)
 
         try:
             result = await func(*args, **call_kwargs)
             logger.bind(
                 event=Event(
                     function=func.__name__,
-                    request_dto=request_dto,
-                    result_dto=result,
+                    request=request,
+                    response=normalize_result_dto(result),
                     detail=detail,
                 )
             ).info("succeeded")
@@ -109,13 +121,13 @@ def bot_service(func):
         except AppError as error:
             if error.function is None:
                 error.function = func.__name__
-            if error.request_dto is None:
-                error.request_dto = request_dto
+            if error.request is None:
+                error.request = request
             raise
         except Exception as error:
             app_error = AppError(UnexpectedErrorCode.Internal)
             app_error.function = func.__name__
-            app_error.request_dto = request_dto
+            app_error.request = request
             raise app_error from error
 
     return wrapper
@@ -127,22 +139,22 @@ def ws_service(func):
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
         call_kwargs, _ = _build_detail(sig, kwargs)
-        request_dto = _extract_request_dto(sig, args, kwargs)
+        request = _extract_request(sig, args, kwargs)
 
         try:
             return await func(*args, **call_kwargs)
         except WSError as error:
             if error.function is None:
                 error.function = func.__name__
-            if error.request_dto is None:
-                error.request_dto = request_dto
+            if error.request is None:
+                error.request = request
             raise
         except (ValidationError, JSONDecodeError):
             raise
         except Exception as error:
             ws_error = WSError(UnexpectedErrorCode.Internal)
             ws_error.function = func.__name__
-            ws_error.request_dto = request_dto
+            ws_error.request = request
             raise ws_error from error
 
     return wrapper
