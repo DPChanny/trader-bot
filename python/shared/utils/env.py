@@ -51,8 +51,8 @@ def get_db_name() -> str:
     return os.getenv("DB_NAME", "trader")
 
 
-def get_aws_region() -> str:
-    return os.getenv("AWS_REGION", "")
+def get_db_region() -> str:
+    return os.getenv("DB_REGION", "")
 
 
 def get_log_level() -> str:

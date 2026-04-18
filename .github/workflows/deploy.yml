@@ -41,7 +41,7 @@ jobs:
             APP_ORIGIN=https://${{ vars.EC2_HOST }}
             API_ORIGIN=https://${{ vars.EC2_HOST }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
-            AWS_REGION=${{ vars.AWS_REGION }}
+            DB_REGION=${{ vars.DB_REGION }}
             EOF
 
             if [ -n "${{ vars.LOG_LEVEL }}" ]; then

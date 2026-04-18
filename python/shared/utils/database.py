@@ -7,10 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from ..entities import BaseEntity
 from .env import (
-    get_aws_region,
     get_db_instance_identifier,
     get_db_name,
     get_db_port,
+    get_db_region,
     get_db_user,
 )
 
@@ -29,7 +29,7 @@ async def _get_db_endpoint() -> str:
             return _db_endpoint_cache
 
         async with aioboto3.Session().client(
-            "rds", region_name=get_aws_region()
+            "rds", region_name=get_db_region()
         ) as client:
             response = await client.describe_db_instances(
                 DBInstanceIdentifier=get_db_instance_identifier()
@@ -40,12 +40,12 @@ async def _get_db_endpoint() -> str:
 
 async def _get_db_password() -> str:
     db_endpoint = await _get_db_endpoint()
-    async with aioboto3.Session().client("rds", region_name=get_aws_region()) as client:
+    async with aioboto3.Session().client("rds", region_name=get_db_region()) as client:
         return await client.generate_db_auth_token(
             DBHostname=db_endpoint,
             Port=int(get_db_port()),
             DBUsername=get_db_user(),
-            Region=get_aws_region(),
+            Region=get_db_region(),
         )
 
 
