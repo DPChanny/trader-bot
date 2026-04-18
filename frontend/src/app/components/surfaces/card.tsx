@@ -31,7 +31,7 @@ export function Card({
   const baseClass = cardVariants({ variantColor });
 
   return (
-    <Layout gap="sm" className={clsx(baseClass, className)} {...props}>
+    <Layout className={clsx(baseClass, className)} {...props}>
       {children}
     </Layout>
   );

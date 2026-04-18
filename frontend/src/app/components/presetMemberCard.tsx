@@ -68,7 +68,7 @@ export function PresetMemberCard({ presetMember }: PresetMemberCardProps) {
       <Name className={styles.name} variantSize="small">
         {member.alias || member.name || member.user.name}
       </Name>
-      <Row center gap="xs" className={styles.positions}>
+      <Row center className={styles.positions}>
         {visiblePositions.map((pmp) => (
           <Badge key={pmp.positionId} variantColor="blue">
             {pmp.position.iconUrl ? (

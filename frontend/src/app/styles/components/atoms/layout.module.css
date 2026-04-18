@@ -1,6 +1,6 @@
 .layout {
   display: flex;
-  gap: var(--layout-gap, 0);
+  gap: var(--surface-gap, 0);
 }
 
 .directionRow {
@@ -12,27 +12,27 @@
 }
 
 .gapNone {
-  --layout-gap: 0;
+  --surface-gap: 0;
 }
 
 .gapXs {
-  --layout-gap: var(--gap-xs);
+  --surface-gap: var(--gap-xs);
 }
 
 .gapSm {
-  --layout-gap: var(--gap-sm);
+  --surface-gap: var(--gap-sm);
 }
 
 .gapMd {
-  --layout-gap: var(--gap-md);
+  --surface-gap: var(--gap-md);
 }
 
 .gapLg {
-  --layout-gap: var(--gap-lg);
+  --surface-gap: var(--gap-lg);
 }
 
 .gapXl {
-  --layout-gap: var(--gap-xl);
+  --surface-gap: var(--gap-xl);
 }
 
 .paddingNone {

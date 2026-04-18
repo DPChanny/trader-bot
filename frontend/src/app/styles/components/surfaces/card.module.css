@@ -1,5 +1,6 @@
 .card {
   position: relative;
+  --surface-gap: var(--gap-sm);
   border: var(--border-width-default) solid transparent;
   border-radius: var(--radius-lg);
   padding: var(--padding-md);

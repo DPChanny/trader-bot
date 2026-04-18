@@ -3,7 +3,7 @@
 }
 
 .surfacePrimary {
-  --layout-gap: var(--gap-lg);
+  --surface-gap: var(--gap-lg);
   --surface-bg: var(--color-section-primary-bg);
   --surface-border: var(--color-section-primary-border);
   --surface-color: var(--color-section-primary-text);
@@ -15,7 +15,7 @@
 }
 
 .surfaceSecondary {
-  --layout-gap: var(--gap-sm);
+  --surface-gap: var(--gap-sm);
   --surface-bg: var(--color-section-secondary-bg);
   --surface-border: var(--color-section-secondary-border);
   --surface-color: var(--color-section-secondary-text);
@@ -27,7 +27,7 @@
 }
 
 .surfaceTertiary {
-  --layout-gap: var(--gap-xs);
+  --surface-gap: var(--gap-xs);
   --surface-bg: var(--color-section-tertiary-bg);
   --surface-border: var(--color-section-tertiary-border);
   --surface-color: var(--color-section-tertiary-text);

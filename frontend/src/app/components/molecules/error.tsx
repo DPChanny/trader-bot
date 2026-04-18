@@ -19,7 +19,7 @@ export function Error({ className, error, children, ...props }: ErrorProps) {
       className={clsx(className)}
       {...props}
     >
-      <Column center gap="none">
+      <Column center>
         <Text variantSize="small" variantWeight="bold">
           {children}
         </Text>
