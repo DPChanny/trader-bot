@@ -43,7 +43,7 @@ export function HomePage() {
       <Scroll axis="y">
         <Column gap="xl" width="page" self="center">
           <PrimarySection>
-            <Title>BETA - v0.2.3</Title>
+            <Title>BETA - v0.2.4</Title>
             <Card>
               <img src="banner.jpg" />
             </Card>
