@@ -15,51 +15,48 @@ from .env import (
 )
 
 
-_db_endpoint_cache: str | None = None
-_db_endpoint_lock = asyncio.Lock()
+_DB_CONNECT_MAX_RETRIES = 5
+_DB_CONNECT_BASE_DELAY = 1.0
 
 
 async def _get_db_endpoint() -> str:
-    global _db_endpoint_cache
-    if _db_endpoint_cache:
-        return _db_endpoint_cache
-
-    async with _db_endpoint_lock:
-        if _db_endpoint_cache:
-            return _db_endpoint_cache
-
-        async with aioboto3.Session().client(
-            "rds", region_name=get_db_region()
-        ) as client:
-            response = await client.describe_db_instances(
-                DBInstanceIdentifier=get_db_instance_identifier()
-            )
-            _db_endpoint_cache = response["DBInstances"][0]["Endpoint"]["Address"]
-            return _db_endpoint_cache
-
-
-async def _get_db_password() -> str:
-    db_endpoint = await _get_db_endpoint()
     async with aioboto3.Session().client("rds", region_name=get_db_region()) as client:
-        return await client.generate_db_auth_token(
-            DBHostname=db_endpoint,
-            Port=int(get_db_port()),
-            DBUsername=get_db_user(),
-            Region=get_db_region(),
+        response = await client.describe_db_instances(
+            DBInstanceIdentifier=get_db_instance_identifier()
         )
+        return response["DBInstances"][0]["Endpoint"]["Address"]
 
 
 async def _async_creator() -> asyncpg.Connection:
-    db_endpoint = await _get_db_endpoint()
-    db_password = await _get_db_password()
-    return await asyncpg.connect(
-        host=db_endpoint,
-        port=int(get_db_port()),
-        user=get_db_user(),
-        password=db_password,
-        database=get_db_name(),
-        ssl="require",
-    )
+    last_exc: Exception | None = None
+
+    for attempt in range(1, _DB_CONNECT_MAX_RETRIES + 1):
+        try:
+            db_endpoint = await _get_db_endpoint()
+            async with aioboto3.Session().client(
+                "rds", region_name=get_db_region()
+            ) as client:
+                db_password = await client.generate_db_auth_token(
+                    DBHostname=db_endpoint,
+                    Port=int(get_db_port()),
+                    DBUsername=get_db_user(),
+                    Region=get_db_region(),
+                )
+            return await asyncpg.connect(
+                host=db_endpoint,
+                port=int(get_db_port()),
+                user=get_db_user(),
+                password=db_password,
+                database=get_db_name(),
+                ssl="require",
+            )
+        except Exception as exc:
+            last_exc = exc
+            delay = _DB_CONNECT_BASE_DELAY * (2 ** (attempt - 1))
+            if attempt < _DB_CONNECT_MAX_RETRIES:
+                await asyncio.sleep(delay)
+
+    raise last_exc
 
 
 _engine = create_async_engine(
