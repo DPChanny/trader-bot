@@ -10,7 +10,7 @@ import { Row, Scroll } from "@components/atoms/layout";
 import {
   SecondarySection,
   TertiarySection,
-} from "@components/molecules/section";
+} from "@components/surfaces/section";
 import { Title } from "@components/atoms/text";
 import { AddPositionModal } from "./addPositionModal";
 import { PositionCard } from "./positionCard";

@@ -2,7 +2,7 @@ import { Scroll } from "@components/atoms/layout";
 import {
   SecondarySection,
   TertiarySection,
-} from "@components/molecules/section";
+} from "@components/surfaces/section";
 import { GuildCard } from "./guildCard";
 import type { GuildDetailDTO } from "@dtos/guild";
 import { Title } from "@components/atoms/text";

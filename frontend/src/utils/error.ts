@@ -105,9 +105,9 @@ function getErrorMessage(code: number): string {
       return "길드를 찾을 수 없습니다";
 
     case BackendErrorCode.Member.InsufficientRole:
-      return "권한이 부족합니다";
+      return "역할 권한이 부족합니다";
     case BackendErrorCode.Member.ForbiddenRole:
-      return "소유자 권한은 수정할 수 없습니다";
+      return "소유자 역할은 수정할 수 없습니다";
     case BackendErrorCode.Member.NotMember:
       return "길드의 멤버가 아닙니다";
     case BackendErrorCode.Member.NotFound:

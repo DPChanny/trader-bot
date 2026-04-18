@@ -1,7 +1,7 @@
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import type { TeamDTO } from "@dtos/auction";
-import { Card } from "@components/molecules/card";
+import { Card } from "@components/surfaces/card";
 import { Row } from "@components/atoms/layout";
 import { Name, Text } from "@components/atoms/text";
 

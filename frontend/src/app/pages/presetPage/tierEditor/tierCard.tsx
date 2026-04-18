@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import { useGuildId } from "@hooks/router";
 import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/atoms/badge";
-import { Card } from "@components/molecules/card";
+import { Card } from "@components/surfaces/card";
 import { Image } from "@components/atoms/image";
 import { Row } from "@components/atoms/layout";
 import { Name } from "@components/atoms/text";

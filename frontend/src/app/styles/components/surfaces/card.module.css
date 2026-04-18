@@ -1,0 +1,176 @@
+.card {
+  position: relative;
+  border: var(--border-width-default) solid transparent;
+  border-radius: var(--radius-lg);
+  padding: var(--padding-md);
+}
+
+.card.colorBlue {
+  --surface-bg: var(--color-card-blue-bg);
+  --surface-border: var(--color-card-blue-border);
+  --surface-color: var(--color-card-blue-text);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--surface-color);
+}
+
+.card.colorBlue:hover {
+  --surface-bg: var(--color-card-blue-bg-hover);
+  --surface-border: var(--color-card-blue-border-hover);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}
+
+:global([aria-pressed="true"]) > .card.colorBlue,
+:global([aria-current="page"]) > .card.colorBlue {
+  --surface-bg: var(--color-card-blue-bg-active);
+  --surface-border: var(--color-card-blue-border-active);
+  --surface-color: var(--color-card-blue-text-active);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--surface-color);
+}
+
+:global([aria-pressed="true"]) > .card.colorBlue:hover,
+:global([aria-current="page"]) > .card.colorBlue:hover {
+  --surface-bg: var(--color-card-blue-bg-hover);
+  --surface-border: var(--color-card-blue-border-hover);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}
+
+.card.colorGold {
+  --surface-bg: var(--color-card-gold-bg);
+  --surface-border: var(--color-card-gold-border);
+  --surface-color: var(--color-card-gold-text);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--surface-color);
+}
+
+.card.colorGold:hover {
+  --surface-bg: var(--color-card-gold-bg-hover);
+  --surface-border: var(--color-card-gold-border-hover);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}
+
+:global([aria-pressed="true"]) > .card.colorGold,
+:global([aria-current="page"]) > .card.colorGold {
+  --surface-bg: var(--color-card-gold-bg-active);
+  --surface-border: var(--color-card-gold-border-active);
+  --surface-color: var(--color-card-gold-text-active);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--surface-color);
+}
+
+:global([aria-pressed="true"]) > .card.colorGold:hover,
+:global([aria-current="page"]) > .card.colorGold:hover {
+  --surface-bg: var(--color-card-gold-bg-hover);
+  --surface-border: var(--color-card-gold-border-hover);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}
+
+.card.colorGreen {
+  --surface-bg: var(--color-card-green-bg);
+  --surface-border: var(--color-card-green-border);
+  --surface-color: var(--color-card-green-text);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--surface-color);
+}
+
+.card.colorGreen:hover {
+  --surface-bg: var(--color-card-green-bg-hover);
+  --surface-border: var(--color-card-green-border-hover);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}
+
+:global([aria-pressed="true"]) > .card.colorGreen,
+:global([aria-current="page"]) > .card.colorGreen {
+  --surface-bg: var(--color-card-green-bg-active);
+  --surface-border: var(--color-card-green-border-active);
+  --surface-color: var(--color-card-green-text-active);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--surface-color);
+}
+
+:global([aria-pressed="true"]) > .card.colorGreen:hover,
+:global([aria-current="page"]) > .card.colorGreen:hover {
+  --surface-bg: var(--color-card-green-bg-hover);
+  --surface-border: var(--color-card-green-border-hover);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}
+
+.card.colorRed {
+  --surface-bg: var(--color-card-red-bg);
+  --surface-border: var(--color-card-red-border);
+  --surface-color: var(--color-card-red-text);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--surface-color);
+}
+
+.card.colorRed:hover {
+  --surface-bg: var(--color-card-red-bg-hover);
+  --surface-border: var(--color-card-red-border-hover);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}
+
+:global([aria-pressed="true"]) > .card.colorRed,
+:global([aria-current="page"]) > .card.colorRed {
+  --surface-bg: var(--color-card-red-bg-active);
+  --surface-border: var(--color-card-red-border-active);
+  --surface-color: var(--color-card-red-text-active);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--surface-color);
+}
+
+:global([aria-pressed="true"]) > .card.colorRed:hover,
+:global([aria-current="page"]) > .card.colorRed:hover {
+  --surface-bg: var(--color-card-red-bg-hover);
+  --surface-border: var(--color-card-red-border-hover);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}
+
+.card.colorGray {
+  --surface-bg: var(--color-card-gray-bg);
+  --surface-border: var(--color-card-gray-border);
+  --surface-color: var(--color-card-gray-text);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--surface-color);
+}
+
+.card.colorGray:hover {
+  --surface-bg: var(--color-card-gray-bg-hover);
+  --surface-border: var(--color-card-gray-border-hover);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}
+
+:global([aria-pressed="true"]) > .card.colorGray,
+:global([aria-current="page"]) > .card.colorGray {
+  --surface-bg: var(--color-card-gray-bg-active);
+  --surface-border: var(--color-card-gray-border-active);
+  --surface-color: var(--color-card-gray-text-active);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--surface-color);
+}
+
+:global([aria-pressed="true"]) > .card.colorGray:hover,
+:global([aria-current="page"]) > .card.colorGray:hover {
+  --surface-bg: var(--color-card-gray-bg-hover);
+  --surface-border: var(--color-card-gray-border-hover);
+  background: var(--surface-bg);
+  border-color: var(--surface-border);
+}

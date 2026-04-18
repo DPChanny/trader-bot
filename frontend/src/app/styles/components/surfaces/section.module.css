@@ -1,0 +1,39 @@
+.section {
+  border: var(--border-width-default) solid transparent;
+}
+
+.surfacePrimary {
+  --layout-gap: var(--gap-lg);
+  --surface-bg: var(--color-section-primary-bg);
+  --surface-border: var(--color-section-primary-border);
+  --surface-color: var(--color-section-primary-text);
+  background: var(--surface-bg);
+  color: var(--surface-color);
+  border-color: var(--surface-border);
+  border-radius: var(--radius-xl);
+  padding: var(--padding-xl);
+}
+
+.surfaceSecondary {
+  --layout-gap: var(--gap-sm);
+  --surface-bg: var(--color-section-secondary-bg);
+  --surface-border: var(--color-section-secondary-border);
+  --surface-color: var(--color-section-secondary-text);
+  background: var(--surface-bg);
+  color: var(--surface-color);
+  border-color: var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: var(--padding-lg);
+}
+
+.surfaceTertiary {
+  --layout-gap: var(--gap-xs);
+  --surface-bg: var(--color-section-tertiary-bg);
+  --surface-border: var(--color-section-tertiary-border);
+  --surface-color: var(--color-section-tertiary-text);
+  background: var(--surface-bg);
+  color: var(--surface-color);
+  border-color: var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: var(--padding-md);
+}

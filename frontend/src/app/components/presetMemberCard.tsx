@@ -1,5 +1,5 @@
 import styles from "@styles/components/memberCard.module.css";
-import { Card } from "./molecules/card";
+import { Card } from "./surfaces/card";
 import { Dot, type DotProps } from "./molecules/dot";
 import { Badge } from "./atoms/badge";
 import { Image } from "./atoms/image";

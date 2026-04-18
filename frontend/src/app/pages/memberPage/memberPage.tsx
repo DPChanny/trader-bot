@@ -5,7 +5,7 @@ import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
-} from "@components/molecules/section";
+} from "@components/surfaces/section";
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";

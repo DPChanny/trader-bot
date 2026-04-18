@@ -7,7 +7,7 @@ import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
-} from "@components/molecules/section";
+} from "@components/surfaces/section";
 import { Column, FlexItem, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";

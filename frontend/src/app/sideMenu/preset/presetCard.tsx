@@ -1,4 +1,4 @@
-import { Card } from "@components/molecules/card";
+import { Card } from "@components/surfaces/card";
 import { Link } from "@components/atoms/link";
 import { Name } from "@components/atoms/text";
 import type { PresetDTO } from "@dtos/preset";

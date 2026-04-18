@@ -3,7 +3,7 @@ import { Row, Scroll } from "@components/atoms/layout";
 import {
   SecondarySection,
   TertiarySection,
-} from "@components/molecules/section";
+} from "@components/surfaces/section";
 import { PrimaryButton } from "@components/atoms/button";
 import { CreatePresetModal } from "./createPresetModal";
 import { PresetCard } from "./presetCard";

@@ -1,7 +1,7 @@
 import { Layout, type LayoutProps } from "../atoms/layout";
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
-import styles from "@styles/components/molecules/section.module.css";
+import styles from "@styles/components/surfaces/section.module.css";
 
 interface SectionProps extends LayoutProps {
   variantSurface: VariantProps<typeof sectionVariants>["variantSurface"];

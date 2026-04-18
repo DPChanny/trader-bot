@@ -7,10 +7,7 @@ import { useVerifyRole } from "@hooks/member";
 import { TierEditor } from "./tierEditor/tierEditor";
 import { PositionEditor } from "./positionEditor/positionEditor";
 import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
-import {
-  PrimarySection,
-  SecondarySection,
-} from "@components/molecules/section";
+import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { Fill, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
 import { EditButton, DeleteButton, Button } from "@components/atoms/button";

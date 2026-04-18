@@ -4,6 +4,8 @@
   justify-content: center;
   overflow: hidden;
   border-radius: var(--radius-full);
+  border: var(--border-width-default) solid
+    var(--surface-border, rgba(255, 255, 255, 0.2));
   flex-shrink: 0;
 }
 
@@ -27,14 +29,14 @@
 .sizeMedium {
   width: 2rem;
   height: 2rem;
-  border: var(--border-width-default) solid rgba(255, 255, 255, 0.2);
 }
 
 .sizeLarge {
   width: 3.75rem;
   height: 3.75rem;
-  border: var(--border-width-medium) solid var(--color-card-border);
-  background: var(--color-card-bg);
+  border-width: var(--border-width-medium);
+  border-color: var(--surface-border, rgba(255, 255, 255, 0.2));
+  background: var(--surface-bg, rgba(255, 255, 255, 0.06));
 }
 
 .sizeSmall {

@@ -1,4 +1,4 @@
-import { Card } from "@components/molecules/card";
+import { Card } from "@components/surfaces/card";
 import { Image } from "@components/atoms/image";
 import { Link } from "@components/atoms/link";
 import { Name } from "@components/atoms/text";

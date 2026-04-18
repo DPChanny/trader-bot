@@ -1,6 +1,6 @@
 import { Column } from "../atoms/layout";
 import { Label } from "../atoms/text";
-import { TertiarySection } from "./section";
+import { TertiarySection } from "../surfaces/section";
 import { Toggle, type ToggleProps } from "./toggle";
 
 export type LabelToggleProps = ToggleProps & {

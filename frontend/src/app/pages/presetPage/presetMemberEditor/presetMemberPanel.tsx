@@ -28,7 +28,7 @@ import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
-} from "@components/molecules/section";
+} from "@components/surfaces/section";
 import { Column, Row, Scroll } from "@components/atoms/layout";
 import { buildPatchDTO } from "@utils/dto";
 

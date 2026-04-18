@@ -9,7 +9,7 @@ import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
-} from "@components/molecules/section";
+} from "@components/surfaces/section";
 import { Column, Row, Scroll } from "@components/atoms/layout";
 import { Toggle } from "@components/molecules/toggle";
 import { Label, NameTitle } from "@components/atoms/text";

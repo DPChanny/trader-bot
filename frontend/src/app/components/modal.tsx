@@ -1,7 +1,7 @@
 import { createPortal } from "preact/compat";
 import { Column, Fill, FlexItem, Row } from "./atoms/layout";
 import { Title } from "./atoms/text";
-import { PrimarySection, SecondarySection } from "./molecules/section";
+import { PrimarySection, SecondarySection } from "./surfaces/section";
 import styles from "@styles/components/modal.module.css";
 import { toChildArray, type ComponentChildren, type VNode } from "preact";
 
@@ -27,7 +27,7 @@ export function Modal({ onClose, title, children }: ModalProps) {
         <PrimarySection
           overflow="y"
           className={styles.content}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e: MouseEvent) => e.stopPropagation()}
         >
           <Title>{title}</Title>
           <SecondarySection>{bodyChildren}</SecondarySection>

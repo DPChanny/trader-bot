@@ -1,4 +1,4 @@
-import { Card } from "./card";
+import { Card } from "../surfaces/card";
 import { Column } from "../atoms/layout";
 import { clsx } from "clsx";
 import { Text } from "../atoms/text";

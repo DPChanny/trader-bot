@@ -3,7 +3,7 @@ import { PressedButton } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
 import styles from "@styles/components/memberGrid.module.css";
 import type { MemberDetailDTO } from "@dtos/member";
-import { TertiarySection } from "./molecules/section";
+import { TertiarySection } from "./surfaces/section";
 
 interface MemberGridProps {
   members: MemberDetailDTO[];

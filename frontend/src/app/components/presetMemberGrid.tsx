@@ -4,7 +4,7 @@ import { PressedButton } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
 import styles from "@styles/components/memberGrid.module.css";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
-import { TertiarySection } from "./molecules/section";
+import { TertiarySection } from "./surfaces/section";
 
 interface PresetMemberGridProps {
   presetMembers: PresetMemberDetailDTO[];

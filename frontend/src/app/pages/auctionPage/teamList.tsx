@@ -2,7 +2,7 @@ import { TeamCard } from "./teamCard";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 import type { TeamDTO } from "@dtos/auction";
 import { Scroll } from "@components/atoms/layout";
-import { TertiarySection } from "@components/molecules/section";
+import { TertiarySection } from "@components/surfaces/section";
 
 interface TeamListProps {
   teams: TeamDTO[];

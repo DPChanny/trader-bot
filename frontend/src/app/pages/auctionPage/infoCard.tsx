@@ -1,6 +1,6 @@
 import { Fill } from "@components/atoms/layout";
 import { Text } from "@components/atoms/text";
-import { Card } from "@components/molecules/card";
+import { Card } from "@components/surfaces/card";
 import type { ComponentChildren } from "preact";
 
 interface InfoCardProps {

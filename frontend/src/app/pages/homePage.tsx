@@ -2,12 +2,12 @@ import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Link } from "@components/atoms/link";
 import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
-import { Card } from "@components/molecules/card";
+import { Card } from "@components/surfaces/card";
 import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
-} from "@components/molecules/section";
+} from "@components/surfaces/section";
 import { useLogin } from "@hooks/auth";
 import { useMyUser } from "@hooks/user";
 import {

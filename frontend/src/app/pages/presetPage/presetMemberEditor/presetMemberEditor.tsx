@@ -17,7 +17,7 @@ import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
-} from "@components/molecules/section";
+} from "@components/surfaces/section";
 import { Title } from "@components/atoms/text";
 import type { PresetMemberDetailDTO } from "@dtos/presetMember";
 

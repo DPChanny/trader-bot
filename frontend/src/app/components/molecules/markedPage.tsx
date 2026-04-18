@@ -1,6 +1,6 @@
 import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
-import { PrimarySection, SecondarySection } from "./section";
+import { PrimarySection, SecondarySection } from "../surfaces/section";
 import type { ComponentChildren } from "preact";
 import type { MarkedBlock, MarkedSection } from "@utils/marked";
 import { GUILD_INVITE_URL, SITE_OPERATOR } from "@utils/env";

@@ -12,7 +12,7 @@ import { TierCard } from "./tierCard";
 import {
   SecondarySection,
   TertiarySection,
-} from "@components/molecules/section";
+} from "@components/surfaces/section";
 import { Title } from "@components/atoms/text";
 
 export function TierEditor() {

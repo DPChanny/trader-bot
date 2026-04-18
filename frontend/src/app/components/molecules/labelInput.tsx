@@ -1,7 +1,7 @@
 import { Input, type InputProps } from "../atoms/input";
 import { Label } from "../atoms/text";
 import { Column } from "../atoms/layout";
-import { TertiarySection } from "./section";
+import { TertiarySection } from "../surfaces/section";
 
 export type LabelInputProps = InputProps & {
   label: string;
