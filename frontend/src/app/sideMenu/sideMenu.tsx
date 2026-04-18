@@ -186,22 +186,17 @@ export function SideMenu() {
               transform: `translateX(${shellTranslateX})`,
             }}
           >
-            <div className={styles.panelHost}>
-              <Fill padding="lg" className={styles.panel}>
-                <Row justify="between" align="center">
-                  <Title>사이드 메뉴</Title>
-                  <CloseButton onClick={handleClose} />
-                </Row>
-                <Bar />
-                <Fill>
-                  <GuildList
-                    guilds={guilds.data ?? []}
-                    activeGuildId={guildId}
-                  />
-                  {guildId && <PresetList selectedPresetId={presetId} />}
-                </Fill>
+            <Fill padding="lg" className={styles.panel}>
+              <Row justify="between" align="center">
+                <Title>사이드 메뉴</Title>
+                <CloseButton onClick={handleClose} />
+              </Row>
+              <Bar />
+              <Fill>
+                <GuildList guilds={guilds.data ?? []} activeGuildId={guildId} />
+                {guildId && <PresetList selectedPresetId={presetId} />}
               </Fill>
-            </div>
+            </Fill>
           </div>
         </div>
       )}

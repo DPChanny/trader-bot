@@ -185,6 +185,10 @@
   --color-scrollbar-bg: rgba(255, 255, 255, 0.15);
   --color-scrollbar-bg-hover: rgba(255, 255, 255, 0.3);
 
+  --color-side-menu-bg: rgb(34, 48, 86);
+  --color-side-menu-border: rgba(255, 255, 255, 0.18);
+  --color-side-menu-text: rgb(229, 231, 235);
+
   --color-loading-spinner-track: rgba(255, 255, 255, 0.08);
   --color-loading-spinner-accent: rgb(102, 126, 234);
   --color-loading-text: rgb(156, 163, 175);

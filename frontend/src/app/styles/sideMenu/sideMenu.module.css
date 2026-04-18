@@ -1,8 +1,6 @@
 .root {
   --side-menu-header-offset: 3.5rem;
   --side-menu-rail-width: clamp(0.5rem, 1.2vw, 0.875rem);
-  --side-menu-surface-bg: rgb(34, 48, 86);
-  --side-menu-surface-border: rgba(255, 255, 255, 0.18);
   position: relative;
   height: 100%;
 }
@@ -10,9 +8,9 @@
 .edgeTrigger {
   width: 100%;
   height: 100%;
-  background: var(--side-menu-surface-bg);
+  background: var(--color-side-menu-bg);
   border: none;
-  border-right: 1px solid var(--side-menu-surface-border);
+  border-right: 1px solid var(--color-side-menu-border);
   padding: 0;
   cursor: pointer;
   touch-action: none;
@@ -20,7 +18,7 @@
 
 .edgeTrigger:hover,
 .edgeTrigger:focus-visible {
-  background: var(--side-menu-surface-bg);
+  background: var(--color-side-menu-bg);
 }
 
 .layer {
@@ -48,6 +46,8 @@
 }
 
 .shell {
+  display: flex;
+  flex-direction: column;
   position: fixed;
   inset: var(--side-menu-header-offset) auto 0 0;
   z-index: 1;
@@ -64,17 +64,13 @@
   transition: none;
 }
 
-.panelHost {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  pointer-events: auto;
-}
-
 .panel {
-  --layout-gap: var(--gap-lg);
-  background: var(--side-menu-surface-bg);
-  color: var(--color-section-primary-text);
-  border: var(--border-width-default) solid var(--side-menu-surface-border);
+  --surface-bg: var(--color-side-menu-bg);
+  --surface-border: var(--color-side-menu-border);
+  --surface-color: var(--color-side-menu-text);
+  --surface-gap: var(--gap-lg);
+  background: var(--surface-bg);
+  color: var(--surface-color);
+  border: var(--border-width-default) solid var(--surface-border);
   pointer-events: auto;
 }
