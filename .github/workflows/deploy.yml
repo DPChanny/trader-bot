@@ -41,7 +41,6 @@ jobs:
             APP_ORIGIN=https://${{ vars.EC2_HOST }}
             API_ORIGIN=https://${{ vars.EC2_HOST }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
-            DB_HOST=${{ vars.DB_HOST }}
             AWS_REGION=${{ vars.AWS_REGION }}
             EOF
 

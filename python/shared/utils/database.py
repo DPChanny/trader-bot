@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import AsyncGenerator
 
 import aioboto3
@@ -5,13 +6,43 @@ import asyncpg
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from ..entities import BaseEntity
-from .env import get_aws_region, get_db_host, get_db_name, get_db_port, get_db_user
+from .env import (
+    get_aws_region,
+    get_db_instance_identifier,
+    get_db_name,
+    get_db_port,
+    get_db_user,
+)
+
+
+_db_endpoint_cache: str | None = None
+_db_endpoint_lock = asyncio.Lock()
+
+
+async def _get_db_endpoint() -> str:
+    global _db_endpoint_cache
+    if _db_endpoint_cache:
+        return _db_endpoint_cache
+
+    async with _db_endpoint_lock:
+        if _db_endpoint_cache:
+            return _db_endpoint_cache
+
+        async with aioboto3.Session().client(
+            "rds", region_name=get_aws_region()
+        ) as client:
+            response = await client.describe_db_instances(
+                DBInstanceIdentifier=get_db_instance_identifier()
+            )
+            _db_endpoint_cache = response["DBInstances"][0]["Endpoint"]["Address"]
+            return _db_endpoint_cache
 
 
 async def _get_db_password() -> str:
+    db_endpoint = await _get_db_endpoint()
     async with aioboto3.Session().client("rds", region_name=get_aws_region()) as client:
         return await client.generate_db_auth_token(
-            DBHostname=get_db_host(),
+            DBHostname=db_endpoint,
             Port=int(get_db_port()),
             DBUsername=get_db_user(),
             Region=get_aws_region(),
@@ -19,9 +50,10 @@ async def _get_db_password() -> str:
 
 
 async def _async_creator() -> asyncpg.Connection:
+    db_endpoint = await _get_db_endpoint()
     db_password = await _get_db_password()
     return await asyncpg.connect(
-        host=get_db_host(),
+        host=db_endpoint,
         port=int(get_db_port()),
         user=get_db_user(),
         password=db_password,

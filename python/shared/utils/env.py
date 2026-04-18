@@ -35,8 +35,8 @@ def get_jwt_algorithm() -> str:
     return os.getenv("JWT_ALGORITHM", "HS256")
 
 
-def get_db_host() -> str:
-    return os.getenv("DB_HOST", "")
+def get_db_instance_identifier() -> str:
+    return os.getenv("DB_INSTANCE_IDENTIFIER", "trader-bot-prod-rds")
 
 
 def get_db_port() -> str:
