@@ -7,7 +7,6 @@ from shared.entities.guild import Guild
 from shared.repositories.guild_repository import GuildRepository
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import AppError, GuildErrorCode
-from shared.utils.logging import Event
 
 from .member import (
     delete_member,

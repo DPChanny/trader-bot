@@ -1,7 +1,6 @@
 from discord import Member
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.member import MemberDTO
 from shared.utils.service import Event, bot_service
 
 from ..utils.member import delete_member, sync_member, sync_member_admin_role

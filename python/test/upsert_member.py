@@ -3,9 +3,9 @@ from __future__ import annotations
 import argparse
 import asyncio
 
-from bot.utils.member import upsert_member
 from shared.dtos.member import Role
 from shared.utils.database import get_session
+from shared.utils.member import upsert_member
 
 
 def _parse_args() -> argparse.Namespace:

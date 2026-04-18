@@ -3,8 +3,8 @@ from __future__ import annotations
 import argparse
 import asyncio
 
-from bot.utils.guild import upsert_guild
 from shared.utils.database import get_session
+from shared.utils.guild import upsert_guild
 
 
 def _parse_args() -> argparse.Namespace:

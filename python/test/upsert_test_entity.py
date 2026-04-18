@@ -4,13 +4,13 @@ import asyncio
 
 from sqlalchemy import select
 
-from bot.utils.guild import upsert_guild
-from bot.utils.member import upsert_member
 from shared.dtos.member import Role
 from shared.entities.position import Position
 from shared.entities.preset import Preset
 from shared.entities.tier import Tier
 from shared.utils.database import get_session
+from shared.utils.guild import upsert_guild
+from shared.utils.member import upsert_member
 from shared.utils.user import upsert_user
 
 
