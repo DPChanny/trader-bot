@@ -15,6 +15,7 @@ import { SideMenu } from "./sideMenu/sideMenu";
 import { Modal, ModalFooter } from "./components/modal";
 import { Error } from "./components/molecules/error";
 import { PrimaryButton } from "./components/atoms/button";
+import { Column, Fill, Page } from "./components/atoms/layout";
 import {
   useRefreshToken,
   useLogin,
@@ -47,8 +48,20 @@ function DefaultRoute({}: RoutableProps) {
 }
 
 function LoginCallbackRoute({}: RoutableProps) {
-  useLoginCallback();
-  return null;
+  const { error, retry } = useLoginCallback();
+
+  if (!error) return null;
+
+  return (
+    <Page>
+      <Fill center>
+        <Column center gap="md">
+          <Error error={error}>로그인에 실패했습니다</Error>
+          <PrimaryButton onClick={retry}>재시도</PrimaryButton>
+        </Column>
+      </Fill>
+    </Page>
+  );
 }
 
 function MemberRoute({ guildId }: RoutableProps & { guildId?: string }) {

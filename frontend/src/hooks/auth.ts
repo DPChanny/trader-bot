@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { queryKeys } from "@utils/query";
 import { route } from "preact-router";
 import {
@@ -15,7 +15,7 @@ import {
   removeJWTToken,
 } from "@utils/auth";
 import { AUTH_API_ENDPOINT } from "@utils/env";
-import { AppError } from "@utils/error";
+import { AppError, FrontendErrorCode } from "@utils/error";
 import { useRoutePath } from "@hooks/router";
 
 function isRedirect(path: string | null): path is string {
@@ -51,8 +51,19 @@ export function useLogout() {
 }
 
 export function useLoginCallback() {
-  const logout = useLogout();
   const queryClient = useQueryClient();
+  const [error, setError] = useState<AppError | null>(null);
+
+  const retry = () => {
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get("redirect");
+    const loginUrl = new URL(`${AUTH_API_ENDPOINT}/login`);
+    loginUrl.searchParams.set(
+      "redirect",
+      isRedirect(redirect) ? redirect : "/",
+    );
+    window.location.href = loginUrl.toString();
+  };
 
   useEffect(() => {
     async function handleLoginCallback() {
@@ -74,13 +85,19 @@ export function useLoginCallback() {
         queryClient.setQueryData(queryKeys.me(), me);
         const redirect = params.get("redirect");
         route(isRedirect(redirect) ? redirect : "/", true);
-      } catch {
-        logout.mutate();
+      } catch (e) {
+        setError(
+          e instanceof AppError
+            ? e
+            : new AppError(FrontendErrorCode.Unexpected.External),
+        );
       }
     }
 
     void handleLoginCallback();
   }, []);
+
+  return { error, retry };
 }
 
 export function useRefreshToken() {
