@@ -13,6 +13,12 @@ import { useLogin } from "@hooks/auth";
 import { useMyUser } from "@hooks/user";
 import { BOT_INVITE_URL } from "@utils/env";
 
+const version =
+  Object.keys(import.meta.glob("/src/docs/patches/notes/v*.md"))
+    .map((p) => p.match(/\/([^/]+)\.md$/)?.[1] ?? "")
+    .filter(Boolean)
+    .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0] ?? "";
+
 export function HomePage() {
   const login = useLogin();
   const myUser = useMyUser();
@@ -85,7 +91,7 @@ export function HomePage() {
       <Column align="center" fill>
         <PrimarySection width="page" minSize>
           <Scroll>
-            <Title>Pre Release - v0.2.4b</Title>
+            <Title>Pre Release{version && ` - ${version}`}</Title>
             <SecondarySection>
               <Title>내전 팀원 경매를 Trader Bot으로</Title>
               {onboardingSections.map((section) => (

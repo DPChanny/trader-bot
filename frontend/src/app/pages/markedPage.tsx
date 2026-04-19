@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { marked } from "marked";
 import { Column, Page, Scroll } from "@components/atoms/layout";
-import { Text } from "@components/atoms/text";
 import { PrimarySection } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 import styles from "@styles/pages/markedPage.module.css";
@@ -17,7 +16,6 @@ const markedLoaders = import.meta.glob("/src/docs/**/*.md", {
 
 export function MarkedPage({ path }: MarkedPageProps) {
   const [html, setHtml] = useState("");
-  const [hasError, setHasError] = useState(false);
 
   const loader = useMemo(() => markedLoaders[path], [path]);
 
@@ -25,14 +23,12 @@ export function MarkedPage({ path }: MarkedPageProps) {
     let isActive = true;
 
     if (!loader) {
-      setHasError(true);
       setHtml("");
       return () => {
         isActive = false;
       };
     }
 
-    setHasError(false);
     loader()
       .then((markedSource) => {
         if (!isActive) {
@@ -50,7 +46,6 @@ export function MarkedPage({ path }: MarkedPageProps) {
           return;
         }
 
-        setHasError(true);
         setHtml("");
       });
 
@@ -64,13 +59,10 @@ export function MarkedPage({ path }: MarkedPageProps) {
       <Column align="center" fill>
         <PrimarySection width="page" minSize fill>
           <Scroll>
-            {hasError && <Text align="start">문서를 불러오지 못했습니다.</Text>}
-            {!hasError && (
-              <div
-                className={styles.markedContent}
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
-            )}
+            <div
+              className={styles.markedContent}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
           </Scroll>
         </PrimarySection>
         <Footer />

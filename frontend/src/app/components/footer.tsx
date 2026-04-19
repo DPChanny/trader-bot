@@ -7,7 +7,7 @@ export function Footer() {
   return (
     <PrimarySection direction="row" width="page">
       <Fill center>
-        <Link href="/patch">패치</Link>
+        <Link href="/patch">패치 정보</Link>
       </Fill>
       <Fill center>
         <Link href="/terms-of-service">이용약관</Link>

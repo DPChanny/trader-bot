@@ -11,7 +11,7 @@ import { GuildList } from "./guild/guildList";
 import { PresetList } from "./preset/presetList";
 
 const SIDE_MENU_WIDTH_REM = 20;
-const DRAG_OPEN_THRESHOLD_RATIO = 0.5;
+const DRAG_OPEN_THRESHOLD_RATIO = 0.25;
 const SIDE_MENU_TRANSITION_MS = 250;
 
 function getSideMenuWidthPx() {

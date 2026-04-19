@@ -10,25 +10,23 @@ import {
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 
-const noteLoaders = import.meta.glob("/src/docs/patches/notes/v*.md", {
+const notes = import.meta.glob("/src/docs/patches/notes/v*.md", {
   query: "?raw",
   import: "default",
 }) as Record<string, () => Promise<string>>;
 
-const planLoaders = import.meta.glob("/src/docs/patches/plans/v*.md", {
+const plans = import.meta.glob("/src/docs/patches/plans/v*.md", {
   query: "?raw",
   import: "default",
 }) as Record<string, () => Promise<string>>;
 
-function getVersions(kind: string) {
-  const loaders = kind === "notes" ? noteLoaders : planLoaders;
-  return Object.keys(loaders)
-    .map((path) => {
-      const match = path.match(/\/(v\d+\.\d+\.\d+)\.md$/);
-      return match ? match[1] : null;
-    })
-    .filter((version): version is string => version !== null)
-    .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+function getVersions(kind: "notes" | "plans") {
+  const loaders = kind === "notes" ? notes : plans;
+  const versions = Object.keys(loaders)
+    .map((path) => path.match(/\/([^/]+)\.md$/)?.[1] ?? null)
+    .filter((v): v is string => v !== null)
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  return kind === "notes" ? versions.reverse() : versions;
 }
 
 export type PatchPageProps = {
@@ -43,10 +41,10 @@ export function PatchPage({ version }: PatchPageProps) {
   let markedPath: string | null = null;
   if (version) {
     const notePath = `/src/docs/patches/notes/${version}.md`;
-    markedPath = noteLoaders[notePath] ? notePath : null;
+    markedPath = notes[notePath] ? notePath : null;
     if (!markedPath) {
       const planPath = `/src/docs/patches/plans/${version}.md`;
-      markedPath = planLoaders[planPath] ? planPath : null;
+      markedPath = plans[planPath] ? planPath : null;
     }
   }
 

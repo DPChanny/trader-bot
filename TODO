@@ -1,30 +1,33 @@
+notes
+
+v0.2.?
 infra
     frontend: s3, cloudfront, acm
     ssm
 
 patch
 
+
+v0.3.?
 pagenation & sorting & search
 preset template
-    preset copy -> 운영 길드 flow
+    preset copy or preset base -> 운영 서버 공식 프리셋 참고 flow
+info url iframe
+auction result
 
-iframe
-query batch
+v0.4.?
+mobile: responsive layout
+css 개선
+    token 개선
 auction
     opt
-    path
-    get
-
-grid alignment
-
-bot command
+    path routing 개선
+    get 정보 조회
 layout
-css
-    component
-    token
-security
-mobile
-auction result
-auction effect
-effect
+grid 정렬 개선
+db query batch opt
+
+v0.5.?
+bot command
+web effect
 language
