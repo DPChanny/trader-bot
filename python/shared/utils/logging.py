@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import UTC
 from pathlib import Path
@@ -20,53 +21,45 @@ REDACT_KEYS = {"access_token", "refresh_token", "exchange_token"}
 
 
 type JSONPrimitive = str | int | float | bool | None
-type JSONPrimitiveTuple = tuple[JSONPrimitive, ...]
 type JSONValue = (
-    JSONPrimitive | JSONPrimitiveTuple | list[JSONValue] | dict[str, JSONValue]
+    JSONPrimitive | tuple[JSONPrimitive, ...] | list[JSONValue] | dict[str, JSONValue]
 )
 type LogValue = JSONValue | BaseModel
 
 
-def redact(value: Any) -> Any:
-    if isinstance(value, dict):
-        redacted: dict[str, Any] = {}
-        for key, item in value.items():
-            if isinstance(key, str) and key in REDACT_KEYS:
-                redacted[key] = "[REDACTED]"
-            else:
-                redacted[key] = redact(item)
-        return redacted
-
-    if isinstance(value, list):
-        redacted = [redact(item) for item in value[:3]]
-        if len(value) > 3:
-            redacted.append("[REDACTED]")
-        return redacted
-
-    if isinstance(value, tuple):
-        redacted = tuple(redact(item) for item in value[:3])
-        if len(value) > 3:
-            return (*redacted, "[REDACTED]")
-        return redacted
-
+def redact(value: LogValue) -> Any:
     if isinstance(value, BaseModel):
         return redact(value.model_dump(mode="json", exclude_unset=True))
+    if isinstance(value, dict):
+        return {
+            key: "[REDACTED]" if key in REDACT_KEYS else redact(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        result = [redact(item) for item in value[:3]]
+        if len(value) > 3:
+            result.append("[REDACTED]")
+        return result
+    if isinstance(value, tuple):
+        result = tuple(redact(item) for item in value[:3])
+        return (*result, "[REDACTED]") if len(value) > 3 else result
 
     return value
 
 
 @dataclass
 class Event:
-    function: str
-    request: LogValue | None = None
+    service: str | None = None
+    input: LogValue | None = None
     result: LogValue | None = None
     detail: LogValue | None = None
     error: LogValue | None = None
 
     def __iter__(self):
-        yield "function", self.function
-        if self.request is not None:
-            yield "request", redact(self.request)
+        if self.service is not None:
+            yield "service", self.service
+        if self.input is not None:
+            yield "input", redact(self.input)
         if self.result is not None:
             yield "result", redact(self.result)
         if self.detail is not None:
@@ -75,7 +68,9 @@ class Event:
             yield "error", redact(self.error)
 
 
-_http_registry: dict[str, dict[str, Any]] = {}
+_http_context: ContextVar[dict[str, Any] | None] = ContextVar(
+    "_http_context", default=None
+)
 
 
 def _patcher(record: dict[str, Any]) -> None:
@@ -87,28 +82,27 @@ def _patcher(record: dict[str, Any]) -> None:
 
     extra = dict(record["extra"])
     event = extra.pop("event", None)
-    request_id = extra.pop("request_id", None)
+
     if isinstance(event, Event):
         event = dict(event)
     elif not isinstance(event, dict):
         event = None
 
-    if event is not None and request_id is not None:
-        http = _http_registry.get(request_id)
+    if event is not None:
+        http = _http_context.get()
         if http is not None:
-            event["http"] = {"request_id": request_id, **http}
+            event["http"] = http
 
     source = f"{record['name']}:{record['function']}:{record['line']}"
+    timestamp = (
+        record["time"].astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    )
 
-    log = {
-        "timestamp": record["time"]
-        .astimezone(UTC)
-        .strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
-        + "Z",
+    log: dict[str, Any] = {
+        "timestamp": timestamp,
         "level": record["level"].name,
         "source": source,
     }
-
     if record["message"]:
         log["message"] = record["message"]
     if event is not None:
@@ -122,26 +116,24 @@ def _patcher(record: dict[str, Any]) -> None:
     if not log_text:
         return
 
-    parts = [f"{log['timestamp']} | {log['level']:<8} | {log['source']}"]
+    parts = [f"{timestamp} | {log['level']:<8} | {source}"]
     if "message" in log:
         parts.append(log["message"])
-    if "extra" in log:
-        parts.append(json.dumps(log["extra"], ensure_ascii=False, default=str))
-
+    if extra:
+        parts.append(json.dumps(extra, ensure_ascii=False, default=str))
     text = " | ".join(parts)
 
     exception: str | None = None
-    event = log.get("event")
-    if isinstance(event, dict):
-        event = dict(event)
-        error = event.get("error")
+    if event is not None:
+        display_event = dict(event)
+        error = display_event.get("error")
         if isinstance(error, dict):
             error = dict(error)
             exception = error.pop("exception", None)
-            event["error"] = error
-
-    if event is not None:
-        text += "\n" + json.dumps(event, ensure_ascii=False, indent=2, default=str)
+            display_event["error"] = error
+        text += "\n" + json.dumps(
+            display_event, ensure_ascii=False, indent=2, default=str
+        )
     if exception:
         text += "\n" + exception.rstrip()
 
@@ -224,18 +216,19 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             if request.client is not None
             else None
         )
-        _http_registry[request_id] = {
-            "method": request.method,
-            "path": request.url.path,
-            "query": request.url.query,
-            "client_ip": client_ip,
-            "user_agent": request.headers.get("user-agent"),
-        }
-
-        with logger.contextualize(request_id=request_id):
-            try:
-                response = await call_next(request)
-                response.headers["X-Request-ID"] = request_id
-                return response
-            finally:
-                _http_registry.pop(request_id, None)
+        token = _http_context.set(
+            {
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+                "query": request.url.query,
+                "client_ip": client_ip,
+                "user_agent": request.headers.get("user-agent"),
+            }
+        )
+        try:
+            response = await call_next(request)
+            response.headers["X-Request-ID"] = request_id
+            return response
+        finally:
+            _http_context.reset(token)

@@ -122,33 +122,27 @@ class WSError(AppError):
         super().__init__(code)
 
 
-def _build_event(error: AppError, fallback_function: str) -> Event:
-    event = error.event or Event(function=fallback_function)
+def _build_event(error: AppError) -> Event:
+    event = error.event or Event()
 
-    exception = (
-        "".join(
-            traceback.format_exception(
-                type(error.__cause__), error.__cause__, error.__cause__.__traceback__
-            )
-        )
-        if error.__cause__ is not None
-        else None
+    exception = "".join(
+        traceback.format_exception(type(error), error, error.__traceback__)
     )
 
     event.error = {"code": error.code, "exception": exception}
     return event
 
 
-def handle_app_error(error: AppError, fallback_function: str) -> None:
-    event = _build_event(error, fallback_function)
+def handle_app_error(error: AppError) -> None:
+    event = _build_event(error)
     if error.code < 5000:
         logger.bind(event=event).warning("")
     else:
         logger.bind(event=event).error("")
 
 
-def handle_http_error(error: HTTPError, fallback_function: str) -> JSONResponse:
-    event = _build_event(error, fallback_function)
+def handle_http_error(error: HTTPError) -> JSONResponse:
+    event = _build_event(error)
     if error.status_code < 500:
         logger.bind(event=event).warning("")
     else:
@@ -157,8 +151,8 @@ def handle_http_error(error: HTTPError, fallback_function: str) -> JSONResponse:
     return JSONResponse(status_code=error.status_code, content={"code": error.code})
 
 
-def handle_ws_error(error: WSError, fallback_function: str) -> None:
-    event = _build_event(error, fallback_function)
+def handle_ws_error(error: WSError) -> None:
+    event = _build_event(error)
     if error.code < 5000:
         logger.bind(event=event).warning("")
     else:

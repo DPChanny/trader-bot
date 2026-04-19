@@ -112,7 +112,7 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
                 )
                 await place_bid_service(auction, member_id, place_bid_payload_dto)
             except WSError as e:
-                handle_ws_error(e, auction_ws.__name__)
+                handle_ws_error(e)
                 await ws.send_json(
                     AuctionMessageEnvelopeDTO(
                         type=AuctionMessageType.ERROR,

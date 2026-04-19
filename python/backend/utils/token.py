@@ -108,9 +108,9 @@ async def verify_access_token(authorization: str = Header(None)) -> int:
         return AccessToken.decode(token).user_id
     except TokenError as e:
         error = HTTPError(e.code)
-        error.event = Event(function=verify_access_token.__name__)
+        error.event = Event()
         raise error from None
     except HTTPError as e:
         if e.event is None:
-            e.event = Event(function=verify_access_token.__name__)
+            e.event = Event()
         raise

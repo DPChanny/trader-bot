@@ -13,7 +13,7 @@ from .logging import Event
 def _inject_event(
     sig: inspect.Signature, args, kwargs: dict[str, Any], function: str
 ) -> tuple[dict[str, Any], Event]:
-    event = Event(function=function)
+    event = Event(service=function)
     bound = sig.bind_partial(*args, **kwargs)
     for name, param in sig.parameters.items():
         if param.annotation is Event:
@@ -23,7 +23,7 @@ def _inject_event(
         ):
             value = bound.arguments.get(name)
             if isinstance(value, BaseModel):
-                event.request = {name: value}
+                event.input = {name: value}
     return kwargs, event
 
 

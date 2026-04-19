@@ -45,7 +45,7 @@ app = FastAPI(title="Trader Bot API", version="0.1.0", lifespan=lifespan)
 
 @app.exception_handler(HTTPError)
 async def http_error_handler(_: Request, exc: HTTPError) -> JSONResponse:
-    return handle_http_error(exc, http_error_handler.__name__)
+    return handle_http_error(exc)
 
 
 @app.exception_handler(RequestValidationError)
@@ -53,17 +53,17 @@ async def validation_error_handler(
     _: Request, exc: RequestValidationError
 ) -> JSONResponse:
     error = HTTPError(ValidationErrorCode.Invalid)
-    error.event = Event(function=validation_error_handler.__name__)
+    error.event = Event()
     error.__cause__ = exc
-    return handle_http_error(error, validation_error_handler.__name__)
+    return handle_http_error(error)
 
 
 @app.exception_handler(Exception)
 async def exception_handler(_: Request, exc: Exception) -> JSONResponse:
     error = HTTPError(UnexpectedErrorCode.Internal)
-    error.event = Event(function=exception_handler.__name__)
+    error.event = Event()
     error.__cause__ = exc
-    return handle_http_error(error, exception_handler.__name__)
+    return handle_http_error(error)
 
 
 app.add_middleware(LoggingMiddleware)

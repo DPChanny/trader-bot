@@ -56,13 +56,13 @@ def bot_router[**P, T](
         try:
             return await routed_func(*args, **kwargs)
         except AppError as error:
-            handle_app_error(error, func.__name__)
+            handle_app_error(error)
             return None
         except Exception as error:
             app_error = AppError(UnexpectedErrorCode.Internal)
-            app_error.event = Event(function=func.__name__)
+            app_error.event = Event()
             app_error.__cause__ = error
-            handle_app_error(app_error, func.__name__)
+            handle_app_error(app_error)
             return None
 
     return wrapper
@@ -87,15 +87,15 @@ def ws_router[**P, T](
         try:
             return await routed_func(*args, **kwargs)
         except WSError as error:
-            handle_ws_error(error, func.__name__)
+            handle_ws_error(error)
             close_code = 4000
             close_reason = str(error.code)
             return None
         except Exception as error:
             ws_error = WSError(UnexpectedErrorCode.Internal)
-            ws_error.event = Event(function=func.__name__)
+            ws_error.event = Event()
             ws_error.__cause__ = error
-            handle_ws_error(ws_error, func.__name__)
+            handle_ws_error(ws_error)
             close_code = 4000
             close_reason = str(ws_error.code)
             return None
