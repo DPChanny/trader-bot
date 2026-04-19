@@ -8,8 +8,7 @@ import { MemberPage } from "@pages/memberPage/memberPage";
 import { PresetPage } from "@pages/presetPage/presetPage";
 import { HomePage } from "@pages/homePage";
 import { AuctionPage } from "@pages/auctionPage/auctionPage";
-import { TermsOfServicePage } from "@pages/legalPage/termsOfServicePage";
-import { PrivacyPolicyPage } from "@pages/legalPage/privacyPolicyPage";
+import { MarkedPage } from "@components/markedPage";
 import { Header } from "./header";
 import { SideMenu } from "./sideMenu/sideMenu";
 import { Modal, ModalFooter } from "./components/modal";
@@ -32,12 +31,12 @@ function HomeRoute({}: RoutableProps) {
   return <HomePage />;
 }
 
-function TermsRoute({}: RoutableProps) {
-  return <TermsOfServicePage />;
+function TermsOfServiceRoute({}: RoutableProps) {
+  return <MarkedPage path="/src/docs/legals/termsOfService.md" />;
 }
 
-function PrivacyRoute({}: RoutableProps) {
-  return <PrivacyPolicyPage />;
+function PrivacyPolicyRoute({}: RoutableProps) {
+  return <MarkedPage path="/src/docs/legals/privacyPolicy.md" />;
 }
 
 function DefaultRoute({}: RoutableProps) {
@@ -163,8 +162,8 @@ function App() {
           <Router>
             <LoginCallbackRoute path="/auth/login/callback" />
             <HomeRoute path="/" />
-            <TermsRoute path="/terms" />
-            <PrivacyRoute path="/privacy" />
+            <TermsOfServiceRoute path="/terms-of-service" />
+            <PrivacyPolicyRoute path="/privacy-policy" />
             <PresetRoute path="/guild/:guildId/preset/:presetId" />
             <MemberRoute path="/guild/:guildId/member" />
             <AuctionRoute path="/auction/:auctionId" />

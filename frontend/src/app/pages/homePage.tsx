@@ -189,10 +189,10 @@ export function HomePage() {
 
           <TertiarySection direction="row">
             <Fill center>
-              <Link href="/terms">이용약관 보기</Link>
+              <Link href="/terms-of-service">이용약관 보기</Link>
             </Fill>
             <Fill center>
-              <Link href="/privacy">개인정보처리방침 보기</Link>
+              <Link href="/privacy-policy">개인정보처리방침 보기</Link>
             </Fill>
             <Fill center>
               <Link href={GUILD_INVITE_URL} target="_blank" rel="noreferrer">
