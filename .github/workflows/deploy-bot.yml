@@ -28,7 +28,6 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: CI
-        id: ci
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
@@ -39,32 +38,33 @@ jobs:
           RDS_INSTANCE_IDENTIFIER: ${{ vars.RDS_INSTANCE_IDENTIFIER }}
           RDS_REGION: ${{ vars.AWS_REGION }}
         run: |
-          ENV_B64=$(printf '%s\n' \
-            "DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN" \
-            "DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID" \
-            "DISCORD_CLIENT_SECRET=$DISCORD_CLIENT_SECRET" \
-            "APP_ORIGIN=$APP_ORIGIN" \
-            "API_ORIGIN=$API_ORIGIN" \
-            "JWT_SECRET=$JWT_SECRET" \
-            "RDS_INSTANCE_IDENTIFIER=$RDS_INSTANCE_IDENTIFIER" \
-            "RDS_REGION=$RDS_REGION" \
-            | base64 -w 0)
-          echo "env_b64=$ENV_B64" >> "$GITHUB_OUTPUT"
+          aws ssm put-parameter \
+            --name "/trader-bot/prod/python/env" \
+            --value "$(printf '%s\n' \
+              "DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN" \
+              "DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID" \
+              "DISCORD_CLIENT_SECRET=$DISCORD_CLIENT_SECRET" \
+              "APP_ORIGIN=$APP_ORIGIN" \
+              "API_ORIGIN=$API_ORIGIN" \
+              "JWT_SECRET=$JWT_SECRET" \
+              "RDS_INSTANCE_IDENTIFIER=$RDS_INSTANCE_IDENTIFIER" \
+              "RDS_REGION=$RDS_REGION")" \
+            --type SecureString \
+            --overwrite
 
       - name: CD
         env:
           TAG: ${{ inputs.tag || github.ref_name }}
-          ENV_B64: ${{ steps.ci.outputs.env_b64 }}
           INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
-            --parameters "$(jq -rn --arg tag "$TAG" --arg env "$ENV_B64" '{commands: [
+            --parameters "$(jq -rn --arg tag "$TAG" '{commands: [
               "set -e",
               "cd /var/www/trader-bot",
               ("git fetch --tags origin && git checkout --detach " + $tag),
-              ("echo " + $env + " | base64 -d > python/.env"),
+              "aws ssm get-parameter --name /trader-bot/prod/python/env --with-decryption --query Parameter.Value --output text > python/.env",
               "cd python && uv sync --frozen",
               "pm2 startOrReload ecosystem.config.mjs --only trader-bot-prod-pm2-bot && pm2 save"
             ]}')" \
