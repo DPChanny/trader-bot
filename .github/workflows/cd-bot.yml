@@ -33,8 +33,7 @@ jobs:
               "cd /var/www/trader-bot",
               ("git fetch --tags origin && git checkout --detach " + $tag),
               "aws ssm get-parameter --name /trader-bot/prod/python/env --with-decryption --query Parameter.Value --output text > python/.env",
-              "cd python && uv sync --frozen",
-              "pm2 startOrReload /var/www/trader-bot/ecosystem.config.mjs --only trader-bot-prod-pm2-bot && pm2 save"
+              "sudo -u ubuntu -H bash -l -c 'cd /var/www/trader-bot/python && uv sync --frozen && pm2 startOrReload /var/www/trader-bot/ecosystem.config.mjs --only trader-bot-prod-pm2-bot && pm2 save'"
             ]}')" \
             --query "Command.CommandId" \
             --output text)
