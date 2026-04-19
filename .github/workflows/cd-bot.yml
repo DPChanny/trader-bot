@@ -25,16 +25,21 @@ jobs:
           TAG: ${{ inputs.tag || github.ref_name }}
           INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
         run: |
+          PM2_CMD="sudo -u ubuntu -H bash -l -c 'cd /var/www/trader-bot/python && uv sync --frozen && pm2 startOrReload /var/www/trader-bot/ecosystem.config.mjs --only trader-bot-prod-pm2-bot && pm2 save'"
+
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
-            --parameters "$(jq -rn --arg tag "$TAG" '{commands: [
-              "set -e",
-              "cd /var/www/trader-bot",
-              ("git fetch --tags origin && git checkout --detach " + $tag),
-              "aws ssm get-parameter --name /trader-bot/prod/python/env --with-decryption --query Parameter.Value --output text > python/.env",
-              "sudo -u ubuntu -H bash -l -c \u0027cd /var/www/trader-bot/python && uv sync --frozen && pm2 startOrReload /var/www/trader-bot/ecosystem.config.mjs --only trader-bot-prod-pm2-bot && pm2 save\u0027"
-            ]}')" \
+            --parameters "$(jq -n \
+                --arg tag "$TAG" \
+                --arg pm2cmd "$PM2_CMD" \
+                '{commands: [
+                  "set -e",
+                  "cd /var/www/trader-bot",
+                  ("git fetch --tags origin && git checkout --detach " + $tag),
+                  "aws ssm get-parameter --name /trader-bot/prod/python/env --with-decryption --query Parameter.Value --output text > python/.env",
+                  $pm2cmd
+                ]}')" \
             --query "Command.CommandId" \
             --output text)
 
