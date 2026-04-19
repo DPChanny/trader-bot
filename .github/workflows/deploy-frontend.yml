@@ -20,27 +20,25 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: CI
-        working-directory: frontend
-        run: npm ci
-
-      - name: Build
-        working-directory: frontend
-        env:
-          VITE_API_ORIGIN: https://${{ vars.EC2_HOST }}
-          VITE_DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
-          VITE_GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
-        run: npm run build
-
-      - name: Configure AWS credentials
+      - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Sync S3
-        run: aws s3 sync frontend/dist s3://${{ vars.S3_BUCKET }} --delete
+      - name: CI
+        working-directory: frontend
+        env:
+          VITE_API_ORIGIN: https://${{ vars.EC2_HOST }}
+          VITE_DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
+          VITE_GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
+        run: npm ci && npm run build
 
-      - name: Invalidate CloudFront
-        run: aws cloudfront create-invalidation --distribution-id ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+      - name: CD
+        env:
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          aws s3 sync frontend/dist s3://$S3_BUCKET --delete
+          aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"

@@ -19,21 +19,20 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Deploy
+      - name: CI
+        id: ci
         env:
-          TAG: ${{ github.ref_name }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
           APP_ORIGIN: https://${{ vars.EC2_HOST }}
           API_ORIGIN: https://${{ vars.EC2_HOST }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           RDS_INSTANCE_IDENTIFIER: ${{ vars.RDS_INSTANCE_IDENTIFIER }}
           RDS_REGION: ${{ vars.AWS_REGION }}
-          INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
         run: |
           ENV_B64=$(printf '%s\n' \
             "DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN" \
@@ -45,7 +44,14 @@ jobs:
             "RDS_INSTANCE_IDENTIFIER=$RDS_INSTANCE_IDENTIFIER" \
             "RDS_REGION=$RDS_REGION" \
             | base64 -w 0)
+          echo "env_b64=$ENV_B64" >> "$GITHUB_OUTPUT"
 
+      - name: CD
+        env:
+          TAG: ${{ github.ref_name }}
+          ENV_B64: ${{ steps.ci.outputs.env_b64 }}
+          INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+        run: |
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
