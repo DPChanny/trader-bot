@@ -17,7 +17,7 @@ export function Footer() {
       </Fill>
       <Fill center>
         <Link href={GUILD_INVITE_URL} target="_blank" rel="noreferrer">
-          Trader Bot 길드
+          Trader Bot 서버
         </Link>
       </Fill>
     </PrimarySection>
