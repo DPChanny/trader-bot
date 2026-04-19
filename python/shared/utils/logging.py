@@ -124,15 +124,12 @@ def _patcher(record: dict[str, Any]) -> None:
 
     exception: str | None = None
     if event is not None:
-        display_event = dict(event)
-        error = display_event.get("error")
+        error = event.get("error")
         if isinstance(error, dict):
             error = dict(error)
             exception = error.pop("exception", None)
-            display_event["error"] = error
-        text += "\n" + json.dumps(
-            display_event, ensure_ascii=False, indent=2, default=str
-        )
+            event["error"] = error
+        text += "\n" + json.dumps(event, ensure_ascii=False, indent=2, default=str)
     if exception:
         text += "\n" + exception.rstrip()
 
