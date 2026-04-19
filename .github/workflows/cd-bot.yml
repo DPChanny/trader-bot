@@ -3,10 +3,6 @@ name: CD Bot
 on:
   push:
     tags: ["v*"]
-    paths:
-      - "python/bot/**"
-      - "python/shared/**"
-      - "python/pyproject.toml"
   workflow_dispatch:
     inputs:
       tag:

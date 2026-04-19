@@ -3,8 +3,6 @@ name: CI CD Frontend
 on:
   push:
     tags: ["v*"]
-    paths:
-      - "frontend/**"
   workflow_dispatch:
     inputs:
       tag:

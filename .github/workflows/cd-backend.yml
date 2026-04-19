@@ -3,10 +3,6 @@ name: CD Backend
 on:
   push:
     tags: ["v*"]
-    paths:
-      - "python/backend/**"
-      - "python/shared/**"
-      - "python/pyproject.toml"
   workflow_dispatch:
     inputs:
       tag:
