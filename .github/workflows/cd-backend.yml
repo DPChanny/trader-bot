@@ -9,6 +9,10 @@ on:
         description: "Tag to deploy"
         required: true
 
+concurrency:
+  group: cd-backend
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

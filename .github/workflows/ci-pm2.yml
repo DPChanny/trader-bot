@@ -1,16 +1,14 @@
-name: CD Bot
+name: CI PM2
 
 on:
   push:
-    tags: ["v*"]
+    branches: ["master"]
+    paths:
+      - "ecosystem.config.mjs"
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Tag to deploy"
-        required: true
 
 concurrency:
-  group: cd-bot
+  group: ci-pm2
   cancel-in-progress: false
 
 jobs:
@@ -24,26 +22,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: CD
+      - name: CI
         env:
-          TAG: ${{ inputs.tag || github.ref_name }}
           INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
         run: |
-          PM2_CMD="sudo -u ubuntu -H bash -l -c 'cd /var/www/trader-bot/python && uv sync --frozen && pm2 startOrReload /var/www/trader-bot/ecosystem.config.mjs --only trader-bot-prod-pm2-bot && pm2 save'"
+          PM2_CMD="sudo -u ubuntu -H bash -l -c '\
+            pm2 delete trader-bot-prod-pm2-backend 2>/dev/null || true && \
+            pm2 delete trader-bot-prod-pm2-bot 2>/dev/null || true && \
+            pm2 start /var/www/trader-bot/ecosystem.config.mjs && \
+            pm2 save'"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --parameters "$(jq -n \
-                --arg tag "$TAG" \
                 --arg pm2cmd "$PM2_CMD" \
-                '{commands: [
-                  "set -e",
-                  "cd /var/www/trader-bot",
-                  ("git fetch --tags origin && git checkout --detach " + $tag),
-                  "aws ssm get-parameter --name /trader-bot/prod/python/env --with-decryption --query Parameter.Value --output text > python/.env",
-                  $pm2cmd
-                ]}')" \
+                '{commands: ["set -e", $pm2cmd]}')" \
             --query "Command.CommandId" \
             --output text)
 
