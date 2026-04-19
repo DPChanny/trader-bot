@@ -1,4 +1,5 @@
-const API_ORIGIN = import.meta.env["VITE_API_ORIGIN"];
+const API_ORIGIN =
+  import.meta.env["VITE_API_ORIGIN"] ?? "http://127.0.0.1:5173";
 const DISCORD_CLIENT_ID = import.meta.env["VITE_DISCORD_CLIENT_ID"];
 
 const API_ENDPOINT = `${API_ORIGIN}/api`;

@@ -5,6 +5,7 @@ on:
     tags: ["v*"]
     paths:
       - "frontend/**"
+  workflow_dispatch:
 
 jobs:
   deploy:

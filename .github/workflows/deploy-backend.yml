@@ -7,6 +7,7 @@ on:
       - "python/backend/**"
       - "python/shared/**"
       - "python/pyproject.toml"
+  workflow_dispatch:
 
 jobs:
   deploy:
