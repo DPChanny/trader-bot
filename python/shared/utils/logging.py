@@ -88,10 +88,7 @@ def _patcher(record: dict[str, Any]) -> None:
     elif not isinstance(event, dict):
         event = None
 
-    if event is not None:
-        http = _http_context.get()
-        if http is not None:
-            event["http"] = http
+    http = _http_context.get()
 
     source = f"{record['name']}:{record['function']}:{record['line']}"
     timestamp = (
@@ -105,6 +102,8 @@ def _patcher(record: dict[str, Any]) -> None:
     }
     if record["message"]:
         log["message"] = record["message"]
+    if http is not None:
+        log["http"] = http
     if event is not None:
         log["event"] = event
     if extra:
