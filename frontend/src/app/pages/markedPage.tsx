@@ -3,7 +3,8 @@ import { marked } from "marked";
 import { Column, Page, Scroll } from "@components/atoms/layout";
 import { Text } from "@components/atoms/text";
 import { SecondarySection } from "@components/surfaces/section";
-import styles from "@styles/components/markedPage.module.css";
+import { Footer } from "@components/footer";
+import styles from "@styles/pages/markedPage.module.css";
 
 export type MarkedPageProps = {
   path: string;
@@ -75,6 +76,7 @@ export function MarkedPage({ path }: MarkedPageProps) {
               )}
             </Column>
           </SecondarySection>
+          <Footer />
         </Column>
       </Scroll>
     </Page>

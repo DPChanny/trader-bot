@@ -1,4 +1,4 @@
-import { MarkedPage } from "@components/markedPage";
+import { MarkedPage } from "./markedPage";
 import { Link } from "@components/atoms/link";
 import { Fill, Page, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
@@ -8,6 +8,7 @@ import {
   SecondarySection,
   TertiarySection,
 } from "@components/surfaces/section";
+import { Footer } from "@components/footer";
 
 const noteLoaders = import.meta.glob("/src/docs/patches/notes/v*.md", {
   query: "?raw",
@@ -83,6 +84,7 @@ export function PatchPage({ version }: PatchPageProps) {
           </Fill>
         ))}
       </PrimarySection>
+      <Footer />
     </Page>
   );
 }
