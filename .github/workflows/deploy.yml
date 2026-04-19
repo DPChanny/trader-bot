@@ -44,10 +44,6 @@ jobs:
             DB_REGION=${{ vars.DB_REGION }}
             EOF
 
-            if [ -n "${{ vars.LOG_LEVEL }}" ]; then
-              echo "LOG_LEVEL=${{ vars.LOG_LEVEL }}" >> python/.env
-            fi
-
       - name: Frontend .env
         uses: appleboy/ssh-action@master
         with:
@@ -125,7 +121,7 @@ jobs:
             cd /var/www/trader-bot/python
             pm2 reload trader-bot || pm2 start "uv run python -m bot.main" --name trader-bot
 
-      - name: Save PM2 Process List
+      - name: PM2 Save
         uses: appleboy/ssh-action@master
         with:
           host: ${{ vars.EC2_HOST }}
