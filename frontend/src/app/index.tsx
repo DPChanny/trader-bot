@@ -8,7 +8,7 @@ import { MemberPage } from "@pages/memberPage/memberPage";
 import { PresetPage } from "@pages/presetPage/presetPage";
 import { HomePage } from "@pages/homePage";
 import { AuctionPage } from "@pages/auctionPage/auctionPage";
-import { MarkedPage } from "@components/markedPage";
+import { DocPage } from "@pages/docPage";
 import { Header } from "./header";
 import { SideMenu } from "./sideMenu/sideMenu";
 import { Modal, ModalFooter } from "./components/modal";
@@ -31,12 +31,22 @@ function HomeRoute({}: RoutableProps) {
   return <HomePage />;
 }
 
-function TermsOfServiceRoute({}: RoutableProps) {
-  return <MarkedPage path="/src/docs/legals/termsOfService.md" />;
-}
+function DocsRoute({
+  level1,
+  level2,
+  level3,
+  level4,
+}: RoutableProps & {
+  level1?: string;
+  level2?: string;
+  level3?: string;
+  level4?: string;
+}) {
+  const slug = [level1, level2, level3, level4]
+    .filter((segment): segment is string => Boolean(segment))
+    .join("/");
 
-function PrivacyPolicyRoute({}: RoutableProps) {
-  return <MarkedPage path="/src/docs/legals/privacyPolicy.md" />;
+  return <DocPage path={slug} />;
 }
 
 function DefaultRoute({}: RoutableProps) {
@@ -162,8 +172,11 @@ function App() {
           <Router>
             <LoginCallbackRoute path="/auth/login/callback" />
             <HomeRoute path="/" />
-            <TermsOfServiceRoute path="/terms-of-service" />
-            <PrivacyPolicyRoute path="/privacy-policy" />
+            <DocsRoute path="/docs" />
+            <DocsRoute path="/docs/:level1" />
+            <DocsRoute path="/docs/:level1/:level2" />
+            <DocsRoute path="/docs/:level1/:level2/:level3" />
+            <DocsRoute path="/docs/:level1/:level2/:level3/:level4" />
             <PresetRoute path="/guild/:guildId/preset/:presetId" />
             <MemberRoute path="/guild/:guildId/member" />
             <AuctionRoute path="/auction/:auctionId" />
