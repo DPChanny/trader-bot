@@ -56,15 +56,16 @@ export function HomePage() {
         "Trader Bot이 서버에 초대되어야 해당 서버가 서비스에 등록됩니다.",
     },
     {
-      emphasis: "소유자 역할은 Trader Bot에 의해서만 자동 부여됩니다.",
+      emphasis: "소유자 역할은 Trader Bot이 자동으로 관리합니다.",
     },
     {
-      emphasis: "서버 관리자 권한이 있는 멤버는 관리자 역할이 자동 부여됩니다.",
+      emphasis:
+        "서버 관리자 권한이 있는 멤버에게는 관리자 역할이 자동 부여됩니다.",
       description:
-        "서버 관리자 권한이 박탈되면 편집자를 제외하고 열람자 역할이 자동 부여됩니다.",
+        "서버 관리자 권한을 잃으면 편집자를 제외한 멤버에게 열람자 역할이 자동 부여됩니다.",
     },
     {
-      emphasis: "일반 멤버는 열람자 역할이 자동 부여됩니다.",
+      emphasis: "일반 멤버에게는 열람자 역할이 자동 부여됩니다.",
     },
     {
       emphasis:
@@ -86,7 +87,7 @@ export function HomePage() {
           <Scroll>
             <Title>Pre Release - v0.2.4b</Title>
             <SecondarySection>
-              <Title>Trader Bot을 통해 내전 팀원 경매를</Title>
+              <Title>내전 팀원 경매를 Trader Bot으로</Title>
               {onboardingSections.map((section) => (
                 <TertiarySection key={section.title}>
                   <Title>{section.title}</Title>
@@ -105,7 +106,7 @@ export function HomePage() {
                 {myUser.data ? null : (
                   <Fill>
                     <PrimaryButton variantSize="large" onClick={login}>
-                      로그인하여 Discord 연동하기
+                      Discord로 로그인하기
                     </PrimaryButton>
                   </Fill>
                 )}
