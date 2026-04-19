@@ -61,7 +61,7 @@ export function PatchPage({ version }: PatchPageProps) {
 
   return (
     <Page>
-      <Column fill align="center">
+      <Column align="center" fill>
         <PrimarySection width="page" fill>
           {sections.map(({ title, versions }) => (
             <Fill key={title}>
