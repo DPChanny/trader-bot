@@ -32,13 +32,13 @@ function HomePageRoute({}: RoutableProps) {
   return <HomePage />;
 }
 
-function PatchesPageRoute({}: RoutableProps) {
+function PatchPageRoute({}: RoutableProps) {
   const [router] = useRouter();
   const url = new URL(router.url, window.location.origin);
-  const patchesPath =
-    url.searchParams.get("path")?.replace(/^\/+|\/+$/g, "") ?? "";
+  const version =
+    url.searchParams.get("version")?.replace(/^\/+|\/+$/g, "") ?? "";
 
-  return <PatchPage path={patchesPath} />;
+  return <PatchPage version={version} />;
 }
 
 function TermsOfServiceRoute({}: RoutableProps) {
@@ -174,7 +174,7 @@ function App() {
           <Router>
             <LoginCallbackRoute path="/auth/login/callback" />
             <HomePageRoute path="/" />
-            <PatchesPageRoute path="/patches" />
+            <PatchPageRoute path="/patch" />
             <TermsOfServiceRoute path="/terms-of-service" />
             <PrivacyPolicyRoute path="/privacy-policy" />
             <PresetPageRoute path="/guild/:guildId/preset/:presetId" />

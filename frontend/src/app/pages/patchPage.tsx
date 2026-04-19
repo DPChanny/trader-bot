@@ -7,24 +7,25 @@ import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
 import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 
-type PatchNode =
-  | {
-      type: "file";
-      path: string;
-    }
-  | {
-      type: "folder";
-      folders: string[];
-      files: string[];
-    };
-
-const patchLoaders = import.meta.glob("/src/docs/patches/**/*.md", {
+const noteLoaders = import.meta.glob("/src/docs/patches/notes/v*.md", {
   query: "?raw",
   import: "default",
 }) as Record<string, () => Promise<string>>;
 
-function toPatchSlug(path: string) {
-  return path.replace(/^\/src\/docs\/patches\//, "").replace(/\.md$/, "");
+const planLoaders = import.meta.glob("/src/docs/patches/plans/v*.md", {
+  query: "?raw",
+  import: "default",
+}) as Record<string, () => Promise<string>>;
+
+type PatchKind = "notes" | "plans";
+
+function getLoaders(kind: PatchKind) {
+  return kind === "notes" ? noteLoaders : planLoaders;
+}
+
+function extractVersion(path: string) {
+  const match = path.match(/\/(v\d+\.\d+\.\d+)\.md$/);
+  return match ? match[1] : null;
 }
 
 function isVersionName(value: string) {
@@ -67,99 +68,51 @@ function compareNames(a: string, b: string) {
   return a.localeCompare(b);
 }
 
-function getPatchFilePath(slug: string) {
-  const path = `/src/docs/patches/${slug}.md`;
-  return patchLoaders[path] ? path : null;
+function listPatchVersions(kind: PatchKind) {
+  return Object.keys(getLoaders(kind))
+    .map((path) => extractVersion(path))
+    .filter((version): version is string => version !== null)
+    .sort(compareNames);
 }
 
-function listPatchChildren(slug: string) {
-  const prefix = slug ? `${slug}/` : "";
-  const folderSet = new Set<string>();
-  const files: string[] = [];
-
-  for (const path of Object.keys(patchLoaders)) {
-    const fileSlug = toPatchSlug(path);
-
-    if (!fileSlug.startsWith(prefix)) {
-      continue;
-    }
-
-    const remaining = fileSlug.slice(prefix.length);
-    if (!remaining) {
-      continue;
-    }
-
-    const [head, ...tail] = remaining.split("/");
-    if (!head) {
-      continue;
-    }
-
-    if (tail.length === 0) {
-      files.push(head);
-      continue;
-    }
-
-    folderSet.add(head);
+function resolvePatchDocPath(version: string) {
+  const notePath = `/src/docs/patches/notes/${version}.md`;
+  if (noteLoaders[notePath]) {
+    return notePath;
   }
 
-  return {
-    folders: Array.from(folderSet).sort(compareNames),
-    files: files.sort(compareNames),
-  };
-}
-
-function resolvePatchNode(slug: string): PatchNode | null {
-  const normalized = slug.trim().replace(/^\/+|\/+$/g, "");
-
-  if (normalized) {
-    const filePath = getPatchFilePath(normalized);
-    if (filePath) {
-      return {
-        type: "file",
-        path: filePath,
-      };
-    }
+  const planPath = `/src/docs/patches/plans/${version}.md`;
+  if (planLoaders[planPath]) {
+    return planPath;
   }
 
-  const { folders, files } = listPatchChildren(normalized);
-  if (normalized && folders.length === 0 && files.length === 0) {
-    return null;
-  }
-
-  return {
-    type: "folder",
-    folders,
-    files,
-  };
+  return null;
 }
 
 export type PatchPageProps = {
-  path: string;
+  version: string;
 };
 
-function toHref(folderPath: string, child: string) {
-  const nextPath = folderPath ? `${folderPath}/${child}` : child;
-  return `/patches?path=${encodeURIComponent(nextPath)}`;
+function toVersionHref(version: string) {
+  return `/patch?version=${encodeURIComponent(version)}`;
 }
 
-export function PatchPage({ path }: PatchPageProps) {
-  const patchNode = resolvePatchNode(path);
+export function PatchPage({ version }: PatchPageProps) {
+  const noteVersions = listPatchVersions("notes");
+  const planVersions = listPatchVersions("plans");
+  const fallbackVersion = [...noteVersions, ...planVersions][0] ?? "";
+  const selectedVersion = version || fallbackVersion;
+  const docPath = selectedVersion ? resolvePatchDocPath(selectedVersion) : null;
 
   useEffect(() => {
-    if (!patchNode) {
+    if (!selectedVersion) {
       route("/", true);
     }
-  }, [patchNode]);
+  }, [selectedVersion]);
 
-  if (!patchNode) {
+  if (!selectedVersion) {
     return null;
   }
-
-  if (patchNode.type === "file") {
-    return <MarkedPage path={patchNode.path} />;
-  }
-
-  const title = path ? `패치 문서: ${path}` : "패치 문서";
 
   return (
     <Page>
@@ -167,10 +120,10 @@ export function PatchPage({ path }: PatchPageProps) {
         <Column gap="xl" width="page" self="center">
           <PrimarySection gap="md">
             <Title as="h1" variantSize="hero" align="start">
-              {title}
+              패치 문서
             </Title>
             <Text align="start">
-              폴더는 조회 화면으로, 파일은 문서 화면으로 이동합니다.
+              Notes/Plans 목록에서 버전을 선택해 문서를 확인합니다.
             </Text>
           </PrimarySection>
 
@@ -178,15 +131,17 @@ export function PatchPage({ path }: PatchPageProps) {
             <Fill>
               <SecondarySection gap="md">
                 <Title as="h2" align="start">
-                  Folders
+                  Notes
                 </Title>
                 <Column gap="sm">
-                  {patchNode.folders.length === 0 && (
-                    <Text align="start">하위 폴더가 없습니다.</Text>
+                  {noteVersions.length === 0 && (
+                    <Text align="start">노트 문서가 없습니다.</Text>
                   )}
-                  {patchNode.folders.map((folder) => (
-                    <Card key={folder}>
-                      <Link href={toHref(path, folder)}>{folder}</Link>
+                  {noteVersions.map((itemVersion) => (
+                    <Card key={itemVersion}>
+                      <Link href={toVersionHref(itemVersion)}>
+                        {itemVersion}
+                      </Link>
                     </Card>
                   ))}
                 </Column>
@@ -196,21 +151,34 @@ export function PatchPage({ path }: PatchPageProps) {
             <Fill>
               <SecondarySection gap="md">
                 <Title as="h2" align="start">
-                  Files
+                  Plans
                 </Title>
                 <Column gap="sm">
-                  {patchNode.files.length === 0 && (
-                    <Text align="start">하위 문서가 없습니다.</Text>
+                  {planVersions.length === 0 && (
+                    <Text align="start">계획 문서가 없습니다.</Text>
                   )}
-                  {patchNode.files.map((file) => (
-                    <Card key={file}>
-                      <Link href={toHref(path, file)}>{file}</Link>
+                  {planVersions.map((itemVersion) => (
+                    <Card key={itemVersion}>
+                      <Link href={toVersionHref(itemVersion)}>
+                        {itemVersion}
+                      </Link>
                     </Card>
                   ))}
                 </Column>
               </SecondarySection>
             </Fill>
           </Row>
+
+          <SecondarySection gap="md">
+            <Title as="h2" align="start">
+              {selectedVersion}
+            </Title>
+            {docPath ? (
+              <MarkedPage path={docPath} />
+            ) : (
+              <Text align="start">해당 버전 문서를 찾을 수 없습니다.</Text>
+            )}
+          </SecondarySection>
         </Column>
       </Scroll>
     </Page>
