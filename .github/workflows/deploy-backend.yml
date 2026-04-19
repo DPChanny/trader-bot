@@ -61,7 +61,7 @@ jobs:
               ("git fetch --tags origin && git checkout --detach " + $tag),
               ("echo " + $env + " | base64 -d > python/.env"),
               "cd python && uv sync --frozen",
-              "pm2 reload trader-bot-backend || pm2 start '\''uv run python -m uvicorn backend.main:app --host localhost --port 8000'\'' --name trader-bot-backend && pm2 save"
+              "pm2 startOrReload ecosystem.config.mjs --only trader-bot-prod-pm2-backend && pm2 save"
             ]}')" \
             --query "Command.CommandId" \
             --output text)

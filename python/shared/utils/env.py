@@ -20,11 +20,11 @@ def get_discord_client_secret() -> str:
 
 
 def get_app_origin() -> str:
-    return os.getenv("APP_ORIGIN", "http://localhost:5173")
+    return os.getenv("APP_ORIGIN", "http://127.0.0.1:5173")
 
 
 def get_api_origin() -> str:
-    return os.getenv("API_ORIGIN", "http://localhost:8000")
+    return os.getenv("API_ORIGIN", "http://127.0.0.1:8000")
 
 
 def get_jwt_secret() -> str:
