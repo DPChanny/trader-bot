@@ -66,7 +66,7 @@ jobs:
               ("git fetch --tags origin && git checkout --detach " + $tag),
               "aws ssm get-parameter --name /trader-bot/prod/python/env --with-decryption --query Parameter.Value --output text > python/.env",
               "cd python && uv sync --frozen",
-              "pm2 startOrReload ecosystem.config.mjs --only trader-bot-prod-pm2-bot && pm2 save"
+              "cd .. && pm2 startOrReload ecosystem.config.mjs --only trader-bot-prod-pm2-bot && pm2 save"
             ]}')" \
             --query "Command.CommandId" \
             --output text)
