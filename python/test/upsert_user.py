@@ -4,7 +4,7 @@ import argparse
 import asyncio
 
 from shared.utils.db import get_session
-from shared.utils.user import upsert_user
+from shared.utils.upsert import upsert_user
 
 
 def _parse_args() -> argparse.Namespace:

@@ -5,7 +5,7 @@ import asyncio
 
 from shared.dtos.member import Role
 from shared.utils.db import get_session
-from shared.utils.member import upsert_member
+from shared.utils.upsert import upsert_member
 
 
 def _parse_args() -> argparse.Namespace:
