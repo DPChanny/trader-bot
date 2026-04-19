@@ -50,7 +50,7 @@ async def create_auction_service(
     leaders = [pm for pm in preset_members if pm.is_leader]
 
     if len(leaders) < 2:
-        raise HTTPError(AuctionErrorCode.InsufficientLeaders)
+        raise HTTPError(ValidationErrorCode.Invalid)
 
     preset_snapshot = PresetDetailDTO.model_validate(preset)
     auction = AuctionManager.create_auction(

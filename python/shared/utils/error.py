@@ -30,7 +30,6 @@ class ValidationErrorCode(IntEnum):
 
 
 class AuctionErrorCode(IntEnum):
-    InsufficientLeaders = 4202
     BidTeamFull = 4203
     BidTooHigh = 4204
     BidTooLow = 4205

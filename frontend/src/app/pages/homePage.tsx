@@ -22,19 +22,14 @@ export function HomePage() {
       title: "하나의 흐름으로",
       emphasis:
         "Discord 로그인 → Trader Bot 초대 → 길드 선택 → 프리셋 구성 → 경매 생성",
-      description:
-        "길드 관리자 계정으로 로그인하고 봇을 초대하면 바로 이어서 사용할 수 있습니다.",
     },
     {
       title: "회원가입 없이",
       emphasis: "별도 회원가입 없이 시작합니다.",
-      description: "Discord 로그인과 관리자 권한 초대만 끝나면 됩니다.",
     },
     {
       title: "복잡한 등록 없이",
       emphasis: "템플릿을 매번 처음부터 다시 적지 않아도 됩니다.",
-      description:
-        "프리셋을 손봐서 같은 흐름으로 바로 다시 사용할 수 있습니다.",
     },
   ];
 
@@ -123,12 +118,11 @@ export function HomePage() {
                 <Card>
                   <Column gap="md">
                     <Text variantWeight="semibold">{section.emphasis}</Text>
-                    <Text>{section.description}</Text>
                   </Column>
                 </Card>
               </TertiarySection>
             ))}
-            <Title>간편하게!</Title>
+            <Title>간편하게 시작하세요!</Title>
           </SecondarySection>
 
           <SecondarySection gap="lg">
