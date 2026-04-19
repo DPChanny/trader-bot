@@ -15,62 +15,51 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: GIT
-        uses: appleboy/ssh-action@master
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          host: ${{ vars.EC2_HOST }}
-          username: ${{ vars.EC2_USER }}
-          key: ${{ secrets.EC2_SECRET }}
-          script: |
-            set -e
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
 
-            cd /var/www/trader-bot
-            git fetch --tags origin
-            git checkout --detach "${{ github.ref_name }}"
+      - name: Deploy
+        env:
+          TAG: ${{ github.ref_name }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
+          APP_ORIGIN: https://${{ vars.EC2_HOST }}
+          API_ORIGIN: https://${{ vars.EC2_HOST }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          RDS_INSTANCE_IDENTIFIER: ${{ vars.RDS_INSTANCE_IDENTIFIER }}
+          RDS_REGION: ${{ vars.AWS_REGION }}
+          INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+        run: |
+          ENV_B64=$(printf '%s\n' \
+            "DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN" \
+            "DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID" \
+            "DISCORD_CLIENT_SECRET=$DISCORD_CLIENT_SECRET" \
+            "APP_ORIGIN=$APP_ORIGIN" \
+            "API_ORIGIN=$API_ORIGIN" \
+            "JWT_SECRET=$JWT_SECRET" \
+            "RDS_INSTANCE_IDENTIFIER=$RDS_INSTANCE_IDENTIFIER" \
+            "RDS_REGION=$RDS_REGION" \
+            | base64 -w 0)
 
-      - name: ENV
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ vars.EC2_HOST }}
-          username: ${{ vars.EC2_USER }}
-          key: ${{ secrets.EC2_SECRET }}
-          script: |
-            set -e
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters "$(jq -rn --arg tag "$TAG" --arg env "$ENV_B64" '{commands: [
+              "set -e",
+              "cd /var/www/trader-bot",
+              ("git fetch --tags origin && git checkout --detach " + $tag),
+              ("echo " + $env + " | base64 -d > python/.env"),
+              "cd python && uv sync --frozen",
+              "pm2 reload trader-bot || pm2 start '\''uv run python -m bot.main'\'' --name trader-bot && pm2 save"
+            ]}')" \
+            --query "Command.CommandId" \
+            --output text)
 
-            cd /var/www/trader-bot
-            cat << EOF > python/.env
-            DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}
-            DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
-            DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}
-            APP_ORIGIN=https://${{ vars.EC2_HOST }}
-            API_ORIGIN=https://${{ vars.EC2_HOST }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            RDS_INSTANCE_IDENTIFIER=${{ vars.RDS_INSTANCE_IDENTIFIER }}
-            RDS_REGION=${{ vars.AWS_REGION }}
-            EOF
-
-      - name: UV
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ vars.EC2_HOST }}
-          username: ${{ vars.EC2_USER }}
-          key: ${{ secrets.EC2_SECRET }}
-          script: |
-            set -e
-
-            cd /var/www/trader-bot/python
-            uv sync --frozen
-
-      - name: PM2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ vars.EC2_HOST }}
-          username: ${{ vars.EC2_USER }}
-          key: ${{ secrets.EC2_SECRET }}
-          script: |
-            set -e
-
-            cd /var/www/trader-bot/python
-            pm2 reload trader-bot || pm2 start "uv run python -m bot.main" --name trader-bot
-
-            pm2 save
+          aws ssm wait command-executed \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$INSTANCE_ID"
