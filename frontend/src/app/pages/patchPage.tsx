@@ -27,33 +27,7 @@ function getVersions(kind: string) {
       return match ? match[1] : null;
     })
     .filter((version): version is string => version !== null)
-    .sort((a, b) => {
-      const parse = (version: string) =>
-        version
-          .slice(1)
-          .split(".")
-          .map((part) => Number.parseInt(part, 10));
-
-      const [aMajor, aMinor, aPatch] = parse(a);
-      const [bMajor, bMinor, bPatch] = parse(b);
-
-      const safeAMajor = aMajor ?? 0;
-      const safeAMinor = aMinor ?? 0;
-      const safeAPatch = aPatch ?? 0;
-      const safeBMajor = bMajor ?? 0;
-      const safeBMinor = bMinor ?? 0;
-      const safeBPatch = bPatch ?? 0;
-
-      if (safeAMajor !== safeBMajor) {
-        return safeBMajor - safeAMajor;
-      }
-
-      if (safeAMinor !== safeBMinor) {
-        return safeBMinor - safeAMinor;
-      }
-
-      return safeBPatch - safeAPatch;
-    });
+    .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
 }
 
 export type PatchPageProps = {
