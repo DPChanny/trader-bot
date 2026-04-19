@@ -1,7 +1,6 @@
 import json
 import logging
 import sys
-import time
 from dataclasses import dataclass
 from datetime import UTC
 from pathlib import Path
@@ -62,12 +61,21 @@ class Event:
     request: LogValue | None = None
     result: LogValue | None = None
     detail: LogValue | None = None
+    error: LogValue | None = None
 
     def __iter__(self):
         yield "function", self.function
-        yield ("request", redact(self.request))
-        yield ("result", redact(self.result))
-        yield ("detail", redact(self.detail))
+        if self.request is not None:
+            yield "request", redact(self.request)
+        if self.result is not None:
+            yield "result", redact(self.result)
+        if self.detail is not None:
+            yield "detail", redact(self.detail)
+        if self.error is not None:
+            yield "error", redact(self.error)
+
+
+_http_registry: dict[str, dict[str, Any]] = {}
 
 
 def _patcher(record: dict[str, Any]) -> None:
@@ -79,11 +87,16 @@ def _patcher(record: dict[str, Any]) -> None:
 
     extra = dict(record["extra"])
     event = extra.pop("event", None)
-    request = extra.pop("request", None)
+    request_id = extra.pop("request_id", None)
     if isinstance(event, Event):
         event = dict(event)
     elif not isinstance(event, dict):
         event = None
+
+    if event is not None and request_id is not None:
+        http = _http_registry.get(request_id)
+        if http is not None:
+            event["http"] = {"request_id": request_id, **http}
 
     source = f"{record['name']}:{record['function']}:{record['line']}"
 
@@ -100,8 +113,6 @@ def _patcher(record: dict[str, Any]) -> None:
         log["message"] = record["message"]
     if event is not None:
         log["event"] = event
-    if request is not None:
-        log["request"] = request
     if extra:
         log["extra"] = extra
 
@@ -123,18 +134,14 @@ def _patcher(record: dict[str, Any]) -> None:
     event = log.get("event")
     if isinstance(event, dict):
         event = dict(event)
-        detail = event.get("detail")
-        if isinstance(detail, dict):
-            detail = dict(detail)
-            exception = detail.pop("exception", None)
-            event["detail"] = detail
+        error = event.get("error")
+        if isinstance(error, dict):
+            error = dict(error)
+            exception = error.pop("exception", None)
+            event["error"] = error
 
     if event is not None:
         text += "\n" + json.dumps(event, ensure_ascii=False, indent=2, default=str)
-    if "request" in log:
-        text += "\n" + json.dumps(
-            log["request"], ensure_ascii=False, indent=2, default=str
-        )
     if exception:
         text += "\n" + exception.rstrip()
 
@@ -208,34 +215,27 @@ def setup_logging(log_dir: str | Path) -> None:
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         request_id = request.headers.get("x-request-id") or str(uuid4())
-        start = time.perf_counter()
-        response: Response | None = None
-        status_code = 500
+
+        forwarded_for = request.headers.get("x-forwarded-for")
+        client_ip = (
+            forwarded_for.split(",", maxsplit=1)[0].strip()
+            if forwarded_for
+            else request.client.host
+            if request.client is not None
+            else None
+        )
+        _http_registry[request_id] = {
+            "method": request.method,
+            "path": request.url.path,
+            "query": request.url.query,
+            "client_ip": client_ip,
+            "user_agent": request.headers.get("user-agent"),
+        }
 
         with logger.contextualize(request_id=request_id):
             try:
                 response = await call_next(request)
-                status_code = response.status_code
                 response.headers["X-Request-ID"] = request_id
                 return response
             finally:
-                duration = round((time.perf_counter() - start) * 1000)
-                forwarded_for = request.headers.get("x-forwarded-for")
-                client_ip = (
-                    forwarded_for.split(",", maxsplit=1)[0].strip()
-                    if forwarded_for
-                    else request.client.host
-                    if request.client is not None
-                    else None
-                )
-                logger.bind(
-                    request={
-                        "method": request.method,
-                        "path": request.url.path,
-                        "query": request.url.query,
-                        "client_ip": client_ip,
-                        "user_agent": request.headers.get("user-agent"),
-                        "status_code": status_code,
-                        "duration": duration,
-                    }
-                ).info("")
+                _http_registry.pop(request_id, None)

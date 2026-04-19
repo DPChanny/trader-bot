@@ -7,28 +7,23 @@ from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
-from .logging import Event, LogValue
-
-
-def _extract_request(
-    sig: inspect.Signature, args: tuple[Any, ...], kwargs: dict[str, Any]
-) -> dict[str, LogValue] | None:
-    bound = sig.bind_partial(*args, **kwargs)
-
-    dto = bound.arguments.get("dto")
-    if isinstance(dto, BaseModel):
-        return {"dto": dto}
-
-    return None
+from .logging import Event
 
 
 def _inject_event(
     sig: inspect.Signature, args, kwargs: dict[str, Any], function: str
 ) -> tuple[dict[str, Any], Event]:
     event = Event(function=function)
-    if "event" in sig.parameters:
-        kwargs["event"] = event
-    event.request = _extract_request(sig, args, kwargs)
+    bound = sig.bind_partial(*args, **kwargs)
+    for name, param in sig.parameters.items():
+        if param.annotation is Event:
+            kwargs[name] = event
+        elif isinstance(param.annotation, type) and issubclass(
+            param.annotation, BaseModel
+        ):
+            value = bound.arguments.get(name)
+            if isinstance(value, BaseModel):
+                event.request = {name: value}
     return kwargs, event
 
 
@@ -43,7 +38,7 @@ def http_service(func):
             result = await func(*args, **kwargs)
             if event.result is None:
                 event.result = result
-            logger.bind(event=event).info("succeeded")
+            logger.bind(event=event).info("")
             return result
         except HTTPError as error:
             if error.event is None:
@@ -66,7 +61,7 @@ def bot_service(func):
 
         try:
             result = await func(*args, **kwargs)
-            logger.bind(event=event).info("succeeded")
+            logger.bind(event=event).info("")
             return result
         except AppError as error:
             if error.event is None:
@@ -89,7 +84,7 @@ def ws_service(func):
 
         try:
             result = await func(*args, **kwargs)
-            logger.bind(event=event).info("succeeded")
+            logger.bind(event=event).info("")
             return result
         except WSError as error:
             if error.event is None:

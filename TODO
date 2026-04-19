@@ -1,3 +1,9 @@
+infra
+    frontend: s3, cloudfront, acm
+    ssm
+    cicd: bot backend frontend
+    
+
 patch
 
 pagenation & sorting & search

@@ -147,5 +147,5 @@ async def place_bid_service(
 async def disconnect_service(
     auction: Auction, member_id: int | None, ws: WebSocket, event: Event
 ) -> None:
-    event.request |= {"auction_id": auction.auction_id, "member_id": member_id}
+    event.request = {"auction_id": auction.auction_id, "member_id": member_id}
     await auction.disconnect(ws, member_id)
