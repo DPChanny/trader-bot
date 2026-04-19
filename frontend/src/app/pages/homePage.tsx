@@ -88,9 +88,6 @@ export function HomePage() {
     <Page>
       <Scroll align="center">
         <PrimarySection width="page">
-          <Title>BETA - v0.2.4</Title>
-          <img src="banner.jpg" />
-
           <SecondarySection>
             <Row>
               {myUser.data ? null : (
