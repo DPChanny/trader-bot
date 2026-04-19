@@ -62,11 +62,12 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --parameters "$(jq -rn --arg tag "$TAG" '{commands: [
               "set -e",
+              "git config --global --add safe.directory /var/www/trader-bot",
               "cd /var/www/trader-bot",
               ("git fetch --tags origin && git checkout --detach " + $tag),
               "aws ssm get-parameter --name /trader-bot/prod/python/env --with-decryption --query Parameter.Value --output text > python/.env",
               "cd python && uv sync --frozen",
-              "cd .. && pm2 startOrReload ecosystem.config.mjs --only trader-bot-prod-pm2-backend && pm2 save"
+              "HOME=/home/ubuntu pm2 startOrReload /var/www/trader-bot/ecosystem.config.mjs --only trader-bot-prod-pm2-backend && HOME=/home/ubuntu pm2 save"
             ]}')" \
             --query "Command.CommandId" \
             --output text)
