@@ -7,11 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from ..entities import BaseEntity
 from .env import (
-    get_db_instance_identifier,
     get_db_name,
     get_db_port,
-    get_db_region,
     get_db_user,
+    get_rds_instance_identifier,
+    get_rds_region,
 )
 
 
@@ -20,9 +20,9 @@ _DB_CONNECT_BASE_DELAY = 1.0
 
 
 async def _get_db_endpoint() -> str:
-    async with aioboto3.Session().client("rds", region_name=get_db_region()) as client:
+    async with aioboto3.Session().client("rds", region_name=get_rds_region()) as client:
         response = await client.describe_db_instances(
-            DBInstanceIdentifier=get_db_instance_identifier()
+            DBInstanceIdentifier=get_rds_instance_identifier()
         )
         return response["DBInstances"][0]["Endpoint"]["Address"]
 
@@ -34,13 +34,13 @@ async def _async_creator() -> asyncpg.Connection:
         try:
             db_endpoint = await _get_db_endpoint()
             async with aioboto3.Session().client(
-                "rds", region_name=get_db_region()
+                "rds", region_name=get_rds_region()
             ) as client:
                 db_password = await client.generate_db_auth_token(
                     DBHostname=db_endpoint,
                     Port=int(get_db_port()),
                     DBUsername=get_db_user(),
-                    Region=get_db_region(),
+                    Region=get_rds_region(),
                 )
             return await asyncpg.connect(
                 host=db_endpoint,

@@ -20,6 +20,7 @@ from shared.utils.error import (
     HTTPError,
     PresetErrorCode,
     TokenError,
+    ValidationErrorCode,
     WSError,
 )
 from shared.utils.service import Event, http_service, ws_service

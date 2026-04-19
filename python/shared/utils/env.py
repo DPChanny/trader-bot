@@ -35,10 +35,6 @@ def get_jwt_algorithm() -> str:
     return os.getenv("JWT_ALGORITHM", "HS256")
 
 
-def get_db_instance_identifier() -> str:
-    return os.getenv("DB_INSTANCE_IDENTIFIER", "trader-bot-prod-rds")
-
-
 def get_db_port() -> str:
     return os.getenv("DB_PORT", "5432")
 
@@ -51,8 +47,12 @@ def get_db_name() -> str:
     return os.getenv("DB_NAME", "trader")
 
 
-def get_db_region() -> str:
-    return os.getenv("DB_REGION", "")
+def get_rds_region() -> str:
+    return os.getenv("DB_REGION", "ap-northeast-2")
+
+
+def get_rds_instance_identifier() -> str:
+    return os.getenv("DB_INSTANCE_IDENTIFIER", "trader-bot-prod-rds")
 
 
 def get_log_level() -> str:
