@@ -116,71 +116,44 @@ export function PatchPage({ version }: PatchPageProps) {
 
   return (
     <Page>
-      <Scroll axis="y">
-        <Column gap="xl" width="page" self="center">
-          <PrimarySection gap="md">
-            <Title as="h1" variantSize="hero" align="start">
-              패치 문서
-            </Title>
-            <Text align="start">
-              Notes/Plans 목록에서 버전을 선택해 문서를 확인합니다.
-            </Text>
-          </PrimarySection>
+      <PrimarySection gap="md">
+        <Row>
+          <Fill>
+            <SecondarySection gap="md">
+              <Title as="h2" align="start">
+                Notes
+              </Title>
+              <Scroll>
+                {noteVersions.map((itemVersion) => (
+                  <Card key={itemVersion}>
+                    <Link href={toVersionHref(itemVersion)}>{itemVersion}</Link>
+                  </Card>
+                ))}
+              </Scroll>
+            </SecondarySection>
+          </Fill>
 
-          <Row gap="md" wrap>
-            <Fill>
-              <SecondarySection gap="md">
-                <Title as="h2" align="start">
-                  Notes
-                </Title>
-                <Column gap="sm">
-                  {noteVersions.length === 0 && (
-                    <Text align="start">노트 문서가 없습니다.</Text>
-                  )}
-                  {noteVersions.map((itemVersion) => (
-                    <Card key={itemVersion}>
-                      <Link href={toVersionHref(itemVersion)}>
-                        {itemVersion}
-                      </Link>
-                    </Card>
-                  ))}
-                </Column>
-              </SecondarySection>
-            </Fill>
-
-            <Fill>
-              <SecondarySection gap="md">
-                <Title as="h2" align="start">
-                  Plans
-                </Title>
-                <Column gap="sm">
-                  {planVersions.length === 0 && (
-                    <Text align="start">계획 문서가 없습니다.</Text>
-                  )}
-                  {planVersions.map((itemVersion) => (
-                    <Card key={itemVersion}>
-                      <Link href={toVersionHref(itemVersion)}>
-                        {itemVersion}
-                      </Link>
-                    </Card>
-                  ))}
-                </Column>
-              </SecondarySection>
-            </Fill>
-          </Row>
-
-          <SecondarySection gap="md">
-            <Title as="h2" align="start">
-              {selectedVersion}
-            </Title>
-            {docPath ? (
-              <MarkedPage path={docPath} />
-            ) : (
-              <Text align="start">해당 버전 문서를 찾을 수 없습니다.</Text>
-            )}
-          </SecondarySection>
-        </Column>
-      </Scroll>
+          <Fill>
+            <SecondarySection gap="md">
+              <Title as="h2" align="start">
+                Plans
+              </Title>
+              <Column gap="sm">
+                {planVersions.map((itemVersion) => (
+                  <Card key={itemVersion}>
+                    <Link href={toVersionHref(itemVersion)}>{itemVersion}</Link>
+                  </Card>
+                ))}
+              </Column>
+            </SecondarySection>
+          </Fill>
+        </Row>
+      </PrimarySection>
+      {docPath ? (
+        <MarkedPage path={docPath} />
+      ) : (
+        <Text align="start">해당 버전 문서를 찾을 수 없습니다.</Text>
+      )}
     </Page>
   );
 }

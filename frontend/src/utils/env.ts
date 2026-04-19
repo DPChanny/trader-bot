@@ -5,14 +5,9 @@ const DISCORD_CLIENT_ID = import.meta.env["VITE_DISCORD_CLIENT_ID"];
 const API_ENDPOINT = `${API_ORIGIN}/api`;
 const WS_ENDPOINT = `${WS_ORIGIN}/ws`;
 
-export const SITE_NAME = "Trader Bot";
-export const SITE_OPERATOR = `${SITE_NAME} 운영팀`;
-
 export const GUILD_INVITE_URL = import.meta.env["VITE_GUILD_INVITE_URL"];
-export const GUILD_INVITE_URL_TEXT = `${SITE_NAME} 길드`;
 
 export const BOT_INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&permissions=8&scope=bot`;
-export const BOT_INVITE_URL_TEXT = `${SITE_NAME} 초대`;
 
 export const AUTH_API_ENDPOINT = `${API_ENDPOINT}/auth`;
 export const USER_API_ENDPOINT = `${API_ENDPOINT}/user`;
