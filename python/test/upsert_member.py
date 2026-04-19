@@ -4,7 +4,7 @@ import argparse
 import asyncio
 
 from shared.dtos.member import Role
-from shared.utils.database import get_session
+from shared.utils.db import get_session
 from shared.utils.member import upsert_member
 
 

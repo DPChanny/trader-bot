@@ -118,14 +118,25 @@ def _patcher(record: dict[str, Any]) -> None:
         parts.append(json.dumps(log["extra"], ensure_ascii=False, default=str))
 
     text = " | ".join(parts)
-    if "event" in log:
-        text += "\n" + json.dumps(
-            log["event"], ensure_ascii=False, indent=2, default=str
-        )
+
+    exception: str | None = None
+    event = log.get("event")
+    if isinstance(event, dict):
+        event = dict(event)
+        detail = event.get("detail")
+        if isinstance(detail, dict):
+            detail = dict(detail)
+            exception = detail.pop("exception", None)
+            event["detail"] = detail
+
+    if event is not None:
+        text += "\n" + json.dumps(event, ensure_ascii=False, indent=2, default=str)
     if "request" in log:
         text += "\n" + json.dumps(
             log["request"], ensure_ascii=False, indent=2, default=str
         )
+    if exception:
+        text += "\n" + exception.rstrip()
 
     record["extra"]["text"] = text
 

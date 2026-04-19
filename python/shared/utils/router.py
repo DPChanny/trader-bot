@@ -6,7 +6,7 @@ from typing import ParamSpec, TypeVar
 
 from fastapi import WebSocket
 
-from .database import get_session
+from .db import get_session
 from .error import (
     AppError,
     UnexpectedErrorCode,

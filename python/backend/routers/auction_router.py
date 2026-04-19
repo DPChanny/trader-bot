@@ -17,7 +17,7 @@ from shared.dtos.auction import (
     PlaceBidPayloadDTO,
     Status,
 )
-from shared.utils.database import get_session
+from shared.utils.db import get_session
 from shared.utils.error import (
     AppErrorCode,
     AuthErrorCode,

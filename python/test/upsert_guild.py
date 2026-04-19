@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 
-from shared.utils.database import get_session
+from shared.utils.db import get_session
 from shared.utils.guild import upsert_guild
 
 

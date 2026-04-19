@@ -5,7 +5,7 @@ from shared.dtos.preset_member_position import (
     AddPresetMemberPositionDTO,
     PresetMemberPositionDetailDTO,
 )
-from shared.utils.database import get_session
+from shared.utils.db import get_session
 
 from ..services.preset_member_position_service import (
     add_preset_member_position_service,

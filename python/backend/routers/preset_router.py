@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.preset import CreatePresetDTO, PresetDTO, UpdatePresetDTO
-from shared.utils.database import get_session
+from shared.utils.db import get_session
 
 from ..services.preset_service import (
     create_preset_service,
