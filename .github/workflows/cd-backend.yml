@@ -1,4 +1,4 @@
-name: Deploy Backend
+name: CD Backend
 
 on:
   push:
@@ -23,31 +23,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
-
-      - name: CI
-        env:
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
-          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
-          APP_ORIGIN: https://${{ vars.EC2_HOST }}
-          API_ORIGIN: https://${{ vars.EC2_HOST }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          RDS_INSTANCE_IDENTIFIER: ${{ vars.RDS_INSTANCE_IDENTIFIER }}
-          RDS_REGION: ${{ vars.AWS_REGION }}
-        run: |
-          aws ssm put-parameter \
-            --name "/trader-bot/prod/python/env" \
-            --value "$(printf '%s\n' \
-              "DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN" \
-              "DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID" \
-              "DISCORD_CLIENT_SECRET=$DISCORD_CLIENT_SECRET" \
-              "APP_ORIGIN=$APP_ORIGIN" \
-              "API_ORIGIN=$API_ORIGIN" \
-              "JWT_SECRET=$JWT_SECRET" \
-              "RDS_INSTANCE_IDENTIFIER=$RDS_INSTANCE_IDENTIFIER" \
-              "RDS_REGION=$RDS_REGION")" \
-            --type SecureString \
-            --overwrite
 
       - name: CD
         env:
