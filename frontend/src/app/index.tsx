@@ -1,14 +1,15 @@
 import { useEffect } from "preact/hooks";
 import { useState } from "preact/hooks";
 import { render } from "preact";
-import Router, { route } from "preact-router";
+import Router, { route, useRouter } from "preact-router";
 import type { RoutableProps } from "preact-router";
 import { QueryClientProvider } from "@tanstack/preact-query";
 import { MemberPage } from "@pages/memberPage/memberPage";
 import { PresetPage } from "@pages/presetPage/presetPage";
 import { HomePage } from "@pages/homePage";
 import { AuctionPage } from "@pages/auctionPage/auctionPage";
-import { DocPage } from "@pages/docPage";
+import { PatchPage } from "@pages/patchPage";
+import { MarkedPage } from "@components/markedPage";
 import { Header } from "./header";
 import { SideMenu } from "./sideMenu/sideMenu";
 import { Modal, ModalFooter } from "./components/modal";
@@ -27,29 +28,28 @@ import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import "@styles/app.css";
 
-function HomeRoute({}: RoutableProps) {
+function HomePageRoute({}: RoutableProps) {
   return <HomePage />;
 }
 
-function DocsRoute({
-  level1,
-  level2,
-  level3,
-  level4,
-}: RoutableProps & {
-  level1?: string;
-  level2?: string;
-  level3?: string;
-  level4?: string;
-}) {
-  const slug = [level1, level2, level3, level4]
-    .filter((segment): segment is string => Boolean(segment))
-    .join("/");
+function PatchesPageRoute({}: RoutableProps) {
+  const [router] = useRouter();
+  const url = new URL(router.url, window.location.origin);
+  const patchesPath =
+    url.searchParams.get("path")?.replace(/^\/+|\/+$/g, "") ?? "";
 
-  return <DocPage path={slug} />;
+  return <PatchPage path={patchesPath} />;
 }
 
-function DefaultRoute({}: RoutableProps) {
+function TermsOfServiceRoute({}: RoutableProps) {
+  return <MarkedPage path="/src/docs/terms-of-service.md" />;
+}
+
+function PrivacyPolicyRoute({}: RoutableProps) {
+  return <MarkedPage path="/src/docs/privacy-policy.md" />;
+}
+
+function DefaultRedirectRoute({}: RoutableProps) {
   useEffect(() => {
     route("/", true);
   }, []);
@@ -73,7 +73,7 @@ function LoginCallbackRoute({}: RoutableProps) {
   );
 }
 
-function MemberRoute({ guildId }: RoutableProps & { guildId?: string }) {
+function MemberPageRoute({ guildId }: RoutableProps & { guildId?: string }) {
   useAuthGuard();
 
   if (!guildId) {
@@ -84,7 +84,7 @@ function MemberRoute({ guildId }: RoutableProps & { guildId?: string }) {
   return <MemberPage />;
 }
 
-function PresetRoute({
+function PresetPageRoute({
   guildId,
   presetId,
 }: RoutableProps & { guildId?: string; presetId?: string }) {
@@ -98,7 +98,9 @@ function PresetRoute({
   return <PresetPage />;
 }
 
-function AuctionRoute({ auctionId }: RoutableProps & { auctionId?: string }) {
+function AuctionPageRoute({
+  auctionId,
+}: RoutableProps & { auctionId?: string }) {
   if (!auctionId) {
     route("/", true);
     return null;
@@ -171,16 +173,14 @@ function App() {
         <div className="app-content">
           <Router>
             <LoginCallbackRoute path="/auth/login/callback" />
-            <HomeRoute path="/" />
-            <DocsRoute path="/docs" />
-            <DocsRoute path="/docs/:level1" />
-            <DocsRoute path="/docs/:level1/:level2" />
-            <DocsRoute path="/docs/:level1/:level2/:level3" />
-            <DocsRoute path="/docs/:level1/:level2/:level3/:level4" />
-            <PresetRoute path="/guild/:guildId/preset/:presetId" />
-            <MemberRoute path="/guild/:guildId/member" />
-            <AuctionRoute path="/auction/:auctionId" />
-            <DefaultRoute default />
+            <HomePageRoute path="/" />
+            <PatchesPageRoute path="/patches" />
+            <TermsOfServiceRoute path="/terms-of-service" />
+            <PrivacyPolicyRoute path="/privacy-policy" />
+            <PresetPageRoute path="/guild/:guildId/preset/:presetId" />
+            <MemberPageRoute path="/guild/:guildId/member" />
+            <AuctionPageRoute path="/auction/:auctionId" />
+            <DefaultRedirectRoute default />
           </Router>
         </div>
       </div>

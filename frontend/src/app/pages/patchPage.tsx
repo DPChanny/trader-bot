@@ -7,7 +7,7 @@ import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
 import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 
-type DocNode =
+type PatchNode =
   | {
       type: "file";
       path: string;
@@ -18,13 +18,13 @@ type DocNode =
       files: string[];
     };
 
-const docLoaders = import.meta.glob("/src/docs/**/*.md", {
+const patchLoaders = import.meta.glob("/src/docs/patches/**/*.md", {
   query: "?raw",
   import: "default",
 }) as Record<string, () => Promise<string>>;
 
-function toDocSlug(path: string) {
-  return path.replace(/^\/src\/docs\//, "").replace(/\.md$/, "");
+function toPatchSlug(path: string) {
+  return path.replace(/^\/src\/docs\/patches\//, "").replace(/\.md$/, "");
 }
 
 function isVersionName(value: string) {
@@ -67,18 +67,18 @@ function compareNames(a: string, b: string) {
   return a.localeCompare(b);
 }
 
-function getDocFilePath(slug: string) {
-  const path = `/src/docs/${slug}.md`;
-  return docLoaders[path] ? path : null;
+function getPatchFilePath(slug: string) {
+  const path = `/src/docs/patches/${slug}.md`;
+  return patchLoaders[path] ? path : null;
 }
 
-function listDocChildren(slug: string) {
+function listPatchChildren(slug: string) {
   const prefix = slug ? `${slug}/` : "";
   const folderSet = new Set<string>();
   const files: string[] = [];
 
-  for (const path of Object.keys(docLoaders)) {
-    const fileSlug = toDocSlug(path);
+  for (const path of Object.keys(patchLoaders)) {
+    const fileSlug = toPatchSlug(path);
 
     if (!fileSlug.startsWith(prefix)) {
       continue;
@@ -108,11 +108,11 @@ function listDocChildren(slug: string) {
   };
 }
 
-function resolveDocNode(slug: string): DocNode | null {
+function resolvePatchNode(slug: string): PatchNode | null {
   const normalized = slug.trim().replace(/^\/+|\/+$/g, "");
 
   if (normalized) {
-    const filePath = getDocFilePath(normalized);
+    const filePath = getPatchFilePath(normalized);
     if (filePath) {
       return {
         type: "file",
@@ -121,7 +121,7 @@ function resolveDocNode(slug: string): DocNode | null {
     }
   }
 
-  const { folders, files } = listDocChildren(normalized);
+  const { folders, files } = listPatchChildren(normalized);
   if (normalized && folders.length === 0 && files.length === 0) {
     return null;
   }
@@ -133,32 +133,33 @@ function resolveDocNode(slug: string): DocNode | null {
   };
 }
 
-export type DocPageProps = {
+export type PatchPageProps = {
   path: string;
 };
 
 function toHref(folderPath: string, child: string) {
-  return folderPath ? `/docs/${folderPath}/${child}` : `/docs/${child}`;
+  const nextPath = folderPath ? `${folderPath}/${child}` : child;
+  return `/patches?path=${encodeURIComponent(nextPath)}`;
 }
 
-export function DocPage({ path }: DocPageProps) {
-  const docNode = resolveDocNode(path);
+export function PatchPage({ path }: PatchPageProps) {
+  const patchNode = resolvePatchNode(path);
 
   useEffect(() => {
-    if (!docNode) {
+    if (!patchNode) {
       route("/", true);
     }
-  }, [docNode]);
+  }, [patchNode]);
 
-  if (!docNode) {
+  if (!patchNode) {
     return null;
   }
 
-  if (docNode.type === "file") {
-    return <MarkedPage path={docNode.path} />;
+  if (patchNode.type === "file") {
+    return <MarkedPage path={patchNode.path} />;
   }
 
-  const title = path ? `문서: ${path}` : "문서";
+  const title = path ? `패치 문서: ${path}` : "패치 문서";
 
   return (
     <Page>
@@ -180,10 +181,10 @@ export function DocPage({ path }: DocPageProps) {
                   Folders
                 </Title>
                 <Column gap="sm">
-                  {docNode.folders.length === 0 && (
+                  {patchNode.folders.length === 0 && (
                     <Text align="start">하위 폴더가 없습니다.</Text>
                   )}
-                  {docNode.folders.map((folder) => (
+                  {patchNode.folders.map((folder) => (
                     <Card key={folder}>
                       <Link href={toHref(path, folder)}>{folder}</Link>
                     </Card>
@@ -198,10 +199,10 @@ export function DocPage({ path }: DocPageProps) {
                   Files
                 </Title>
                 <Column gap="sm">
-                  {docNode.files.length === 0 && (
+                  {patchNode.files.length === 0 && (
                     <Text align="start">하위 문서가 없습니다.</Text>
                   )}
-                  {docNode.files.map((file) => (
+                  {patchNode.files.map((file) => (
                     <Card key={file}>
                       <Link href={toHref(path, file)}>{file}</Link>
                     </Card>
