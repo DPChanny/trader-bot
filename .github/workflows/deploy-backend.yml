@@ -1,0 +1,75 @@
+name: Deploy Backend
+
+on:
+  push:
+    tags: ["v*"]
+    paths:
+      - "python/backend/**"
+      - "python/shared/**"
+      - "python/pyproject.toml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: GIT
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.EC2_HOST }}
+          username: ${{ vars.EC2_USER }}
+          key: ${{ secrets.EC2_SECRET }}
+          script: |
+            set -e
+
+            cd /var/www/trader-bot
+            git fetch --tags origin
+            git checkout --detach "${{ github.ref_name }}"
+
+      - name: ENV
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.EC2_HOST }}
+          username: ${{ vars.EC2_USER }}
+          key: ${{ secrets.EC2_SECRET }}
+          script: |
+            set -e
+
+            cd /var/www/trader-bot
+            cat << EOF > python/.env
+            DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}
+            DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
+            DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}
+            APP_ORIGIN=https://${{ vars.EC2_HOST }}
+            API_ORIGIN=https://${{ vars.EC2_HOST }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            DB_REGION=${{ vars.DB_REGION }}
+            EOF
+
+      - name: UV
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.EC2_HOST }}
+          username: ${{ vars.EC2_USER }}
+          key: ${{ secrets.EC2_SECRET }}
+          script: |
+            set -e
+
+            cd /var/www/trader-bot/python
+            uv sync --frozen
+
+      - name: PM2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.EC2_HOST }}
+          username: ${{ vars.EC2_USER }}
+          key: ${{ secrets.EC2_SECRET }}
+          script: |
+            set -e
+
+            cd /var/www/trader-bot/python
+            pm2 reload trader-bot-backend || pm2 start "uv run python -m uvicorn backend.main:app --host localhost --port 8000" --name trader-bot-backend
+
+            pm2 save
