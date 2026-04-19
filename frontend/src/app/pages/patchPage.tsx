@@ -1,6 +1,6 @@
 import { MarkedPage } from "./markedPage";
 import { Link } from "@components/atoms/link";
-import { Fill, Page, Scroll } from "@components/atoms/layout";
+import { Column, Fill, Page, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
 import {
@@ -60,31 +60,33 @@ export function PatchPage({ version }: PatchPageProps) {
   ];
 
   return (
-    <Page justify="center">
-      <PrimarySection width="page">
-        {sections.map(({ title, versions }) => (
-          <Fill key={title}>
-            <SecondarySection fill>
-              <Title>{title}</Title>
-              <TertiarySection fill>
-                <Scroll axis="y">
-                  {versions.map((itemVersion) => (
-                    <Link
-                      key={itemVersion}
-                      href={`/patch?version=${encodeURIComponent(itemVersion)}`}
-                    >
-                      <Card>
-                        <Text>{itemVersion}</Text>
-                      </Card>
-                    </Link>
-                  ))}
-                </Scroll>
-              </TertiarySection>
-            </SecondarySection>
-          </Fill>
-        ))}
-      </PrimarySection>
-      <Footer />
+    <Page>
+      <Column fill align="center">
+        <PrimarySection width="page" fill>
+          {sections.map(({ title, versions }) => (
+            <Fill key={title}>
+              <SecondarySection fill>
+                <Title>{title}</Title>
+                <TertiarySection fill>
+                  <Scroll axis="y">
+                    {versions.map((itemVersion) => (
+                      <Link
+                        key={itemVersion}
+                        href={`/patch?version=${encodeURIComponent(itemVersion)}`}
+                      >
+                        <Card>
+                          <Text>{itemVersion}</Text>
+                        </Card>
+                      </Link>
+                    ))}
+                  </Scroll>
+                </TertiarySection>
+              </SecondarySection>
+            </Fill>
+          ))}
+        </PrimarySection>
+        <Footer />
+      </Column>
     </Page>
   );
 }

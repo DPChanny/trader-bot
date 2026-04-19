@@ -3,7 +3,11 @@ import { Link } from "@components/atoms/link";
 import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
-import { PrimarySection, SecondarySection } from "@components/surfaces/section";
+import {
+  PrimarySection,
+  SecondarySection,
+  TertiarySection,
+} from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 import { useLogin } from "@hooks/auth";
 import { useMyUser } from "@hooks/user";
@@ -36,19 +40,18 @@ export function HomePage() {
 
   const cases = [
     {
-      title: "내전 운영",
+      title: "간단한 운영",
       description:
-        "길드 내전 운영 흐름을 내전 팀원 경매 운영까지 이어갈 수 있습니다.",
+        "길드 내전 운영 흐름에서 내전 팀원 경매 운영까지 이어갈 수 있습니다.",
     },
     {
       title: "간단한 시작",
       description:
-        "간단한 클릭 몇 번으로 프리셋을 구성하고 경매를 시작할 수 있습니다.",
+        "단순한 클릭으로 프리셋을 구성하고 경매를 시작할 수 있습니다.",
     },
     {
       title: "간단한 반복",
-      description:
-        "한번 구성한 프리셋을 조금만 수정해 다음 경매에 재사용할 수 있습니다.",
+      description: "프리셋을 조금만 수정해 다음 경매에 재사용할 수 있습니다.",
     },
   ];
 
@@ -83,17 +86,13 @@ export function HomePage() {
 
   return (
     <Page>
-      <Scroll axis="y">
-        <Column gap="xl" width="page" self="center">
-          <PrimarySection>
-            <Title>BETA - v0.2.4</Title>
-            <Card>
-              <img src="banner.jpg" />
-            </Card>
-          </PrimarySection>
+      <Scroll align="center">
+        <PrimarySection width="page">
+          <Title>BETA - v0.2.4</Title>
+          <img src="banner.jpg" />
 
-          <PrimarySection>
-            <Row gap="md" wrap>
+          <SecondarySection>
+            <Row>
               {myUser.data ? null : (
                 <Fill>
                   <PrimaryButton variantSize="large" onClick={login}>
@@ -117,12 +116,12 @@ export function HomePage() {
                 </Link>
               </Fill>
             </Row>
-          </PrimarySection>
+          </SecondarySection>
 
-          <PrimarySection>
+          <SecondarySection>
             <Title>Discord 연동으로 팀원 경매를</Title>
             {onboardingSections.map((section) => (
-              <SecondarySection key={section.title}>
+              <TertiarySection key={section.title}>
                 <Title>{section.title}</Title>
                 <Card>
                   <Column gap="md">
@@ -130,14 +129,13 @@ export function HomePage() {
                     <Text>{section.description}</Text>
                   </Column>
                 </Card>
-              </SecondarySection>
+              </TertiarySection>
             ))}
             <Title>간편하게!</Title>
-          </PrimarySection>
+          </SecondarySection>
 
           <SecondarySection gap="lg">
-            <Title>이런 상황에 맞습니다</Title>
-            <Row gap="md" wrap align="stretch">
+            <Row>
               {cases.map((usageCase) => (
                 <Fill key={usageCase.title}>
                   <Card fill>
@@ -155,7 +153,6 @@ export function HomePage() {
 
           <SecondarySection gap="lg">
             <Title>주의 사항</Title>
-
             {warnings.map((warning) => (
               <Card key={warning.emphasis} variantColor="red">
                 <Column gap="md">
@@ -165,8 +162,8 @@ export function HomePage() {
               </Card>
             ))}
           </SecondarySection>
-          <Footer />
-        </Column>
+        </PrimarySection>
+        <Footer />
       </Scroll>
     </Page>
   );

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { marked } from "marked";
-import { Column, Page, Scroll } from "@components/atoms/layout";
+import { Page, Scroll } from "@components/atoms/layout";
 import { Text } from "@components/atoms/text";
-import { SecondarySection } from "@components/surfaces/section";
+import { PrimarySection } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 import styles from "@styles/pages/markedPage.module.css";
 
@@ -61,23 +61,17 @@ export function MarkedPage({ path }: MarkedPageProps) {
 
   return (
     <Page>
-      <Scroll axis="y">
-        <Column gap="xl" width="page" self="center">
-          <SecondarySection gap="md">
-            <Column gap="md">
-              {hasError && (
-                <Text align="start">문서를 불러오지 못했습니다.</Text>
-              )}
-              {!hasError && (
-                <div
-                  className={styles.markedContent}
-                  dangerouslySetInnerHTML={{ __html: html }}
-                />
-              )}
-            </Column>
-          </SecondarySection>
-          <Footer />
-        </Column>
+      <Scroll align="center">
+        <PrimarySection width="page">
+          {hasError && <Text align="start">문서를 불러오지 못했습니다.</Text>}
+          {!hasError && (
+            <div
+              className={styles.markedContent}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          )}
+        </PrimarySection>
+        <Footer />
       </Scroll>
     </Page>
   );

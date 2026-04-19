@@ -1,11 +1,11 @@
 import { Fill } from "@components/atoms/layout";
 import { Link } from "@components/atoms/link";
-import { TertiarySection } from "@components/surfaces/section";
+import { PrimarySection } from "@components/surfaces/section";
 import { GUILD_INVITE_URL } from "@utils/env";
 
 export function Footer() {
   return (
-    <TertiarySection direction="row">
+    <PrimarySection direction="row" width="page">
       <Fill center>
         <Link href="/patch">패치</Link>
       </Fill>
@@ -20,6 +20,6 @@ export function Footer() {
           Trader Bot 길드
         </Link>
       </Fill>
-    </TertiarySection>
+    </PrimarySection>
   );
 }
