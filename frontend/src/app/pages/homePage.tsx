@@ -25,11 +25,11 @@ export function HomePage() {
     },
     {
       title: "회원가입 없이",
-      emphasis: "별도 회원가입 없이 시작합니다.",
+      emphasis: "Discord 로그인만으로 별도 회원가입 없이 시작합니다.",
     },
     {
       title: "복잡한 등록 없이",
-      emphasis: "템플릿을 매번 처음부터 다시 적지 않아도 됩니다.",
+      emphasis: "경매 구성을 매번 처음부터 다시 적지 않아도 됩니다.",
     },
   ];
 

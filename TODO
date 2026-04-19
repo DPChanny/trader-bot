@@ -1,5 +1,3 @@
-env: prod, dev
-
 infra
     frontend: s3, cloudfront, acm
     ssm

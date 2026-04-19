@@ -2,13 +2,13 @@ import base64
 import urllib.parse
 
 from fastapi.responses import RedirectResponse
-from shared.utils.user import upsert_user
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auth import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
 from shared.utils.env import get_app_origin
 from shared.utils.error import HTTPError, TokenError
 from shared.utils.service import http_service
+from shared.utils.upsert import upsert_user
 
 from ..utils.discord import get_login_url, get_me
 from ..utils.token import AccessToken, ExchangeToken, RefreshToken
