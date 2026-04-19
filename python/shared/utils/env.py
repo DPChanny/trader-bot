@@ -48,11 +48,11 @@ def get_db_name() -> str:
 
 
 def get_rds_region() -> str:
-    return os.getenv("DB_REGION", "ap-northeast-2")
+    return os.getenv("RDS_REGION", "ap-northeast-2")
 
 
 def get_rds_instance_identifier() -> str:
-    return os.getenv("DB_INSTANCE_IDENTIFIER", "trader-bot-prod-rds")
+    return os.getenv("RDS_INSTANCE_IDENTIFIER", "trader-bot-prod-rds")
 
 
 def get_log_level() -> str:
