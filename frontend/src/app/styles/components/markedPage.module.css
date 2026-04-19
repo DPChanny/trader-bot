@@ -1,0 +1,104 @@
+.markedContent {
+  color: var(--color-text);
+  text-align: left;
+  line-height: 1.7;
+}
+
+.markedContent h1,
+.markedContent h2,
+.markedContent h3,
+.markedContent h4,
+.markedContent h5,
+.markedContent h6 {
+  margin: 0;
+  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+}
+
+.markedContent h1 {
+  font-size: 3rem;
+  line-height: 1.1;
+  margin-bottom: var(--space-6);
+}
+
+.markedContent h2 {
+  font-size: var(--font-size-2xl);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-3);
+}
+
+.markedContent h3 {
+  font-size: var(--font-size-xl);
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-2);
+}
+
+.markedContent p {
+  margin: 0;
+  margin-bottom: var(--space-3);
+  color: var(--color-text);
+}
+
+.markedContent ul,
+.markedContent ol {
+  margin: 0;
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-6);
+}
+
+.markedContent li {
+  margin-bottom: var(--space-2);
+}
+
+.markedContent a {
+  color: var(--color-text-accent);
+}
+
+.markedContent a:hover {
+  color: var(--color-text-accent-hover);
+}
+
+.markedContent strong {
+  font-weight: var(--font-weight-semibold);
+}
+
+.markedContent blockquote {
+  margin: var(--space-4) 0;
+  padding-left: var(--space-4);
+  border-left: var(--border-width-medium) solid
+    var(--color-card-blue-border-active);
+  color: var(--color-text-muted);
+}
+
+.markedContent hr {
+  border: 0;
+  border-top: var(--border-width-thin) solid
+    var(--color-section-secondary-border);
+  margin: var(--space-6) 0;
+}
+
+.markedContent code {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.92em;
+  background: var(--color-section-tertiary-bg);
+  border: var(--border-width-thin) solid var(--color-section-secondary-border);
+  border-radius: var(--space-1);
+  padding: 0 var(--space-1);
+}
+
+.markedContent pre {
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  overflow-x: auto;
+  background: var(--color-section-tertiary-bg);
+  border: var(--border-width-thin) solid var(--color-section-secondary-border);
+  border-radius: var(--space-2);
+}
+
+.markedContent pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}

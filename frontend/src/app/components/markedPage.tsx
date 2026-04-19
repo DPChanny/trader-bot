@@ -1,30 +1,31 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
+import { marked } from "marked";
 import { Column, Page, Scroll } from "@components/atoms/layout";
-import { Text, Title } from "@components/atoms/text";
+import { Text } from "@components/atoms/text";
 import { SecondarySection } from "@components/surfaces/section";
-import { parseMarkedDocument, type MarkedBlock } from "@utils/marked";
+import styles from "@styles/components/markedPage.module.css";
 
 export type MarkedPageProps = {
   path: string;
 };
 
-const markdownLoaders = import.meta.glob("/src/docs/**/*.md", {
+const markedLoaders = import.meta.glob("/src/docs/**/*.md", {
   query: "?raw",
   import: "default",
 }) as Record<string, () => Promise<string>>;
 
 export function MarkedPage({ path }: MarkedPageProps) {
-  const [blocks, setBlocks] = useState<MarkedBlock[]>([]);
+  const [html, setHtml] = useState("");
   const [hasError, setHasError] = useState(false);
 
-  const loader = useMemo(() => markdownLoaders[path], [path]);
+  const loader = useMemo(() => markedLoaders[path], [path]);
 
   useEffect(() => {
     let isActive = true;
 
     if (!loader) {
       setHasError(true);
-      setBlocks([]);
+      setHtml("");
       return () => {
         isActive = false;
       };
@@ -32,13 +33,16 @@ export function MarkedPage({ path }: MarkedPageProps) {
 
     setHasError(false);
     loader()
-      .then((markdown) => {
+      .then((markedSource) => {
         if (!isActive) {
           return;
         }
 
-        const document = parseMarkedDocument(markdown);
-        setBlocks(document.blocks);
+        const rendered = marked.parse(markedSource, {
+          gfm: true,
+          async: false,
+        });
+        setHtml(rendered);
       })
       .catch(() => {
         if (!isActive) {
@@ -46,62 +50,13 @@ export function MarkedPage({ path }: MarkedPageProps) {
         }
 
         setHasError(true);
-        setBlocks([]);
+        setHtml("");
       });
 
     return () => {
       isActive = false;
     };
   }, [loader]);
-
-  const renderBlock = (block: MarkedBlock, index: number) => {
-    if (block.type === "heading") {
-      if (block.depth <= 1) {
-        return (
-          <Title
-            key={`${index}-${block.text}`}
-            as="h1"
-            variantSize="hero"
-            align="start"
-          >
-            {block.text}
-          </Title>
-        );
-      }
-
-      if (block.depth === 2) {
-        return (
-          <Title key={`${index}-${block.text}`} as="h2" align="start">
-            {block.text}
-          </Title>
-        );
-      }
-
-      return (
-        <Title key={`${index}-${block.text}`} as="h3" align="start">
-          {block.text}
-        </Title>
-      );
-    }
-
-    if (block.type === "paragraph") {
-      return (
-        <Text key={`${index}-${block.text}`} align="start">
-          {block.text}
-        </Text>
-      );
-    }
-
-    return (
-      <Column key={`${index}-list`} gap="sm">
-        {block.items.map((item) => (
-          <Text key={item} align="start">
-            {`• ${item}`}
-          </Text>
-        ))}
-      </Column>
-    );
-  };
 
   return (
     <Page>
@@ -112,8 +67,12 @@ export function MarkedPage({ path }: MarkedPageProps) {
               {hasError && (
                 <Text align="start">문서를 불러오지 못했습니다.</Text>
               )}
-              {!hasError &&
-                blocks.map((block, index) => renderBlock(block, index))}
+              {!hasError && (
+                <div
+                  className={styles.markedContent}
+                  dangerouslySetInnerHTML={{ __html: html }}
+                />
+              )}
             </Column>
           </SecondarySection>
         </Column>
