@@ -18,7 +18,6 @@ from shared.utils.logging import Event, LoggingMiddleware, setup_logging
 
 from .routers import (
     auction_router,
-    auction_ws_router,
     auth_router,
     guild_router,
     member_router,
@@ -86,4 +85,3 @@ app.include_router(preset_member_router, prefix="/api")
 app.include_router(preset_member_position_router, prefix="/api")
 app.include_router(auction_router, prefix="/api")
 app.include_router(guild_router, prefix="/api")
-app.include_router(auction_ws_router, prefix="/ws")

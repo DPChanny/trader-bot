@@ -139,6 +139,8 @@ export function PresetPage() {
 
       {createdAuctionId && (
         <AuctionCreatedModal
+          guildId={guildId}
+          presetId={presetId}
           auctionId={createdAuctionId}
           onClose={() => setCreatedAuctionId(null)}
         />

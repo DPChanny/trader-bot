@@ -39,7 +39,6 @@ from ..utils.token import verify_access_token
 auction_router = APIRouter(
     prefix="/guild/{guild_id}/preset/{preset_id}/auction", tags=["auction"]
 )
-auction_ws_router = APIRouter(prefix="/auction", tags=["auction_ws"])
 
 
 @auction_router.post("", response_model=AuctionDTO)
@@ -73,7 +72,7 @@ def _get_message_payload_dto[TPayloadDTO: BaseModel](
         raise WSError(error_code) from None
 
 
-@auction_ws_router.websocket("/{auction_id}")
+@auction_router.websocket("/{auction_id}")
 @ws_router
 async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
     member_id: int | None = None

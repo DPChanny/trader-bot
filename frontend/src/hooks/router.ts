@@ -48,7 +48,7 @@ export function useAuctionId() {
   const routePath = useRoutePath();
 
   return useMemo(() => {
-    const match = routePath.match(/^\/auction\/([^\/]+)/);
+    const match = routePath.match(/\/auction\/([^/]+)/);
     return getRequiredRouteParam(match ? match[1]! : null);
   }, [routePath]);
 }

@@ -4,21 +4,25 @@ import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Text } from "@components/atoms/text";
 
 interface AuctionCreatedModalProps {
+  guildId: string;
+  presetId: number;
   auctionId: string;
   onClose: () => void;
 }
 
 export function AuctionCreatedModal({
+  guildId,
+  presetId,
   auctionId,
   onClose,
 }: AuctionCreatedModalProps) {
-  const link = `${window.location.origin}/auction/${auctionId}`;
-  const auctionHref = `/auction/${auctionId}`;
+  const auctionURL = `/guild/${guildId}/preset/${presetId}/auction/${auctionId}`;
+  const link = `${window.location.origin}${auctionURL}`;
 
   return (
     <Modal onClose={onClose} title="경매 생성 완료">
       <Text>
-        <Link href={auctionHref} onClick={onClose}>
+        <Link href={auctionURL} onClick={onClose}>
           경매
         </Link>
         가 생성되었습니다.

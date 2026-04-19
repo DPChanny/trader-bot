@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { useAuction } from "@hooks/auction";
-import { useAuctionId } from "@hooks/router";
+import { useAuctionId, useGuildId, usePresetId } from "@hooks/router";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import {
@@ -53,6 +53,8 @@ function isModalErrorCode(code: number): boolean {
 
 export function AuctionPage() {
   const auctionId = useAuctionId();
+  const guildId = useGuildId();
+  const presetId = usePresetId();
   const [bidAmount, setBidAmount] = useState<string>("");
   const [modalError, setModalError] = useState<WSError | null>(null);
 
@@ -68,7 +70,7 @@ export function AuctionPage() {
   } = useAuction();
 
   useEffect(() => {
-    connect(auctionId);
+    connect(guildId, presetId, auctionId);
   }, [auctionId]);
 
   const isLeader = teamId !== null;

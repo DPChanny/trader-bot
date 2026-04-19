@@ -179,7 +179,7 @@ function App() {
             <PrivacyPolicyRoute path="/privacy-policy" />
             <PresetPageRoute path="/guild/:guildId/preset/:presetId" />
             <MemberPageRoute path="/guild/:guildId/member" />
-            <AuctionPageRoute path="/auction/:auctionId" />
+            <AuctionPageRoute path="/guild/:guildId/preset/:presetId/auction/:auctionId" />
             <DefaultRedirectRoute default />
           </Router>
         </div>

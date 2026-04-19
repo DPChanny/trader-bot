@@ -1,5 +1,4 @@
 from .auction_router import auction_router as auction_router
-from .auction_router import auction_ws_router as auction_ws_router
 from .auth_router import auth_router as auth_router
 from .guild_router import guild_router as guild_router
 from .member_router import member_router as member_router

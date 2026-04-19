@@ -16,14 +16,14 @@ import {
   isBackendErrorCode,
 } from "@utils/error";
 import { toCamelCase } from "@utils/dto";
-import { AUCTION_WS_ENDPOINT } from "@utils/env";
+import { getAuctionEndpoint } from "@utils/env";
 import { getAccessToken } from "@utils/auth";
 
 export function useAuction(): {
   auction: AuctionDetailDTO | null;
   teamId: number | null;
   memberId: number | null;
-  connect: (auctionId: string) => void;
+  connect: (guildId: string, presetId: number, auctionId: string) => void;
   placeBid: (amount: number) => void;
   isConnected: boolean;
   wasConnected: boolean;
@@ -179,7 +179,7 @@ export function useAuction(): {
     }
   };
 
-  const connect = (auctionId: string) => {
+  const connect = (guildId: string, presetId: number, auctionId: string) => {
     wsRef.current?.close();
     setIsConnected(false);
     setWasConnected(false);
@@ -188,7 +188,9 @@ export function useAuction(): {
     setMemberId(null);
     setError(null);
 
-    const ws = new WebSocket(`${AUCTION_WS_ENDPOINT}/${auctionId}`);
+    const ws = new WebSocket(
+      `${getAuctionEndpoint(guildId, presetId, true)}/${auctionId}`,
+    );
     let opened = false;
 
     ws.onopen = () => {
