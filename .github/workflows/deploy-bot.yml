@@ -8,6 +8,10 @@ on:
       - "python/shared/**"
       - "python/pyproject.toml"
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to deploy"
+        required: true
 
 jobs:
   deploy:
@@ -49,7 +53,7 @@ jobs:
 
       - name: CD
         env:
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ inputs.tag || github.ref_name }}
           ENV_B64: ${{ steps.ci.outputs.env_b64 }}
           INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
         run: |
