@@ -1,5 +1,5 @@
 import { MarkedPage } from "./markedPage";
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useMemo } from "preact/hooks";
 import { Link } from "@components/atoms/link";
 import { Column, Fill, Page, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
@@ -10,50 +10,19 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
-import { loadPublicManifest, type PublicManifest } from "@utils/public";
-
-function getVersions(kind: "notes" | "plans", manifest: PublicManifest) {
-  const prefix = kind === "notes" ? "/patches/notes/" : "/patches/plans/";
-  const versions = manifest.files
-    .filter(
-      (filePath) => filePath.startsWith(prefix) && filePath.endsWith(".md"),
-    )
-    .map((filePath) => filePath.slice(prefix.length, -3))
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-
-  return kind === "notes" ? versions.reverse() : versions;
-}
+import { useManifest } from "@hooks/manifest";
+import { getPatchVersions } from "@utils/version";
 
 export type PatchPageProps = {
   version: string;
 };
 
 export function PatchPage({ version }: PatchPageProps) {
-  const [manifest, setManifest] = useState<PublicManifest>({ files: [] });
-  const noteVersions = useMemo(
-    () => getVersions("notes", manifest),
-    [manifest],
-  );
-  const planVersions = useMemo(
-    () => getVersions("plans", manifest),
-    [manifest],
-  );
+  const manifest = useManifest();
+  const files = manifest.data?.files ?? [];
+  const noteVersions = useMemo(() => getPatchVersions(files, "notes"), [files]);
+  const planVersions = useMemo(() => getPatchVersions(files, "plans"), [files]);
   version = version.trim();
-
-  useEffect(() => {
-    let isActive = true;
-
-    loadPublicManifest().then((nextManifest) => {
-      if (!isActive) {
-        return;
-      }
-      setManifest(nextManifest);
-    });
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
 
   const noteVersionSet = new Set(noteVersions);
   const planVersionSet = new Set(planVersions);

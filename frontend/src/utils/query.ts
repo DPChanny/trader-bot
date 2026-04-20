@@ -6,6 +6,7 @@ export const queryStaleTimes = {
 } as const;
 
 export const queryKeys = {
+  manifest: () => ["manifest"] as const,
   me: () => ["me"] as const,
   guilds: () => ["guilds"] as const,
   guild: (guildId: string) => ["guild", guildId] as const,

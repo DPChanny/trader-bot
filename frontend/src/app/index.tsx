@@ -23,10 +23,11 @@ import {
   useLogout,
   useAuthGuard,
 } from "@hooks/auth";
+import { useManifest } from "@hooks/manifest";
 import { useMyUser } from "@hooks/user";
 import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
-import { loadPublicManifest } from "@utils/public";
+import { getLatestPatchNoteVersion } from "@utils/version";
 import "@styles/app.css";
 
 function HomePageRoute({}: RoutableProps) {
@@ -115,32 +116,9 @@ function App() {
   const myUser = useMyUser();
   const login = useLogin();
   const logout = useLogout();
+  const manifest = useManifest();
   const [globalError, setGlobalError] = useState<AppError | null>(null);
-  const [version, setVersion] = useState("");
-
-  useEffect(() => {
-    let isActive = true;
-
-    loadPublicManifest().then((manifest) => {
-      if (!isActive) {
-        return;
-      }
-
-      const latestVersion = manifest.files
-        .filter(
-          (filePath) =>
-            filePath.startsWith("/patches/notes/") && filePath.endsWith(".md"),
-        )
-        .map((filePath) => filePath.slice("/patches/notes/".length, -3))
-        .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0];
-
-      setVersion(latestVersion ?? "");
-    });
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
+  const version = getLatestPatchNoteVersion(manifest.data?.files ?? []);
 
   useEffect(() => {
     const handleWindowError = (event: ErrorEvent) => {

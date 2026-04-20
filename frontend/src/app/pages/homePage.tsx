@@ -90,7 +90,7 @@ export function HomePage() {
               <img src="/banner.png" alt="Trader Bot" />
             </SecondarySection>
             <SecondarySection>
-              <Title>내전 팀원 경매를 Trader Bot으로</Title>
+              <Title>Discord 서버 내전 팀원 경매를</Title>
               {onboardingSections.map((section) => (
                 <TertiarySection key={section.title}>
                   <Title>{section.title}</Title>
@@ -101,7 +101,7 @@ export function HomePage() {
                   </Card>
                 </TertiarySection>
               ))}
-              <Title>간단하게 시작하세요!</Title>
+              <Title>간단하게 운영하세요!</Title>
             </SecondarySection>
 
             <SecondarySection>
@@ -109,7 +109,7 @@ export function HomePage() {
                 {myUser.data ? null : (
                   <Fill>
                     <PrimaryButton variantSize="large" onClick={login}>
-                      Discord로 로그인하기
+                      Discord 로그인하여 시작하기
                     </PrimaryButton>
                   </Fill>
                 )}
