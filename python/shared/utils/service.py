@@ -11,13 +11,8 @@ from .logging import Event
 
 
 def _inject_event(
-    sig: inspect.Signature,
-    args,
-    kwargs: dict[str, Any],
-    function: str,
-    type: Event.Type,
-) -> tuple[dict[str, Any], Event]:
-    event = Event(type, detail={"function": function})
+    sig: inspect.Signature, args, kwargs: dict[str, Any], event: Event
+) -> None:
     bound = sig.bind_partial(*args, **kwargs)
     for name, param in sig.parameters.items():
         if param.annotation is Event:
@@ -28,7 +23,6 @@ def _inject_event(
             value = bound.arguments.get(name)
             if isinstance(value, BaseModel):
                 event.input = {name: value}
-    return kwargs, event
 
 
 def http_service(func):
@@ -36,9 +30,8 @@ def http_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        kwargs, event = _inject_event(
-            sig, args, kwargs, func.__name__, Event.Type.HTTP_SERVICE
-        )
+        event = Event(Event.Type.HTTP_SERVICE, detail={"function": func.__name__})
+        _inject_event(sig, args, kwargs, event)
 
         try:
             result = await func(*args, **kwargs)
@@ -60,9 +53,8 @@ def bot_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        kwargs, event = _inject_event(
-            sig, args, kwargs, func.__name__, Event.Type.BOT_SERVICE
-        )
+        event = Event(Event.Type.BOT_SERVICE, detail={"function": func.__name__})
+        _inject_event(sig, args, kwargs, event)
 
         try:
             result = await func(*args, **kwargs)
@@ -82,9 +74,8 @@ def ws_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        kwargs, event = _inject_event(
-            sig, args, kwargs, func.__name__, Event.Type.WS_SERVICE
-        )
+        event = Event(Event.Type.WS_SERVICE, detail={"function": func.__name__})
+        _inject_event(sig, args, kwargs, event)
 
         try:
             result = await func(*args, **kwargs)

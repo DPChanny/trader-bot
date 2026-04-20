@@ -2,7 +2,8 @@ import json
 import logging
 import sys
 from contextvars import ContextVar
-from dataclasses import dataclass, field
+from copy import deepcopy
+from dataclasses import dataclass
 from datetime import UTC
 from enum import StrEnum
 from pathlib import Path
@@ -62,7 +63,6 @@ class Event:
     input: LogValue | None = None
     result: LogValue | None = None
     detail: LogValue | None = None
-    context: LogValue | None = field(default=None, init=False, repr=False)
 
     def __iter__(self):
         yield "type", self.type.value
@@ -124,7 +124,14 @@ def _patcher(record: dict[str, Any]) -> None:
     text = " | ".join(parts)
 
     if event is not None:
-        text += "\n" + json.dumps(event, ensure_ascii=False, indent=2, default=str)
+        text_event = deepcopy(event)
+        detail = text_event.get("detail")
+        traceback: str | None = None
+        if isinstance(detail, dict):
+            traceback = detail.pop("traceback", None)
+        text += "\n" + json.dumps(text_event, ensure_ascii=False, indent=2, default=str)
+        if traceback:
+            text += "\n" + traceback
 
     record["extra"]["text"] = text
 
@@ -194,36 +201,45 @@ def setup_logging(log_dir: str | Path) -> None:
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         request_id = request.headers.get("x-request-id") or str(uuid4())
-        started_at = perf_counter()
+        latency_counter = perf_counter()
 
         forwarded_for = request.headers.get("x-forwarded-for")
-        client_ip = (
+        user_ip = (
             forwarded_for.split(",", maxsplit=1)[0].strip()
             if forwarded_for
             else request.client.host
             if request.client is not None
             else None
         )
-        token = _context.set({"http": {"request_id": request_id}})
+        token = _context.set({"http": {"request": {"id": request_id}}})
         response: Response | None = None
         try:
             response = await call_next(request)
             response.headers["X-Request-ID"] = request_id
             return response
         finally:
-            latency_ms = round((perf_counter() - started_at) * 1000, 2)
+            latency_ms = round((perf_counter() - latency_counter) * 1000, 2)
             logger.bind(
                 event=Event(
                     Event.Type.HTTP_MIDDLEWARE,
                     detail={
                         "http": {
-                            "query": request.url.query,
-                            "method": request.method,
-                            "path": request.url.path,
-                            "status_code": response.status_code if response else 500,
-                            "latency_ms": latency_ms,
-                            "client_ip": client_ip,
-                            "user_agent": request.headers.get("user-agent"),
+                            "request": {
+                                "id": request_id,
+                                "route": request.url.path,
+                                "query": request.url.query,
+                                "method": request.method,
+                                "user": {
+                                    "ip": user_ip,
+                                    "agent": request.headers.get("user-agent"),
+                                },
+                            },
+                            "response": {
+                                "status_code": response.status_code
+                                if response is not None
+                                else 500,
+                                "latency_ms": latency_ms,
+                            },
                         }
                     },
                 )
