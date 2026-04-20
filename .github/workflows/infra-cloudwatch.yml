@@ -15,7 +15,7 @@ on:
         default: "all"
 
 concurrency:
-  group: infra-cloudwatch
+  group: infra
   cancel-in-progress: false
 
 jobs:

@@ -9,6 +9,10 @@ on:
         description: "Version"
         required: true
 
+concurrency:
+  group: frontend
+  cancel-in-progress: false
+
 jobs:
   run:
     runs-on: ubuntu-latest

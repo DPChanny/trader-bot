@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: frontend-public
+  group: frontend
   cancel-in-progress: false
 
 jobs:
@@ -41,10 +41,8 @@ jobs:
           VITE_DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           VITE_GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
           S3_BUCKET: ${{ vars.S3_BUCKET_NAME }}
-          CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
           npm ci
           npm run build
           cd ..
           aws s3 sync vite/dist s3://$S3_BUCKET --delete
-          aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*"

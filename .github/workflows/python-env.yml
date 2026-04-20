@@ -10,7 +10,7 @@ on:
         required: true
 
 concurrency:
-  group: python-env
+  group: python
   cancel-in-progress: false
 
 jobs:
@@ -45,7 +45,7 @@ jobs:
             exit 1
           fi
 
-          ENV_CONTENT="$(printf '%s\n' \
+          ENV="$(printf '%s\n' \
             "DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN" \
             "DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID" \
             "DISCORD_CLIENT_SECRET=$DISCORD_CLIENT_SECRET" \
@@ -57,23 +57,23 @@ jobs:
 
           {
             echo "instance_ids=$INSTANCE_IDS"
-            echo "env_content<<EOF"
-            printf '%s\n' "$ENV_CONTENT"
+            echo "env<<EOF"
+            printf '%s\n' "$ENV"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
       - name: Run
         run: |
           INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
-          ENV_CONTENT="${{ steps.prepare.outputs.env_content }}"
+          ENV="${{ steps.prepare.outputs.env }}"
 
           COMMANDS_JSON=$(jq -n \
             --arg repo "/var/www/trader-bot" \
-            --arg envContent "$ENV_CONTENT" \
+            --arg env "$ENV" \
             '{commands: [
               "set -e",
               ("cd " + $repo),
-              "printf '%"'"'s'"'"' " + ($envContent | @sh) + " > python/.env",
+              "printf '%"'"'s'"'"' " + ($env | @sh) + " > python/.env",
               "chown ubuntu:ubuntu python/.env",
               "chmod 600 python/.env"
             ]}')
