@@ -23,11 +23,11 @@ import {
   useLogout,
   useAuthGuard,
 } from "@hooks/auth";
-import { useManifest } from "@hooks/manifest";
+import { useManifest } from "@hooks/public";
 import { useMyUser } from "@hooks/user";
 import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
-import { getLatestPatchNoteVersion } from "@utils/version";
+import { getNotes } from "@utils/patch";
 import "@styles/app.css";
 
 function HomePageRoute({}: RoutableProps) {
@@ -118,7 +118,7 @@ function App() {
   const logout = useLogout();
   const manifest = useManifest();
   const [globalError, setGlobalError] = useState<AppError | null>(null);
-  const version = getLatestPatchNoteVersion(manifest.data?.files ?? []);
+  const version = getNotes(manifest.data?.files ?? [])[0] ?? "";
 
   useEffect(() => {
     const handleWindowError = (event: ErrorEvent) => {

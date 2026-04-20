@@ -10,8 +10,8 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
-import { useManifest } from "@hooks/manifest";
-import { getPatchVersions } from "@utils/version";
+import { useManifest } from "@hooks/public";
+import { getNotes, getPlans } from "@utils/patch";
 
 export type PatchPageProps = {
   version: string;
@@ -20,8 +20,8 @@ export type PatchPageProps = {
 export function PatchPage({ version }: PatchPageProps) {
   const manifest = useManifest();
   const files = manifest.data?.files ?? [];
-  const noteVersions = useMemo(() => getPatchVersions(files, "notes"), [files]);
-  const planVersions = useMemo(() => getPatchVersions(files, "plans"), [files]);
+  const noteVersions = useMemo(() => getNotes(files), [files]);
+  const planVersions = useMemo(() => getPlans(files), [files]);
   version = version.trim();
 
   const noteVersionSet = new Set(noteVersions);
