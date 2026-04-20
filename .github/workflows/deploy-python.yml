@@ -1,4 +1,4 @@
-name: CI Python
+name: deploy-python
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: CI
+      - name: Deploy
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}

@@ -1,4 +1,4 @@
-name: CI CD Frontend
+name: deploy-frontend
 
 on:
   push:
@@ -32,7 +32,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: CI
+      - name: Build
         working-directory: frontend
         env:
           VITE_API_ORIGIN: https://${{ vars.EC2_HOST }}
@@ -40,7 +40,7 @@ jobs:
           VITE_GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
         run: npm ci && npm run build
 
-      - name: CD
+      - name: Deploy
         env:
           S3_BUCKET: ${{ vars.S3_BUCKET }}
           CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}

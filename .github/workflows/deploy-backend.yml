@@ -1,4 +1,4 @@
-name: CD Bot
+name: deploy-backend
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
         required: true
 
 concurrency:
-  group: cd-bot
+  group: deploy-backend
   cancel-in-progress: false
 
 jobs:
@@ -24,25 +24,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: CD
-        env:
-          TAG: ${{ inputs.tag || github.ref_name }}
-          INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+      - name: Deploy
         run: |
-          PM2_CMD="sudo -u ubuntu -H bash -l -c 'cd /var/www/trader-bot/python && uv sync --frozen && pm2 startOrReload /var/www/trader-bot/ecosystem.config.mjs --only trader-bot-prod-pm2-bot && pm2 save'"
+          TAG="${{ inputs.tag || github.ref_name }}"
+          INSTANCE_ID="${{ vars.EC2_INSTANCE_ID }}"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --parameters "$(jq -n \
                 --arg tag "$TAG" \
-                --arg pm2cmd "$PM2_CMD" \
+                --arg appRoot "/var/www/trader-bot" \
                 '{commands: [
                   "set -e",
-                  "cd /var/www/trader-bot",
+                  ("cd " + $appRoot),
                   ("git fetch --tags origin && git checkout --detach " + $tag),
                   "aws ssm get-parameter --name /trader-bot/prod/python/env --with-decryption --query Parameter.Value --output text > python/.env",
-                  $pm2cmd
+                  "if id ubuntu >/dev/null 2>&1; then sudo --login --user ubuntu bash -lc '\''cd /var/www/trader-bot/python && uv sync --frozen && pm2 startOrReload /var/www/trader-bot/python/aws/ecosystem.config.mjs --only trader-bot-prod-pm2-backend && pm2 save'\''; else bash -lc '\''cd /var/www/trader-bot/python && uv sync --frozen && pm2 startOrReload /var/www/trader-bot/python/aws/ecosystem.config.mjs --only trader-bot-prod-pm2-backend && pm2 save'\''; fi"
                 ]}')" \
             --query "Command.CommandId" \
             --output text)

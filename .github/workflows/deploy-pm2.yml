@@ -1,14 +1,14 @@
-name: CI PM2
+name: deploy-pm2
 
 on:
   push:
     branches: ["master"]
     paths:
-      - "ecosystem.config.mjs"
+      - "python/aws/ecosystem.config.mjs"
   workflow_dispatch:
 
 concurrency:
-  group: ci-pm2
+  group: deploy-pm2
   cancel-in-progress: false
 
 jobs:
@@ -22,22 +22,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: CI
-        env:
-          INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+      - name: Deploy
         run: |
-          PM2_CMD="sudo -u ubuntu -H bash -l -c '\
-            pm2 delete trader-bot-prod-pm2-backend 2>/dev/null || true && \
-            pm2 delete trader-bot-prod-pm2-bot 2>/dev/null || true && \
-            pm2 start /var/www/trader-bot/ecosystem.config.mjs && \
-            pm2 save'"
+          INSTANCE_ID="${{ vars.EC2_INSTANCE_ID }}"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --parameters "$(jq -n \
-                --arg pm2cmd "$PM2_CMD" \
-                '{commands: ["set -e", $pm2cmd]}')" \
+                '{commands: [
+                  "set -e",
+                  "if id ubuntu >/dev/null 2>&1; then sudo --login --user ubuntu bash -lc '\''pm2 delete trader-bot-prod-pm2-backend 2>/dev/null || true && pm2 delete trader-bot-prod-pm2-bot 2>/dev/null || true && pm2 start /var/www/trader-bot/python/aws/ecosystem.config.mjs && pm2 save'\''; else bash -lc '\''pm2 delete trader-bot-prod-pm2-backend 2>/dev/null || true && pm2 delete trader-bot-prod-pm2-bot 2>/dev/null || true && pm2 start /var/www/trader-bot/python/aws/ecosystem.config.mjs && pm2 save'\''; fi"
+                ]}')" \
             --query "Command.CommandId" \
             --output text)
 
