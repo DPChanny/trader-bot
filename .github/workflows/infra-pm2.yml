@@ -40,15 +40,6 @@ jobs:
             TARGET="all"
           fi
 
-          case "$TARGET" in
-            backend|bot|all)
-              ;;
-            *)
-              echo "Invalid target: $TARGET (expected backend, bot, all)"
-              exit 1
-              ;;
-          esac
-
           if [ "$TARGET" = "bot" ]; then
             INSTANCE_IDS=$(printf '%s\n%s\n' \
               "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
