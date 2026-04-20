@@ -213,7 +213,9 @@ def setup_logging(log_dir: str | Path) -> None:
         log.handlers = []
         log.propagate = True
 
-    for logger_name in ("aiobotocore.credentials",):
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+
+    for logger_name in ("aiobotocore.credentials", "uvicorn.access"):
         target_logger = logging.getLogger(logger_name)
         target_logger.handlers = []
         target_logger.propagate = False
@@ -241,6 +243,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             return response
         finally:
             latency_ms = round((perf_counter() - latency_counter) * 1000, 2)
+            status_code = response.status_code if response is not None else 500
             detail = {
                 "http": {
                     "request": {
@@ -252,16 +255,22 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                             "agent": request.headers.get("user-agent"),
                         },
                     },
-                    "response": {
-                        "status_code": response.status_code
-                        if response is not None
-                        else 500,
-                        "latency_ms": latency_ms,
-                    },
+                    "response": {"status_code": status_code, "latency_ms": latency_ms},
                 }
             }
             if request.query_params:
                 detail["http"]["request"]["query"] = dict(request.query_params)
 
-            logger.bind(event=Event(Event.Type.HTTP_MIDDLEWARE, detail=detail)).info("")
+            if request.method == "OPTIONS":
+                level = "DEBUG"
+            elif status_code >= 500:
+                level = "ERROR"
+            elif latency_ms >= 1000:
+                level = "WARNING"
+            else:
+                level = "INFO"
+
+            logger.bind(event=Event(Event.Type.HTTP_MIDDLEWARE, detail=detail)).log(
+                level, ""
+            )
             _context.reset(token)
