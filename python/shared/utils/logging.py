@@ -210,6 +210,19 @@ def setup_logging(log_dir: str | Path) -> None:
         log.handlers = []
         log.propagate = True
 
+    for logger_name in (
+        "uvicorn",
+        "uvicorn.asgi",
+        "uvicorn.access",
+        "botocore.credentials",
+        "httpx",
+        "httpcore",
+    ):
+        target_logger = logging.getLogger(logger_name)
+        target_logger.handlers = []
+        target_logger.propagate = False
+        target_logger.disabled = True
+
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
