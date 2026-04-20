@@ -1,18 +1,24 @@
-name: app-deploy-pm2
+name: python-deploy-bot
 
 on:
   push:
-    branches: ["master"]
-    paths:
-      - "infra/pm2/ecosystem.config.mjs"
+    tags: ["v*"]
+  workflow_run:
+    workflows: ["python-deploy-env"]
+    types: [completed]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to deploy"
+        required: true
 
 concurrency:
-  group: app-deploy-pm2
+  group: python-deploy-runtime-${{ vars.APP_EC2_INSTANCE_ID }}
   cancel-in-progress: false
 
 jobs:
   deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS
@@ -24,22 +30,33 @@ jobs:
 
       - name: Deploy
         run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            REF="${{ github.event.workflow_run.head_sha }}"
+          else
+            REF="${{ inputs.tag || github.ref_name }}"
+          fi
           INSTANCE_ID="${{ vars.APP_EC2_INSTANCE_ID }}"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --parameters "$(jq -n \
+                --arg ref "$REF" \
+                --arg appRoot "/var/www/trader-bot" \
                 '{commands: [
                   "set -e",
-                  "cat <<'\''EOF'\'' > /tmp/trader-bot-deploy-pm2.sh",
+                  ("cd " + $appRoot),
+                  ("git fetch --tags origin && git checkout --detach " + $ref),
+                  "cat <<'\''EOF'\'' > /tmp/trader-bot-deploy-bot.sh",
                   "set -e",
-                  "pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs",
+                  "cd /var/www/trader-bot/python",
+                  "uv sync --frozen",
+                  "pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-prod-pm2-bot",
                   "pm2 save",
                   "EOF",
-                  "chmod 700 /tmp/trader-bot-deploy-pm2.sh",
-                  "sudo -iu ubuntu bash /tmp/trader-bot-deploy-pm2.sh",
-                  "rm -f /tmp/trader-bot-deploy-pm2.sh"
+                  "chmod 700 /tmp/trader-bot-deploy-bot.sh",
+                  "sudo -iu ubuntu bash /tmp/trader-bot-deploy-bot.sh",
+                  "rm -f /tmp/trader-bot-deploy-bot.sh"
                 ]}')" \
             --query "Command.CommandId" \
             --output text)

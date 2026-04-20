@@ -1,4 +1,4 @@
-name: app-deploy-python-env
+name: python-deploy-env
 
 on:
   push:
@@ -6,6 +6,10 @@ on:
     paths:
       - "python/.env.example"
   workflow_dispatch:
+
+concurrency:
+  group: python-deploy-env
+  cancel-in-progress: false
 
 jobs:
   deploy:

@@ -1,0 +1,101 @@
+name: infra-deploy-pm2
+
+on:
+  workflow_dispatch:
+    inputs:
+      instance_ids:
+        description: "Target EC2 instance ids (comma or space separated)"
+        required: false
+      tag:
+        description: "Tag or branch to apply (default: master)"
+        required: false
+      pm2_target:
+        description: "PM2 target: backend, bot, all"
+        required: false
+
+concurrency:
+  group: infra-deploy-pm2
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          aws-region: ${{ vars.INSTANCE_AWS_REGION }}
+
+      - name: Deploy
+        run: |
+          TAG="${{ inputs.tag }}"
+          if [ -z "$TAG" ]; then
+            TAG="master"
+          fi
+
+          PM2_TARGET="${{ inputs.pm2_target || 'all' }}"
+          INSTANCE_IDS_RAW="${{ inputs.instance_ids || vars.INSTANCE_PM2_INSTANCE_IDS }}"
+          INSTANCE_IDS=$(echo "$INSTANCE_IDS_RAW" | tr ',\n' '  ' | xargs)
+
+          if [ -z "$INSTANCE_IDS" ]; then
+            echo "No instance ids provided. Set input instance_ids or vars.INSTANCE_PM2_INSTANCE_IDS"
+            exit 1
+          fi
+
+          case "$PM2_TARGET" in
+            backend|bot|all)
+              ;;
+            *)
+              echo "Invalid pm2_target: $PM2_TARGET (expected backend, bot, all)"
+              exit 1
+              ;;
+          esac
+
+          FAILED=0
+          for INSTANCE_ID in $INSTANCE_IDS; do
+            echo "[infra-deploy-pm2] instance=$INSTANCE_ID target=$PM2_TARGET"
+            COMMANDS_JSON=$(jq -n \
+              --arg tag "$TAG" \
+              --arg appRoot "/var/www/trader-bot" \
+              --arg target "$PM2_TARGET" \
+              '{commands: [
+                "set -e",
+                ("cd " + $appRoot),
+                "git fetch --all --tags origin",
+                "if git rev-parse --verify --quiet refs/tags/" + $tag + " >/dev/null; then git checkout --detach " + $tag + "; else git checkout --detach origin/" + $tag + "; fi",
+                "install -d /var/www/trader-bot/python/aws",
+                "ln -sfn /var/www/trader-bot/infra/pm2/ecosystem.config.mjs /var/www/trader-bot/python/aws/ecosystem.config.mjs",
+                "cat <<'\''EOF'\'' > /tmp/trader-bot-infra-pm2.sh",
+                "set -e",
+                "pm2 startup systemd -u ubuntu --hp /home/ubuntu || true",
+                "if [ \"" + $target + "\" = \"backend\" ]; then pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-prod-pm2-backend; elif [ \"" + $target + "\" = \"bot\" ]; then pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-prod-pm2-bot; else pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs; fi",
+                "pm2 save",
+                "EOF",
+                "chmod 700 /tmp/trader-bot-infra-pm2.sh",
+                "sudo -iu ubuntu bash /tmp/trader-bot-infra-pm2.sh",
+                "rm -f /tmp/trader-bot-infra-pm2.sh",
+                "systemctl enable pm2-ubuntu || true",
+                "systemctl restart pm2-ubuntu || true"
+              ]}')
+
+            COMMAND_ID=$(aws ssm send-command \
+              --instance-ids "$INSTANCE_ID" \
+              --document-name "AWS-RunShellScript" \
+              --parameters "$COMMANDS_JSON" \
+              --query "Command.CommandId" \
+              --output text)
+
+            aws ssm wait command-executed \
+              --command-id "$COMMAND_ID" \
+              --instance-id "$INSTANCE_ID" || FAILED=1
+
+            aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "$INSTANCE_ID" \
+              --query '[Status,StandardOutputContent,StandardErrorContent]' \
+              --output text
+          done
+
+          test "$FAILED" -eq 0

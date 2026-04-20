@@ -1,8 +1,11 @@
-name: app-deploy-backend
+name: python-deploy-backend
 
 on:
   push:
     tags: ["v*"]
+  workflow_run:
+    workflows: ["python-deploy-env"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       tag:
@@ -10,11 +13,12 @@ on:
         required: true
 
 concurrency:
-  group: app-deploy-backend
+  group: python-deploy-runtime-${{ vars.APP_EC2_INSTANCE_ID }}
   cancel-in-progress: false
 
 jobs:
   deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS
@@ -26,19 +30,23 @@ jobs:
 
       - name: Deploy
         run: |
-          TAG="${{ inputs.tag || github.ref_name }}"
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            REF="${{ github.event.workflow_run.head_sha }}"
+          else
+            REF="${{ inputs.tag || github.ref_name }}"
+          fi
           INSTANCE_ID="${{ vars.APP_EC2_INSTANCE_ID }}"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --parameters "$(jq -n \
-                --arg tag "$TAG" \
+                --arg ref "$REF" \
                 --arg appRoot "/var/www/trader-bot" \
                 '{commands: [
                   "set -e",
                   ("cd " + $appRoot),
-                  ("git fetch --tags origin && git checkout --detach " + $tag),
+                  ("git fetch --tags origin && git checkout --detach " + $ref),
                   "cat <<'\''EOF'\'' > /tmp/trader-bot-deploy-backend.sh",
                   "set -e",
                   "cd /var/www/trader-bot/python",

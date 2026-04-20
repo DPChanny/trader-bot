@@ -6,9 +6,9 @@ This document tracks repository-level GitHub Actions Variables and Secrets used 
 
 Use three variable namespaces:
 
-- `APP_*`: application runtime deployment (backend, bot, pm2, python env)
+- `APP_*`: application runtime deployment (python-backend, python-bot, python-env)
 - `EDGE_*`: frontend and cloudfront deployment
-- `INSTANCE_*`: manual instance bootstrap workflows
+- `INSTANCE_*`: infra deployment workflows (cloudwatch, nginx, pm2)
 
 ## Repository Variables
 
@@ -22,10 +22,9 @@ Use three variable namespaces:
 
 Used by:
 
-- `.github/workflows/app-deploy-backend.yml`
-- `.github/workflows/app-deploy-bot.yml`
-- `.github/workflows/app-deploy-pm2.yml`
-- `.github/workflows/app-deploy-python-env.yml`
+- `.github/workflows/python-deploy-backend.yml`
+- `.github/workflows/python-deploy-bot.yml`
+- `.github/workflows/python-deploy-env.yml`
 
 ### EDGE variables
 
@@ -44,12 +43,15 @@ Used by:
 ### INSTANCE variables
 
 - `INSTANCE_AWS_REGION`: AWS region for manual instance workflows
+- `INSTANCE_NGINX_INSTANCE_IDS`: default instance list for nginx infra workflow
+- `INSTANCE_CLOUDWATCH_INSTANCE_IDS`: default instance list for cloudwatch infra workflow
+- `INSTANCE_PM2_INSTANCE_IDS`: default instance list for pm2 infra workflow
 
 Used by:
 
-- `.github/workflows/instance-deploy-backend.yml`
-- `.github/workflows/instance-deploy-bot.yml`
-- `.github/workflows/instance-deploy-redis.yml`
+- `.github/workflows/infra-deploy-nginx.yml`
+- `.github/workflows/infra-deploy-cloudwatch.yml`
+- `.github/workflows/infra-deploy-pm2.yml`
 
 ## Repository Secrets
 
@@ -63,9 +65,9 @@ These remain shared across namespaces.
 
 Used by:
 
-- app workflows for AWS auth and python env generation
+- python workflows for AWS auth and python env generation
 - edge workflows for AWS auth
-- instance workflows for AWS auth
+- infra workflows for AWS auth
 
 ## Setup Checklist
 
@@ -74,6 +76,6 @@ Used by:
 3. Create all APP/EDGE/INSTANCE variables listed above.
 4. Confirm required secrets exist.
 5. Run one workflow from each namespace to validate:
-   - `app-deploy-python-env`
+   - `python-deploy-env`
    - `edge-deploy-frontend`
-   - `instance-deploy-backend`
+   - `infra-deploy-nginx`
