@@ -115,7 +115,9 @@ def _patcher(record: dict[str, Any]) -> None:
     event = extra.pop("event", None)
     event = dict(event) if isinstance(event, Event) else None
 
-    source = f"{record['name']}:{record['function']}:{record['line']}"
+    source = extra.pop("_source", None)
+    if not isinstance(source, str) or not source:
+        source = f"{record['name']}:{record['function']}:{record['line']}"
     timestamp = (
         record["time"].astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
     )
@@ -161,13 +163,14 @@ def _patcher(record: dict[str, Any]) -> None:
 class _LoguruHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
         message = record.getMessage()
+        source = f"{record.name}:{record.funcName}:{record.lineno}"
 
         try:
             level = logger.level(record.levelname).name
         except Exception:
             level = record.levelno
 
-        logger.log(level, message)
+        logger.bind(_source=source).log(level, message)
 
 
 def setup_logging(log_dir: str | Path) -> None:
@@ -210,14 +213,7 @@ def setup_logging(log_dir: str | Path) -> None:
         log.handlers = []
         log.propagate = True
 
-    for logger_name in (
-        "uvicorn",
-        "uvicorn.asgi",
-        "uvicorn.access",
-        "botocore.credentials",
-        "httpx",
-        "httpcore",
-    ):
+    for logger_name in ("aiobotocore.credentials",):
         target_logger = logging.getLogger(logger_name)
         target_logger.handlers = []
         target_logger.propagate = False

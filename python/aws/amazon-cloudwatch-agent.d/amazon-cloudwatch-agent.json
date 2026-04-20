@@ -1,0 +1,5 @@
+{
+  "agent": {
+    "run_as_user": "root"
+  }
+}
