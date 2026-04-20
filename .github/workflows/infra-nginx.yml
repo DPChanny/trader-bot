@@ -75,11 +75,7 @@ jobs:
             --arg repo "/var/www/trader-bot" \
             '{commands: [
               "set -e",
-              "cat <<'\''EOF'\'' > /tmp/infra-nginx.sh",
-              "set -e",
-              ("cd " + $repo),
-              "git fetch --all --tags",
-              ("git checkout --detach " + $ref),
+              ("sudo -iu ubuntu bash -lc " + ("set -e\ncd " + $repo + "\ngit fetch --all --tags\ngit checkout --detach " + $ref | @sh)),
               "sudo install -m 644 infra/nginx/sites-available/trader-bot.conf /etc/nginx/sites-available/trader-bot.conf",
               "sudo ln -sfn /etc/nginx/sites-available/trader-bot.conf /etc/nginx/sites-enabled/trader-bot.conf",
               "sudo nginx -t",
@@ -88,12 +84,7 @@ jobs:
               "  sudo systemctl reload nginx",
               "else",
               "  sudo systemctl start nginx",
-              "fi",
-              "EOF",
-              "chmod 700 /tmp/infra-nginx.sh",
-              "chown ubuntu:ubuntu /tmp/infra-nginx.sh",
-              "sudo -iu ubuntu bash /tmp/infra-nginx.sh",
-              "rm -f /tmp/infra-nginx.sh"
+              "fi"
             ]}')
 
           FAILED=0
