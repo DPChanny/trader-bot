@@ -66,7 +66,30 @@ export function HomePage() {
           <Scroll>
             <SecondarySection>
               <img src="/banner.png" alt="Trader Bot" />
-            </SecondarySection>{" "}
+            </SecondarySection>
+            <SecondarySection gap="lg">
+              <Title>공지</Title>
+              {announcementNames.length > 0 ? (
+                <TertiarySection fill>
+                  <Scroll axis="y">
+                    {announcementNames.map((name) => (
+                      <Link
+                        key={name}
+                        href={`/announcement?name=${encodeURIComponent(name)}`}
+                      >
+                        <Card>
+                          <Text>{name}</Text>
+                        </Card>
+                      </Link>
+                    ))}
+                  </Scroll>
+                </TertiarySection>
+              ) : (
+                <Card>
+                  <Text>등록된 공지가 없습니다.</Text>
+                </Card>
+              )}
+            </SecondarySection>
             <SecondarySection>
               <Row>
                 {myUser.data ? null : (
@@ -122,29 +145,6 @@ export function HomePage() {
                   </Fill>
                 ))}
               </Row>
-            </SecondarySection>
-            <SecondarySection gap="lg">
-              <Title>공지</Title>
-              {announcementNames.length > 0 ? (
-                <TertiarySection fill>
-                  <Scroll axis="y">
-                    {announcementNames.map((announcementName) => (
-                      <Link
-                        key={announcementName}
-                        href={`/announcement?name=${encodeURIComponent(announcementName)}`}
-                      >
-                        <Card>
-                          <Text>{announcementName}</Text>
-                        </Card>
-                      </Link>
-                    ))}
-                  </Scroll>
-                </TertiarySection>
-              ) : (
-                <Card>
-                  <Text>등록된 공지가 없습니다.</Text>
-                </Card>
-              )}
             </SecondarySection>
           </Scroll>
         </PrimarySection>

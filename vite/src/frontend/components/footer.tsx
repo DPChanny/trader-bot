@@ -10,6 +10,9 @@ export function Footer() {
         <Link href="/patch">패치</Link>
       </Fill>
       <Fill center>
+        <Link href="/announcement">공지</Link>
+      </Fill>
+      <Fill center>
         <Link href="/terms-of-service">이용약관</Link>
       </Fill>
       <Fill center>
