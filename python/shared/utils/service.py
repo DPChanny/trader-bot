@@ -7,7 +7,7 @@ from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
-from .logging import Event
+from .logging import Event, EventType
 
 
 def _inject_event(
@@ -38,7 +38,8 @@ def http_service(func):
             result = await func(*args, **kwargs)
             if event.result is None:
                 event.result = result
-            logger.bind(type="http_service", event=event).info("")
+            event.type = EventType.HTTP_SERVICE
+            logger.bind(event=event).info("")
             return result
         except HTTPError as error:
             if error.event is None:
@@ -61,7 +62,8 @@ def bot_service(func):
 
         try:
             result = await func(*args, **kwargs)
-            logger.bind(type="bot_service", event=event).info("")
+            event.type = EventType.BOT_SERVICE
+            logger.bind(event=event).info("")
             return result
         except AppError as error:
             if error.event is None:
@@ -84,7 +86,8 @@ def ws_service(func):
 
         try:
             result = await func(*args, **kwargs)
-            logger.bind(type="ws_service", event=event).info("")
+            event.type = EventType.WS_SERVICE
+            logger.bind(event=event).info("")
             return result
         except WSError as error:
             if error.event is None:

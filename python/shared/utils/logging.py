@@ -2,8 +2,9 @@ import json
 import logging
 import sys
 from contextvars import ContextVar
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC
+from enum import StrEnum
 from pathlib import Path
 from time import perf_counter
 from typing import Any
@@ -28,21 +29,29 @@ type JSONValue = (
 type LogValue = JSONValue | BaseModel
 
 
-def redact(value: LogValue) -> Any:
+class EventType(StrEnum):
+    HTTP_SERVICE = "http_service"
+    BOT_SERVICE = "bot_service"
+    WS_SERVICE = "ws_service"
+    ERROR = "error"
+    HTTP_MIDDLEWARE = "http_middleware"
+
+
+def _redact(value: LogValue) -> Any:
     if isinstance(value, BaseModel):
-        return redact(value.model_dump(mode="json", exclude_unset=True))
+        return _redact(value.model_dump(mode="json", exclude_unset=True))
     if isinstance(value, dict):
         return {
-            key: "[REDACTED]" if key in REDACT_KEYS else redact(item)
+            key: "[REDACTED]" if key in REDACT_KEYS else _redact(item)
             for key, item in value.items()
         }
     if isinstance(value, list):
-        result = [redact(item) for item in value[:3]]
+        result = [_redact(item) for item in value[:3]]
         if len(value) > 3:
             result.append("[REDACTED]")
         return result
     if isinstance(value, tuple):
-        result = tuple(redact(item) for item in value[:3])
+        result = tuple(_redact(item) for item in value[:3])
         return (*result, "[REDACTED]") if len(value) > 3 else result
 
     return value
@@ -50,25 +59,28 @@ def redact(value: LogValue) -> Any:
 
 @dataclass
 class Event:
+    type: EventType | None = None
     input: LogValue | None = None
     result: LogValue | None = None
     detail: LogValue | None = None
-    context: LogValue | None = None
+    context: LogValue | None = field(default=None, init=False, repr=False)
 
     def __iter__(self):
+        if self.type is not None:
+            yield "type", self.type.value
         if self.input is not None:
-            yield "input", redact(self.input)
+            yield "input", _redact(self.input)
         if self.result is not None:
-            yield "result", redact(self.result)
+            yield "result", _redact(self.result)
         if self.detail is not None:
-            yield "detail", redact(self.detail)
-        if self.context is not None:
-            yield "context", redact(self.context)
+            yield "detail", _redact(self.detail)
+
+        context = _context.get()
+        if context is not None:
+            yield "context", _redact(context)
 
 
-_event_context: ContextVar[dict[str, Any] | None] = ContextVar(
-    "_event_context", default=None
-)
+_context: ContextVar[LogValue | None] = ContextVar("_context", default=None)
 
 
 def _patcher(record: dict[str, Any]) -> None:
@@ -80,24 +92,11 @@ def _patcher(record: dict[str, Any]) -> None:
 
     extra = dict(record["extra"])
     event = extra.pop("event", None)
-    log_type = extra.pop("type", None)
 
     if isinstance(event, Event):
         event = dict(event)
     elif not isinstance(event, dict):
         event = None
-
-    context_payload = _event_context.get()
-    if isinstance(context_payload, dict) and context_payload:
-        if event is None:
-            event = {}
-
-        context = event.get("context")
-        if not isinstance(context, dict):
-            context = {}
-            event["context"] = context
-
-        context.update(context_payload)
 
     source = f"{record['name']}:{record['function']}:{record['line']}"
     timestamp = (
@@ -109,8 +108,6 @@ def _patcher(record: dict[str, Any]) -> None:
         "level": record["level"].name,
         "source": source,
     }
-    if isinstance(log_type, str) and log_type:
-        log["type"] = log_type
     if record["message"]:
         log["message"] = record["message"]
     if event is not None:
@@ -214,7 +211,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             if request.client is not None
             else None
         )
-        token = _event_context.set({"http": {"request_id": request_id}})
+        token = _context.set({"http": {"request_id": request_id}})
         response: Response | None = None
         try:
             response = await call_next(request)
@@ -223,8 +220,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         finally:
             latency_ms = round((perf_counter() - started_at) * 1000, 2)
             logger.bind(
-                type="http_middleware",
                 event=Event(
+                    type=EventType.HTTP_MIDDLEWARE,
                     detail={
                         "http": {
                             "query": request.url.query,
@@ -238,4 +235,4 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                     }
                 ),
             ).info("")
-            _event_context.reset(token)
+            _context.reset(token)
