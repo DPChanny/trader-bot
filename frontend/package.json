@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "generate:patch-manifest": "node ./scripts/generate-patch-manifest.mjs",
+    "predev": "npm run generate:patch-manifest",
+    "prebuild": "npm run generate:patch-manifest",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
