@@ -170,7 +170,7 @@ class _LoguruHandler(logging.Handler):
         except Exception:
             level = record.levelno
 
-        logger.bind(_source=source).log(level, message)
+        logger.bind(_source=source).opt(exception=record.exc_info).log(level, message)
 
 
 def setup_logging(log_dir: str | Path) -> None:
