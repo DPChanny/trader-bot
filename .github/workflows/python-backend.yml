@@ -39,15 +39,25 @@ jobs:
             "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
             "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
 
-          if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID and/or vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
-            exit 1
-          fi
-
           {
             echo "ref=$REF"
             echo "instance_ids=$INSTANCE_IDS"
           } >> "$GITHUB_OUTPUT"
+
+      - name: Validate
+        run: |
+          REF="${{ steps.prepare.outputs.ref }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
+
+          if [ -z "$REF" ]; then
+            echo "Missing ref from prepare"
+            exit 1
+          fi
+
+          if [ -z "$INSTANCE_IDS" ]; then
+            echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID and/or vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
+            exit 1
+          fi
 
       - name: Run
         run: |

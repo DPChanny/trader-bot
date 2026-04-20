@@ -60,6 +60,32 @@ jobs:
               "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
           fi
 
+          {
+            echo "target=$TARGET"
+            echo "ref=$REF"
+            echo "instance_ids=$INSTANCE_IDS"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Validate
+        run: |
+          TARGET="${{ steps.prepare.outputs.target }}"
+          REF="${{ steps.prepare.outputs.ref }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
+
+          case "$TARGET" in
+            backend|bot|all)
+              ;;
+            *)
+              echo "Invalid target: $TARGET (expected backend, bot, all)"
+              exit 1
+              ;;
+          esac
+
+          if [ -z "$REF" ]; then
+            echo "Missing ref from prepare"
+            exit 1
+          fi
+
           if [ -z "$INSTANCE_IDS" ]; then
             if [ "$TARGET" = "bot" ]; then
               echo "No instance ids provided. Set vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
@@ -68,12 +94,6 @@ jobs:
             fi
             exit 1
           fi
-
-          {
-            echo "target=$TARGET"
-            echo "ref=$REF"
-            echo "instance_ids=$INSTANCE_IDS"
-          } >> "$GITHUB_OUTPUT"
 
       - name: Run
         run: |

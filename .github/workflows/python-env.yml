@@ -50,35 +50,44 @@ jobs:
             "RDS_INSTANCE_IDENTIFIER=$RDS_INSTANCE_IDENTIFIER" \
             "RDS_REGION=$RDS_REGION")"
 
+          MISSING_VARS=""
+          for VAR in DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET APP_ORIGIN API_ORIGIN JWT_SECRET RDS_INSTANCE_IDENTIFIER RDS_REGION; do
+            if [ -z "${!VAR}" ]; then
+              if [ -z "$MISSING_VARS" ]; then
+                MISSING_VARS="$VAR"
+              else
+                MISSING_VARS="$MISSING_VARS,$VAR"
+              fi
+            fi
+          done
+
           {
             echo "instance_ids=$INSTANCE_IDS"
             echo "env<<EOF"
             printf '%s\n' "$ENV"
             echo "EOF"
+            echo "missing_vars=$MISSING_VARS"
           } >> "$GITHUB_OUTPUT"
 
       - name: Validate
-        env:
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
-          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
-          APP_ORIGIN: https://${{ vars.DOMAIN }}
-          API_ORIGIN: https://${{ vars.DOMAIN }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          RDS_INSTANCE_IDENTIFIER: ${{ vars.RDS_INSTANCE_ID }}
-          RDS_REGION: ${{ vars.AWS_REGION }}
         run: |
           MISSING=0
-          for VAR in DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET APP_ORIGIN API_ORIGIN JWT_SECRET RDS_INSTANCE_IDENTIFIER RDS_REGION; do
-            if [ -z "${!VAR}" ]; then
-              echo "Missing required variable or secret: $VAR"
-              MISSING=1
-            fi
-          done
+          MISSING_VARS="${{ steps.prepare.outputs.missing_vars }}"
 
           INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
           if [ -z "$INSTANCE_IDS" ]; then
             echo "No instance ids provided. Set vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
+            MISSING=1
+          fi
+
+          ENV="${{ steps.prepare.outputs.env }}"
+          if [ -z "$ENV" ]; then
+            echo "Prepare output env is empty"
+            MISSING=1
+          fi
+
+          if [ -n "$MISSING_VARS" ]; then
+            echo "Missing required variable or secret(s): $MISSING_VARS"
             MISSING=1
           fi
 

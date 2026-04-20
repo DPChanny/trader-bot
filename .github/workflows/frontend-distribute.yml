@@ -29,21 +29,30 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Prepare
-        id: prepare
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: vite/package-lock.json
 
-      - name: Validate
-        env:
-          VITE_API_ORIGIN: https://${{ vars.DOMAIN }}
-          VITE_DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
-          VITE_GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
-          S3_BUCKET: ${{ vars.S3_BUCKET_NAME }}
+      - name: Prepare
+        id: prepare
         run: |
+          {
+            echo "api_origin=https://${{ vars.DOMAIN }}"
+            echo "discord_client_id=${{ vars.DISCORD_CLIENT_ID }}"
+            echo "guild_invite_url=${{ vars.GUILD_INVITE_URL }}"
+            echo "s3_bucket=${{ vars.S3_BUCKET_NAME }}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Validate
+        run: |
+          VITE_API_ORIGIN="${{ steps.prepare.outputs.api_origin }}"
+          VITE_DISCORD_CLIENT_ID="${{ steps.prepare.outputs.discord_client_id }}"
+          VITE_GUILD_INVITE_URL="${{ steps.prepare.outputs.guild_invite_url }}"
+          S3_BUCKET="${{ steps.prepare.outputs.s3_bucket }}"
+
           MISSING=0
           for VAR in VITE_API_ORIGIN VITE_DISCORD_CLIENT_ID VITE_GUILD_INVITE_URL S3_BUCKET; do
             if [ -z "${!VAR}" ]; then
@@ -59,10 +68,10 @@ jobs:
       - name: Run
         working-directory: vite
         env:
-          VITE_API_ORIGIN: https://${{ vars.DOMAIN }}
-          VITE_DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
-          VITE_GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
-          S3_BUCKET: ${{ vars.S3_BUCKET_NAME }}
+          VITE_API_ORIGIN: ${{ steps.prepare.outputs.api_origin }}
+          VITE_DISCORD_CLIENT_ID: ${{ steps.prepare.outputs.discord_client_id }}
+          VITE_GUILD_INVITE_URL: ${{ steps.prepare.outputs.guild_invite_url }}
+          S3_BUCKET: ${{ steps.prepare.outputs.s3_bucket }}
         run: |
           npm ci
           npm run build
