@@ -8,7 +8,12 @@ const frontendRoot = path.resolve(__dirname, "..");
 
 const notesDir = path.join(frontendRoot, "public", "patches", "notes");
 const plansDir = path.join(frontendRoot, "public", "patches", "plans");
-const outputPath = path.join(frontendRoot, "src", "utils", "patchManifest.ts");
+const outputPath = path.join(
+  frontendRoot,
+  "public",
+  "patches",
+  "manifest.json",
+);
 
 async function listVersions(dirPath) {
   try {
@@ -30,21 +35,13 @@ async function listVersions(dirPath) {
   }
 }
 
-function toArrayLiteral(versions) {
-  return `[${versions.map((version) => JSON.stringify(version)).join(", ")}]`;
-}
-
 async function main() {
   const [notes, plans] = await Promise.all([
     listVersions(notesDir),
     listVersions(plansDir),
   ]);
 
-  const content = [
-    `export const PATCH_NOTE_VERSIONS: string[] = ${toArrayLiteral(notes)};`,
-    `export const PATCH_PLAN_VERSIONS: string[] = ${toArrayLiteral(plans)};`,
-    "",
-  ].join("\n");
+  const content = `${JSON.stringify({ notes, plans }, null, 2)}\n`;
 
   await fs.writeFile(outputPath, content, "utf8");
   console.log(

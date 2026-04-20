@@ -1,4 +1,5 @@
 import { MarkedPage } from "./markedPage";
+import { useEffect, useMemo, useState } from "preact/hooks";
 import { Link } from "@components/atoms/link";
 import { Column, Fill, Page, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
@@ -9,11 +10,14 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
-import { PATCH_NOTE_VERSIONS, PATCH_PLAN_VERSIONS } from "@utils/patchManifest";
+import {
+  loadPublicPatchManifest,
+  type PublicPatchManifest,
+} from "@utils/public";
 
-function getVersions(kind: "notes" | "plans") {
+function getVersions(kind: "notes" | "plans", manifest: PublicPatchManifest) {
   const versions = [
-    ...(kind === "notes" ? PATCH_NOTE_VERSIONS : PATCH_PLAN_VERSIONS),
+    ...(kind === "notes" ? manifest.notes : manifest.plans),
   ].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
   return kind === "notes" ? versions.reverse() : versions;
 }
@@ -23,9 +27,34 @@ export type PatchPageProps = {
 };
 
 export function PatchPage({ version }: PatchPageProps) {
-  const noteVersions = getVersions("notes");
-  const planVersions = getVersions("plans");
+  const [manifest, setManifest] = useState<PublicPatchManifest>({
+    notes: [],
+    plans: [],
+  });
+  const noteVersions = useMemo(
+    () => getVersions("notes", manifest),
+    [manifest],
+  );
+  const planVersions = useMemo(
+    () => getVersions("plans", manifest),
+    [manifest],
+  );
   version = version.trim();
+
+  useEffect(() => {
+    let isActive = true;
+
+    loadPublicPatchManifest().then((nextManifest) => {
+      if (!isActive) {
+        return;
+      }
+      setManifest(nextManifest);
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const noteVersionSet = new Set(noteVersions);
   const planVersionSet = new Set(planVersions);

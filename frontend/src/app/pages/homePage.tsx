@@ -1,4 +1,5 @@
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
+import { useEffect, useState } from "preact/hooks";
 import { Link } from "@components/atoms/link";
 import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
@@ -11,17 +12,33 @@ import {
 import { Footer } from "@components/footer";
 import { useLogin } from "@hooks/auth";
 import { useMyUser } from "@hooks/user";
-import { PATCH_NOTE_VERSIONS } from "@utils/patchManifest";
+import { loadPublicPatchManifest } from "@utils/public";
 import { BOT_INVITE_URL } from "@utils/env";
 
-const version =
-  [...PATCH_NOTE_VERSIONS].sort((a, b) =>
-    b.localeCompare(a, undefined, { numeric: true }),
-  )[0] ?? "";
-
 export function HomePage() {
+  const [version, setVersion] = useState("");
   const login = useLogin();
   const myUser = useMyUser();
+
+  useEffect(() => {
+    let isActive = true;
+
+    loadPublicPatchManifest().then((manifest) => {
+      if (!isActive) {
+        return;
+      }
+
+      const latestVersion = [...manifest.notes].sort((a, b) =>
+        b.localeCompare(a, undefined, { numeric: true }),
+      )[0];
+
+      setVersion(latestVersion ?? "");
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const onboardingSections = [
     {

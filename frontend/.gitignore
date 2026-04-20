@@ -3,3 +3,4 @@ dist/
 *.tsbuildinfo
 *.css.d.ts
 npm-debug.log*
+public/patches/manifest.json
