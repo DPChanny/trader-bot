@@ -1,8 +1,9 @@
 name: frontend-deploy-cdn
 
 on:
-  push:
-    tags: ["v*"]
+  workflow_run:
+    workflows: ["frontend-deploy-build"]
+    types: [completed]
   workflow_dispatch:
 
 concurrency:
@@ -11,6 +12,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS

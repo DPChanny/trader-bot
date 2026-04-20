@@ -1,8 +1,6 @@
 name: python-deploy-backend
 
 on:
-  push:
-    tags: ["v*"]
   workflow_run:
     workflows: ["python-deploy-env"]
     types: [completed]
@@ -18,7 +16,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS

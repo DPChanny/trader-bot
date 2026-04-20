@@ -2,9 +2,7 @@ name: python-deploy-env
 
 on:
   push:
-    branches: ["master"]
-    paths:
-      - "python/.env.example"
+    tags: ["v*"]
   workflow_dispatch:
 
 concurrency:
