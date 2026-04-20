@@ -232,7 +232,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                             "client_ip": client_ip,
                             "user_agent": request.headers.get("user-agent"),
                         }
-                    }
-                ),
+                    },
+                )
             ).info("")
             _context.reset(token)
