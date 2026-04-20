@@ -20,7 +20,7 @@ from starlette.responses import Response
 from .env import get_log_file, get_log_level, get_log_text
 
 
-REDACT_KEYS = {"access_token", "refresh_token", "exchange_token"}
+REDACT_KEYS = {"accesstoken", "refreshtoken", "exchangetoken", "code", "state"}
 
 
 type JSONPrimitive = str | int | float | bool | None
@@ -30,12 +30,17 @@ type JSONValue = (
 type LogValue = JSONValue | BaseModel
 
 
+def _is_redact_key(key: str) -> bool:
+    normalized = key.replace("_", "").replace("-", "").lower()
+    return normalized in REDACT_KEYS
+
+
 def _redact(value: LogValue) -> Any:
     if isinstance(value, BaseModel):
         return _redact(value.model_dump(mode="json", exclude_unset=True))
     if isinstance(value, dict):
         return {
-            key: "[REDACTED]" if key in REDACT_KEYS else _redact(item)
+            key: "[REDACTED]" if _is_redact_key(key) else _redact(item)
             for key, item in value.items()
         }
     if isinstance(value, list):
@@ -227,7 +232,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                             "request": {
                                 "id": request_id,
                                 "route": request.url.path,
-                                "query": request.url.query,
+                                "query": dict(request.query_params),
                                 "method": request.method,
                                 "user": {
                                     "ip": user_ip,

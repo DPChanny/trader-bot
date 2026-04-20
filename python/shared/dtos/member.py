@@ -21,11 +21,11 @@ class MemberDTO(BaseDTO):
     name: str | None
     alias: str | None
     avatar_hash: str | None
-    info_url: str | None
 
 
 class MemberDetailDTO(MemberDTO):
     user: UserDetailDTO
+    info_url: str | None
 
     @computed_field
     @property

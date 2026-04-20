@@ -10,13 +10,13 @@ class PresetMemberDTO(BaseDTO):
     member_id: int
     tier_id: int | None
     is_leader: bool
-    info_url: str | None
 
 
 class PresetMemberDetailDTO(PresetMemberDTO):
     member: MemberDetailDTO
     tier: TierDTO | None
     preset_member_positions: list[PresetMemberPositionDetailDTO]
+    info_url: str | None
 
 
 class AddPresetMemberDTO(BaseDTO):
