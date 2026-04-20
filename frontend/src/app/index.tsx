@@ -42,11 +42,11 @@ function PatchPageRoute({}: RoutableProps) {
 }
 
 function TermsOfServiceRoute({}: RoutableProps) {
-  return <MarkedPage path="/src/docs/terms-of-service.md" />;
+  return <MarkedPage path="/terms-of-service.md" />;
 }
 
 function PrivacyPolicyRoute({}: RoutableProps) {
-  return <MarkedPage path="/src/docs/privacy-policy.md" />;
+  return <MarkedPage path="/privacy-policy.md" />;
 }
 
 function DefaultRedirectRoute({}: RoutableProps) {

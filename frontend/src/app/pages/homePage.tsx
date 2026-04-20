@@ -11,13 +11,13 @@ import {
 import { Footer } from "@components/footer";
 import { useLogin } from "@hooks/auth";
 import { useMyUser } from "@hooks/user";
+import { PATCH_NOTE_VERSIONS } from "@utils/patchManifest";
 import { BOT_INVITE_URL } from "@utils/env";
 
 const version =
-  Object.keys(import.meta.glob("/src/docs/patches/notes/v*.md"))
-    .map((p) => p.match(/\/([^/]+)\.md$/)?.[1] ?? "")
-    .filter(Boolean)
-    .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0] ?? "";
+  [...PATCH_NOTE_VERSIONS].sort((a, b) =>
+    b.localeCompare(a, undefined, { numeric: true }),
+  )[0] ?? "";
 
 export function HomePage() {
   const login = useLogin();

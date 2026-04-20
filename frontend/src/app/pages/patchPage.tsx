@@ -9,23 +9,12 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
-
-const notes = import.meta.glob("/src/docs/patches/notes/v*.md", {
-  query: "?raw",
-  import: "default",
-}) as Record<string, () => Promise<string>>;
-
-const plans = import.meta.glob("/src/docs/patches/plans/v*.md", {
-  query: "?raw",
-  import: "default",
-}) as Record<string, () => Promise<string>>;
+import { PATCH_NOTE_VERSIONS, PATCH_PLAN_VERSIONS } from "@utils/patchManifest";
 
 function getVersions(kind: "notes" | "plans") {
-  const loaders = kind === "notes" ? notes : plans;
-  const versions = Object.keys(loaders)
-    .map((path) => path.match(/\/([^/]+)\.md$/)?.[1] ?? null)
-    .filter((v): v is string => v !== null)
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  const versions = [
+    ...(kind === "notes" ? PATCH_NOTE_VERSIONS : PATCH_PLAN_VERSIONS),
+  ].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
   return kind === "notes" ? versions.reverse() : versions;
 }
 
@@ -38,13 +27,16 @@ export function PatchPage({ version }: PatchPageProps) {
   const planVersions = getVersions("plans");
   version = version.trim();
 
+  const noteVersionSet = new Set(noteVersions);
+  const planVersionSet = new Set(planVersions);
+
   let markedPath: string | null = null;
   if (version) {
-    const notePath = `/src/docs/patches/notes/${version}.md`;
-    markedPath = notes[notePath] ? notePath : null;
+    const notePath = `/patches/notes/${version}.md`;
+    markedPath = noteVersionSet.has(version) ? notePath : null;
     if (!markedPath) {
-      const planPath = `/src/docs/patches/plans/${version}.md`;
-      markedPath = plans[planPath] ? planPath : null;
+      const planPath = `/patches/plans/${version}.md`;
+      markedPath = planVersionSet.has(version) ? planPath : null;
     }
   }
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { marked } from "marked";
 import { Column, Page, Scroll } from "@components/atoms/layout";
 import { PrimarySection } from "@components/surfaces/section";
@@ -9,27 +9,19 @@ export type MarkedPageProps = {
   path: string;
 };
 
-const markedLoaders = import.meta.glob("/src/docs/**/*.md", {
-  query: "?raw",
-  import: "default",
-}) as Record<string, () => Promise<string>>;
-
 export function MarkedPage({ path }: MarkedPageProps) {
   const [html, setHtml] = useState("");
-
-  const loader = useMemo(() => markedLoaders[path], [path]);
 
   useEffect(() => {
     let isActive = true;
 
-    if (!loader) {
-      setHtml("");
-      return () => {
-        isActive = false;
-      };
-    }
-
-    loader()
+    fetch(path)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to load markdown");
+        }
+        return response.text();
+      })
       .then((markedSource) => {
         if (!isActive) {
           return;
@@ -52,7 +44,7 @@ export function MarkedPage({ path }: MarkedPageProps) {
     return () => {
       isActive = false;
     };
-  }, [loader]);
+  }, [path]);
 
   return (
     <Page>
