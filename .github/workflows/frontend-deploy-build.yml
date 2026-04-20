@@ -1,4 +1,4 @@
-name: edge-deploy-frontend
+name: frontend-deploy-build
 
 on:
   push:

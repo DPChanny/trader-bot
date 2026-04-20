@@ -23,7 +23,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: ${{ vars.INSTANCE_AWS_REGION }}
+          aws-region: ${{ vars.INFRA_AWS_REGION }}
 
       - name: Deploy
         run: |
@@ -31,11 +31,11 @@ jobs:
           if [ -z "$TAG" ]; then
             TAG="master"
           fi
-          INSTANCE_IDS_RAW="${{ inputs.instance_ids || vars.INSTANCE_NGINX_INSTANCE_IDS }}"
+          INSTANCE_IDS_RAW="${{ inputs.instance_ids || vars.INFRA_NGINX_INSTANCE_ID }}"
           INSTANCE_IDS=$(echo "$INSTANCE_IDS_RAW" | tr ',\n' '  ' | xargs)
 
           if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids provided. Set input instance_ids or vars.INSTANCE_NGINX_INSTANCE_IDS"
+            echo "No instance ids provided. Set input instance_ids or vars.INFRA_NGINX_INSTANCE_ID"
             exit 1
           fi
 

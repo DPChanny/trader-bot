@@ -1,4 +1,4 @@
-name: edge-deploy-cloudfront
+name: frontend-deploy-cdn
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: edge-deploy-cloudfront
+  group: frontend-deploy-cdn
   cancel-in-progress: false
 
 jobs:

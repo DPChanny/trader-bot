@@ -13,7 +13,7 @@ on:
         required: true
 
 concurrency:
-  group: python-deploy-runtime-${{ vars.APP_EC2_INSTANCE_ID }}
+  group: python-deploy-runtime-${{ vars.PYTHON_BACKEND_INSTANCE_ID }}
   cancel-in-progress: false
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: ${{ vars.APP_AWS_REGION }}
+          aws-region: ${{ vars.PYTHON_AWS_REGION }}
 
       - name: Deploy
         run: |
@@ -35,7 +35,7 @@ jobs:
           else
             REF="${{ inputs.tag || github.ref_name }}"
           fi
-          INSTANCE_ID="${{ vars.APP_EC2_INSTANCE_ID }}"
+          INSTANCE_ID="${{ vars.PYTHON_BACKEND_INSTANCE_ID }}"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
