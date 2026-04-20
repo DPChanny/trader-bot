@@ -7,27 +7,28 @@ infra
 
 patch
 
-v0.4.?
+v0.4.0 - 편의성 - 필수
 pagenation & sorting & search
 preset template
     preset copy or preset base -> 운영 서버 공식 프리셋 참고 flow
+
+v0.4.1 - 편의성 - 확장
 운영 server webhook
 info url iframe
 auction result
+grid 정렬 개선
+bot command
 
-v0.5.?
-mobile: responsive layout
+v0.5.? - 범용성
+layout 정리
 css 개선
     token 개선
+mobile: responsive layout
+
+v0.6.0 - 최적화 - 필수
 auction
-    opt
-    path routing 개선
-    get 정보 조회
-layout
-grid 정렬 개선
 db query batch opt
 
-v0.6.?
-bot command
+v0.7.?
 web effect
 language
