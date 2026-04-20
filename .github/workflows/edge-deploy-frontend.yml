@@ -1,4 +1,4 @@
-name: deploy-frontend
+name: edge-deploy-frontend
 
 on:
   push:
@@ -30,18 +30,18 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ vars.EDGE_AWS_REGION }}
 
       - name: Build
         working-directory: frontend
         env:
-          VITE_API_ORIGIN: https://${{ vars.EC2_HOST }}
-          VITE_DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
-          VITE_GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
+          VITE_API_ORIGIN: https://${{ vars.EDGE_EC2_HOST }}
+          VITE_DISCORD_CLIENT_ID: ${{ vars.EDGE_DISCORD_CLIENT_ID }}
+          VITE_GUILD_INVITE_URL: ${{ vars.EDGE_GUILD_INVITE_URL }}
         run: npm ci && npm run build
 
       - name: Upload
         env:
-          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_BUCKET: ${{ vars.EDGE_S3_BUCKET }}
         run: |
           aws s3 sync frontend/dist s3://$S3_BUCKET --delete

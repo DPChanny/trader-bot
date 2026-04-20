@@ -1,18 +1,17 @@
-name: deploy-instance
+name: instance-deploy-backend
 
 on:
-  push:
-    branches: ["master"]
-    paths:
-      - "infra/**"
   workflow_dispatch:
     inputs:
+      instance_id:
+        description: "Target EC2 instance id"
+        required: true
       tag:
-        description: "Tag to apply infra from (optional)"
+        description: "Tag or branch to apply (default: master)"
         required: false
 
 concurrency:
-  group: deploy-instance
+  group: instance-deploy-backend
   cancel-in-progress: false
 
 jobs:
@@ -24,7 +23,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ vars.INSTANCE_AWS_REGION }}
 
       - name: Deploy
         run: |
@@ -32,7 +31,7 @@ jobs:
           if [ -z "$TAG" ]; then
             TAG="master"
           fi
-          INSTANCE_ID="${{ vars.EC2_INSTANCE_ID }}"
+          INSTANCE_ID="${{ inputs.instance_id }}"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
@@ -52,24 +51,22 @@ jobs:
                   "systemctl reload nginx",
                   "install -d /var/www/trader-bot/python/aws",
                   "ln -sfn /var/www/trader-bot/infra/pm2/ecosystem.config.mjs /var/www/trader-bot/python/aws/ecosystem.config.mjs",
-                  "cat <<'\''EOF'\'' > /tmp/trader-bot-bootstrap-pm2.sh",
+                  "cat <<'\''EOF'\'' > /tmp/trader-bot-bootstrap-backend.sh",
                   "set -e",
                   "pm2 startup systemd -u ubuntu --hp /home/ubuntu || true",
+                  "pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-prod-pm2-backend",
                   "pm2 save",
                   "EOF",
-                  "chmod 700 /tmp/trader-bot-bootstrap-pm2.sh",
-                  "sudo -iu ubuntu bash /tmp/trader-bot-bootstrap-pm2.sh",
-                  "rm -f /tmp/trader-bot-bootstrap-pm2.sh",
+                  "chmod 700 /tmp/trader-bot-bootstrap-backend.sh",
+                  "sudo -iu ubuntu bash /tmp/trader-bot-bootstrap-backend.sh",
+                  "rm -f /tmp/trader-bot-bootstrap-backend.sh",
                   "systemctl enable pm2-ubuntu || true",
                   "systemctl restart pm2-ubuntu || true",
                   "install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
                   "install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
                   "install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json",
-                  "install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json",
-                  "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a stop || true",
                   "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json -s",
-                  "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json",
-                  "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json"
+                  "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json"
                 ]}')}" \
             --query "Command.CommandId" \
             --output text)

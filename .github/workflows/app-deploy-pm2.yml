@@ -1,4 +1,4 @@
-name: deploy-pm2
+name: app-deploy-pm2
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-pm2
+  group: app-deploy-pm2
   cancel-in-progress: false
 
 jobs:
@@ -20,11 +20,11 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ vars.APP_AWS_REGION }}
 
       - name: Deploy
         run: |
-          INSTANCE_ID="${{ vars.EC2_INSTANCE_ID }}"
+          INSTANCE_ID="${{ vars.APP_EC2_INSTANCE_ID }}"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \

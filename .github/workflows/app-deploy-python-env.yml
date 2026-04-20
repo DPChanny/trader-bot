@@ -1,4 +1,4 @@
-name: deploy-python
+name: app-deploy-python-env
 
 on:
   push:
@@ -16,19 +16,19 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ vars.APP_AWS_REGION }}
 
       - name: Deploy
         env:
-          INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
+          INSTANCE_ID: ${{ vars.APP_EC2_INSTANCE_ID }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_ID: ${{ vars.APP_DISCORD_CLIENT_ID }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
-          APP_ORIGIN: https://${{ vars.EC2_HOST }}
-          API_ORIGIN: https://${{ vars.EC2_HOST }}
+          APP_ORIGIN: https://${{ vars.APP_EC2_HOST }}
+          API_ORIGIN: https://${{ vars.APP_EC2_HOST }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          RDS_INSTANCE_IDENTIFIER: ${{ vars.RDS_INSTANCE_IDENTIFIER }}
-          RDS_REGION: ${{ vars.AWS_REGION }}
+          RDS_INSTANCE_IDENTIFIER: ${{ vars.APP_RDS_INSTANCE_IDENTIFIER }}
+          RDS_REGION: ${{ vars.APP_AWS_REGION }}
         run: |
           ENV_CONTENT="$(printf '%s\n' \
             "DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN" \

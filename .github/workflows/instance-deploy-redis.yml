@@ -1,16 +1,14 @@
-name: deploy-bot
+name: instance-deploy-redis
 
 on:
-  push:
-    tags: ["v*"]
   workflow_dispatch:
     inputs:
-      tag:
-        description: "Tag to deploy"
+      instance_id:
+        description: "Target EC2 instance id"
         required: true
 
 concurrency:
-  group: deploy-bot
+  group: instance-deploy-redis
   cancel-in-progress: false
 
 jobs:
@@ -22,34 +20,20 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ vars.INSTANCE_AWS_REGION }}
 
       - name: Deploy
         run: |
-          TAG="${{ inputs.tag || github.ref_name }}"
-          INSTANCE_ID="${{ vars.EC2_INSTANCE_ID }}"
+          INSTANCE_ID="${{ inputs.instance_id }}"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --parameters "$(jq -n \
-                --arg tag "$TAG" \
-                --arg appRoot "/var/www/trader-bot" \
                 '{commands: [
                   "set -e",
-                  ("cd " + $appRoot),
-                  ("git fetch --tags origin && git checkout --detach " + $tag),
-                  "cat <<'\''EOF'\'' > /tmp/trader-bot-deploy-bot.sh",
-                  "set -e",
-                  "cd /var/www/trader-bot/python",
-                  "uv sync --frozen",
-                  "pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-prod-pm2-bot",
-                  "pm2 save",
-                  "EOF",
-                  "chmod 700 /tmp/trader-bot-deploy-bot.sh",
-                  "sudo -iu ubuntu bash /tmp/trader-bot-deploy-bot.sh",
-                  "rm -f /tmp/trader-bot-deploy-bot.sh"
-                ]}')" \
+                  "if systemctl list-unit-files | grep -q '^redis-server.service'; then systemctl enable redis-server; systemctl restart redis-server; systemctl --no-pager --full status redis-server; elif systemctl list-unit-files | grep -q '^redis.service'; then systemctl enable redis; systemctl restart redis; systemctl --no-pager --full status redis; else echo '\''redis service not found (expected redis-server or redis)'\''; exit 1; fi"
+                ]}')}" \
             --query "Command.CommandId" \
             --output text)
 

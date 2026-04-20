@@ -1,4 +1,4 @@
-name: deploy-backend
+name: app-deploy-backend
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
         required: true
 
 concurrency:
-  group: deploy-backend
+  group: app-deploy-backend
   cancel-in-progress: false
 
 jobs:
@@ -22,12 +22,12 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ vars.APP_AWS_REGION }}
 
       - name: Deploy
         run: |
           TAG="${{ inputs.tag || github.ref_name }}"
-          INSTANCE_ID="${{ vars.EC2_INSTANCE_ID }}"
+          INSTANCE_ID="${{ vars.APP_EC2_INSTANCE_ID }}"
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
