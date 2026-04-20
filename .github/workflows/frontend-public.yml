@@ -1,13 +1,14 @@
-name: frontend-build
+name: frontend-public
 
 on:
   push:
-    tags: ["v*"]
+    paths:
+      - "vite/public/**"
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Version"
-        required: true
+
+concurrency:
+  group: frontend-public
+  cancel-in-progress: false
 
 jobs:
   run:
@@ -16,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          ref: ${{ github.sha }}
 
       - name: Credential
         uses: aws-actions/configure-aws-credentials@v4
@@ -40,8 +41,10 @@ jobs:
           VITE_DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           VITE_GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
           S3_BUCKET: ${{ vars.S3_BUCKET_NAME }}
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
           npm ci
           npm run build
           cd ..
           aws s3 sync vite/dist s3://$S3_BUCKET --delete
+          aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*"
