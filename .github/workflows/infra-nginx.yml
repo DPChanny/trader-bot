@@ -18,14 +18,15 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - name: Configure AWS
+      - name: Credential
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Run
+      - name: Prepare
+        id: prepare
         run: |
           TARGET="backend"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -40,6 +41,18 @@ jobs:
             echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID"
             exit 1
           fi
+
+          {
+            echo "target=$TARGET"
+            echo "ref=$REF"
+            echo "instance_ids=$INSTANCE_IDS"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run
+        run: |
+          TARGET="${{ steps.prepare.outputs.target }}"
+          REF="${{ steps.prepare.outputs.ref }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \

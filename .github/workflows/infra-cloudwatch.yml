@@ -22,14 +22,15 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - name: Configure AWS
+      - name: Credential
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Run
+      - name: Prepare
+        id: prepare
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             REF="${{ inputs.tag }}"
@@ -37,26 +38,6 @@ jobs:
           else
             REF="${{ github.sha }}"
             TARGET="all"
-          fi
-
-            if [ "$TARGET" = "bot" ]; then
-              INSTANCE_IDS=$(printf '%s\n%s\n' \
-                "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
-                "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
-            else
-              INSTANCE_IDS=$(printf '%s\n%s\n%s\n' \
-                "${{ vars.NGINX_INSTANCE_ID }}" \
-                "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
-                "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
-            fi
-
-          if [ -z "$INSTANCE_IDS" ]; then
-              if [ "$TARGET" = "bot" ]; then
-                echo "No instance ids provided. Set vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
-              else
-                echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID and/or vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
-              fi
-            exit 1
           fi
 
           case "$TARGET" in
@@ -67,6 +48,38 @@ jobs:
               exit 1
               ;;
           esac
+
+          if [ "$TARGET" = "bot" ]; then
+            INSTANCE_IDS=$(printf '%s\n%s\n' \
+              "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
+              "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
+          else
+            INSTANCE_IDS=$(printf '%s\n%s\n%s\n' \
+              "${{ vars.NGINX_INSTANCE_ID }}" \
+              "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
+              "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
+          fi
+
+          if [ -z "$INSTANCE_IDS" ]; then
+            if [ "$TARGET" = "bot" ]; then
+              echo "No instance ids provided. Set vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
+            else
+              echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID and/or vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
+            fi
+            exit 1
+          fi
+
+          {
+            echo "target=$TARGET"
+            echo "ref=$REF"
+            echo "instance_ids=$INSTANCE_IDS"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run
+        run: |
+          TARGET="${{ steps.prepare.outputs.target }}"
+          REF="${{ steps.prepare.outputs.ref }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do

@@ -22,14 +22,15 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - name: Configure AWS
+      - name: Credential
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Run
+      - name: Prepare
+        id: prepare
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             REF="${{ inputs.tag }}"
@@ -38,6 +39,15 @@ jobs:
             REF="${{ github.sha }}"
             TARGET="all"
           fi
+
+          case "$TARGET" in
+            backend|bot|all)
+              ;;
+            *)
+              echo "Invalid target: $TARGET (expected backend, bot, all)"
+              exit 1
+              ;;
+          esac
 
           if [ "$TARGET" = "bot" ]; then
             INSTANCE_IDS=$(printf '%s\n%s\n' \
@@ -59,14 +69,17 @@ jobs:
             exit 1
           fi
 
-          case "$TARGET" in
-            backend|bot|all)
-              ;;
-            *)
-              echo "Invalid target: $TARGET (expected backend, bot, all)"
-              exit 1
-              ;;
-          esac
+          {
+            echo "target=$TARGET"
+            echo "ref=$REF"
+            echo "instance_ids=$INSTANCE_IDS"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run
+        run: |
+          TARGET="${{ steps.prepare.outputs.target }}"
+          REF="${{ steps.prepare.outputs.ref }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do

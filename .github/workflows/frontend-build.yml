@@ -25,7 +25,7 @@ jobs:
           cache: npm
           cache-dependency-path: node/package-lock.json
 
-      - name: Configure AWS
+      - name: Credential
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

@@ -17,7 +17,7 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - name: Configure AWS
+      - name: Credential
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
