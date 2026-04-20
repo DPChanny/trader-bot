@@ -89,12 +89,9 @@ def _patcher(record: dict[str, Any]) -> None:
         return
 
     extra = dict(record["extra"])
-    event = extra.pop("event", None)
 
-    if isinstance(event, Event):
-        event = dict(event)
-    elif not isinstance(event, dict):
-        event = None
+    event = extra.pop("event", None)
+    event = dict(event) if isinstance(event, Event) else None
 
     source = f"{record['name']}:{record['function']}:{record['line']}"
     timestamp = (
@@ -134,19 +131,17 @@ def _patcher(record: dict[str, Any]) -> None:
 
 class _LoguruHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
+        message = record.getMessage()
+
+        if record.name == "botocore.credentials" and record.levelno <= logging.INFO:
+            return
+
         try:
             level = logger.level(record.levelname).name
-        except ValueError:
+        except Exception:
             level = record.levelno
 
-        frame, depth = logging.currentframe(), 2
-        while frame.f_code.co_filename == logging.__file__:
-            frame = frame.f_back
-            depth += 1
-
-        logger.opt(depth=depth, exception=record.exc_info).log(
-            level, record.getMessage()
-        )
+        logger.log(level, message)
 
 
 def setup_logging(log_dir: str | Path) -> None:
