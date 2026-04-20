@@ -1,14 +1,14 @@
 name: infra-deploy-nginx
 
 on:
+  push:
+    paths:
+      - "infra/nginx/**"
   workflow_dispatch:
     inputs:
       tag:
         description: "Version"
         required: true
-      target:
-        description: "Target(backend, bot, all)"
-        required: false
 
 concurrency:
   group: infra-deploy-nginx
@@ -27,21 +27,11 @@ jobs:
 
       - name: Deploy
         run: |
-          TAG="${{ inputs.tag }}"
-          TARGET="${{ inputs.target || 'all' }}"
-
-          case "$TARGET" in
-            backend|bot|all)
-              ;;
-            *)
-              echo "Invalid target: $TARGET (expected backend, bot, all)"
-              exit 1
-              ;;
-          esac
-
-          if [ "$TARGET" = "bot" ]; then
-            echo "[infra-deploy-nginx] target=bot has no nginx dependency. Skipping."
-            exit 0
+          TARGET="backend"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            REF="${{ inputs.tag }}"
+          else
+            REF="${{ github.sha }}"
           fi
 
           INSTANCE_IDS=$(printf '%s\n' "${{ vars.NGINX_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
@@ -52,13 +42,12 @@ jobs:
           fi
 
           COMMANDS_JSON=$(jq -n \
-            --arg tag "$TAG" \
+            --arg ref "$REF" \
             --arg appRoot "/var/www/trader-bot" \
             '{commands: [
               "set -e",
               ("cd " + $appRoot),
-              "git fetch --all --tags origin",
-              "if git rev-parse --verify --quiet refs/tags/" + $tag + " >/dev/null; then git checkout --detach " + $tag + "; else git checkout --detach origin/" + $tag + "; fi",
+              ("git fetch --all --tags origin && git checkout --detach " + $ref),
               "install -d /etc/nginx/sites-available /etc/nginx/sites-enabled",
               "install -m 644 infra/nginx/sites-avaliable/trader-bot.conf /etc/nginx/sites-available/trader-bot.conf",
               "ln -sfn /etc/nginx/sites-available/trader-bot.conf /etc/nginx/sites-enabled/trader-bot.conf",

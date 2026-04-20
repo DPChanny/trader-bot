@@ -1,6 +1,9 @@
 name: infra-deploy-cloudwatch
 
 on:
+  push:
+    paths:
+      - "infra/cloudwatch/**"
   workflow_dispatch:
     inputs:
       tag:
@@ -9,6 +12,7 @@ on:
       target:
         description: "Target(backend, bot, all)"
         required: false
+        default: "all"
 
 concurrency:
   group: infra-deploy-cloudwatch
@@ -27,8 +31,13 @@ jobs:
 
       - name: Deploy
         run: |
-          TAG="${{ inputs.tag }}"
-          TARGET="${{ inputs.target || 'all' }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            REF="${{ inputs.tag }}"
+            TARGET="${{ inputs.target || 'all' }}"
+          else
+            REF="${{ github.sha }}"
+            TARGET="all"
+          fi
           INSTANCE_IDS=$(printf '%s\n%s\n%s\n' \
             "${{ vars.NGINX_INSTANCE_ID }}" \
             "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
@@ -52,14 +61,13 @@ jobs:
           for INSTANCE_ID in $INSTANCE_IDS; do
             echo "[infra-deploy-cloudwatch] instance=$INSTANCE_ID target=$TARGET"
             COMMANDS_JSON=$(jq -n \
-              --arg tag "$TAG" \
+              --arg ref "$REF" \
               --arg appRoot "/var/www/trader-bot" \
               --arg target "$TARGET" \
               '{commands: [
                 "set -e",
                 ("cd " + $appRoot),
-                "git fetch --all --tags origin",
-                "if git rev-parse --verify --quiet refs/tags/" + $tag + " >/dev/null; then git checkout --detach " + $tag + "; else git checkout --detach origin/" + $tag + "; fi",
+                ("git fetch --all --tags origin && git checkout --detach " + $ref),
                 "install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
                 "install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
                 "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json; fi",

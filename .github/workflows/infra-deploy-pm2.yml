@@ -1,6 +1,9 @@
 name: infra-deploy-pm2
 
 on:
+  push:
+    paths:
+      - "infra/pm2/**"
   workflow_dispatch:
     inputs:
       tag:
@@ -9,6 +12,7 @@ on:
       target:
         description: "Target(backend, bot, all)"
         required: false
+        default: "all"
 
 concurrency:
   group: infra-deploy-pm2
@@ -27,9 +31,13 @@ jobs:
 
       - name: Deploy
         run: |
-          TAG="${{ inputs.tag }}"
-
-          TARGET="${{ inputs.target || 'all' }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            REF="${{ inputs.tag }}"
+            TARGET="${{ inputs.target || 'all' }}"
+          else
+            REF="${{ github.sha }}"
+            TARGET="all"
+          fi
           INSTANCE_IDS=$(printf '%s\n%s\n%s\n' \
             "${{ vars.NGINX_INSTANCE_ID }}" \
             "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
@@ -53,14 +61,13 @@ jobs:
           for INSTANCE_ID in $INSTANCE_IDS; do
             echo "[infra-deploy-pm2] instance=$INSTANCE_ID target=$TARGET"
             COMMANDS_JSON=$(jq -n \
-              --arg tag "$TAG" \
+              --arg ref "$REF" \
               --arg appRoot "/var/www/trader-bot" \
               --arg target "$TARGET" \
               '{commands: [
                 "set -e",
                 ("cd " + $appRoot),
-                "git fetch --all --tags origin",
-                "if git rev-parse --verify --quiet refs/tags/" + $tag + " >/dev/null; then git checkout --detach " + $tag + "; else git checkout --detach origin/" + $tag + "; fi",
+                ("git fetch --all --tags origin && git checkout --detach " + $ref),
                 "install -d /var/www/trader-bot/python/aws",
                 "ln -sfn /var/www/trader-bot/infra/pm2/ecosystem.config.mjs /var/www/trader-bot/python/aws/ecosystem.config.mjs",
                 "cat <<'\''EOF'\'' > /tmp/trader-bot-infra-pm2.sh",

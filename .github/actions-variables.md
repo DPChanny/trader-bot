@@ -65,4 +65,9 @@ Used by:
 
 - `infra-deploy-cloudwatch` and `infra-deploy-pm2` use unified `workflow_dispatch` input `target` (`backend`, `bot`, `all`).
 - Both workflows auto-compose target instance ids from `NGINX_INSTANCE_ID`, `CLOUDWATCH_INSTANCE_ID`, and `PM2_INSTANCE_ID` (deduplicated).
-- `infra-deploy-nginx` also uses `target` (`backend`, `bot`, `all`), and `target=bot` is a no-op because bot has no nginx dependency.
+- `infra-deploy-nginx` is fixed to backend behavior (no `target` input), because bot has no nginx dependency.
+- Infra workflows auto-run on path changes:
+  - `infra-deploy-nginx`: `infra/nginx/**`
+  - `infra-deploy-cloudwatch`: `infra/cloudwatch/**`
+  - `infra-deploy-pm2`: `infra/pm2/**`
+- For auto-runs, cloudwatch and pm2 execute with `target=all` by default.
