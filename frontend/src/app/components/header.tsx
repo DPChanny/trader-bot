@@ -10,12 +10,14 @@ type HeaderGuestProps = {
   user?: undefined;
   onLogin: () => void;
   onLogout?: never;
+  version?: string;
 };
 
 type HeaderUserProps = {
   user: UserDetailDTO;
   onLogout: () => void;
   onLogin?: never;
+  version?: string;
 };
 
 type HeaderProps = HeaderGuestProps | HeaderUserProps;
@@ -25,8 +27,12 @@ export function Header(props: HeaderProps) {
     <header className={styles.header}>
       <Row align="center" justify="end" className={styles.headerContent}>
         <Link href="/" className={styles.headerLogo}>
-          <img src="/icon.jpg" alt="Trader Bot" className={styles.logoIcon} />
-          <Title>Trader Bot</Title>
+          <img
+            src="/favicon.png"
+            alt="Trader Bot"
+            className={styles.logoIcon}
+          />
+          <Title>Trader Bot{props.version ? ` - ${props.version}` : ""}</Title>
         </Link>
 
         {props.user ? (

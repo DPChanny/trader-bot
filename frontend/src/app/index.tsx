@@ -26,6 +26,7 @@ import {
 import { useMyUser } from "@hooks/user";
 import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
+import { loadPublicManifest } from "@utils/public";
 import "@styles/app.css";
 
 function HomePageRoute({}: RoutableProps) {
@@ -115,6 +116,31 @@ function App() {
   const login = useLogin();
   const logout = useLogout();
   const [globalError, setGlobalError] = useState<AppError | null>(null);
+  const [version, setVersion] = useState("");
+
+  useEffect(() => {
+    let isActive = true;
+
+    loadPublicManifest().then((manifest) => {
+      if (!isActive) {
+        return;
+      }
+
+      const latestVersion = manifest.files
+        .filter(
+          (filePath) =>
+            filePath.startsWith("/patches/notes/") && filePath.endsWith(".md"),
+        )
+        .map((filePath) => filePath.slice("/patches/notes/".length, -3))
+        .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0];
+
+      setVersion(latestVersion ?? "");
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   useEffect(() => {
     const handleWindowError = (event: ErrorEvent) => {
@@ -164,9 +190,9 @@ function App() {
         </Modal>
       )}
       {myUser.data ? (
-        <Header user={myUser.data} onLogout={handleLogout} />
+        <Header user={myUser.data} onLogout={handleLogout} version={version} />
       ) : (
-        <Header onLogin={login} />
+        <Header onLogin={login} version={version} />
       )}
       <div className="app-body">
         {myUser.data && <SideMenu />}

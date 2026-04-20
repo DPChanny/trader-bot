@@ -1,5 +1,4 @@
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
-import { useEffect, useState } from "preact/hooks";
 import { Link } from "@components/atoms/link";
 import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
@@ -12,37 +11,11 @@ import {
 import { Footer } from "@components/footer";
 import { useLogin } from "@hooks/auth";
 import { useMyUser } from "@hooks/user";
-import { loadPublicManifest } from "@utils/public";
 import { BOT_INVITE_URL } from "@utils/env";
 
 export function HomePage() {
-  const [version, setVersion] = useState("");
   const login = useLogin();
   const myUser = useMyUser();
-
-  useEffect(() => {
-    let isActive = true;
-
-    loadPublicManifest().then((manifest) => {
-      if (!isActive) {
-        return;
-      }
-
-      const latestVersion = manifest.files
-        .filter(
-          (filePath) =>
-            filePath.startsWith("/patches/notes/") && filePath.endsWith(".md"),
-        )
-        .map((filePath) => filePath.slice("/patches/notes/".length, -3))
-        .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0];
-
-      setVersion(latestVersion ?? "");
-    });
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
 
   const onboardingSections = [
     {
@@ -56,7 +29,8 @@ export function HomePage() {
     },
     {
       title: "복잡한 등록 없이",
-      emphasis: "경매 구성을 매번 처음부터 다시 적지 않아도 됩니다.",
+      emphasis:
+        "Trader Bot을 서버에 초대하면 서버가 자동으로 서비스에 등록됩니다.",
     },
   ];
 
@@ -112,7 +86,9 @@ export function HomePage() {
       <Column align="center" fill>
         <PrimarySection width="page" minSize>
           <Scroll>
-            <Title>Pre Release{version && ` - ${version}`}</Title>
+            <SecondarySection>
+              <img src="/banner.png" alt="Trader Bot" />
+            </SecondarySection>
             <SecondarySection>
               <Title>내전 팀원 경매를 Trader Bot으로</Title>
               {onboardingSections.map((section) => (
