@@ -3,12 +3,12 @@ name: infra-deploy-nginx
 on:
   workflow_dispatch:
     inputs:
-      instance_ids:
-        description: "Target EC2 instance ids (comma or space separated)"
-        required: false
       tag:
-        description: "Tag or branch to apply (default: master)"
+        description: "Version"
         required: true
+      target:
+        description: "Target(backend, bot, all)"
+        required: false
 
 concurrency:
   group: infra-deploy-nginx
@@ -28,11 +28,26 @@ jobs:
       - name: Deploy
         run: |
           TAG="${{ inputs.tag }}"
-          INSTANCE_IDS_RAW="${{ inputs.instance_ids || vars.NGINX_INSTANCE_ID }}"
-          INSTANCE_IDS=$(echo "$INSTANCE_IDS_RAW" | tr ',\n' '  ' | xargs)
+          TARGET="${{ inputs.target || 'all' }}"
+
+          case "$TARGET" in
+            backend|bot|all)
+              ;;
+            *)
+              echo "Invalid target: $TARGET (expected backend, bot, all)"
+              exit 1
+              ;;
+          esac
+
+          if [ "$TARGET" = "bot" ]; then
+            echo "[infra-deploy-nginx] target=bot has no nginx dependency. Skipping."
+            exit 0
+          fi
+
+          INSTANCE_IDS=$(printf '%s\n' "${{ vars.NGINX_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
 
           if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids provided. Set input instance_ids or vars.NGINX_INSTANCE_ID"
+            echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID"
             exit 1
           fi
 
@@ -53,7 +68,7 @@ jobs:
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
-            echo "[infra-deploy-nginx] instance=$INSTANCE_ID"
+            echo "[infra-deploy-nginx] instance=$INSTANCE_ID target=$TARGET"
             COMMAND_ID=$(aws ssm send-command \
               --instance-ids "$INSTANCE_ID" \
               --document-name "AWS-RunShellScript" \

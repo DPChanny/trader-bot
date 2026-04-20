@@ -48,7 +48,7 @@ Used by:
 
 - Backend and bot workflows depend on infra instance targets (`NGINX_INSTANCE_ID`, `CLOUDWATCH_INSTANCE_ID`, `PM2_INSTANCE_ID`).
 - `python-deploy-env`, `python-deploy-backend`, and `python-deploy-bot` deduplicate these instance ids and apply once per unique target.
-- Backend and bot workflows both use `python-deploy-runtime-${PM2_INSTANCE_ID}` concurrency group.
+- Workflow concurrency groups are aligned to workflow file names (for example: `python-deploy-env`, `python-deploy-backend`, `python-deploy-bot`).
 
 ## Setup Checklist
 
@@ -60,3 +60,9 @@ Used by:
    - `python-deploy-env`
    - `frontend-deploy-build`
    - `infra-deploy-nginx`
+
+## Infra Dispatch Rules
+
+- `infra-deploy-cloudwatch` and `infra-deploy-pm2` use unified `workflow_dispatch` input `target` (`backend`, `bot`, `all`).
+- Both workflows auto-compose target instance ids from `NGINX_INSTANCE_ID`, `CLOUDWATCH_INSTANCE_ID`, and `PM2_INSTANCE_ID` (deduplicated).
+- `infra-deploy-nginx` also uses `target` (`backend`, `bot`, `all`), and `target=bot` is a no-op because bot has no nginx dependency.

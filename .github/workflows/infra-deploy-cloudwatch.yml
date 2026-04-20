@@ -3,14 +3,11 @@ name: infra-deploy-cloudwatch
 on:
   workflow_dispatch:
     inputs:
-      instance_ids:
-        description: "Target EC2 instance ids (comma or space separated)"
-        required: false
       tag:
-        description: "Tag or branch to apply (default: master)"
+        description: "Version"
         required: true
-      profile:
-        description: "CloudWatch profile to apply: backend, bot, all"
+      target:
+        description: "Target(backend, bot, all)"
         required: false
 
 concurrency:
@@ -31,31 +28,33 @@ jobs:
       - name: Deploy
         run: |
           TAG="${{ inputs.tag }}"
-          PROFILE="${{ inputs.profile || 'all' }}"
-          INSTANCE_IDS_RAW="${{ inputs.instance_ids || vars.CLOUDWATCH_INSTANCE_ID }}"
-          INSTANCE_IDS=$(echo "$INSTANCE_IDS_RAW" | tr ',\n' '  ' | xargs)
+          TARGET="${{ inputs.target || 'all' }}"
+          INSTANCE_IDS=$(printf '%s\n%s\n%s\n' \
+            "${{ vars.NGINX_INSTANCE_ID }}" \
+            "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
+            "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
 
           if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids provided. Set input instance_ids or vars.CLOUDWATCH_INSTANCE_ID"
+            echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID and/or vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
             exit 1
           fi
 
-          case "$PROFILE" in
+          case "$TARGET" in
             backend|bot|all)
               ;;
             *)
-              echo "Invalid profile: $PROFILE (expected backend, bot, all)"
+              echo "Invalid target: $TARGET (expected backend, bot, all)"
               exit 1
               ;;
           esac
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
-            echo "[infra-deploy-cloudwatch] instance=$INSTANCE_ID profile=$PROFILE"
+            echo "[infra-deploy-cloudwatch] instance=$INSTANCE_ID target=$TARGET"
             COMMANDS_JSON=$(jq -n \
               --arg tag "$TAG" \
               --arg appRoot "/var/www/trader-bot" \
-              --arg profile "$PROFILE" \
+              --arg target "$TARGET" \
               '{commands: [
                 "set -e",
                 ("cd " + $appRoot),
@@ -63,11 +62,11 @@ jobs:
                 "if git rev-parse --verify --quiet refs/tags/" + $tag + " >/dev/null; then git checkout --detach " + $tag + "; else git checkout --detach origin/" + $tag + "; fi",
                 "install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
                 "install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
-                "if [ \"" + $profile + "\" = \"backend\" ] || [ \"" + $profile + "\" = \"all\" ]; then install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json; fi",
-                "if [ \"" + $profile + "\" = \"bot\" ] || [ \"" + $profile + "\" = \"all\" ]; then install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json; fi",
+                "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json; fi",
+                "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json; fi",
                 "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json -s",
-                "if [ \"" + $profile + "\" = \"backend\" ] || [ \"" + $profile + "\" = \"all\" ]; then /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json; fi",
-                "if [ \"" + $profile + "\" = \"bot\" ] || [ \"" + $profile + "\" = \"all\" ]; then /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json; fi"
+                "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json; fi",
+                "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json; fi"
               ]}')
 
             COMMAND_ID=$(aws ssm send-command \

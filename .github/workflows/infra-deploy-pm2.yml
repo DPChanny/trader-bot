@@ -3,14 +3,11 @@ name: infra-deploy-pm2
 on:
   workflow_dispatch:
     inputs:
-      instance_ids:
-        description: "Target EC2 instance ids (comma or space separated)"
-        required: false
       tag:
-        description: "Tag or branch to apply (default: master)"
+        description: "Version"
         required: true
-      pm2_target:
-        description: "PM2 target: backend, bot, all"
+      target:
+        description: "Target(backend, bot, all)"
         required: false
 
 concurrency:
@@ -32,31 +29,33 @@ jobs:
         run: |
           TAG="${{ inputs.tag }}"
 
-          PM2_TARGET="${{ inputs.pm2_target || 'all' }}"
-          INSTANCE_IDS_RAW="${{ inputs.instance_ids || vars.PM2_INSTANCE_ID }}"
-          INSTANCE_IDS=$(echo "$INSTANCE_IDS_RAW" | tr ',\n' '  ' | xargs)
+          TARGET="${{ inputs.target || 'all' }}"
+          INSTANCE_IDS=$(printf '%s\n%s\n%s\n' \
+            "${{ vars.NGINX_INSTANCE_ID }}" \
+            "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
+            "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
 
           if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids provided. Set input instance_ids or vars.PM2_INSTANCE_ID"
+            echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID and/or vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
             exit 1
           fi
 
-          case "$PM2_TARGET" in
+          case "$TARGET" in
             backend|bot|all)
               ;;
             *)
-              echo "Invalid pm2_target: $PM2_TARGET (expected backend, bot, all)"
+              echo "Invalid target: $TARGET (expected backend, bot, all)"
               exit 1
               ;;
           esac
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
-            echo "[infra-deploy-pm2] instance=$INSTANCE_ID target=$PM2_TARGET"
+            echo "[infra-deploy-pm2] instance=$INSTANCE_ID target=$TARGET"
             COMMANDS_JSON=$(jq -n \
               --arg tag "$TAG" \
               --arg appRoot "/var/www/trader-bot" \
-              --arg target "$PM2_TARGET" \
+              --arg target "$TARGET" \
               '{commands: [
                 "set -e",
                 ("cd " + $appRoot),
