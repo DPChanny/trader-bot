@@ -3,6 +3,7 @@ import { Link } from "@components/atoms/link";
 import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
+import { useMemo } from "preact/hooks";
 import {
   PrimarySection,
   SecondarySection,
@@ -10,12 +11,19 @@ import {
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 import { useLogin } from "@hooks/auth";
+import { useManifest } from "@hooks/public";
 import { useMyUser } from "@hooks/user";
+import { getAnnouncements } from "@utils/marked";
 import { BOT_INVITE_URL } from "@utils/env";
 
 export function HomePage() {
   const login = useLogin();
   const myUser = useMyUser();
+  const manifest = useManifest();
+  const announcementNames = useMemo(
+    () => getAnnouncements(manifest.data?.files ?? []),
+    [manifest.data?.files],
+  );
 
   const onboardingSections = [
     {
@@ -51,36 +59,6 @@ export function HomePage() {
     },
   ];
 
-  const warnings = [
-    {
-      emphasis:
-        "Trader Bot이 서버에 초대되어야 해당 서버가 서비스에 등록됩니다.",
-    },
-    {
-      emphasis: "소유자 역할은 Trader Bot이 자동으로 관리합니다.",
-    },
-    {
-      emphasis:
-        "서버 관리자 권한이 있는 멤버에게는 관리자 역할이 자동 부여됩니다.",
-      description:
-        "서버 관리자 권한을 잃으면 편집자를 제외한 멤버에게 열람자 역할이 자동 부여됩니다.",
-    },
-    {
-      emphasis: "일반 멤버에게는 열람자 역할이 자동 부여됩니다.",
-    },
-    {
-      emphasis:
-        "소유자 역할을 제외한 역할은 관리자 역할부터 부여할 수 있습니다.",
-    },
-    {
-      emphasis:
-        "편집자 역할부터 서버 멤버 및 프리셋 멤버 정보를 수정할 수 있습니다.",
-    },
-    {
-      emphasis: "관리자 역할부터 프리셋을 구성할 수 있습니다.",
-    },
-  ];
-
   return (
     <Page>
       <Column align="center" fill>
@@ -88,22 +66,7 @@ export function HomePage() {
           <Scroll>
             <SecondarySection>
               <img src="/banner.png" alt="Trader Bot" />
-            </SecondarySection>
-            <SecondarySection>
-              <Title>Discord 서버 내전 팀원 경매를</Title>
-              {onboardingSections.map((section) => (
-                <TertiarySection key={section.title}>
-                  <Title>{section.title}</Title>
-                  <Card>
-                    <Column gap="md">
-                      <Text variantWeight="semibold">{section.emphasis}</Text>
-                    </Column>
-                  </Card>
-                </TertiarySection>
-              ))}
-              <Title>간단하게 운영하세요!</Title>
-            </SecondarySection>
-
+            </SecondarySection>{" "}
             <SecondarySection>
               <Row>
                 {myUser.data ? null : (
@@ -130,7 +93,20 @@ export function HomePage() {
                 </Fill>
               </Row>
             </SecondarySection>
-
+            <SecondarySection>
+              <Title>Discord 서버 내전 팀원 경매를</Title>
+              {onboardingSections.map((section) => (
+                <TertiarySection key={section.title}>
+                  <Title>{section.title}</Title>
+                  <Card>
+                    <Column gap="md">
+                      <Text variantWeight="semibold">{section.emphasis}</Text>
+                    </Column>
+                  </Card>
+                </TertiarySection>
+              ))}
+              <Title>간단하게 운영하세요!</Title>
+            </SecondarySection>
             <SecondarySection gap="lg">
               <Row>
                 {cases.map((usageCase) => (
@@ -147,17 +123,28 @@ export function HomePage() {
                 ))}
               </Row>
             </SecondarySection>
-
             <SecondarySection gap="lg">
-              <Title>주의 사항</Title>
-              {warnings.map((warning) => (
-                <Card key={warning.emphasis} variantColor="red">
-                  <Column gap="md">
-                    <Text variantWeight="semibold">{warning.emphasis}</Text>
-                    {warning.description && <Text>{warning.description}</Text>}
-                  </Column>
+              <Title>공지</Title>
+              {announcementNames.length > 0 ? (
+                <TertiarySection fill>
+                  <Scroll axis="y">
+                    {announcementNames.map((announcementName) => (
+                      <Link
+                        key={announcementName}
+                        href={`/announcement?name=${encodeURIComponent(announcementName)}`}
+                      >
+                        <Card>
+                          <Text>{announcementName}</Text>
+                        </Card>
+                      </Link>
+                    ))}
+                  </Scroll>
+                </TertiarySection>
+              ) : (
+                <Card>
+                  <Text>등록된 공지가 없습니다.</Text>
                 </Card>
-              ))}
+              )}
             </SecondarySection>
           </Scroll>
         </PrimarySection>

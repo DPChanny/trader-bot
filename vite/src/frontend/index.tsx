@@ -27,7 +27,7 @@ import { useManifest } from "@hooks/public";
 import { useMyUser } from "@hooks/user";
 import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
-import { getNotes } from "@utils/patch";
+import { getNotes } from "@utils/marked";
 import "@styles/app.css";
 
 function HomePageRoute({}: RoutableProps) {
@@ -38,9 +38,24 @@ function PatchPageRoute({}: RoutableProps) {
   const [router] = useRouter();
   const url = new URL(router.url, window.location.origin);
   const version =
-    url.searchParams.get("version")?.replace(/^\/+|\/+$/g, "") ?? "";
+    url.searchParams
+      .get("version")
+      ?.replace(/^\/+|\/+$/g, "")
+      .trim() ?? "";
 
   return <PatchPage version={version} />;
+}
+
+function AnnouncementRoute({}: RoutableProps) {
+  const [router] = useRouter();
+  const url = new URL(router.url, window.location.origin);
+  const name =
+    url.searchParams
+      .get("name")
+      ?.replace(/^\/+|\/+$/g, "")
+      .trim() ?? "";
+
+  return <MarkedPage path={`/announcements/${name}.md`} />;
 }
 
 function TermsOfServiceRoute({}: RoutableProps) {
@@ -179,6 +194,7 @@ function App() {
             <LoginCallbackRoute path="/auth/login/callback" />
             <HomePageRoute path="/" />
             <PatchPageRoute path="/patch" />
+            <AnnouncementRoute path="/announcement" />
             <TermsOfServiceRoute path="/terms-of-service" />
             <PrivacyPolicyRoute path="/privacy-policy" />
             <PresetPageRoute path="/guild/:guildId/preset/:presetId" />

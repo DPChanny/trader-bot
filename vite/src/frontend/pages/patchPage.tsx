@@ -11,7 +11,7 @@ import {
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 import { useManifest } from "@hooks/public";
-import { getNotes, getPlans } from "@utils/patch";
+import { getNotes, getPlans } from "@utils/marked";
 
 export type PatchPageProps = {
   version: string;
