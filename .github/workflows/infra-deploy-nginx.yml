@@ -8,7 +8,7 @@ on:
         required: false
       tag:
         description: "Tag or branch to apply (default: master)"
-        required: false
+        required: true
 
 concurrency:
   group: infra-deploy-nginx
@@ -28,9 +28,6 @@ jobs:
       - name: Deploy
         run: |
           TAG="${{ inputs.tag }}"
-          if [ -z "$TAG" ]; then
-            TAG="master"
-          fi
           INSTANCE_IDS_RAW="${{ inputs.instance_ids || vars.NGINX_INSTANCE_ID }}"
           INSTANCE_IDS=$(echo "$INSTANCE_IDS_RAW" | tr ',\n' '  ' | xargs)
 

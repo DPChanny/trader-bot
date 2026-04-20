@@ -8,7 +8,7 @@ on:
         required: false
       tag:
         description: "Tag or branch to apply (default: master)"
-        required: false
+        required: true
       pm2_target:
         description: "PM2 target: backend, bot, all"
         required: false
@@ -31,9 +31,6 @@ jobs:
       - name: Deploy
         run: |
           TAG="${{ inputs.tag }}"
-          if [ -z "$TAG" ]; then
-            TAG="master"
-          fi
 
           PM2_TARGET="${{ inputs.pm2_target || 'all' }}"
           INSTANCE_IDS_RAW="${{ inputs.instance_ids || vars.PM2_INSTANCE_ID }}"

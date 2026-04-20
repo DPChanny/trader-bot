@@ -5,6 +5,10 @@ on:
     workflows: ["frontend-deploy-build"]
     types: [completed]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to deploy"
+        required: true
 
 concurrency:
   group: frontend-deploy-cdn
