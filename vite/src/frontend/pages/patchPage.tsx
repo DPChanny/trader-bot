@@ -1,5 +1,6 @@
 import { MarkedPage } from "./markedPage";
-import { useMemo } from "preact/hooks";
+import { useEffect, useMemo } from "preact/hooks";
+import { route } from "preact-router";
 import { Link } from "@components/atoms/link";
 import { Column, Fill, Page, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
@@ -22,23 +23,62 @@ export function PatchPage({ version }: PatchPageProps) {
   const files = manifest.data?.files ?? [];
   const noteVersions = useMemo(() => getNotes(files), [files]);
   const planVersions = useMemo(() => getPlans(files), [files]);
-  version = version.trim();
+  const normalizedVersion = version.trim();
 
   const noteVersionSet = new Set(noteVersions);
   const planVersionSet = new Set(planVersions);
+  const isInvalidVersion =
+    normalizedVersion.includes("/") || normalizedVersion.includes("\\");
+
+  useEffect(() => {
+    if (!normalizedVersion) {
+      return;
+    }
+
+    if (isInvalidVersion) {
+      route("/patch", true);
+      return;
+    }
+
+    if (manifest.isLoading) {
+      return;
+    }
+
+    if (
+      !noteVersionSet.has(normalizedVersion) &&
+      !planVersionSet.has(normalizedVersion)
+    ) {
+      route("/patch", true);
+    }
+  }, [
+    isInvalidVersion,
+    manifest.isLoading,
+    normalizedVersion,
+    noteVersionSet,
+    planVersionSet,
+  ]);
 
   let markedPath: string | null = null;
-  if (version) {
-    const notePath = `/patches/notes/${version}.md`;
-    markedPath = noteVersionSet.has(version) ? notePath : null;
+  if (!isInvalidVersion && normalizedVersion) {
+    const notePath = `/patches/notes/${normalizedVersion}.md`;
+    markedPath = noteVersionSet.has(normalizedVersion) ? notePath : null;
     if (!markedPath) {
-      const planPath = `/patches/plans/${version}.md`;
-      markedPath = planVersionSet.has(version) ? planPath : null;
+      const planPath = `/patches/plans/${normalizedVersion}.md`;
+      markedPath = planVersionSet.has(normalizedVersion) ? planPath : null;
     }
   }
 
   if (markedPath) {
     return <MarkedPage path={markedPath} />;
+  }
+
+  if (normalizedVersion && (isInvalidVersion || !manifest.isLoading)) {
+    const exists =
+      noteVersionSet.has(normalizedVersion) ||
+      planVersionSet.has(normalizedVersion);
+    if (!exists) {
+      return null;
+    }
   }
 
   const sections = [

@@ -9,6 +9,7 @@ import { PresetPage } from "@pages/presetPage/presetPage";
 import { HomePage } from "@pages/homePage";
 import { AuctionPage } from "@pages/auctionPage/auctionPage";
 import { PatchPage } from "@pages/patchPage";
+import { AnnouncementPage } from "@pages/announcementPage";
 import { MarkedPage } from "@pages/markedPage";
 import { Header } from "@components/header";
 import { SideMenu } from "./sideMenu/sideMenu";
@@ -55,7 +56,7 @@ function AnnouncementRoute({}: RoutableProps) {
       ?.replace(/^\/+|\/+$/g, "")
       .trim() ?? "";
 
-  return <MarkedPage path={`/announcements/${name}.md`} />;
+  return <AnnouncementPage name={name} />;
 }
 
 function TermsOfServiceRoute({}: RoutableProps) {
