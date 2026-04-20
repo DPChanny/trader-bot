@@ -90,16 +90,14 @@ def _patcher(record: dict[str, Any]) -> None:
     context_payload = _event_context.get()
     if isinstance(context_payload, dict) and context_payload:
         if event is None:
-            event = {"context": dict(context_payload)}
-        else:
-            context = event.get("context")
-            if isinstance(context, dict):
-                for key, value in context_payload.items():
-                    context.setdefault(key, value)
-            elif context is None:
-                event["context"] = dict(context_payload)
-            else:
-                event["context"] = {"base": context, **context_payload}
+            event = {}
+
+        context = event.get("context")
+        if not isinstance(context, dict):
+            context = {}
+            event["context"] = context
+
+        context.update(context_payload)
 
     source = f"{record['name']}:{record['function']}:{record['line']}"
     timestamp = (
@@ -216,33 +214,22 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             if request.client is not None
             else None
         )
-        token = _event_context.set(
-            {
-                "http": {
-                    "request_id": request_id,
-                    "method": request.method,
-                    "path": request.url.path,
-                }
-            }
-        )
+        token = _event_context.set({"http": {"request_id": request_id}})
         response: Response | None = None
         try:
             response = await call_next(request)
             response.headers["X-Request-ID"] = request_id
             return response
         finally:
-            context_payload = _event_context.get() or {}
-            http = context_payload.get("http", {})
             latency_ms = round((perf_counter() - started_at) * 1000, 2)
             logger.bind(
-                type="http_router",
+                type="http_middleware",
                 event=Event(
                     detail={
                         "http": {
-                            "request_id": http.get("request_id"),
-                            "method": http.get("method"),
-                            "path": http.get("path"),
                             "query": request.url.query,
+                            "method": request.method,
+                            "path": request.url.path,
                             "status_code": response.status_code if response else 500,
                             "latency_ms": latency_ms,
                             "client_ip": client_ip,
