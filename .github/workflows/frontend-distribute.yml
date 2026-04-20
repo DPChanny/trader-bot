@@ -1,13 +1,16 @@
-name: frontend-public
+name: frontend-distribute
 
 on:
   push:
-    paths:
-      - "vite/public/**"
+    tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version"
+        required: true
 
 concurrency:
-  group: frontend
+  group: frontend-distribute
   cancel-in-progress: false
 
 jobs:
@@ -17,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ inputs.tag || github.ref }}
 
       - name: Credential
         uses: aws-actions/configure-aws-credentials@v4
@@ -33,6 +36,25 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: vite/package-lock.json
+
+      - name: Validate
+        env:
+          VITE_API_ORIGIN: https://${{ vars.DOMAIN }}
+          VITE_DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
+          VITE_GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
+          S3_BUCKET: ${{ vars.S3_BUCKET_NAME }}
+        run: |
+          MISSING=0
+          for VAR in VITE_API_ORIGIN VITE_DISCORD_CLIENT_ID VITE_GUILD_INVITE_URL S3_BUCKET; do
+            if [ -z "${!VAR}" ]; then
+              echo "Missing required variable: $VAR"
+              MISSING=1
+            fi
+          done
+
+          if [ "$MISSING" -ne 0 ]; then
+            exit 1
+          fi
 
       - name: Run
         working-directory: vite

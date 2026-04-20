@@ -40,11 +40,6 @@ jobs:
             "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
             "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
 
-          if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids provided. Set vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
-            exit 1
-          fi
-
           ENV="$(printf '%s\n' \
             "DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN" \
             "DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID" \
@@ -61,6 +56,35 @@ jobs:
             printf '%s\n' "$ENV"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
+
+      - name: Validate
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
+          APP_ORIGIN: https://${{ vars.DOMAIN }}
+          API_ORIGIN: https://${{ vars.DOMAIN }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          RDS_INSTANCE_IDENTIFIER: ${{ vars.RDS_INSTANCE_ID }}
+          RDS_REGION: ${{ vars.AWS_REGION }}
+        run: |
+          MISSING=0
+          for VAR in DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET APP_ORIGIN API_ORIGIN JWT_SECRET RDS_INSTANCE_IDENTIFIER RDS_REGION; do
+            if [ -z "${!VAR}" ]; then
+              echo "Missing required variable or secret: $VAR"
+              MISSING=1
+            fi
+          done
+
+          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
+          if [ -z "$INSTANCE_IDS" ]; then
+            echo "No instance ids provided. Set vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
+            MISSING=1
+          fi
+
+          if [ "$MISSING" -ne 0 ]; then
+            exit 1
+          fi
 
       - name: Run
         run: |

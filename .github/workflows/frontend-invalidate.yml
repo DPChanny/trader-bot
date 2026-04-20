@@ -1,8 +1,8 @@
-name: frontend-cdn
+name: frontend-invalidate
 
 on:
   workflow_run:
-    workflows: ["frontend-build", "frontend-public"]
+    workflows: ["frontend-distribute", "frontend-public-distribute"]
     types: [completed]
   workflow_dispatch:
     inputs:
@@ -11,7 +11,7 @@ on:
         required: true
 
 concurrency:
-  group: frontend-cdn
+  group: frontend-invalidate
   cancel-in-progress: true
 
 jobs:
@@ -29,7 +29,18 @@ jobs:
       - name: Prepare
         id: prepare
         run: |
-          echo "distribution_id=${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" >> "$GITHUB_OUTPUT"
+          DISTRIBUTION_ID="${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}"
+
+          echo "distribution_id=$DISTRIBUTION_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Validate
+        run: |
+          DISTRIBUTION_ID="${{ steps.prepare.outputs.distribution_id }}"
+
+          if [ -z "$DISTRIBUTION_ID" ]; then
+            echo "Missing required variable: CLOUDFRONT_DISTRIBUTION_ID"
+            exit 1
+          fi
 
       - name: Run
         run: |
