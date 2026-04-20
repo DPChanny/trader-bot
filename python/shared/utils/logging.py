@@ -210,12 +210,6 @@ def setup_logging(log_dir: str | Path) -> None:
         log.handlers = []
         log.propagate = True
 
-    logging.getLogger("uvicorn.access").propagate = False
-    logging.getLogger("botocore.credentials").setLevel(logging.WARNING)
-    logging.getLogger("botocore").setLevel(logging.WARNING)
-    logging.getLogger("boto3").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
