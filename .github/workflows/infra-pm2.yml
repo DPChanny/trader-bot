@@ -99,7 +99,7 @@ jobs:
             '{commands: [
               "set -e",
               ("cd " + $repo),
-              ("git fetch --all --tags origin && git checkout --detach " + $ref),
+              ("git fetch --all --tags && git checkout --detach " + $ref),
               "install -d /var/www/trader-bot/python/aws",
               "ln -sfn /var/www/trader-bot/infra/pm2/ecosystem.config.mjs /var/www/trader-bot/python/aws/ecosystem.config.mjs",
               "cat <<'\''EOF'\'' > /tmp/infra-pm2.sh",

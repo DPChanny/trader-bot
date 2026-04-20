@@ -103,7 +103,7 @@ jobs:
               "REPO=/var/www/trader-bot",
               ("TARGET=\"" + $target + "\""),
               "cd \"$REPO\"",
-              ("git fetch --all --tags origin && git checkout --detach " + $ref),
+              ("git fetch --all --tags && git checkout --detach " + $ref),
               "sudo install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
               "sudo install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
               "if [ \"$TARGET\" = \"backend\" ] || [ \"$TARGET\" = \"all\" ]; then",
