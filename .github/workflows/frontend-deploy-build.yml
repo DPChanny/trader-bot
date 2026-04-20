@@ -1,4 +1,4 @@
-name: frontend-deploy-build
+name: frontend-build
 
 on:
   push:
@@ -6,11 +6,11 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to deploy"
+        description: "Version"
         required: true
 
 jobs:
-  deploy:
+  run:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

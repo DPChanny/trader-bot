@@ -1,4 +1,4 @@
-name: infra-deploy-cloudwatch
+name: infra-cloudwatch
 
 on:
   push:
@@ -15,11 +15,11 @@ on:
         default: "all"
 
 concurrency:
-  group: infra-deploy-cloudwatch
+  group: infra-cloudwatch
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  run:
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS
@@ -29,7 +29,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Deploy
+      - name: Run
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             REF="${{ inputs.tag }}"
@@ -70,7 +70,7 @@ jobs:
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
-            echo "[infra-deploy-cloudwatch] instance=$INSTANCE_ID target=$TARGET"
+            echo "[infra-cloudwatch] instance=$INSTANCE_ID target=$TARGET"
             COMMANDS_JSON=$(jq -n \
               --arg ref "$REF" \
               --arg appRoot "/var/www/trader-bot" \

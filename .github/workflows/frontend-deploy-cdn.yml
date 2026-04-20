@@ -1,21 +1,21 @@
-name: frontend-deploy-cdn
+name: frontend-cdn
 
 on:
   workflow_run:
-    workflows: ["frontend-deploy-build"]
+    workflows: ["frontend-build"]
     types: [completed]
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to deploy"
+        description: "Version"
         required: true
 
 concurrency:
-  group: frontend-deploy-cdn
+  group: frontend-cdn
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  run:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:

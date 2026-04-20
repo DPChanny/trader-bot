@@ -1,4 +1,4 @@
-name: infra-deploy-nginx
+name: infra-nginx
 
 on:
   push:
@@ -11,11 +11,11 @@ on:
         required: true
 
 concurrency:
-  group: infra-deploy-nginx
+  group: infra-nginx
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  run:
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS
@@ -25,7 +25,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Deploy
+      - name: Run
         run: |
           TARGET="backend"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -57,7 +57,7 @@ jobs:
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
-            echo "[infra-deploy-nginx] instance=$INSTANCE_ID target=$TARGET"
+            echo "[infra-nginx] instance=$INSTANCE_ID target=$TARGET"
             COMMAND_ID=$(aws ssm send-command \
               --instance-ids "$INSTANCE_ID" \
               --document-name "AWS-RunShellScript" \

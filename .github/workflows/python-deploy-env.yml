@@ -1,4 +1,4 @@
-name: python-deploy-env
+name: python-env
 
 on:
   push:
@@ -6,15 +6,15 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to deploy"
+        description: "Version"
         required: true
 
 concurrency:
-  group: python-deploy-env
+  group: python-env
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  run:
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS
@@ -24,7 +24,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Deploy
+      - name: Run
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
@@ -56,7 +56,7 @@ jobs:
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
-            echo "[python-deploy-env] instance=$INSTANCE_ID"
+            echo "[python-env] instance=$INSTANCE_ID"
             COMMAND_ID=$(aws ssm send-command \
               --instance-ids "$INSTANCE_ID" \
               --document-name "AWS-RunShellScript" \

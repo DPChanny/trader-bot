@@ -1,6 +1,6 @@
 # GitHub Actions Variables and Secrets
 
-This document tracks repository-level GitHub Actions Variables and Secrets used by deployment workflows.
+This document tracks repository-level GitHub Actions Variables and Secrets used by workflow runs.
 
 ## Repository Variables
 
@@ -14,7 +14,7 @@ This document tracks repository-level GitHub Actions Variables and Secrets used 
 - `RDS_INSTANCE_ID`: RDS identifier injected into python env
 - `DOMAIN`: app domain/host used to compose origins
 - `GUILD_INVITE_URL`: guild invite url injected into frontend build env
-- `S3_BUCKET_NAME`: S3 bucket for frontend static deployment
+- `S3_BUCKET_NAME`: S3 bucket for frontend static sync
 - `CLOUDFRONT_DISTRIBUTION_ID`: distribution id for invalidation
 
 ## Repository Secrets
@@ -29,10 +29,10 @@ These remain shared across namespaces.
 
 ### Same Instance ID Case
 
-- Backend runtime deploy depends on infra instance targets (`NGINX_INSTANCE_ID`, `CLOUDWATCH_INSTANCE_ID`, `PM2_INSTANCE_ID`).
-- Bot runtime deploy and python env deploy depend on (`CLOUDWATCH_INSTANCE_ID`, `PM2_INSTANCE_ID`) and do not require `NGINX_INSTANCE_ID`.
-- `python-deploy-env`, `python-deploy-backend`, and `python-deploy-bot` deduplicate instance ids and apply once per unique target.
-- Workflow concurrency groups are aligned to workflow file names (for example: `python-deploy-env`, `python-deploy-backend`, `python-deploy-bot`).
+- Backend runtime run depends on infra instance targets (`NGINX_INSTANCE_ID`, `CLOUDWATCH_INSTANCE_ID`, `PM2_INSTANCE_ID`).
+- Bot runtime run and python env run depend on (`CLOUDWATCH_INSTANCE_ID`, `PM2_INSTANCE_ID`) and do not require `NGINX_INSTANCE_ID`.
+- `python-env`, `python-backend`, and `python-bot` deduplicate instance ids and apply once per unique target.
+- Workflow concurrency groups are aligned to workflow file names (for example: `python-env`, `python-backend`, `python-bot`).
 
 ## Setup Checklist
 
@@ -41,17 +41,18 @@ These remain shared across namespaces.
 3. Create all global variables listed above.
 4. Confirm required secrets exist.
 5. Run representative workflows to validate:
-   - `python-deploy-env`
-   - `frontend-deploy-build`
-   - `infra-deploy-nginx`
+
+- `python-env`
+- `frontend-build`
+- `infra-nginx`
 
 ## Infra Dispatch Rules
 
-- `infra-deploy-cloudwatch` and `infra-deploy-pm2` use unified `workflow_dispatch` input `target` (`backend`, `bot`, `all`).
+- `infra-cloudwatch` and `infra-pm2` use unified `workflow_dispatch` input `target` (`backend`, `bot`, `all`).
 - Both workflows auto-compose target instance ids, and exclude `NGINX_INSTANCE_ID` when `target=bot`.
-- `infra-deploy-nginx` is fixed to backend behavior (no `target` input), because bot has no nginx dependency.
+- `infra-nginx` is fixed to backend behavior (no `target` input), because bot has no nginx dependency.
 - Infra workflows auto-run on path changes:
-  - `infra-deploy-nginx`: `infra/nginx/**`
-  - `infra-deploy-cloudwatch`: `infra/cloudwatch/**`
-  - `infra-deploy-pm2`: `infra/pm2/**`
+  - `infra-nginx`: `infra/nginx/**`
+  - `infra-cloudwatch`: `infra/cloudwatch/**`
+  - `infra-pm2`: `infra/pm2/**`
 - For auto-runs, cloudwatch and pm2 execute with `target=all` by default.
