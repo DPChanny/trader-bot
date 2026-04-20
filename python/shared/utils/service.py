@@ -37,7 +37,7 @@ def http_service(func):
             result = await func(*args, **kwargs)
             if event.result is None:
                 event.result = result
-            logger.bind(event=event).info("")
+            logger.bind(event=event).debug("")
             return result
         except HTTPError:
             raise
@@ -58,7 +58,7 @@ def bot_service(func):
 
         try:
             result = await func(*args, **kwargs)
-            logger.bind(event=event).info("")
+            logger.bind(event=event).debug("")
             return result
         except AppError:
             raise
@@ -79,7 +79,7 @@ def ws_service(func):
 
         try:
             result = await func(*args, **kwargs)
-            logger.bind(event=event).info("")
+            logger.bind(event=event).debug("")
             return result
         except WSError:
             raise
