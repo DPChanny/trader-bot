@@ -10,15 +10,17 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
-import {
-  loadPublicPatchManifest,
-  type PublicPatchManifest,
-} from "@utils/public";
+import { loadPublicManifest, type PublicManifest } from "@utils/public";
 
-function getVersions(kind: "notes" | "plans", manifest: PublicPatchManifest) {
-  const versions = [
-    ...(kind === "notes" ? manifest.notes : manifest.plans),
-  ].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+function getVersions(kind: "notes" | "plans", manifest: PublicManifest) {
+  const prefix = kind === "notes" ? "/patches/notes/" : "/patches/plans/";
+  const versions = manifest.files
+    .filter(
+      (filePath) => filePath.startsWith(prefix) && filePath.endsWith(".md"),
+    )
+    .map((filePath) => filePath.slice(prefix.length, -3))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
   return kind === "notes" ? versions.reverse() : versions;
 }
 
@@ -27,10 +29,7 @@ export type PatchPageProps = {
 };
 
 export function PatchPage({ version }: PatchPageProps) {
-  const [manifest, setManifest] = useState<PublicPatchManifest>({
-    notes: [],
-    plans: [],
-  });
+  const [manifest, setManifest] = useState<PublicManifest>({ files: [] });
   const noteVersions = useMemo(
     () => getVersions("notes", manifest),
     [manifest],
@@ -44,7 +43,7 @@ export function PatchPage({ version }: PatchPageProps) {
   useEffect(() => {
     let isActive = true;
 
-    loadPublicPatchManifest().then((nextManifest) => {
+    loadPublicManifest().then((nextManifest) => {
       if (!isActive) {
         return;
       }

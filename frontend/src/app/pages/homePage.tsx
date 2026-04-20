@@ -12,7 +12,7 @@ import {
 import { Footer } from "@components/footer";
 import { useLogin } from "@hooks/auth";
 import { useMyUser } from "@hooks/user";
-import { loadPublicPatchManifest } from "@utils/public";
+import { loadPublicManifest } from "@utils/public";
 import { BOT_INVITE_URL } from "@utils/env";
 
 export function HomePage() {
@@ -23,14 +23,18 @@ export function HomePage() {
   useEffect(() => {
     let isActive = true;
 
-    loadPublicPatchManifest().then((manifest) => {
+    loadPublicManifest().then((manifest) => {
       if (!isActive) {
         return;
       }
 
-      const latestVersion = [...manifest.notes].sort((a, b) =>
-        b.localeCompare(a, undefined, { numeric: true }),
-      )[0];
+      const latestVersion = manifest.files
+        .filter(
+          (filePath) =>
+            filePath.startsWith("/patches/notes/") && filePath.endsWith(".md"),
+        )
+        .map((filePath) => filePath.slice("/patches/notes/".length, -3))
+        .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0];
 
       setVersion(latestVersion ?? "");
     });

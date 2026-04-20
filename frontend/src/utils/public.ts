@@ -1,34 +1,27 @@
-export type PublicPatchManifest = {
-  notes: string[];
-  plans: string[];
+export type PublicManifest = {
+  files: string[];
 };
 
-const EMPTY_PATCH_MANIFEST: PublicPatchManifest = {
-  notes: [],
-  plans: [],
+const EMPTY_PUBLIC_MANIFEST: PublicManifest = {
+  files: [],
 };
 
-export async function loadPublicPatchManifest(): Promise<PublicPatchManifest> {
+export async function loadPublicManifest(): Promise<PublicManifest> {
   try {
-    const response = await fetch("/patches/manifest.json");
+    const response = await fetch("/manifest.json");
     if (!response.ok) {
-      return EMPTY_PATCH_MANIFEST;
+      return EMPTY_PUBLIC_MANIFEST;
     }
 
-    const data = (await response.json()) as Partial<PublicPatchManifest>;
+    const data = (await response.json()) as Partial<PublicManifest>;
     return {
-      notes: Array.isArray(data.notes)
-        ? data.notes.filter(
-            (value): value is string => typeof value === "string",
-          )
-        : [],
-      plans: Array.isArray(data.plans)
-        ? data.plans.filter(
+      files: Array.isArray(data.files)
+        ? data.files.filter(
             (value): value is string => typeof value === "string",
           )
         : [],
     };
   } catch {
-    return EMPTY_PATCH_MANIFEST;
+    return EMPTY_PUBLIC_MANIFEST;
   }
 }

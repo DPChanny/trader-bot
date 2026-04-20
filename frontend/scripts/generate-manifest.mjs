@@ -6,22 +6,45 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const frontendRoot = path.resolve(__dirname, "..");
 
-const notesDir = path.join(frontendRoot, "public", "patches", "notes");
-const plansDir = path.join(frontendRoot, "public", "patches", "plans");
-const outputPath = path.join(
-  frontendRoot,
-  "public",
-  "patches",
-  "manifest.json",
-);
+const publicDir = path.join(frontendRoot, "public");
+const outputPath = path.join(frontendRoot, "public", "manifest.json");
 
-async function listVersions(dirPath) {
+async function listPublicFiles(dirPath, rootPath) {
+  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  const nested = await Promise.all(
+    entries.map(async (entry) => {
+      const entryPath = path.join(dirPath, entry.name);
+
+      if (entry.isDirectory()) {
+        return listPublicFiles(entryPath, rootPath);
+      }
+
+      if (!entry.isFile()) {
+        return [];
+      }
+
+      const relativePath = path
+        .relative(rootPath, entryPath)
+        .split(path.sep)
+        .join("/");
+
+      if (relativePath === "manifest.json") {
+        return [];
+      }
+
+      return [`/${relativePath}`];
+    }),
+  );
+
+  return nested.flat();
+}
+
+async function getPublicFiles() {
   try {
-    const entries = await fs.readdir(dirPath, { withFileTypes: true });
-    return entries
-      .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
-      .map((entry) => entry.name.replace(/\.md$/i, ""))
-      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    const files = await listPublicFiles(publicDir, publicDir);
+    return files.sort((a, b) =>
+      a.localeCompare(b, undefined, { numeric: true }),
+    );
   } catch (error) {
     if (
       error &&
@@ -36,16 +59,12 @@ async function listVersions(dirPath) {
 }
 
 async function main() {
-  const [notes, plans] = await Promise.all([
-    listVersions(notesDir),
-    listVersions(plansDir),
-  ]);
-
-  const content = `${JSON.stringify({ notes, plans }, null, 2)}\n`;
+  const files = await getPublicFiles();
+  const content = `${JSON.stringify({ files }, null, 2)}\n`;
 
   await fs.writeFile(outputPath, content, "utf8");
   console.log(
-    `Generated patch manifest: ${path.relative(frontendRoot, outputPath)}`,
+    `Generated public manifest: ${path.relative(frontendRoot, outputPath)}`,
   );
 }
 
