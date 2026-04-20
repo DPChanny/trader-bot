@@ -4,7 +4,7 @@ on:
   push:
     branches: ["master"]
     paths:
-      - "python/aws/ecosystem.config.mjs"
+      - "infra/pm2/ecosystem.config.mjs"
   workflow_dispatch:
 
 concurrency:
@@ -34,7 +34,7 @@ jobs:
                   "set -e",
                   "cat <<'\''EOF'\'' > /tmp/trader-bot-deploy-pm2.sh",
                   "set -e",
-                  "pm2 startOrReload /var/www/trader-bot/python/aws/ecosystem.config.mjs",
+                  "pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs",
                   "pm2 save",
                   "EOF",
                   "chmod 700 /tmp/trader-bot-deploy-pm2.sh",

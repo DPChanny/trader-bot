@@ -43,7 +43,7 @@ jobs:
                   "set -e",
                   "cd /var/www/trader-bot/python",
                   "uv sync --frozen",
-                  "pm2 startOrReload /var/www/trader-bot/python/aws/ecosystem.config.mjs --only trader-bot-prod-pm2-backend",
+                  "pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-prod-pm2-backend",
                   "pm2 save",
                   "EOF",
                   "chmod 700 /tmp/trader-bot-deploy-backend.sh",

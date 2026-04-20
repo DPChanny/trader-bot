@@ -40,10 +40,8 @@ jobs:
           VITE_GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
         run: npm ci && npm run build
 
-      - name: Deploy
+      - name: Upload
         env:
           S3_BUCKET: ${{ vars.S3_BUCKET }}
-          CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
           aws s3 sync frontend/dist s3://$S3_BUCKET --delete
-          aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
