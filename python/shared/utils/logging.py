@@ -29,14 +29,6 @@ type JSONValue = (
 type LogValue = JSONValue | BaseModel
 
 
-class EventType(StrEnum):
-    HTTP_SERVICE = "http_service"
-    BOT_SERVICE = "bot_service"
-    WS_SERVICE = "ws_service"
-    ERROR = "error"
-    HTTP_MIDDLEWARE = "http_middleware"
-
-
 def _redact(value: LogValue) -> Any:
     if isinstance(value, BaseModel):
         return _redact(value.model_dump(mode="json", exclude_unset=True))
@@ -59,15 +51,21 @@ def _redact(value: LogValue) -> Any:
 
 @dataclass
 class Event:
-    type: EventType | None = None
+    class Type(StrEnum):
+        HTTP_SERVICE = "http_service"
+        BOT_SERVICE = "bot_service"
+        WS_SERVICE = "ws_service"
+        ERROR = "error"
+        HTTP_MIDDLEWARE = "http_middleware"
+
+    type: Type
     input: LogValue | None = None
     result: LogValue | None = None
     detail: LogValue | None = None
     context: LogValue | None = field(default=None, init=False, repr=False)
 
     def __iter__(self):
-        if self.type is not None:
-            yield "type", self.type.value
+        yield "type", self.type.value
         if self.input is not None:
             yield "input", _redact(self.input)
         if self.result is not None:
@@ -221,7 +219,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             latency_ms = round((perf_counter() - started_at) * 1000, 2)
             logger.bind(
                 event=Event(
-                    type=EventType.HTTP_MIDDLEWARE,
+                    Event.Type.HTTP_MIDDLEWARE,
                     detail={
                         "http": {
                             "query": request.url.query,

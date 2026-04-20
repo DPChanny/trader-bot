@@ -7,13 +7,17 @@ from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from .error import AppError, HTTPError, UnexpectedErrorCode, WSError
-from .logging import Event, EventType
+from .logging import Event
 
 
 def _inject_event(
-    sig: inspect.Signature, args, kwargs: dict[str, Any], function: str
+    sig: inspect.Signature,
+    args,
+    kwargs: dict[str, Any],
+    function: str,
+    type: Event.Type,
 ) -> tuple[dict[str, Any], Event]:
-    event = Event(detail={"function": function})
+    event = Event(type, detail={"function": function})
     bound = sig.bind_partial(*args, **kwargs)
     for name, param in sig.parameters.items():
         if param.annotation is Event:
@@ -32,22 +36,20 @@ def http_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        kwargs, event = _inject_event(sig, args, kwargs, func.__name__)
+        kwargs, event = _inject_event(
+            sig, args, kwargs, func.__name__, Event.Type.HTTP_SERVICE
+        )
 
         try:
             result = await func(*args, **kwargs)
             if event.result is None:
                 event.result = result
-            event.type = EventType.HTTP_SERVICE
             logger.bind(event=event).info("")
             return result
-        except HTTPError as error:
-            if error.event is None:
-                error.event = event
+        except HTTPError:
             raise
         except Exception as error:
             http_error = HTTPError(UnexpectedErrorCode.Internal)
-            http_error.event = event
             raise http_error from error
 
     return wrapper
@@ -58,20 +60,18 @@ def bot_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        kwargs, event = _inject_event(sig, args, kwargs, func.__name__)
+        kwargs, event = _inject_event(
+            sig, args, kwargs, func.__name__, Event.Type.BOT_SERVICE
+        )
 
         try:
             result = await func(*args, **kwargs)
-            event.type = EventType.BOT_SERVICE
             logger.bind(event=event).info("")
             return result
-        except AppError as error:
-            if error.event is None:
-                error.event = event
+        except AppError:
             raise
         except Exception as error:
             app_error = AppError(UnexpectedErrorCode.Internal)
-            app_error.event = event
             raise app_error from error
 
     return wrapper
@@ -82,22 +82,20 @@ def ws_service(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        kwargs, event = _inject_event(sig, args, kwargs, func.__name__)
+        kwargs, event = _inject_event(
+            sig, args, kwargs, func.__name__, Event.Type.WS_SERVICE
+        )
 
         try:
             result = await func(*args, **kwargs)
-            event.type = EventType.WS_SERVICE
             logger.bind(event=event).info("")
             return result
-        except WSError as error:
-            if error.event is None:
-                error.event = event
+        except WSError:
             raise
         except (ValidationError, JSONDecodeError):
             raise
         except Exception as error:
             ws_error = WSError(UnexpectedErrorCode.Internal)
-            ws_error.event = event
             raise ws_error from error
 
     return wrapper

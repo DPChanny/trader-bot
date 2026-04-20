@@ -14,7 +14,7 @@ from shared.utils.error import (
     ValidationErrorCode,
     handle_http_error,
 )
-from shared.utils.logging import Event, LoggingMiddleware, setup_logging
+from shared.utils.logging import LoggingMiddleware, setup_logging
 
 from .routers import (
     auction_router,
@@ -52,7 +52,6 @@ async def validation_error_handler(
     _: Request, exc: RequestValidationError
 ) -> JSONResponse:
     error = HTTPError(ValidationErrorCode.Invalid)
-    error.event = Event()
     error.__cause__ = exc
     return handle_http_error(error)
 
@@ -60,7 +59,6 @@ async def validation_error_handler(
 @app.exception_handler(Exception)
 async def exception_handler(_: Request, exc: Exception) -> JSONResponse:
     error = HTTPError(UnexpectedErrorCode.Internal)
-    error.event = Event()
     error.__cause__ = exc
     return handle_http_error(error)
 

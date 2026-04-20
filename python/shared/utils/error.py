@@ -12,7 +12,7 @@ from enum import IntEnum
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from .logging import Event, EventType
+from .logging import Event
 
 
 class AuthErrorCode(IntEnum):
@@ -104,7 +104,6 @@ class TokenError(Exception):
 class AppError(Exception):
     def __init__(self, code: AppErrorCode) -> None:
         self.code: int = code.value
-        self.event: Event | None = None
         super().__init__(str(code.value))
 
 
@@ -122,8 +121,8 @@ class WSError(AppError):
 
 
 def _log_error(error: AppError, level: str) -> None:
-    event = error.event or Event()
-    detail = dict(event.detail) if isinstance(event.detail, dict) else {}
+    event = Event(Event.Type.ERROR)
+    detail: dict[str, object] = {}
 
     detail["code"] = error.code
     if level == "ERROR":
@@ -131,7 +130,6 @@ def _log_error(error: AppError, level: str) -> None:
             traceback.format_exception(type(error), error, error.__traceback__)
         )
     event.detail = detail
-    event.type = EventType.ERROR
 
     logger.bind(event=event).log(level, "")
 
