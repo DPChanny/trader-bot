@@ -120,6 +120,12 @@ class WSError(AppError):
         super().__init__(code)
 
 
+def get_error_level(error: AppError) -> str:
+    if isinstance(error, HTTPError):
+        return "ERROR" if error.status_code >= 500 else "WARNING"
+    return "ERROR" if error.code >= 5000 else "WARNING"
+
+
 def _log_error(error: AppError, level: str) -> None:
     event = Event(Event.Type.ERROR)
     detail: dict[str, object] = {}
@@ -135,13 +141,13 @@ def _log_error(error: AppError, level: str) -> None:
 
 
 def handle_app_error(error: AppError) -> None:
-    _log_error(error, "WARNING" if error.code < 5000 else "ERROR")
+    _log_error(error, get_error_level(error))
 
 
 def handle_http_error(error: HTTPError) -> JSONResponse:
-    _log_error(error, "WARNING" if error.status_code < 500 else "ERROR")
+    _log_error(error, get_error_level(error))
     return JSONResponse(status_code=error.status_code, content={"code": error.code})
 
 
 def handle_ws_error(error: WSError) -> None:
-    _log_error(error, "WARNING" if error.code < 5000 else "ERROR")
+    _log_error(error, get_error_level(error))
