@@ -18,25 +18,26 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-          aws-region: ${{ vars.PYTHON_AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Deploy
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_CLIENT_ID: ${{ vars.PYTHON_DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
-          APP_ORIGIN: https://${{ vars.PYTHON_EC2_HOST }}
-          API_ORIGIN: https://${{ vars.PYTHON_EC2_HOST }}
+          APP_ORIGIN: https://${{ vars.DOMAIN }}
+          API_ORIGIN: https://${{ vars.DOMAIN }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          RDS_INSTANCE_IDENTIFIER: ${{ vars.PYTHON_RDS_INSTANCE_IDENTIFIER }}
-          RDS_REGION: ${{ vars.PYTHON_AWS_REGION }}
+          RDS_INSTANCE_IDENTIFIER: ${{ vars.RDS_INSTANCE_ID }}
+          RDS_REGION: ${{ vars.AWS_REGION }}
         run: |
-          INSTANCE_IDS=$(printf '%s\n%s\n' \
-            "${{ vars.PYTHON_BACKEND_INSTANCE_ID }}" \
-            "${{ vars.PYTHON_BOT_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
+          INSTANCE_IDS=$(printf '%s\n%s\n%s\n' \
+            "${{ vars.NGINX_INSTANCE_ID }}" \
+            "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
+            "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
 
           if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids provided. Set vars.PYTHON_BACKEND_INSTANCE_ID and/or vars.PYTHON_BOT_INSTANCE_ID"
+            echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID and/or vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
             exit 1
           fi
 
