@@ -1,12 +1,5 @@
 announcement
 
-v0.3.?
-infra
-    frontend: s3, cloudfront, acm
-    ssm
-
-patch
-
 v0.4.0 - 편의성 - 필수
 pagenation & sorting & search
 preset template
