@@ -39,8 +39,16 @@ jobs:
                   "set -e",
                   ("cd " + $appRoot),
                   ("git fetch --tags origin && git checkout --detach " + $tag),
-                  "aws ssm get-parameter --name /trader-bot/prod/python/env --with-decryption --query Parameter.Value --output text > python/.env",
-                  "if id ubuntu >/dev/null 2>&1; then sudo --login --user ubuntu bash -lc '\''cd /var/www/trader-bot/python && uv sync --frozen && pm2 startOrReload /var/www/trader-bot/python/aws/ecosystem.config.mjs --only trader-bot-prod-pm2-backend && pm2 save'\''; else bash -lc '\''cd /var/www/trader-bot/python && uv sync --frozen && pm2 startOrReload /var/www/trader-bot/python/aws/ecosystem.config.mjs --only trader-bot-prod-pm2-backend && pm2 save'\''; fi"
+                  "cat <<'\''EOF'\'' > /tmp/trader-bot-deploy-backend.sh",
+                  "set -e",
+                  "cd /var/www/trader-bot/python",
+                  "uv sync --frozen",
+                  "pm2 startOrReload /var/www/trader-bot/python/aws/ecosystem.config.mjs --only trader-bot-prod-pm2-backend",
+                  "pm2 save",
+                  "EOF",
+                  "chmod 700 /tmp/trader-bot-deploy-backend.sh",
+                  "sudo -iu ubuntu bash /tmp/trader-bot-deploy-backend.sh",
+                  "rm -f /tmp/trader-bot-deploy-backend.sh"
                 ]}')" \
             --query "Command.CommandId" \
             --output text)
