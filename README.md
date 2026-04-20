@@ -1,126 +1,181 @@
-# Trader Bot Monorepo
+# trader-bot
 
-## Workflow Structure and CI/CD Standards
+Monorepo for the Discord auction tool stack:
 
-This repository uses a unified GitHub Actions workflow structure for all CI/CD pipelines. The standard step order for all workflows is:
+- Frontend app: vite/
+- API server: python/backend/
+- Discord bot: python/bot/
+- Shared domain and data layer: python/shared/
+- Infra assets: infra/
 
-1. **Checkout/Credential**: Checkout code and set up credentials.
-2. **Prepare**: Gather and output all required environment variables and configuration values.
-3. **Validate**: Validate the outputs from the Prepare step. Fail fast if any required value is missing or invalid.
-4. **Run**: Execute the main action (build, deploy, etc.) using only validated outputs.
+## 1) Workflow
 
-### Key Principles
+### Local development workflow
 
-- **Separation of Concerns**: Each step has a single responsibility. Validation logic is always in the `Validate` step.
-- **Fail Fast**: Workflows fail early if required environment variables or secrets are missing.
-- **Output Passing**: Use `GITHUB_OUTPUT` to pass values from `Prepare` to `Validate` and `Run`.
-- **Concurrency Groups**: All workflows use concurrency groups to prevent race conditions and duplicate executions.
-- **Consistent Naming**: Workflow, job, and step names follow a clear, direct naming convention.
+Recommended order:
 
-### Example Step Order
+1. Start frontend, backend, and bot in parallel.
+2. Use the frontend on http://127.0.0.1:5173.
+3. Confirm API health on http://127.0.0.1:8000/health.
+4. Iterate on backend/bot code and validate logs.
 
-```yaml
-jobs:
-  example-job:
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Credentials
-        ...
-      - name: Prepare
-        id: prepare
-        run: |
-          # Output env vars
-          echo "FOO=bar" >> $GITHUB_OUTPUT
-      - name: Validate
-        run: |
-          if [ -z "${{ steps.prepare.outputs.FOO }}" ]; then
-            echo "FOO is required" >&2
-            exit 1
-          fi
-      - name: Run
-        run: |
-          echo "Running with FOO=${{ steps.prepare.outputs.FOO }}"
-```
+VS Code tasks are already defined in .vscode/tasks.json:
 
-### Directory Structure
+- Run Frontend Dev
+- Run Backend Dev
+- Run Bot Dev
+- Run All Dev (runs all three in parallel)
 
-- `node/` (or `vite/`): Frontend source code and build scripts
-- `python/`: Backend, bot, and shared Python code
-- `infra/`: Infrastructure configuration (nginx, cloudwatch, pm2)
-- `.github/workflows/`: All CI/CD workflow files
+Equivalent terminal commands:
 
-### Naming Conventions
+- Frontend: cd vite && npm run dev
+- Backend: cd python && uv run python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+- Bot: cd python && uv run python -m bot.main
 
-- Frontend workflows: `frontend-distribute.yml`, `frontend-public-distribute.yml`, `frontend-invalidate.yml`
-- Backend workflows: `python-backend.yml`, `python-bot.yml`, `python-env.yml`
-- Infra workflows: `infra-nginx.yml`, `infra-cloudwatch.yml`, `infra-pm2.yml`
+### CI/CD workflow
 
-### Best Practices
+All GitHub Actions workflows follow the same pattern:
 
-- Always add new workflows using the `Prepare -> Validate -> Run` structure.
-- Keep environment variable validation logic in the `Validate` step.
-- Use outputs from `Prepare` in both `Validate` and `Run`.
-- Document any new conventions or changes in this README.
+1. Credential or Checkout
+2. Prepare
+3. Validate
+4. Run
 
-## GitHub Actions Variables and Secrets
+This keeps runtime steps clean and fails fast when required values are missing.
 
-This section documents repository-level GitHub Actions Variables and Secrets used by workflow runs.
+Workflow map:
 
-### Repository Variables
+- Frontend distribute: .github/workflows/frontend-distribute.yml
+  Trigger: push tag v\* or manual
+  Result: build vite and sync to S3
+- Frontend public distribute: .github/workflows/frontend-public-distribute.yml
+  Trigger: changes in vite/public/\*\* or manual
+  Result: build vite and sync to S3
+- Frontend invalidate: .github/workflows/frontend-invalidate.yml
+  Trigger: after frontend distribute workflows
+  Result: CloudFront invalidation
+- Python env: .github/workflows/python-env.yml
+  Trigger: push tag v\* or manual
+  Result: write python/.env on target EC2 instances via SSM
+- Python backend deploy: .github/workflows/python-backend.yml
+  Trigger: after python-env success or manual
+  Result: checkout ref, uv sync --frozen, pm2 reload backend
+- Python bot deploy: .github/workflows/python-bot.yml
+  Trigger: after python-env success or manual
+  Result: checkout ref, uv sync --frozen, pm2 reload bot
+- Infra nginx: .github/workflows/infra-nginx.yml
+  Trigger: infra/nginx/\*\* changes or manual
+  Result: install nginx config and reload nginx
+- Infra cloudwatch: .github/workflows/infra-cloudwatch.yml
+  Trigger: infra/cloudwatch/\*\* changes or manual
+  Result: update CloudWatch agent config for backend/bot/all
+- Infra pm2: .github/workflows/infra-pm2.yml
+  Trigger: infra/pm2/\*\* changes or manual
+  Result: update pm2 ecosystem and restart pm2 services
 
-**Global variables:**
+## 2) Development environment
 
-- `AWS_REGION`: AWS region used by all workflows
-- `NGINX_INSTANCE_ID`: Default instance id for nginx workflow (supports multiple ids via input)
-- `CLOUDWATCH_INSTANCE_ID`: Default instance id for cloudwatch workflow (supports multiple ids via input)
-- `PM2_INSTANCE_ID`: Default instance id for pm2 workflow (supports multiple ids via input)
-- `DISCORD_CLIENT_ID`: Discord client id used by python env generation and frontend build
-- `RDS_INSTANCE_ID`: RDS identifier injected into python env
-- `DOMAIN`: App domain/host used to compose origins
-- `GUILD_INVITE_URL`: Guild invite url injected into frontend build env
-- `S3_BUCKET_NAME`: S3 bucket for frontend static sync
-- `CLOUDFRONT_DISTRIBUTION_ID`: Distribution id for invalidation
+### Required tools
 
-### Repository Secrets
+- Node.js 24.x (CI uses Node 24)
+- npm
+- Python 3.12+
+- uv (Python package/dependency runner)
 
-These remain shared across namespaces:
+Optional but commonly needed:
 
-- `AWS_ACCESS_KEY_ID`
-- `AWS_ACCESS_KEY_SECRET`
-- `DISCORD_BOT_TOKEN`
-- `DISCORD_CLIENT_SECRET`
-- `JWT_SECRET`
+- AWS CLI (for deployment-related checks)
+- PM2 (mainly on server hosts, not required for local app coding)
 
-#### Instance ID Usage
+### Quick setup
 
-- Backend runtime run depends on infra instance targets (`NGINX_INSTANCE_ID`, `CLOUDWATCH_INSTANCE_ID`, `PM2_INSTANCE_ID`).
-- Bot runtime run and python env run depend on (`CLOUDWATCH_INSTANCE_ID`, `PM2_INSTANCE_ID`) and do not require `NGINX_INSTANCE_ID`.
-- `python-env`, `python-backend`, and `python-bot` deduplicate instance ids and apply once per unique target.
-- Workflow concurrency groups are aligned to workflow file names (for example: `python-env`, `python-backend`, `python-bot`).
+1. Install frontend dependencies.
+   - cd vite
+   - npm ci
+2. Install Python dependencies.
+   - cd ../python
+   - uv sync
+3. Create runtime env files.
+   - python/.env (from python/.env.example)
+   - vite/.env.local (for local frontend variables)
+4. Start dev tasks.
+   - Run All Dev in VS Code, or run each command manually.
 
-### Setup Checklist
+## 3) Environment variables
 
-1. Open repository settings.
-2. Go to Secrets and variables, Actions.
-3. Create all global variables listed above.
-4. Confirm required secrets exist.
-5. Run representative workflows to validate:
-   - `python-env`
-   - `frontend-build`
-   - `infra-nginx`
+### Python runtime env (python/.env)
 
-### Infra Dispatch Rules
+Source of truth: python/.env.example
 
-- `infra-cloudwatch` and `infra-pm2` use unified `workflow_dispatch` input `target` (`backend`, `bot`, `all`).
-- Both workflows auto-compose target instance ids, and exclude `NGINX_INSTANCE_ID` when `target=bot`.
-- `infra-nginx` is fixed to backend behavior (no `target` input), because bot has no nginx dependency.
-- Infra workflows auto-run on path changes:
-  - `infra-nginx`: `infra/nginx/**`
-  - `infra-cloudwatch`: `infra/cloudwatch/**`
-  - `infra-pm2`: `infra/pm2/**`
-- For auto-runs, cloudwatch and pm2 execute with `target=all` by default.
+Required in most environments:
 
----
+- DISCORD_BOT_TOKEN
+- DISCORD_CLIENT_ID
+- DISCORD_CLIENT_SECRET
+- JWT_SECRET
 
-_Last updated: 2026-04-21_
+Common defaults and behavior:
+
+- APP_ORIGIN (default: http://127.0.0.1:5173)
+- API_ORIGIN (default: http://127.0.0.1:8000)
+- JWT_ALGORITHM (default: HS256)
+- RDS_INSTANCE_IDENTIFIER (default: trader-bot-prod-rds)
+- RDS_REGION (default: ap-northeast-2)
+- DB_PORT (default: 5432)
+- DB_USER (default: trader)
+- DB_NAME (default: trader)
+- LOG_LEVEL (default: INFO)
+- LOG_TEXT (default: false)
+- LOG_FILE (default: true)
+
+Database note:
+
+- No static DB password is stored in env.
+- The app resolves RDS endpoint and generates IAM auth token at runtime in python/shared/utils/db.py.
+
+### Frontend env (vite/.env.local)
+
+Used from vite/src/utils/env.ts:
+
+- VITE_API_ORIGIN (optional, default: http://127.0.0.1:8000)
+- VITE_DISCORD_CLIENT_ID (required for bot invite URL)
+- VITE_GUILD_INVITE_URL (used for footer invite link)
+
+Example:
+
+VITE_API_ORIGIN=http://127.0.0.1:8000
+VITE_DISCORD_CLIENT_ID=123456789012345678
+VITE_GUILD_INVITE_URL=https://discord.gg/your-invite
+
+### GitHub Actions repository variables
+
+Configured in GitHub repository settings:
+
+- AWS_REGION
+- NGINX_INSTANCE_ID
+- CLOUDWATCH_INSTANCE_ID
+- PM2_INSTANCE_ID
+- DISCORD_CLIENT_ID
+- RDS_INSTANCE_ID
+- DOMAIN
+- GUILD_INVITE_URL
+- S3_BUCKET_NAME
+- CLOUDFRONT_DISTRIBUTION_ID
+
+### GitHub Actions repository secrets
+
+- AWS_ACCESS_KEY_ID
+- AWS_ACCESS_KEY_SECRET
+- DISCORD_BOT_TOKEN
+- DISCORD_CLIENT_SECRET
+- JWT_SECRET
+
+## 4) Operational notes
+
+- Nginx proxies /api/ to 127.0.0.1:8000 via infra/nginx/sites-avaliable/trader-bot.conf.
+- PM2 process definitions live in infra/pm2/ecosystem.config.mjs.
+- CloudWatch log configs live under infra/cloudwatch/amazon-cloudwatch-agent.d/.
+
+## 5) Contact
+
+For project questions or bug reports, use the GitHub issue tracker.
