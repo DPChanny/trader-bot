@@ -123,12 +123,26 @@ class WSError(AppError):
 
 def _log_error(error: AppError, level: str) -> None:
     event = error.event or Event()
-    event.error = {"code": error.code}
+    error_detail: dict[str, int | str] = {"code": error.code}
+    if isinstance(error, HTTPError):
+        error_detail["status_code"] = error.status_code
     if level == "ERROR":
-        event.error["traceback"] = "".join(
+        error_detail["traceback"] = "".join(
             traceback.format_exception(type(error), error, error.__traceback__)
         )
-    logger.bind(event=event).log(level, "")
+
+    detail: dict[str, object]
+    if isinstance(event.detail, dict):
+        detail = dict(event.detail)
+    elif event.detail is None:
+        detail = {}
+    else:
+        detail = {"context": event.detail}
+
+    detail["error"] = error_detail
+    event.detail = detail
+
+    logger.bind(type="error", event=event).log(level, "")
 
 
 def handle_app_error(error: AppError) -> None:

@@ -5,6 +5,7 @@ from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import UTC
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 from uuid import uuid4
 
@@ -49,27 +50,24 @@ def redact(value: LogValue) -> Any:
 
 @dataclass
 class Event:
-    service: str | None = None
     input: LogValue | None = None
     result: LogValue | None = None
     detail: LogValue | None = None
-    error: LogValue | None = None
+    context: LogValue | None = None
 
     def __iter__(self):
-        if self.service is not None:
-            yield "service", self.service
         if self.input is not None:
             yield "input", redact(self.input)
         if self.result is not None:
             yield "result", redact(self.result)
         if self.detail is not None:
             yield "detail", redact(self.detail)
-        if self.error is not None:
-            yield "error", redact(self.error)
+        if self.context is not None:
+            yield "context", redact(self.context)
 
 
-_http_context: ContextVar[dict[str, Any] | None] = ContextVar(
-    "_http_context", default=None
+_event_context: ContextVar[dict[str, Any] | None] = ContextVar(
+    "_event_context", default=None
 )
 
 
@@ -82,13 +80,26 @@ def _patcher(record: dict[str, Any]) -> None:
 
     extra = dict(record["extra"])
     event = extra.pop("event", None)
+    log_type = extra.pop("type", None)
 
     if isinstance(event, Event):
         event = dict(event)
     elif not isinstance(event, dict):
         event = None
 
-    http = _http_context.get()
+    context_payload = _event_context.get()
+    if isinstance(context_payload, dict) and context_payload:
+        if event is None:
+            event = {"context": dict(context_payload)}
+        else:
+            context = event.get("context")
+            if isinstance(context, dict):
+                for key, value in context_payload.items():
+                    context.setdefault(key, value)
+            elif context is None:
+                event["context"] = dict(context_payload)
+            else:
+                event["context"] = {"base": context, **context_payload}
 
     source = f"{record['name']}:{record['function']}:{record['line']}"
     timestamp = (
@@ -100,10 +111,10 @@ def _patcher(record: dict[str, Any]) -> None:
         "level": record["level"].name,
         "source": source,
     }
+    if isinstance(log_type, str) and log_type:
+        log["type"] = log_type
     if record["message"]:
         log["message"] = record["message"]
-    if http is not None:
-        log["http"] = http
     if event is not None:
         log["event"] = event
     if extra:
@@ -195,6 +206,7 @@ def setup_logging(log_dir: str | Path) -> None:
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         request_id = request.headers.get("x-request-id") or str(uuid4())
+        started_at = perf_counter()
 
         forwarded_for = request.headers.get("x-forwarded-for")
         client_ip = (
@@ -204,19 +216,39 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             if request.client is not None
             else None
         )
-        token = _http_context.set(
+        token = _event_context.set(
             {
-                "request_id": request_id,
-                "method": request.method,
-                "path": request.url.path,
-                "query": request.url.query,
-                "client_ip": client_ip,
-                "user_agent": request.headers.get("user-agent"),
+                "http": {
+                    "request_id": request_id,
+                    "method": request.method,
+                    "path": request.url.path,
+                }
             }
         )
+        response: Response | None = None
         try:
             response = await call_next(request)
             response.headers["X-Request-ID"] = request_id
             return response
         finally:
-            _http_context.reset(token)
+            context_payload = _event_context.get() or {}
+            http = context_payload.get("http", {})
+            latency_ms = round((perf_counter() - started_at) * 1000, 2)
+            logger.bind(
+                type="http_router",
+                event=Event(
+                    detail={
+                        "http": {
+                            "request_id": http.get("request_id"),
+                            "method": http.get("method"),
+                            "path": http.get("path"),
+                            "query": request.url.query,
+                            "status_code": response.status_code if response else 500,
+                            "latency_ms": latency_ms,
+                            "client_ip": client_ip,
+                            "user_agent": request.headers.get("user-agent"),
+                        }
+                    }
+                ),
+            ).info("")
+            _event_context.reset(token)

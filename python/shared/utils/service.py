@@ -13,7 +13,7 @@ from .logging import Event
 def _inject_event(
     sig: inspect.Signature, args, kwargs: dict[str, Any], function: str
 ) -> tuple[dict[str, Any], Event]:
-    event = Event(service=function)
+    event = Event(detail={"function": function})
     bound = sig.bind_partial(*args, **kwargs)
     for name, param in sig.parameters.items():
         if param.annotation is Event:
@@ -38,7 +38,7 @@ def http_service(func):
             result = await func(*args, **kwargs)
             if event.result is None:
                 event.result = result
-            logger.bind(event=event).info("")
+            logger.bind(type="http_service", event=event).info("")
             return result
         except HTTPError as error:
             if error.event is None:
@@ -61,7 +61,7 @@ def bot_service(func):
 
         try:
             result = await func(*args, **kwargs)
-            logger.bind(event=event).info("")
+            logger.bind(type="bot_service", event=event).info("")
             return result
         except AppError as error:
             if error.event is None:
@@ -84,7 +84,7 @@ def ws_service(func):
 
         try:
             result = await func(*args, **kwargs)
-            logger.bind(event=event).info("")
+            logger.bind(type="ws_service", event=event).info("")
             return result
         except WSError as error:
             if error.event is None:
