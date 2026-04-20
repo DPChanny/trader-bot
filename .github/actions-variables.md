@@ -17,17 +17,6 @@ This document tracks repository-level GitHub Actions Variables and Secrets used 
 - `S3_BUCKET_NAME`: S3 bucket for frontend static deployment
 - `CLOUDFRONT_DISTRIBUTION_ID`: distribution id for invalidation
 
-Used by:
-
-- `.github/workflows/python-deploy-env.yml`
-- `.github/workflows/python-deploy-backend.yml`
-- `.github/workflows/python-deploy-bot.yml`
-- `.github/workflows/infra-deploy-nginx.yml`
-- `.github/workflows/infra-deploy-cloudwatch.yml`
-- `.github/workflows/infra-deploy-pm2.yml`
-- `.github/workflows/frontend-deploy-build.yml`
-- `.github/workflows/frontend-deploy-cdn.yml`
-
 ## Repository Secrets
 
 These remain shared across namespaces.
@@ -38,16 +27,11 @@ These remain shared across namespaces.
 - `DISCORD_CLIENT_SECRET`
 - `JWT_SECRET`
 
-Used by:
-
-- python workflows for AWS auth and python env generation
-- frontend workflows for AWS auth
-- infra workflows for AWS auth
-
 ### Same Instance ID Case
 
-- Backend and bot workflows depend on infra instance targets (`NGINX_INSTANCE_ID`, `CLOUDWATCH_INSTANCE_ID`, `PM2_INSTANCE_ID`).
-- `python-deploy-env`, `python-deploy-backend`, and `python-deploy-bot` deduplicate these instance ids and apply once per unique target.
+- Backend runtime deploy depends on infra instance targets (`NGINX_INSTANCE_ID`, `CLOUDWATCH_INSTANCE_ID`, `PM2_INSTANCE_ID`).
+- Bot runtime deploy and python env deploy depend on (`CLOUDWATCH_INSTANCE_ID`, `PM2_INSTANCE_ID`) and do not require `NGINX_INSTANCE_ID`.
+- `python-deploy-env`, `python-deploy-backend`, and `python-deploy-bot` deduplicate instance ids and apply once per unique target.
 - Workflow concurrency groups are aligned to workflow file names (for example: `python-deploy-env`, `python-deploy-backend`, `python-deploy-bot`).
 
 ## Setup Checklist
@@ -64,7 +48,7 @@ Used by:
 ## Infra Dispatch Rules
 
 - `infra-deploy-cloudwatch` and `infra-deploy-pm2` use unified `workflow_dispatch` input `target` (`backend`, `bot`, `all`).
-- Both workflows auto-compose target instance ids from `NGINX_INSTANCE_ID`, `CLOUDWATCH_INSTANCE_ID`, and `PM2_INSTANCE_ID` (deduplicated).
+- Both workflows auto-compose target instance ids, and exclude `NGINX_INSTANCE_ID` when `target=bot`.
 - `infra-deploy-nginx` is fixed to backend behavior (no `target` input), because bot has no nginx dependency.
 - Infra workflows auto-run on path changes:
   - `infra-deploy-nginx`: `infra/nginx/**`

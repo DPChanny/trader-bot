@@ -38,13 +38,24 @@ jobs:
             REF="${{ github.sha }}"
             TARGET="all"
           fi
-          INSTANCE_IDS=$(printf '%s\n%s\n%s\n' \
-            "${{ vars.NGINX_INSTANCE_ID }}" \
-            "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
-            "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
+
+          if [ "$TARGET" = "bot" ]; then
+            INSTANCE_IDS=$(printf '%s\n%s\n' \
+              "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
+              "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
+          else
+            INSTANCE_IDS=$(printf '%s\n%s\n%s\n' \
+              "${{ vars.NGINX_INSTANCE_ID }}" \
+              "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
+              "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
+          fi
 
           if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID and/or vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
+            if [ "$TARGET" = "bot" ]; then
+              echo "No instance ids provided. Set vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
+            else
+              echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID and/or vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
+            fi
             exit 1
           fi
 

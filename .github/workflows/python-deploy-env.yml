@@ -35,13 +35,12 @@ jobs:
           RDS_INSTANCE_IDENTIFIER: ${{ vars.RDS_INSTANCE_ID }}
           RDS_REGION: ${{ vars.AWS_REGION }}
         run: |
-          INSTANCE_IDS=$(printf '%s\n%s\n%s\n' \
-            "${{ vars.NGINX_INSTANCE_ID }}" \
+          INSTANCE_IDS=$(printf '%s\n%s\n' \
             "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
             "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
 
           if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID and/or vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
+            echo "No instance ids provided. Set vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
             exit 1
           fi
 
