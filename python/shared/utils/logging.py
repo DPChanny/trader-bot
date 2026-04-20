@@ -20,7 +20,8 @@ from starlette.responses import Response
 from .env import get_log_file, get_log_level, get_log_text
 
 
-REDACT_KEYS = {"accesstoken", "refreshtoken", "exchangetoken", "code", "state"}
+REDACT_KEYS = {"accesstoken", "refreshtoken", "exchangetoken"}
+QUERY_REDACT_KEYS = {"code", "state"}
 
 
 type JSONPrimitive = str | int | float | bool | None
@@ -30,27 +31,43 @@ type JSONValue = (
 type LogValue = JSONValue | BaseModel
 
 
-def _is_redact_key(key: str) -> bool:
-    normalized = key.replace("_", "").replace("-", "").lower()
-    return normalized in REDACT_KEYS
-
-
 def _redact(value: LogValue) -> Any:
     if isinstance(value, BaseModel):
         return _redact(value.model_dump(mode="json", exclude_unset=True))
+
     if isinstance(value, dict):
-        return {
-            key: "[REDACTED]" if _is_redact_key(key) else _redact(item)
-            for key, item in value.items()
-        }
+        redacted: dict[str, Any] = {}
+        for key, item in value.items():
+            normalized_key = key.replace("_", "").replace("-", "").lower()
+
+            if normalized_key == "query" and isinstance(item, dict):
+                redacted_query: dict[str, Any] = {}
+                for query_key, query_value in item.items():
+                    normalized_query_key = (
+                        query_key.replace("_", "").replace("-", "").lower()
+                    )
+                    if normalized_query_key in QUERY_REDACT_KEYS:
+                        redacted_query[query_key] = "[REDACTED]"
+                    else:
+                        redacted_query[query_key] = _redact(query_value)
+
+                redacted[key] = redacted_query
+            elif normalized_key in REDACT_KEYS:
+                redacted[key] = "[REDACTED]"
+            else:
+                redacted[key] = _redact(item)
+
+        return redacted
+
     if isinstance(value, list):
         result = [_redact(item) for item in value[:3]]
         if len(value) > 3:
-            result.append("[REDACTED]")
+            result.append("[TRUNCATED]")
         return result
+
     if isinstance(value, tuple):
         result = tuple(_redact(item) for item in value[:3])
-        return (*result, "[REDACTED]") if len(value) > 3 else result
+        return (*result, "[TRUNCATED]") if len(value) > 3 else result
 
     return value
 
@@ -144,9 +161,6 @@ def _patcher(record: dict[str, Any]) -> None:
 class _LoguruHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
         message = record.getMessage()
-
-        if record.name == "botocore.credentials" and record.levelno <= logging.INFO:
-            return
 
         try:
             level = logger.level(record.levelname).name
