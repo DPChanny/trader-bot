@@ -40,15 +40,6 @@ jobs:
             TARGET="all"
           fi
 
-          case "$TARGET" in
-            backend|bot|all)
-              ;;
-            *)
-              echo "Invalid target: $TARGET (expected backend, bot, all)"
-              exit 1
-              ;;
-          esac
-
           if [ "$TARGET" = "bot" ]; then
             INSTANCE_IDS=$(printf '%s\n%s\n' \
               "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
@@ -107,15 +98,32 @@ jobs:
             --arg target "$TARGET" \
             '{commands: [
               "set -e",
-              ("cd " + $repo),
+              "cat <<'\''EOF'\'' > /tmp/infra-cloudwatch.sh",
+              "set -e",
+              "REPO=/var/www/trader-bot",
+              ("TARGET=\"" + $target + "\""),
+              "cd \"$REPO\"",
               ("git fetch --all --tags origin && git checkout --detach " + $ref),
-              "install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
-              "install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
-              "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json; fi",
-              "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json; fi",
-              "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json -s",
-              "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json; fi",
-              "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json; fi"
+              "sudo install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
+              "sudo install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
+              "if [ \"$TARGET\" = \"backend\" ] || [ \"$TARGET\" = \"all\" ]; then",
+              "  sudo install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json",
+              "fi",
+              "if [ \"$TARGET\" = \"bot\" ] || [ \"$TARGET\" = \"all\" ]; then",
+              "  sudo install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json",
+              "fi",
+              "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json -s",
+              "if [ \"$TARGET\" = \"backend\" ] || [ \"$TARGET\" = \"all\" ]; then",
+              "  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json",
+              "fi",
+              "if [ \"$TARGET\" = \"bot\" ] || [ \"$TARGET\" = \"all\" ]; then",
+              "  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json",
+              "fi",
+              "EOF",
+              "chmod 700 /tmp/infra-cloudwatch.sh",
+              "chown ubuntu:ubuntu /tmp/infra-cloudwatch.sh",
+              "sudo -iu ubuntu bash /tmp/infra-cloudwatch.sh",
+              "rm -f /tmp/infra-cloudwatch.sh"
             ]}')
 
           FAILED=0

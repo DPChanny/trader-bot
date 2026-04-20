@@ -71,16 +71,16 @@ jobs:
               "set -e",
               ("cd " + $repo),
               ("git fetch --tags origin && git checkout --detach " + $ref),
-              "cat <<'\''EOF'\'' > /tmp/trader-bot-run-backend.sh",
+              "cat <<'\''EOF'\'' > /tmp/python-backend.sh",
               "set -e",
               "cd /var/www/trader-bot/python",
               "uv sync --frozen",
               "pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-prod-pm2-backend",
               "pm2 save",
               "EOF",
-              "chmod 700 /tmp/trader-bot-run-backend.sh",
-              "sudo -iu ubuntu bash /tmp/trader-bot-run-backend.sh",
-              "rm -f /tmp/trader-bot-run-backend.sh"
+              "chmod 700 /tmp/python-backend.sh",
+              "sudo -iu ubuntu bash /tmp/python-backend.sh",
+              "rm -f /tmp/python-backend.sh"
             ]}')
 
           FAILED=0
