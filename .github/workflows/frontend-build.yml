@@ -18,13 +18,6 @@ jobs:
         with:
           ref: ${{ inputs.tag || github.ref }}
 
-      - name: Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: node/package-lock.json
-
       - name: Credential
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -32,16 +25,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Build
+      - name: Prepare
+        id: prepare
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: node/package-lock.json
+
+      - name: Run
         working-directory: node
         env:
           VITE_API_ORIGIN: https://${{ vars.DOMAIN }}
           VITE_DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           VITE_GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
-        run: npm ci && npm run build
-
-      - name: Upload
-        env:
           S3_BUCKET: ${{ vars.S3_BUCKET_NAME }}
         run: |
+          npm ci
+          npm run build
+          cd ..
           aws s3 sync node/dist s3://$S3_BUCKET --delete

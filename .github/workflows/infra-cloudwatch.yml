@@ -81,26 +81,26 @@ jobs:
           REF="${{ steps.prepare.outputs.ref }}"
           INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
 
+          COMMANDS_JSON=$(jq -n \
+            --arg ref "$REF" \
+            --arg repo "/var/www/trader-bot" \
+            --arg target "$TARGET" \
+            '{commands: [
+              "set -e",
+              ("cd " + $repo),
+              ("git fetch --all --tags origin && git checkout --detach " + $ref),
+              "install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
+              "install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
+              "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json; fi",
+              "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json; fi",
+              "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json -s",
+              "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json; fi",
+              "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json; fi"
+            ]}')
+
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
             echo "[infra-cloudwatch] instance=$INSTANCE_ID target=$TARGET"
-            COMMANDS_JSON=$(jq -n \
-              --arg ref "$REF" \
-              --arg appRoot "/var/www/trader-bot" \
-              --arg target "$TARGET" \
-              '{commands: [
-                "set -e",
-                ("cd " + $appRoot),
-                ("git fetch --all --tags origin && git checkout --detach " + $ref),
-                "install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
-                "install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
-                "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json; fi",
-                "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then install -m 644 infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json; fi",
-                "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json -s",
-                "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-backend.json; fi",
-                "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-prod-lg-bot.json; fi"
-              ]}')
-
             COMMAND_ID=$(aws ssm send-command \
               --instance-ids "$INSTANCE_ID" \
               --document-name "AWS-RunShellScript" \

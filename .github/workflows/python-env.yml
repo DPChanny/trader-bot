@@ -24,7 +24,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Run
+      - name: Prepare
+        id: prepare
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
@@ -54,22 +55,36 @@ jobs:
             "RDS_INSTANCE_IDENTIFIER=$RDS_INSTANCE_IDENTIFIER" \
             "RDS_REGION=$RDS_REGION")"
 
+          {
+            echo "instance_ids=$INSTANCE_IDS"
+            echo "env_content<<EOF"
+            printf '%s\n' "$ENV_CONTENT"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run
+        run: |
+          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
+          ENV_CONTENT="${{ steps.prepare.outputs.env_content }}"
+
+          COMMANDS_JSON=$(jq -n \
+            --arg repo "/var/www/trader-bot" \
+            --arg envContent "$ENV_CONTENT" \
+            '{commands: [
+              "set -e",
+              ("cd " + $repo),
+              "printf '%"'"'s'"'"' " + ($envContent | @sh) + " > python/.env",
+              "chown ubuntu:ubuntu python/.env",
+              "chmod 600 python/.env"
+            ]}')
+
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
             echo "[python-env] instance=$INSTANCE_ID"
             COMMAND_ID=$(aws ssm send-command \
               --instance-ids "$INSTANCE_ID" \
               --document-name "AWS-RunShellScript" \
-              --parameters "$(jq -n \
-                  --arg appRoot "/var/www/trader-bot" \
-                  --arg envContent "$ENV_CONTENT" \
-                  '{commands: [
-                    "set -e",
-                    ("cd " + $appRoot),
-                    "printf '%"'"'s'"'"' " + ($envContent | @sh) + " > python/.env",
-                    "chown ubuntu:ubuntu python/.env",
-                    "chmod 600 python/.env"
-                  ]}')" \
+              --parameters "$COMMANDS_JSON" \
               --query "Command.CommandId" \
               --output text)
 

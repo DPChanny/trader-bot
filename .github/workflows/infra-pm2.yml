@@ -81,32 +81,32 @@ jobs:
           REF="${{ steps.prepare.outputs.ref }}"
           INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
 
+          COMMANDS_JSON=$(jq -n \
+            --arg ref "$REF" \
+            --arg repo "/var/www/trader-bot" \
+            --arg target "$TARGET" \
+            '{commands: [
+              "set -e",
+              ("cd " + $repo),
+              ("git fetch --all --tags origin && git checkout --detach " + $ref),
+              "install -d /var/www/trader-bot/python/aws",
+              "ln -sfn /var/www/trader-bot/infra/pm2/ecosystem.config.mjs /var/www/trader-bot/python/aws/ecosystem.config.mjs",
+              "cat <<'\''EOF'\'' > /tmp/trader-bot-infra-pm2.sh",
+              "set -e",
+              "pm2 startup systemd -u ubuntu --hp /home/ubuntu || true",
+              "if [ \"" + $target + "\" = \"backend\" ]; then pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-prod-pm2-backend; elif [ \"" + $target + "\" = \"bot\" ]; then pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-prod-pm2-bot; else pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs; fi",
+              "pm2 save",
+              "EOF",
+              "chmod 700 /tmp/trader-bot-infra-pm2.sh",
+              "sudo -iu ubuntu bash /tmp/trader-bot-infra-pm2.sh",
+              "rm -f /tmp/trader-bot-infra-pm2.sh",
+              "systemctl enable pm2-ubuntu || true",
+              "systemctl restart pm2-ubuntu || true"
+            ]}')
+
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
             echo "[infra-pm2] instance=$INSTANCE_ID target=$TARGET"
-            COMMANDS_JSON=$(jq -n \
-              --arg ref "$REF" \
-              --arg appRoot "/var/www/trader-bot" \
-              --arg target "$TARGET" \
-              '{commands: [
-                "set -e",
-                ("cd " + $appRoot),
-                ("git fetch --all --tags origin && git checkout --detach " + $ref),
-                "install -d /var/www/trader-bot/python/aws",
-                "ln -sfn /var/www/trader-bot/infra/pm2/ecosystem.config.mjs /var/www/trader-bot/python/aws/ecosystem.config.mjs",
-                "cat <<'\''EOF'\'' > /tmp/trader-bot-infra-pm2.sh",
-                "set -e",
-                "pm2 startup systemd -u ubuntu --hp /home/ubuntu || true",
-                "if [ \"" + $target + "\" = \"backend\" ]; then pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-prod-pm2-backend; elif [ \"" + $target + "\" = \"bot\" ]; then pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-prod-pm2-bot; else pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs; fi",
-                "pm2 save",
-                "EOF",
-                "chmod 700 /tmp/trader-bot-infra-pm2.sh",
-                "sudo -iu ubuntu bash /tmp/trader-bot-infra-pm2.sh",
-                "rm -f /tmp/trader-bot-infra-pm2.sh",
-                "systemctl enable pm2-ubuntu || true",
-                "systemctl restart pm2-ubuntu || true"
-              ]}')
-
             COMMAND_ID=$(aws ssm send-command \
               --instance-ids "$INSTANCE_ID" \
               --document-name "AWS-RunShellScript" \

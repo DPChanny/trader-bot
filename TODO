@@ -1,28 +1,21 @@
-notes
-
-b -> beta v0.2.4b
-a -> alpha v0.2.4.0a
-r -> release v1.0.0r
-
 announcement
-server webhook
 
-v0.2.?
+v0.3.?
 infra
     frontend: s3, cloudfront, acm
     ssm
 
 patch
 
-
-v0.3.?
+v0.4.?
 pagenation & sorting & search
 preset template
     preset copy or preset base -> 운영 서버 공식 프리셋 참고 flow
+운영 server webhook
 info url iframe
 auction result
 
-v0.4.?
+v0.5.?
 mobile: responsive layout
 css 개선
     token 개선
@@ -34,7 +27,7 @@ layout
 grid 정렬 개선
 db query batch opt
 
-v0.5.?
+v0.6.?
 bot command
 web effect
 language

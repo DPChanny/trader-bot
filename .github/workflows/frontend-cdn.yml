@@ -26,8 +26,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Invalidate
-        env:
-          CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+      - name: Prepare
+        id: prepare
         run: |
-          aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+          echo "distribution_id=${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" >> "$GITHUB_OUTPUT"
+
+      - name: Run
+        run: |
+          CLOUDFRONT_DISTRIBUTION_ID="${{ steps.prepare.outputs.distribution_id }}"
+          aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*"

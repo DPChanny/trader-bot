@@ -56,10 +56,10 @@ jobs:
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \
-            --arg appRoot "/var/www/trader-bot" \
+            --arg repo "/var/www/trader-bot" \
             '{commands: [
               "set -e",
-              ("cd " + $appRoot),
+              ("cd " + $repo),
               ("git fetch --all --tags origin && git checkout --detach " + $ref),
               "install -d /etc/nginx/sites-available /etc/nginx/sites-enabled",
               "install -m 644 infra/nginx/sites-avaliable/trader-bot.conf /etc/nginx/sites-available/trader-bot.conf",
