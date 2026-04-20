@@ -75,8 +75,9 @@ jobs:
             --arg repo "/var/www/trader-bot" \
             '{commands: [
               "set -e",
-              ("sudo -iu ubuntu git -C " + $repo + " fetch --all --tags"),
-              ("sudo -iu ubuntu git -C " + $repo + " checkout --detach " + $ref),
+              ("cd " + $repo),
+              "sudo -iu ubuntu git fetch --all --tags",
+              ("sudo -iu ubuntu git checkout --detach " + $ref),
               "sudo install -m 644 infra/nginx/sites-available/trader-bot.conf /etc/nginx/sites-available/trader-bot.conf",
               "sudo ln -sfn /etc/nginx/sites-available/trader-bot.conf /etc/nginx/sites-enabled/trader-bot.conf",
               "sudo nginx -t",
