@@ -245,29 +245,27 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             return response
         finally:
             latency_ms = round((perf_counter() - latency_counter) * 1000, 2)
-            logger.bind(
-                event=Event(
-                    Event.Type.HTTP_MIDDLEWARE,
-                    detail={
-                        "http": {
-                            "request": {
-                                "id": request_id,
-                                "route": request.url.path,
-                                "query": dict(request.query_params),
-                                "method": request.method,
-                                "user": {
-                                    "ip": user_ip,
-                                    "agent": request.headers.get("user-agent"),
-                                },
-                            },
-                            "response": {
-                                "status_code": response.status_code
-                                if response is not None
-                                else 500,
-                                "latency_ms": latency_ms,
-                            },
-                        }
+            detail = {
+                "http": {
+                    "request": {
+                        "id": request_id,
+                        "route": request.url.path,
+                        "method": request.method,
+                        "user": {
+                            "ip": user_ip,
+                            "agent": request.headers.get("user-agent"),
+                        },
                     },
-                )
-            ).info("")
+                    "response": {
+                        "status_code": response.status_code
+                        if response is not None
+                        else 500,
+                        "latency_ms": latency_ms,
+                    },
+                }
+            }
+            if request.query_params:
+                detail["http"]["request"]["query"] = dict(request.query_params)
+
+            logger.bind(event=Event(Event.Type.HTTP_MIDDLEWARE, detail=detail)).info("")
             _context.reset(token)
