@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import random
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from fastapi import WebSocket
 
@@ -25,7 +25,7 @@ from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, UnexpectedErrorCode, WSError
 
 
-_AUCTION_EXPIRATION_MINUTES = 10
+_AUCTION_LIFETIME = timedelta(minutes=10)
 
 
 @dataclass
@@ -45,7 +45,7 @@ class Bid:
 class Auction:
     Status = Status
 
-    _exp_delta = timedelta(minutes=_AUCTION_EXPIRATION_MINUTES)
+    _lifetime = _AUCTION_LIFETIME
 
     def __init__(
         self, auction_id: int, preset_snapshot: PresetDetailDTO, is_public: bool
@@ -99,7 +99,7 @@ class Auction:
         self._was_in_progress: bool = False
         self._state_lock = asyncio.Lock()
         self._broadcast_lock = asyncio.Lock()
-        self.exp: datetime = datetime.now() + self._exp_delta
+        self.expires_at: datetime = datetime.now(UTC) + self._lifetime
 
     @property
     def connected_member_ids(self) -> list[int]:
@@ -208,7 +208,7 @@ class Auction:
                         self.timer = self.preset_snapshot.timer
 
                 self._stop_timer()
-                self.exp = datetime.now() + self._exp_delta
+                self.expires_at = datetime.now(UTC) + self._lifetime
 
             elif new_status == Status.RUNNING:
                 if self.status == Status.WAITING:

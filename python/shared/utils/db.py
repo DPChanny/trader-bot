@@ -25,21 +25,21 @@ _RDS_AUTH_TOKEN_CACHE_TTL_SECONDS = 14 * 60
 class _RDSCache:
     def __init__(self) -> None:
         self.rds_endpoint: str | None = None
-        self.rds_endpoint_expires_at = 0.0
+        self.rds_endpoint_expires_at_monotonic = 0.0
         self.rds_auth_token: str | None = None
-        self.rds_auth_token_expires_at = 0.0
+        self.rds_auth_token_expires_at_monotonic = 0.0
         self.rds_auth_token_endpoint: str | None = None
         self.rds_endpoint_lock = asyncio.Lock()
         self.rds_auth_token_lock = asyncio.Lock()
 
     async def get_rds_endpoint(self) -> str:
         now = time.monotonic()
-        if self.rds_endpoint and now < self.rds_endpoint_expires_at:
+        if self.rds_endpoint and now < self.rds_endpoint_expires_at_monotonic:
             return self.rds_endpoint
 
         async with self.rds_endpoint_lock:
             now = time.monotonic()
-            if self.rds_endpoint and now < self.rds_endpoint_expires_at:
+            if self.rds_endpoint and now < self.rds_endpoint_expires_at_monotonic:
                 return self.rds_endpoint
 
             async with aioboto3.Session().client(
@@ -51,7 +51,9 @@ class _RDSCache:
                 endpoint = response["DBInstances"][0]["Endpoint"]["Address"]
 
             self.rds_endpoint = endpoint
-            self.rds_endpoint_expires_at = now + _RDS_ENDPOINT_CACHE_TTL_SECONDS
+            self.rds_endpoint_expires_at_monotonic = (
+                now + _RDS_ENDPOINT_CACHE_TTL_SECONDS
+            )
             return endpoint
 
     async def get_rds_auth_token(self, db_endpoint: str) -> str:
@@ -59,7 +61,7 @@ class _RDSCache:
         if (
             self.rds_auth_token
             and self.rds_auth_token_endpoint == db_endpoint
-            and now < self.rds_auth_token_expires_at
+            and now < self.rds_auth_token_expires_at_monotonic
         ):
             return self.rds_auth_token
 
@@ -68,7 +70,7 @@ class _RDSCache:
             if (
                 self.rds_auth_token
                 and self.rds_auth_token_endpoint == db_endpoint
-                and now < self.rds_auth_token_expires_at
+                and now < self.rds_auth_token_expires_at_monotonic
             ):
                 return self.rds_auth_token
 
@@ -84,13 +86,15 @@ class _RDSCache:
 
             self.rds_auth_token = token
             self.rds_auth_token_endpoint = db_endpoint
-            self.rds_auth_token_expires_at = now + _RDS_AUTH_TOKEN_CACHE_TTL_SECONDS
+            self.rds_auth_token_expires_at_monotonic = (
+                now + _RDS_AUTH_TOKEN_CACHE_TTL_SECONDS
+            )
             return token
 
     def invalidate_rds_auth_token(self) -> None:
         self.rds_auth_token = None
         self.rds_auth_token_endpoint = None
-        self.rds_auth_token_expires_at = 0.0
+        self.rds_auth_token_expires_at_monotonic = 0.0
 
 
 _rds_cache = _RDSCache()

@@ -1,6 +1,6 @@
 import asyncio
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import ClassVar
 
 from shared.dtos.auction import Status
@@ -14,11 +14,11 @@ class AuctionManager:
 
     @classmethod
     def _purge(cls) -> None:
-        now = datetime.now()
+        now = datetime.now(UTC)
         for auction_id, auction in list(cls._auctions.items()):
             if auction.status == Status.COMPLETED:
                 del cls._auctions[auction_id]
-            elif auction.status == Status.WAITING and now > auction.exp:
+            elif auction.status == Status.WAITING and now > auction.expires_at:
                 del cls._auctions[auction_id]
                 asyncio.create_task(auction.set_status(Status.COMPLETED))
 
