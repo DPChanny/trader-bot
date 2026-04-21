@@ -2,7 +2,6 @@ name: deploy-frontend
 
 on:
   push:
-    branches: ["master"]
     tags: ["v*"]
     paths:
       - "frontend/**"
@@ -13,10 +12,10 @@ on:
         required: true
       ref:
         description: "Git ref (tag/branch/sha)"
-        required: false
+        required: true
 
 concurrency:
-  group: deploy-frontend-${{ inputs.phase || 'prod' }}
+  group: deploy-frontend-${{ inputs.phase }}
   cancel-in-progress: false
 
 jobs:
@@ -26,7 +25,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref || github.sha }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
 
       - name: Credential
         uses: aws-actions/configure-aws-credentials@v4
@@ -45,39 +44,47 @@ jobs:
       - name: Prepare
         id: prepare
         env:
-          BETA_DOMAIN: ${{ vars.BETA_DOMAIN || vars.DOMAIN }}
-          PROD_DOMAIN: ${{ vars.PROD_DOMAIN || vars.DOMAIN }}
-          BETA_S3_BUCKET_NAME: ${{ vars.BETA_S3_BUCKET_NAME || vars.S3_BUCKET_NAME }}
-          PROD_S3_BUCKET_NAME: ${{ vars.PROD_S3_BUCKET_NAME || vars.S3_BUCKET_NAME }}
-          BETA_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.BETA_CLOUDFRONT_DISTRIBUTION_ID || vars.CLOUDFRONT_DISTRIBUTION_ID }}
-          PROD_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.PROD_CLOUDFRONT_DISTRIBUTION_ID || vars.CLOUDFRONT_DISTRIBUTION_ID }}
+          DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${GITHUB_REF##*/}"
+            if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+b[0-9]*$ ]]; then
+              PHASE="beta"
+            elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              PHASE="prod"
+            else
+              echo "Unrecognized tag format: $TAG"
+              exit 1
+            fi
+          else
+            PHASE="${{ inputs.phase }}"
+          fi
+
+          DOMAIN=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.domain")
+          S3_BUCKET_NAME=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.bucket")
+          CLOUDFRONT_DISTRIBUTION_ID=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.cloudfront")
+
+          echo "DOMAIN=$DOMAIN" >> "$GITHUB_ENV"
+          echo "S3_BUCKET_NAME=$S3_BUCKET_NAME" >> "$GITHUB_ENV"
+          echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID" >> "$GITHUB_ENV"
+
+      - name: Validate
+        id: validate
+        env:
+          DOMAIN: ${{ steps.prepare.outputs.DOMAIN }}
+          S3_BUCKET_NAME: ${{ steps.prepare.outputs.S3_BUCKET_NAME }}
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ steps.prepare.outputs.CLOUDFRONT_DISTRIBUTION_ID }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
         run: |
           set -euo pipefail
 
-          PHASE="${{ inputs.phase || 'prod' }}"
-          case "$PHASE" in
-            beta)
-              DOMAIN="$BETA_DOMAIN"
-              S3_BUCKET="$BETA_S3_BUCKET_NAME"
-              CLOUDFRONT_DISTRIBUTION_ID="$BETA_CLOUDFRONT_DISTRIBUTION_ID"
-              ;;
-            prod)
-              DOMAIN="$PROD_DOMAIN"
-              S3_BUCKET="$PROD_S3_BUCKET_NAME"
-              CLOUDFRONT_DISTRIBUTION_ID="$PROD_CLOUDFRONT_DISTRIBUTION_ID"
-              ;;
-            *)
-              echo "Invalid phase: $PHASE"
-              exit 1
-              ;;
-          esac
-
           MISSING=0
-          for VAR in DOMAIN S3_BUCKET CLOUDFRONT_DISTRIBUTION_ID DISCORD_CLIENT_ID GUILD_INVITE_URL; do
-            if [ -z "${!VAR}" ]; then
-              echo "Missing required variable: $VAR"
+          for V in DISCORD_CLIENT_ID GUILD_INVITE_URL; do
+            if [ -z "${!V}" ]; then
+              echo "Missing required variable: $V"
               MISSING=1
             fi
           done
@@ -86,11 +93,11 @@ jobs:
           fi
 
           {
-            echo "PHASE=$PHASE"
-            echo "VITE_API_ORIGIN=https://$DOMAIN"
+            echo "PHASE=${{ inputs.phase }}"
+            echo "VITE_API_ORIGIN=https://${DOMAIN}"
             echo "VITE_DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID"
             echo "VITE_GUILD_INVITE_URL=$GUILD_INVITE_URL"
-            echo "S3_BUCKET=$S3_BUCKET"
+            echo "S3_BUCKET_NAME=$S3_BUCKET_NAME"
             echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID"
           } >> "$GITHUB_OUTPUT"
 

@@ -2,11 +2,17 @@
   "beta": {
     "redis": "BETA_REDIS_INSTANCE_ID",
     "backend": "BETA_BACKEND_INSTANCE_ID",
-    "bot": "BETA_BOT_INSTANCE_ID"
+    "bot": "BETA_BOT_INSTANCE_ID",
+    "domain": "BETA_DOMAIN",
+    "bucket": "BETA_S3_BUCKET_NAME",
+    "cloudfront": "BETA_CLOUDFRONT_DISTRIBUTION_ID"
   },
   "prod": {
     "redis": "PROD_REDIS_INSTANCE_ID",
     "backend": "PROD_BACKEND_INSTANCE_ID",
-    "bot": "PROD_BOT_INSTANCE_ID"
+    "bot": "PROD_BOT_INSTANCE_ID",
+    "domain": "PROD_DOMAIN",
+    "bucket": "PROD_S3_BUCKET_NAME",
+    "cloudfront": "PROD_CLOUDFRONT_DISTRIBUTION_ID"
   }
 }
