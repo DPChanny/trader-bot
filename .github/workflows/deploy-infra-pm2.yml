@@ -10,14 +10,12 @@ on:
       phase:
         description: "Phase(beta, prod)"
         required: true
-        default: "prod"
       ref:
         description: "Git ref (tag/branch/sha)"
         required: true
       target:
         description: "Target(backend, bot, all)"
         required: false
-        default: "all"
 
 concurrency:
   group: deploy-infra-pm2-${{ inputs.phase || 'prod' }}

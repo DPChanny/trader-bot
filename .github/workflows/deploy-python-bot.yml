@@ -9,7 +9,6 @@ on:
       phase:
         description: "Phase(beta, prod)"
         required: true
-        default: "prod"
       ref:
         description: "Git ref (tag/branch/sha)"
         required: true
