@@ -7,8 +7,8 @@ cd /
 
 sudo apt-get install -y --no-install-recommends nginx
 
-sudo truncate -s 0 /etc/nginx/sites-available/default
-sudo rm -f /etc/nginx/sites-enabled/default
+sudo rm -f /etc/nginx/sites-available/* || true
+sudo rm -f /etc/nginx/sites-enabled/* || true
 
 sudo nginx -t
 
