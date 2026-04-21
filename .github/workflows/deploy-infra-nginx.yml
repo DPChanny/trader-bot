@@ -58,6 +58,15 @@ jobs:
             exit 1
           fi
 
+          BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].backend // empty')
+          BOT_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].bot // empty')
+          REDIS_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].redis // empty')
+
+          if [ -z "$BACKEND_INSTANCE_ID" ] || [ -z "$BOT_INSTANCE_ID" ] || [ -z "$REDIS_INSTANCE_ID" ]; then
+            echo "DEPLOY_MAP must contain phase keys redis/backend/bot with single instance ids"
+            exit 1
+          fi
+
           if ! printf '%s' "$REF" | grep -Eq '^[A-Za-z0-9._/-]+$'; then
             echo "Invalid ref format: $REF"
             exit 1
@@ -67,10 +76,7 @@ jobs:
             exit 1
           fi
 
-          INSTANCE_IDS=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '
-            .[$phase].backend // empty |
-            if type == "array" then .[] else . end
-          ' | awk 'NF' | sort -u | xargs)
+          INSTANCE_IDS=$(printf '%s\n' "$BACKEND_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
 
           if [ -z "$INSTANCE_IDS" ]; then
             echo "No backend instance ids for phase=$PHASE in vars.DEPLOY_MAP"

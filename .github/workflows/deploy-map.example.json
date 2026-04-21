@@ -1,12 +1,12 @@
 {
   "beta": {
-    "redis": "i-REPLACE_BETA_REDIS",
-    "backend": ["i-REPLACE_BETA_BACKEND"],
-    "bot": ["i-REPLACE_BETA_BACKEND"]
+    "redis": "BETA_REDIS_INSTANCE_ID",
+    "backend": "BETA_BACKEND_INSTANCE_ID",
+    "bot": "BETA_BOT_INSTANCE_ID"
   },
   "prod": {
-    "redis": "i-REPLACE_PROD_REDIS",
-    "backend": ["i-REPLACE_PROD_BACKEND_A", "i-REPLACE_PROD_BACKEND_B"],
-    "bot": ["i-REPLACE_PROD_BOT"]
+    "redis": "PROD_REDIS_INSTANCE_ID",
+    "backend": "PROD_BACKEND_INSTANCE_ID",
+    "bot": "PROD_BOT_INSTANCE_ID"
   }
 }

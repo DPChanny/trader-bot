@@ -126,6 +126,10 @@ Current deployment model:
 - Role: redis, backend, bot
 - Infra: nginx, pm2, cloudwatch
 - Target instances are selected from repository variable DEPLOY_MAP
+- Infra role mapping is fixed in workflows:
+  - nginx -> backend
+  - pm2 -> backend/bot
+  - cloudwatch -> backend/bot
 
 ### 1) Prepare AMI/instances
 
@@ -181,16 +185,22 @@ Template shape:
 {
   "beta": {
     "redis": "i-REPLACE_BETA_REDIS",
-    "backend": ["i-REPLACE_BETA_BACKEND"],
-    "bot": ["i-REPLACE_BETA_BACKEND"]
+    "backend": "i-REPLACE_BETA_BACKEND",
+    "bot": "i-REPLACE_BETA_BACKEND"
   },
   "prod": {
     "redis": "i-REPLACE_PROD_REDIS",
-    "backend": ["i-REPLACE_PROD_BACKEND_A", "i-REPLACE_PROD_BACKEND_B"],
-    "bot": ["i-REPLACE_PROD_BOT"]
+    "backend": "i-REPLACE_PROD_BACKEND",
+    "bot": "i-REPLACE_PROD_BOT"
   }
 }
 ```
+
+Notes:
+
+- Each phase must define all three keys: redis, backend, bot.
+- Each key is a single instance id string.
+- If backend and bot share one host, set the same instance id for both.
 
 Set DEPLOY_MAP with minified one-line JSON.
 
