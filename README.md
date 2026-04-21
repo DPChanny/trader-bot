@@ -2,7 +2,7 @@
 
 Monorepo for the Discord auction tool stack:
 
-- Frontend app: vite/
+- Frontend app: frontend/
 - API server: python/backend/
 - Discord bot: python/bot/
 - Shared domain and data layer: python/shared/
@@ -28,7 +28,7 @@ VS Code tasks are already defined in .vscode/tasks.json:
 
 Equivalent terminal commands:
 
-- Frontend: cd vite && npm run dev
+- Frontend: cd frontend && npm run dev
 - Backend: cd python && uv run python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 - Bot: cd python && uv run python -m bot.main
 
@@ -47,10 +47,10 @@ Workflow map:
 
 - Frontend distribute: .github/workflows/frontend-distribute.yml
   Trigger: push tag v\* or manual
-  Result: build vite and sync to S3
+  Result: build frontend and sync to S3
 - Frontend public distribute: .github/workflows/frontend-public-distribute.yml
-  Trigger: changes in vite/public/\*\* or manual
-  Result: build vite and sync to S3
+  Trigger: changes in frontend/public/\*\* or manual
+  Result: build frontend and sync to S3
 - Frontend invalidate: .github/workflows/frontend-invalidate.yml
   Trigger: after frontend distribute workflows
   Result: CloudFront invalidation
@@ -90,14 +90,18 @@ Optional but commonly needed:
 ### Quick setup
 
 1. Install frontend dependencies.
-   - cd vite
-   - npm ci
+
+- cd frontend
+- npm ci
+
 2. Install Python dependencies.
    - cd ../python
    - uv sync
 3. Create runtime env files.
    - python/.env (from python/.env.example)
-   - vite/.env.local (for local frontend variables)
+
+- frontend/.env.local (for local frontend variables)
+
 4. Start dev tasks.
    - Run All Dev in VS Code, or run each command manually.
 
@@ -133,9 +137,9 @@ Database note:
 - No static DB password is stored in env.
 - The app resolves RDS endpoint and generates IAM auth token at runtime in python/shared/utils/db.py.
 
-### Frontend env (vite/.env.local)
+### Frontend env (frontend/.env.local)
 
-Used from vite/src/utils/env.ts:
+Used from frontend/src/utils/env.ts:
 
 - VITE_API_ORIGIN (optional, default: http://127.0.0.1:8000)
 - VITE_DISCORD_CLIENT_ID (required for bot invite URL)
