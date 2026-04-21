@@ -2,6 +2,7 @@ name: infra-pm2
 
 on:
   push:
+    branches: ["master"]
     paths:
       - "infra/pm2/**"
   workflow_dispatch:

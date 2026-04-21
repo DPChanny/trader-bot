@@ -2,6 +2,7 @@ name: infra-nginx
 
 on:
   push:
+    branches: ["master"]
     paths:
       - "infra/nginx/**"
   workflow_dispatch:

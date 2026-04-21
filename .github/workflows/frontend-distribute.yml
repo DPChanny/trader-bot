@@ -1,16 +1,19 @@
-name: frontend-distribute
+name: vite-frontend
 
 on:
   push:
+    branches: ["master"]
     tags: ["v*"]
+    paths:
+      - "vite/public/**"
   workflow_dispatch:
     inputs:
       tag:
         description: "Version"
-        required: true
+        required: false
 
 concurrency:
-  group: frontend-distribute
+  group: vite-frontend
   cancel-in-progress: false
 
 jobs:
@@ -20,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          ref: ${{ inputs.tag || github.sha }}
 
       - name: Credential
         uses: aws-actions/configure-aws-credentials@v4
@@ -40,21 +43,23 @@ jobs:
         id: prepare
         run: |
           {
-            echo "api_origin=https://${{ vars.DOMAIN }}"
-            echo "discord_client_id=${{ vars.DISCORD_CLIENT_ID }}"
-            echo "guild_invite_url=${{ vars.GUILD_INVITE_URL }}"
-            echo "s3_bucket=${{ vars.S3_BUCKET_NAME }}"
+            echo "VITE_API_ORIGIN=https://${{ vars.DOMAIN }}"
+            echo "VITE_DISCORD_CLIENT_ID=${{ vars.DISCORD_CLIENT_ID }}"
+            echo "VITE_GUILD_INVITE_URL=${{ vars.GUILD_INVITE_URL }}"
+            echo "S3_BUCKET=${{ vars.S3_BUCKET_NAME }}"
+            echo "CLOUDFRONT_DISTRIBUTION_ID=${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Validate
         run: |
-          VITE_API_ORIGIN="${{ steps.prepare.outputs.api_origin }}"
-          VITE_DISCORD_CLIENT_ID="${{ steps.prepare.outputs.discord_client_id }}"
-          VITE_GUILD_INVITE_URL="${{ steps.prepare.outputs.guild_invite_url }}"
-          S3_BUCKET="${{ steps.prepare.outputs.s3_bucket }}"
+          VITE_API_ORIGIN="${{ steps.prepare.outputs.VITE_API_ORIGIN }}"
+          VITE_DISCORD_CLIENT_ID="${{ steps.prepare.outputs.VITE_DISCORD_CLIENT_ID }}"
+          VITE_GUILD_INVITE_URL="${{ steps.prepare.outputs.VITE_GUILD_INVITE_URL }}"
+          S3_BUCKET="${{ steps.prepare.outputs.S3_BUCKET }}"
+          CLOUDFRONT_DISTRIBUTION_ID="${{ steps.prepare.outputs.CLOUDFRONT_DISTRIBUTION_ID }}"
 
           MISSING=0
-          for VAR in VITE_API_ORIGIN VITE_DISCORD_CLIENT_ID VITE_GUILD_INVITE_URL S3_BUCKET; do
+          for VAR in VITE_API_ORIGIN VITE_DISCORD_CLIENT_ID VITE_GUILD_INVITE_URL S3_BUCKET CLOUDFRONT_DISTRIBUTION_ID; do
             if [ -z "${!VAR}" ]; then
               echo "Missing required variable: $VAR"
               MISSING=1
@@ -68,12 +73,14 @@ jobs:
       - name: Run
         working-directory: vite
         env:
-          VITE_API_ORIGIN: ${{ steps.prepare.outputs.api_origin }}
-          VITE_DISCORD_CLIENT_ID: ${{ steps.prepare.outputs.discord_client_id }}
-          VITE_GUILD_INVITE_URL: ${{ steps.prepare.outputs.guild_invite_url }}
-          S3_BUCKET: ${{ steps.prepare.outputs.s3_bucket }}
+          VITE_API_ORIGIN: ${{ steps.prepare.outputs.VITE_API_ORIGIN }}
+          VITE_DISCORD_CLIENT_ID: ${{ steps.prepare.outputs.VITE_DISCORD_CLIENT_ID }}
+          VITE_GUILD_INVITE_URL: ${{ steps.prepare.outputs.VITE_GUILD_INVITE_URL }}
+          S3_BUCKET: ${{ steps.prepare.outputs.S3_BUCKET }}
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ steps.prepare.outputs.CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
           npm ci
           npm run build
           cd ..
           aws s3 sync vite/dist s3://$S3_BUCKET --delete
+          aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*"

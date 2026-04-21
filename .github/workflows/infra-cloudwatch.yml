@@ -2,6 +2,7 @@ name: infra-cloudwatch
 
 on:
   push:
+    branches: ["master"]
     paths:
       - "infra/cloudwatch/**"
   workflow_dispatch:

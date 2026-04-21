@@ -2,7 +2,11 @@ name: python-env
 
 on:
   push:
+    branches: ["master"]
     tags: ["v*"]
+    paths:
+      - "python/pyproject.toml"
+      - "python/uv.lock"
   workflow_dispatch:
     inputs:
       tag:
