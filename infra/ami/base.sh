@@ -1,21 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "${EUID}" -ne 0 ]; then
-	echo "Run as root"
-	exit 1
-fi
-
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get update
-apt-get install -y --no-install-recommends \
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends \
 	curl \
 	git \
+	jq \
+	lsof \
 	unzip \
 	htop
 
 curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
-./aws/install
+sudo ./aws/install
 rm -rf awscliv2.zip ./aws
+
+sudo install -d -m 755 -o ubuntu -g ubuntu /var/www
+sudo rm -rf /var/www/trader-bot
+git clone https://github.com/DPChanny/trader-bot /var/www/trader-bot
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+bash "${SCRIPT_DIR}/../cloudwatch/ami.sh"
