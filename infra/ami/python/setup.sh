@@ -13,4 +13,8 @@ sudo npm install -g npm@latest
 
 curl -fsSL https://astral.sh/uv/install.sh | sudo env UV_INSTALL_DIR=/usr/local/bin sh
 
+if [ -d "/var/www/trader-bot/python" ]; then
+	bash -lc 'cd /var/www/trader-bot/python && uv sync --frozen'
+fi
+
 bash "${SCRIPT_DIR}/../pm2/ami.sh"
