@@ -113,7 +113,6 @@ jobs:
               ("cd " + $repo),
               "sudo -u ubuntu git -C /var/www/trader-bot fetch --all --tags",
               ("sudo -u ubuntu git -C /var/www/trader-bot checkout --detach " + $ref),
-              "sudo install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
               "sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
               "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then",
               ("  sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json"),
