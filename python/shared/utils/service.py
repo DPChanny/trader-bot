@@ -66,7 +66,7 @@ def bot_service(func):
             result = await func(*args, **kwargs)
             if event.result is None:
                 event.result = result
-            _log_event(event, "DEBUG")
+            _log_event(event, "INFO")
             return result
         except AppError as error:
             _log_event(event, get_error_level(error))
@@ -96,7 +96,7 @@ def ws_service(func):
         except WSError as error:
             _log_event(event, get_error_level(error))
             raise
-        except (ValidationError, JSONDecodeError):
+        except ValidationError, JSONDecodeError:
             _log_event(event, "WARNING")
             raise
         except Exception as error:

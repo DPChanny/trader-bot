@@ -28,7 +28,7 @@ async def on_guild_update_service(
         after_owner_member = await update_member_role(
             guild_id, after.owner_id, Role.OWNER, session
         )
-        event.detail = {
+        event.detail |= {
             "before_owner_member_id": before_owner_member.member_id,
             "after_owner_member_id": after_owner_member.member_id,
         }
