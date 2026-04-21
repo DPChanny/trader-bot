@@ -4,11 +4,6 @@ on:
   workflow_run:
     workflows: ["python-env"]
     types: [completed]
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Version"
-        required: true
 
 concurrency:
   group: python
@@ -16,7 +11,7 @@ concurrency:
 
 jobs:
   run:
-    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Credential
@@ -29,28 +24,29 @@ jobs:
       - name: Prepare
         id: prepare
         run: |
-          if [ "${{ github.event_name }}" = "workflow_run" ]; then
-            REF="${{ github.event.workflow_run.head_sha }}"
-          else
-            REF="${{ inputs.tag || github.ref_name }}"
-          fi
+          REF="${{ github.event.workflow_run.head_sha }}"
           INSTANCE_IDS=$(printf '%s\n%s\n%s\n' \
             "${{ vars.NGINX_INSTANCE_ID }}" \
             "${{ vars.CLOUDWATCH_INSTANCE_ID }}" \
             "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
 
           {
-            echo "ref=$REF"
-            echo "instance_ids=$INSTANCE_IDS"
+            echo "REF=$REF"
+            echo "INSTANCE_IDS=$INSTANCE_IDS"
           } >> "$GITHUB_OUTPUT"
 
       - name: Validate
         run: |
-          REF="${{ steps.prepare.outputs.ref }}"
-          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
+          REF="${{ steps.prepare.outputs.REF }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.INSTANCE_IDS }}"
 
           if [ -z "$REF" ]; then
             echo "Missing ref from prepare"
+            exit 1
+          fi
+
+          if ! printf '%s' "$REF" | grep -Eq '^[A-Fa-f0-9]{40}$'; then
+            echo "Invalid ref format from workflow_run head_sha: $REF"
             exit 1
           fi
 
@@ -61,8 +57,8 @@ jobs:
 
       - name: Run
         run: |
-          REF="${{ steps.prepare.outputs.ref }}"
-          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
+          REF="${{ steps.prepare.outputs.REF }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.INSTANCE_IDS }}"
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \

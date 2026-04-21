@@ -7,8 +7,8 @@ on:
       - "infra/nginx/**"
   workflow_dispatch:
     inputs:
-      tag:
-        description: "Version"
+      ref:
+        description: "Git ref (tag/branch/sha)"
         required: true
 
 concurrency:
@@ -31,7 +31,7 @@ jobs:
         run: |
           TARGET="backend"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            REF="${{ inputs.tag }}"
+            REF="${{ inputs.ref }}"
           else
             REF="${{ github.sha }}"
           fi
@@ -39,16 +39,16 @@ jobs:
           INSTANCE_IDS=$(printf '%s\n' "${{ vars.NGINX_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
 
           {
-            echo "target=$TARGET"
-            echo "ref=$REF"
-            echo "instance_ids=$INSTANCE_IDS"
+            echo "TARGET=$TARGET"
+            echo "REF=$REF"
+            echo "INSTANCE_IDS=$INSTANCE_IDS"
           } >> "$GITHUB_OUTPUT"
 
       - name: Validate
         run: |
-          TARGET="${{ steps.prepare.outputs.target }}"
-          REF="${{ steps.prepare.outputs.ref }}"
-          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
+          TARGET="${{ steps.prepare.outputs.TARGET }}"
+          REF="${{ steps.prepare.outputs.REF }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.INSTANCE_IDS }}"
 
           if [ "$TARGET" != "backend" ]; then
             echo "Invalid target: $TARGET (expected backend)"
@@ -60,6 +60,15 @@ jobs:
             exit 1
           fi
 
+          if ! printf '%s' "$REF" | grep -Eq '^[A-Za-z0-9._/-]+$'; then
+            echo "Invalid ref format: $REF"
+            exit 1
+          fi
+          if printf '%s' "$REF" | grep -Eq '^-'; then
+            echo "Invalid ref format (cannot start with '-'): $REF"
+            exit 1
+          fi
+
           if [ -z "$INSTANCE_IDS" ]; then
             echo "No instance ids provided. Set vars.NGINX_INSTANCE_ID"
             exit 1
@@ -67,9 +76,9 @@ jobs:
 
       - name: Run
         run: |
-          TARGET="${{ steps.prepare.outputs.target }}"
-          REF="${{ steps.prepare.outputs.ref }}"
-          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
+          TARGET="${{ steps.prepare.outputs.TARGET }}"
+          REF="${{ steps.prepare.outputs.REF }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.INSTANCE_IDS }}"
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \

@@ -8,8 +8,8 @@ on:
       - "vite/public/**"
   workflow_dispatch:
     inputs:
-      tag:
-        description: "Version"
+      ref:
+        description: "Git ref (tag/branch/sha)"
         required: false
 
 concurrency:
@@ -23,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag || github.sha }}
+          ref: ${{ inputs.ref || github.sha }}
 
       - name: Credential
         uses: aws-actions/configure-aws-credentials@v4
@@ -52,6 +52,7 @@ jobs:
 
       - name: Validate
         run: |
+          INPUT_REF="${{ inputs.ref }}"
           VITE_API_ORIGIN="${{ steps.prepare.outputs.VITE_API_ORIGIN }}"
           VITE_DISCORD_CLIENT_ID="${{ steps.prepare.outputs.VITE_DISCORD_CLIENT_ID }}"
           VITE_GUILD_INVITE_URL="${{ steps.prepare.outputs.VITE_GUILD_INVITE_URL }}"
@@ -59,6 +60,17 @@ jobs:
           CLOUDFRONT_DISTRIBUTION_ID="${{ steps.prepare.outputs.CLOUDFRONT_DISTRIBUTION_ID }}"
 
           MISSING=0
+          if [ -n "$INPUT_REF" ]; then
+            if ! printf '%s' "$INPUT_REF" | grep -Eq '^[A-Za-z0-9._/-]+$'; then
+              echo "Invalid ref format: $INPUT_REF"
+              MISSING=1
+            fi
+            if printf '%s' "$INPUT_REF" | grep -Eq '^-'; then
+              echo "Invalid ref format (cannot start with '-'): $INPUT_REF"
+              MISSING=1
+            fi
+          fi
+
           for VAR in VITE_API_ORIGIN VITE_DISCORD_CLIENT_ID VITE_GUILD_INVITE_URL S3_BUCKET CLOUDFRONT_DISTRIBUTION_ID; do
             if [ -z "${!VAR}" ]; then
               echo "Missing required variable: $VAR"

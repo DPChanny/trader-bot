@@ -9,8 +9,8 @@ on:
       - "python/uv.lock"
   workflow_dispatch:
     inputs:
-      tag:
-        description: "Version"
+      ref:
+        description: "Git ref (tag/branch/sha)"
         required: true
 
 concurrency:
@@ -66,25 +66,39 @@ jobs:
           done
 
           {
-            echo "instance_ids=$INSTANCE_IDS"
-            echo "env<<EOF"
+            echo "INSTANCE_IDS=$INSTANCE_IDS"
+            echo "ENV<<EOF"
             printf '%s\n' "$ENV"
             echo "EOF"
-            echo "missing_vars=$MISSING_VARS"
+            echo "MISSING_VARS=$MISSING_VARS"
           } >> "$GITHUB_OUTPUT"
 
       - name: Validate
         run: |
           MISSING=0
-          MISSING_VARS="${{ steps.prepare.outputs.missing_vars }}"
+          REF="${{ inputs.ref || '' }}"
+          MISSING_VARS="${{ steps.prepare.outputs.MISSING_VARS }}"
 
-          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.INSTANCE_IDS }}"
           if [ -z "$INSTANCE_IDS" ]; then
             echo "No instance ids provided. Set vars.CLOUDWATCH_INSTANCE_ID and/or vars.PM2_INSTANCE_ID"
             MISSING=1
           fi
 
-          ENV="${{ steps.prepare.outputs.env }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -z "$REF" ]; then
+              echo "Missing required ref input"
+              MISSING=1
+            elif ! printf '%s' "$REF" | grep -Eq '^[A-Za-z0-9._/-]+$'; then
+              echo "Invalid ref format: $REF"
+              MISSING=1
+            elif printf '%s' "$REF" | grep -Eq '^-'; then
+              echo "Invalid ref format (cannot start with '-') : $REF"
+              MISSING=1
+            fi
+          fi
+
+          ENV="${{ steps.prepare.outputs.ENV }}"
           if [ -z "$ENV" ]; then
             echo "Prepare output env is empty"
             MISSING=1
@@ -101,8 +115,8 @@ jobs:
 
       - name: Run
         run: |
-          INSTANCE_IDS="${{ steps.prepare.outputs.instance_ids }}"
-          ENV="${{ steps.prepare.outputs.env }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.INSTANCE_IDS }}"
+          ENV="${{ steps.prepare.outputs.ENV }}"
 
           COMMANDS_JSON=$(jq -n \
             --arg repo "/var/www/trader-bot" \
