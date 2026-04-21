@@ -10,6 +10,14 @@ export function useRoutePath() {
   );
 }
 
+export function useRouteQueryParam(name: string): string | null {
+  const [router] = useRouter();
+  return useMemo(() => {
+    const url = new URL(router.url, window.location.origin);
+    return url.searchParams.get(name);
+  }, [router.url, name]);
+}
+
 function getRequiredRouteParam<T>(value: T | null): T {
   if (value === null) {
     handleAppError(FrontendErrorCode.Unexpected.Internal);

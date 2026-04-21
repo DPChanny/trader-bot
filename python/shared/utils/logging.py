@@ -251,14 +251,16 @@ class HTTPLogger(BaseHTTPMiddleware):
                         else request.client.host,
                         "agent": request.headers.get("user-agent"),
                     },
-                    **(
-                        {"query": dict(request.query_params)}
-                        if request.query_params
-                        else {}
-                    ),
                 }
             }
         }
+
+        if request.query_params:
+            detail["http"]["request"]["query_params"] = {
+                key: values[0] if len(values) == 1 else values
+                for key in request.query_params
+                if (values := request.query_params.getlist(key))
+            }
 
         response: Response | None = None
         async with logging_context({"http": {"request": {"id": request_id}}}):

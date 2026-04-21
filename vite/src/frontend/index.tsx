@@ -1,7 +1,7 @@
 import { useEffect } from "preact/hooks";
 import { useState } from "preact/hooks";
 import { render } from "preact";
-import Router, { route, useRouter } from "preact-router";
+import Router, { route } from "preact-router";
 import type { RoutableProps } from "preact-router";
 import { QueryClientProvider } from "@tanstack/preact-query";
 import { MemberPage } from "@pages/memberPage/memberPage";
@@ -24,6 +24,7 @@ import {
   useLogout,
   useAuthGuard,
 } from "@hooks/auth";
+import { useRouteQueryParam } from "@hooks/router";
 import { useManifest } from "@hooks/public";
 import { useMyUser } from "@hooks/user";
 import { queryClient } from "@utils/query";
@@ -36,11 +37,8 @@ function HomePageRoute({}: RoutableProps) {
 }
 
 function PatchPageRoute({}: RoutableProps) {
-  const [router] = useRouter();
-  const url = new URL(router.url, window.location.origin);
   const version =
-    url.searchParams
-      .get("version")
+    useRouteQueryParam("version")
       ?.replace(/^\/+|\/+$/g, "")
       .trim() ?? "";
 
@@ -48,11 +46,8 @@ function PatchPageRoute({}: RoutableProps) {
 }
 
 function AnnouncementRoute({}: RoutableProps) {
-  const [router] = useRouter();
-  const url = new URL(router.url, window.location.origin);
   const name =
-    url.searchParams
-      .get("name")
+    useRouteQueryParam("name")
       ?.replace(/^\/+|\/+$/g, "")
       .trim() ?? "";
 
