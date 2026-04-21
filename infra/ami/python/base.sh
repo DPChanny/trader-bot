@@ -10,3 +10,4 @@ sudo apt-get install -y --no-install-recommends \
 	nodejs \
 	npm
 
+bash "${SCRIPT_DIR}/../pm2/ami.sh"

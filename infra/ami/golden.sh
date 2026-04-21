@@ -4,5 +4,7 @@ set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-bash "${SCRIPT_DIR}/base.sh"
-bash "${SCRIPT_DIR}/../../nginx/ami.sh"
+
+bash "${SCRIPT_DIR}/redis.sh"
+bash "${SCRIPT_DIR}/python/backend.sh"
+bash "${SCRIPT_DIR}/python/bot.sh"
