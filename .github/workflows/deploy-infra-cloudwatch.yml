@@ -12,7 +12,7 @@ on:
         description: "Git ref (tag/branch/sha)"
         required: true
       target:
-        description: "Target(backend, bot, all)"
+        description: "Target(backend, bot, redis, all)"
         required: true
 
 concurrency:
@@ -56,7 +56,7 @@ jobs:
           fi
 
           case "$TARGET" in
-            backend|bot|all) ;;
+            backend|bot|redis|all) ;;
             *)
               echo "Invalid target: $TARGET"
               exit 1
@@ -65,6 +65,7 @@ jobs:
 
           BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
           BOT_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
+          REDIS_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].redis')
 
           if [ -z "$BACKEND_INSTANCE_ID" ]; then
             echo "Missing required DEPLOY_MAP value: .${PHASE}.backend"
@@ -74,13 +75,19 @@ jobs:
             echo "Missing required DEPLOY_MAP value: .${PHASE}.bot"
             exit 1
           fi
+          if [ -z "$REDIS_INSTANCE_ID" ]; then
+            echo "Missing required DEPLOY_MAP value: .${PHASE}.redis"
+            exit 1
+          fi
 
           if [ "$TARGET" = "backend" ]; then
             INSTANCE_IDS=$(printf '%s\n' "$BACKEND_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           elif [ "$TARGET" = "bot" ]; then
             INSTANCE_IDS=$(printf '%s\n' "$BOT_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
+          elif [ "$TARGET" = "redis" ]; then
+            INSTANCE_IDS=$(printf '%s\n' "$REDIS_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           else
-            INSTANCE_IDS=$(printf '%s\n%s\n' "$BACKEND_INSTANCE_ID" "$BOT_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
+            INSTANCE_IDS=$(printf '%s\n%s\n%s\n' "$BACKEND_INSTANCE_ID" "$BOT_INSTANCE_ID" "$REDIS_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           fi
 
           if [ -z "$INSTANCE_IDS" ]; then
@@ -114,18 +121,15 @@ jobs:
               "sudo -u ubuntu git -C /var/www/trader-bot fetch --all --tags",
               ("sudo -u ubuntu git -C /var/www/trader-bot checkout --detach " + $ref),
               "sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
-              "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then",
-              ("  sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json"),
-              "fi",
-              "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then",
-              ("  sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json"),
-              "fi",
               "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json -s",
               "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then",
-              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json"),
+              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json"),
               "fi",
               "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then",
-              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json"),
+              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json"),
+              "fi",
+              "if [ \"" + $target + "\" = \"redis\" ] || [ \"" + $target + "\" = \"all\" ]; then",
+              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-redis.json"),
               "fi",
               "sudo systemctl enable --now amazon-cloudwatch-agent",
               "sudo systemctl is-active --quiet amazon-cloudwatch-agent"
