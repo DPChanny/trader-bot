@@ -7,7 +7,7 @@ from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from .error import AppError, HTTPError, UnexpectedErrorCode, WSError, get_error_level
-from .logging import Event
+from .logging import Event, logging_context
 
 
 def _inject_event(
@@ -62,19 +62,20 @@ def bot_service(func):
         event = Event(Event.Type.BOT_SERVICE, detail={"function": func.__name__})
         _inject_event(sig, args, kwargs, event)
 
-        try:
-            result = await func(*args, **kwargs)
-            if event.result is None:
-                event.result = result
-            _log_event(event, "INFO")
-            return result
-        except AppError as error:
-            _log_event(event, get_error_level(error))
-            raise
-        except Exception as error:
-            app_error = AppError(UnexpectedErrorCode.Internal)
-            _log_event(event, get_error_level(app_error))
-            raise app_error from error
+        async with logging_context({"function": func.__name__}):
+            try:
+                result = await func(*args, **kwargs)
+                if event.result is None:
+                    event.result = result
+                _log_event(event, "INFO")
+                return result
+            except AppError as error:
+                _log_event(event, get_error_level(error))
+                raise
+            except Exception as error:
+                app_error = AppError(UnexpectedErrorCode.Internal)
+                _log_event(event, get_error_level(app_error))
+                raise app_error from error
 
     return wrapper
 

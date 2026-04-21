@@ -2,7 +2,7 @@ import json
 import logging
 import sys
 from contextlib import asynccontextmanager
-from contextvars import ContextVar, Token
+from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC
@@ -96,29 +96,17 @@ class Event:
         if self.detail is not None:
             yield "detail", _redact(self.detail)
 
-        context = _context.get()
-        if context is not None:
-            yield "context", _redact(context)
 
-
-_context: ContextVar[LogValue | None] = ContextVar("_context", default=None)
-
-
-def set_context(value: LogValue) -> Token[LogValue | None]:
-    return _context.set(value)
-
-
-def reset_context(token: Token[LogValue | None]) -> None:
-    _context.reset(token)
+_logging_context = ContextVar("_logging_context", default=None)
 
 
 @asynccontextmanager
-async def context(value: LogValue):
-    token = _context.set(value)
+async def logging_context(value: LogValue):
+    token = _logging_context.set(value)
     try:
         yield
     finally:
-        _context.reset(token)
+        _logging_context.reset(token)
 
 
 def _patcher(record: dict[str, Any]) -> None:
@@ -145,10 +133,13 @@ def _patcher(record: dict[str, Any]) -> None:
         "level": record["level"].name,
         "source": source,
     }
+    context = _logging_context.get()
     if record["message"]:
         log["message"] = record["message"]
     if event is not None:
         log["event"] = event
+    if context is not None:
+        log["logger_context"] = _redact(context)
     if extra:
         log["extra"] = extra
 
@@ -268,7 +259,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         }
 
         response: Response | None = None
-        async with context({"http": {"request": {"id": request_id}}}):
+        async with logging_context({"http": {"request": {"id": request_id}}}):
             try:
                 response = await call_next(request)
                 response.headers["X-Request-ID"] = request_id
