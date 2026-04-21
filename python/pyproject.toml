@@ -1,7 +1,7 @@
 [project]
 name = "trader-bot-python"
 version = "v0.3.0a0"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
     "fastapi",
     "uvicorn[standard]",
@@ -22,7 +22,7 @@ dev = [
 ]
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py314"
 
 [tool.ruff.format]
 skip-magic-trailing-comma = true

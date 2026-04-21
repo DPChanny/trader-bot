@@ -93,7 +93,7 @@ async def connect_service(
     dto: AuthPayloadDTO,
     session: AsyncSession,
     event: Event,
-) -> tuple["Auction", int | None, int | None]:
+) -> tuple[Auction, int | None, int | None]:
     event.input |= {"auction_id": auction_id}
 
     auction = AuctionManager.get_auction(auction_id)

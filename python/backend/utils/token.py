@@ -28,7 +28,7 @@ class JWTToken:
     _exp_delta: ClassVar[timedelta]
 
     @classmethod
-    def create(cls, user_id: int) -> tuple[str, "JWTToken.Payload"]:
+    def create(cls, user_id: int) -> tuple[str, JWTToken.Payload]:
         exp = datetime.now(UTC) + cls._exp_delta
         payload = cls.Payload(user_id=user_id, exp=int(exp.timestamp()), type=cls._type)
         token = jwt.encode(
@@ -37,7 +37,7 @@ class JWTToken:
         return token, payload
 
     @classmethod
-    def decode(cls, jwt_token: str) -> "JWTToken.Payload":
+    def decode(cls, jwt_token: str) -> JWTToken.Payload:
         try:
             data = jwt.decode(
                 jwt_token, get_jwt_secret(), algorithms=[get_jwt_algorithm()]
@@ -68,7 +68,7 @@ class ExchangeToken:
         refresh_token: str
         exp: float
 
-    _exchange_tokens: dict[str, "ExchangeToken.Payload"] = {}
+    _exchange_tokens: dict[str, ExchangeToken.Payload] = {}
 
     @classmethod
     def _purge(cls) -> None:

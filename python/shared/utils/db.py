@@ -76,7 +76,7 @@ async def setup_db():
         await conn.run_sync(BaseEntity.metadata.create_all, checkfirst=True)
 
 
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
+async def get_session() -> AsyncGenerator[AsyncSession]:
     async with _sessionmaker() as session:
         try:
             yield session
