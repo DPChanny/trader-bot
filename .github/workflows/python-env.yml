@@ -37,7 +37,7 @@ jobs:
           APP_ORIGIN: https://${{ vars.DOMAIN }}
           API_ORIGIN: https://${{ vars.DOMAIN }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          RDS_INSTANCE_IDENTIFIER: ${{ vars.RDS_INSTANCE_ID }}
+          RDS_INSTANCE_ID: ${{ vars.RDS_INSTANCE_ID }}
           RDS_REGION: ${{ vars.AWS_REGION }}
         run: |
           INSTANCE_IDS=$(printf '%s\n%s\n' \
@@ -51,11 +51,11 @@ jobs:
             "APP_ORIGIN=$APP_ORIGIN" \
             "API_ORIGIN=$API_ORIGIN" \
             "JWT_SECRET=$JWT_SECRET" \
-            "RDS_INSTANCE_IDENTIFIER=$RDS_INSTANCE_IDENTIFIER" \
+            "RDS_INSTANCE_ID=$RDS_INSTANCE_ID" \
             "RDS_REGION=$RDS_REGION")"
 
           MISSING_VARS=""
-          for VAR in DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET APP_ORIGIN API_ORIGIN JWT_SECRET RDS_INSTANCE_IDENTIFIER RDS_REGION; do
+          for VAR in DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET APP_ORIGIN API_ORIGIN JWT_SECRET RDS_INSTANCE_ID RDS_REGION; do
             if [ -z "${!VAR}" ]; then
               if [ -z "$MISSING_VARS" ]; then
                 MISSING_VARS="$VAR"

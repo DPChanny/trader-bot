@@ -1,22 +1,29 @@
 import os
 from pathlib import Path
+from secrets import token_hex
 
 from dotenv import load_dotenv
 
 
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
+_jwt_secret = os.getenv("JWT_SECRET") or token_hex(32)
+
+
+def _get_required_env(key: str) -> str:
+    return os.environ[key]
+
 
 def get_discord_bot_token() -> str:
-    return os.getenv("DISCORD_BOT_TOKEN", "")
+    return _get_required_env("DISCORD_BOT_TOKEN")
 
 
 def get_discord_client_id() -> str:
-    return os.getenv("DISCORD_CLIENT_ID", "")
+    return _get_required_env("DISCORD_CLIENT_ID")
 
 
 def get_discord_client_secret() -> str:
-    return os.getenv("DISCORD_CLIENT_SECRET", "")
+    return _get_required_env("DISCORD_CLIENT_SECRET")
 
 
 def get_app_origin() -> str:
@@ -28,7 +35,7 @@ def get_api_origin() -> str:
 
 
 def get_jwt_secret() -> str:
-    return os.getenv("JWT_SECRET", "")
+    return _jwt_secret
 
 
 def get_jwt_algorithm() -> str:
@@ -51,8 +58,8 @@ def get_rds_region() -> str:
     return os.getenv("RDS_REGION", "ap-northeast-2")
 
 
-def get_rds_instance_identifier() -> str:
-    return os.getenv("RDS_INSTANCE_IDENTIFIER", "trader-bot-prod-rds")
+def get_rds_instance_id() -> str:
+    return _get_required_env("RDS_INSTANCE_ID")
 
 
 def get_log_level() -> str:

@@ -119,7 +119,7 @@ Common defaults and behavior:
 - APP_ORIGIN (default: http://127.0.0.1:5173)
 - API_ORIGIN (default: http://127.0.0.1:8000)
 - JWT_ALGORITHM (default: HS256)
-- RDS_INSTANCE_IDENTIFIER (default: trader-bot-prod-rds)
+- RDS_INSTANCE_ID (required)
 - RDS_REGION (default: ap-northeast-2)
 - DB_PORT (default: 5432)
 - DB_USER (default: trader)

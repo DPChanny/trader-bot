@@ -13,7 +13,7 @@ from shared.utils.error import AuthErrorCode, HTTPError, TokenError, TokenErrorC
 
 _ACCESS_TOKEN_LIFETIME = timedelta(minutes=15)
 _REFRESH_TOKEN_LIFETIME = timedelta(days=15)
-_EXCHANGE_TOKEN_TTL_SECONDS = 60
+_EXCHANGE_TOKEN_LIFETIME = timedelta(seconds=60)
 
 
 class JWTToken:
@@ -97,7 +97,8 @@ class ExchangeToken:
         cls._exchange_tokens[code] = ExchangeToken.Payload(
             access_token=access_token,
             refresh_token=refresh_token,
-            expires_at_monotonic=time.monotonic() + _EXCHANGE_TOKEN_TTL_SECONDS,
+            expires_at_monotonic=time.monotonic()
+            + _EXCHANGE_TOKEN_LIFETIME.total_seconds(),
         )
         return code
 

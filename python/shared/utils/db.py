@@ -1,6 +1,7 @@
 import asyncio
 import time
 from collections.abc import AsyncGenerator
+from datetime import timedelta
 
 import aioboto3
 import asyncpg
@@ -11,15 +12,15 @@ from .env import (
     get_db_name,
     get_db_port,
     get_db_user,
-    get_rds_instance_identifier,
+    get_rds_instance_id,
     get_rds_region,
 )
 
 
 _DB_CONNECT_MAX_RETRIES = 5
 _DB_CONNECT_BASE_DELAY = 1.0
-_RDS_ENDPOINT_CACHE_TTL_SECONDS = 300
-_RDS_AUTH_TOKEN_CACHE_TTL_SECONDS = 14 * 60
+_RDS_ENDPOINT_CACHE_LIFETIME = timedelta(minutes=5)
+_RDS_AUTH_TOKEN_CACHE_LIFETIME = timedelta(minutes=14)
 
 
 class _RDSCache:
@@ -46,13 +47,13 @@ class _RDSCache:
                 "rds", region_name=get_rds_region()
             ) as client:
                 response = await client.describe_db_instances(
-                    DBInstanceIdentifier=get_rds_instance_identifier()
+                    DBInstanceIdentifier=get_rds_instance_id()
                 )
                 endpoint = response["DBInstances"][0]["Endpoint"]["Address"]
 
             self.rds_endpoint = endpoint
             self.rds_endpoint_expires_at_monotonic = (
-                now + _RDS_ENDPOINT_CACHE_TTL_SECONDS
+                now + _RDS_ENDPOINT_CACHE_LIFETIME.total_seconds()
             )
             return endpoint
 
@@ -87,7 +88,7 @@ class _RDSCache:
             self.rds_auth_token = token
             self.rds_auth_token_endpoint = db_endpoint
             self.rds_auth_token_expires_at_monotonic = (
-                now + _RDS_AUTH_TOKEN_CACHE_TTL_SECONDS
+                now + _RDS_AUTH_TOKEN_CACHE_LIFETIME.total_seconds()
             )
             return token
 
