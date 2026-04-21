@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { clsx } from "clsx";
-import styles from "@styles/sideMenu/sideMenu.module.css";
+import styles from "@styles/components/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@hooks/guild";
 import { useOptionalGuildId, useOptionalPresetId } from "@hooks/router";
 import { CloseButton } from "@components/atoms/button";

@@ -1,4 +1,4 @@
-import styles from "@styles/header.module.css";
+import styles from "@styles/components/header.module.css";
 import { Button, DangerButton } from "@components/atoms/button";
 import { Image } from "@components/atoms/image";
 import { Row } from "@components/atoms/layout";

@@ -12,7 +12,7 @@ import { PatchPage } from "@pages/patchPage";
 import { AnnouncementPage } from "@pages/announcementPage";
 import { MarkedPage } from "@pages/markedPage";
 import { Header } from "@components/header";
-import { SideMenu } from "./sideMenu/sideMenu";
+import { SideMenu } from "./components/sideMenu/sideMenu";
 import { Modal, ModalFooter } from "./components/modal";
 import { Error } from "./components/molecules/error";
 import { PrimaryButton } from "./components/atoms/button";
@@ -30,7 +30,7 @@ import { useMyUser } from "@hooks/user";
 import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import { getNotes } from "@utils/marked";
-import "@styles/app.css";
+import "@styles/index.css";
 
 function HomePageRoute({}: RoutableProps) {
   return <HomePage />;
