@@ -2,7 +2,7 @@ from discord import Guild as DiscordGuild
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild import GuildDTO
-from shared.dtos.member import Role
+from shared.dtos.member import MemberDTO, Role
 from shared.entities import Guild
 from shared.repositories.guild_repository import GuildRepository
 from shared.repositories.member_repository import MemberRepository
@@ -43,33 +43,40 @@ async def delete_guild(guild_id: int, session: AsyncSession) -> GuildDTO:
     return dto
 
 
-async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> None:
+async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict[str, object]:
     guild_id = guild.id
-    await upsert_guild(guild, session)
+    guild_dto = await upsert_guild(guild, session)
 
     synced_member_ids: set[int] = set()
+    synced_members: list[MemberDTO] = []
+    owner_dto: MemberDTO | None = None
     async for member in guild.fetch_members():
         if member.bot:
             continue
-        await sync_member(member, session)
+        member_dto = await sync_member(member, session)
+        synced_members.append(member_dto)
         if member.guild_permissions.administrator and member.id != guild.owner_id:
             await sync_member_admin_role(guild_id, member.id, True, session)
         synced_member_ids.add(member.id)
 
     await session.flush()
 
-    await update_member_role(guild_id, guild.owner_id, Role.OWNER, session)
+    owner_dto = await update_member_role(guild_id, guild.owner_id, Role.OWNER, session)
 
     member_repo = MemberRepository(session)
-    removed_member_count = 0
+    removed_members: list[MemberDTO] = []
     member_entities = await member_repo.get_all_by_guild_id(guild.id)
     for member_entity in member_entities:
         if member_entity.user_id in synced_member_ids:
             continue
-        await delete_member(guild.id, member_entity.user_id, session)
-        removed_member_count += 1
+        removed_dto = await delete_member(guild.id, member_entity.user_id, session)
+        removed_members.append(removed_dto)
 
     return {
-        "synced_member_count": len(synced_member_ids),
-        "removed_member_count": removed_member_count,
+        "guild": guild_dto,
+        "synced_member_count": len(synced_members),
+        "synced_members": synced_members,
+        "owner": owner_dto,
+        "removed_member_count": len(removed_members),
+        "removed_members": removed_members,
     }

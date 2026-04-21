@@ -154,23 +154,27 @@ def _patcher(record: dict[str, Any]) -> None:
     parts = [f"{timestamp} | {log['level']:<8} | {source}"]
     if "message" in log:
         parts.append(log["message"])
-    if "context" in log:
-        parts.append(
-            f"context={json.dumps(log['context'], ensure_ascii=False, default=str)}"
-        )
     if extra:
         parts.append(json.dumps(extra, ensure_ascii=False, default=str))
     text = " | ".join(parts)
 
+    if "context" in log:
+        text += "\ncontext:\n" + json.dumps(
+            log["context"], ensure_ascii=False, indent=2, default=str
+        )
+
     if event is not None:
-        text_event = deepcopy(event)
-        detail = text_event.get("detail")
+        event = deepcopy(event)
+        detail = event.get("detail")
         traceback: str | None = None
         if isinstance(detail, dict):
             traceback = detail.pop("traceback", None)
-        text += "\n" + json.dumps(text_event, ensure_ascii=False, indent=2, default=str)
+
+        text += "\nevent:\n" + json.dumps(
+            event, ensure_ascii=False, indent=2, default=str
+        )
         if traceback:
-            text += "\n" + traceback
+            text += "\ntraceback:\n" + traceback
 
     record["extra"]["text"] = text
 

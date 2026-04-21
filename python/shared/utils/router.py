@@ -7,13 +7,7 @@ from typing import ParamSpec, TypeVar
 from fastapi import WebSocket
 
 from .db import get_session
-from .error import (
-    AppError,
-    UnexpectedErrorCode,
-    WSError,
-    handle_app_error,
-    handle_ws_error,
-)
+from .error import UnexpectedErrorCode, WSError, handle_ws_error
 
 
 P = ParamSpec("P")
@@ -52,16 +46,7 @@ def bot_router[**P, T](
 
     @functools.wraps(routed_func)
     async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T | None:
-        try:
-            return await routed_func(*args, **kwargs)
-        except AppError as error:
-            handle_app_error(error)
-            return None
-        except Exception as error:
-            app_error = AppError(UnexpectedErrorCode.Internal)
-            app_error.__cause__ = error
-            handle_app_error(app_error)
-            return None
+        return await routed_func(*args, **kwargs)
 
     return wrapper
 

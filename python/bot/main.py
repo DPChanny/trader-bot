@@ -1,10 +1,12 @@
 import asyncio
+import sys
 from pathlib import Path
 
 from discord import Intents
 from discord.ext import commands
 
 from shared.utils.env import get_discord_bot_token
+from shared.utils.error import AppError, UnexpectedErrorCode, handle_app_error
 from shared.utils.logging import setup_logging
 
 from .routers import (
@@ -29,6 +31,19 @@ async def main() -> None:
     include_guild_router(bot)
     include_member_router(bot)
     include_user_router(bot)
+
+    @bot.event
+    async def on_error(_event_method: str, *_args, **_kwargs) -> None:
+        _, error, _ = sys.exc_info()
+        if isinstance(error, AppError):
+            handle_app_error(error)
+            return
+
+        app_error = AppError(UnexpectedErrorCode.Internal)
+        if isinstance(error, BaseException):
+            app_error.__cause__ = error
+            app_error.__traceback__ = error.__traceback__
+        handle_app_error(app_error)
 
     await bot.start(get_discord_bot_token(), reconnect=True)
 
