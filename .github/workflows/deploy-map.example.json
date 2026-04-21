@@ -1,0 +1,12 @@
+{
+  "beta": {
+    "redis": "i-REPLACE_BETA_REDIS",
+    "backend": ["i-REPLACE_BETA_BACKEND"],
+    "bot": ["i-REPLACE_BETA_BACKEND"]
+  },
+  "prod": {
+    "redis": "i-REPLACE_PROD_REDIS",
+    "backend": ["i-REPLACE_PROD_BACKEND_A", "i-REPLACE_PROD_BACKEND_B"],
+    "bot": ["i-REPLACE_PROD_BOT"]
+  }
+}

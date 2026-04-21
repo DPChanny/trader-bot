@@ -1,0 +1,112 @@
+name: deploy-frontend
+
+on:
+  push:
+    branches: ["master"]
+    tags: ["v*"]
+    paths:
+      - "frontend/**"
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: "Phase(beta, prod)"
+        required: true
+        default: "prod"
+      ref:
+        description: "Git ref (tag/branch/sha)"
+        required: false
+
+concurrency:
+  group: deploy-frontend-${{ inputs.phase || 'prod' }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Credential
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Prepare
+        id: prepare
+        env:
+          BETA_DOMAIN: ${{ vars.BETA_DOMAIN || vars.DOMAIN }}
+          PROD_DOMAIN: ${{ vars.PROD_DOMAIN || vars.DOMAIN }}
+          BETA_S3_BUCKET_NAME: ${{ vars.BETA_S3_BUCKET_NAME || vars.S3_BUCKET_NAME }}
+          PROD_S3_BUCKET_NAME: ${{ vars.PROD_S3_BUCKET_NAME || vars.S3_BUCKET_NAME }}
+          BETA_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.BETA_CLOUDFRONT_DISTRIBUTION_ID || vars.CLOUDFRONT_DISTRIBUTION_ID }}
+          PROD_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.PROD_CLOUDFRONT_DISTRIBUTION_ID || vars.CLOUDFRONT_DISTRIBUTION_ID }}
+          DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
+          GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
+        run: |
+          set -euo pipefail
+
+          PHASE="${{ inputs.phase || 'prod' }}"
+          case "$PHASE" in
+            beta)
+              DOMAIN="$BETA_DOMAIN"
+              S3_BUCKET="$BETA_S3_BUCKET_NAME"
+              CLOUDFRONT_DISTRIBUTION_ID="$BETA_CLOUDFRONT_DISTRIBUTION_ID"
+              ;;
+            prod)
+              DOMAIN="$PROD_DOMAIN"
+              S3_BUCKET="$PROD_S3_BUCKET_NAME"
+              CLOUDFRONT_DISTRIBUTION_ID="$PROD_CLOUDFRONT_DISTRIBUTION_ID"
+              ;;
+            *)
+              echo "Invalid phase: $PHASE"
+              exit 1
+              ;;
+          esac
+
+          MISSING=0
+          for VAR in DOMAIN S3_BUCKET CLOUDFRONT_DISTRIBUTION_ID DISCORD_CLIENT_ID GUILD_INVITE_URL; do
+            if [ -z "${!VAR}" ]; then
+              echo "Missing required variable: $VAR"
+              MISSING=1
+            fi
+          done
+          if [ "$MISSING" -ne 0 ]; then
+            exit 1
+          fi
+
+          {
+            echo "PHASE=$PHASE"
+            echo "VITE_API_ORIGIN=https://$DOMAIN"
+            echo "VITE_DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID"
+            echo "VITE_GUILD_INVITE_URL=$GUILD_INVITE_URL"
+            echo "S3_BUCKET=$S3_BUCKET"
+            echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run
+        working-directory: frontend
+        env:
+          VITE_API_ORIGIN: ${{ steps.prepare.outputs.VITE_API_ORIGIN }}
+          VITE_DISCORD_CLIENT_ID: ${{ steps.prepare.outputs.VITE_DISCORD_CLIENT_ID }}
+          VITE_GUILD_INVITE_URL: ${{ steps.prepare.outputs.VITE_GUILD_INVITE_URL }}
+          S3_BUCKET: ${{ steps.prepare.outputs.S3_BUCKET }}
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ steps.prepare.outputs.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          cd ..
+          aws s3 sync frontend/dist s3://$S3_BUCKET --delete
+          aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*"

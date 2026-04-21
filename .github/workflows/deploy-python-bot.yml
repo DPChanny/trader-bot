@@ -1,0 +1,143 @@
+name: deploy-python-bot
+
+on:
+  workflow_run:
+    workflows: ["deploy-python"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: "Phase(beta, prod)"
+        required: true
+        default: "prod"
+      ref:
+        description: "Git ref (tag/branch/sha)"
+        required: true
+
+concurrency:
+  group: deploy-python-bot-${{ inputs.phase || 'prod' }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Credential
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Prepare
+        id: prepare
+        env:
+          DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            PHASE="${{ inputs.phase }}"
+            REF="${{ inputs.ref }}"
+          else
+            PHASE="prod"
+            REF="${{ github.event.workflow_run.head_sha }}"
+          fi
+
+          case "$PHASE" in
+            beta|prod) ;;
+            *)
+              echo "Invalid phase: $PHASE"
+              exit 1
+              ;;
+          esac
+
+          if [ -z "${DEPLOY_MAP}" ]; then
+            echo "Missing vars.DEPLOY_MAP"
+            exit 1
+          fi
+
+          if ! printf '%s' "$REF" | grep -Eq '^[A-Za-z0-9._/-]+$'; then
+            echo "Invalid ref format: $REF"
+            exit 1
+          fi
+          if printf '%s' "$REF" | grep -Eq '^-'; then
+            echo "Invalid ref format (cannot start with '-') : $REF"
+            exit 1
+          fi
+
+          INSTANCE_IDS=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '
+            .[$phase].bot // empty |
+            if type == "array" then .[] else . end
+          ' | awk 'NF' | sort -u | xargs)
+
+          if [ -z "$INSTANCE_IDS" ]; then
+            echo "No bot instance ids for phase=$PHASE in vars.DEPLOY_MAP"
+            exit 1
+          fi
+
+          {
+            echo "PHASE=$PHASE"
+            echo "REF=$REF"
+            echo "INSTANCE_IDS=$INSTANCE_IDS"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run
+        run: |
+          set -euo pipefail
+          PHASE="${{ steps.prepare.outputs.PHASE }}"
+          REF="${{ steps.prepare.outputs.REF }}"
+          INSTANCE_IDS="${{ steps.prepare.outputs.INSTANCE_IDS }}"
+
+          COMMANDS_JSON=$(jq -n \
+            --arg ref "$REF" \
+            --arg phase "$PHASE" \
+            --arg repo "/var/www/trader-bot" \
+            '{commands: [
+              "set -e",
+              ("cd " + $repo),
+              "sudo -iu ubuntu git fetch --all --tags",
+              ("sudo -iu ubuntu git checkout --detach " + $ref),
+              "cat <<'"'"'EOF'"'"' > /tmp/deploy-python-bot.sh",
+              "set -e",
+              "cd /var/www/trader-bot/python",
+              "uv sync --frozen",
+              "pm2 startup systemd -u ubuntu --hp /home/ubuntu || true",
+              "pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-pm2-bot",
+              "pm2 save",
+              "sudo install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
+              "sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
+              ("sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json"),
+              "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json -s",
+              ("sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json"),
+              "sudo systemctl enable pm2-ubuntu || true",
+              "sudo systemctl restart pm2-ubuntu || true",
+              "EOF",
+              "chmod 700 /tmp/deploy-python-bot.sh",
+              "sudo -iu ubuntu bash /tmp/deploy-python-bot.sh",
+              "rm -f /tmp/deploy-python-bot.sh"
+            ]}')
+
+          FAILED=0
+          for INSTANCE_ID in $INSTANCE_IDS; do
+            echo "[deploy-python-bot] phase=$PHASE instance=$INSTANCE_ID"
+            COMMAND_ID=$(aws ssm send-command \
+              --instance-ids "$INSTANCE_ID" \
+              --document-name "AWS-RunShellScript" \
+              --parameters "$COMMANDS_JSON" \
+              --query "Command.CommandId" \
+              --output text)
+
+            aws ssm wait command-executed \
+              --command-id "$COMMAND_ID" \
+              --instance-id "$INSTANCE_ID" || FAILED=1
+
+            aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "$INSTANCE_ID" \
+              --query '[Status,StandardOutputContent,StandardErrorContent]' \
+              --output text
+          done
+
+          test "$FAILED" -eq 0

@@ -1,176 +1,167 @@
 # trader-bot
 
-Monorepo for the Discord auction tool stack:
+Discord auction tool monorepo.
 
 - Frontend app: frontend/
-- API server: python/backend/
+- Python API server: python/backend/
 - Discord bot: python/bot/
-- Shared domain and data layer: python/shared/
+- Shared domain layer: python/shared/
 - Infra assets: infra/
 
-## 1) Workflow
+## Development Setup
 
-### Local development workflow
+### Prerequisites
 
-Recommended order:
-
-1. Start frontend, backend, and bot in parallel.
-2. Use the frontend on http://127.0.0.1:5173.
-3. Confirm API health on http://127.0.0.1:8000/health.
-4. Iterate on backend/bot code and validate logs.
-
-VS Code tasks are already defined in .vscode/tasks.json:
-
-- Run Frontend Dev
-- Run Backend Dev
-- Run Bot Dev
-- Run All Dev (runs all three in parallel)
-
-Equivalent terminal commands:
-
-- Frontend: cd frontend && npm run dev
-- Backend: cd python && uv run python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
-- Bot: cd python && uv run python -m bot.main
-
-### CI/CD workflow
-
-All GitHub Actions workflows follow the same pattern:
-
-1. Credential or Checkout
-2. Prepare
-3. Validate
-4. Run
-
-This keeps runtime steps clean and fails fast when required values are missing.
-
-Workflow map:
-
-- Frontend distribute: .github/workflows/frontend-distribute.yml
-  Trigger: push tag v\* or manual
-  Result: build frontend and sync to S3
-- Frontend public distribute: .github/workflows/frontend-public-distribute.yml
-  Trigger: changes in frontend/public/\*\* or manual
-  Result: build frontend and sync to S3
-- Frontend invalidate: .github/workflows/frontend-invalidate.yml
-  Trigger: after frontend distribute workflows
-  Result: CloudFront invalidation
-- Python env: .github/workflows/python-distribute.yml
-  Trigger: push tag v\* or manual
-  Result: write python/.env on target EC2 instances via SSM
-- Python backend deploy: .github/workflows/python-backend.yml
-  Trigger: after python-distribute success or manual
-  Result: checkout ref, uv sync --frozen, pm2 reload backend
-- Python bot deploy: .github/workflows/python-bot.yml
-  Trigger: after python-distribute success or manual
-  Result: checkout ref, uv sync --frozen, pm2 reload bot
-- Infra nginx: .github/workflows/infra-nginx.yml
-  Trigger: infra/nginx/\*\* changes or manual
-  Result: install nginx config and reload nginx
-- Infra cloudwatch: .github/workflows/infra-cloudwatch.yml
-  Trigger: infra/cloudwatch/\*\* changes or manual
-  Result: update CloudWatch agent config for backend/bot/all
-- Infra pm2: .github/workflows/infra-pm2.yml
-  Trigger: infra/pm2/\*\* changes or manual
-  Result: update pm2 ecosystem and restart pm2 services
-
-## 2) Development environment
-
-### Required tools
-
-- Node.js 24.x (CI uses Node 24)
+- Node.js 24.x
 - npm
 - Python 3.12+
-- uv (Python package/dependency runner)
+- uv
+- Docker (for local Postgres)
 
-Optional but commonly needed:
+Optional:
 
-- AWS CLI (for deployment-related checks)
-- PM2 (mainly on server hosts, not required for local app coding)
+- AWS CLI (useful for deployment checks)
 
-### Quick setup
+### 1) Install dependencies
 
-1. Install frontend dependencies.
+Frontend:
 
-- cd frontend
-- npm ci
+```bash
+cd frontend
+npm ci
+```
 
-2. Install Python dependencies.
-   - cd ../python
-   - uv sync
-3. Create runtime env files.
-   - python/.env (from python/.env.example)
+Python:
 
-- frontend/.env.local (for local frontend variables)
+```bash
+cd ../python
+uv sync
+```
 
-4. Start dev tasks.
-   - Run All Dev in VS Code, or run each command manually.
+### 2) Create local env files
 
-## 3) Environment variables
+Python runtime env:
 
-### Python runtime env (python/.env)
+- Create python/.env from python/.env.example
 
-Source of truth: python/.env.example
+Frontend local env:
 
-Required in most environments:
+- Create frontend/.env.local
 
-- DISCORD_BOT_TOKEN
-- DISCORD_CLIENT_ID
-- DISCORD_CLIENT_SECRET
-- JWT_SECRET
+Minimal example:
 
-Common defaults and behavior:
-
-- PHASE (default: dev, allowed: dev|beta|prod)
-- APP_ORIGIN (default: http://127.0.0.1:5173)
-- API_ORIGIN (default: http://127.0.0.1:8000)
-- JWT_ALGORITHM (default: HS256)
-- RDS_INSTANCE_ID (required)
-- RDS_REGION (default: ap-northeast-2)
-- DB_HOST (default: 127.0.0.1)
-- DB_PORT (default: 5432)
-- DB_USER (default: trader-bot)
-- DB_NAME (default: trader-bot)
-- LOG_LEVEL (default: INFO)
-- LOG_TEXT (default: false)
-- LOG_FILE (default: true)
-
-Database note:
-
-- PHASE=dev uses local Postgres directly with no password (trust/local auth).
-- PHASE=beta|prod resolves RDS endpoint and generates IAM auth token at runtime in python/shared/utils/db.py.
-
-### Frontend env (frontend/.env.local)
-
-Used from frontend/src/utils/env.ts:
-
-- VITE_PHASE (optional, default: dev)
-- VITE_API_ORIGIN (optional, default: http://127.0.0.1:8000)
-- VITE_DISCORD_CLIENT_ID (required for bot invite URL)
-- VITE_GUILD_INVITE_URL (used for footer invite link)
-
-Example:
-
+```env
 VITE_PHASE=dev
 VITE_API_ORIGIN=http://127.0.0.1:8000
 VITE_DISCORD_CLIENT_ID=123456789012345678
 VITE_GUILD_INVITE_URL=https://discord.gg/your-invite
+```
 
-### GitHub Actions repository variables
+### 3) Start local database (Postgres)
 
-Configured in GitHub repository settings:
+From repository root:
+
+```bash
+docker compose -f infra/postgres/docker/docker-compose.yml up -d postgres
+```
+
+Reinitialize DB:
+
+```bash
+docker compose -f infra/postgres/docker/docker-compose.yml down -v
+docker compose -f infra/postgres/docker/docker-compose.yml up -d postgres
+```
+
+### 4) Run local services
+
+VS Code tasks:
+
+- Run Frontend Dev
+- Run Backend Dev
+- Run Bot Dev
+- Run All Dev
+
+Equivalent commands:
+
+```bash
+# frontend
+cd frontend && npm run dev
+
+# backend
+cd python && uv run python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+
+# bot
+cd python && uv run python -m bot.main
+```
+
+Health checks:
+
+- Frontend: http://127.0.0.1:5173
+- Backend: http://127.0.0.1:8000/health
+
+## Runtime Environment Notes
+
+Python key envs (python/.env):
+
+- PHASE (dev|beta|prod, default dev)
+- DISCORD_BOT_TOKEN
+- DISCORD_CLIENT_ID
+- DISCORD_CLIENT_SECRET
+- APP_ORIGIN
+- API_ORIGIN
+- JWT_SECRET
+- RDS_INSTANCE_ID
+- RDS_REGION (default ap-northeast-2)
+
+DB behavior:
+
+- PHASE=dev: local Postgres
+- PHASE=beta|prod: resolves RDS endpoint and uses IAM auth token logic in python/shared/utils/db.py
+
+## Deployment Setup (GitHub Actions + AWS SSM)
+
+Current deployment model:
+
+- Phase: beta, prod
+- Role: redis, backend, bot
+- Infra: nginx, pm2, cloudwatch
+- Target instances are selected from repository variable DEPLOY_MAP
+
+### 1) Prepare AMI/instances
+
+Assumed preinstalled on instances:
+
+- nginx
+- amazon-cloudwatch-agent
+- redis server
+- pm2
+- uv
+- npm
+
+Expected initial state:
+
+- daemons can be inactive (workflows enable/start or reload as needed)
+- nginx default config and sites-\* may be empty
+- cloudwatch agent directory may be empty
+
+### 2) Configure repository Variables and Secrets
+
+Required Variables:
 
 - AWS_REGION
-- NGINX_INSTANCE_ID
-- CLOUDWATCH_INSTANCE_ID
-- PM2_INSTANCE_ID
+- DEPLOY_MAP
+- BETA_DOMAIN (or fallback DOMAIN)
+- PROD_DOMAIN (or fallback DOMAIN)
+- BETA_RDS_INSTANCE_ID (or fallback RDS_INSTANCE_ID)
+- PROD_RDS_INSTANCE_ID (or fallback RDS_INSTANCE_ID)
 - DISCORD_CLIENT_ID
-- RDS_INSTANCE_ID
-- DOMAIN
 - GUILD_INVITE_URL
-- S3_BUCKET_NAME
-- CLOUDFRONT_DISTRIBUTION_ID
+- BETA_S3_BUCKET_NAME (or fallback S3_BUCKET_NAME)
+- PROD_S3_BUCKET_NAME (or fallback S3_BUCKET_NAME)
+- BETA_CLOUDFRONT_DISTRIBUTION_ID (or fallback CLOUDFRONT_DISTRIBUTION_ID)
+- PROD_CLOUDFRONT_DISTRIBUTION_ID (or fallback CLOUDFRONT_DISTRIBUTION_ID)
 
-### GitHub Actions repository secrets
+Required Secrets:
 
 - AWS_ACCESS_KEY_ID
 - AWS_ACCESS_KEY_SECRET
@@ -178,45 +169,90 @@ Configured in GitHub repository settings:
 - DISCORD_CLIENT_SECRET
 - JWT_SECRET
 
-## 4) Local Postgres (Docker Compose)
+### 3) Define DEPLOY_MAP
 
-Compose file location: infra/postgres/docker-compose.yml
+Use template file:
 
-Image:
+- .github/workflows/deploy-map.example.json
 
-- postgres:18.3
+Template shape:
 
-Init script:
+```json
+{
+  "beta": {
+    "redis": "i-REPLACE_BETA_REDIS",
+    "backend": ["i-REPLACE_BETA_BACKEND"],
+    "bot": ["i-REPLACE_BETA_BACKEND"]
+  },
+  "prod": {
+    "redis": "i-REPLACE_PROD_REDIS",
+    "backend": ["i-REPLACE_PROD_BACKEND_A", "i-REPLACE_PROD_BACKEND_B"],
+    "bot": ["i-REPLACE_PROD_BOT"]
+  }
+}
+```
 
-- infra/postgres/docker-entrypoint-initdb.d/0-setup-db.sql
-- infra/postgres/docker-entrypoint-initdb.d/1-setup-role.sql
-- infra/postgres/docker-entrypoint-initdb.d/2-test-db.sql
-- infra/postgres/docker-entrypoint-initdb.d/3-test-role.sql
+Set DEPLOY_MAP with minified one-line JSON.
 
-Auth/volume notes:
+Example (local conversion):
 
-- Local compose uses trust auth for local development.
-- For postgres:18+, volume is mounted at /var/lib/postgresql.
+```bash
+jq -c . .github/workflows/deploy-map.example.json
+```
 
-Start from repository root:
+### 4) Deployment workflows
 
-- docker compose -f infra/postgres/docker-compose.yml up -d postgres
+Frontend:
 
-Reinitialize from scratch:
+- .github/workflows/deploy-frontend.yml
+  - Build frontend
+  - Sync to S3
+  - CloudFront invalidation
 
-- docker compose -f infra/postgres/docker-compose.yml down -v
-- docker compose -f infra/postgres/docker-compose.yml up -d postgres
+Python:
 
-Connect:
+- .github/workflows/deploy-python.yml
+  - Writes python/.env over SSM
+  - Runs uv sync --frozen
+  - Targets backend and bot instance set from DEPLOY_MAP
 
-- docker exec -it trader-bot-dev-db psql -U postgres -d postgres
+- .github/workflows/deploy-python-backend.yml
+  - Backend process rollout via pm2
+  - CloudWatch backend config apply
 
-## 5) Operational notes
+- .github/workflows/deploy-python-bot.yml
+  - Bot process rollout via pm2
+  - CloudWatch bot config apply
 
-- Nginx proxies /api/ to 127.0.0.1:8000 via infra/nginx/sites-avaliable/trader-bot.conf.
-- PM2 process definitions live in infra/pm2/ecosystem.config.mjs.
-- CloudWatch log configs live under infra/cloudwatch/amazon-cloudwatch-agent.d/.
+Infra:
 
-## 6) Contact
+- .github/workflows/deploy-infra-nginx.yml
+  - Installs phase-specific nginx config
+  - nginx -t then reload/start
 
-For project questions or bug reports, use the GitHub issue tracker.
+- .github/workflows/deploy-infra-pm2.yml
+  - Applies pm2 ecosystem
+  - Supports target: backend|bot|all
+
+- .github/workflows/deploy-infra-cloudwatch.yml
+  - Applies cloudwatch agent configs
+  - Supports target: backend|bot|all
+
+### 5) Recommended rollout order
+
+Per phase (beta or prod):
+
+1. deploy-infra-nginx
+2. deploy-infra-pm2 (target all)
+3. deploy-infra-cloudwatch (target all)
+4. deploy-python
+5. deploy-python-backend
+6. deploy-python-bot
+7. deploy-frontend
+
+## Security Notes
+
+- Do not commit real credentials or production instance IDs.
+- Keep secrets only in GitHub Secrets.
+- Keep DEPLOY_MAP in GitHub Variables.
+- Use example files only as templates.
