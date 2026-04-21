@@ -25,10 +25,11 @@
     "@preact/preset-vite": "latest",
     "@tsconfig/strictest": "latest",
     "@types/node": "latest",
-    "autoprefixer": "latest",
-    "postcss": "latest",
     "typed-css-modules": "latest",
     "typescript": "latest",
     "vite": "latest"
+  },
+  "overrides": {
+    "glob": "^13.0.6"
   }
 }
