@@ -12,5 +12,5 @@ rm -f "${TMP_DEB}"
 
 sudo install -d -m 755 /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d
 
-sudo systemctl enable amazon-cloudwatch-agent
+sudo systemctl disable amazon-cloudwatch-agent
 sudo systemctl stop amazon-cloudwatch-agent || true

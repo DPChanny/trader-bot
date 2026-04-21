@@ -12,5 +12,5 @@ sudo rm -f /etc/nginx/sites-enabled/default
 
 sudo nginx -t
 
-sudo systemctl enable nginx
+sudo systemctl disable nginx
 sudo systemctl stop nginx || true
