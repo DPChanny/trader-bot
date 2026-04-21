@@ -1,4 +1,4 @@
-name: python-env
+name: python-distribute
 
 on:
   push:
@@ -131,7 +131,7 @@ jobs:
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
-            echo "[python-env] instance=$INSTANCE_ID"
+            echo "[python-distribute] instance=$INSTANCE_ID"
             COMMAND_ID=$(aws ssm send-command \
               --instance-ids "$INSTANCE_ID" \
               --document-name "AWS-RunShellScript" \

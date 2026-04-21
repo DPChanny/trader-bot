@@ -54,14 +54,14 @@ Workflow map:
 - Frontend invalidate: .github/workflows/frontend-invalidate.yml
   Trigger: after frontend distribute workflows
   Result: CloudFront invalidation
-- Python env: .github/workflows/python-env.yml
+- Python env: .github/workflows/python-distribute.yml
   Trigger: push tag v\* or manual
   Result: write python/.env on target EC2 instances via SSM
 - Python backend deploy: .github/workflows/python-backend.yml
-  Trigger: after python-env success or manual
+  Trigger: after python-distribute success or manual
   Result: checkout ref, uv sync --frozen, pm2 reload backend
 - Python bot deploy: .github/workflows/python-bot.yml
-  Trigger: after python-env success or manual
+  Trigger: after python-distribute success or manual
   Result: checkout ref, uv sync --frozen, pm2 reload bot
 - Infra nginx: .github/workflows/infra-nginx.yml
   Trigger: infra/nginx/\*\* changes or manual

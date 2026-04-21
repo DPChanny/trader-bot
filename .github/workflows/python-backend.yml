@@ -2,7 +2,7 @@ name: python-backend
 
 on:
   workflow_run:
-    workflows: ["python-env"]
+    workflows: ["python-distribute"]
     types: [completed]
 
 concurrency:
