@@ -2,7 +2,7 @@ from discord import Member as DiscordMember
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import MemberDTO, Role
-from shared.entities.member import Member
+from shared.entities import Member
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import AppError, MemberErrorCode
 

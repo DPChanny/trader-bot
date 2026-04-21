@@ -3,9 +3,7 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
-from ..entities.preset import Preset
-from ..entities.preset_member import PresetMember
-from ..entities.preset_member_position import PresetMemberPosition
+from ..entities import Preset, PresetMember, PresetMemberPosition
 from . import BaseRepository
 
 

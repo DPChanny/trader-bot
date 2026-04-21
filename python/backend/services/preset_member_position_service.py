@@ -7,7 +7,7 @@ from shared.dtos.preset_member_position import (
     PresetMemberPositionDetailDTO,
     PresetMemberPositionDTO,
 )
-from shared.entities.preset_member_position import PresetMemberPosition
+from shared.entities import PresetMemberPosition
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_member_position_repository import (
     PresetMemberPositionRepository,

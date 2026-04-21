@@ -7,7 +7,7 @@ from shared.dtos.preset_member import (
     PresetMemberDTO,
     UpdatePresetMemberDTO,
 )
-from shared.entities.preset_member import PresetMember
+from shared.entities import PresetMember
 from shared.repositories.member_repository import MemberRepository
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.repositories.preset_repository import PresetRepository

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy import select
 
-from ..entities.user import User
+from ..entities import User
 from . import BaseRepository
 
 

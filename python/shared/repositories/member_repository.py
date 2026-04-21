@@ -3,7 +3,7 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from ..entities.member import Member
+from ..entities import Member
 from . import BaseRepository
 
 

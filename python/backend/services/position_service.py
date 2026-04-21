@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import Role
 from shared.dtos.position import AddPositionDTO, PositionDTO, UpdatePositionDTO
-from shared.entities.position import Position
+from shared.entities import Position
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PositionErrorCode, PresetErrorCode

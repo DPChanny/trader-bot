@@ -3,9 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..dtos.guild import GuildDTO
 from ..dtos.member import MemberDTO, Role
 from ..dtos.user import UserDTO
-from ..entities.guild import Guild
-from ..entities.member import Member
-from ..entities.user import User
+from ..entities import Guild, Member, User
 from ..repositories.guild_repository import GuildRepository
 from ..repositories.member_repository import MemberRepository
 from ..repositories.user_repository import UserRepository

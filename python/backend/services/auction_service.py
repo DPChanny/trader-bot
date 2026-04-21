@@ -11,7 +11,7 @@ from shared.dtos.auction import (
 )
 from shared.dtos.member import Role
 from shared.dtos.preset import PresetDetailDTO
-from shared.entities.preset_member import PresetMember
+from shared.entities import PresetMember
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin

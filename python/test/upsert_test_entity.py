@@ -5,9 +5,7 @@ import asyncio
 from sqlalchemy import select
 
 from shared.dtos.member import Role
-from shared.entities.position import Position
-from shared.entities.preset import Preset
-from shared.entities.tier import Tier
+from shared.entities import Position, Preset, Tier
 from shared.utils.db import get_session
 from shared.utils.upsert import upsert_guild, upsert_member, upsert_user
 

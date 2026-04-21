@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy import select
 
-from ..entities.position import Position
-from ..entities.preset import Preset
+from ..entities import Position, Preset
 from . import BaseRepository
 
 

@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild import GuildDTO
 from shared.dtos.member import Role
-from shared.entities.guild import Guild
+from shared.entities import Guild
 from shared.repositories.guild_repository import GuildRepository
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import AppError, GuildErrorCode

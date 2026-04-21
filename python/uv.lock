@@ -1075,8 +1075,8 @@ wheels = [
 ]
 
 [[package]]
-name = "trader-bot"
-version = "0.1.0"
+name = "trader-bot-python"
+version = "0.3.0a0"
 source = { virtual = "." }
 dependencies = [
     { name = "aioboto3" },
