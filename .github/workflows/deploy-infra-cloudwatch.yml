@@ -120,8 +120,6 @@ jobs:
               ("cd " + $repo),
               "sudo -iu ubuntu git fetch --all --tags",
               ("sudo -iu ubuntu git checkout --detach " + $ref),
-              "cat <<'"'"'EOF'"'"' > /tmp/deploy-infra-cloudwatch.sh",
-              "set -e",
               "sudo install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
               "sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
               "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then",
@@ -137,10 +135,8 @@ jobs:
               "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then",
               ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json"),
               "fi",
-              "EOF",
-              "chmod 700 /tmp/deploy-infra-cloudwatch.sh",
-              "sudo -iu ubuntu bash /tmp/deploy-infra-cloudwatch.sh",
-              "rm -f /tmp/deploy-infra-cloudwatch.sh"
+              "sudo systemctl enable amazon-cloudwatch-agent",
+              "sudo systemctl restart amazon-cloudwatch-agent"
             ]}')
 
           FAILED=0

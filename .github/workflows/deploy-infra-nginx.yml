@@ -86,11 +86,7 @@ jobs:
               "sudo ln -sfn /etc/nginx/sites-available/trader-bot.conf /etc/nginx/sites-enabled/trader-bot.conf",
               "sudo nginx -t",
               "sudo systemctl enable nginx",
-              "if sudo systemctl is-active --quiet nginx; then",
-              "  sudo systemctl reload nginx",
-              "else",
-              "  sudo systemctl start nginx",
-              "fi"
+              "sudo systemctl restart nginx"
             ]}')
 
           echo "[deploy-infra-nginx] phase=$PHASE instance=$BACKEND_INSTANCE_ID"
