@@ -2,11 +2,7 @@ name: deploy-python
 
 on:
   push:
-    branches: ["master"]
     tags: ["v*"]
-    paths:
-      - "python/pyproject.toml"
-      - "python/uv.lock"
   workflow_dispatch:
     inputs:
       phase:
@@ -17,7 +13,7 @@ on:
         required: true
 
 concurrency:
-  group: deploy-python-${{ inputs.phase || 'prod' }}
+  group: deploy-python-${{ github.event_name == 'workflow_dispatch' && inputs.phase || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -35,71 +31,66 @@ jobs:
         id: prepare
         env:
           DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
+          BETA_BACKEND_INSTANCE_ID: ${{ vars.BETA_BACKEND_INSTANCE_ID }}
+          PROD_BACKEND_INSTANCE_ID: ${{ vars.PROD_BACKEND_INSTANCE_ID }}
+          BETA_BOT_INSTANCE_ID: ${{ vars.BETA_BOT_INSTANCE_ID }}
+          PROD_BOT_INSTANCE_ID: ${{ vars.PROD_BOT_INSTANCE_ID }}
+          BETA_DOMAIN: ${{ vars.BETA_DOMAIN }}
+          PROD_DOMAIN: ${{ vars.PROD_DOMAIN }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          BETA_DOMAIN: ${{ vars.BETA_DOMAIN || vars.DOMAIN }}
-          PROD_DOMAIN: ${{ vars.PROD_DOMAIN || vars.DOMAIN }}
-          BETA_RDS_INSTANCE_ID: ${{ vars.BETA_RDS_INSTANCE_ID || vars.RDS_INSTANCE_ID }}
-          PROD_RDS_INSTANCE_ID: ${{ vars.PROD_RDS_INSTANCE_ID || vars.RDS_INSTANCE_ID }}
+          BETA_RDS_INSTANCE_ID: ${{ vars.BETA_RDS_INSTANCE_ID }}
+          PROD_RDS_INSTANCE_ID: ${{ vars.PROD_RDS_INSTANCE_ID }}
           RDS_REGION: ${{ vars.AWS_REGION }}
         run: |
           set -euo pipefail
 
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${GITHUB_REF##*/}"
+            if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+b[0-9]*$ ]]; then
+              PHASE="beta"
+            elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              PHASE="prod"
+            else
+              echo "Unrecognized tag format: $TAG"
+              exit 1
+            fi
+            REF="$TAG"
+          else
             PHASE="${{ inputs.phase }}"
             REF="${{ inputs.ref }}"
-          else
-            PHASE="prod"
-            REF="${{ github.sha }}"
           fi
 
-          case "$PHASE" in
-            beta|prod) ;;
-            *)
-              echo "Invalid phase: $PHASE"
-              exit 1
-              ;;
-          esac
+          BACKEND_INSTANCE_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
+          BOT_INSTANCE_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
+          DOMAIN_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].domain')
 
-          if [ -z "${DEPLOY_MAP}" ]; then
-            echo "Missing vars.DEPLOY_MAP"
+          BACKEND_INSTANCE_ID="${!BACKEND_INSTANCE_KEY:-}"
+          BOT_INSTANCE_ID="${!BOT_INSTANCE_KEY:-}"
+          DOMAIN="${!DOMAIN_KEY:-}"
+
+          if [ -z "$BACKEND_INSTANCE_ID" ]; then
+            echo "Missing required variable: $BACKEND_INSTANCE_KEY"
             exit 1
           fi
-
-          BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].backend // empty')
-          BOT_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].bot // empty')
-          REDIS_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].redis // empty')
-
-          if [ -z "$BACKEND_INSTANCE_ID" ] || [ -z "$BOT_INSTANCE_ID" ] || [ -z "$REDIS_INSTANCE_ID" ]; then
-            echo "DEPLOY_MAP must contain phase keys redis/backend/bot with single instance ids"
+          if [ -z "$BOT_INSTANCE_ID" ]; then
+            echo "Missing required variable: $BOT_INSTANCE_KEY"
             exit 1
           fi
-
-          if ! printf '%s' "$REF" | grep -Eq '^[A-Za-z0-9._/-]+$'; then
-            echo "Invalid ref format: $REF"
-            exit 1
-          fi
-          if printf '%s' "$REF" | grep -Eq '^-'; then
-            echo "Invalid ref format (cannot start with '-') : $REF"
+          if [ -z "$DOMAIN" ]; then
+            echo "Missing required variable: $DOMAIN_KEY"
             exit 1
           fi
 
           INSTANCE_IDS=$(printf '%s\n%s\n' "$BACKEND_INSTANCE_ID" "$BOT_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
 
-          if [ -z "$INSTANCE_IDS" ]; then
-            echo "No backend/bot instance ids for phase=$PHASE in vars.DEPLOY_MAP"
-            exit 1
-          fi
-
           case "$PHASE" in
             beta)
-              DOMAIN="$BETA_DOMAIN"
               RDS_INSTANCE_ID="$BETA_RDS_INSTANCE_ID"
               ;;
             prod)
-              DOMAIN="$PROD_DOMAIN"
               RDS_INSTANCE_ID="$PROD_RDS_INSTANCE_ID"
               ;;
           esac

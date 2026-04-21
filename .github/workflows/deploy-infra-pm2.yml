@@ -2,9 +2,7 @@ name: deploy-infra-pm2
 
 on:
   push:
-    branches: ["master"]
-    paths:
-      - "infra/pm2/**"
+    tags: ["v*"]
   workflow_dispatch:
     inputs:
       phase:
@@ -15,10 +13,10 @@ on:
         required: true
       target:
         description: "Target(backend, bot, all)"
-        required: false
+        required: true
 
 concurrency:
-  group: deploy-infra-pm2-${{ inputs.phase || 'prod' }}
+  group: deploy-infra-pm2-${{ github.event_name == 'workflow_dispatch' && inputs.phase || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -36,26 +34,30 @@ jobs:
         id: prepare
         env:
           DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
+          BETA_BACKEND_INSTANCE_ID: ${{ vars.BETA_BACKEND_INSTANCE_ID }}
+          PROD_BACKEND_INSTANCE_ID: ${{ vars.PROD_BACKEND_INSTANCE_ID }}
+          BETA_BOT_INSTANCE_ID: ${{ vars.BETA_BOT_INSTANCE_ID }}
+          PROD_BOT_INSTANCE_ID: ${{ vars.PROD_BOT_INSTANCE_ID }}
         run: |
           set -euo pipefail
 
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${GITHUB_REF##*/}"
+            if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+b[0-9]*$ ]]; then
+              PHASE="beta"
+            elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              PHASE="prod"
+            else
+              echo "Unrecognized tag format: $TAG"
+              exit 1
+            fi
+            REF="$TAG"
+            TARGET="all"
+          else
             PHASE="${{ inputs.phase }}"
             REF="${{ inputs.ref }}"
-            TARGET="${{ inputs.target || 'all' }}"
-          else
-            PHASE="prod"
-            REF="${{ github.sha }}"
-            TARGET="all"
+            TARGET="${{ inputs.target }}"
           fi
-
-          case "$PHASE" in
-            beta|prod) ;;
-            *)
-              echo "Invalid phase: $PHASE"
-              exit 1
-              ;;
-          esac
 
           case "$TARGET" in
             backend|bot|all) ;;
@@ -65,26 +67,18 @@ jobs:
               ;;
           esac
 
-          if [ -z "${DEPLOY_MAP}" ]; then
-            echo "Missing vars.DEPLOY_MAP"
+          BACKEND_INSTANCE_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
+          BOT_INSTANCE_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
+
+          BACKEND_INSTANCE_ID="${!BACKEND_INSTANCE_KEY:-}"
+          BOT_INSTANCE_ID="${!BOT_INSTANCE_KEY:-}"
+
+          if [ -z "$BACKEND_INSTANCE_ID" ]; then
+            echo "Missing required variable: $BACKEND_INSTANCE_KEY"
             exit 1
           fi
-
-          BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].backend // empty')
-          BOT_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].bot // empty')
-          REDIS_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].redis // empty')
-
-          if [ -z "$BACKEND_INSTANCE_ID" ] || [ -z "$BOT_INSTANCE_ID" ] || [ -z "$REDIS_INSTANCE_ID" ]; then
-            echo "DEPLOY_MAP must contain phase keys redis/backend/bot with single instance ids"
-            exit 1
-          fi
-
-          if ! printf '%s' "$REF" | grep -Eq '^[A-Za-z0-9._/-]+$'; then
-            echo "Invalid ref format: $REF"
-            exit 1
-          fi
-          if printf '%s' "$REF" | grep -Eq '^-'; then
-            echo "Invalid ref format (cannot start with '-') : $REF"
+          if [ -z "$BOT_INSTANCE_ID" ]; then
+            echo "Missing required variable: $BOT_INSTANCE_KEY"
             exit 1
           fi
 

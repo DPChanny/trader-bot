@@ -31,6 +31,8 @@ jobs:
         id: prepare
         env:
           DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
+          BETA_BACKEND_INSTANCE_ID: ${{ vars.BETA_BACKEND_INSTANCE_ID }}
+          PROD_BACKEND_INSTANCE_ID: ${{ vars.PROD_BACKEND_INSTANCE_ID }}
         run: |
           set -euo pipefail
 
@@ -50,7 +52,13 @@ jobs:
             REF="${{ inputs.ref }}"
           fi
 
-          BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
+          BACKEND_INSTANCE_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
+          BACKEND_INSTANCE_ID="${!BACKEND_INSTANCE_KEY:-}"
+
+          if [ -z "$BACKEND_INSTANCE_ID" ]; then
+            echo "Missing required variable: $BACKEND_INSTANCE_KEY"
+            exit 1
+          fi
 
           {
             echo "PHASE=$PHASE"

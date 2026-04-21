@@ -13,7 +13,7 @@ on:
         required: true
 
 concurrency:
-  group: deploy-frontend-${{ inputs.phase }}
+  group: deploy-frontend-${{ github.event_name == 'workflow_dispatch' && inputs.phase || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -43,6 +43,12 @@ jobs:
         id: prepare
         env:
           DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
+          BETA_DOMAIN: ${{ vars.BETA_DOMAIN }}
+          PROD_DOMAIN: ${{ vars.PROD_DOMAIN }}
+          BETA_S3_BUCKET_NAME: ${{ vars.BETA_S3_BUCKET_NAME }}
+          PROD_S3_BUCKET_NAME: ${{ vars.PROD_S3_BUCKET_NAME }}
+          BETA_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.BETA_CLOUDFRONT_DISTRIBUTION_ID }}
+          PROD_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.PROD_CLOUDFRONT_DISTRIBUTION_ID }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
         run: |
@@ -62,12 +68,16 @@ jobs:
             PHASE="${{ inputs.phase }}"
           fi
 
-          DOMAIN=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.domain")
-          S3_BUCKET_NAME=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.bucket")
-          CLOUDFRONT_DISTRIBUTION_ID=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.cloudfront")
+          DOMAIN_KEY=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.domain")
+          S3_BUCKET_NAME_KEY=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.bucket")
+          CLOUDFRONT_DISTRIBUTION_ID_KEY=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.cloudfront")
+
+          DOMAIN="${!DOMAIN_KEY:-}"
+          S3_BUCKET_NAME="${!S3_BUCKET_NAME_KEY:-}"
+          CLOUDFRONT_DISTRIBUTION_ID="${!CLOUDFRONT_DISTRIBUTION_ID_KEY:-}"
 
           MISSING=0
-          for V in DISCORD_CLIENT_ID GUILD_INVITE_URL; do
+          for V in DISCORD_CLIENT_ID GUILD_INVITE_URL DOMAIN S3_BUCKET_NAME CLOUDFRONT_DISTRIBUTION_ID; do
             if [ -z "${!V}" ]; then
               echo "Missing required variable: $V"
               MISSING=1
