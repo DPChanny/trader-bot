@@ -1,7 +1,8 @@
 import json
 import logging
 import sys
-from contextvars import ContextVar
+from contextlib import asynccontextmanager
+from contextvars import ContextVar, Token
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC
@@ -101,6 +102,23 @@ class Event:
 
 
 _context: ContextVar[LogValue | None] = ContextVar("_context", default=None)
+
+
+def set_context(value: LogValue) -> Token[LogValue | None]:
+    return _context.set(value)
+
+
+def reset_context(token: Token[LogValue | None]) -> None:
+    _context.reset(token)
+
+
+@asynccontextmanager
+async def context(value: LogValue):
+    token = _context.set(value)
+    try:
+        yield
+    finally:
+        _context.reset(token)
 
 
 def _patcher(record: dict[str, Any]) -> None:
@@ -228,49 +246,51 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         latency_counter = perf_counter()
 
         forwarded_for = request.headers.get("x-forwarded-for")
-        user_ip = (
-            forwarded_for.split(",", maxsplit=1)[0].strip()
-            if forwarded_for
-            else request.client.host
-            if request.client is not None
-            else None
-        )
-        token = _context.set({"http": {"request": {"id": request_id}}})
-        response: Response | None = None
-        try:
-            response = await call_next(request)
-            response.headers["X-Request-ID"] = request_id
-            return response
-        finally:
-            latency_ms = round((perf_counter() - latency_counter) * 1000, 2)
-            status_code = response.status_code if response is not None else 500
-            detail = {
-                "http": {
-                    "request": {
-                        "id": request_id,
-                        "route": request.url.path,
-                        "method": request.method,
-                        "user": {
-                            "ip": user_ip,
-                            "agent": request.headers.get("user-agent"),
-                        },
+        detail: dict[str, Any] = {
+            "http": {
+                "request": {
+                    "id": request_id,
+                    "route": request.url.path,
+                    "method": request.method,
+                    "user": {
+                        "ip": forwarded_for.split(",", maxsplit=1)[0].strip()
+                        if forwarded_for
+                        else request.client.host,
+                        "agent": request.headers.get("user-agent"),
                     },
-                    "response": {"status_code": status_code, "latency_ms": latency_ms},
+                    **(
+                        {"query": dict(request.query_params)}
+                        if request.query_params
+                        else {}
+                    ),
                 }
             }
-            if request.query_params:
-                detail["http"]["request"]["query"] = dict(request.query_params)
+        }
 
-            if request.method == "OPTIONS":
-                level = "DEBUG"
-            elif status_code >= 500:
-                level = "ERROR"
-            elif latency_ms >= 1000:
-                level = "WARNING"
-            else:
-                level = "INFO"
+        response: Response | None = None
+        async with context({"http": {"request": {"id": request_id}}}):
+            try:
+                response = await call_next(request)
+                response.headers["X-Request-ID"] = request_id
+                return response
+            finally:
+                latency_ms = round((perf_counter() - latency_counter) * 1000, 2)
+                status_code = response.status_code if response is not None else 500
 
-            logger.bind(event=Event(Event.Type.HTTP_MIDDLEWARE, detail=detail)).log(
-                level, ""
-            )
-            _context.reset(token)
+                detail["http"]["response"] = {
+                    "status_code": status_code,
+                    "latency_ms": latency_ms,
+                }
+
+                if request.method == "OPTIONS":
+                    level = "DEBUG"
+                elif status_code >= 500:
+                    level = "ERROR"
+                elif latency_ms >= 1000:
+                    level = "WARNING"
+                else:
+                    level = "INFO"
+
+                logger.bind(event=Event(Event.Type.HTTP_MIDDLEWARE, detail=detail)).log(
+                    level, ""
+                )
