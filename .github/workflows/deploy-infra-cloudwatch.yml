@@ -34,10 +34,6 @@ jobs:
         id: prepare
         env:
           DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
-          BETA_BACKEND_INSTANCE_ID: ${{ vars.BETA_BACKEND_INSTANCE_ID }}
-          PROD_BACKEND_INSTANCE_ID: ${{ vars.PROD_BACKEND_INSTANCE_ID }}
-          BETA_BOT_INSTANCE_ID: ${{ vars.BETA_BOT_INSTANCE_ID }}
-          PROD_BOT_INSTANCE_ID: ${{ vars.PROD_BOT_INSTANCE_ID }}
         run: |
           set -euo pipefail
 
@@ -67,18 +63,15 @@ jobs:
               ;;
           esac
 
-          BACKEND_INSTANCE_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
-          BOT_INSTANCE_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
-
-          BACKEND_INSTANCE_ID="${!BACKEND_INSTANCE_KEY:-}"
-          BOT_INSTANCE_ID="${!BOT_INSTANCE_KEY:-}"
+          BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
+          BOT_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
 
           if [ -z "$BACKEND_INSTANCE_ID" ]; then
-            echo "Missing required variable: $BACKEND_INSTANCE_KEY"
+            echo "Missing required DEPLOY_MAP value: .${PHASE}.backend"
             exit 1
           fi
           if [ -z "$BOT_INSTANCE_ID" ]; then
-            echo "Missing required variable: $BOT_INSTANCE_KEY"
+            echo "Missing required DEPLOY_MAP value: .${PHASE}.bot"
             exit 1
           fi
 
