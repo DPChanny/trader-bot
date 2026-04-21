@@ -25,7 +25,7 @@
     {
       "label": "Run Database Dev",
       "type": "shell",
-      "command": "docker compose -f infra/postgres/docker-compose.yml up -d postgres",
+      "command": "docker compose -f infra/postgres/docker/docker-compose.yml up -d postgres",
       "options": { "cwd": "${workspaceFolder}" },
       "presentation": { "panel": "dedicated" }
     },
