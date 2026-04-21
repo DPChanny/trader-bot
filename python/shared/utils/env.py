@@ -59,11 +59,11 @@ def get_db_host() -> str:
 
 
 def get_db_user() -> str:
-    return os.getenv("DB_USER", "trader")
+    return os.getenv("DB_USER", "trader-bot")
 
 
 def get_db_name() -> str:
-    return os.getenv("DB_NAME", "trader")
+    return os.getenv("DB_NAME", "trader-bot")
 
 
 def get_rds_region() -> str:

@@ -141,7 +141,7 @@ def _patcher(record: dict[str, Any]) -> None:
     if event is not None:
         log["event"] = event
     if context is not None:
-        log["logger_context"] = _redact(context)
+        log["context"] = _redact(context)
     if extra:
         log["extra"] = extra
 
@@ -154,6 +154,10 @@ def _patcher(record: dict[str, Any]) -> None:
     parts = [f"{timestamp} | {log['level']:<8} | {source}"]
     if "message" in log:
         parts.append(log["message"])
+    if "context" in log:
+        parts.append(
+            f"context={json.dumps(log['context'], ensure_ascii=False, default=str)}"
+        )
     if extra:
         parts.append(json.dumps(extra, ensure_ascii=False, default=str))
     text = " | ".join(parts)

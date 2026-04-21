@@ -128,8 +128,8 @@ Common defaults and behavior:
 - RDS_REGION (default: ap-northeast-2)
 - DB_HOST (default: 127.0.0.1)
 - DB_PORT (default: 5432)
-- DB_USER (default: trader)
-- DB_NAME (default: trader)
+- DB_USER (default: trader-bot)
+- DB_NAME (default: trader-bot)
 - LOG_LEVEL (default: INFO)
 - LOG_TEXT (default: false)
 - LOG_FILE (default: true)
@@ -188,7 +188,10 @@ Image:
 
 Init script:
 
-- infra/postgres/docker-entrypoint-initdb.d/\*.sql (mounted to /docker-entrypoint-initdb.d)
+- infra/postgres/docker-entrypoint-initdb.d/0-setup-db.sql
+- infra/postgres/docker-entrypoint-initdb.d/1-setup-role.sql
+- infra/postgres/docker-entrypoint-initdb.d/2-test-db.sql
+- infra/postgres/docker-entrypoint-initdb.d/3-test-role.sql
 
 Auth/volume notes:
 
