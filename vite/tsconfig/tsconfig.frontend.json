@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
+    "composite": true,
     "lib": ["ES2024", "DOM", "DOM.Iterable"],
 
     "paths": {
@@ -10,8 +11,7 @@
       "@apis/*": ["../src/apis/*"],
       "@hooks/*": ["../src/hooks/*"],
       "@dtos/*": ["../src/dtos/*"],
-      "@utils/*": ["../src/utils/*"],
-      "@docs/*": ["../src/docs/*"]
+      "@utils/*": ["../src/utils/*"]
     },
     "types": ["vite/client"],
 
