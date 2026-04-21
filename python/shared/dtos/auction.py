@@ -3,9 +3,8 @@ from typing import Any
 
 from pydantic import Field
 
-from shared.dtos.preset import PresetDetailDTO
-
 from . import BaseDTO, BigInt
+from .preset import PresetDetailDTO
 
 
 class Status(IntEnum):
