@@ -21,15 +21,16 @@ def _get_login_callback_url() -> str:
     return f"{get_api_origin()}/api/auth/login/callback"
 
 
-def get_login_url(state: str | None = None) -> str:
+def get_login_url(state_token: str | None = None) -> str:
     params: dict = {
         "client_id": get_discord_client_id(),
         "scope": "identify",
         "response_type": "code",
         "redirect_uri": _get_login_callback_url(),
     }
-    if state:
-        params["state"] = state
+    # OAuth callback parameter name is fixed as "state" by the spec.
+    if state_token:
+        params["state"] = state_token
     return f"{DISCORD_OAUTH_URL}?{urllib.parse.urlencode(params)}"
 
 

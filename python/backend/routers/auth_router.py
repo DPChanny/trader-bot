@@ -24,10 +24,10 @@ async def login_route(redirect: str | None = Query(default=None)) -> RedirectRes
 @auth_router.get("/login/callback")
 async def login_callback_route(
     code: str = Query(),
-    state: str | None = Query(default=None),
+    state_token: str | None = Query(default=None, alias="state"),
     session: AsyncSession = Depends(get_session),
 ) -> RedirectResponse:
-    return await login_callback_service(code, state, session)
+    return await login_callback_service(code, state_token, session)
 
 
 @auth_router.post("/token/exchange", response_model=JWTTokenDTO)

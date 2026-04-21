@@ -14,6 +14,7 @@ from shared.utils.error import AuthErrorCode, HTTPError, TokenError, TokenErrorC
 _ACCESS_TOKEN_LIFETIME = timedelta(minutes=15)
 _REFRESH_TOKEN_LIFETIME = timedelta(days=15)
 _EXCHANGE_TOKEN_LIFETIME = timedelta(seconds=60)
+_STATE_TOKEN_LIFETIME = timedelta(minutes=5)
 
 
 class JWTToken:
@@ -109,6 +110,49 @@ class ExchangeToken:
         if entry is None:
             raise TokenError(TokenErrorCode.ExchangeFailed)
         return entry.access_token, entry.refresh_token
+
+
+class StateToken:
+    @dataclass
+    class Payload:
+        redirect: str | None
+        expires_at_monotonic: float
+
+    _states: dict[str, StateToken.Payload] = {}
+
+    @classmethod
+    def _purge(cls) -> None:
+        now = time.monotonic()
+        expired = [
+            state
+            for state, payload in cls._states.items()
+            if payload.expires_at_monotonic <= now
+        ]
+        for state in expired:
+            cls._states.pop(state, None)
+
+    @classmethod
+    def create(cls, redirect: str | None) -> str:
+        cls._purge()
+        state = token_urlsafe(32)
+        cls._states[state] = cls.Payload(
+            redirect=redirect,
+            expires_at_monotonic=time.monotonic()
+            + _STATE_TOKEN_LIFETIME.total_seconds(),
+        )
+        return state
+
+    @classmethod
+    def consume(cls, state: str | None) -> str | None:
+        cls._purge()
+        if not state:
+            raise TokenError(TokenErrorCode.ExchangeFailed)
+
+        payload = cls._states.pop(state, None)
+        if payload is None:
+            raise TokenError(TokenErrorCode.ExchangeFailed)
+
+        return payload.redirect
 
 
 async def verify_access_token(authorization: str = Header(None)) -> int:

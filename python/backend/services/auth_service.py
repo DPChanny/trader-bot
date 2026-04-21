@@ -1,4 +1,3 @@
-import base64
 import urllib.parse
 
 from fastapi.responses import RedirectResponse
@@ -11,18 +10,18 @@ from shared.utils.service import http_service
 from shared.utils.upsert import upsert_user
 
 from ..utils.discord import get_login_url, get_me
-from ..utils.token import AccessToken, ExchangeToken, RefreshToken
+from ..utils.token import AccessToken, ExchangeToken, RefreshToken, StateToken
 
 
 @http_service
 async def login_service(redirect: str | None = None) -> RedirectResponse:
-    state = base64.urlsafe_b64encode(redirect.encode()).decode() if redirect else None
-    return RedirectResponse(url=get_login_url(state))
+    state_token = StateToken.create(redirect)
+    return RedirectResponse(url=get_login_url(state_token))
 
 
 @http_service
 async def login_callback_service(
-    code: str, state: str | None, session: AsyncSession
+    code: str, state_token: str | None, session: AsyncSession
 ) -> RedirectResponse:
     user_data = await get_me(code)
 
@@ -36,7 +35,11 @@ async def login_callback_service(
     refresh_token, _ = RefreshToken.create(user.discord_id)
 
     exchange_token = ExchangeToken.create(access_token, refresh_token)
-    redirect = base64.urlsafe_b64decode(state.encode()).decode() if state else None
+    try:
+        redirect = StateToken.consume(state_token)
+    except TokenError as e:
+        raise HTTPError(e.code) from None
+
     params = {"exchangeToken": exchange_token}
     if redirect:
         params["redirect"] = redirect

@@ -24,7 +24,7 @@ from .env import get_log_file, get_log_level, get_log_text
 
 
 REDACT_KEYS = {"accesstoken", "refreshtoken", "exchangetoken"}
-QUERY_REDACT_KEYS = {"code", "state"}
+QUERY_REDACT_KEYS = {"code", "state", "statetoken", "exchangetoken"}
 
 
 type JSONPrimitive = str | int | float | bool | None
