@@ -110,8 +110,8 @@ jobs:
             '{commands: [
               "set -e",
               ("cd " + $repo),
-              "sudo -iu ubuntu git fetch --all --tags",
-              ("sudo -iu ubuntu git checkout --detach " + $ref),
+              "sudo -u ubuntu git -C /var/www/trader-bot fetch --all --tags",
+              ("sudo -u ubuntu git -C /var/www/trader-bot checkout --detach " + $ref),
               "sudo install -d /var/www/trader-bot/python/aws",
               "sudo ln -sfn /var/www/trader-bot/infra/pm2/ecosystem.config.mjs /var/www/trader-bot/python/aws/ecosystem.config.mjs",
               "cat <<'"'"'EOF'"'"' > /tmp/deploy-infra-pm2.sh",

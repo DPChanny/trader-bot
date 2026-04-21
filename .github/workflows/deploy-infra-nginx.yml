@@ -77,8 +77,8 @@ jobs:
             '{commands: [
               "set -e",
               ("cd " + $repo),
-              "sudo -iu ubuntu git fetch --all --tags",
-              ("sudo -iu ubuntu git checkout --detach " + $ref),
+              "sudo -u ubuntu git -C /var/www/trader-bot fetch --all --tags",
+              ("sudo -u ubuntu git -C /var/www/trader-bot checkout --detach " + $ref),
               ("sudo install -m 644 infra/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf /etc/nginx/sites-available/trader-bot.conf"),
               "sudo ln -sfn /etc/nginx/sites-available/trader-bot.conf /etc/nginx/sites-enabled/trader-bot.conf",
               "sudo nginx -t",
