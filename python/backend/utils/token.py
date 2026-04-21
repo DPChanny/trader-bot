@@ -115,7 +115,7 @@ class ExchangeToken:
 class StateToken:
     @dataclass
     class Payload:
-        redirect: str | None
+        redirect_path: str | None
         expires_at_monotonic: float
 
     _states: dict[str, StateToken.Payload] = {}
@@ -132,11 +132,11 @@ class StateToken:
             cls._states.pop(state, None)
 
     @classmethod
-    def create(cls, redirect: str | None) -> str:
+    def create(cls, redirect_path: str | None) -> str:
         cls._purge()
         state = token_urlsafe(32)
         cls._states[state] = cls.Payload(
-            redirect=redirect,
+            redirect_path=redirect_path,
             expires_at_monotonic=time.monotonic()
             + _STATE_TOKEN_LIFETIME.total_seconds(),
         )
@@ -152,7 +152,7 @@ class StateToken:
         if payload is None:
             raise TokenError(TokenErrorCode.ExchangeFailed)
 
-        return payload.redirect
+        return payload.redirect_path
 
 
 async def verify_access_token(authorization: str = Header(None)) -> int:

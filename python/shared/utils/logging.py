@@ -243,7 +243,7 @@ class HTTPLogger(BaseHTTPMiddleware):
             "http": {
                 "request": {
                     "id": request_id,
-                    "route": request.url.path,
+                    "path": request.url.path,
                     "method": request.method,
                     "user": {
                         "ip": forwarded_for.split(",", maxsplit=1)[0].strip()

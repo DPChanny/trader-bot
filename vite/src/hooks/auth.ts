@@ -18,19 +18,19 @@ import { AUTH_API_ENDPOINT } from "@utils/env";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import { useRoutePath } from "@hooks/router";
 
-function isRedirect(path: string | null): path is string {
+function isRedirectPath(path: string | null): path is string {
   return (
     typeof path === "string" && path.startsWith("/") && !path.startsWith("//")
   );
 }
 
 export function useLogin() {
-  const routePath = useRoutePath();
+  const redirectPath = useRoutePath();
 
   return (): void => {
-    const loginUrl = new URL(`${AUTH_API_ENDPOINT}/login`);
-    loginUrl.searchParams.set("redirect", routePath);
-    window.location.href = loginUrl.toString();
+    const redirectUrl = new URL(`${AUTH_API_ENDPOINT}/login`);
+    redirectUrl.searchParams.set("redirect", redirectPath);
+    window.location.href = redirectUrl.toString();
   };
 }
 
@@ -56,13 +56,13 @@ export function useLoginCallback() {
 
   const retry = () => {
     const params = new URLSearchParams(window.location.search);
-    const redirect = params.get("redirect");
-    const loginUrl = new URL(`${AUTH_API_ENDPOINT}/login`);
-    loginUrl.searchParams.set(
+    const redirectPath = params.get("redirect");
+    const redirectUrl = new URL(`${AUTH_API_ENDPOINT}/login`);
+    redirectUrl.searchParams.set(
       "redirect",
-      isRedirect(redirect) ? redirect : "/",
+      isRedirectPath(redirectPath) ? redirectPath : "/",
     );
-    window.location.href = loginUrl.toString();
+    window.location.href = redirectUrl.toString();
   };
 
   useEffect(() => {
@@ -83,8 +83,8 @@ export function useLoginCallback() {
         setJWTToken(data.access_token, data.refresh_token);
         const me = await getMyUser();
         queryClient.setQueryData(queryKeys.me(), me);
-        const redirect = params.get("redirect");
-        route(isRedirect(redirect) ? redirect : "/", true);
+        const redirectPath = params.get("redirect");
+        route(isRedirectPath(redirectPath) ? redirectPath : "/", true);
       } catch (e) {
         setError(
           e instanceof AppError

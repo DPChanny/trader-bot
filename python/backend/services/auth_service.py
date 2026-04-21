@@ -14,8 +14,8 @@ from ..utils.token import AccessToken, ExchangeToken, RefreshToken, StateToken
 
 
 @http_service
-async def login_service(redirect: str | None = None) -> RedirectResponse:
-    state_token = StateToken.create(redirect)
+async def login_service(redirect_path: str | None = None) -> RedirectResponse:
+    state_token = StateToken.create(redirect_path)
     return RedirectResponse(url=get_login_url(state_token))
 
 
@@ -36,13 +36,13 @@ async def login_callback_service(
 
     exchange_token = ExchangeToken.create(access_token, refresh_token)
     try:
-        redirect = StateToken.consume(state_token)
+        redirect_path = StateToken.consume(state_token)
     except TokenError as e:
         raise HTTPError(e.code) from None
 
     params = {"exchangeToken": exchange_token}
-    if redirect:
-        params["redirect"] = redirect
+    if redirect_path:
+        params["redirect"] = redirect_path
 
     redirect_url = (
         f"{get_app_origin()}/auth/login/callback?{urllib.parse.urlencode(params)}"
