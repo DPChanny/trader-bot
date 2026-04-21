@@ -43,6 +43,8 @@ jobs:
         id: prepare
         env:
           DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
+          DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
+          GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
         run: |
           set -euo pipefail
 
@@ -64,24 +66,6 @@ jobs:
           S3_BUCKET_NAME=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.bucket")
           CLOUDFRONT_DISTRIBUTION_ID=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.cloudfront")
 
-          {
-            echo "PHASE=$PHASE"
-            echo "DOMAIN=$DOMAIN"
-            echo "S3_BUCKET_NAME=$S3_BUCKET_NAME"
-            echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Validate
-        id: validate
-        env:
-          DOMAIN: ${{ steps.prepare.outputs.DOMAIN }}
-          S3_BUCKET_NAME: ${{ steps.prepare.outputs.S3_BUCKET_NAME }}
-          CLOUDFRONT_DISTRIBUTION_ID: ${{ steps.prepare.outputs.CLOUDFRONT_DISTRIBUTION_ID }}
-          DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
-          GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
-        run: |
-          set -euo pipefail
-
           MISSING=0
           for V in DISCORD_CLIENT_ID GUILD_INVITE_URL; do
             if [ -z "${!V}" ]; then
@@ -94,22 +78,22 @@ jobs:
           fi
 
           {
-            echo "PHASE=${{ steps.prepare.outputs.PHASE }}"
-            echo "VITE_API_ORIGIN=https://${{ steps.prepare.outputs.DOMAIN }}"
+            echo "PHASE=$PHASE"
+            echo "VITE_API_ORIGIN=https://${DOMAIN}"
             echo "VITE_DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID"
             echo "VITE_GUILD_INVITE_URL=$GUILD_INVITE_URL"
-            echo "S3_BUCKET_NAME=${{ steps.prepare.outputs.S3_BUCKET_NAME }}"
-            echo "CLOUDFRONT_DISTRIBUTION_ID=${{ steps.prepare.outputs.CLOUDFRONT_DISTRIBUTION_ID }}"
+            echo "S3_BUCKET_NAME=$S3_BUCKET_NAME"
+            echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID"
           } >> "$GITHUB_OUTPUT"
 
       - name: Run
         working-directory: frontend
         env:
-          VITE_API_ORIGIN: ${{ steps.validate.outputs.VITE_API_ORIGIN }}
-          VITE_DISCORD_CLIENT_ID: ${{ steps.validate.outputs.VITE_DISCORD_CLIENT_ID }}
-          VITE_GUILD_INVITE_URL: ${{ steps.validate.outputs.VITE_GUILD_INVITE_URL }}
-          S3_BUCKET_NAME: ${{ steps.validate.outputs.S3_BUCKET_NAME }}
-          CLOUDFRONT_DISTRIBUTION_ID: ${{ steps.validate.outputs.CLOUDFRONT_DISTRIBUTION_ID }}
+          VITE_API_ORIGIN: ${{ steps.prepare.outputs.VITE_API_ORIGIN }}
+          VITE_DISCORD_CLIENT_ID: ${{ steps.prepare.outputs.VITE_DISCORD_CLIENT_ID }}
+          VITE_GUILD_INVITE_URL: ${{ steps.prepare.outputs.VITE_GUILD_INVITE_URL }}
+          S3_BUCKET_NAME: ${{ steps.prepare.outputs.S3_BUCKET_NAME }}
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ steps.prepare.outputs.CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
           set -euo pipefail
           npm ci
