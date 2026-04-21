@@ -3,6 +3,8 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
+cd /
+
 sudo npm install -g pm2
 sudo install -d -m 755 -o ubuntu -g ubuntu /home/ubuntu/.pm2
 

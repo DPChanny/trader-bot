@@ -3,6 +3,8 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
+cd /
+
 TMP_DEB="/tmp/amazon-cloudwatch-agent.deb"
 curl -fsSL "https://amazoncloudwatch-agent.s3.amazonaws.com/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb" -o "${TMP_DEB}"
 sudo dpkg -i "${TMP_DEB}" || sudo apt-get -f install -y

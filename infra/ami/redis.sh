@@ -3,6 +3,8 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
+cd /
+
 bash /var/www/trader-bot/infra/ami/setup.sh
 
 sudo apt-get install -y --no-install-recommends redis-server

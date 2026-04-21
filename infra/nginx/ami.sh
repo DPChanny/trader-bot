@@ -3,6 +3,8 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
+cd /
+
 sudo apt-get install -y --no-install-recommends nginx
 
 sudo truncate -s 0 /etc/nginx/sites-available/default

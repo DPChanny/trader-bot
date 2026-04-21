@@ -3,6 +3,8 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
+cd /
+
 sudo find /tmp -mindepth 1 -delete || true
 sudo find /var/tmp -mindepth 1 -delete || true
 
