@@ -135,8 +135,8 @@ jobs:
               "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then",
               ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json"),
               "fi",
-              "sudo systemctl enable amazon-cloudwatch-agent",
-              "sudo systemctl restart amazon-cloudwatch-agent"
+              "sudo systemctl enable --now amazon-cloudwatch-agent",
+              "sudo systemctl is-active --quiet amazon-cloudwatch-agent"
             ]}')
 
           FAILED=0

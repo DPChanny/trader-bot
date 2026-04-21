@@ -85,8 +85,8 @@ jobs:
               ("sudo install -m 644 infra/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf /etc/nginx/sites-available/trader-bot.conf"),
               "sudo ln -sfn /etc/nginx/sites-available/trader-bot.conf /etc/nginx/sites-enabled/trader-bot.conf",
               "sudo nginx -t",
-              "sudo systemctl enable nginx",
-              "sudo systemctl restart nginx"
+              "sudo systemctl enable --now nginx",
+              "sudo systemctl is-active --quiet nginx"
             ]}')
 
           echo "[deploy-infra-nginx] phase=$PHASE instance=$BACKEND_INSTANCE_ID"
