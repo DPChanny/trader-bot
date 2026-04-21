@@ -23,6 +23,13 @@
       "presentation": { "panel": "dedicated" }
     },
     {
+      "label": "Run Database Dev",
+      "type": "shell",
+      "command": "docker compose -f infra/postgres/docker-compose.yml up -d postgres",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "panel": "dedicated" }
+    },
+    {
       "label": "CSS dts",
       "type": "shell",
       "command": "npm run css:dts",
@@ -32,7 +39,12 @@
     },
     {
       "label": "Run All Dev",
-      "dependsOn": ["Run Frontend Dev", "Run Backend Dev", "Run Bot Dev"],
+      "dependsOn": [
+        "Run Database Dev",
+        "Run Frontend Dev",
+        "Run Backend Dev",
+        "Run Bot Dev"
+      ],
       "dependsOrder": "parallel",
       "group": { "kind": "build", "isDefault": true }
     }

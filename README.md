@@ -178,12 +178,42 @@ Configured in GitHub repository settings:
 - DISCORD_CLIENT_SECRET
 - JWT_SECRET
 
-## 4) Operational notes
+## 4) Local Postgres (Docker Compose)
+
+Compose file location: infra/postgres/docker-compose.yml
+
+Image:
+
+- postgres:18.3
+
+Init script:
+
+- infra/postgres/docker-entrypoint-initdb.d/\*.sql (mounted to /docker-entrypoint-initdb.d)
+
+Auth/volume notes:
+
+- Local compose uses trust auth for local development.
+- For postgres:18+, volume is mounted at /var/lib/postgresql.
+
+Start from repository root:
+
+- docker compose -f infra/postgres/docker-compose.yml up -d postgres
+
+Reinitialize from scratch:
+
+- docker compose -f infra/postgres/docker-compose.yml down -v
+- docker compose -f infra/postgres/docker-compose.yml up -d postgres
+
+Connect:
+
+- docker exec -it trader-bot-dev-db psql -U postgres -d postgres
+
+## 5) Operational notes
 
 - Nginx proxies /api/ to 127.0.0.1:8000 via infra/nginx/sites-avaliable/trader-bot.conf.
 - PM2 process definitions live in infra/pm2/ecosystem.config.mjs.
 - CloudWatch log configs live under infra/cloudwatch/amazon-cloudwatch-agent.d/.
 
-## 5) Contact
+## 6) Contact
 
 For project questions or bug reports, use the GitHub issue tracker.
