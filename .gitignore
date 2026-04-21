@@ -3,3 +3,4 @@
 .env.local
 .env.*.local
 Thumbs.db
+deploy-map.json
