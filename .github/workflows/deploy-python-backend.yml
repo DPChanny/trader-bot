@@ -1,6 +1,9 @@
 name: deploy-python-backend
 
 on:
+  workflow_run:
+    workflows: ["deploy-python"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       phase:
@@ -11,11 +14,12 @@ on:
         required: true
 
 concurrency:
-  group: deploy-python-backend-${{ inputs.phase }}
+  group: deploy-python-backend-${{ github.event_name == 'workflow_dispatch' && inputs.phase || github.event.workflow_run.head_sha }}
   cancel-in-progress: false
 
 jobs:
   run:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     steps:
       - name: Credential
@@ -34,8 +38,28 @@ jobs:
         run: |
           set -euo pipefail
 
-          PHASE="${{ inputs.phase }}"
-          REF="${{ inputs.ref }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            PHASE="${{ inputs.phase }}"
+            REF="${{ inputs.ref }}"
+          else
+            REF="${{ github.event.workflow_run.head_sha }}"
+            REPO_URL="https://github.com/${{ github.repository }}.git"
+            TAG=$(git ls-remote --tags "$REPO_URL" | awk -v sha="$REF" '$1==sha {print $2}' | sed 's#refs/tags/##' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(b[0-9]*)?$' | head -n1)
+
+            if [ -z "$TAG" ]; then
+              echo "Cannot resolve tag for workflow_run sha: $REF"
+              exit 1
+            fi
+
+            if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+b[0-9]*$ ]]; then
+              PHASE="beta"
+            elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              PHASE="prod"
+            else
+              echo "Unrecognized tag format: $TAG"
+              exit 1
+            fi
+          fi
 
           BACKEND_INSTANCE_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
           BACKEND_INSTANCE_ID="${!BACKEND_INSTANCE_KEY:-}"
