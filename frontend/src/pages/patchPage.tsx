@@ -12,6 +12,7 @@ import {
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 import { useManifest } from "@hooks/public";
+import { getPhase } from "@utils/env";
 import { getNotes, getPlans } from "@utils/marked";
 
 export type PatchPageProps = {
@@ -21,7 +22,8 @@ export type PatchPageProps = {
 export function PatchPage({ version }: PatchPageProps) {
   const manifest = useManifest();
   const files = manifest.data?.files ?? [];
-  const noteVersions = useMemo(() => getNotes(files), [files]);
+  const phase = getPhase();
+  const noteVersions = useMemo(() => getNotes(files, phase), [files, phase]);
   const planVersions = useMemo(() => getPlans(files), [files]);
   const normalizedVersion = version.trim();
 
@@ -60,7 +62,7 @@ export function PatchPage({ version }: PatchPageProps) {
 
   let markedPath: string | null = null;
   if (!isInvalidVersion && normalizedVersion) {
-    const notePath = `/patches/notes/${normalizedVersion}.md`;
+    const notePath = `/patches/notes/${phase}/${normalizedVersion}.md`;
     markedPath = noteVersionSet.has(normalizedVersion) ? notePath : null;
     if (!markedPath) {
       const planPath = `/patches/plans/${normalizedVersion}.md`;

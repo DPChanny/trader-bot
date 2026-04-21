@@ -120,11 +120,13 @@ Required in most environments:
 
 Common defaults and behavior:
 
+- PHASE (default: dev, allowed: dev|beta|prod)
 - APP_ORIGIN (default: http://127.0.0.1:5173)
 - API_ORIGIN (default: http://127.0.0.1:8000)
 - JWT_ALGORITHM (default: HS256)
 - RDS_INSTANCE_ID (required)
 - RDS_REGION (default: ap-northeast-2)
+- DB_HOST (default: 127.0.0.1)
 - DB_PORT (default: 5432)
 - DB_USER (default: trader)
 - DB_NAME (default: trader)
@@ -134,19 +136,21 @@ Common defaults and behavior:
 
 Database note:
 
-- No static DB password is stored in env.
-- The app resolves RDS endpoint and generates IAM auth token at runtime in python/shared/utils/db.py.
+- PHASE=dev uses local Postgres directly with no password (trust/local auth).
+- PHASE=beta|prod resolves RDS endpoint and generates IAM auth token at runtime in python/shared/utils/db.py.
 
 ### Frontend env (frontend/.env.local)
 
 Used from frontend/src/utils/env.ts:
 
+- VITE_PHASE (optional, default: dev)
 - VITE_API_ORIGIN (optional, default: http://127.0.0.1:8000)
 - VITE_DISCORD_CLIENT_ID (required for bot invite URL)
 - VITE_GUILD_INVITE_URL (used for footer invite link)
 
 Example:
 
+VITE_PHASE=dev
 VITE_API_ORIGIN=http://127.0.0.1:8000
 VITE_DISCORD_CLIENT_ID=123456789012345678
 VITE_GUILD_INVITE_URL=https://discord.gg/your-invite

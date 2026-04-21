@@ -29,6 +29,7 @@ import { useManifest } from "@hooks/public";
 import { useMyUser } from "@hooks/user";
 import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
+import { getPhase } from "@utils/env";
 import { getNotes } from "@utils/marked";
 import "@styles/index.css";
 
@@ -129,7 +130,8 @@ function App() {
   const logout = useLogout();
   const manifest = useManifest();
   const [globalError, setGlobalError] = useState<AppError | null>(null);
-  const version = getNotes(manifest.data?.files ?? [])[0] ?? "";
+  const phase = getPhase();
+  const version = getNotes(manifest.data?.files ?? [], phase)[0] ?? "";
 
   useEffect(() => {
     const handleWindowError = (event: ErrorEvent) => {

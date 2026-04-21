@@ -31,6 +31,7 @@ jobs:
       - name: Prepare
         id: prepare
         env:
+          PHASE: ${{ vars.PHASE || 'prod' }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
@@ -45,6 +46,7 @@ jobs:
             "${{ vars.PM2_INSTANCE_ID }}" | awk 'NF' | sort -u | xargs)
 
           ENV="$(printf '%s\n' \
+            "PHASE=$PHASE" \
             "DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN" \
             "DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID" \
             "DISCORD_CLIENT_SECRET=$DISCORD_CLIENT_SECRET" \
@@ -55,7 +57,7 @@ jobs:
             "RDS_REGION=$RDS_REGION")"
 
           MISSING_VARS=""
-          for VAR in DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET APP_ORIGIN API_ORIGIN JWT_SECRET RDS_INSTANCE_ID RDS_REGION; do
+          for VAR in PHASE DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET APP_ORIGIN API_ORIGIN JWT_SECRET RDS_INSTANCE_ID RDS_REGION; do
             if [ -z "${!VAR}" ]; then
               if [ -z "$MISSING_VARS" ]; then
                 MISSING_VARS="$VAR"

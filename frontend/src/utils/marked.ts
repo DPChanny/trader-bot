@@ -35,8 +35,13 @@ export function getAnnouncements(files: string[]): string[] {
   return getMarkedNames(files, "/announcements/", { sort: "desc" });
 }
 
-export function getNotes(files: string[]): string[] {
-  return getMarkedNames(files, "/patches/notes/", { sort: "desc" });
+export function getNotes(
+  files: string[],
+  phase: "dev" | "beta" | "prod",
+): string[] {
+  return getMarkedNames(files, `/patches/notes/${phase}/`, {
+    sort: "desc",
+  });
 }
 
 export function getPlans(files: string[]): string[] {

@@ -34,6 +34,14 @@ def get_api_origin() -> str:
     return os.getenv("API_ORIGIN", "http://127.0.0.1:8000")
 
 
+def get_phase() -> str:
+    phase = os.getenv("PHASE", "dev").lower()
+    if phase in ("dev", "beta", "prod"):
+        return phase
+
+    return "dev"
+
+
 def get_jwt_secret() -> str:
     return _jwt_secret
 
@@ -44,6 +52,10 @@ def get_jwt_algorithm() -> str:
 
 def get_db_port() -> str:
     return os.getenv("DB_PORT", "5432")
+
+
+def get_db_host() -> str:
+    return os.getenv("DB_HOST", "127.0.0.1")
 
 
 def get_db_user() -> str:

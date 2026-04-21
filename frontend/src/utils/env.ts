@@ -1,17 +1,27 @@
+const PHASE = import.meta.env["VITE_PHASE"] ?? "dev";
+
 const API_ORIGIN =
   import.meta.env["VITE_API_ORIGIN"] ?? "http://127.0.0.1:8000";
 const DISCORD_CLIENT_ID = import.meta.env["VITE_DISCORD_CLIENT_ID"];
+export const GUILD_INVITE_URL = import.meta.env["VITE_GUILD_INVITE_URL"];
+export const BOT_INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&permissions=8&scope=bot`;
 
 const API_ENDPOINT = `${API_ORIGIN}/api`;
 const WS_ENDPOINT = `${API_ORIGIN.replace(/^http/, "ws")}/api`;
 
-export const GUILD_INVITE_URL = import.meta.env["VITE_GUILD_INVITE_URL"];
-
-export const BOT_INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&permissions=8&scope=bot`;
-
 export const AUTH_API_ENDPOINT = `${API_ENDPOINT}/auth`;
 export const USER_API_ENDPOINT = `${API_ENDPOINT}/user`;
 export const GUILD_API_ENDPOINT = `${API_ENDPOINT}/guild`;
+
+export type Phase = "dev" | "beta" | "prod";
+
+export function getPhase(): Phase {
+  if (PHASE === "beta" || PHASE === "prod") {
+    return PHASE;
+  }
+
+  return "dev";
+}
 
 function getEndpoint(ws?: boolean) {
   return ws ? WS_ENDPOINT : API_ENDPOINT;

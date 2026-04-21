@@ -9,9 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from ..entities import BaseEntity
 from .env import (
+    get_db_host,
     get_db_name,
     get_db_port,
     get_db_user,
+    get_phase,
     get_rds_instance_id,
     get_rds_region,
 )
@@ -114,10 +116,20 @@ def _invalidate_rds_auth_token_cache() -> None:
 
 
 async def _async_creator() -> asyncpg.Connection:
+    phase = get_phase()
     last_exc: Exception | None = None
 
     for attempt in range(1, _DB_CONNECT_MAX_RETRIES + 1):
         try:
+            if phase == "dev":
+                return await asyncpg.connect(
+                    host=get_db_host(),
+                    port=int(get_db_port()),
+                    user=get_db_user(),
+                    database=get_db_name(),
+                    ssl="disable",
+                )
+
             db_endpoint = await _get_rds_endpoint()
             db_password = await _get_rds_auth_token(db_endpoint)
             try:
