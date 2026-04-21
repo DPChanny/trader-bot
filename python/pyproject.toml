@@ -22,14 +22,9 @@ dev = [
 ]
 
 [tool.ruff]
-line-length = 88
-indent-width = 4
 target-version = "py312"
-respect-gitignore = true
 
 [tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
 skip-magic-trailing-comma = true
 docstring-code-format = true
 
@@ -42,7 +37,6 @@ ignore = ["E501", "B008"]
 
 [tool.ruff.lint.isort]
 split-on-trailing-comma = false
-force-single-line = false
 lines-after-imports = 2
 
 [tool.ruff.lint.mccabe]
