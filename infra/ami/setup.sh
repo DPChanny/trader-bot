@@ -10,6 +10,8 @@ sudo apt-get install -y --no-install-recommends \
 	lsof \
 	htop
 
+cd /
+
 sudo install -d -m 755 -o ubuntu -g ubuntu /var/www
 sudo rm -rf /var/www/trader-bot
 git clone https://github.com/DPChanny/trader-bot /var/www/trader-bot
