@@ -14,7 +14,7 @@ from shared.utils.error import (
     ValidationErrorCode,
     handle_http_error,
 )
-from shared.utils.logging import LoggingMiddleware, setup_logging
+from shared.utils.logging import HTTPLogger, WSLogger, setup_logging
 
 from .routers import (
     auction_router,
@@ -63,7 +63,8 @@ async def exception_handler(_: Request, exc: Exception) -> JSONResponse:
     return handle_http_error(error)
 
 
-app.add_middleware(LoggingMiddleware)
+app.add_middleware(HTTPLogger)
+app.add_middleware(WSLogger)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[get_app_origin()],

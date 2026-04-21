@@ -14,9 +14,11 @@ from uuid import uuid4
 
 from loguru import logger
 from pydantic import BaseModel
+from starlette.datastructures import Headers
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from .env import get_log_file, get_log_level, get_log_text
 
@@ -231,7 +233,7 @@ def setup_logging(log_dir: str | Path) -> None:
         target_logger.disabled = True
 
 
-class LoggingMiddleware(BaseHTTPMiddleware):
+class HTTPLogger(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         request_id = request.headers.get("x-request-id") or str(uuid4())
         latency_counter = perf_counter()
@@ -285,3 +287,19 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 logger.bind(event=Event(Event.Type.HTTP_MIDDLEWARE, detail=detail)).log(
                     level, ""
                 )
+
+
+class WSLogger:
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "websocket":
+            await self.app(scope, receive, send)
+            return
+
+        headers = Headers(scope=scope)
+        request_id = headers.get("x-request-id") or str(uuid4())
+
+        async with logging_context({"ws": {"request": {"id": request_id}}}):
+            await self.app(scope, receive, send)

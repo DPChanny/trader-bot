@@ -94,8 +94,6 @@ async def connect_service(
     session: AsyncSession,
     event: Event,
 ) -> tuple[Auction, int | None, int | None]:
-    event.input |= {"auction_id": auction_id}
-
     auction = AuctionManager.get_auction(auction_id)
 
     if not auction:
@@ -136,8 +134,6 @@ async def connect_service(
 async def place_bid_service(
     auction: Auction, member_id: int | None, dto: PlaceBidPayloadDTO, event: Event
 ) -> None:
-    event.input |= {"auction_id": auction.auction_id, "member_id": member_id}
-
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)
 
@@ -148,5 +144,4 @@ async def place_bid_service(
 async def disconnect_service(
     auction: Auction, member_id: int | None, ws: WebSocket, event: Event
 ) -> None:
-    event.input = {"auction_id": auction.auction_id, "member_id": member_id}
     await auction.disconnect(ws, member_id)
