@@ -133,7 +133,7 @@ jobs:
             --arg ref "$REF" \
             --arg ami "$AMI" \
             --arg phase "$PHASE" \
-            --arg repo "/var/www/trader-bot" \
+            --arg repo "/home/ubuntu/trader-bot" \
             '{commands: (
               ($repo + "/infra/cloudwatch/amazon-cloudwatch-agent.d") as $source_dir |
               ($source_dir + "/agent.json") as $source_agent_json |

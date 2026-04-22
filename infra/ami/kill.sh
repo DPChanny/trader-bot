@@ -18,8 +18,8 @@ sudo rm -f /home/ubuntu/.python_history /root/.python_history
 
 sudo rm -f /home/ubuntu/.ssh/known_hosts /root/.ssh/known_hosts
 
-if [ -d "/var/www/trader-bot/.git" ]; then
-	git -C /var/www/trader-bot clean -fdx
+if [ -d "/home/ubuntu/trader-bot/.git" ]; then
+	git -C /home/ubuntu/trader-bot clean -fdx
 fi
 
 history -c || true

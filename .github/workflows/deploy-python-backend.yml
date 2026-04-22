@@ -65,7 +65,7 @@ jobs:
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \
-            --arg repo "/var/www/trader-bot" \
+            --arg repo "/home/ubuntu/trader-bot" \
             '{commands: (
               ($repo + "/python") as $python_dir |
               ($repo + "/infra/pm2/ecosystem.config.mjs") as $source_ecosystem |

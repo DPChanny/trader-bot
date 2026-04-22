@@ -128,7 +128,7 @@ jobs:
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \
-            --arg repo "/var/www/trader-bot" \
+            --arg repo "/home/ubuntu/trader-bot" \
             '{commands: (
               [
               "set -e",

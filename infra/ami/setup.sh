@@ -12,9 +12,8 @@ sudo apt-get install -y --no-install-recommends \
 	lsof \
 	htop
 
-sudo install -d -m 755 -o ubuntu -g ubuntu /var/www
-sudo rm -rf /var/www/trader-bot
-git clone https://github.com/DPChanny/trader-bot /var/www/trader-bot
-sudo chown -R ubuntu:ubuntu /var/www/trader-bot
+sudo rm -rf /home/ubuntu/trader-bot
+git clone https://github.com/DPChanny/trader-bot /home/ubuntu/trader-bot
+sudo chown -R ubuntu:ubuntu /home/ubuntu/trader-bot
 
-bash /var/www/trader-bot/infra/cloudwatch/ami.sh
+bash /home/ubuntu/trader-bot/infra/cloudwatch/ami.sh

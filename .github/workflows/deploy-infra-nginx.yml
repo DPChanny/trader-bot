@@ -84,7 +84,7 @@ jobs:
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \
             --arg phase "$PHASE" \
-            --arg repo "/var/www/trader-bot" \
+            --arg repo "/home/ubuntu/trader-bot" \
             '{commands: (
               ($repo + "/infra/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf") as $source_conf |
               ("/etc/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf") as $available_conf |

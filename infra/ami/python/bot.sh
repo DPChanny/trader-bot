@@ -5,5 +5,5 @@ export DEBIAN_FRONTEND=noninteractive
 
 cd /
 
-bash /var/www/trader-bot/infra/ami/python/setup.sh
-bash /var/www/trader-bot/infra/ami/kill.sh
+bash /home/ubuntu/trader-bot/infra/ami/python/setup.sh
+bash /home/ubuntu/trader-bot/infra/ami/kill.sh
