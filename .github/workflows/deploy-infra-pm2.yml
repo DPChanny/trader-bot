@@ -11,8 +11,8 @@ on:
       ref:
         description: "Git ref (tag/branch/sha)"
         required: true
-      target:
-        description: "Target(backend, bot, all)"
+      ami:
+        description: "AMI(backend, bot, golden)"
         required: true
 
 concurrency:
@@ -48,17 +48,17 @@ jobs:
               exit 1
             fi
             REF="$TAG"
-            TARGET="all"
+            AMI="golden"
           else
             PHASE="${{ inputs.phase }}"
             REF="${{ inputs.ref }}"
-            TARGET="${{ inputs.target }}"
+            AMI="${{ inputs.ami }}"
           fi
 
-          case "$TARGET" in
-            backend|bot|all) ;;
+          case "$AMI" in
+            backend|bot|golden) ;;
             *)
-              echo "Invalid target: $TARGET"
+              echo "Invalid ami: $AMI"
               exit 1
               ;;
           esac
@@ -75,23 +75,23 @@ jobs:
             exit 1
           fi
 
-          if [ "$TARGET" = "backend" ]; then
+          if [ "$AMI" = "backend" ]; then
             INSTANCE_IDS=$(printf '%s\n' "$BACKEND_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
-          elif [ "$TARGET" = "bot" ]; then
+          elif [ "$AMI" = "bot" ]; then
             INSTANCE_IDS=$(printf '%s\n' "$BOT_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           else
             INSTANCE_IDS=$(printf '%s\n%s\n' "$BACKEND_INSTANCE_ID" "$BOT_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           fi
 
           if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids for phase=$PHASE target=$TARGET in vars.DEPLOY_MAP"
+            echo "No instance ids for phase=$PHASE ami=$AMI in vars.DEPLOY_MAP"
             exit 1
           fi
 
           {
             echo "PHASE=$PHASE"
             echo "REF=$REF"
-            echo "TARGET=$TARGET"
+            echo "AMI=$AMI"
             echo "INSTANCE_IDS=$INSTANCE_IDS"
           } >> "$GITHUB_OUTPUT"
 
@@ -100,12 +100,12 @@ jobs:
           set -euo pipefail
           PHASE="${{ steps.prepare.outputs.PHASE }}"
           REF="${{ steps.prepare.outputs.REF }}"
-          TARGET="${{ steps.prepare.outputs.TARGET }}"
+          AMI="${{ steps.prepare.outputs.AMI }}"
           INSTANCE_IDS="${{ steps.prepare.outputs.INSTANCE_IDS }}"
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \
-            --arg target "$TARGET" \
+            --arg ami "$AMI" \
             --arg repo "/var/www/trader-bot" \
             '{commands: (
               ($repo + "/infra/pm2/ecosystem.config.mjs") as $source_ecosystem |
@@ -114,8 +114,8 @@ jobs:
               ("cd " + $repo),
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              (if $target == "backend" then "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-backend"
-               elif $target == "bot" then "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-bot"
+              (if $ami == "backend" then "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-backend"
+               elif $ami == "bot" then "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-bot"
                else "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem
                end),
               "sudo -H -u ubuntu pm2 save",
@@ -125,7 +125,7 @@ jobs:
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
-            echo "[deploy-infra-pm2] phase=$PHASE target=$TARGET instance=$INSTANCE_ID"
+            echo "[deploy-infra-pm2] phase=$PHASE ami=$AMI instance=$INSTANCE_ID"
             COMMAND_ID=$(aws ssm send-command \
               --instance-ids "$INSTANCE_ID" \
               --document-name "AWS-RunShellScript" \

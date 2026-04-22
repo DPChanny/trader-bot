@@ -11,8 +11,8 @@ on:
       ref:
         description: "Git ref (tag/branch/sha)"
         required: true
-      target:
-        description: "Target(backend, bot, redis, all)"
+      ami:
+        description: "AMI(backend, bot, redis, golden)"
         required: true
 
 concurrency:
@@ -48,17 +48,17 @@ jobs:
               exit 1
             fi
             REF="$TAG"
-            TARGET="all"
+            AMI="golden"
           else
             PHASE="${{ inputs.phase }}"
             REF="${{ inputs.ref }}"
-            TARGET="${{ inputs.target }}"
+            AMI="${{ inputs.ami }}"
           fi
 
-          case "$TARGET" in
-            backend|bot|redis|all) ;;
+          case "$AMI" in
+            backend|bot|redis|golden) ;;
             *)
-              echo "Invalid target: $TARGET"
+              echo "Invalid ami: $AMI"
               exit 1
               ;;
           esac
@@ -80,25 +80,25 @@ jobs:
             exit 1
           fi
 
-          if [ "$TARGET" = "backend" ]; then
+          if [ "$AMI" = "backend" ]; then
             INSTANCE_IDS=$(printf '%s\n' "$BACKEND_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
-          elif [ "$TARGET" = "bot" ]; then
+          elif [ "$AMI" = "bot" ]; then
             INSTANCE_IDS=$(printf '%s\n' "$BOT_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
-          elif [ "$TARGET" = "redis" ]; then
+          elif [ "$AMI" = "redis" ]; then
             INSTANCE_IDS=$(printf '%s\n' "$REDIS_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           else
             INSTANCE_IDS=$(printf '%s\n%s\n%s\n' "$BACKEND_INSTANCE_ID" "$BOT_INSTANCE_ID" "$REDIS_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           fi
 
           if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids for phase=$PHASE target=$TARGET in vars.DEPLOY_MAP"
+            echo "No instance ids for phase=$PHASE ami=$AMI in vars.DEPLOY_MAP"
             exit 1
           fi
 
           {
             echo "PHASE=$PHASE"
             echo "REF=$REF"
-            echo "TARGET=$TARGET"
+            echo "AMI=$AMI"
             echo "INSTANCE_IDS=$INSTANCE_IDS"
           } >> "$GITHUB_OUTPUT"
 
@@ -107,12 +107,12 @@ jobs:
           set -euo pipefail
           PHASE="${{ steps.prepare.outputs.PHASE }}"
           REF="${{ steps.prepare.outputs.REF }}"
-          TARGET="${{ steps.prepare.outputs.TARGET }}"
+          AMI="${{ steps.prepare.outputs.AMI }}"
           INSTANCE_IDS="${{ steps.prepare.outputs.INSTANCE_IDS }}"
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \
-            --arg target "$TARGET" \
+            --arg ami "$AMI" \
             --arg phase "$PHASE" \
             --arg repo "/var/www/trader-bot" \
             '{commands: (
@@ -127,13 +127,13 @@ jobs:
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
                 ("sudo amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $source_agent_json + " -s"),
-              "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then",
+              "if [ \"" + $ami + "\" = \"backend\" ] || [ \"" + $ami + "\" = \"golden\" ]; then",
                 ("  sudo amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_backend_json),
               "fi",
-              "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then",
+              "if [ \"" + $ami + "\" = \"bot\" ] || [ \"" + $ami + "\" = \"golden\" ]; then",
                 ("  sudo amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_bot_json),
               "fi",
-              "if [ \"" + $target + "\" = \"redis\" ] || [ \"" + $target + "\" = \"all\" ]; then",
+              "if [ \"" + $ami + "\" = \"redis\" ] || [ \"" + $ami + "\" = \"golden\" ]; then",
                 ("  sudo amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_redis_json),
               "fi",
               "sudo systemctl enable --now amazon-cloudwatch-agent",
@@ -142,7 +142,7 @@ jobs:
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
-            echo "[deploy-infra-cloudwatch] phase=$PHASE target=$TARGET instance=$INSTANCE_ID"
+            echo "[deploy-infra-cloudwatch] phase=$PHASE ami=$AMI instance=$INSTANCE_ID"
             COMMAND_ID=$(aws ssm send-command \
               --instance-ids "$INSTANCE_ID" \
               --document-name "AWS-RunShellScript" \
