@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { useAuction } from "@features/auction/hook";
-import { useAuctionId, useGuildId, usePresetId } from "@hooks/router";
+import { useAuctionId, useGuildId, usePresetId } from "@hooks/route";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import {

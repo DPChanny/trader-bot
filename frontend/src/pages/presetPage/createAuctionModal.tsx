@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { useGuildId, usePresetId } from "@hooks/router";
+import { useGuildId, usePresetId } from "@hooks/route";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { SecondaryButton, Button } from "@components/atoms/button";

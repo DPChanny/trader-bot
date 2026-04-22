@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import { useGuildId, usePresetId } from "@hooks/router";
+import { useGuildId, usePresetId } from "@hooks/route";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
@@ -86,4 +86,3 @@ export function UpdateTierModal({ tier, onClose }: UpdateTierModalProps) {
     </Modal>
   );
 }
-

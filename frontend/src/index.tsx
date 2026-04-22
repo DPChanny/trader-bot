@@ -24,7 +24,7 @@ import {
   useLogout,
   useAuthGuard,
 } from "@features/auth/hook";
-import { useRouteQueryParam } from "@hooks/router";
+import { useRouteQueryParam } from "@hooks/route";
 import { useManifest } from "@hooks/public";
 import { useMyUser } from "@features/user/hook";
 import { queryClient } from "@utils/query";

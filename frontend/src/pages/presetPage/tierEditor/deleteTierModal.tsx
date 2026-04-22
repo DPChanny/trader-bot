@@ -1,5 +1,5 @@
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
-import { useGuildId, usePresetId } from "@hooks/router";
+import { useGuildId, usePresetId } from "@hooks/route";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { useDeleteTier } from "@features/tier/hook";

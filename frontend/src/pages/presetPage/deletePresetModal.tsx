@@ -1,5 +1,5 @@
 import { route } from "preact-router";
-import { useGuildId, usePresetId } from "@hooks/router";
+import { useGuildId, usePresetId } from "@hooks/route";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
@@ -25,7 +25,7 @@ export function DeletePresetModal({ onClose }: DeletePresetModalProps) {
     if (deletePreset.isPending) return;
     deletePreset.mutate(
       { guildId, presetId },
-      { onSuccess: () => route(Routes.guild.member.to(guildId)) },
+      { onSuccess: () => route(Routes.guild.member.to(guildId), true) },
     );
   };
 

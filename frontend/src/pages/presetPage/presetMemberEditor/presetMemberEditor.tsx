@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
-import { useGuildId, usePresetId } from "@hooks/router";
+import { useGuildId, usePresetId } from "@hooks/route";
 import { useMembers } from "@features/member/hook";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
@@ -230,4 +230,3 @@ export function PresetMemberEditor() {
     </>
   );
 }
-

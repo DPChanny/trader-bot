@@ -1,7 +1,7 @@
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import { useGuildId, usePresetId } from "@hooks/router";
+import { useGuildId, usePresetId } from "@hooks/route";
 import { useDeletePosition } from "@features/position/hook";
 
 interface DeletePositionModalProps {

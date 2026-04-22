@@ -3,7 +3,7 @@ import { InternalLink } from "@components/atoms/link";
 import { Routes } from "@utils/routes";
 import { Name } from "@components/atoms/text";
 import type { PresetDTO } from "@features/preset/dto";
-import { useGuildId } from "@hooks/router";
+import { useGuildId } from "@hooks/route";
 
 type PresetCardProps = {
   preset: PresetDTO;

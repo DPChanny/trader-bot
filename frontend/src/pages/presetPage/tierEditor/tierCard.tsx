@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { useGuildId } from "@hooks/router";
+import { useGuildId } from "@hooks/route";
 import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/atoms/badge";
 import { Card } from "@components/surfaces/card";
@@ -62,4 +62,3 @@ export function TierCard({ tier }: TierCardProps) {
     </Card>
   );
 }
-

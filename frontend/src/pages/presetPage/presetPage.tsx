@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { useGuildId, usePresetId } from "@hooks/router";
+import { useGuildId, usePresetId } from "@hooks/route";
 import { usePreset } from "@features/preset/hook";
 import { usePresetMembers } from "@features/presetMember/hook";
 import { Role } from "@features/member/dto";
@@ -148,4 +148,3 @@ export function PresetPage() {
     </Page>
   );
 }
-

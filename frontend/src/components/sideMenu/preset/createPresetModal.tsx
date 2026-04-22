@@ -4,7 +4,7 @@ import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { CreatePresetSchema } from "@features/preset/dto";
-import { useGuildId } from "@hooks/router";
+import { useGuildId } from "@hooks/route";
 import { useCreatePreset } from "@features/preset/hook";
 
 interface CreatePresetModalProps {
@@ -122,4 +122,3 @@ export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
     </Modal>
   );
 }
-

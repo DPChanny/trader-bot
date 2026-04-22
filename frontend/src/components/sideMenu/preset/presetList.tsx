@@ -10,7 +10,7 @@ import { PresetCard } from "./presetCard";
 import { usePresets } from "@features/preset/hook";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
-import { useGuildId } from "@hooks/router";
+import { useGuildId } from "@hooks/route";
 import { Title } from "@components/atoms/text";
 
 interface PresetListProps {
@@ -50,4 +50,3 @@ export function PresetList({ selectedPresetId }: PresetListProps) {
     </SecondarySection>
   );
 }
-

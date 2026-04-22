@@ -12,7 +12,7 @@ import { Error } from "@components/molecules/error";
 import { MemberPanel } from "./memberPanel";
 import { Title } from "@components/atoms/text";
 import type { MemberDetailDTO } from "@features/member/dto";
-import { useGuildId } from "@hooks/router";
+import { useGuildId } from "@hooks/route";
 
 export function MemberPage() {
   const guildId = useGuildId();
@@ -74,4 +74,3 @@ export function MemberPage() {
     </Page>
   );
 }
-

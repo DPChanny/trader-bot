@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { useGuildId, usePresetId } from "@hooks/router";
+import { useGuildId, usePresetId } from "@hooks/route";
 import { useTiers } from "@features/tier/hook";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
@@ -49,4 +49,3 @@ export function TierEditor() {
     </SecondarySection>
   );
 }
-
