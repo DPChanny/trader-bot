@@ -110,6 +110,7 @@ jobs:
       - name: Run
         working-directory: frontend
         env:
+          VITE_PHASE: ${{ steps.prepare.outputs.PHASE }}
           VITE_API_ORIGIN: ${{ steps.prepare.outputs.VITE_API_ORIGIN }}
           VITE_DISCORD_CLIENT_ID: ${{ steps.prepare.outputs.VITE_DISCORD_CLIENT_ID }}
           VITE_GUILD_INVITE_URL: ${{ steps.prepare.outputs.VITE_GUILD_INVITE_URL }}
