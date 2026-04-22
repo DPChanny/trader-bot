@@ -21,7 +21,7 @@ on:
         required: true
 
 concurrency:
-  group: deploy-infra-nginx-${{ github.event_name != 'push' && inputs.phase || github.ref_name }}
+  group: deploy-infra-nginx-${{ github.event_name == 'push' && github.ref_name || format('{0}-{1}', inputs.phase, inputs.ref) }}
   cancel-in-progress: false
 
 jobs:
