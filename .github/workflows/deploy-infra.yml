@@ -1,0 +1,100 @@
+name: deploy-infra
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: "Phase(beta, prod)"
+        required: true
+      ref:
+        description: "Git ref (tag/branch/sha)"
+        required: true
+      ami:
+        description: "AMI(backend, bot, redis, golden)"
+        required: true
+
+concurrency:
+  group: deploy-infra-${{ inputs.phase }}-${{ inputs.ref }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      phase: ${{ steps.prepare.outputs.PHASE }}
+      ref: ${{ steps.prepare.outputs.REF }}
+      ami: ${{ steps.prepare.outputs.AMI }}
+    steps:
+      - name: Prepare
+        id: prepare
+        run: |
+          set -euo pipefail
+
+          PHASE="${{ inputs.phase }}"
+          REF="${{ inputs.ref }}"
+          AMI="${{ inputs.ami }}"
+
+          case "$PHASE" in
+            beta|prod) ;;
+            *)
+              echo "Invalid phase: $PHASE"
+              exit 1
+              ;;
+          esac
+
+          case "$AMI" in
+            backend|bot|redis|golden) ;;
+            *)
+              echo "Invalid ami: $AMI"
+              exit 1
+              ;;
+          esac
+
+          {
+            echo "PHASE=$PHASE"
+            echo "REF=$REF"
+            echo "AMI=$AMI"
+          } >> "$GITHUB_OUTPUT"
+
+  cloudwatch:
+    needs: prepare
+    uses: ./.github/workflows/deploy-infra-cloudwatch.yml
+    with:
+      phase: ${{ needs.prepare.outputs.phase }}
+      ref: ${{ needs.prepare.outputs.ref }}
+      ami: ${{ needs.prepare.outputs.ami }}
+    secrets: inherit
+
+  redis:
+    needs: [prepare, cloudwatch]
+    if: needs.prepare.outputs.ami == 'redis' || needs.prepare.outputs.ami == 'golden'
+    uses: ./.github/workflows/deploy-infra-redis.yml
+    with:
+      phase: ${{ needs.prepare.outputs.phase }}
+      ref: ${{ needs.prepare.outputs.ref }}
+    secrets: inherit
+
+  nginx:
+    needs: [prepare, cloudwatch, redis]
+    if: |
+      needs.cloudwatch.result == 'success' &&
+      (needs.redis.result == 'success' || needs.redis.result == 'skipped') &&
+      (needs.prepare.outputs.ami == 'backend' || needs.prepare.outputs.ami == 'golden')
+    uses: ./.github/workflows/deploy-infra-nginx.yml
+    with:
+      phase: ${{ needs.prepare.outputs.phase }}
+      ref: ${{ needs.prepare.outputs.ref }}
+    secrets: inherit
+
+  pm2:
+    needs: [prepare, cloudwatch, nginx]
+    if: |
+      needs.cloudwatch.result == 'success' &&
+      (needs.nginx.result == 'success' || needs.nginx.result == 'skipped') &&
+      (needs.prepare.outputs.ami == 'backend' || needs.prepare.outputs.ami == 'bot' || needs.prepare.outputs.ami == 'golden')
+    uses: ./.github/workflows/deploy-infra-pm2.yml
+    with:
+      phase: ${{ needs.prepare.outputs.phase }}
+      ref: ${{ needs.prepare.outputs.ref }}
+      ami: ${{ needs.prepare.outputs.ami }}
+    secrets: inherit
