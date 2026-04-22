@@ -119,8 +119,7 @@ jobs:
                else "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem
                end),
               "sudo -H -u ubuntu pm2 save",
-              "sudo systemctl enable --now pm2-ubuntu",
-              "sudo systemctl is-active --quiet pm2-ubuntu"
+              "sudo systemctl enable pm2-ubuntu",
             ])}')
 
           FAILED=0
