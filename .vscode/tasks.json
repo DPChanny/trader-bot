@@ -30,6 +30,13 @@
       "presentation": { "panel": "dedicated" }
     },
     {
+      "label": "Run Redis Dev",
+      "type": "shell",
+      "command": "docker compose -f infra/redis/docker-compose.yml up -d redis",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "panel": "dedicated" }
+    },
+    {
       "label": "CSS dts",
       "type": "shell",
       "command": "npm run css:dts",
@@ -41,6 +48,7 @@
       "label": "Run All Dev",
       "dependsOn": [
         "Run Database Dev",
+        "Run Redis Dev",
         "Run Frontend Dev",
         "Run Backend Dev",
         "Run Bot Dev"
