@@ -9,8 +9,6 @@ on:
       ref:
         required: true
         type: string
-  push:
-    tags: ["v*"]
   workflow_dispatch:
     inputs:
       phase:
@@ -21,7 +19,7 @@ on:
         required: true
 
 concurrency:
-  group: deploy-infra-redis-${{ github.event_name == 'push' && github.ref_name || format('{0}-{1}', inputs.phase, inputs.ref) }}
+  group: deploy-infra-redis-${{ format('{0}-{1}', inputs.phase, inputs.ref) }}
   cancel-in-progress: false
 
 jobs:
@@ -42,24 +40,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [ "${{ github.event_name }}" = "push" ]; then
-            TAG="${GITHUB_REF##*/}"
-            if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+b[0-9]*$ ]]; then
-              PHASE="beta"
-            elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              PHASE="prod"
-            else
-              echo "Invalid tag format: $TAG"
-              exit 1
-            fi
-            REF="$TAG"
-          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            PHASE="${{ inputs.phase }}"
-            REF="${{ inputs.ref }}"
-          else
-            PHASE="${{ inputs.phase }}"
-            REF="${{ inputs.ref }}"
-          fi
+          PHASE="${{ inputs.phase }}"
+          REF="${{ inputs.ref }}"
 
           REDIS_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].redis')
 
