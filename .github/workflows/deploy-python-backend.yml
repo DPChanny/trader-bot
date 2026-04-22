@@ -33,8 +33,6 @@ jobs:
         id: prepare
         env:
           DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
-          BETA_BACKEND_INSTANCE_ID: ${{ vars.BETA_BACKEND_INSTANCE_ID }}
-          PROD_BACKEND_INSTANCE_ID: ${{ vars.PROD_BACKEND_INSTANCE_ID }}
         run: |
           set -euo pipefail
 
@@ -61,11 +59,10 @@ jobs:
             fi
           fi
 
-          BACKEND_INSTANCE_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
-          BACKEND_INSTANCE_ID="${!BACKEND_INSTANCE_KEY:-}"
+          BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
 
           if [ -z "$BACKEND_INSTANCE_ID" ]; then
-            echo "Missing required variable: $BACKEND_INSTANCE_KEY"
+            echo "Missing required DEPLOY_MAP value: .${PHASE}.backend"
             exit 1
           fi
 
@@ -86,30 +83,26 @@ jobs:
             --arg ref "$REF" \
             --arg phase "$PHASE" \
             --arg repo "/var/www/trader-bot" \
-            '{commands: [
+            '{commands: (
+              ($repo + "/python") as $python_dir |
+              ($repo + "/infra/pm2/ecosystem.config.mjs") as $source_ecosystem |
+              ($repo + "/infra/cloudwatch/amazon-cloudwatch-agent.d") as $source_dir |
+              ($source_dir + "/agent.json") as $source_agent_json |
+              ($source_dir + "/trader-bot-" + $phase + "-lg-backend.json") as $source_backend_json |
+              [
               "set -e",
               ("cd " + $repo),
-              "sudo -iu ubuntu git fetch --all --tags",
-              ("sudo -iu ubuntu git checkout --detach " + $ref),
-              "cat <<'"'"'EOF'"'"' > /tmp/deploy-python-backend.sh",
-              "set -e",
-              "cd /var/www/trader-bot/python",
-              "uv sync --frozen",
-              "pm2 startup systemd -u ubuntu --hp /home/ubuntu || true",
-              "pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-pm2-backend",
-              "pm2 save",
-              "sudo install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
-              "sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
-              ("sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json"),
-              "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json -s",
-              ("sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json"),
-              "sudo systemctl enable pm2-ubuntu || true",
-              "sudo systemctl restart pm2-ubuntu || true",
-              "EOF",
-              "chmod 700 /tmp/deploy-python-backend.sh",
-              "sudo -iu ubuntu bash /tmp/deploy-python-backend.sh",
-              "rm -f /tmp/deploy-python-backend.sh"
-            ]}')
+              ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
+              ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
+              ("sudo -u ubuntu bash -lc 'uv sync --frozen --project " + $python_dir + "'"),
+              ("sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-backend"),
+              "sudo -H -u ubuntu pm2 save",
+              "sudo systemctl enable pm2-ubuntu",
+              ("sudo amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $source_agent_json + " -s"),
+              ("sudo amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_backend_json),
+              "sudo -H -u ubuntu pm2 ping",
+              "sudo systemctl is-active --quiet amazon-cloudwatch-agent"
+            ])}')
 
           echo "[deploy-python-backend] phase=$PHASE instance=$BACKEND_INSTANCE_ID"
           COMMAND_ID=$(aws ssm send-command \
@@ -121,10 +114,18 @@ jobs:
 
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
-            --instance-id "$BACKEND_INSTANCE_ID"
+            --instance-id "$BACKEND_INSTANCE_ID" || true
 
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
             --instance-id "$BACKEND_INSTANCE_ID" \
             --query '[Status,StandardOutputContent,StandardErrorContent]' \
             --output text
+
+          STATUS=$(aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$BACKEND_INSTANCE_ID" \
+            --query 'Status' \
+            --output text)
+
+          test "$STATUS" = "Success"

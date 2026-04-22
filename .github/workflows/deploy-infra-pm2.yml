@@ -120,22 +120,15 @@ jobs:
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \
-            --arg ami "$AMI" \
             --arg repo "/var/www/trader-bot" \
             '{commands: (
-              ($repo + "/infra/pm2/ecosystem.config.mjs") as $source_ecosystem |
               [
               "set -e",
               ("cd " + $repo),
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              (if $ami == "backend" then "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-backend"
-               elif $ami == "bot" then "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-bot"
-               else "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem
-               end),
-              "sudo -H -u ubuntu pm2 save",
               "sudo systemctl enable pm2-ubuntu",
-              "sudo -H -u ubuntu pm2 ping"
+              "sudo systemctl is-enabled --quiet pm2-ubuntu"
             ])}')
 
           FAILED=0
