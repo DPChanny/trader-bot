@@ -107,30 +107,20 @@ jobs:
             --arg ref "$REF" \
             --arg target "$TARGET" \
             --arg repo "/var/www/trader-bot" \
-            '{commands: [
+            '{commands: (
+              ($repo + "/infra/pm2/ecosystem.config.mjs") as $source_ecosystem |
+              [
               "set -e",
               ("cd " + $repo),
-              "sudo -u ubuntu git -C /var/www/trader-bot fetch --all --tags",
-              ("sudo -u ubuntu git -C /var/www/trader-bot checkout --detach " + $ref),
-              "sudo install -d /var/www/trader-bot/python/aws",
-              "sudo ln -sfn /var/www/trader-bot/infra/pm2/ecosystem.config.mjs /var/www/trader-bot/python/aws/ecosystem.config.mjs",
-              "cat <<'"'"'EOF'"'"' > /tmp/deploy-infra-pm2.sh",
-              "set -e",
-              "if [ \"" + $target + "\" = \"backend\" ]; then",
-              "  pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-pm2-backend",
-              "elif [ \"" + $target + "\" = \"bot\" ]; then",
-              "  pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs --only trader-bot-pm2-bot",
-              "else",
-              "  pm2 startOrReload /var/www/trader-bot/infra/pm2/ecosystem.config.mjs",
-              "fi",
-              "pm2 save",
-              "EOF",
-              "chmod 700 /tmp/deploy-infra-pm2.sh",
-              "sudo -iu ubuntu bash /tmp/deploy-infra-pm2.sh",
-              "rm -f /tmp/deploy-infra-pm2.sh",
+              ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
+              ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
+              (if $target == "backend" then "sudo -iu ubuntu bash -c '\''pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-backend && pm2 save'\''"
+               elif $target == "bot" then "sudo -iu ubuntu bash -c '\''pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-bot && pm2 save'\''"
+               else "sudo -iu ubuntu bash -c '\''pm2 startOrReload " + $source_ecosystem + " && pm2 save'\''"
+               end),
               "sudo systemctl enable --now pm2-ubuntu",
               "sudo systemctl is-active --quiet pm2-ubuntu"
-            ]}')
+            ])}')
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do

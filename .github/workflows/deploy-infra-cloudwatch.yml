@@ -115,29 +115,40 @@ jobs:
             --arg target "$TARGET" \
             --arg phase "$PHASE" \
             --arg repo "/var/www/trader-bot" \
-            '{commands: [
+            '{commands: (
+              ($repo + "/infra/cloudwatch/amazon-cloudwatch-agent.d") as $source_dir |
+              "/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d" as $target_dir |
+              ($source_dir + "/agent.json") as $source_agent |
+              ($target_dir + "/agent.json") as $target_agent |
+              ($source_dir + "/trader-bot-" + $phase + "-lg-backend.json") as $source_backend |
+              ($target_dir + "/trader-bot-" + $phase + "-lg-backend.json") as $target_backend |
+              ($source_dir + "/trader-bot-" + $phase + "-lg-bot.json") as $source_bot |
+              ($target_dir + "/trader-bot-" + $phase + "-lg-bot.json") as $target_bot |
+              ($source_dir + "/trader-bot-" + $phase + "-lg-redis.json") as $source_redis |
+              ($target_dir + "/trader-bot-" + $phase + "-lg-redis.json") as $target_redis |
+              [
               "set -e",
               ("cd " + $repo),
-              "sudo -u ubuntu git -C /var/www/trader-bot fetch --all --tags",
-              ("sudo -u ubuntu git -C /var/www/trader-bot checkout --detach " + $ref),
-              "sudo install -d /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d",
-              "sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json",
-              "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/agent.json -s",
+              ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
+              ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
+              ("sudo install -d " + $target_dir),
+              ("sudo install -m 644 " + $source_agent + " " + $target_agent),
+              ("sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $target_agent + " -s"),
               "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then",
-              ("  sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json"),
-              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-backend.json"),
+              ("  sudo install -m 644 " + $source_backend + " " + $target_backend),
+              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $target_backend),
               "fi",
               "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then",
-              ("  sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json"),
-              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-bot.json"),
+              ("  sudo install -m 644 " + $source_bot + " " + $target_bot),
+              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $target_bot),
               "fi",
               "if [ \"" + $target + "\" = \"redis\" ] || [ \"" + $target + "\" = \"all\" ]; then",
-              ("  sudo install -m 644 /var/www/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-redis.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-redis.json"),
-              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/trader-bot-" + $phase + "-lg-redis.json"),
+              ("  sudo install -m 644 " + $source_redis + " " + $target_redis),
+              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $target_redis),
               "fi",
               "sudo systemctl enable --now amazon-cloudwatch-agent",
               "sudo systemctl is-active --quiet amazon-cloudwatch-agent"
-            ]}')
+            ])}')
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do

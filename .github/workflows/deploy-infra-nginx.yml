@@ -74,17 +74,21 @@ jobs:
             --arg ref "$REF" \
             --arg phase "$PHASE" \
             --arg repo "/var/www/trader-bot" \
-            '{commands: [
+            '{commands: (
+              ($repo + "/infra/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf") as $source_conf |
+              ("/etc/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf") as $target_conf |
+              ("/etc/nginx/sites-enabled/trader-bot-" + $phase + "-nginx.conf") as $target_enabled |
+              [
               "set -e",
               ("cd " + $repo),
-              "sudo -u ubuntu git -C /var/www/trader-bot fetch --all --tags",
-              ("sudo -u ubuntu git -C /var/www/trader-bot checkout --detach " + $ref),
-              ("sudo install -m 644 infra/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf /etc/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf"),
-              ("sudo ln -sfn /etc/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf /etc/nginx/sites-enabled/trader-bot-" + $phase + "-nginx.conf"),
+              ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
+              ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
+              ("sudo install -m 644 " + $source_conf + " " + $target_conf),
+              ("sudo ln -sfn " + $target_conf + " " + $target_enabled),
               "sudo nginx -t",
               "sudo systemctl enable --now nginx",
               "sudo systemctl is-active --quiet nginx"
-            ]}')
+            ])}')
 
           echo "[deploy-infra-nginx] phase=$PHASE instance=$BACKEND_INSTANCE_ID"
           COMMAND_ID=$(aws ssm send-command \
