@@ -142,7 +142,7 @@ jobs:
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
               ("sudo install -m 600 -o ubuntu -g ubuntu /dev/null " + $env_path),
-              ("sudo -u ubuntu sh -lc " + (("printf '%s' " + ($env | @sh) + " > " + $env_path) | @sh)),
+              ("sudo -u ubuntu sh -lc " + (("printf %s " + ($env | @sh) + " > " + $env_path) | @sh)),
               ("sudo -u ubuntu bash -lc 'uv sync --frozen --project " + $python_dir + "'")
             ])}')
 
