@@ -238,7 +238,7 @@ Infra workflows are now manual or reusable only. They are intended for AMI provi
 - Trigger: manual `workflow_dispatch`
 - Responsibility: top-level infra orchestrator
 - Inputs: `phase`, `ref`, `ami`
-- `ami` values: `backend`, `bot`, `redis`, `golden`
+- `ami` values (only): `backend`, `bot`, `redis`, `golden`
 - Calls sub workflows in dependency order instead of applying everything blindly
 
 Dispatch behavior:
@@ -293,17 +293,25 @@ Dispatch behavior:
 
 ### Entry scripts in `infra/ami/`
 
+Use only these AMI entry scripts for image build dispatch:
+
+- `infra/ami/python/backend.sh`
+- `infra/ami/python/bot.sh`
+- `infra/ami/golden.sh`
+- `infra/ami/redis.sh`
+
+Do not use `infra/ami/setup.sh`, `infra/ami/python/setup.sh`, or `infra/ami/cleanup.sh` directly as AMI entrypoints.
+
 #### `infra/ami/setup.sh`
 
 - Base machine bootstrap
-- Installs common OS utilities such as `curl`, `git`, `lsof`, `htop`
+- Installs common OS utilities: `git`, `curl`
 - Clones the repository to `/home/ubuntu/trader-bot`
 - Delegates CloudWatch agent installation to `infra/cloudwatch/ami.sh`
 
 #### `infra/ami/python/setup.sh`
 
 - Python application host bootstrap
-- Runs `infra/ami/setup.sh`
 - Installs `uv`
 - Pre-syncs Python dependencies with `uv sync --frozen`
 - Delegates PM2 installation to `infra/pm2/ami.sh`
@@ -314,7 +322,7 @@ Dispatch behavior:
 - Builds on Python host setup
 - Adds nginx and redis packages
 - Leaves redis disabled/stopped by default
-- Finishes with cleanup via `infra/ami/kill.sh`
+- Finishes with cleanup via `infra/ami/cleanup.sh`
 - Good fit for a reusable golden AMI baseline
 
 #### `infra/ami/python/backend.sh`
@@ -322,14 +330,14 @@ Dispatch behavior:
 - Backend host image bootstrap
 - Builds on Python host setup
 - Adds nginx for reverse proxy termination
-- Finishes with cleanup via `infra/ami/kill.sh`
+- Finishes with cleanup via `infra/ami/cleanup.sh`
 
 #### `infra/ami/python/bot.sh`
 
 - Bot host image bootstrap
 - Builds on Python host setup
 - Does not install nginx or redis
-- Finishes with cleanup via `infra/ami/kill.sh`
+- Finishes with cleanup via `infra/ami/cleanup.sh`
 
 #### `infra/ami/redis.sh`
 
@@ -337,9 +345,9 @@ Dispatch behavior:
 - Builds on base setup
 - Installs redis package only
 - Leaves redis disabled/stopped by default
-- Finishes with cleanup via `infra/ami/kill.sh`
+- Finishes with cleanup via `infra/ami/cleanup.sh`
 
-#### `infra/ami/kill.sh`
+#### `infra/ami/cleanup.sh`
 
 - AMI capture cleanup script
 - Clears temp files, logs, shell history, and SSH known hosts

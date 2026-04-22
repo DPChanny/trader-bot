@@ -7,8 +7,6 @@ cd /
 
 bash /home/ubuntu/trader-bot/infra/ami/setup.sh
 
-apt-get install -y --no-install-recommends redis-server
-systemctl disable redis-server
-systemctl stop redis-server || true
+bash /home/ubuntu/trader-bot/infra/redis/ami.sh
 
-bash /home/ubuntu/trader-bot/infra/ami/kill.sh
+bash /home/ubuntu/trader-bot/infra/ami/cleanup.sh

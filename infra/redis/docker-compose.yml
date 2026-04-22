@@ -1,0 +1,9 @@
+services:
+  redis:
+    image: redis:7.0
+    container_name: trader-bot-ctr-redis
+    restart: unless-stopped
+
+volumes:
+  trader-bot-dev-vol-redis:
+    name: trader-bot-dev-vol-redis

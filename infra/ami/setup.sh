@@ -6,11 +6,7 @@ export DEBIAN_FRONTEND=noninteractive
 cd /
 
 apt-get update
-apt-get install -y --no-install-recommends \
-	curl \
-	git \
-	lsof \
-	htop
+apt-get install -y --no-install-recommends git curl
 
 rm -rf /home/ubuntu/trader-bot
 git clone https://github.com/DPChanny/trader-bot /home/ubuntu/trader-bot
