@@ -18,6 +18,9 @@ concurrency:
 
 jobs:
   run:
+    outputs:
+      phase: ${{ steps.prepare.outputs.PHASE }}
+      ref: ${{ steps.prepare.outputs.REF }}
     runs-on: ubuntu-latest
     steps:
       - name: Credential
@@ -187,3 +190,19 @@ jobs:
           done
 
           test "$FAILED" -eq 0
+
+  backend:
+    needs: run
+    uses: ./.github/workflows/deploy-python-backend.yml
+    with:
+      phase: ${{ needs.run.outputs.phase }}
+      ref: ${{ needs.run.outputs.ref }}
+    secrets: inherit
+
+  bot:
+    needs: run
+    uses: ./.github/workflows/deploy-python-bot.yml
+    with:
+      phase: ${{ needs.run.outputs.phase }}
+      ref: ${{ needs.run.outputs.ref }}
+    secrets: inherit

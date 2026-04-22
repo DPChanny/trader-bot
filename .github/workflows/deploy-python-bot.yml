@@ -1,25 +1,21 @@
 name: deploy-python-bot
 
 on:
-  workflow_run:
-    workflows: ["deploy-python"]
-    types: [completed]
-  workflow_dispatch:
+  workflow_call:
     inputs:
       phase:
-        description: "Phase(beta, prod)"
         required: true
+        type: string
       ref:
-        description: "Git ref (tag/branch/sha)"
         required: true
+        type: string
 
 concurrency:
-  group: deploy-python-bot-${{ github.event_name == 'workflow_dispatch' && inputs.phase || github.event.workflow_run.head_sha }}
+  group: deploy-python-bot-${{ inputs.phase }}-${{ inputs.ref }}
   cancel-in-progress: false
 
 jobs:
   run:
-    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     steps:
       - name: Credential
@@ -36,28 +32,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            PHASE="${{ inputs.phase }}"
-            REF="${{ inputs.ref }}"
-          else
-            REF="${{ github.event.workflow_run.head_sha }}"
-            REPO_URL="https://github.com/${{ github.repository }}.git"
-            TAG=$(git ls-remote --tags "$REPO_URL" | awk -v sha="$REF" '$1==sha {print $2}' | sed 's#refs/tags/##' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(b[0-9]*)?$' | head -n1)
+          PHASE="${{ inputs.phase }}"
+          REF="${{ inputs.ref }}"
 
-            if [ -z "$TAG" ]; then
-              echo "Cannot resolve tag for workflow_run sha: $REF"
+          case "$PHASE" in
+            beta|prod) ;;
+            *)
+              echo "Invalid phase: $PHASE"
               exit 1
-            fi
-
-            if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+b[0-9]*$ ]]; then
-              PHASE="beta"
-            elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              PHASE="prod"
-            else
-              echo "Unrecognized tag format: $TAG"
-              exit 1
-            fi
-          fi
+              ;;
+          esac
 
           BOT_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
 
@@ -81,27 +65,17 @@ jobs:
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \
-            --arg phase "$PHASE" \
             --arg repo "/var/www/trader-bot" \
             '{commands: (
               ($repo + "/python") as $python_dir |
               ($repo + "/infra/pm2/ecosystem.config.mjs") as $source_ecosystem |
-              ($repo + "/infra/cloudwatch/amazon-cloudwatch-agent.d") as $source_dir |
-              ($source_dir + "/agent.json") as $source_agent_json |
-              ($source_dir + "/trader-bot-" + $phase + "-lg-bot.json") as $source_bot_json |
               [
               "set -e",
               ("cd " + $repo),
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
               ("sudo -u ubuntu bash -lc 'uv sync --frozen --project " + $python_dir + "'"),
-              ("sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-bot"),
-              "sudo -H -u ubuntu pm2 save",
-              "sudo systemctl enable pm2-ubuntu",
-              ("sudo amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $source_agent_json + " -s"),
-              ("sudo amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_bot_json),
-              "sudo -H -u ubuntu pm2 ping",
-              "sudo systemctl is-active --quiet amazon-cloudwatch-agent"
+              ("sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-bot")
             ])}')
 
           echo "[deploy-python-bot] phase=$PHASE instance=$BOT_INSTANCE_ID"
