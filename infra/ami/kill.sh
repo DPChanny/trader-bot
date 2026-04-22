@@ -19,7 +19,7 @@ rm -f /home/ubuntu/.python_history /root/.python_history
 rm -f /home/ubuntu/.ssh/known_hosts /root/.ssh/known_hosts
 
 if [ -d "/home/ubuntu/trader-bot/.git" ]; then
-	git -C /home/ubuntu/trader-bot clean -fdx
+	sudo -H -u ubuntu git -C /home/ubuntu/trader-bot clean -fdx
 fi
 
 history -c || true
