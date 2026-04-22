@@ -4,7 +4,7 @@ import { Image } from "./atoms/image";
 import { Name } from "./atoms/text";
 import { Badge } from "./atoms/badge";
 import type { MemberDetailDTO } from "@features/member/dto";
-import { getRoleEntries } from "@utils/enum";
+import { getRoleEntries } from "@features/member/enum";
 
 export type MemberCardProps = {
   member: MemberDetailDTO;
@@ -37,4 +37,3 @@ export function MemberCard({ member }: MemberCardProps) {
     </Card>
   );
 }
-

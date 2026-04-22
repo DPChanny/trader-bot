@@ -30,7 +30,7 @@ import { useMyUser } from "@features/user/hook";
 import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import { getPhase } from "@utils/env";
-import { getNotes } from "@utils/marked";
+import { getNotes } from "@hooks/public";
 import "@styles/index.css";
 
 function HomePageRoute({}: RoutableProps) {

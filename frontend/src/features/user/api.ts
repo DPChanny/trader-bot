@@ -3,7 +3,7 @@ import { USER_API_ENDPOINT } from "@utils/env";
 import { toCamelCase } from "@utils/dto";
 import { handleHTTPError } from "@utils/error";
 import { getAuthHeader, getHeaders } from "@utils/api";
-import { getAccessToken } from "@utils/auth";
+import { getAccessToken } from "@features/auth/token";
 
 export async function getMyUser(): Promise<UserDetailDTO | null> {
   if (!getAccessToken()) return null;
@@ -16,4 +16,3 @@ export async function getMyUser(): Promise<UserDetailDTO | null> {
   const json = await response.json();
   return toCamelCase<UserDetailDTO>(json);
 }
-

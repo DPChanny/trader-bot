@@ -11,7 +11,7 @@ import {
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 import { useManifest } from "@hooks/public";
-import { getAnnouncements } from "@utils/marked";
+import { getAnnouncements } from "@hooks/public";
 import { MarkedPage } from "./markedPage";
 
 export type AnnouncementPageProps = {

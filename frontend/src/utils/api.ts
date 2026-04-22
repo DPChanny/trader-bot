@@ -1,4 +1,4 @@
-import { getAccessToken } from "./auth";
+import { getAccessToken } from "@features/auth/token";
 
 export function getAuthHeader(): HeadersInit {
   const token = getAccessToken();

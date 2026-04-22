@@ -19,7 +19,7 @@ import { Input } from "@components/atoms/input";
 import { Text, Title } from "@components/atoms/text";
 import { ErrorModal } from "./errorModal";
 import { AuctionPageContextProvider } from "./auctionPageContext";
-import { getStatusEntries } from "@utils/enum";
+import { getStatusEntries } from "@features/auction/enum";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 import { Status } from "@features/auction/dto";
 import {
@@ -289,4 +289,3 @@ export function AuctionPage() {
     </AuctionPageContextProvider>
   );
 }
-

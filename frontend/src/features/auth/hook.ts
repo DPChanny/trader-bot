@@ -13,7 +13,7 @@ import {
   checkJWTToken,
   getRefreshToken,
   removeJWTToken,
-} from "@utils/auth";
+} from "@features/auth/token";
 import { AUTH_API_ENDPOINT } from "@utils/env";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import { useRoutePath } from "@hooks/router";

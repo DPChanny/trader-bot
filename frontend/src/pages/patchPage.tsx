@@ -13,7 +13,7 @@ import {
 import { Footer } from "@components/footer";
 import { useManifest } from "@hooks/public";
 import { getPhase } from "@utils/env";
-import { getNotes, getPlans } from "@utils/marked";
+import { getNotes, getPlans } from "@hooks/public";
 
 export type PatchPageProps = {
   version: string;

@@ -21,7 +21,7 @@ import {
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
 import { buildPatchDTO } from "@utils/dto";
-import { getRoleEntries } from "@utils/enum";
+import { getRoleEntries } from "@features/member/enum";
 
 interface MemberPanelProps {
   member: MemberDetailDTO;
@@ -183,4 +183,3 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
     </PrimarySection>
   );
 }
-

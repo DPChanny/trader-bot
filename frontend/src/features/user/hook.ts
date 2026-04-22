@@ -1,7 +1,7 @@
 import { useQuery, type UseQueryResult } from "@tanstack/preact-query";
 import { getMyUser } from "@features/user/api";
 import { queryKeys } from "@utils/query";
-import { getAccessToken } from "@utils/auth";
+import { getAccessToken } from "@features/auth/token";
 import type { UserDetailDTO } from "@features/user/dto";
 import type { AppError } from "@utils/error";
 
@@ -14,4 +14,3 @@ export function useMyUser(): UseQueryResult<UserDetailDTO | null, AppError> {
     enabled: hasAccessToken,
   });
 }
-

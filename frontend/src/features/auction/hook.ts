@@ -7,7 +7,10 @@ import type {
   AuctionMessageEnvelopeDTO,
   InitPayloadDTO,
 } from "@features/auction/dto";
-import { AuthPayloadSchema, PlaceBidPayloadSchema } from "@features/auction/dto";
+import {
+  AuthPayloadSchema,
+  PlaceBidPayloadSchema,
+} from "@features/auction/dto";
 import type { AppError } from "@utils/error";
 import {
   FrontendErrorCode,
@@ -17,7 +20,7 @@ import {
 } from "@utils/error";
 import { toCamelCase } from "@utils/dto";
 import { getAuctionEndpoint } from "@utils/env";
-import { getAccessToken } from "@utils/auth";
+import { getAccessToken } from "@features/auth/token";
 
 export function useAuction(): {
   auction: AuctionDetailDTO | null;
@@ -286,4 +289,3 @@ export function useCreateAuction(): UseMutationResult<
     mutationFn: createAuction,
   });
 }
-

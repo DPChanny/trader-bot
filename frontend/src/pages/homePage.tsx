@@ -13,7 +13,7 @@ import { Footer } from "@components/footer";
 import { useLogin } from "@features/auth/hook";
 import { useManifest } from "@hooks/public";
 import { useMyUser } from "@features/user/hook";
-import { getAnnouncements } from "@utils/marked";
+import { getAnnouncements } from "@hooks/public";
 import { BOT_INVITE_URL } from "@utils/env";
 
 export function HomePage() {
