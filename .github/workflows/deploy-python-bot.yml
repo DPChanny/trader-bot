@@ -74,7 +74,7 @@ jobs:
               ("cd " + $repo),
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              ("sudo -u ubuntu bash -lc 'uv sync --frozen --project " + $python_dir + "'"),
+              ("sudo -u ubuntu bash -lc \"uv sync --frozen --project " + $python_dir + "\""),
               ("sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-bot")
             ])}')
 
