@@ -55,7 +55,7 @@ jobs:
             elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               PHASE="prod"
             else
-              echo "Unrecognized tag format: $TAG"
+              echo "Invalid tag format: $TAG"
               exit 1
             fi
             REF="$TAG"
@@ -81,12 +81,20 @@ jobs:
           BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
           BOT_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
 
-          if [ -z "$BACKEND_INSTANCE_ID" ]; then
-            echo "Missing required DEPLOY_MAP value: .${PHASE}.backend"
-            exit 1
-          fi
-          if [ -z "$BOT_INSTANCE_ID" ]; then
-            echo "Missing required DEPLOY_MAP value: .${PHASE}.bot"
+          MISSING_DEPLOY_MAP_VALUES=""
+          for KEY in backend bot; do
+            VALUE=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key]')
+            if [ -z "$VALUE" ]; then
+              if [ -z "$MISSING_DEPLOY_MAP_VALUES" ]; then
+                MISSING_DEPLOY_MAP_VALUES=".${PHASE}.${KEY}"
+              else
+                MISSING_DEPLOY_MAP_VALUES="$MISSING_DEPLOY_MAP_VALUES,.${PHASE}.${KEY}"
+              fi
+            fi
+          done
+
+          if [ -n "$MISSING_DEPLOY_MAP_VALUES" ]; then
+            echo "Missing DEPLOY_MAP value(s): $MISSING_DEPLOY_MAP_VALUES"
             exit 1
           fi
 
@@ -99,7 +107,7 @@ jobs:
           fi
 
           if [ -z "$INSTANCE_IDS" ]; then
-            echo "No instance ids for phase=$PHASE ami=$AMI in vars.DEPLOY_MAP"
+            echo "Missing instance id(s): phase=$PHASE ami=$AMI"
             exit 1
           fi
 

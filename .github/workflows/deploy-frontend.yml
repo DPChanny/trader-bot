@@ -55,7 +55,7 @@ jobs:
             elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               PHASE="prod"
             else
-              echo "Unrecognized tag format: $TAG"
+              echo "Invalid tag format: $TAG"
               exit 1
             fi
           else
@@ -66,8 +66,25 @@ jobs:
           S3_BUCKET_NAME=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bucket')
           CLOUDFRONT_DISTRIBUTION_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].cloudfront')
 
+          MISSING_DEPLOY_MAP_VALUES=""
+          for KEY in domain bucket cloudfront; do
+            VALUE=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key]')
+            if [ -z "$VALUE" ]; then
+              if [ -z "$MISSING_DEPLOY_MAP_VALUES" ]; then
+                MISSING_DEPLOY_MAP_VALUES=".${PHASE}.${KEY}"
+              else
+                MISSING_DEPLOY_MAP_VALUES="$MISSING_DEPLOY_MAP_VALUES,.${PHASE}.${KEY}"
+              fi
+            fi
+          done
+
+          if [ -n "$MISSING_DEPLOY_MAP_VALUES" ]; then
+            echo "Missing DEPLOY_MAP value(s): $MISSING_DEPLOY_MAP_VALUES"
+            exit 1
+          fi
+
           MISSING_VARS=""
-          for VAR in DISCORD_CLIENT_ID GUILD_INVITE_URL DOMAIN S3_BUCKET_NAME CLOUDFRONT_DISTRIBUTION_ID; do
+          for VAR in DISCORD_CLIENT_ID GUILD_INVITE_URL; do
             if [ -z "${!VAR}" ]; then
               if [ -z "$MISSING_VARS" ]; then
                 MISSING_VARS="$VAR"
@@ -77,7 +94,7 @@ jobs:
             fi
           done
           if [ -n "$MISSING_VARS" ]; then
-            echo "Missing required variable or DEPLOY_MAP value(s): $MISSING_VARS"
+            echo "Missing variable or secret(s): $MISSING_VARS"
             exit 1
           fi
 

@@ -49,7 +49,7 @@ jobs:
             elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               PHASE="prod"
             else
-              echo "Unrecognized tag format: $TAG"
+              echo "Invalid tag format: $TAG"
               exit 1
             fi
             REF="$TAG"
@@ -63,20 +63,20 @@ jobs:
           DOMAIN=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].domain')
           RDS_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].rds')
 
-          if [ -z "$BACKEND_INSTANCE_ID" ]; then
-            echo "Missing required DEPLOY_MAP value: .${PHASE}.backend"
-            exit 1
-          fi
-          if [ -z "$BOT_INSTANCE_ID" ]; then
-            echo "Missing required DEPLOY_MAP value: .${PHASE}.bot"
-            exit 1
-          fi
-          if [ -z "$DOMAIN" ]; then
-            echo "Missing required DEPLOY_MAP value: .${PHASE}.domain"
-            exit 1
-          fi
-          if [ -z "$RDS_INSTANCE_ID" ]; then
-            echo "Missing required DEPLOY_MAP value: .${PHASE}.rds"
+          MISSING_DEPLOY_MAP_VALUES=""
+          for KEY in backend bot domain rds; do
+            VALUE=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key]')
+            if [ -z "$VALUE" ]; then
+              if [ -z "$MISSING_DEPLOY_MAP_VALUES" ]; then
+                MISSING_DEPLOY_MAP_VALUES=".${PHASE}.${KEY}"
+              else
+                MISSING_DEPLOY_MAP_VALUES="$MISSING_DEPLOY_MAP_VALUES,.${PHASE}.${KEY}"
+              fi
+            fi
+          done
+
+          if [ -n "$MISSING_DEPLOY_MAP_VALUES" ]; then
+            echo "Missing DEPLOY_MAP value(s): $MISSING_DEPLOY_MAP_VALUES"
             exit 1
           fi
 
@@ -97,7 +97,7 @@ jobs:
           done
 
           if [ -n "$MISSING_VARS" ]; then
-            echo "Missing required variable or secret(s): $MISSING_VARS"
+            echo "Missing variable or secret(s): $MISSING_VARS"
             exit 1
           fi
 

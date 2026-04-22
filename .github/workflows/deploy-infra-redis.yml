@@ -49,7 +49,7 @@ jobs:
             elif [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               PHASE="prod"
             else
-              echo "Unrecognized tag format: $TAG"
+              echo "Invalid tag format: $TAG"
               exit 1
             fi
             REF="$TAG"
@@ -64,7 +64,7 @@ jobs:
           REDIS_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].redis')
 
           if [ -z "$REDIS_INSTANCE_ID" ]; then
-            echo "Missing required DEPLOY_MAP value: .${PHASE}.redis"
+            echo "Missing DEPLOY_MAP value(s): .${PHASE}.redis"
             exit 1
           fi
 
