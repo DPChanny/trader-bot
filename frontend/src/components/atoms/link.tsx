@@ -1,69 +1,67 @@
 import { clsx } from "clsx";
-import { cva, type VariantProps } from "class-variance-authority";
 import styles from "@styles/components/atoms/link.module.css";
 import type { JSX } from "preact";
 import { route } from "preact-router";
 
-const linkVariants = cva(styles.link, {
-  variants: {
-    variantContent: {
-      text: styles.contentText,
-      div: "",
-    },
-  },
-  defaultVariants: {
-    variantContent: "text",
-  },
-});
+function getVariantClass(children: JSX.Element["props"]["children"]) {
+  if (typeof children === "string" || typeof children === "number") {
+    return styles.contentText;
+  }
+  return "";
+}
 
-export type LinkProps = JSX.IntrinsicElements["a"] & {
-  variantContent?: VariantProps<typeof linkVariants>["variantContent"];
+export type InternalLinkProps = Omit<
+  JSX.IntrinsicElements["a"],
+  "href" | "target" | "rel" | "download"
+> & {
+  href: string;
 };
 
-function isInternalHref(href: string): boolean {
-  if (href.startsWith("/")) {
-    return !href.startsWith("//");
-  }
-
-  try {
-    const url = new URL(href, window.location.origin);
-    return url.origin === window.location.origin;
-  } catch {
-    return false;
-  }
-}
-
-function getVariantContent(children: LinkProps["children"]) {
-  if (typeof children === "string" || typeof children === "number") {
-    return "text" as const;
-  }
-
-  return "div" as const;
-}
-
-export function Link({ children, className, ...props }: LinkProps) {
-  const handleClick: NonNullable<LinkProps["onClick"]> = (e) => {
+export function InternalLink({
+  children,
+  className,
+  href,
+  ...props
+}: InternalLinkProps) {
+  const handleClick: NonNullable<InternalLinkProps["onClick"]> = (e) => {
     props.onClick?.(e);
     if (e.defaultPrevented) return;
-
     if (e.button !== 0) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    if (props.download) return;
-    if (props.target && props.target !== "_self") return;
-
-    const href = props.href;
-    if (typeof href !== "string" || !isInternalHref(href)) return;
 
     e.preventDefault();
     route(href);
   };
 
-  const baseClass = linkVariants({
-    variantContent: getVariantContent(children),
-  });
-
   return (
-    <a className={clsx(baseClass, className)} {...props} onClick={handleClick}>
+    <a
+      className={clsx(styles.link, getVariantClass(children), className)}
+      href={href}
+      {...props}
+      onClick={handleClick}
+    >
+      {children}
+    </a>
+  );
+}
+
+export type ExternalLinkProps = Omit<JSX.IntrinsicElements["a"], "href"> & {
+  href: string;
+};
+
+export function ExternalLink({
+  children,
+  className,
+  rel,
+  ...props
+}: ExternalLinkProps) {
+  return (
+    <a
+      className={clsx(styles.link, getVariantClass(children), className)}
+      target="_blank"
+      rel={rel ?? "noreferrer noopener"}
+      {...props}
+    >
       {children}
     </a>
   );

@@ -1,5 +1,5 @@
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
-import { Link } from "@components/atoms/link";
+import { ExternalLink, InternalLink } from "@components/atoms/link";
 import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
@@ -73,14 +73,14 @@ export function HomePage() {
                 <TertiarySection fill>
                   <Scroll axis="y">
                     {announcementNames.map((name) => (
-                      <Link
+                      <InternalLink
                         key={name}
                         href={`/announcement?name=${encodeURIComponent(name)}`}
                       >
                         <Card>
                           <Text>{name}</Text>
                         </Card>
-                      </Link>
+                      </InternalLink>
                     ))}
                   </Scroll>
                 </TertiarySection>
@@ -100,7 +100,7 @@ export function HomePage() {
                   </Fill>
                 )}
                 <Fill>
-                  <Link href={BOT_INVITE_URL} target="_blank" rel="noreferrer">
+                  <ExternalLink href={BOT_INVITE_URL}>
                     <Fill>
                       {myUser.data ? (
                         <PrimaryButton variantSize="large">
@@ -112,7 +112,7 @@ export function HomePage() {
                         </SecondaryButton>
                       )}
                     </Fill>
-                  </Link>
+                  </ExternalLink>
                 </Fill>
               </Row>
             </SecondarySection>

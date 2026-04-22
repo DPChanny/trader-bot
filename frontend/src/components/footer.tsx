@@ -1,5 +1,5 @@
 import { Fill } from "@components/atoms/layout";
-import { Link } from "@components/atoms/link";
+import { ExternalLink, InternalLink } from "@components/atoms/link";
 import { PrimarySection } from "@components/surfaces/section";
 import { GUILD_INVITE_URL } from "@utils/env";
 
@@ -7,21 +7,19 @@ export function Footer() {
   return (
     <PrimarySection direction="row" width="page">
       <Fill center>
-        <Link href="/patch">패치</Link>
+        <InternalLink href="/patch">패치</InternalLink>
       </Fill>
       <Fill center>
-        <Link href="/announcement">공지</Link>
+        <InternalLink href="/announcement">공지</InternalLink>
       </Fill>
       <Fill center>
-        <Link href="/terms-of-service">이용약관</Link>
+        <InternalLink href="/terms-of-service">이용약관</InternalLink>
       </Fill>
       <Fill center>
-        <Link href="/privacy-policy">개인정보처리방침</Link>
+        <InternalLink href="/privacy-policy">개인정보처리방침</InternalLink>
       </Fill>
       <Fill center>
-        <Link href={GUILD_INVITE_URL} target="_blank" rel="noreferrer">
-          Trader Bot 서버
-        </Link>
+        <ExternalLink href={GUILD_INVITE_URL}>Trader Bot 서버</ExternalLink>
       </Fill>
     </PrimarySection>
   );

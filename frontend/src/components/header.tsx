@@ -2,7 +2,7 @@ import styles from "@styles/components/header.module.css";
 import { Button, DangerButton } from "@components/atoms/button";
 import { Image } from "@components/atoms/image";
 import { Row } from "@components/atoms/layout";
-import { Link } from "@components/atoms/link";
+import { InternalLink } from "@components/atoms/link";
 import { Name, Title } from "@components/atoms/text";
 import type { UserDetailDTO } from "@features/user/dto";
 
@@ -26,14 +26,14 @@ export function Header(props: HeaderProps) {
   return (
     <header className={styles.header}>
       <Row align="center" justify="end" className={styles.headerContent}>
-        <Link href="/" className={styles.headerLogo}>
+        <InternalLink href="/" className={styles.headerLogo}>
           <img
             src="/favicon.png"
             alt="Trader Bot"
             className={styles.logoIcon}
           />
           <Title>Trader Bot{props.version ? ` - ${props.version}` : ""}</Title>
-        </Link>
+        </InternalLink>
 
         {props.user ? (
           <Row align="center" gap="lg">
@@ -62,4 +62,3 @@ export function Header(props: HeaderProps) {
     </header>
   );
 }
-

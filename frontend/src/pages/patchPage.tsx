@@ -1,7 +1,7 @@
 import { MarkedPage } from "./markedPage";
 import { useEffect, useMemo } from "preact/hooks";
 import { route } from "preact-router";
-import { Link } from "@components/atoms/link";
+import { InternalLink } from "@components/atoms/link";
 import { Column, Fill, Page, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
@@ -99,14 +99,14 @@ export function PatchPage({ version }: PatchPageProps) {
                 <TertiarySection fill>
                   <Scroll axis="y">
                     {versions.map((itemVersion) => (
-                      <Link
+                      <InternalLink
                         key={itemVersion}
                         href={`/patch?version=${encodeURIComponent(itemVersion)}`}
                       >
                         <Card>
                           <Text>{itemVersion}</Text>
                         </Card>
-                      </Link>
+                      </InternalLink>
                     ))}
                   </Scroll>
                 </TertiarySection>

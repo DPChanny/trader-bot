@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "preact/hooks";
 import { route } from "preact-router";
-import { Link } from "@components/atoms/link";
+import { InternalLink } from "@components/atoms/link";
 import { Column, Page, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
@@ -66,14 +66,14 @@ export function AnnouncementPage({ name }: AnnouncementPageProps) {
               <TertiarySection fill>
                 <Scroll axis="y">
                   {announcementNames.map((announcementName) => (
-                    <Link
+                    <InternalLink
                       key={announcementName}
                       href={`/announcement?name=${encodeURIComponent(announcementName)}`}
                     >
                       <Card>
                         <Text>{announcementName}</Text>
                       </Card>
-                    </Link>
+                    </InternalLink>
                   ))}
                 </Scroll>
               </TertiarySection>
