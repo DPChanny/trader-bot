@@ -13,7 +13,7 @@ on:
         required: true
 
 concurrency:
-  group: deploy-frontend-${{ github.event_name == 'workflow_dispatch' && inputs.phase || github.ref_name }}
+  group: deploy-frontend-${{ github.event_name == 'push' && github.ref_name || format('{0}-{1}', inputs.phase, inputs.ref) }}
   cancel-in-progress: false
 
 jobs:
@@ -43,12 +43,6 @@ jobs:
         id: prepare
         env:
           DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
-          BETA_DOMAIN: ${{ vars.BETA_DOMAIN }}
-          PROD_DOMAIN: ${{ vars.PROD_DOMAIN }}
-          BETA_S3_BUCKET_NAME: ${{ vars.BETA_S3_BUCKET_NAME }}
-          PROD_S3_BUCKET_NAME: ${{ vars.PROD_S3_BUCKET_NAME }}
-          BETA_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.BETA_CLOUDFRONT_DISTRIBUTION_ID }}
-          PROD_CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.PROD_CLOUDFRONT_DISTRIBUTION_ID }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
         run: |
@@ -68,22 +62,22 @@ jobs:
             PHASE="${{ inputs.phase }}"
           fi
 
-          DOMAIN_KEY=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.domain")
-          S3_BUCKET_NAME_KEY=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.bucket")
-          CLOUDFRONT_DISTRIBUTION_ID_KEY=$(echo "$DEPLOY_MAP" | jq -er ".${PHASE}.cloudfront")
+          DOMAIN=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].domain')
+          S3_BUCKET_NAME=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bucket')
+          CLOUDFRONT_DISTRIBUTION_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].cloudfront')
 
-          DOMAIN="${!DOMAIN_KEY:-}"
-          S3_BUCKET_NAME="${!S3_BUCKET_NAME_KEY:-}"
-          CLOUDFRONT_DISTRIBUTION_ID="${!CLOUDFRONT_DISTRIBUTION_ID_KEY:-}"
-
-          MISSING=0
-          for V in DISCORD_CLIENT_ID GUILD_INVITE_URL DOMAIN S3_BUCKET_NAME CLOUDFRONT_DISTRIBUTION_ID; do
-            if [ -z "${!V}" ]; then
-              echo "Missing required variable: $V"
-              MISSING=1
+          MISSING_VARS=""
+          for VAR in DISCORD_CLIENT_ID GUILD_INVITE_URL DOMAIN S3_BUCKET_NAME CLOUDFRONT_DISTRIBUTION_ID; do
+            if [ -z "${!VAR}" ]; then
+              if [ -z "$MISSING_VARS" ]; then
+                MISSING_VARS="$VAR"
+              else
+                MISSING_VARS="$MISSING_VARS,$VAR"
+              fi
             fi
           done
-          if [ "$MISSING" -ne 0 ]; then
+          if [ -n "$MISSING_VARS" ]; then
+            echo "Missing required variable or DEPLOY_MAP value(s): $MISSING_VARS"
             exit 1
           fi
 

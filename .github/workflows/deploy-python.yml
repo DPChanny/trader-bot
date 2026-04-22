@@ -13,7 +13,7 @@ on:
         required: true
 
 concurrency:
-  group: deploy-python-${{ github.event_name == 'workflow_dispatch' && inputs.phase || github.ref_name }}
+  group: deploy-python-${{ github.event_name == 'push' && github.ref_name || format('{0}-{1}', inputs.phase, inputs.ref) }}
   cancel-in-progress: false
 
 jobs:
@@ -34,18 +34,10 @@ jobs:
         id: prepare
         env:
           DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
-          BETA_BACKEND_INSTANCE_ID: ${{ vars.BETA_BACKEND_INSTANCE_ID }}
-          PROD_BACKEND_INSTANCE_ID: ${{ vars.PROD_BACKEND_INSTANCE_ID }}
-          BETA_BOT_INSTANCE_ID: ${{ vars.BETA_BOT_INSTANCE_ID }}
-          PROD_BOT_INSTANCE_ID: ${{ vars.PROD_BOT_INSTANCE_ID }}
-          BETA_DOMAIN: ${{ vars.BETA_DOMAIN }}
-          PROD_DOMAIN: ${{ vars.PROD_DOMAIN }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          BETA_RDS_INSTANCE_ID: ${{ vars.BETA_RDS_INSTANCE_ID }}
-          PROD_RDS_INSTANCE_ID: ${{ vars.PROD_RDS_INSTANCE_ID }}
           RDS_REGION: ${{ vars.AWS_REGION }}
         run: |
           set -euo pipefail
@@ -66,37 +58,29 @@ jobs:
             REF="${{ inputs.ref }}"
           fi
 
-          BACKEND_INSTANCE_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
-          BOT_INSTANCE_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
-          DOMAIN_KEY=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].domain')
-
-          BACKEND_INSTANCE_ID="${!BACKEND_INSTANCE_KEY:-}"
-          BOT_INSTANCE_ID="${!BOT_INSTANCE_KEY:-}"
-          DOMAIN="${!DOMAIN_KEY:-}"
+          BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
+          BOT_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
+          DOMAIN=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].domain')
+          RDS_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].rds')
 
           if [ -z "$BACKEND_INSTANCE_ID" ]; then
-            echo "Missing required variable: $BACKEND_INSTANCE_KEY"
+            echo "Missing required DEPLOY_MAP value: .${PHASE}.backend"
             exit 1
           fi
           if [ -z "$BOT_INSTANCE_ID" ]; then
-            echo "Missing required variable: $BOT_INSTANCE_KEY"
+            echo "Missing required DEPLOY_MAP value: .${PHASE}.bot"
             exit 1
           fi
           if [ -z "$DOMAIN" ]; then
-            echo "Missing required variable: $DOMAIN_KEY"
+            echo "Missing required DEPLOY_MAP value: .${PHASE}.domain"
+            exit 1
+          fi
+          if [ -z "$RDS_INSTANCE_ID" ]; then
+            echo "Missing required DEPLOY_MAP value: .${PHASE}.rds"
             exit 1
           fi
 
           INSTANCE_IDS=$(printf '%s\n%s\n' "$BACKEND_INSTANCE_ID" "$BOT_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
-
-          case "$PHASE" in
-            beta)
-              RDS_INSTANCE_ID="$BETA_RDS_INSTANCE_ID"
-              ;;
-            prod)
-              RDS_INSTANCE_ID="$PROD_RDS_INSTANCE_ID"
-              ;;
-          esac
 
           APP_ORIGIN="https://$DOMAIN"
           API_ORIGIN="https://$DOMAIN"
@@ -117,7 +101,7 @@ jobs:
             exit 1
           fi
 
-          ENV_CONTENT="$(printf '%s\n' \
+          ENV="$(printf '%s\n' \
             "PHASE=$PHASE" \
             "DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN" \
             "DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID" \
@@ -132,8 +116,8 @@ jobs:
             echo "PHASE=$PHASE"
             echo "REF=$REF"
             echo "INSTANCE_IDS=$INSTANCE_IDS"
-            echo "ENV_CONTENT<<EOF"
-            printf '%s\n' "$ENV_CONTENT"
+            echo "ENV<<EOF"
+            printf '%s\n' "$ENV"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -143,30 +127,24 @@ jobs:
           PHASE="${{ steps.prepare.outputs.PHASE }}"
           REF="${{ steps.prepare.outputs.REF }}"
           INSTANCE_IDS="${{ steps.prepare.outputs.INSTANCE_IDS }}"
-          ENV_CONTENT="${{ steps.prepare.outputs.ENV_CONTENT }}"
+          ENV="${{ steps.prepare.outputs.ENV }}"
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \
             --arg repo "/var/www/trader-bot" \
-            --arg env_content "$ENV_CONTENT" \
-            '{commands: [
+            --arg env "$ENV" \
+            '{commands: (
+              ($repo + "/python") as $python_dir |
+              ($python_dir + "/.env") as $env_path |
+              [
               "set -e",
               ("cd " + $repo),
-              "sudo -iu ubuntu git fetch --all --tags",
-              ("sudo -iu ubuntu git checkout --detach " + $ref),
-              "cat <<'"'"'EOF'"'"' > /tmp/deploy-python.sh",
-              "set -e",
-              "cd /var/www/trader-bot",
-              "printf '%"'"'s'"'"' " + ($env_content | @sh) + " > python/.env",
-              "chown ubuntu:ubuntu python/.env",
-              "chmod 600 python/.env",
-              "cd python",
-              "uv sync --frozen",
-              "EOF",
-              "chmod 700 /tmp/deploy-python.sh",
-              "sudo -iu ubuntu bash /tmp/deploy-python.sh",
-              "rm -f /tmp/deploy-python.sh"
-            ]}')
+              ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
+              ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
+              ("sudo install -m 600 -o ubuntu -g ubuntu /dev/null " + $env_path),
+              ("sudo -u ubuntu sh -lc " + (("printf '%s' " + ($env | @sh) + " > " + $env_path) | @sh)),
+              ("sudo -u ubuntu bash -lc 'uv sync --frozen --project " + $python_dir + "'")
+            ])}')
 
           FAILED=0
           for INSTANCE_ID in $INSTANCE_IDS; do
