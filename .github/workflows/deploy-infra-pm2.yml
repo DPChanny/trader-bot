@@ -114,10 +114,11 @@ jobs:
               ("cd " + $repo),
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              (if $target == "backend" then "sudo -iu ubuntu bash -c '\''pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-backend && pm2 save'\''"
-               elif $target == "bot" then "sudo -iu ubuntu bash -c '\''pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-bot && pm2 save'\''"
-               else "sudo -iu ubuntu bash -c '\''pm2 startOrReload " + $source_ecosystem + " && pm2 save'\''"
+              (if $target == "backend" then "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-backend"
+               elif $target == "bot" then "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem + " --only trader-bot-pm2-bot"
+               else "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem
                end),
+              "sudo -H -u ubuntu pm2 save",
               "sudo systemctl enable --now pm2-ubuntu",
               "sudo systemctl is-active --quiet pm2-ubuntu"
             ])}')

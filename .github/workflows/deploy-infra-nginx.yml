@@ -76,15 +76,15 @@ jobs:
             --arg repo "/var/www/trader-bot" \
             '{commands: (
               ($repo + "/infra/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf") as $source_conf |
-              ("/etc/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf") as $target_conf |
-              ("/etc/nginx/sites-enabled/trader-bot-" + $phase + "-nginx.conf") as $target_enabled |
+              ("/etc/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf") as $available_conf |
+              ("/etc/nginx/sites-enabled/trader-bot-" + $phase + "-nginx.conf") as $enabled_conf |
               [
               "set -e",
               ("cd " + $repo),
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              ("sudo install -m 644 " + $source_conf + " " + $target_conf),
-              ("sudo ln -sfn " + $target_conf + " " + $target_enabled),
+              ("sudo install -m 644 " + $source_conf + " " + $available_conf),
+              ("sudo ln -sfn " + $available_conf + " " + $enabled_conf),
               "sudo nginx -t",
               "sudo systemctl enable --now nginx",
               "sudo systemctl is-active --quiet nginx"
