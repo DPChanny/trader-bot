@@ -133,8 +133,8 @@ jobs:
               [
               "set -e",
               ("cd " + $repo),
-              ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
-              ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
+              ("sudo -H -u ubuntu git -C " + $repo + " fetch --all --tags"),
+              ("sudo -H -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
               "systemctl enable pm2-ubuntu",
               "systemctl is-enabled --quiet pm2-ubuntu"
             ])}')
