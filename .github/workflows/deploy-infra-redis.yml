@@ -90,8 +90,8 @@ jobs:
               ("cd " + $repo),
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              "sudo systemctl enable --now redis-server",
-              "sudo systemctl is-active --quiet redis-server",
+              "systemctl enable --now redis-server",
+              "systemctl is-active --quiet redis-server",
               "redis-cli ping | grep -x PONG"
             ])}')
 

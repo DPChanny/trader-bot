@@ -94,11 +94,11 @@ jobs:
               ("cd " + $repo),
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              ("sudo install -m 644 " + $source_conf + " " + $available_conf),
-              ("sudo ln -sfn " + $available_conf + " " + $enabled_conf),
-              "sudo nginx -t",
-              "sudo systemctl enable --now nginx",
-              "sudo systemctl is-active --quiet nginx"
+              ("install -m 644 " + $source_conf + " " + $available_conf),
+              ("ln -sfn " + $available_conf + " " + $enabled_conf),
+              "nginx -t",
+              "systemctl enable --now nginx",
+              "systemctl is-active --quiet nginx"
             ])}')
 
           echo "[deploy-infra-nginx] phase=$PHASE instance=$BACKEND_INSTANCE_ID"

@@ -135,8 +135,8 @@ jobs:
               ("cd " + $repo),
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              "sudo systemctl enable pm2-ubuntu",
-              "sudo systemctl is-enabled --quiet pm2-ubuntu"
+              "systemctl enable pm2-ubuntu",
+              "systemctl is-enabled --quiet pm2-ubuntu"
             ])}')
 
           FAILED=0

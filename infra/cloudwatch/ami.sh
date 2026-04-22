@@ -7,13 +7,13 @@ cd /
 
 TMP_DEB="/tmp/amazon-cloudwatch-agent.deb"
 curl -fsSL "https://amazoncloudwatch-agent.s3.amazonaws.com/ubuntu/arm64/latest/amazon-cloudwatch-agent.deb" -o "${TMP_DEB}"
-sudo dpkg -i "${TMP_DEB}" || sudo apt-get -f install -y
+dpkg -i "${TMP_DEB}" || apt-get -f install -y
 rm -f "${TMP_DEB}"
 
 command -v amazon-cloudwatch-agent-ctl >/dev/null
 
-sudo install -d -m 755 /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d
-sudo rm -f /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/* || true
+install -d -m 755 /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d
+rm -f /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/* || true
 
-sudo systemctl disable amazon-cloudwatch-agent
-sudo systemctl stop amazon-cloudwatch-agent || true
+systemctl disable amazon-cloudwatch-agent
+systemctl stop amazon-cloudwatch-agent || true

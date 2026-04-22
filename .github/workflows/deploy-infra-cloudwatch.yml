@@ -145,18 +145,18 @@ jobs:
               ("cd " + $repo),
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-                ("sudo amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $source_agent_json + " -s"),
+                ("amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $source_agent_json + " -s"),
               "if [ \"" + $ami + "\" = \"backend\" ] || [ \"" + $ami + "\" = \"golden\" ]; then",
-                ("  sudo amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_backend_json),
+                ("  amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_backend_json),
               "fi",
               "if [ \"" + $ami + "\" = \"bot\" ] || [ \"" + $ami + "\" = \"golden\" ]; then",
-                ("  sudo amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_bot_json),
+                ("  amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_bot_json),
               "fi",
               "if [ \"" + $ami + "\" = \"redis\" ] || [ \"" + $ami + "\" = \"golden\" ]; then",
-                ("  sudo amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_redis_json),
+                ("  amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_redis_json),
               "fi",
-              "sudo systemctl enable --now amazon-cloudwatch-agent",
-              "sudo systemctl is-active --quiet amazon-cloudwatch-agent"
+              "systemctl enable --now amazon-cloudwatch-agent",
+              "systemctl is-active --quiet amazon-cloudwatch-agent"
             ])}')
 
           FAILED=0
