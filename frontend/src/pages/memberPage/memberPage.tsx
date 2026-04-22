@@ -1,5 +1,5 @@
 import { useMemo, useState } from "preact/hooks";
-import { useMembers } from "@hooks/member";
+import { useMembers } from "@features/member/hook";
 import { MemberGrid } from "@components/memberGrid";
 import {
   PrimarySection,
@@ -11,7 +11,7 @@ import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
 import { MemberPanel } from "./memberPanel";
 import { Title } from "@components/atoms/text";
-import type { MemberDetailDTO } from "@dtos/member";
+import type { MemberDetailDTO } from "@features/member/dto";
 import { useGuildId } from "@hooks/router";
 
 export function MemberPage() {
@@ -74,3 +74,4 @@ export function MemberPage() {
     </Page>
   );
 }
+

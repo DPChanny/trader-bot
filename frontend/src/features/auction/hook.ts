@@ -1,13 +1,13 @@
 import { useMutation, type UseMutationResult } from "@tanstack/preact-query";
 import { useEffect, useRef, useState } from "preact/hooks";
-import { createAuction } from "@apis/auction";
-import { Status, AuctionMessageType } from "@dtos/auction";
+import { createAuction } from "@features/auction/api";
+import { Status, AuctionMessageType } from "@features/auction/dto";
 import type {
   AuctionDetailDTO,
   AuctionMessageEnvelopeDTO,
   InitPayloadDTO,
-} from "@dtos/auction";
-import { AuthPayloadSchema, PlaceBidPayloadSchema } from "@dtos/auction";
+} from "@features/auction/dto";
+import { AuthPayloadSchema, PlaceBidPayloadSchema } from "@features/auction/dto";
 import type { AppError } from "@utils/error";
 import {
   FrontendErrorCode,
@@ -286,3 +286,4 @@ export function useCreateAuction(): UseMutationResult<
     mutationFn: createAuction,
   });
 }
+

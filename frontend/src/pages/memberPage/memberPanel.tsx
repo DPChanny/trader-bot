@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { MemberCard } from "@components/memberCard";
-import { useUpdateMember } from "@hooks/member";
+import { useUpdateMember } from "@features/member/hook";
 import { CloseButton, SaveButton } from "@components/atoms/button";
 import { LabelInput } from "@components/molecules/labelInput";
 import { Error } from "@components/molecules/error";
@@ -17,9 +17,9 @@ import {
   UpdateMemberSchema,
   type MemberDetailDTO,
   type UpdateMemberDTO,
-} from "@dtos/member";
-import { Role } from "@dtos/member";
-import { useVerifyRole } from "@hooks/member";
+} from "@features/member/dto";
+import { Role } from "@features/member/dto";
+import { useVerifyRole } from "@features/member/hook";
 import { buildPatchDTO } from "@utils/dto";
 import { getRoleEntries } from "@utils/enum";
 
@@ -183,3 +183,4 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
     </PrimarySection>
   );
 }
+

@@ -11,9 +11,9 @@ import {
   createPresetMember,
   updatePresetMember,
   deletePresetMember,
-} from "@apis/presetMember";
+} from "@features/presetMember/api";
 import { queryKeys, queryStaleTimes } from "@utils/query";
-import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 import type { AppError } from "@utils/error";
 
 function invalidatePresetMemberQueries(
@@ -150,3 +150,4 @@ export function useDeletePresetMember(): UseMutationResult<
     },
   });
 }
+

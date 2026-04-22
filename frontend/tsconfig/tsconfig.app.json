@@ -8,9 +8,8 @@
       "@pages/*": ["../src/pages/*"],
       "@components/*": ["../src/components/*"],
       "@styles/*": ["../src/styles/*"],
-      "@apis/*": ["../src/apis/*"],
+      "@features/*": ["../src/features/*"],
       "@hooks/*": ["../src/hooks/*"],
-      "@dtos/*": ["../src/dtos/*"],
       "@utils/*": ["../src/utils/*"]
     },
     "types": ["vite/client"],

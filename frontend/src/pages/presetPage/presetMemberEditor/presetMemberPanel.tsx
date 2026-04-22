@@ -4,20 +4,20 @@ import { Toggle } from "@components/molecules/toggle";
 import {
   useDeletePresetMember,
   useUpdatePresetMember,
-} from "@hooks/presetMember";
+} from "@features/presetMember/hook";
 import {
   useCreatePresetMemberPosition,
   useDeletePresetMemberPosition,
-} from "@hooks/presetMemberPosition";
-import { useTiers } from "@hooks/tier";
-import { usePositions } from "@hooks/position";
-import { Role } from "@dtos/member";
-import { useVerifyRole } from "@hooks/member";
+} from "@features/presetMemberPosition/hook";
+import { useTiers } from "@features/tier/hook";
+import { usePositions } from "@features/position/hook";
+import { Role } from "@features/member/dto";
+import { useVerifyRole } from "@features/member/hook";
 import {
   UpdatePresetMemberSchema,
   type UpdatePresetMemberDTO,
-} from "@dtos/presetMember";
-import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+} from "@features/presetMember/dto";
+import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 import { CloseButton, SaveButton, Button } from "@components/atoms/button";
 import { Label, NameTitle } from "@components/atoms/text";
 import { Error } from "@components/molecules/error";
@@ -432,3 +432,4 @@ export function PresetMemberPanel({
     </PrimarySection>
   );
 }
+

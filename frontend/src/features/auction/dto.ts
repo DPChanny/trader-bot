@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { PresetDetailDTO } from "./preset";
+import type { PresetDetailDTO } from "@features/preset/dto";
 
 export enum Status {
   WAITING = 0,

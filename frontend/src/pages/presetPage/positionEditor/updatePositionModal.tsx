@@ -3,10 +3,10 @@ import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import { UpdatePositionSchema, type PositionDTO } from "@dtos/position";
+import { UpdatePositionSchema, type PositionDTO } from "@features/position/dto";
 import { useGuildId, usePresetId } from "@hooks/router";
 import { buildPatchDTO } from "@utils/dto";
-import { useUpdatePosition } from "@hooks/position";
+import { useUpdatePosition } from "@features/position/hook";
 
 interface UpdatePositionModalProps {
   position: PositionDTO;
@@ -92,3 +92,4 @@ export function UpdatePositionModal({
     </Modal>
   );
 }
+

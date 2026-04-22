@@ -11,11 +11,11 @@ import {
   addPosition,
   updatePosition,
   deletePosition,
-} from "@apis/position";
+} from "@features/position/api";
 import { queryKeys } from "@utils/query";
-import type { PositionDTO } from "@dtos/position";
+import type { PositionDTO } from "@features/position/dto";
 import type { AppError } from "@utils/error";
-import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 
 function invalidatePositionRelatedQueries(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -209,3 +209,4 @@ export function useDeletePosition(): UseMutationResult<
     },
   });
 }
+

@@ -1,4 +1,4 @@
-import type { PresetDTO, CreatePresetDTO, UpdatePresetDTO } from "@dtos/preset";
+import type { PresetDTO, CreatePresetDTO, UpdatePresetDTO } from "@features/preset/dto";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getPresetEndpoint } from "@utils/env";
 import { handleHTTPError } from "@utils/error";
@@ -74,3 +74,4 @@ export async function deletePreset({
   });
   if (!response.ok) await handleHTTPError(response);
 }
+

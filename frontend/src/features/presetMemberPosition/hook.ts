@@ -6,10 +6,10 @@ import {
 import {
   createPresetMemberPosition,
   deletePresetMemberPosition,
-} from "@apis/presetMemberPosition";
+} from "@features/presetMemberPosition/api";
 import { queryKeys } from "@utils/query";
 import type { AppError } from "@utils/error";
-import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 
 function invalidatePresetMemberPositionQueries(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -109,3 +109,4 @@ export function useDeletePresetMemberPosition(): UseMutationResult<
     },
   });
 }
+

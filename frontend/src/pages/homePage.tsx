@@ -10,9 +10,9 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
-import { useLogin } from "@hooks/auth";
+import { useLogin } from "@features/auth/hook";
 import { useManifest } from "@hooks/public";
-import { useMyUser } from "@hooks/user";
+import { useMyUser } from "@features/user/hook";
 import { getAnnouncements } from "@utils/marked";
 import { BOT_INVITE_URL } from "@utils/env";
 

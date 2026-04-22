@@ -23,10 +23,10 @@ import {
   useLoginCallback,
   useLogout,
   useAuthGuard,
-} from "@hooks/auth";
+} from "@features/auth/hook";
 import { useRouteQueryParam } from "@hooks/router";
 import { useManifest } from "@hooks/public";
-import { useMyUser } from "@hooks/user";
+import { useMyUser } from "@features/user/hook";
 import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import { getPhase } from "@utils/env";

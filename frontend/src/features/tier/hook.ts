@@ -5,11 +5,17 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/preact-query";
-import { getTiers, getTier, addTier, updateTier, deleteTier } from "@apis/tier";
+import {
+  addTier,
+  deleteTier,
+  getTier,
+  getTiers,
+  updateTier,
+} from "@features/tier/api";
 import { queryKeys } from "@utils/query";
-import type { TierDTO } from "@dtos/tier";
+import type { TierDTO } from "@features/tier/dto";
 import type { AppError } from "@utils/error";
-import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 
 function replacePresetMemberTier(
   presetMember: PresetMemberDetailDTO,
@@ -193,3 +199,4 @@ export function useDeleteTier(): UseMutationResult<
     },
   });
 }
+

@@ -1,4 +1,4 @@
-import type { UserDetailDTO } from "@dtos/user";
+import type { UserDetailDTO } from "@features/user/dto";
 import { USER_API_ENDPOINT } from "@utils/env";
 import { toCamelCase } from "@utils/dto";
 import { handleHTTPError } from "@utils/error";
@@ -16,3 +16,4 @@ export async function getMyUser(): Promise<UserDetailDTO | null> {
   const json = await response.json();
   return toCamelCase<UserDetailDTO>(json);
 }
+

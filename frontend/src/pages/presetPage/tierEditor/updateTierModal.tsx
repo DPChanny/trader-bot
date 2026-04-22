@@ -4,9 +4,9 @@ import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import { UpdateTierSchema, type TierDTO } from "@dtos/tier";
+import { UpdateTierSchema, type TierDTO } from "@features/tier/dto";
 import { buildPatchDTO } from "@utils/dto";
-import { useUpdateTier } from "@hooks/tier";
+import { useUpdateTier } from "@features/tier/hook";
 
 interface UpdateTierModalProps {
   tier: TierDTO;
@@ -86,3 +86,4 @@ export function UpdateTierModal({ tier, onClose }: UpdateTierModalProps) {
     </Modal>
   );
 }
+

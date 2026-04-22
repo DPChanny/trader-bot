@@ -1,9 +1,9 @@
 import { useState } from "preact/hooks";
 import { useGuildId, usePresetId } from "@hooks/router";
-import { usePreset } from "@hooks/preset";
-import { usePresetMembers } from "@hooks/presetMember";
-import { Role } from "@dtos/member";
-import { useVerifyRole } from "@hooks/member";
+import { usePreset } from "@features/preset/hook";
+import { usePresetMembers } from "@features/presetMember/hook";
+import { Role } from "@features/member/dto";
+import { useVerifyRole } from "@features/member/hook";
 import { TierEditor } from "./tierEditor/tierEditor";
 import { PositionEditor } from "./positionEditor/positionEditor";
 import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
@@ -148,3 +148,4 @@ export function PresetPage() {
     </Page>
   );
 }
+

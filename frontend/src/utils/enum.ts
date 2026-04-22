@@ -1,5 +1,5 @@
-import { Status } from "@dtos/auction";
-import { Role } from "@dtos/member";
+import { Status } from "@features/auction/dto";
+import { Role } from "@features/member/dto";
 
 type EnumEntry<TKey extends number> = {
   key: TKey;
@@ -57,3 +57,4 @@ export function getRoleEntries(): Record<Role, RoleEntry> {
 export function getStatusEntries(): Record<Status, EnumEntry<Status>> {
   return STATUS_ENTRIES;
 }
+

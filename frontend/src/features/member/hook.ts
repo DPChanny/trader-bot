@@ -5,10 +5,15 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/preact-query";
-import type { MemberDetailDTO } from "@dtos/member";
-import { Role } from "@dtos/member";
-import type { PresetMemberDetailDTO } from "@dtos/presetMember";
-import { getMember, getMembers, getMyMember, updateMember } from "@apis/member";
+import type { MemberDetailDTO } from "@features/member/dto";
+import { Role } from "@features/member/dto";
+import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
+import {
+  getMember,
+  getMembers,
+  getMyMember,
+  updateMember,
+} from "@features/member/api";
 import { queryKeys, queryStaleTimes } from "@utils/query";
 import type { AppError } from "@utils/error";
 
@@ -88,3 +93,4 @@ export function useVerifyRole(guildId: string, required: Role): boolean {
   const { data: myMember } = useMyMember(guildId);
   return (myMember?.role ?? Role.VIEWER) >= required;
 }
+

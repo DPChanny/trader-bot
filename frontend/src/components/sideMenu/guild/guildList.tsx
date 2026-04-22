@@ -4,7 +4,7 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { GuildCard } from "./guildCard";
-import type { GuildDetailDTO } from "@dtos/guild";
+import type { GuildDetailDTO } from "@features/guild/dto";
 import { Title } from "@components/atoms/text";
 
 interface GuildListProps {
@@ -30,3 +30,4 @@ export function GuildList({ guilds, activeGuildId }: GuildListProps) {
     </SecondarySection>
   );
 }
+

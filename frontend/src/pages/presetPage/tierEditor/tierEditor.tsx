@@ -1,8 +1,8 @@
 import { useState } from "preact/hooks";
 import { useGuildId, usePresetId } from "@hooks/router";
-import { useTiers } from "@hooks/tier";
-import { Role } from "@dtos/member";
-import { useVerifyRole } from "@hooks/member";
+import { useTiers } from "@features/tier/hook";
+import { Role } from "@features/member/dto";
+import { useVerifyRole } from "@features/member/hook";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
 import { PrimaryButton } from "@components/atoms/button";
@@ -49,3 +49,4 @@ export function TierEditor() {
     </SecondarySection>
   );
 }
+

@@ -6,9 +6,9 @@ import { Card } from "@components/surfaces/card";
 import { Image } from "@components/atoms/image";
 import { Row } from "@components/atoms/layout";
 import { Name } from "@components/atoms/text";
-import type { TierDTO } from "@dtos/tier";
-import { Role } from "@dtos/member";
-import { useVerifyRole } from "@hooks/member";
+import type { TierDTO } from "@features/tier/dto";
+import { Role } from "@features/member/dto";
+import { useVerifyRole } from "@features/member/hook";
 import { UpdateTierModal } from "./updateTierModal";
 import { DeleteTierModal } from "./deleteTierModal";
 
@@ -62,3 +62,4 @@ export function TierCard({ tier }: TierCardProps) {
     </Card>
   );
 }
+

@@ -2,7 +2,7 @@ import type {
   ExchangeTokenDTO,
   JwtTokenDTO,
   RefreshTokenDTO,
-} from "@dtos/auth";
+} from "@features/auth/dto";
 import { AUTH_API_ENDPOINT } from "@utils/env";
 import { handleHTTPError } from "@utils/error";
 
@@ -39,3 +39,4 @@ export async function refreshToken(dto: RefreshTokenDTO): Promise<JwtTokenDTO> {
 
   return response.json();
 }
+

@@ -1,4 +1,4 @@
-import type { MemberDetailDTO, UpdateMemberDTO } from "@dtos/member";
+import type { MemberDetailDTO, UpdateMemberDTO } from "@features/member/dto";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getMemberEndpoint } from "@utils/env";
 import { handleHTTPError } from "@utils/error";
@@ -52,3 +52,4 @@ export async function updateMember({
   const json = await response.json();
   return toCamelCase<MemberDetailDTO>(json);
 }
+

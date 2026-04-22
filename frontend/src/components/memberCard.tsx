@@ -3,7 +3,7 @@ import { Card } from "./surfaces/card";
 import { Image } from "./atoms/image";
 import { Name } from "./atoms/text";
 import { Badge } from "./atoms/badge";
-import type { MemberDetailDTO } from "@dtos/member";
+import type { MemberDetailDTO } from "@features/member/dto";
 import { getRoleEntries } from "@utils/enum";
 
 export type MemberCardProps = {
@@ -37,3 +37,4 @@ export function MemberCard({ member }: MemberCardProps) {
     </Card>
   );
 }
+

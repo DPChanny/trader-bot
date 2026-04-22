@@ -1,7 +1,7 @@
 import type {
   AddPresetMemberPositionDTO,
   PresetMemberPositionDetailDTO,
-} from "@dtos/presetMemberPosition";
+} from "@features/presetMemberPosition/dto";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getPresetMemberPositionEndpoint } from "@utils/env";
 import { handleHTTPError } from "@utils/error";
@@ -51,3 +51,4 @@ export async function deletePresetMemberPosition({
   );
   if (!response.ok) await handleHTTPError(response);
 }
+

@@ -5,7 +5,7 @@ import { Badge } from "./atoms/badge";
 import { Image } from "./atoms/image";
 import { Row } from "./atoms/layout";
 import { Name } from "./atoms/text";
-import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 import { useContext } from "preact/hooks";
 import { AuctionPageContext } from "@pages/auctionPage/auctionPageContext";
 
@@ -86,3 +86,4 @@ export function PresetMemberCard({ presetMember }: PresetMemberCardProps) {
     </Card>
   );
 }
+

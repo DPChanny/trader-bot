@@ -2,7 +2,7 @@ import { MemberCard } from "./memberCard";
 import { PressedButton } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
 import styles from "@styles/components/memberGrid.module.css";
-import type { MemberDetailDTO } from "@dtos/member";
+import type { MemberDetailDTO } from "@features/member/dto";
 import { TertiarySection } from "./surfaces/section";
 
 interface MemberGridProps {
@@ -39,3 +39,4 @@ export function MemberGrid({
     </TertiarySection>
   );
 }
+

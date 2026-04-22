@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { useGuildId, usePresetId } from "@hooks/router";
-import { useMembers } from "@hooks/member";
-import { Role } from "@dtos/member";
-import { useVerifyRole } from "@hooks/member";
+import { useMembers } from "@features/member/hook";
+import { Role } from "@features/member/dto";
+import { useVerifyRole } from "@features/member/hook";
 import {
   useCreatePresetMember,
   useDeletePresetMember,
   usePresetMembers,
-} from "@hooks/presetMember";
+} from "@features/presetMember/hook";
 import { MemberGrid } from "@components/memberGrid";
 import { PresetMemberGrid } from "@components/presetMemberGrid";
 import { PresetMemberPanel } from "./presetMemberPanel";
@@ -19,7 +19,7 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Title } from "@components/atoms/text";
-import type { PresetMemberDetailDTO } from "@dtos/presetMember";
+import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 
 export function PresetMemberEditor() {
   const guildId = useGuildId();
@@ -230,3 +230,4 @@ export function PresetMemberEditor() {
     </>
   );
 }
+

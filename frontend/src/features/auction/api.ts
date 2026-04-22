@@ -1,4 +1,4 @@
-import type { CreateAuctionDTO, AuctionDTO } from "@dtos/auction";
+import type { CreateAuctionDTO, AuctionDTO } from "@features/auction/dto";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getAuctionEndpoint } from "@utils/env";
 import { handleHTTPError } from "@utils/error";
@@ -22,3 +22,4 @@ export async function createAuction({
   const json = await response.json();
   return toCamelCase<AuctionDTO>(json);
 }
+

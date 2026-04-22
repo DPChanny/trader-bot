@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import { useAuction } from "@hooks/auction";
+import { useAuction } from "@features/auction/hook";
 import { useAuctionId, useGuildId, usePresetId } from "@hooks/router";
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
@@ -20,8 +20,8 @@ import { Text, Title } from "@components/atoms/text";
 import { ErrorModal } from "./errorModal";
 import { AuctionPageContextProvider } from "./auctionPageContext";
 import { getStatusEntries } from "@utils/enum";
-import type { PresetMemberDetailDTO } from "@dtos/presetMember";
-import { Status } from "@dtos/auction";
+import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
+import { Status } from "@features/auction/dto";
 import {
   BackendErrorCode,
   FrontendErrorCode,
@@ -289,3 +289,4 @@ export function AuctionPage() {
     </AuctionPageContextProvider>
   );
 }
+

@@ -2,7 +2,7 @@ import { Card } from "@components/surfaces/card";
 import { Image } from "@components/atoms/image";
 import { Link } from "@components/atoms/link";
 import { Name } from "@components/atoms/text";
-import type { GuildDetailDTO } from "@dtos/guild";
+import type { GuildDetailDTO } from "@features/guild/dto";
 
 type GuildCardProps = {
   guild: GuildDetailDTO;
@@ -22,3 +22,4 @@ export function GuildCard({ guild, isSelected }: GuildCardProps) {
     </Link>
   );
 }
+

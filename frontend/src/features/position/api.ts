@@ -1,67 +1,73 @@
-import type { AddTierDTO, TierDTO, UpdateTierDTO } from "@dtos/tier";
+import type {
+  PositionDTO,
+  AddPositionDTO,
+  UpdatePositionDTO,
+} from "@features/position/dto";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
-import { getTierEndpoint } from "@utils/env";
+import { getPositionEndpoint } from "@utils/env";
 import { handleHTTPError } from "@utils/error";
 import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
-export async function getTiers(
+export async function getPositions(
   guildId: string,
   presetId: number,
-): Promise<TierDTO[]> {
-  const response = await fetch(getTierEndpoint(guildId, presetId), {
+): Promise<PositionDTO[]> {
+  const response = await fetch(getPositionEndpoint(guildId, presetId), {
     headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
-  return toCamelCase<TierDTO[]>(json);
+  return toCamelCase<PositionDTO[]>(json);
 }
 
-export async function getTier(
+export async function getPosition(
   guildId: string,
   presetId: number,
-  tierId: number,
-): Promise<TierDTO> {
+  positionId: number,
+): Promise<PositionDTO> {
   const response = await fetch(
-    `${getTierEndpoint(guildId, presetId)}/${tierId}`,
-    { headers: getHeaders(getAuthHeader()) },
+    `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
+    {
+      headers: getHeaders(getAuthHeader()),
+    },
   );
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
-  return toCamelCase<TierDTO>(json);
+  return toCamelCase<PositionDTO>(json);
 }
 
-export async function addTier({
+export async function addPosition({
   guildId,
   presetId,
   dto,
 }: {
   guildId: string;
   presetId: number;
-  dto: AddTierDTO;
-}): Promise<TierDTO> {
-  const response = await fetch(getTierEndpoint(guildId, presetId), {
+  dto: AddPositionDTO;
+}): Promise<PositionDTO> {
+  const response = await fetch(getPositionEndpoint(guildId, presetId), {
     method: "POST",
     headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
-  return toCamelCase<TierDTO>(json);
+  return toCamelCase<PositionDTO>(json);
 }
 
-export async function updateTier({
+export async function updatePosition({
   guildId,
   presetId,
-  tierId,
+  positionId,
   dto,
 }: {
   guildId: string;
   presetId: number;
-  tierId: number;
-  dto: UpdateTierDTO;
-}): Promise<TierDTO> {
+  positionId: number;
+  dto: UpdatePositionDTO;
+}): Promise<PositionDTO> {
   const response = await fetch(
-    `${getTierEndpoint(guildId, presetId)}/${tierId}`,
+    `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
     {
       method: "PATCH",
       headers: getHeaders(getAuthHeader(), getJsonHeader()),
@@ -70,24 +76,25 @@ export async function updateTier({
   );
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
-  return toCamelCase<TierDTO>(json);
+  return toCamelCase<PositionDTO>(json);
 }
 
-export async function deleteTier({
+export async function deletePosition({
   guildId,
   presetId,
-  tierId,
+  positionId,
 }: {
   guildId: string;
   presetId: number;
-  tierId: number;
+  positionId: number;
 }): Promise<void> {
   const response = await fetch(
-    `${getTierEndpoint(guildId, presetId)}/${tierId}`,
+    `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
     {
       method: "DELETE",
-      headers: getHeaders(getAuthHeader(), getJsonHeader()),
+      headers: getHeaders(getAuthHeader()),
     },
   );
   if (!response.ok) await handleHTTPError(response);
 }
+

@@ -11,9 +11,9 @@ import {
   createPreset,
   updatePreset,
   deletePreset,
-} from "@apis/preset";
+} from "@features/preset/api";
 import { queryKeys } from "@utils/query";
-import type { PresetDTO } from "@dtos/preset";
+import type { PresetDTO } from "@features/preset/dto";
 import type { AppError } from "@utils/error";
 
 export function usePresets(
@@ -132,3 +132,4 @@ export function useDeletePreset(): UseMutationResult<
     },
   });
 }
+

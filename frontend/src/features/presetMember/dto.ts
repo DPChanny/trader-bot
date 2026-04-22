@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { nullableUrlSchema } from "@utils/dto";
-import type { MemberDetailDTO } from "./member";
-import type { PresetMemberPositionDetailDTO } from "./presetMemberPosition";
-import type { TierDTO } from "./tier";
+import type { MemberDetailDTO } from "@features/member/dto";
+import type { PresetMemberPositionDetailDTO } from "@features/presetMemberPosition/dto";
+import type { TierDTO } from "@features/tier/dto";
 
 export interface PresetMemberDTO {
   presetMemberId: number;

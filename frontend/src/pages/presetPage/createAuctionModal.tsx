@@ -4,7 +4,7 @@ import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { SecondaryButton, Button } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import { useCreateAuction } from "@hooks/auction";
+import { useCreateAuction } from "@features/auction/hook";
 
 interface CreateAuctionModalProps {
   onClose: () => void;

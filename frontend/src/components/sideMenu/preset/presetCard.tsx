@@ -1,7 +1,7 @@
 import { Card } from "@components/surfaces/card";
 import { Link } from "@components/atoms/link";
 import { Name } from "@components/atoms/text";
-import type { PresetDTO } from "@dtos/preset";
+import type { PresetDTO } from "@features/preset/dto";
 import { useGuildId } from "@hooks/router";
 
 type PresetCardProps = {
@@ -22,3 +22,4 @@ export function PresetCard({ preset, isSelected }: PresetCardProps) {
     </Link>
   );
 }
+

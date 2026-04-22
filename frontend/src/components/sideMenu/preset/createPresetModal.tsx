@@ -3,9 +3,9 @@ import { Modal, ModalForm, ModalFooter, ModalRow } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import { CreatePresetSchema } from "@dtos/preset";
+import { CreatePresetSchema } from "@features/preset/dto";
 import { useGuildId } from "@hooks/router";
-import { useCreatePreset } from "@hooks/preset";
+import { useCreatePreset } from "@features/preset/hook";
 
 interface CreatePresetModalProps {
   onClose: () => void;
@@ -122,3 +122,4 @@ export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
     </Modal>
   );
 }
+

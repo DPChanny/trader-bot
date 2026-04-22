@@ -4,8 +4,8 @@ import { Modal, ModalForm, ModalFooter } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import { AddTierSchema } from "@dtos/tier";
-import { useAddTier } from "@hooks/tier";
+import { AddTierSchema } from "@features/tier/dto";
+import { useAddTier } from "@features/tier/hook";
 
 interface AddTierModalProps {
   onClose: () => void;
@@ -72,3 +72,4 @@ export function AddTierModal({ onClose }: AddTierModalProps) {
     </Modal>
   );
 }
+

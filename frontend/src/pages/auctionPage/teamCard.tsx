@@ -1,6 +1,6 @@
 import { PresetMemberGrid } from "@components/presetMemberGrid";
-import type { PresetMemberDetailDTO } from "@dtos/presetMember";
-import type { TeamDTO } from "@dtos/auction";
+import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
+import type { TeamDTO } from "@features/auction/dto";
 import { Card } from "@components/surfaces/card";
 import { Row } from "@components/atoms/layout";
 import { Name, Text } from "@components/atoms/text";
@@ -37,3 +37,4 @@ export function TeamCard({
     </Card>
   );
 }
+

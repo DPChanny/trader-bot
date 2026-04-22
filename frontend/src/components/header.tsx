@@ -4,7 +4,7 @@ import { Image } from "@components/atoms/image";
 import { Row } from "@components/atoms/layout";
 import { Link } from "@components/atoms/link";
 import { Name, Title } from "@components/atoms/text";
-import type { UserDetailDTO } from "@dtos/user";
+import type { UserDetailDTO } from "@features/user/dto";
 
 type HeaderGuestProps = {
   user?: undefined;
@@ -62,3 +62,4 @@ export function Header(props: HeaderProps) {
     </header>
   );
 }
+

@@ -6,9 +6,9 @@ import { Card } from "@components/surfaces/card";
 import { Image } from "@components/atoms/image";
 import { Row } from "@components/atoms/layout";
 import { Name } from "@components/atoms/text";
-import type { PositionDTO } from "@dtos/position";
-import { Role } from "@dtos/member";
-import { useVerifyRole } from "@hooks/member";
+import type { PositionDTO } from "@features/position/dto";
+import { Role } from "@features/member/dto";
+import { useVerifyRole } from "@features/member/hook";
 import { UpdatePositionModal } from "./updatePositionModal";
 import { DeletePositionModal } from "./deletePositionModal";
 
@@ -67,3 +67,4 @@ export function PositionCard({ position }: PositionCardProps) {
     </Card>
   );
 }
+

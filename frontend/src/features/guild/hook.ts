@@ -1,8 +1,8 @@
 import { useQuery, type UseQueryResult } from "@tanstack/preact-query";
-import type { GuildDetailDTO } from "@dtos/guild";
-import { getGuild, getGuilds } from "@apis/guild";
-import { queryKeys } from "@utils/query";
+import type { GuildDetailDTO } from "@features/guild/dto";
 import type { AppError } from "@utils/error";
+import { queryKeys } from "@utils/query";
+import { getGuild, getGuilds } from "./api";
 
 export function useGuilds(): UseQueryResult<GuildDetailDTO[], AppError> {
   return useQuery({
@@ -19,3 +19,4 @@ export function useGuild(
     queryFn: (): Promise<GuildDetailDTO> => getGuild(guildId),
   });
 }
+

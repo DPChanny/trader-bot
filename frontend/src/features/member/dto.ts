@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { nullableNameSchema, nullableUrlSchema } from "@utils/dto";
-import type { UserDetailDTO } from "./user";
+import type { UserDetailDTO } from "@features/user/dto";
 
 export enum Role {
   VIEWER = 0,

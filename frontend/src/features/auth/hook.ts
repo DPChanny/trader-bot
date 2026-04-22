@@ -5,8 +5,8 @@ import { route } from "preact-router";
 import {
   exchangeToken as exchangeTokenAPI,
   refreshToken as refreshTokenAPI,
-} from "@apis/auth";
-import { getMyUser } from "@apis/user";
+} from "@features/auth/api";
+import { getMyUser } from "@features/user/api";
 import {
   setJWTToken,
   getAccessToken,

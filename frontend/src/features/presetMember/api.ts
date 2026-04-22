@@ -1,73 +1,71 @@
 import type {
-  PositionDTO,
-  AddPositionDTO,
-  UpdatePositionDTO,
-} from "@dtos/position";
+  AddPresetMemberDTO,
+  PresetMemberDetailDTO,
+  UpdatePresetMemberDTO,
+} from "@features/presetMember/dto";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
-import { getPositionEndpoint } from "@utils/env";
+import { getPresetMemberEndpoint } from "@utils/env";
 import { handleHTTPError } from "@utils/error";
 import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
-export async function getPositions(
+export async function getPresetMembers(
   guildId: string,
   presetId: number,
-): Promise<PositionDTO[]> {
-  const response = await fetch(getPositionEndpoint(guildId, presetId), {
+): Promise<PresetMemberDetailDTO[]> {
+  const response = await fetch(getPresetMemberEndpoint(guildId, presetId), {
     headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
-  return toCamelCase<PositionDTO[]>(json);
+  return toCamelCase<PresetMemberDetailDTO[]>(json);
 }
 
-export async function getPosition(
+export async function getPresetMember(
   guildId: string,
   presetId: number,
-  positionId: number,
-): Promise<PositionDTO> {
+  presetMemberId: number,
+): Promise<PresetMemberDetailDTO> {
   const response = await fetch(
-    `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
-    {
-      headers: getHeaders(getAuthHeader()),
-    },
+    `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
+    { headers: getHeaders(getAuthHeader()) },
   );
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
-  return toCamelCase<PositionDTO>(json);
+  return toCamelCase<PresetMemberDetailDTO>(json);
 }
 
-export async function addPosition({
+export async function createPresetMember({
   guildId,
   presetId,
   dto,
 }: {
   guildId: string;
   presetId: number;
-  dto: AddPositionDTO;
-}): Promise<PositionDTO> {
-  const response = await fetch(getPositionEndpoint(guildId, presetId), {
+  dto: AddPresetMemberDTO;
+}): Promise<PresetMemberDetailDTO> {
+  const response = await fetch(getPresetMemberEndpoint(guildId, presetId), {
     method: "POST",
     headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
-  return toCamelCase<PositionDTO>(json);
+  return toCamelCase<PresetMemberDetailDTO>(json);
 }
 
-export async function updatePosition({
+export async function updatePresetMember({
   guildId,
   presetId,
-  positionId,
+  presetMemberId,
   dto,
 }: {
   guildId: string;
   presetId: number;
-  positionId: number;
-  dto: UpdatePositionDTO;
-}): Promise<PositionDTO> {
+  presetMemberId: number;
+  dto: UpdatePresetMemberDTO;
+}): Promise<PresetMemberDetailDTO> {
   const response = await fetch(
-    `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
+    `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
     {
       method: "PATCH",
       headers: getHeaders(getAuthHeader(), getJsonHeader()),
@@ -76,24 +74,25 @@ export async function updatePosition({
   );
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
-  return toCamelCase<PositionDTO>(json);
+  return toCamelCase<PresetMemberDetailDTO>(json);
 }
 
-export async function deletePosition({
+export async function deletePresetMember({
   guildId,
   presetId,
-  positionId,
+  presetMemberId,
 }: {
   guildId: string;
   presetId: number;
-  positionId: number;
+  presetMemberId: number;
 }): Promise<void> {
   const response = await fetch(
-    `${getPositionEndpoint(guildId, presetId)}/${positionId}`,
+    `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
     {
       method: "DELETE",
-      headers: getHeaders(getAuthHeader()),
+      headers: getHeaders(getAuthHeader(), getJsonHeader()),
     },
   );
   if (!response.ok) await handleHTTPError(response);
 }
+

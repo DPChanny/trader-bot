@@ -1,6 +1,6 @@
 import { TeamCard } from "./teamCard";
-import type { PresetMemberDetailDTO } from "@dtos/presetMember";
-import type { TeamDTO } from "@dtos/auction";
+import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
+import type { TeamDTO } from "@features/auction/dto";
 import { Scroll } from "@components/atoms/layout";
 import { TertiarySection } from "@components/surfaces/section";
 
@@ -39,3 +39,4 @@ export function TeamList({
     </TertiarySection>
   );
 }
+
