@@ -117,34 +117,24 @@ jobs:
             --arg repo "/var/www/trader-bot" \
             '{commands: (
               ($repo + "/infra/cloudwatch/amazon-cloudwatch-agent.d") as $source_dir |
-              "/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d" as $target_dir |
-              ($source_dir + "/agent.json") as $source_agent |
-              ($target_dir + "/agent.json") as $target_agent |
-              ($source_dir + "/trader-bot-" + $phase + "-lg-backend.json") as $source_backend |
-              ($target_dir + "/trader-bot-" + $phase + "-lg-backend.json") as $target_backend |
-              ($source_dir + "/trader-bot-" + $phase + "-lg-bot.json") as $source_bot |
-              ($target_dir + "/trader-bot-" + $phase + "-lg-bot.json") as $target_bot |
-              ($source_dir + "/trader-bot-" + $phase + "-lg-redis.json") as $source_redis |
-              ($target_dir + "/trader-bot-" + $phase + "-lg-redis.json") as $target_redis |
+              ($source_dir + "/agent.json") as $source_agent_json |
+              ($source_dir + "/trader-bot-" + $phase + "-lg-backend.json") as $source_backend_json |
+              ($source_dir + "/trader-bot-" + $phase + "-lg-bot.json") as $source_bot_json |
+              ($source_dir + "/trader-bot-" + $phase + "-lg-redis.json") as $source_redis_json |
               [
               "set -e",
               ("cd " + $repo),
               ("sudo -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              ("sudo install -d " + $target_dir),
-              ("sudo install -m 644 " + $source_agent + " " + $target_agent),
-              ("sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $target_agent + " -s"),
+                ("sudo amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $source_agent_json + " -s"),
               "if [ \"" + $target + "\" = \"backend\" ] || [ \"" + $target + "\" = \"all\" ]; then",
-              ("  sudo install -m 644 " + $source_backend + " " + $target_backend),
-              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $target_backend),
+                ("  sudo amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_backend_json),
               "fi",
               "if [ \"" + $target + "\" = \"bot\" ] || [ \"" + $target + "\" = \"all\" ]; then",
-              ("  sudo install -m 644 " + $source_bot + " " + $target_bot),
-              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $target_bot),
+                ("  sudo amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_bot_json),
               "fi",
               "if [ \"" + $target + "\" = \"redis\" ] || [ \"" + $target + "\" = \"all\" ]; then",
-              ("  sudo install -m 644 " + $source_redis + " " + $target_redis),
-              ("  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $target_redis),
+                ("  sudo amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_redis_json),
               "fi",
               "sudo systemctl enable --now amazon-cloudwatch-agent",
               "sudo systemctl is-active --quiet amazon-cloudwatch-agent"
