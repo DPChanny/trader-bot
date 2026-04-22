@@ -119,7 +119,8 @@ jobs:
                else "sudo -H -u ubuntu pm2 startOrReload " + $source_ecosystem
                end),
               "sudo -H -u ubuntu pm2 save",
-              "sudo systemctl enable pm2-ubuntu"
+              "sudo systemctl enable pm2-ubuntu",
+              "sudo -H -u ubuntu pm2 ping"
             ])}')
 
           FAILED=0
