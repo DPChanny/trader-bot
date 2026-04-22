@@ -4,6 +4,7 @@ import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { useDeletePreset } from "@features/preset/hook";
+import { Routes } from "@utils/routes";
 
 interface DeletePresetModalProps {
   onClose: () => void;
@@ -24,7 +25,7 @@ export function DeletePresetModal({ onClose }: DeletePresetModalProps) {
     if (deletePreset.isPending) return;
     deletePreset.mutate(
       { guildId, presetId },
-      { onSuccess: () => route(`/guild/${guildId}/member`) },
+      { onSuccess: () => route(Routes.guild.member.to(guildId)) },
     );
   };
 

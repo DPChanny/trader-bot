@@ -10,8 +10,8 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
-import { useManifest } from "@hooks/public";
-import { getAnnouncements } from "@hooks/public";
+import { useManifest, getAnnouncements } from "@hooks/public";
+import { Routes } from "@utils/routes";
 import { MarkedPage } from "./markedPage";
 
 export type AnnouncementPageProps = {
@@ -33,7 +33,7 @@ export function AnnouncementPage({ name }: AnnouncementPageProps) {
     }
 
     if (isInvalidName) {
-      route("/announcement", true);
+      route(Routes.announcement.to, true);
       return;
     }
 
@@ -42,7 +42,7 @@ export function AnnouncementPage({ name }: AnnouncementPageProps) {
     }
 
     if (!announcementSet.has(normalizedName)) {
-      route("/announcement", true);
+      route(Routes.announcement.to, true);
     }
   }, [announcementSet, isInvalidName, manifest.isLoading, normalizedName]);
 
@@ -68,7 +68,7 @@ export function AnnouncementPage({ name }: AnnouncementPageProps) {
                   {announcementNames.map((announcementName) => (
                     <InternalLink
                       key={announcementName}
-                      href={`/announcement?name=${encodeURIComponent(announcementName)}`}
+                      href={Routes.announcement.name(announcementName)}
                     >
                       <Card>
                         <Text>{announcementName}</Text>

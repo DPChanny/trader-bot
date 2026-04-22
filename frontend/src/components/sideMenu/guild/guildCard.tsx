@@ -1,6 +1,7 @@
 import { Card } from "@components/surfaces/card";
 import { Image } from "@components/atoms/image";
 import { InternalLink } from "@components/atoms/link";
+import { Routes } from "@utils/routes";
 import { Name } from "@components/atoms/text";
 import type { GuildDetailDTO } from "@features/guild/dto";
 
@@ -12,7 +13,7 @@ type GuildCardProps = {
 export function GuildCard({ guild, isSelected }: GuildCardProps) {
   return (
     <InternalLink
-      href={`/guild/${guild.discordId}/member`}
+      href={Routes.guild.member.to(guild.discordId)}
       aria-current={isSelected ? "page" : undefined}
     >
       <Card direction="row" align="center" justify="center">

@@ -17,6 +17,7 @@ import {
 import { AUTH_API_ENDPOINT } from "@utils/env";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import { useRoutePath } from "@hooks/router";
+import { Routes } from "@utils/routes";
 
 function isRedirectPath(path: string | null): path is string {
   return (
@@ -45,7 +46,7 @@ export function useLogout() {
       queryClient.clear();
     },
     onSettled: () => {
-      route("/", true);
+      route(Routes.home.to, true);
     },
   });
 }
@@ -72,7 +73,7 @@ export function useLoginCallback() {
         const exchangeToken = params.get("exchangeToken");
 
         if (!exchangeToken) {
-          route("/", true);
+          route(Routes.home.to, true);
           return;
         }
 
@@ -84,7 +85,10 @@ export function useLoginCallback() {
         const me = await getMyUser();
         queryClient.setQueryData(queryKeys.me(), me);
         const redirectPath = params.get("redirect");
-        route(isRedirectPath(redirectPath) ? redirectPath : "/", true);
+        route(
+          isRedirectPath(redirectPath) ? redirectPath : Routes.home.to,
+          true,
+        );
       } catch (e) {
         setError(
           e instanceof AppError
@@ -137,6 +141,6 @@ export function useRefreshToken() {
 
 export function useAuthGuard() {
   useEffect(() => {
-    if (!checkJWTToken(getRefreshToken())) route("/", true);
+    if (!checkJWTToken(getRefreshToken())) route(Routes.home.to, true);
   }, []);
 }

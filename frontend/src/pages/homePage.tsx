@@ -14,6 +14,7 @@ import { useLogin } from "@features/auth/hook";
 import { useManifest } from "@hooks/public";
 import { useMyUser } from "@features/user/hook";
 import { getAnnouncements } from "@hooks/public";
+import { Routes } from "@utils/routes";
 import { BOT_INVITE_URL } from "@utils/env";
 
 export function HomePage() {
@@ -75,7 +76,7 @@ export function HomePage() {
                     {announcementNames.map((name) => (
                       <InternalLink
                         key={name}
-                        href={`/announcement?name=${encodeURIComponent(name)}`}
+                        href={Routes.announcement.name(name)}
                       >
                         <Card>
                           <Text>{name}</Text>

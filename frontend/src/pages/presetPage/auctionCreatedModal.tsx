@@ -1,5 +1,6 @@
 import { Modal, ModalFooter } from "@components/modal";
 import { InternalLink } from "@components/atoms/link";
+import { Routes } from "@utils/routes";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Text } from "@components/atoms/text";
 
@@ -16,7 +17,7 @@ export function AuctionCreatedModal({
   auctionId,
   onClose,
 }: AuctionCreatedModalProps) {
-  const auctionURL = `/guild/${guildId}/preset/${presetId}/auction/${auctionId}`;
+  const auctionURL = Routes.guild.auction.to(guildId, presetId, auctionId);
   const link = `${window.location.origin}${auctionURL}`;
 
   return (

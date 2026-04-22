@@ -31,6 +31,7 @@ import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import { getPhase } from "@utils/env";
 import { getNotes } from "@hooks/public";
+import { Routes } from "@utils/routes";
 import "@styles/index.css";
 
 function HomePageRoute({}: RoutableProps) {
@@ -65,7 +66,7 @@ function PrivacyPolicyRoute({}: RoutableProps) {
 
 function DefaultRedirectRoute({}: RoutableProps) {
   useEffect(() => {
-    route("/", true);
+    route(Routes.home.to, true);
   }, []);
   return null;
 }
@@ -91,7 +92,7 @@ function MemberPageRoute({ guildId }: RoutableProps & { guildId?: string }) {
   useAuthGuard();
 
   if (!guildId) {
-    route("/", true);
+    route(Routes.home.to, true);
     return null;
   }
 
@@ -105,7 +106,7 @@ function PresetPageRoute({
   useAuthGuard();
 
   if (!guildId || !presetId) {
-    route("/", true);
+    route(Routes.home.to, true);
     return null;
   }
 
@@ -116,7 +117,7 @@ function AuctionPageRoute({
   auctionId,
 }: RoutableProps & { auctionId?: string }) {
   if (!auctionId) {
-    route("/", true);
+    route(Routes.home.to, true);
     return null;
   }
 
@@ -189,15 +190,15 @@ function App() {
         {myUser.data && <SideMenu />}
         <div className="app-content">
           <Router>
-            <LoginCallbackRoute path="/auth/login/callback" />
-            <HomePageRoute path="/" />
-            <PatchPageRoute path="/patch" />
-            <AnnouncementRoute path="/announcement" />
-            <TermsOfServiceRoute path="/terms-of-service" />
-            <PrivacyPolicyRoute path="/privacy-policy" />
-            <PresetPageRoute path="/guild/:guildId/preset/:presetId" />
-            <MemberPageRoute path="/guild/:guildId/member" />
-            <AuctionPageRoute path="/guild/:guildId/preset/:presetId/auction/:auctionId" />
+            <LoginCallbackRoute path={Routes.auth.loginCallback.pattern} />
+            <HomePageRoute path={Routes.home.pattern} />
+            <PatchPageRoute path={Routes.patch.pattern} />
+            <AnnouncementRoute path={Routes.announcement.pattern} />
+            <TermsOfServiceRoute path={Routes.termsOfService.pattern} />
+            <PrivacyPolicyRoute path={Routes.privacyPolicy.pattern} />
+            <PresetPageRoute path={Routes.guild.preset.pattern} />
+            <MemberPageRoute path={Routes.guild.member.pattern} />
+            <AuctionPageRoute path={Routes.guild.auction.pattern} />
             <DefaultRedirectRoute default />
           </Router>
         </div>

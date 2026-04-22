@@ -11,9 +11,9 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
-import { useManifest } from "@hooks/public";
+import { useManifest, getNotes, getPlans } from "@hooks/public";
 import { getPhase } from "@utils/env";
-import { getNotes, getPlans } from "@hooks/public";
+import { Routes } from "@utils/routes";
 
 export type PatchPageProps = {
   version: string;
@@ -38,7 +38,7 @@ export function PatchPage({ version }: PatchPageProps) {
     }
 
     if (isInvalidVersion) {
-      route("/patch", true);
+      route(Routes.patch.to, true);
       return;
     }
 
@@ -50,7 +50,7 @@ export function PatchPage({ version }: PatchPageProps) {
       !noteVersionSet.has(normalizedVersion) &&
       !planVersionSet.has(normalizedVersion)
     ) {
-      route("/patch", true);
+      route(Routes.patch.to, true);
     }
   }, [
     isInvalidVersion,
@@ -101,7 +101,7 @@ export function PatchPage({ version }: PatchPageProps) {
                     {versions.map((itemVersion) => (
                       <InternalLink
                         key={itemVersion}
-                        href={`/patch?version=${encodeURIComponent(itemVersion)}`}
+                        href={Routes.patch.version(itemVersion)}
                       >
                         <Card>
                           <Text>{itemVersion}</Text>
