@@ -1,10 +1,11 @@
+import { useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { UpdatePositionSchema, type PositionDTO } from "@features/position/dto";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { buildPatchDTO } from "@utils/dto";
 import { useUpdatePosition } from "@features/position/hook";
 
@@ -17,8 +18,9 @@ export function UpdatePositionModal({
   position,
   onClose,
 }: UpdatePositionModalProps) {
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
   const [name, setName] = useState(position.name);
   const [iconUrl, setIconUrl] = useState(position.iconUrl ?? "");
   const updatePosition = useUpdatePosition();

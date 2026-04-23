@@ -1,10 +1,11 @@
+import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { AddPositionSchema } from "@features/position/dto";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { useAddPosition } from "@features/position/hook";
 
 interface AddPositionModalProps {
@@ -12,8 +13,9 @@ interface AddPositionModalProps {
 }
 
 export function AddPositionModal({ onClose }: AddPositionModalProps) {
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
   const [name, setName] = useState("");
   const [iconUrl, setIconUrl] = useState("");
   const addPosition = useAddPosition();

@@ -1,5 +1,6 @@
+import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { useGuildId } from "@hooks/route";
+
 import { DeleteButton, EditButton } from "@components/atoms/button";
 import { Badge } from "@components/atoms/badge";
 import { Card } from "@components/surfaces/card";
@@ -17,7 +18,7 @@ type TierCardProps = {
 };
 
 export function TierCard({ tier }: TierCardProps) {
-  const guildId = useGuildId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);

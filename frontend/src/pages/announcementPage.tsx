@@ -1,19 +1,19 @@
 import { useEffect, useMemo } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Column, Page } from "@components/atoms/layout";
 import { Title } from "@components/atoms/text";
 import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 import { AnnouncementList } from "@components/announcementList";
 import { useManifest } from "@hooks/public";
-import { useRouteQueryParam } from "@hooks/route";
-import { Routes } from "@utils/routes";
+
+
 import { MarkedPage } from "./markedPage";
 
 export function AnnouncementPage() {
   const navigate = useNavigate();
-  const idParam =
-    useRouteQueryParam("id")
+  const search = useSearch({ strict: false }) as Record<string, string>;
+  const idParam = search.id
       ?.replace(/^\/+|\/+$/g, "")
       .trim() ?? "";
   const id = idParam;
@@ -38,7 +38,7 @@ export function AnnouncementPage() {
     }
 
     if (!targetAnn) {
-      navigate({ to: Routes.announcement.to, replace: true });
+      navigate({ to: '/announcement', replace: true });
     }
   }, [manifest.isLoading, targetId, targetAnn]);
 

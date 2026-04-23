@@ -1,3 +1,4 @@
+import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { Row, Scroll } from "@components/atoms/layout";
 import {
@@ -10,7 +11,7 @@ import { PresetCard } from "./presetCard";
 import { usePresets } from "@features/preset/hook";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
-import { useGuildId } from "@hooks/route";
+
 import { Title } from "@components/atoms/text";
 
 interface PresetListProps {
@@ -18,7 +19,7 @@ interface PresetListProps {
 }
 
 export function PresetList({ selectedPresetId }: PresetListProps) {
-  const guildId = useGuildId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
   const [showCreate, setShowCreate] = useState(false);
 
   const presets = usePresets(guildId);

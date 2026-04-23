@@ -1,5 +1,6 @@
+import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { useTiers } from "@features/tier/hook";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
@@ -16,8 +17,9 @@ import {
 import { Title } from "@components/atoms/text";
 
 export function TierEditor() {
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
   const [showAdd, setShowAdd] = useState(false);
 
   const tiers = useTiers(guildId, presetId);

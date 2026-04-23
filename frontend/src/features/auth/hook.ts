@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { queryKeys } from "@utils/query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useLocation } from "@tanstack/react-router";
 import {
   exchangeToken as exchangeTokenAPI,
   refreshToken as refreshTokenAPI,
@@ -16,8 +16,8 @@ import {
 } from "@features/auth/token";
 import { AUTH_API_ENDPOINT } from "@utils/env";
 import { AppError, FrontendErrorCode } from "@utils/error";
-import { useRoutePath } from "@hooks/route";
-import { Routes } from "@utils/routes";
+
+
 
 function isRedirectPath(path: string | null): path is string {
   return (
@@ -26,7 +26,7 @@ function isRedirectPath(path: string | null): path is string {
 }
 
 export function useLogin() {
-  const redirectPath = useRoutePath();
+  const redirectPath = useLocation({ select: (loc: { pathname: string }) => loc.pathname });
 
   return (): void => {
     const redirectUrl = new URL(`${AUTH_API_ENDPOINT}/login`);
@@ -47,7 +47,7 @@ export function useLogout() {
       queryClient.clear();
     },
     onSettled: () => {
-      navigate({ to: Routes.home.to, replace: true });
+      navigate({ to: '/', replace: true });
     },
   });
 }
@@ -75,7 +75,7 @@ export function useLoginCallback() {
         const exchangeToken = params.get("exchangeToken");
 
         if (!exchangeToken) {
-          navigate({ to: Routes.home.to, replace: true });
+          navigate({ to: '/', replace: true });
           return;
         }
 
@@ -87,7 +87,7 @@ export function useLoginCallback() {
         const me = await getMyUser();
         queryClient.setQueryData(queryKeys.me(), me);
         const redirectPath = params.get("redirect");
-        navigate({ to: isRedirectPath(redirectPath) ? redirectPath : Routes.home.to, replace: true });
+        navigate({ to: isRedirectPath(redirectPath) ? redirectPath : '/', replace: true });
       } catch (e) {
         setError(
           e instanceof AppError
@@ -142,6 +142,6 @@ export function useAuthGuard() {
   const navigate = useNavigate();
   useEffect(() => {
     if (!checkJWTToken(getRefreshToken()))
-      navigate({ to: Routes.home.to, replace: true });
+      navigate({ to: '/', replace: true });
   }, []);
 }

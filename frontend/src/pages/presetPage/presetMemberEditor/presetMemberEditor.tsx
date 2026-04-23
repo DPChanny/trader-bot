@@ -1,5 +1,6 @@
+import { useParams } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { useMembers } from "@features/member/hook";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
@@ -22,8 +23,9 @@ import { Title } from "@components/atoms/text";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 
 export function PresetMemberEditor() {
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
   const [selectedPresetMemberId, setSelectedPresetMemberId] = useState<
     number | null
   >(null);

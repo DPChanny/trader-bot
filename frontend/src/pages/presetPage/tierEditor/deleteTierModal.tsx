@@ -1,5 +1,6 @@
+import { useParams } from "@tanstack/react-router";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { useDeleteTier } from "@features/tier/hook";
@@ -10,8 +11,9 @@ interface DeleteTierModalProps {
 }
 
 export function DeleteTierModal({ tierId, onClose }: DeleteTierModalProps) {
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
   const deleteTier = useDeleteTier();
   const formId = "delete-tier-form";
 

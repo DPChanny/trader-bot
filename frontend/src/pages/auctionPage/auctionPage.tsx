@@ -1,6 +1,7 @@
+import { useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuction } from "@features/auction/hook";
-import { useAuctionId, useGuildId, usePresetId } from "@hooks/route";
+
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
 import {
@@ -52,9 +53,10 @@ function isModalErrorCode(code: number): boolean {
 }
 
 export function AuctionPage() {
-  const auctionId = useAuctionId();
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { auctionId } = useParams({ strict: false }) as { auctionId: string };
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
 
   const [bidAmount, setBidAmount] = useState<string>("");
   const [modalError, setModalError] = useState<WSError | null>(null);

@@ -1,6 +1,7 @@
+import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAuthGuard } from "@features/auth/hook";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { usePreset } from "@features/preset/hook";
 import { usePresetMembers } from "@features/presetMember/hook";
 import { Role } from "@features/member/dto";
@@ -22,8 +23,9 @@ import { Bar } from "@components/atoms/bar";
 
 export function PresetPage() {
   useAuthGuard();
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
 
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);

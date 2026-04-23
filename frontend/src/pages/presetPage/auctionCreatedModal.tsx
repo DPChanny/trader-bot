@@ -1,6 +1,6 @@
 import { Modal, ModalFooter } from "@components/modal";
 import { InternalLink } from "@components/atoms/link";
-import { Routes } from "@utils/routes";
+
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Text } from "@components/atoms/text";
 
@@ -17,13 +17,13 @@ export function AuctionCreatedModal({
   auctionId,
   onClose,
 }: AuctionCreatedModalProps) {
-  const auctionURL = Routes.guild.auction.to(guildId, presetId, auctionId);
+  const auctionURL = `/guild/${guildId}/preset/${presetId}/auction/${auctionId}`;
   const link = `${window.location.origin}${auctionURL}`;
 
   return (
     <Modal onClose={onClose} title="경매 생성 완료">
       <Text>
-        <InternalLink href={auctionURL} onClick={onClose}>
+        <InternalLink to="/guild/$guildId/preset/$presetId/auction/$auctionId" params={{ guildId, presetId: presetId.toString(), auctionId }} onClick={onClose}>
           경매
         </InternalLink>
         가 생성되었습니다.

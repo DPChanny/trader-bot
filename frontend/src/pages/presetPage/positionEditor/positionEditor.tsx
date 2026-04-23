@@ -1,5 +1,6 @@
+import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { usePositions } from "@features/position/hook";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
@@ -16,8 +17,9 @@ import { AddPositionModal } from "./addPositionModal";
 import { PositionCard } from "./positionCard";
 
 export function PositionEditor() {
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
   const [showAdd, setShowAdd] = useState(false);
 
   const positions = usePositions(guildId, presetId);

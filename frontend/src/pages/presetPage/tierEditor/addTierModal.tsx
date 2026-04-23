@@ -1,5 +1,6 @@
+import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { Modal, ModalForm, ModalFooter } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
@@ -12,8 +13,9 @@ interface AddTierModalProps {
 }
 
 export function AddTierModal({ onClose }: AddTierModalProps) {
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
   const [name, setName] = useState("");
   const [iconUrl, setIconUrl] = useState("");
   const addTier = useAddTier();

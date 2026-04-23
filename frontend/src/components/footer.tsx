@@ -1,6 +1,5 @@
 import { Fill } from "@components/atoms/layout";
 import { ExternalLink, InternalLink } from "@components/atoms/link";
-import { Routes } from "@utils/routes";
 import { PrimarySection } from "@components/surfaces/section";
 import { GUILD_INVITE_URL } from "@utils/env";
 
@@ -8,16 +7,16 @@ export function Footer() {
   return (
     <PrimarySection direction="row" width="page">
       <Fill center>
-        <InternalLink href={Routes.patch.to}>패치</InternalLink>
+        <InternalLink to="/patch">패치</InternalLink>
       </Fill>
       <Fill center>
-        <InternalLink href={Routes.announcement.to}>공지</InternalLink>
+        <InternalLink to="/announcement">공지</InternalLink>
       </Fill>
       <Fill center>
-        <InternalLink href={Routes.termsOfService.to}>이용약관</InternalLink>
+        <InternalLink to="/terms-of-service">이용약관</InternalLink>
       </Fill>
       <Fill center>
-        <InternalLink href={Routes.privacyPolicy.to}>
+        <InternalLink to="/privacy-policy">
           개인정보처리방침
         </InternalLink>
       </Fill>

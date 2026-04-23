@@ -1,5 +1,6 @@
+import { useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
@@ -14,8 +15,9 @@ interface UpdateTierModalProps {
 }
 
 export function UpdateTierModal({ tier, onClose }: UpdateTierModalProps) {
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
   const [name, setName] = useState(tier.name);
   const [iconUrl, setIconUrl] = useState(tier.iconUrl ?? "");
   const updateTier = useUpdateTier();

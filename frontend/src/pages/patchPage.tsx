@@ -1,6 +1,6 @@
 import { MarkedPage } from "./markedPage";
 import { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { InternalLink } from "@components/atoms/link";
 import { Column, Fill, Page, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
@@ -12,14 +12,14 @@ import {
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 import { useManifest } from "@hooks/public";
-import { useRouteQueryParam } from "@hooks/route";
+
 import { PHASE } from "@utils/env";
-import { Routes } from "@utils/routes";
+
 
 export function PatchPage() {
   const navigate = useNavigate();
-  const versionParam =
-    useRouteQueryParam("version")
+  const search = useSearch({ strict: false }) as Record<string, string>;
+  const versionParam = search.version
       ?.replace(/^\/+|\/+$/g, "")
       .trim() ?? "";
   const version = versionParam;
@@ -40,7 +40,7 @@ export function PatchPage() {
     }
 
     if (isInvalidVersion) {
-      navigate({ to: Routes.patch.to, replace: true });
+      navigate({ to: '/patch', replace: true });
       return;
     }
 
@@ -52,7 +52,7 @@ export function PatchPage() {
       !noteVersionSet.has(normalizedVersion) &&
       !planVersionSet.has(normalizedVersion)
     ) {
-      navigate({ to: Routes.patch.to, replace: true });
+      navigate({ to: '/patch', replace: true });
     }
   }, [
     isInvalidVersion,
@@ -105,7 +105,8 @@ export function PatchPage() {
                     {versions.map((item) => (
                       <InternalLink
                         key={item.version}
-                        href={Routes.patch.version(item.version)}
+                        to="/patch"
+                        search={{ version: item.version }}
                       >
                         <Card>
                           <Text>{item.version}</Text>

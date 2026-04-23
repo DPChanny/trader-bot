@@ -1,10 +1,11 @@
+import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { Modal, ModalForm, ModalFooter, ModalRow } from "@components/modal";
 import { LabelInput } from "@components/molecules/labelInput";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { CreatePresetSchema } from "@features/preset/dto";
-import { useGuildId } from "@hooks/route";
+
 import { useCreatePreset } from "@features/preset/hook";
 
 interface CreatePresetModalProps {
@@ -12,7 +13,7 @@ interface CreatePresetModalProps {
 }
 
 export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
-  const guildId = useGuildId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
   const [name, setName] = useState("");
   const [points, setPoints] = useState("");
   const [pointScale, setPointScale] = useState("");

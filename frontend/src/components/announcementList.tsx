@@ -3,7 +3,6 @@ import { Scroll } from "@components/atoms/layout";
 import { Text } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
 import { TertiarySection } from "@components/surfaces/section";
-import { Routes } from "@utils/routes";
 import { useManifest } from "@hooks/public";
 import { Loading } from "@components/molecules/loading";
 
@@ -18,7 +17,7 @@ export function AnnouncementList() {
       ) : announcements.length > 0 ? (
         <Scroll axis="y">
           {announcements.map((ann) => (
-            <InternalLink key={ann.id} href={Routes.announcement.id(ann.id)}>
+            <InternalLink key={ann.id} to="/announcement" search={{ id: ann.id }}>
               <Card>
                 <Text>{ann.title}</Text>
               </Card>

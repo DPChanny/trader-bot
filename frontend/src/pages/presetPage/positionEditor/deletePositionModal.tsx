@@ -1,7 +1,8 @@
+import { useParams } from "@tanstack/react-router";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { useDeletePosition } from "@features/position/hook";
 
 interface DeletePositionModalProps {
@@ -13,8 +14,9 @@ export function DeletePositionModal({
   positionId,
   onClose,
 }: DeletePositionModalProps) {
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
   const deletePosition = useDeletePosition();
   const formId = "delete-position-form";
 

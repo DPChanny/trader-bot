@@ -1,5 +1,6 @@
+import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { LabelToggle } from "@components/molecules/labelToggle";
 import { SecondaryButton, Button } from "@components/atoms/button";
@@ -17,8 +18,9 @@ export function CreateAuctionModal({
   onSuccess,
   isHardError,
 }: CreateAuctionModalProps) {
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
   const [isPublic, setIsPublic] = useState(true);
   const [sendInvite, setSendInvite] = useState(true);
   const createAuction = useCreateAuction();

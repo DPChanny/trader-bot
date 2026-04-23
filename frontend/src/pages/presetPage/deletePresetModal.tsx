@@ -1,10 +1,11 @@
+import { useParams } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
-import { useGuildId, usePresetId } from "@hooks/route";
+
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { useDeletePreset } from "@features/preset/hook";
-import { Routes } from "@utils/routes";
+
 
 interface DeletePresetModalProps {
   onClose: () => void;
@@ -12,8 +13,9 @@ interface DeletePresetModalProps {
 
 export function DeletePresetModal({ onClose }: DeletePresetModalProps) {
   const navigate = useNavigate();
-  const guildId = useGuildId();
-  const presetId = usePresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const presetId = parseInt(presetIdStr, 10);
   const deletePreset = useDeletePreset();
   const formId = "delete-preset-form";
 
@@ -28,7 +30,7 @@ export function DeletePresetModal({ onClose }: DeletePresetModalProps) {
       { guildId, presetId },
       {
         onSuccess: () =>
-          navigate({ to: Routes.guild.member.to(guildId), replace: true }),
+          navigate({ to: '/guild/$guildId/member', params: { guildId }, replace: true }),
       },
     );
   };

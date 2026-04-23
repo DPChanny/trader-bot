@@ -1,8 +1,9 @@
+import { useParams } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { clsx } from "clsx";
 import styles from "@styles/components/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@features/guild/hook";
-import { useOptionalGuildId, useOptionalPresetId } from "@hooks/route";
+
 import { CloseButton } from "@components/atoms/button";
 import { Fill, Row } from "@components/atoms/layout";
 import { Title } from "@components/atoms/text";
@@ -28,8 +29,9 @@ function getSideMenuWidthPx() {
 
 export function SideMenu() {
   const guilds = useGuilds();
-  const guildId = useOptionalGuildId();
-  const presetId = useOptionalPresetId();
+  const { guildId } = useParams({ strict: false }) as { guildId?: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId?: string };
+  const presetId = presetIdStr ? parseInt(presetIdStr, 10) : undefined;
   const [isOpen, setIsOpen] = useState(false);
   const [isOpening, setIsOpening] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -193,8 +195,8 @@ export function SideMenu() {
               </Row>
               <Bar />
               <Fill>
-                <GuildList guilds={guilds.data ?? []} activeGuildId={guildId} />
-                {guildId && <PresetList selectedPresetId={presetId} />}
+                <GuildList guilds={guilds.data ?? []} activeGuildId={guildId ?? null} />
+                {guildId && <PresetList selectedPresetId={presetId ?? null} />}
               </Fill>
             </Fill>
           </div>

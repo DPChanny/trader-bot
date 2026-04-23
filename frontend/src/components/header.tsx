@@ -26,7 +26,7 @@ export function Header(props: HeaderProps) {
   return (
     <header className={styles.header}>
       <Row align="center" justify="end" className={styles.headerContent}>
-        <InternalLink href="/" className={styles.headerLogo}>
+        <InternalLink to="/" className={styles.headerLogo}>
           <img
             src="/favicon.png"
             alt="Trader Bot"
