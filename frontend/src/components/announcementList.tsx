@@ -14,7 +14,7 @@ export function AnnouncementList() {
     <TertiarySection fill>
       {manifest.isLoading ? (
         <Loading />
-      ) : announcements.length > 0 ? (
+      ) : (
         <Scroll axis="y">
           {announcements.map((ann) => (
             <InternalLink key={ann.id} to="/announcement" search={{ id: ann.id }}>
@@ -24,7 +24,7 @@ export function AnnouncementList() {
             </InternalLink>
           ))}
         </Scroll>
-      ) : null}
+      )}
     </TertiarySection>
   );
 }
