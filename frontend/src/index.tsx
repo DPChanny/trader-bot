@@ -130,7 +130,7 @@ function App() {
   const logout = useLogout();
   const manifest = useManifest();
   const [globalError, setGlobalError] = useState<AppError | null>(null);
-  const version = manifest.data?.patches.notes[PHASE]?.[0] ?? "";
+  const version = manifest.data?.patches.notes[PHASE]?.[0]?.version ?? "";
 
   useEffect(() => {
     const handleWindowError = (event: ErrorEvent) => {

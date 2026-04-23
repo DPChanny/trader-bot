@@ -3,7 +3,6 @@ import { ExternalLink, InternalLink } from "@components/atoms/link";
 import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
-import { useMemo } from "preact/hooks";
 import {
   PrimarySection,
   SecondarySection,
@@ -13,7 +12,6 @@ import { Footer } from "@components/footer";
 import { useLogin } from "@features/auth/hook";
 import { useManifest } from "@hooks/public";
 import { useMyUser } from "@features/user/hook";
-import { getAnnouncements } from "@hooks/public";
 import { Routes } from "@utils/routes";
 import { BOT_INVITE_URL } from "@utils/env";
 
@@ -21,10 +19,7 @@ export function HomePage() {
   const login = useLogin();
   const myUser = useMyUser();
   const manifest = useManifest();
-  const announcementNames = useMemo(
-    () => getAnnouncements(manifest.data?.files ?? []),
-    [manifest.data?.files],
-  );
+  const announcements = manifest.data?.announcements ?? [];
 
   const onboardingSections = [
     {
@@ -70,16 +65,16 @@ export function HomePage() {
             </SecondarySection>
             <SecondarySection gap="lg">
               <Title>공지</Title>
-              {announcementNames.length > 0 ? (
+              {announcements.length > 0 ? (
                 <TertiarySection fill>
                   <Scroll axis="y">
-                    {announcementNames.map((name) => (
+                    {announcements.map((ann) => (
                       <InternalLink
-                        key={name}
-                        href={Routes.announcement.name(name)}
+                        key={ann.id}
+                        href={Routes.announcement.id(ann.id)}
                       >
                         <Card>
-                          <Text>{name}</Text>
+                          <Text>{ann.title}</Text>
                         </Card>
                       </InternalLink>
                     ))}

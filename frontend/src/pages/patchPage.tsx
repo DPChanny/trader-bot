@@ -25,8 +25,8 @@ export function PatchPage({ version }: PatchPageProps) {
   const planVersions = manifest.data?.patches.plans ?? [];
   const normalizedVersion = version.trim();
 
-  const noteVersionSet = new Set(noteVersions);
-  const planVersionSet = new Set(planVersions);
+  const noteVersionSet = new Set(noteVersions.map((v) => v.version));
+  const planVersionSet = new Set(planVersions.map((v) => v.version));
   const isInvalidVersion =
     normalizedVersion.includes("/") || normalizedVersion.includes("\\");
 
@@ -60,11 +60,13 @@ export function PatchPage({ version }: PatchPageProps) {
 
   let markedPath: string | null = null;
   if (!isInvalidVersion && normalizedVersion) {
-    const notePath = `/patches/notes/${PHASE}/${normalizedVersion}.md`;
-    markedPath = noteVersionSet.has(normalizedVersion) ? notePath : null;
+    const noteMatch = noteVersions.find((v) => v.version === normalizedVersion);
+    markedPath = noteMatch ? noteMatch.path : null;
     if (!markedPath) {
-      const planPath = `/patches/plans/${normalizedVersion}.md`;
-      markedPath = planVersionSet.has(normalizedVersion) ? planPath : null;
+      const planMatch = planVersions.find(
+        (v) => v.version === normalizedVersion,
+      );
+      markedPath = planMatch ? planMatch.path : null;
     }
   }
 
@@ -96,13 +98,13 @@ export function PatchPage({ version }: PatchPageProps) {
                 <Title>{title}</Title>
                 <TertiarySection fill>
                   <Scroll axis="y">
-                    {versions.map((itemVersion) => (
+                    {versions.map((item) => (
                       <InternalLink
-                        key={itemVersion}
-                        href={Routes.patch.version(itemVersion)}
+                        key={item.version}
+                        href={Routes.patch.version(item.version)}
                       >
                         <Card>
-                          <Text>{itemVersion}</Text>
+                          <Text>{item.version}</Text>
                         </Card>
                       </InternalLink>
                     ))}

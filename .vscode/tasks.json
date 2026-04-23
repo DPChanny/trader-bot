@@ -37,12 +37,22 @@
       "presentation": { "panel": "dedicated" }
     },
     {
-      "label": "CSS dts",
+      "label": "Run DTS Watch",
       "type": "shell",
-      "command": "npm run css:dts",
+      "command": "npm run generate:dts:watch",
       "options": { "cwd": "${workspaceFolder}/frontend" },
       "runOptions": { "runOn": "folderOpen" },
-      "presentation": { "reveal": "silent", "panel": "shared" }
+      "presentation": { "reveal": "silent", "panel": "shared" },
+      "isBackground": true
+    },
+    {
+      "label": "Run Manifest Watch",
+      "type": "shell",
+      "command": "npm run generate:manifest:watch",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": { "reveal": "silent", "panel": "shared" },
+      "isBackground": true
     },
     {
       "label": "Run All Dev",

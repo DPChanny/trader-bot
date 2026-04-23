@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "generate:manifest": "node ./scripts/generate-manifest.mjs",
+    "generate:manifest:watch": "node ./scripts/generate-manifest.mjs --watch",
+    "generate:dts": "tcm src",
+    "generate:dts:watch": "tcm src --watch",
     "predev": "npm run generate:manifest",
-    "prebuild": "npm run generate:manifest",
+    "prebuild": "npm run generate:manifest && npm run generate:dts",
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "css:dts": "tcm src --watch"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@tanstack/preact-query": "latest",

@@ -9,18 +9,23 @@ export type AnnouncementMeta = {
   title: string;
 };
 
+export type PatchMeta = {
+  version: string;
+  path: string;
+};
+
 export type Manifest = {
   announcements: AnnouncementMeta[];
   patches: {
-    notes: Record<Phase | "dev", string[]>; // allow 'dev' just in case
-    plans: string[];
+    notes: Record<Phase, PatchMeta[]>;
+    plans: PatchMeta[];
   };
 };
 
 const EMPTY_MANIFEST: Manifest = {
   announcements: [],
   patches: {
-    notes: { dev: [], beta: [], prod: [] },
+    notes: { beta: [], prod: [] },
     plans: [],
   },
 };

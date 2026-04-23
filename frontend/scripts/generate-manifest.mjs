@@ -1,4 +1,5 @@
-import { promises as fs } from "node:fs";
+import fs from "node:fs";
+import { promises as fsPromises } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,7 +11,7 @@ const publicDir = path.join(frontendRoot, "public");
 const outputPath = path.join(publicDir, "manifest.json");
 
 async function extractTitle(filePath) {
-  const content = await fs.readFile(filePath, "utf8");
+  const content = await fsPromises.readFile(filePath, "utf8");
   const match = content.match(/^#\s+(.+)$/m);
   return match ? match[1].trim() : "Untitled";
 }
@@ -18,18 +19,19 @@ async function extractTitle(filePath) {
 async function getAnnouncements() {
   const dirPath = path.join(publicDir, "announcements");
   try {
-    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+    const entries = await fsPromises.readdir(dirPath, { withFileTypes: true });
     const items = [];
     for (const entry of entries) {
       if (entry.isFile() && entry.name.endsWith(".md")) {
-        const id = entry.name.slice(0, -3);
-        const title = await extractTitle(path.join(dirPath, entry.name));
-        items.push({ id, path: `/announcements/${entry.name}`, title });
+        const match = entry.name.match(/^(\d+)/);
+        if (match) {
+          const id = match[1];
+          const title = await extractTitle(path.join(dirPath, entry.name));
+          items.push({ id, path: `/announcements/${entry.name}`, title });
+        }
       }
     }
-    items.sort((a, b) =>
-      b.id.localeCompare(a.id, undefined, { numeric: true }),
-    );
+    items.sort((a, b) => parseInt(b.id, 10) - parseInt(a.id, 10));
     return items;
   } catch (error) {
     if (error.code === "ENOENT") return [];
@@ -40,14 +42,17 @@ async function getAnnouncements() {
 async function getNotes(phase) {
   const dirPath = path.join(publicDir, "patches", "notes", phase);
   try {
-    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+    const entries = await fsPromises.readdir(dirPath, { withFileTypes: true });
     const items = [];
     for (const entry of entries) {
       if (entry.isFile() && entry.name.endsWith(".md")) {
-        items.push(entry.name.slice(0, -3));
+        const version = entry.name.slice(0, -3);
+        items.push({ version, path: `/patches/notes/${phase}/${entry.name}` });
       }
     }
-    items.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+    items.sort((a, b) =>
+      b.version.localeCompare(a.version, undefined, { numeric: true }),
+    );
     return items;
   } catch (error) {
     if (error.code === "ENOENT") return [];
@@ -58,14 +63,17 @@ async function getNotes(phase) {
 async function getPlans() {
   const dirPath = path.join(publicDir, "patches", "plans");
   try {
-    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+    const entries = await fsPromises.readdir(dirPath, { withFileTypes: true });
     const items = [];
     for (const entry of entries) {
       if (entry.isFile() && entry.name.endsWith(".md")) {
-        items.push(entry.name.slice(0, -3));
+        const version = entry.name.slice(0, -3);
+        items.push({ version, path: `/patches/plans/${entry.name}` });
       }
     }
-    items.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    items.sort((a, b) =>
+      a.version.localeCompare(b.version, undefined, { numeric: true }),
+    );
     return items;
   } catch (error) {
     if (error.code === "ENOENT") return [];
@@ -73,12 +81,11 @@ async function getPlans() {
   }
 }
 
-async function main() {
+async function generate() {
   const manifest = {
     announcements: await getAnnouncements(),
     patches: {
       notes: {
-        dev: await getNotes("dev"),
         beta: await getNotes("beta"),
         prod: await getNotes("prod"),
       },
@@ -87,10 +94,46 @@ async function main() {
   };
 
   const content = `${JSON.stringify(manifest, null, 2)}\n`;
-  await fs.writeFile(outputPath, content, "utf8");
+  await fsPromises.writeFile(outputPath, content, "utf8");
   console.log(
     `Generated public manifest: ${path.relative(frontendRoot, outputPath)}`,
   );
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+  const isWatch = args.includes("--watch");
+
+  await generate();
+
+  if (isWatch) {
+    console.log(`Watching for changes in ${publicDir}...`);
+    let timeoutId = null;
+
+    // Windows와 macOS에서 recursive: true 지원
+    fs.watch(publicDir, { recursive: true }, (eventType, filename) => {
+      // manifest.json 자체 변경 무시 및 마크다운 파일만 필터링
+      if (
+        !filename ||
+        filename === "manifest.json" ||
+        !filename.endsWith(".md")
+      ) {
+        return;
+      }
+
+      // 디바운싱: 여러 파일 변경 이벤트가 한꺼번에 발생할 수 있으므로
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => {
+        console.log(
+          `[${eventType}] ${filename} changed. Regenerating manifest...`,
+        );
+        generate().catch(console.error);
+        timeoutId = null;
+      }, 300);
+    });
+  }
 }
 
 main().catch((error) => {
