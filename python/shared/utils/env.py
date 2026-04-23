@@ -66,6 +66,18 @@ def get_db_name() -> str:
     return os.getenv("DB_NAME", "trader-bot")
 
 
+def get_redis_host() -> str:
+    return os.getenv("REDIS_HOST", "127.0.0.1")
+
+
+def get_redis_port() -> int:
+    return int(os.getenv("REDIS_PORT", "6379"))
+
+
+def get_redis_db() -> int:
+    return int(os.getenv("REDIS_DB", "0"))
+
+
 def get_rds_region() -> str:
     return os.getenv("RDS_REGION", "ap-northeast-2")
 

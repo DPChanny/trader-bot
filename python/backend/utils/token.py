@@ -1,4 +1,4 @@
-import time
+import json
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from secrets import token_urlsafe
@@ -9,6 +9,7 @@ from fastapi import Header
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 from shared.utils.error import AuthErrorCode, HTTPError, TokenError, TokenErrorCode
+from shared.utils.redis import get_redis
 
 
 _ACCESS_TOKEN_LIFETIME = timedelta(minutes=15)
@@ -72,87 +73,55 @@ class RefreshToken(JWTToken):
 
 
 class ExchangeToken:
-    @dataclass
-    class Payload:
-        access_token: str
-        refresh_token: str
-        expires_at_monotonic: float
-
-    _exchange_tokens: dict[str, ExchangeToken.Payload] = {}
-
     @classmethod
-    def _purge(cls) -> None:
-        now = time.monotonic()
-        expired = [
-            code
-            for code, payload in cls._exchange_tokens.items()
-            if payload.expires_at_monotonic <= now
-        ]
-        for k in expired:
-            cls._exchange_tokens.pop(k, None)
-
-    @classmethod
-    def create(cls, access_token: str, refresh_token: str) -> str:
-        cls._purge()
+    async def create(cls, access_token: str, refresh_token: str) -> str:
         code = token_urlsafe(32)
-        cls._exchange_tokens[code] = ExchangeToken.Payload(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            expires_at_monotonic=time.monotonic()
-            + _EXCHANGE_TOKEN_LIFETIME.total_seconds(),
+        r = get_redis()
+        payload = {"access_token": access_token, "refresh_token": refresh_token}
+        await r.setex(
+            f"exchange:{code}",
+            int(_EXCHANGE_TOKEN_LIFETIME.total_seconds()),
+            json.dumps(payload),
         )
         return code
 
     @classmethod
-    def consume(cls, exchange_token: str) -> tuple[str, str]:
-        cls._purge()
-        entry = cls._exchange_tokens.pop(exchange_token, None)
-        if entry is None:
+    async def consume(cls, exchange_token: str) -> tuple[str, str]:
+        r = get_redis()
+        key = f"exchange:{exchange_token}"
+        data = await r.get(key)
+        if not data:
             raise TokenError(TokenErrorCode.ExchangeFailed)
-        return entry.access_token, entry.refresh_token
+
+        await r.delete(key)
+        payload = json.loads(data)
+        return payload["access_token"], payload["refresh_token"]
 
 
 class StateToken:
-    @dataclass
-    class Payload:
-        redirect_path: str | None
-        expires_at_monotonic: float
-
-    _states: dict[str, StateToken.Payload] = {}
-
     @classmethod
-    def _purge(cls) -> None:
-        now = time.monotonic()
-        expired = [
-            state
-            for state, payload in cls._states.items()
-            if payload.expires_at_monotonic <= now
-        ]
-        for state in expired:
-            cls._states.pop(state, None)
-
-    @classmethod
-    def create(cls, redirect_path: str | None) -> str:
-        cls._purge()
+    async def create(cls, redirect_path: str | None) -> str:
         state = token_urlsafe(32)
-        cls._states[state] = cls.Payload(
-            redirect_path=redirect_path,
-            expires_at_monotonic=time.monotonic()
-            + _STATE_TOKEN_LIFETIME.total_seconds(),
+        r = get_redis()
+        value = redirect_path if redirect_path is not None else ""
+        await r.setex(
+            f"state:{state}", int(_STATE_TOKEN_LIFETIME.total_seconds()), value
         )
         return state
 
     @classmethod
-    def consume(cls, state: str | None) -> str | None:
-        cls._purge()
+    async def consume(cls, state: str | None) -> str | None:
         if not state:
             raise TokenError(TokenErrorCode.ExchangeFailed)
 
-        payload = cls._states.pop(state, None)
-        if payload is None:
+        r = get_redis()
+        key = f"state:{state}"
+        data = await r.get(key)
+        if data is None:
             raise TokenError(TokenErrorCode.ExchangeFailed)
 
-        return payload.redirect_path
+        await r.delete(key)
+        return data if data != "" else None
 
 
 async def verify_access_token(authorization: str = Header(None)) -> int:

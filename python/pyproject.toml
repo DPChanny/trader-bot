@@ -1,6 +1,6 @@
 [project]
 name = "trader-bot-python"
-version = "v0.3.0a0"
+version = "v0.3.1a0"
 requires-python = ">=3.14"
 dependencies = [
     "fastapi",
@@ -14,6 +14,7 @@ dependencies = [
     "httpx",
     "asyncpg",
     "aioboto3",
+    "redis",
 ]
 
 [dependency-groups]

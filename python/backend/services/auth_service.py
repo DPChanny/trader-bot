@@ -15,7 +15,7 @@ from ..utils.token import AccessToken, ExchangeToken, RefreshToken, StateToken
 
 @http_service
 async def login_service(redirect_path: str | None = None) -> RedirectResponse:
-    state_token = StateToken.create(redirect_path)
+    state_token = await StateToken.create(redirect_path)
     return RedirectResponse(url=get_login_url(state_token))
 
 
@@ -34,9 +34,9 @@ async def login_callback_service(
     access_token, _ = AccessToken.create(user.discord_id)
     refresh_token, _ = RefreshToken.create(user.discord_id)
 
-    exchange_token = ExchangeToken.create(access_token, refresh_token)
+    exchange_token = await ExchangeToken.create(access_token, refresh_token)
     try:
-        redirect_path = StateToken.consume(state_token)
+        redirect_path = await StateToken.consume(state_token)
     except TokenError as e:
         raise HTTPError(e.code) from None
 
@@ -53,7 +53,7 @@ async def login_callback_service(
 @http_service
 async def exchange_token_service(dto: ExchangeTokenDTO) -> JWTTokenDTO:
     try:
-        token_pair = ExchangeToken.consume(dto.exchange_token)
+        token_pair = await ExchangeToken.consume(dto.exchange_token)
     except TokenError as e:
         raise HTTPError(e.code) from None
 

@@ -54,7 +54,7 @@ async def create_auction_service(
         raise HTTPError(ValidationErrorCode.Invalid)
 
     preset_snapshot = PresetDetailDTO.model_validate(preset)
-    auction = AuctionManager.create_auction(
+    auction = await AuctionManager.create_auction(
         preset_snapshot=preset_snapshot, is_public=dto.is_public
     )
 
@@ -94,7 +94,7 @@ async def connect_service(
     session: AsyncSession,
     event: Event,
 ) -> tuple[Auction, int | None, int | None]:
-    auction = AuctionManager.get_auction(auction_id)
+    auction = await AuctionManager.get_auction(auction_id)
 
     if not auction:
         raise WSError(AuctionErrorCode.NotFound)
