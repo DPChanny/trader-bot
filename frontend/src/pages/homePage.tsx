@@ -1,5 +1,5 @@
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
-import { ExternalLink, InternalLink } from "@components/atoms/link";
+import { ExternalLink } from "@components/atoms/link";
 import { Column, Fill, Page, Row, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
@@ -9,17 +9,14 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
+import { AnnouncementList } from "@components/announcementList";
 import { useLogin } from "@features/auth/hook";
-import { useManifest } from "@hooks/public";
 import { useMyUser } from "@features/user/hook";
-import { Routes } from "@utils/routes";
 import { BOT_INVITE_URL } from "@utils/env";
 
 export function HomePage() {
   const login = useLogin();
   const myUser = useMyUser();
-  const manifest = useManifest();
-  const announcements = manifest.data?.announcements ?? [];
 
   const onboardingSections = [
     {
@@ -65,26 +62,7 @@ export function HomePage() {
             </SecondarySection>
             <SecondarySection gap="lg">
               <Title>공지</Title>
-              {announcements.length > 0 ? (
-                <TertiarySection fill>
-                  <Scroll axis="y">
-                    {announcements.map((ann) => (
-                      <InternalLink
-                        key={ann.id}
-                        href={Routes.announcement.id(ann.id)}
-                      >
-                        <Card>
-                          <Text>{ann.title}</Text>
-                        </Card>
-                      </InternalLink>
-                    ))}
-                  </Scroll>
-                </TertiarySection>
-              ) : (
-                <Card>
-                  <Text>등록된 공지가 없습니다.</Text>
-                </Card>
-              )}
+              <AnnouncementList />
             </SecondarySection>
             <SecondarySection>
               <Row>

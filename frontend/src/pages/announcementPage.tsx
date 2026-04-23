@@ -1,15 +1,10 @@
 import { useEffect, useMemo } from "preact/hooks";
 import { route } from "preact-router";
-import { InternalLink } from "@components/atoms/link";
-import { Column, Page, Scroll } from "@components/atoms/layout";
-import { Text, Title } from "@components/atoms/text";
-import { Card } from "@components/surfaces/card";
-import {
-  PrimarySection,
-  SecondarySection,
-  TertiarySection,
-} from "@components/surfaces/section";
+import { Column, Page } from "@components/atoms/layout";
+import { Title } from "@components/atoms/text";
+import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
+import { AnnouncementList } from "@components/announcementList";
 import { useManifest } from "@hooks/public";
 import { Routes } from "@utils/routes";
 import { MarkedPage } from "./markedPage";
@@ -57,26 +52,7 @@ export function AnnouncementPage({ id }: AnnouncementPageProps) {
         <PrimarySection width="page" fill>
           <SecondarySection fill>
             <Title>공지</Title>
-            {announcements.length > 0 ? (
-              <TertiarySection fill>
-                <Scroll axis="y">
-                  {announcements.map((ann) => (
-                    <InternalLink
-                      key={ann.id}
-                      href={Routes.announcement.id(ann.id)}
-                    >
-                      <Card>
-                        <Text>{ann.title}</Text>
-                      </Card>
-                    </InternalLink>
-                  ))}
-                </Scroll>
-              </TertiarySection>
-            ) : (
-              <Card>
-                <Text>등록된 공지가 없습니다.</Text>
-              </Card>
-            )}
+            <AnnouncementList />
           </SecondarySection>
         </PrimarySection>
         <Footer />

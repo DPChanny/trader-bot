@@ -31,7 +31,7 @@ async function getAnnouncements() {
         }
       }
     }
-    items.sort((a, b) => parseInt(b.id, 10) - parseInt(a.id, 10));
+    items.sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10));
     return items;
   } catch (error) {
     if (error.code === "ENOENT") return [];
