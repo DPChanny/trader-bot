@@ -10,50 +10,45 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
-import { useManifest, getAnnouncements } from "@hooks/public";
+import { useManifest } from "@hooks/public";
 import { Routes } from "@utils/routes";
 import { MarkedPage } from "./markedPage";
 
 export type AnnouncementPageProps = {
-  name: string;
+  id: string;
 };
 
-export function AnnouncementPage({ name }: AnnouncementPageProps) {
+export function AnnouncementPage({ id }: AnnouncementPageProps) {
   const manifest = useManifest();
-  const files = manifest.data?.files ?? [];
-  const announcementNames = useMemo(() => getAnnouncements(files), [files]);
-  const announcementSet = new Set(announcementNames);
-  const normalizedName = name.trim();
-  const isInvalidName =
-    normalizedName.includes("/") || normalizedName.includes("\\");
+  const announcements = manifest.data?.announcements ?? [];
+  const targetId = id?.trim();
+
+  const announcementMap = useMemo(() => {
+    const map = new Map<string, (typeof announcements)[0]>();
+    for (const ann of announcements) {
+      map.set(ann.id, ann);
+    }
+    return map;
+  }, [announcements]);
+
+  const targetAnn = targetId ? announcementMap.get(targetId) : null;
 
   useEffect(() => {
-    if (!normalizedName) {
+    if (!targetId || manifest.isLoading) {
       return;
     }
 
-    if (isInvalidName) {
-      route(Routes.announcement.to, true);
-      return;
-    }
-
-    if (manifest.isLoading) {
-      return;
-    }
-
-    if (!announcementSet.has(normalizedName)) {
+    if (!targetAnn) {
       route(Routes.announcement.to, true);
     }
-  }, [announcementSet, isInvalidName, manifest.isLoading, normalizedName]);
+  }, [manifest.isLoading, targetId, targetAnn]);
 
-  if (!isInvalidName && normalizedName && announcementSet.has(normalizedName)) {
-    return <MarkedPage path={`/announcements/${normalizedName}.md`} />;
+  if (targetId && targetAnn) {
+    return <MarkedPage path={targetAnn.path} />;
   }
 
-  if (normalizedName && (isInvalidName || !manifest.isLoading)) {
-    if (!announcementSet.has(normalizedName)) {
-      return null;
-    }
+  if (targetId && !manifest.isLoading && !targetAnn) {
+    return null;
   }
 
   return (
@@ -62,16 +57,16 @@ export function AnnouncementPage({ name }: AnnouncementPageProps) {
         <PrimarySection width="page" fill>
           <SecondarySection fill>
             <Title>공지</Title>
-            {announcementNames.length > 0 ? (
+            {announcements.length > 0 ? (
               <TertiarySection fill>
                 <Scroll axis="y">
-                  {announcementNames.map((announcementName) => (
+                  {announcements.map((ann) => (
                     <InternalLink
-                      key={announcementName}
-                      href={Routes.announcement.name(announcementName)}
+                      key={ann.id}
+                      href={Routes.announcement.id(ann.id)}
                     >
                       <Card>
-                        <Text>{announcementName}</Text>
+                        <Text>{ann.title}</Text>
                       </Card>
                     </InternalLink>
                   ))}

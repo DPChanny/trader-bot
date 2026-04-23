@@ -24,7 +24,7 @@ export const Routes = {
 
   announcement: {
     ...staticRoute("/announcement"),
-    name: (name: string) => `/announcement?name=${encodeURIComponent(name)}`,
+    id: (id: string) => `/announcement?id=${encodeURIComponent(id)}`,
   },
 
   termsOfService: staticRoute("/terms-of-service"),

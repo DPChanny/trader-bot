@@ -1,13 +1,28 @@
 import { useQuery, type UseQueryResult } from "@tanstack/preact-query";
 import { marked } from "marked";
 import { queryKeys } from "@utils/query";
+import { Phase } from "@utils/env";
+
+export type AnnouncementMeta = {
+  id: string;
+  path: string;
+  title: string;
+};
 
 export type Manifest = {
-  files: string[];
+  announcements: AnnouncementMeta[];
+  patches: {
+    notes: Record<Phase | "dev", string[]>; // allow 'dev' just in case
+    plans: string[];
+  };
 };
 
 const EMPTY_MANIFEST: Manifest = {
-  files: [],
+  announcements: [],
+  patches: {
+    notes: { dev: [], beta: [], prod: [] },
+    plans: [],
+  },
 };
 
 async function fetchManifest(): Promise<Manifest> {
@@ -17,14 +32,7 @@ async function fetchManifest(): Promise<Manifest> {
       return EMPTY_MANIFEST;
     }
 
-    const data = (await response.json()) as Partial<{ files: unknown }>;
-    return {
-      files: Array.isArray(data.files)
-        ? data.files.filter(
-            (value): value is string => typeof value === "string",
-          )
-        : [],
-    };
+    return (await response.json()) as Manifest;
   } catch {
     return EMPTY_MANIFEST;
   }
@@ -59,51 +67,4 @@ export function useMarked(path: string): UseQueryResult<string, Error> {
     queryKey: ["marked", path] as const,
     queryFn: () => fetchMarked(path),
   });
-}
-
-type MarkedSort = "asc" | "desc";
-
-type MarkedNamesOptions = {
-  sort?: MarkedSort;
-};
-
-function normalizePrefix(prefix: string): string {
-  if (!prefix.startsWith("/")) {
-    return `/${prefix.replace(/\/+$/g, "")}/`;
-  }
-
-  return `${prefix.replace(/\/+$/g, "")}/`;
-}
-
-export function getMarkedNames(
-  files: string[],
-  prefix: string,
-  options?: MarkedNamesOptions,
-): string[] {
-  const normalizedPrefix = normalizePrefix(prefix);
-  const sort = options?.sort ?? "asc";
-
-  const names = files
-    .filter(
-      (filePath) =>
-        filePath.startsWith(normalizedPrefix) && filePath.endsWith(".md"),
-    )
-    .map((filePath) => filePath.slice(normalizedPrefix.length, -3))
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-
-  return sort === "desc" ? names.reverse() : names;
-}
-
-export function getAnnouncements(files: string[]): string[] {
-  return getMarkedNames(files, "/announcements/", { sort: "desc" });
-}
-
-export function getNotes(files: string[], phase: "beta" | "prod"): string[] {
-  return getMarkedNames(files, `/patches/notes/${phase}/`, {
-    sort: "desc",
-  });
-}
-
-export function getPlans(files: string[]): string[] {
-  return getMarkedNames(files, "/patches/plans/");
 }

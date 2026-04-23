@@ -30,7 +30,6 @@ import { useMyUser } from "@features/user/hook";
 import { queryClient } from "@utils/query";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import { PHASE } from "@utils/env";
-import { getNotes } from "@hooks/public";
 import { Routes } from "@utils/routes";
 import "@styles/index.css";
 
@@ -48,12 +47,12 @@ function PatchPageRoute({}: RoutableProps) {
 }
 
 function AnnouncementRoute({}: RoutableProps) {
-  const name =
-    useRouteQueryParam("name")
+  const id =
+    useRouteQueryParam("id")
       ?.replace(/^\/+|\/+$/g, "")
       .trim() ?? "";
 
-  return <AnnouncementPage name={name} />;
+  return <AnnouncementPage id={id} />;
 }
 
 function TermsOfServiceRoute({}: RoutableProps) {
@@ -131,7 +130,7 @@ function App() {
   const logout = useLogout();
   const manifest = useManifest();
   const [globalError, setGlobalError] = useState<AppError | null>(null);
-  const version = getNotes(manifest.data?.files ?? [], PHASE)[0] ?? "";
+  const version = manifest.data?.patches.notes[PHASE]?.[0] ?? "";
 
   useEffect(() => {
     const handleWindowError = (event: ErrorEvent) => {

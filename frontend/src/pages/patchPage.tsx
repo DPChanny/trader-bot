@@ -1,5 +1,5 @@
 import { MarkedPage } from "./markedPage";
-import { useEffect, useMemo } from "preact/hooks";
+import { useEffect } from "preact/hooks";
 import { route } from "preact-router";
 import { InternalLink } from "@components/atoms/link";
 import { Column, Fill, Page, Scroll } from "@components/atoms/layout";
@@ -11,7 +11,7 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
-import { useManifest, getNotes, getPlans } from "@hooks/public";
+import { useManifest } from "@hooks/public";
 import { PHASE } from "@utils/env";
 import { Routes } from "@utils/routes";
 
@@ -21,9 +21,8 @@ export type PatchPageProps = {
 
 export function PatchPage({ version }: PatchPageProps) {
   const manifest = useManifest();
-  const files = manifest.data?.files ?? [];
-  const noteVersions = useMemo(() => getNotes(files, PHASE), [files, PHASE]);
-  const planVersions = useMemo(() => getPlans(files), [files]);
+  const noteVersions = manifest.data?.patches.notes[PHASE] ?? [];
+  const planVersions = manifest.data?.patches.plans ?? [];
   const normalizedVersion = version.trim();
 
   const noteVersionSet = new Set(noteVersions);

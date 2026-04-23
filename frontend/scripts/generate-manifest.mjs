@@ -7,61 +7,86 @@ const __dirname = path.dirname(__filename);
 const frontendRoot = path.resolve(__dirname, "..");
 
 const publicDir = path.join(frontendRoot, "public");
-const outputPath = path.join(frontendRoot, "public", "manifest.json");
+const outputPath = path.join(publicDir, "manifest.json");
 
-async function listPublicFiles(dirPath, rootPath) {
-  const entries = await fs.readdir(dirPath, { withFileTypes: true });
-  const nested = await Promise.all(
-    entries.map(async (entry) => {
-      const entryPath = path.join(dirPath, entry.name);
-
-      if (entry.isDirectory()) {
-        return listPublicFiles(entryPath, rootPath);
-      }
-
-      if (!entry.isFile()) {
-        return [];
-      }
-
-      const relativePath = path
-        .relative(rootPath, entryPath)
-        .split(path.sep)
-        .join("/");
-
-      if (relativePath === "manifest.json") {
-        return [];
-      }
-
-      return [`/${relativePath}`];
-    }),
-  );
-
-  return nested.flat();
+async function extractTitle(filePath) {
+  const content = await fs.readFile(filePath, "utf8");
+  const match = content.match(/^#\s+(.+)$/m);
+  return match ? match[1].trim() : "Untitled";
 }
 
-async function getPublicFiles() {
+async function getAnnouncements() {
+  const dirPath = path.join(publicDir, "announcements");
   try {
-    const files = await listPublicFiles(publicDir, publicDir);
-    return files.sort((a, b) =>
-      a.localeCompare(b, undefined, { numeric: true }),
-    );
-  } catch (error) {
-    if (
-      error &&
-      typeof error === "object" &&
-      "code" in error &&
-      error.code === "ENOENT"
-    ) {
-      return [];
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+    const items = [];
+    for (const entry of entries) {
+      if (entry.isFile() && entry.name.endsWith(".md")) {
+        const id = entry.name.slice(0, -3);
+        const title = await extractTitle(path.join(dirPath, entry.name));
+        items.push({ id, path: `/announcements/${entry.name}`, title });
+      }
     }
+    items.sort((a, b) =>
+      b.id.localeCompare(a.id, undefined, { numeric: true }),
+    );
+    return items;
+  } catch (error) {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+async function getNotes(phase) {
+  const dirPath = path.join(publicDir, "patches", "notes", phase);
+  try {
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+    const items = [];
+    for (const entry of entries) {
+      if (entry.isFile() && entry.name.endsWith(".md")) {
+        items.push(entry.name.slice(0, -3));
+      }
+    }
+    items.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+    return items;
+  } catch (error) {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+async function getPlans() {
+  const dirPath = path.join(publicDir, "patches", "plans");
+  try {
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+    const items = [];
+    for (const entry of entries) {
+      if (entry.isFile() && entry.name.endsWith(".md")) {
+        items.push(entry.name.slice(0, -3));
+      }
+    }
+    items.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    return items;
+  } catch (error) {
+    if (error.code === "ENOENT") return [];
     throw error;
   }
 }
 
 async function main() {
-  const files = await getPublicFiles();
-  const content = `${JSON.stringify({ files }, null, 2)}\n`;
+  const manifest = {
+    announcements: await getAnnouncements(),
+    patches: {
+      notes: {
+        dev: await getNotes("dev"),
+        beta: await getNotes("beta"),
+        prod: await getNotes("prod"),
+      },
+      plans: await getPlans(),
+    },
+  };
 
+  const content = `${JSON.stringify(manifest, null, 2)}\n`;
   await fs.writeFile(outputPath, content, "utf8");
   console.log(
     `Generated public manifest: ${path.relative(frontendRoot, outputPath)}`,
