@@ -79,7 +79,7 @@ class ExchangeToken:
         r = get_redis()
         payload = {"access_token": access_token, "refresh_token": refresh_token}
         await r.setex(
-            f"exchange:{code}",
+            f"exchange_token:{code}",
             int(_EXCHANGE_TOKEN_LIFETIME.total_seconds()),
             json.dumps(payload),
         )
@@ -88,7 +88,7 @@ class ExchangeToken:
     @classmethod
     async def consume(cls, exchange_token: str) -> tuple[str, str]:
         r = get_redis()
-        key = f"exchange:{exchange_token}"
+        key = f"exchange_token:{exchange_token}"
         data = await r.get(key)
         if not data:
             raise TokenError(TokenErrorCode.ExchangeFailed)
@@ -105,17 +105,17 @@ class StateToken:
         r = get_redis()
         value = redirect_path if redirect_path is not None else ""
         await r.setex(
-            f"state:{state}", int(_STATE_TOKEN_LIFETIME.total_seconds()), value
+            f"state_token:{state}", int(_STATE_TOKEN_LIFETIME.total_seconds()), value
         )
         return state
 
     @classmethod
-    async def consume(cls, state: str | None) -> str | None:
-        if not state:
+    async def consume(cls, state_token: str | None) -> str | None:
+        if not state_token:
             raise TokenError(TokenErrorCode.ExchangeFailed)
 
         r = get_redis()
-        key = f"state:{state}"
+        key = f"state_token:{state_token}"
         data = await r.get(key)
         if data is None:
             raise TokenError(TokenErrorCode.ExchangeFailed)
