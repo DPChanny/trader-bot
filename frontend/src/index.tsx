@@ -105,41 +105,39 @@ function App() {
       <div className="app-body">
         {myUser.data && <SideMenu />}
         <div className="app-content">
-          <BrowserRouter>
-            <RouterRoutes>
-              <Route
-                path={Routes.auth.loginCallback.pattern}
-                element={<LoginCallbackPage />}
-              />
-              <Route path={Routes.home.pattern} element={<HomePage />} />
-              <Route path={Routes.patch.pattern} element={<PatchPage />} />
-              <Route
-                path={Routes.announcement.pattern}
-                element={<AnnouncementPage />}
-              />
-              <Route
-                path={Routes.termsOfService.pattern}
-                element={<TermsOfServiceRoute />}
-              />
-              <Route
-                path={Routes.privacyPolicy.pattern}
-                element={<PrivacyPolicyRoute />}
-              />
-              <Route
-                path={Routes.guild.preset.pattern}
-                element={<PresetPage />}
-              />
-              <Route
-                path={Routes.guild.member.pattern}
-                element={<MemberPage />}
-              />
-              <Route
-                path={Routes.guild.auction.pattern}
-                element={<AuctionPage />}
-              />
-              <Route path="*" element={<DefaultRedirectRoute />} />
-            </RouterRoutes>
-          </BrowserRouter>
+          <RouterRoutes>
+            <Route
+              path={Routes.auth.loginCallback.pattern}
+              element={<LoginCallbackPage />}
+            />
+            <Route path={Routes.home.pattern} element={<HomePage />} />
+            <Route path={Routes.patch.pattern} element={<PatchPage />} />
+            <Route
+              path={Routes.announcement.pattern}
+              element={<AnnouncementPage />}
+            />
+            <Route
+              path={Routes.termsOfService.pattern}
+              element={<TermsOfServiceRoute />}
+            />
+            <Route
+              path={Routes.privacyPolicy.pattern}
+              element={<PrivacyPolicyRoute />}
+            />
+            <Route
+              path={Routes.guild.preset.pattern}
+              element={<PresetPage />}
+            />
+            <Route
+              path={Routes.guild.member.pattern}
+              element={<MemberPage />}
+            />
+            <Route
+              path={Routes.guild.auction.pattern}
+              element={<AuctionPage />}
+            />
+            <Route path="*" element={<DefaultRedirectRoute />} />
+          </RouterRoutes>
         </div>
       </div>
     </div>
@@ -148,7 +146,9 @@ function App() {
 
 const root = createRoot(document.getElementById("app")!);
 root.render(
-  <QueryClientProvider client={queryClient}>
-    <App />
-  </QueryClientProvider>,
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </BrowserRouter>,
 );
