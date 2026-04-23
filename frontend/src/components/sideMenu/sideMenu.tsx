@@ -104,7 +104,7 @@ export function SideMenu() {
     };
   }, [isDraggingOpen]);
 
-  const handleOpenDragStart = (event: PointerEvent) => {
+  const handleOpenDragStart = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (isOpen) {
       return;
     }

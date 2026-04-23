@@ -1,6 +1,6 @@
 import { MarkedPage } from "./markedPage";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { InternalLink } from "@components/atoms/link";
 import { Column, Fill, Page, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
@@ -40,7 +40,7 @@ export function PatchPage() {
     }
 
     if (isInvalidVersion) {
-      navigate(Routes.patch.to, { replace: true });
+      navigate({ to: Routes.patch.to, replace: true });
       return;
     }
 
@@ -52,7 +52,7 @@ export function PatchPage() {
       !noteVersionSet.has(normalizedVersion) &&
       !planVersionSet.has(normalizedVersion)
     ) {
-      navigate(Routes.patch.to, { replace: true });
+      navigate({ to: Routes.patch.to, replace: true });
     }
   }, [
     isInvalidVersion,

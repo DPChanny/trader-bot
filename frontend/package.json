@@ -16,15 +16,16 @@
   },
   "dependencies": {
     "@tanstack/react-query": "latest",
+    "@tanstack/react-router": "^1.168.23",
     "class-variance-authority": "latest",
     "clsx": "latest",
     "marked": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "react-router-dom": "latest",
     "zod": "latest"
   },
   "devDependencies": {
+    "@tanstack/router-plugin": "^1.167.22",
     "@tsconfig/strictest": "latest",
     "@types/node": "latest",
     "@types/react": "latest",

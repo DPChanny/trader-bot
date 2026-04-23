@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { queryKeys } from "@utils/query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import {
   exchangeToken as exchangeTokenAPI,
   refreshToken as refreshTokenAPI,
@@ -47,7 +47,7 @@ export function useLogout() {
       queryClient.clear();
     },
     onSettled: () => {
-      navigate(Routes.home.to, { replace: true });
+      navigate({ to: Routes.home.to, replace: true });
     },
   });
 }
@@ -75,7 +75,7 @@ export function useLoginCallback() {
         const exchangeToken = params.get("exchangeToken");
 
         if (!exchangeToken) {
-          navigate(Routes.home.to, { replace: true });
+          navigate({ to: Routes.home.to, replace: true });
           return;
         }
 
@@ -87,9 +87,7 @@ export function useLoginCallback() {
         const me = await getMyUser();
         queryClient.setQueryData(queryKeys.me(), me);
         const redirectPath = params.get("redirect");
-        navigate(isRedirectPath(redirectPath) ? redirectPath : Routes.home.to, {
-          replace: true,
-        });
+        navigate({ to: isRedirectPath(redirectPath) ? redirectPath : Routes.home.to, replace: true });
       } catch (e) {
         setError(
           e instanceof AppError
@@ -144,6 +142,6 @@ export function useAuthGuard() {
   const navigate = useNavigate();
   useEffect(() => {
     if (!checkJWTToken(getRefreshToken()))
-      navigate(Routes.home.to, { replace: true });
+      navigate({ to: Routes.home.to, replace: true });
   }, []);
 }

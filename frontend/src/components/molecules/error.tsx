@@ -3,11 +3,11 @@ import { Column } from "../atoms/layout";
 import { clsx } from "clsx";
 import { Text } from "../atoms/text";
 import { AppError } from "@utils/error";
-import type { ComponentChildren, JSX } from "react";
+import type { ReactNode, JSX } from "react";
 
 type ErrorProps = JSX.IntrinsicElements["div"] & {
   error: AppError;
-  children: ComponentChildren;
+  children?: ReactNode;
 };
 
 export function Error({ className, error, children, ...props }: ErrorProps) {

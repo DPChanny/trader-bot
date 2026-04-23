@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { Column, Page } from "@components/atoms/layout";
 import { Title } from "@components/atoms/text";
 import { PrimarySection, SecondarySection } from "@components/surfaces/section";
@@ -38,7 +38,7 @@ export function AnnouncementPage() {
     }
 
     if (!targetAnn) {
-      navigate(Routes.announcement.to, { replace: true });
+      navigate({ to: Routes.announcement.to, replace: true });
     }
   }, [manifest.isLoading, targetId, targetAnn]);
 

@@ -1,11 +1,11 @@
 import { Fill } from "@components/atoms/layout";
 import { Text } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
-import type { ComponentChildren } from "react";
+import type { ReactNode } from "react";
 
 interface InfoCardProps {
   label: string;
-  children: ComponentChildren;
+  children: ReactNode;
 }
 
 export function InfoCard({ label, children }: InfoCardProps) {

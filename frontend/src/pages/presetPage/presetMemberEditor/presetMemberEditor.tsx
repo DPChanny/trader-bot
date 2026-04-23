@@ -147,7 +147,7 @@ export function PresetMemberEditor() {
 
   const handlePresetMemberClick = (
     presetMember: PresetMemberDetailDTO,
-    event: MouseEvent,
+    event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     if (canManage && (event.ctrlKey || event.shiftKey || event.metaKey)) {
       handleRemovePresetMember(presetMember);

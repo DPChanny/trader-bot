@@ -1,6 +1,5 @@
-import { useMemo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { extractRouteParams, Routes } from "@utils/routes";
+import { useLocation, useNavigate, useParams } from "@tanstack/react-router";
+import { Routes } from "@utils/routes";
 
 export function useRoutePath(): string {
   const location = useLocation();
@@ -8,27 +7,22 @@ export function useRoutePath(): string {
 }
 
 export function useRouteQueryParam(name: string): string | null {
-  const location = useLocation();
-  return useMemo(() => {
-    return new URLSearchParams(location.search).get(name);
-  }, [location.search, name]);
+  const search = useLocation({ select: (loc) => loc.search as Record<string, string> });
+  return search[name] ?? null;
 }
 
-function useRequiredRouteParam<T>(value: T | null): T {
+function useRequiredRouteParam<T>(value: T | null | undefined): T {
   const navigate = useNavigate();
-  if (value === null) {
-    setTimeout(() => navigate(Routes.home.to, { replace: true }), 0);
+  if (value == null) {
+    setTimeout(() => navigate({ to: Routes.home.to, replace: true }), 0);
     throw new Promise(() => {});
   }
   return value;
 }
 
 export function useOptionalGuildId(): string | null {
-  const path = useRoutePath();
-  return useMemo(() => {
-    const params = extractRouteParams(Routes.guild.basePattern, path);
-    return params ? (params["guildId"] ?? null) : null;
-  }, [path]);
+  const params = useParams({ strict: false });
+  return params.guildId ?? null;
 }
 
 export function useGuildId(): string {
@@ -36,11 +30,8 @@ export function useGuildId(): string {
 }
 
 export function useOptionalPresetId(): number | null {
-  const path = useRoutePath();
-  return useMemo(() => {
-    const params = extractRouteParams(Routes.guild.presetBasePattern, path);
-    return params?.presetId ? parseInt(params.presetId, 10) : null;
-  }, [path]);
+  const params = useParams({ strict: false });
+  return params.presetId ? parseInt(params.presetId as string, 10) : null;
 }
 
 export function usePresetId(): number {
@@ -48,10 +39,6 @@ export function usePresetId(): number {
 }
 
 export function useAuctionId(): string {
-  const path = useRoutePath();
-  const auctionId = useMemo(() => {
-    const params = extractRouteParams(Routes.guild.auction.pattern, path);
-    return params ? (params["auctionId"] ?? null) : null;
-  }, [path]);
-  return useRequiredRouteParam(auctionId);
+  const params = useParams({ strict: false });
+  return useRequiredRouteParam(params.auctionId as string | undefined);
 }

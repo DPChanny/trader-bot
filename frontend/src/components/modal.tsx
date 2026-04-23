@@ -3,22 +3,22 @@ import { Column, Fill, FlexItem, Row } from "./atoms/layout";
 import { Title } from "./atoms/text";
 import { PrimarySection, SecondarySection } from "./surfaces/section";
 import styles from "@styles/components/modal.module.css";
-import { toChildArray, type ComponentChildren, type VNode } from "react";
+import React, { Children, type ReactNode, type ReactElement } from "react";
 
 export type ModalProps = {
   onClose: () => void;
   title: string;
-  children: ComponentChildren;
+  children: ReactNode;
 };
 
 export function Modal({ onClose, title, children }: ModalProps) {
-  const childArray = toChildArray(children);
+  const childArray = Children.toArray(children);
 
   const footerChildren = childArray.filter(
-    (child) => (child as VNode)?.type === ModalFooter,
+    (child) => (child as ReactElement)?.type === ModalFooter,
   );
   const bodyChildren = childArray.filter(
-    (child) => (child as VNode)?.type !== ModalFooter,
+    (child) => (child as ReactElement)?.type !== ModalFooter,
   );
 
   const content = (
@@ -27,7 +27,7 @@ export function Modal({ onClose, title, children }: ModalProps) {
         <PrimarySection
           overflow="y"
           className={styles.content}
-          onClick={(e: MouseEvent) => e.stopPropagation()}
+          onClick={(e: React.MouseEvent) => e.stopPropagation()}
         >
           <Title>{title}</Title>
           <SecondarySection>{bodyChildren}</SecondarySection>
@@ -42,7 +42,7 @@ export function Modal({ onClose, title, children }: ModalProps) {
 
 export interface ModalFormProps {
   onSubmit: () => void | Promise<void>;
-  children: ComponentChildren;
+  children: ReactNode;
   id?: string;
   disabled: boolean;
 }
@@ -53,7 +53,7 @@ export function ModalForm({
   id,
   disabled,
 }: ModalFormProps) {
-  const handleSubmit = (e: Event) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (disabled) return;
     return onSubmit();
@@ -69,11 +69,11 @@ export function ModalForm({
 }
 
 export interface ModalRowProps {
-  children: ComponentChildren;
+  children: ReactNode;
 }
 
 export function ModalRow({ children }: ModalRowProps) {
-  const childArray = toChildArray(children);
+  const childArray = Children.toArray(children);
 
   return (
     <Row align="center">
@@ -85,7 +85,7 @@ export function ModalRow({ children }: ModalRowProps) {
 }
 
 export interface ModalFooterProps {
-  children: ComponentChildren;
+  children: ReactNode;
 }
 
 export function ModalFooter({ children }: ModalFooterProps) {

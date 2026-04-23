@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+
 import { PresetMemberCard } from "./presetMemberCard";
 import { PressedButton } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
@@ -11,7 +11,7 @@ interface PresetMemberGridProps {
   selectedMemberId?: number | null;
   onClick?: (
     presetMember: PresetMemberDetailDTO,
-    event: JSX.TargetedMouseEvent<HTMLButtonElement>,
+    event: React.MouseEvent<HTMLButtonElement>,
   ) => void;
 }
 

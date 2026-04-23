@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import styles from "@styles/components/atoms/link.module.css";
 import type { JSX } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 
 function getVariantClass(children: JSX.Element["props"]["children"]) {
   if (typeof children === "string" || typeof children === "number") {
@@ -32,7 +32,7 @@ export function InternalLink({
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
     e.preventDefault();
-    navigate(href);
+    navigate({ to: href });
   };
 
   return (

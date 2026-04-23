@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { useGuildId, usePresetId } from "@hooks/route";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
@@ -28,7 +28,7 @@ export function DeletePresetModal({ onClose }: DeletePresetModalProps) {
       { guildId, presetId },
       {
         onSuccess: () =>
-          navigate(Routes.guild.member.to(guildId), { replace: true }),
+          navigate({ to: Routes.guild.member.to(guildId), replace: true }),
       },
     );
   };
