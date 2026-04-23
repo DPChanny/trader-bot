@@ -12,14 +12,17 @@ import {
 } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 import { useManifest } from "@hooks/public";
+import { useRouteQueryParam } from "@hooks/route";
 import { PHASE } from "@utils/env";
 import { Routes } from "@utils/routes";
 
-export type PatchPageProps = {
-  version: string;
-};
+export function PatchPage() {
+  const versionParam =
+    useRouteQueryParam("version")
+      ?.replace(/^\/+|\/+$/g, "")
+      .trim() ?? "";
+  const version = versionParam;
 
-export function PatchPage({ version }: PatchPageProps) {
   const manifest = useManifest();
   const noteVersions = manifest.data?.patches.notes[PHASE] ?? [];
   const planVersions = manifest.data?.patches.plans ?? [];

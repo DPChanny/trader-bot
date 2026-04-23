@@ -1,8 +1,6 @@
-import { useEffect } from "preact/hooks";
-import { useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 import { render } from "preact";
-import Router, { route } from "preact-router";
-import type { RoutableProps } from "preact-router";
+import Router from "preact-router";
 import { QueryClientProvider } from "@tanstack/preact-query";
 import { MemberPage } from "@pages/memberPage/memberPage";
 import { PresetPage } from "@pages/presetPage/presetPage";
@@ -11,20 +9,13 @@ import { AuctionPage } from "@pages/auctionPage/auctionPage";
 import { PatchPage } from "@pages/patchPage";
 import { AnnouncementPage } from "@pages/announcementPage";
 import { MarkedPage } from "@pages/markedPage";
+import { LoginCallbackPage } from "@pages/loginCallbackPage";
 import { Header } from "@components/header";
 import { SideMenu } from "./components/sideMenu/sideMenu";
 import { Modal, ModalFooter } from "./components/modal";
 import { Error } from "./components/molecules/error";
 import { PrimaryButton } from "./components/atoms/button";
-import { Column, Fill, Page } from "./components/atoms/layout";
-import {
-  useRefreshToken,
-  useLogin,
-  useLoginCallback,
-  useLogout,
-  useAuthGuard,
-} from "@features/auth/hook";
-import { useRouteQueryParam } from "@hooks/route";
+import { useRefreshToken, useLogin, useLogout } from "@features/auth/hook";
 import { useManifest } from "@hooks/public";
 import { useMyUser } from "@features/user/hook";
 import { queryClient } from "@utils/query";
@@ -33,35 +24,8 @@ import { PHASE } from "@utils/env";
 import { Routes } from "@utils/routes";
 import "@styles/index.css";
 
-function HomePageRoute({}: RoutableProps) {
-  return <HomePage />;
-}
-
-function PatchPageRoute({}: RoutableProps) {
-  const version =
-    useRouteQueryParam("version")
-      ?.replace(/^\/+|\/+$/g, "")
-      .trim() ?? "";
-
-  return <PatchPage version={version} />;
-}
-
-function AnnouncementRoute({}: RoutableProps) {
-  const id =
-    useRouteQueryParam("id")
-      ?.replace(/^\/+|\/+$/g, "")
-      .trim() ?? "";
-
-  return <AnnouncementPage id={id} />;
-}
-
-function TermsOfServiceRoute({}: RoutableProps) {
-  return <MarkedPage path="/terms-of-service.md" />;
-}
-
-function PrivacyPolicyRoute({}: RoutableProps) {
-  return <MarkedPage path="/privacy-policy.md" />;
-}
+import { route } from "preact-router";
+import type { RoutableProps } from "preact-router";
 
 function DefaultRedirectRoute({}: RoutableProps) {
   useEffect(() => {
@@ -70,57 +34,12 @@ function DefaultRedirectRoute({}: RoutableProps) {
   return null;
 }
 
-function LoginCallbackRoute({}: RoutableProps) {
-  const { error, retry } = useLoginCallback();
-
-  if (!error) return null;
-
-  return (
-    <Page>
-      <Fill center>
-        <Column center gap="md">
-          <Error error={error}>로그인에 실패했습니다</Error>
-          <PrimaryButton onClick={retry}>재시도</PrimaryButton>
-        </Column>
-      </Fill>
-    </Page>
-  );
+function TermsOfServiceRoute({}: RoutableProps) {
+  return <MarkedPage path="/terms-of-service.md" />;
 }
 
-function MemberPageRoute({ guildId }: RoutableProps & { guildId?: string }) {
-  useAuthGuard();
-
-  if (!guildId) {
-    route(Routes.home.to, true);
-    return null;
-  }
-
-  return <MemberPage />;
-}
-
-function PresetPageRoute({
-  guildId,
-  presetId,
-}: RoutableProps & { guildId?: string; presetId?: string }) {
-  useAuthGuard();
-
-  if (!guildId || !presetId) {
-    route(Routes.home.to, true);
-    return null;
-  }
-
-  return <PresetPage />;
-}
-
-function AuctionPageRoute({
-  auctionId,
-}: RoutableProps & { auctionId?: string }) {
-  if (!auctionId) {
-    route(Routes.home.to, true);
-    return null;
-  }
-
-  return <AuctionPage />;
+function PrivacyPolicyRoute({}: RoutableProps) {
+  return <MarkedPage path="/privacy-policy.md" />;
 }
 
 function App() {
@@ -167,6 +86,11 @@ function App() {
     logout.mutate();
   };
 
+  const Route = (props: { path: string; page: any }) => {
+    const Page = props.page;
+    return <Page {...props} />;
+  };
+
   return (
     <div className="app-container">
       {globalError && (
@@ -188,15 +112,18 @@ function App() {
         {myUser.data && <SideMenu />}
         <div className="app-content">
           <Router>
-            <LoginCallbackRoute path={Routes.auth.loginCallback.pattern} />
-            <HomePageRoute path={Routes.home.pattern} />
-            <PatchPageRoute path={Routes.patch.pattern} />
-            <AnnouncementRoute path={Routes.announcement.pattern} />
+            <Route
+              path={Routes.auth.loginCallback.pattern}
+              page={LoginCallbackPage}
+            />
+            <Route path={Routes.home.pattern} page={HomePage} />
+            <Route path={Routes.patch.pattern} page={PatchPage} />
+            <Route path={Routes.announcement.pattern} page={AnnouncementPage} />
             <TermsOfServiceRoute path={Routes.termsOfService.pattern} />
             <PrivacyPolicyRoute path={Routes.privacyPolicy.pattern} />
-            <PresetPageRoute path={Routes.guild.preset.pattern} />
-            <MemberPageRoute path={Routes.guild.member.pattern} />
-            <AuctionPageRoute path={Routes.guild.auction.pattern} />
+            <Route path={Routes.guild.preset.pattern} page={PresetPage} />
+            <Route path={Routes.guild.member.pattern} page={MemberPage} />
+            <Route path={Routes.guild.auction.pattern} page={AuctionPage} />
             <DefaultRedirectRoute default />
           </Router>
         </div>

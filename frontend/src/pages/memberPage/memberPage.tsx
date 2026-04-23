@@ -1,4 +1,5 @@
 import { useMemo, useState } from "preact/hooks";
+import { useAuthGuard } from "@features/auth/hook";
 import { useMembers } from "@features/member/hook";
 import { MemberGrid } from "@components/memberGrid";
 import {
@@ -15,7 +16,9 @@ import type { MemberDetailDTO } from "@features/member/dto";
 import { useGuildId } from "@hooks/route";
 
 export function MemberPage() {
+  useAuthGuard();
   const guildId = useGuildId();
+
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
 
   const members = useMembers(guildId);

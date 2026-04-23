@@ -55,6 +55,7 @@ export function AuctionPage() {
   const auctionId = useAuctionId();
   const guildId = useGuildId();
   const presetId = usePresetId();
+
   const [bidAmount, setBidAmount] = useState<string>("");
   const [modalError, setModalError] = useState<WSError | null>(null);
 

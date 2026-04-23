@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { useAuthGuard } from "@features/auth/hook";
 import { useGuildId, usePresetId } from "@hooks/route";
 import { usePreset } from "@features/preset/hook";
 import { usePresetMembers } from "@features/presetMember/hook";
@@ -20,8 +21,10 @@ import { NameTitle, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
 
 export function PresetPage() {
+  useAuthGuard();
   const guildId = useGuildId();
   const presetId = usePresetId();
+
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [showCreate, setShowCreate] = useState(false);

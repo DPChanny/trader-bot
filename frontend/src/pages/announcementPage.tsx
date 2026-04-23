@@ -6,14 +6,17 @@ import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
 import { AnnouncementList } from "@components/announcementList";
 import { useManifest } from "@hooks/public";
+import { useRouteQueryParam } from "@hooks/route";
 import { Routes } from "@utils/routes";
 import { MarkedPage } from "./markedPage";
 
-export type AnnouncementPageProps = {
-  id: string;
-};
+export function AnnouncementPage() {
+  const idParam =
+    useRouteQueryParam("id")
+      ?.replace(/^\/+|\/+$/g, "")
+      .trim() ?? "";
+  const id = idParam;
 
-export function AnnouncementPage({ id }: AnnouncementPageProps) {
   const manifest = useManifest();
   const announcements = manifest.data?.announcements ?? [];
   const targetId = id?.trim();
