@@ -4,3 +4,4 @@ dist/
 *.css.d.ts
 npm-debug.log*
 public/manifest.json
+.tanstack
