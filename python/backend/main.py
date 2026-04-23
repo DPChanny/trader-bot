@@ -1,4 +1,5 @@
-from contextlib import asynccontextmanager
+import asyncio
+from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -36,7 +37,17 @@ setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 @asynccontextmanager
 async def lifespan(_):
     await setup_db()
+
+    from .auction.auction_manager import AuctionManager
+    from .auction.redis import subscribe_event
+
+    redis_task = asyncio.create_task(subscribe_event(AuctionManager._on_redis_event))
+
     yield
+
+    redis_task.cancel()
+    with suppress(asyncio.CancelledError):
+        await redis_task
 
 
 app = FastAPI(title="Trader Bot API", version="0.1.0", lifespan=lifespan)

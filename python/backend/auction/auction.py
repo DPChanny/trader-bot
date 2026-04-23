@@ -2,30 +2,16 @@ from __future__ import annotations
 
 import asyncio
 import random
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from fastapi import WebSocket
 
-from shared.dtos import BaseDTO
-from shared.dtos.auction import (
-    AuctionMessageEnvelopeDTO,
-    AuctionMessageType,
-    BidPlacedPayloadDTO,
-    MemberConnectedPayloadDTO,
-    MemberDisconnectedPayloadDTO,
-    MemberSoldPayloadDTO,
-    MemberUnsoldPayloadDTO,
-    NextMemberPayloadDTO,
-    Status,
-    StatusPayloadDTO,
-    TimerPayloadDTO,
-)
+from shared.dtos.auction import AuctionMessageType, Status
 from shared.dtos.preset import PresetDetailDTO
-from shared.utils.error import AuctionErrorCode, UnexpectedErrorCode, WSError
-
-
-_AUCTION_LIFETIME = timedelta(minutes=10)
+from shared.utils.error import AuctionErrorCode, WSError
 
 
 @dataclass
@@ -45,14 +31,17 @@ class Bid:
 class Auction:
     Status = Status
 
-    _lifetime = _AUCTION_LIFETIME
-
     def __init__(
-        self, auction_id: int, preset_snapshot: PresetDetailDTO, is_public: bool
+        self,
+        auction_id: int,
+        preset_snapshot: PresetDetailDTO,
+        is_public: bool,
+        publisher: Callable[[int, str, Any], Awaitable[None]] | None = None
     ):
         self.auction_id = auction_id
         self.preset_snapshot = preset_snapshot
         self.is_public = is_public
+        self.publisher = publisher
 
         self.guild_id = self.preset_snapshot.guild_id
         self.preset_id = self.preset_snapshot.preset_id
@@ -99,11 +88,63 @@ class Auction:
         self._was_in_progress: bool = False
         self._state_lock = asyncio.Lock()
         self._broadcast_lock = asyncio.Lock()
-        self.expires_at: datetime = datetime.now(UTC) + self._lifetime
+        self.expires_at: datetime | None = None
 
-    @property
-    def connected_member_ids(self) -> list[int]:
-        return list(self._member_id_to_ws_sets.keys())
+    async def handle_redis_event(self, event_type: str, payload: dict[str, Any]) -> None:
+        if event_type == AuctionMessageType.STATUS:
+            self.status = Status(payload["status"])
+            if self.status == Status.WAITING:
+                self._stop_timer()
+            elif self.status == Status.RUNNING:
+                pass
+        elif event_type == AuctionMessageType.BID_PLACED:
+            self.current_bid = Bid(amount=payload["amount"], leader_id=payload["leader_id"])
+            if "expires_at" in payload:
+                self.expires_at = datetime.fromisoformat(payload["expires_at"])
+                self._start_timer()
+        elif event_type == AuctionMessageType.MEMBER_SOLD:
+            self.teams = [Team(**t) for t in payload["teams"]]
+            self.auction_queue = payload["auction_queue"]
+            self.unsold_queue = payload["unsold_queue"]
+            self.current_bid = None
+            self.current_member_id = None
+            self._stop_timer()
+        elif event_type == AuctionMessageType.MEMBER_UNSOLD:
+            self.unsold_queue = payload["unsold_queue"]
+            self.current_bid = None
+            self.current_member_id = None
+            self._stop_timer()
+        elif event_type == AuctionMessageType.NEXT_MEMBER:
+            self.current_member_id = payload["member_id"]
+            self.auction_queue = payload["auction_queue"]
+            self.unsold_queue = payload["unsold_queue"]
+            self.current_bid = None
+            if "expires_at" in payload:
+                self.expires_at = datetime.fromisoformat(payload["expires_at"])
+                self._start_timer()
+
+        await self._broadcast_local(event_type, payload)
+
+    async def _broadcast_local(self, message_type: str, payload_data: Any) -> None:
+        ws_list: list[WebSocket] = []
+        async with self._broadcast_lock:
+            for member_ws_set in self._member_id_to_ws_sets.values():
+                ws_list.extend(member_ws_set)
+            ws_list.extend(self._public_ws_set)
+
+        if not ws_list:
+            return
+
+        message_envelope = {"type": message_type, "payload": payload_data}
+        disconnected_ws_set: set[WebSocket] = set()
+        for ws in ws_list:
+            try:
+                await ws.send_json(message_envelope)
+            except Exception:
+                disconnected_ws_set.add(ws)
+
+        for ws in disconnected_ws_set:
+            await self.disconnect(ws, None)
 
     async def connect(self, ws: WebSocket, member_id: int | None) -> None:
         if self.status == Status.COMPLETED:
@@ -119,17 +160,9 @@ class Auction:
         self._member_id_to_ws_sets[member_id].add(ws)
         self._ws_to_member_id[ws] = member_id
 
-        if is_new:
-            await self._broadcast(
-                AuctionMessageType.MEMBER_CONNECTED,
-                MemberConnectedPayloadDTO(member_id=member_id),
-            )
-
-            if (
-                member_id in self._leader_member_ids
-                and self.status == Status.WAITING
-                and self._can_progress()
-            ):
+        if is_new and self.publisher:
+            await self.publisher(self.auction_id, AuctionMessageType.MEMBER_CONNECTED, {"member_id": member_id})
+            if member_id in self._leader_member_ids and self.status == Status.WAITING and self._can_progress():
                 await self.set_status(Status.RUNNING)
 
     async def disconnect(self, ws: WebSocket, member_id: int | None) -> None:
@@ -154,83 +187,22 @@ class Auction:
         if self.status == Status.COMPLETED:
             return
 
-        await self._broadcast(
-            AuctionMessageType.MEMBER_DISCONNECTED,
-            MemberDisconnectedPayloadDTO(member_id=member_id),
-        )
-
+        if self.publisher:
+            await self.publisher(self.auction_id, AuctionMessageType.MEMBER_DISCONNECTED, {"member_id": member_id})
         if self.status == Status.RUNNING and not self._can_progress():
             await self.set_status(Status.WAITING)
 
     def _can_progress(self) -> bool:
         return self._leader_member_ids.issubset(self._member_id_to_ws_sets.keys())
 
-    async def _broadcast(
-        self, message_type: AuctionMessageType, message_payload_dto: BaseDTO
-    ) -> None:
-        ws_list: list[WebSocket] = []
-        async with self._broadcast_lock:
-            for member_ws_set in self._member_id_to_ws_sets.values():
-                ws_list.extend(member_ws_set)
-            ws_list.extend(self._public_ws_set)
-
-        disconnected_ws_set: set[WebSocket] = set()
-        message_envelope = AuctionMessageEnvelopeDTO(
-            type=message_type, payload=message_payload_dto
-        ).model_dump(mode="json")
-        for ws in ws_list:
-            try:
-                await ws.send_json(message_envelope)
-            except Exception:
-                disconnected_ws_set.add(ws)
-
-        for ws in disconnected_ws_set:
-            await self.disconnect(ws, None)
-
     async def set_status(self, new_status: Status):
-        next_member = False
-
         async with self._state_lock:
-            if self.status == Status.COMPLETED:
+            if self.status == Status.COMPLETED or self.status == new_status:
                 return
-
-            if self.status == new_status:
-                return
-
-            if new_status == Status.WAITING:
-                if self.status == Status.RUNNING:
-                    self._was_in_progress = True
-                    if not (
-                        self._timer_task
-                        and not self._timer_task.done()
-                        and not self._timer_task.cancelled()
-                    ):
-                        self.timer = self.preset_snapshot.timer
-
-                self._stop_timer()
-                self.expires_at = datetime.now(UTC) + self._lifetime
-
-            elif new_status == Status.RUNNING:
-                if self.status == Status.WAITING:
-                    if self._was_in_progress:
-                        self._was_in_progress = False
-                        self._start_timer()
-                    else:
-                        next_member = True
-
-            elif new_status == Status.COMPLETED:
-                self.current_member_id = None
-                self.current_bid = None
-                self._stop_timer()
-
-            self.status = new_status
-
-        await self._broadcast(
-            AuctionMessageType.STATUS, StatusPayloadDTO(status=self.status)
-        )
-
-        if next_member:
-            await self._next_member()
+            if self.publisher:
+                await self.publisher(self.auction_id, AuctionMessageType.STATUS, {"status": new_status.value})
+            if new_status == Status.RUNNING and self.status == Status.WAITING and not self._was_in_progress:
+                await self._next_member()
 
     def _stop_timer(self):
         if self._timer_task and not self._timer_task.done():
@@ -242,117 +214,70 @@ class Auction:
         self._timer_task = asyncio.create_task(self._timer())
 
     async def _next_member(self) -> None:
-        message: tuple[AuctionMessageType, BaseDTO] | None = None
-        completed = False
-        start_timer = False
-
         async with self._state_lock:
             self._stop_timer()
-
-            incomplete_teams = [
-                team for team in self.teams if len(team.member_ids) < self.team_size
-            ]
-            incomplete_team = (
-                incomplete_teams[0] if len(incomplete_teams) == 1 else None
-            )
+            incomplete_teams = [t for t in self.teams if len(t.member_ids) < self.team_size]
+            incomplete_team = incomplete_teams[0] if len(incomplete_teams) == 1 else None
             remaining_members = self.auction_queue + self.unsold_queue
-            remaining_slots = (
-                self.team_size - len(incomplete_team.member_ids)
-                if incomplete_team is not None
-                else 0
-            )
+            remaining_slots = self.team_size - len(incomplete_team.member_ids) if incomplete_team else 0
 
-            if (
-                incomplete_team is not None
-                and remaining_members
-                and len(remaining_members) == remaining_slots
-            ):
-                self.auction_queue = []
-                self.unsold_queue = []
-                incomplete_team.member_ids.extend(remaining_members)
-                message = (
-                    AuctionMessageType.MEMBER_SOLD,
-                    MemberSoldPayloadDTO(
-                        teams=self.teams, auction_queue=[], unsold_queue=[]
-                    ),
-                )
-                completed = True
-            else:
-                if not self.auction_queue and self.unsold_queue:
-                    self.auction_queue = self.unsold_queue
-                    self.unsold_queue = []
-
-                if self.auction_queue:
-                    self.current_member_id = self.auction_queue.pop(0)
-                    self.current_bid = None
-                    self.timer = self.preset_snapshot.timer
-                    message = (
-                        AuctionMessageType.NEXT_MEMBER,
-                        NextMemberPayloadDTO(
-                            member_id=self.current_member_id,
-                            auction_queue=self.auction_queue[:],
-                            unsold_queue=self.unsold_queue[:],
-                        ),
-                    )
-                    start_timer = True
+            if self.publisher:
+                if incomplete_team and remaining_members and len(remaining_members) == remaining_slots:
+                    incomplete_team.member_ids.extend(remaining_members)
+                    await self.publisher(self.auction_id, AuctionMessageType.MEMBER_SOLD, {
+                        "teams": [t.__dict__ for t in self.teams],
+                        "auction_queue": [],
+                        "unsold_queue": []
+                    })
+                    await self.set_status(Status.COMPLETED)
                 else:
-                    completed = True
-
-        if message is not None:
-            await self._broadcast(*message)
-
-        if completed:
-            await self.set_status(Status.COMPLETED)
-            return
-
-        if start_timer:
-            self._start_timer()
+                    if not self.auction_queue and self.unsold_queue:
+                        self.auction_queue = self.unsold_queue
+                        self.unsold_queue = []
+                    if self.auction_queue:
+                        self.current_member_id = self.auction_queue.pop(0)
+                        expires_at = datetime.now(UTC) + timedelta(seconds=self.preset_snapshot.timer)
+                        await self.publisher(self.auction_id, AuctionMessageType.NEXT_MEMBER, {
+                            "member_id": self.current_member_id,
+                            "auction_queue": self.auction_queue,
+                            "unsold_queue": self.unsold_queue,
+                            "expires_at": expires_at.isoformat()
+                        })
+                    else:
+                        await self.set_status(Status.COMPLETED)
 
     async def _timer(self):
         try:
-            while self.timer > 0:
-                await self._broadcast(
-                    AuctionMessageType.TIMER, TimerPayloadDTO(timer=self.timer)
-                )
-
+            while self.expires_at and (self.expires_at - datetime.now(UTC)).total_seconds() > 0:
+                timer_val = int((self.expires_at - datetime.now(UTC)).total_seconds())
+                await self._broadcast_local(AuctionMessageType.TIMER, {"timer": timer_val})
                 await asyncio.sleep(1)
-                self.timer -= 1
 
-            message: tuple[AuctionMessageType, BaseDTO] | None = None
             async with self._state_lock:
-                if self.current_bid is None:
-                    if self.current_member_id is not None:
-                        self.unsold_queue.append(self.current_member_id)
-                        message = (
-                            AuctionMessageType.MEMBER_UNSOLD,
-                            MemberUnsoldPayloadDTO(member_id=self.current_member_id),
-                        )
-                else:
-                    team = self._member_id_to_team[self.current_bid.leader_id]
-                    team.points -= self.current_bid.amount
-                    team.member_ids.append(self.current_member_id)
-                    message = (
-                        AuctionMessageType.MEMBER_SOLD,
-                        MemberSoldPayloadDTO(
-                            teams=self.teams,
-                            auction_queue=self.auction_queue[:],
-                            unsold_queue=self.unsold_queue[:],
-                        ),
-                    )
-
-            if message is not None:
-                await self._broadcast(*message)
+                if self.publisher:
+                    if self.current_bid is None:
+                        if self.current_member_id is not None:
+                            self.unsold_queue.append(self.current_member_id)
+                            await self.publisher(self.auction_id, AuctionMessageType.MEMBER_UNSOLD, {
+                                "member_id": self.current_member_id,
+                                "unsold_queue": self.unsold_queue
+                            })
+                    else:
+                        team = self._member_id_to_team[self.current_bid.leader_id]
+                        team.points -= self.current_bid.amount
+                        team.member_ids.append(self.current_member_id)
+                        await self.publisher(self.auction_id, AuctionMessageType.MEMBER_SOLD, {
+                            "teams": [t.__dict__ for t in self.teams],
+                            "auction_queue": self.auction_queue,
+                            "unsold_queue": self.unsold_queue
+                        })
             await self._next_member()
-
         except asyncio.CancelledError:
             pass
 
     async def place_bid(self, leader_id: int, amount: int) -> None:
-        message: tuple[AuctionMessageType, BaseDTO] | None = None
         async with self._state_lock:
-            if self.status != Status.RUNNING:
-                return
-            if self.current_member_id is None:
+            if self.status != Status.RUNNING or self.current_member_id is None:
                 return
             now = asyncio.get_event_loop().time()
             if now - self._bid_placed.get(leader_id, 0) < 1.0:
@@ -361,23 +286,19 @@ class Auction:
             if leader_id not in self._leader_member_ids:
                 raise WSError(AuctionErrorCode.BidNotLeader)
             team = self._member_id_to_team.get(leader_id)
-            if team is None:
-                raise WSError(UnexpectedErrorCode.Internal)
-            if len(team.member_ids) >= self.team_size:
+            if not team or len(team.member_ids) >= self.team_size:
                 raise WSError(AuctionErrorCode.BidTeamFull)
-            remaining_slots = self.team_size - len(team.member_ids)
-            max_bid_amount = team.points - (remaining_slots - 1)
-            if amount > max_bid_amount:
-                raise WSError(AuctionErrorCode.BidTooHigh)
-            min_bid = (self.current_bid.amount + 1) if self.current_bid else 1
-            if amount < min_bid:
-                raise WSError(AuctionErrorCode.BidTooLow)
-            self.current_bid = Bid(amount=amount, leader_id=leader_id)
-            message = (
-                AuctionMessageType.BID_PLACED,
-                BidPlacedPayloadDTO(leader_id=leader_id, amount=amount),
-            )
 
-        await self._broadcast(*message)
-        self.timer = self.preset_snapshot.timer
-        self._start_timer()
+            remaining_slots = self.team_size - len(team.member_ids)
+            if amount > (team.points - (remaining_slots - 1)):
+                raise WSError(AuctionErrorCode.BidTooHigh)
+            if amount < ((self.current_bid.amount + 1) if self.current_bid else 1):
+                raise WSError(AuctionErrorCode.BidTooLow)
+
+            if self.publisher:
+                expires_at = datetime.now(UTC) + timedelta(seconds=self.preset_snapshot.timer)
+                await self.publisher(self.auction_id, AuctionMessageType.BID_PLACED, {
+                    "leader_id": leader_id,
+                    "amount": amount,
+                    "expires_at": expires_at.isoformat()
+                })
