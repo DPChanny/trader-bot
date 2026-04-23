@@ -155,7 +155,7 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
               disabled={!canEdit || isSaving}
             />
             <Column gap="xs">
-              <Label>권한</Label>
+              <Label>역할</Label>
               <TertiarySection>
                 <Row wrap>
                   {roleEntries.map(({ key, displayName, color }) => (

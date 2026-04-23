@@ -1,5 +1,3 @@
-const PHASE = import.meta.env["VITE_PHASE"] ?? "dev";
-
 const API_ORIGIN =
   import.meta.env["VITE_API_ORIGIN"] ?? "http://127.0.0.1:8000";
 const DISCORD_CLIENT_ID = import.meta.env["VITE_DISCORD_CLIENT_ID"];
@@ -13,15 +11,10 @@ export const AUTH_API_ENDPOINT = `${API_ENDPOINT}/auth`;
 export const USER_API_ENDPOINT = `${API_ENDPOINT}/user`;
 export const GUILD_API_ENDPOINT = `${API_ENDPOINT}/guild`;
 
-export type Phase = "dev" | "beta" | "prod";
+export type Phase = "beta" | "prod";
 
-export function getPhase(): Phase {
-  if (PHASE === "beta" || PHASE === "prod") {
-    return PHASE;
-  }
-
-  return "dev";
-}
+export const PHASE: Phase =
+  (import.meta.env["VITE_PHASE"] ?? "beta") === "prod" ? "prod" : "beta";
 
 function getEndpoint(ws?: boolean) {
   return ws ? WS_ENDPOINT : API_ENDPOINT;
