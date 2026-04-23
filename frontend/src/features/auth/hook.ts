@@ -17,8 +17,6 @@ import {
 import { AUTH_API_ENDPOINT } from "@utils/env";
 import { AppError, FrontendErrorCode } from "@utils/error";
 
-
-
 function isRedirectPath(path: string | null): path is string {
   return (
     typeof path === "string" && path.startsWith("/") && !path.startsWith("//")
@@ -26,7 +24,9 @@ function isRedirectPath(path: string | null): path is string {
 }
 
 export function useLogin() {
-  const redirectPath = useLocation({ select: (loc: { pathname: string }) => loc.pathname });
+  const redirectPath = useLocation({
+    select: (loc: { pathname: string }) => loc.pathname,
+  });
 
   return (): void => {
     const redirectUrl = new URL(`${AUTH_API_ENDPOINT}/login`);
@@ -47,7 +47,7 @@ export function useLogout() {
       queryClient.clear();
     },
     onSettled: () => {
-      navigate({ to: '/', replace: true });
+      navigate({ to: "/", replace: true });
     },
   });
 }
@@ -75,7 +75,7 @@ export function useLoginCallback() {
         const exchangeToken = params.get("exchangeToken");
 
         if (!exchangeToken) {
-          navigate({ to: '/', replace: true });
+          navigate({ to: "/", replace: true });
           return;
         }
 
@@ -87,7 +87,10 @@ export function useLoginCallback() {
         const me = await getMyUser();
         queryClient.setQueryData(queryKeys.me(), me);
         const redirectPath = params.get("redirect");
-        navigate({ to: isRedirectPath(redirectPath) ? redirectPath : '/', replace: true });
+        navigate({
+          to: isRedirectPath(redirectPath) ? redirectPath : "/",
+          replace: true,
+        });
       } catch (e) {
         setError(
           e instanceof AppError
@@ -135,13 +138,5 @@ export function useRefreshToken() {
     void tryRefresh();
     const interval = setInterval(tryRefresh, 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
-}
-
-export function useAuthGuard() {
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!checkJWTToken(getRefreshToken()))
-      navigate({ to: '/', replace: true });
   }, []);
 }

@@ -1,6 +1,5 @@
 import { useParams } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useAuthGuard } from "@features/auth/hook";
 import { useMembers } from "@features/member/hook";
 import { MemberGrid } from "@components/memberGrid";
 import {
@@ -17,7 +16,6 @@ import type { MemberDetailDTO } from "@features/member/dto";
 
 
 export function MemberPage() {
-  useAuthGuard();
   const { guildId } = useParams({ strict: false }) as { guildId: string };
 
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
