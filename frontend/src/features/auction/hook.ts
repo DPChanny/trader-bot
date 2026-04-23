@@ -1,5 +1,5 @@
-import { useMutation, type UseMutationResult } from "@tanstack/preact-query";
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useMutation, type UseMutationResult } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import { createAuction } from "@features/auction/api";
 import { Status, AuctionMessageType } from "@features/auction/dto";
 import type {

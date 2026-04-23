@@ -4,7 +4,7 @@ import {
   useQueryClient,
   type UseMutationResult,
   type UseQueryResult,
-} from "@tanstack/preact-query";
+} from "@tanstack/react-query";
 import type { MemberDetailDTO } from "@features/member/dto";
 import { Role } from "@features/member/dto";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";

@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import { cva, type VariantProps } from "class-variance-authority";
 import styles from "@styles/components/atoms/text.module.css";
-import type { JSX } from "preact";
+import type { JSX } from "react";
 
 const textVariants = cva("", {
   variants: {

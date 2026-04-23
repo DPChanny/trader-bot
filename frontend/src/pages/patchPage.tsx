@@ -1,6 +1,6 @@
 import { MarkedPage } from "./markedPage";
-import { useEffect } from "preact/hooks";
-import { route } from "preact-router";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { InternalLink } from "@components/atoms/link";
 import { Column, Fill, Page, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
@@ -17,6 +17,7 @@ import { PHASE } from "@utils/env";
 import { Routes } from "@utils/routes";
 
 export function PatchPage() {
+  const navigate = useNavigate();
   const versionParam =
     useRouteQueryParam("version")
       ?.replace(/^\/+|\/+$/g, "")
@@ -39,7 +40,7 @@ export function PatchPage() {
     }
 
     if (isInvalidVersion) {
-      route(Routes.patch.to, true);
+      navigate(Routes.patch.to, { replace: true });
       return;
     }
 
@@ -51,7 +52,7 @@ export function PatchPage() {
       !noteVersionSet.has(normalizedVersion) &&
       !planVersionSet.has(normalizedVersion)
     ) {
-      route(Routes.patch.to, true);
+      navigate(Routes.patch.to, { replace: true });
     }
   }, [
     isInvalidVersion,

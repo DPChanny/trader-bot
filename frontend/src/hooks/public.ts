@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryResult } from "@tanstack/preact-query";
+import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { marked } from "marked";
 import { queryKeys } from "@utils/query";
 import { Phase } from "@utils/env";

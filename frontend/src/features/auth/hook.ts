@@ -1,7 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/preact-query";
-import { useEffect, useState } from "preact/hooks";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { queryKeys } from "@utils/query";
-import { route } from "preact-router";
+import { useNavigate } from "react-router-dom";
 import {
   exchangeToken as exchangeTokenAPI,
   refreshToken as refreshTokenAPI,
@@ -37,6 +37,7 @@ export function useLogin() {
 
 export function useLogout() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   return useMutation<void, AppError, void>({
     mutationFn: async (): Promise<void> => {},
@@ -46,13 +47,14 @@ export function useLogout() {
       queryClient.clear();
     },
     onSettled: () => {
-      route(Routes.home.to, true);
+      navigate(Routes.home.to, { replace: true });
     },
   });
 }
 
 export function useLoginCallback() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [error, setError] = useState<AppError | null>(null);
 
   const retry = () => {
@@ -73,7 +75,7 @@ export function useLoginCallback() {
         const exchangeToken = params.get("exchangeToken");
 
         if (!exchangeToken) {
-          route(Routes.home.to, true);
+          navigate(Routes.home.to, { replace: true });
           return;
         }
 
@@ -85,10 +87,9 @@ export function useLoginCallback() {
         const me = await getMyUser();
         queryClient.setQueryData(queryKeys.me(), me);
         const redirectPath = params.get("redirect");
-        route(
-          isRedirectPath(redirectPath) ? redirectPath : Routes.home.to,
-          true,
-        );
+        navigate(isRedirectPath(redirectPath) ? redirectPath : Routes.home.to, {
+          replace: true,
+        });
       } catch (e) {
         setError(
           e instanceof AppError
@@ -140,7 +141,9 @@ export function useRefreshToken() {
 }
 
 export function useAuthGuard() {
+  const navigate = useNavigate();
   useEffect(() => {
-    if (!checkJWTToken(getRefreshToken())) route(Routes.home.to, true);
+    if (!checkJWTToken(getRefreshToken()))
+      navigate(Routes.home.to, { replace: true });
   }, []);
 }

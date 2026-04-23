@@ -4,7 +4,7 @@ import {
   useQueryClient,
   type UseMutationResult,
   type UseQueryResult,
-} from "@tanstack/preact-query";
+} from "@tanstack/react-query";
 import {
   addTier,
   deleteTier,

@@ -1,7 +1,7 @@
 import { Fill } from "@components/atoms/layout";
 import { Text } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
-import type { ComponentChildren } from "preact";
+import type { ComponentChildren } from "react";
 
 interface InfoCardProps {
   label: string;

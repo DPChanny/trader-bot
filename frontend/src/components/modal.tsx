@@ -1,9 +1,9 @@
-import { createPortal } from "preact/compat";
+import { createPortal } from "react-dom";
 import { Column, Fill, FlexItem, Row } from "./atoms/layout";
 import { Title } from "./atoms/text";
 import { PrimarySection, SecondarySection } from "./surfaces/section";
 import styles from "@styles/components/modal.module.css";
-import { toChildArray, type ComponentChildren, type VNode } from "preact";
+import { toChildArray, type ComponentChildren, type VNode } from "react";
 
 export type ModalProps = {
   onClose: () => void;

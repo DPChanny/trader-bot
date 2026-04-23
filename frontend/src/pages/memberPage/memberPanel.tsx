@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useState } from "react";
 import { MemberCard } from "@components/memberCard";
 import { useUpdateMember } from "@features/member/hook";
 import { CloseButton, SaveButton } from "@components/atoms/button";

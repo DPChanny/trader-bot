@@ -1,26 +1,23 @@
-import { useMemo } from "preact/hooks";
-import { useRouter, route } from "preact-router";
+import { useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { extractRouteParams, Routes } from "@utils/routes";
 
 export function useRoutePath(): string {
-  const [router] = useRouter();
-  return useMemo(
-    () => new URL(router.url, window.location.origin).pathname,
-    [router.url],
-  );
+  const location = useLocation();
+  return location.pathname;
 }
 
 export function useRouteQueryParam(name: string): string | null {
-  const [router] = useRouter();
+  const location = useLocation();
   return useMemo(() => {
-    const url = new URL(router.url, window.location.origin);
-    return url.searchParams.get(name);
-  }, [router.url, name]);
+    return new URLSearchParams(location.search).get(name);
+  }, [location.search, name]);
 }
 
 function useRequiredRouteParam<T>(value: T | null): T {
+  const navigate = useNavigate();
   if (value === null) {
-    setTimeout(() => route(Routes.home.to, true), 0);
+    setTimeout(() => navigate(Routes.home.to, { replace: true }), 0);
     throw new Promise(() => {});
   }
   return value;

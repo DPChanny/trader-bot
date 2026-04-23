@@ -1,4 +1,4 @@
-import type { JSX } from "preact";
+import type { JSX } from "react";
 import { clsx } from "clsx";
 import styles from "@styles/components/atoms/button.module.css";
 import { cva, type VariantProps } from "class-variance-authority";

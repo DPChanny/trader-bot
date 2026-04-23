@@ -1,8 +1,8 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
 import styles from "@styles/components/atoms/layout.module.css";
-import type { JSX, Ref } from "preact";
-import { useLayoutEffect, useRef, useState } from "preact/hooks";
+import type { JSX, Ref } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 const layoutVariants = cva(styles.layout, {
   variants: {

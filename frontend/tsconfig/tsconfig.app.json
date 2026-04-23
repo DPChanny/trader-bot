@@ -14,8 +14,7 @@
     },
     "types": ["vite/client"],
 
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact"
+    "jsx": "react-jsx"
   },
   "include": ["../src"]
 }

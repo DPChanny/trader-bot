@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryResult } from "@tanstack/preact-query";
+import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { getMyUser } from "@features/user/api";
 import { queryKeys } from "@utils/query";
 import { getAccessToken } from "@features/auth/token";

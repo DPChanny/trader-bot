@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import styles from "@styles/components/atoms/input.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { JSX } from "preact";
+import type { JSX } from "react";
 
 const inputVariants = cva(styles.input, {
   variants: {

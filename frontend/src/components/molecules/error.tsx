@@ -3,7 +3,7 @@ import { Column } from "../atoms/layout";
 import { clsx } from "clsx";
 import { Text } from "../atoms/text";
 import { AppError } from "@utils/error";
-import type { ComponentChildren, JSX } from "preact";
+import type { ComponentChildren, JSX } from "react";
 
 type ErrorProps = JSX.IntrinsicElements["div"] & {
   error: AppError;

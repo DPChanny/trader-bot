@@ -1,4 +1,4 @@
-import { route } from "preact-router";
+import { useNavigate } from "react-router-dom";
 import { useGuildId, usePresetId } from "@hooks/route";
 import { Modal, ModalFooter, ModalForm } from "@components/modal";
 import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
@@ -11,6 +11,7 @@ interface DeletePresetModalProps {
 }
 
 export function DeletePresetModal({ onClose }: DeletePresetModalProps) {
+  const navigate = useNavigate();
   const guildId = useGuildId();
   const presetId = usePresetId();
   const deletePreset = useDeletePreset();
@@ -25,7 +26,10 @@ export function DeletePresetModal({ onClose }: DeletePresetModalProps) {
     if (deletePreset.isPending) return;
     deletePreset.mutate(
       { guildId, presetId },
-      { onSuccess: () => route(Routes.guild.member.to(guildId), true) },
+      {
+        onSuccess: () =>
+          navigate(Routes.guild.member.to(guildId), { replace: true }),
+      },
     );
   };
 

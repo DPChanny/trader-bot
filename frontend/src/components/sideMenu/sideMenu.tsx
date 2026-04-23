@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "react";
 import { clsx } from "clsx";
 import styles from "@styles/components/sideMenu/sideMenu.module.css";
 import { useGuilds } from "@features/guild/hook";

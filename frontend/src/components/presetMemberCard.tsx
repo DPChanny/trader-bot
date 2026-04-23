@@ -6,7 +6,7 @@ import { Image } from "./atoms/image";
 import { Row } from "./atoms/layout";
 import { Name } from "./atoms/text";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
-import { useContext } from "preact/hooks";
+import { useContext } from "react";
 import { AuctionPageContext } from "@pages/auctionPage/auctionPageContext";
 
 function getDotColor(

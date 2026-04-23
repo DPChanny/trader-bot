@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryResult } from "@tanstack/preact-query";
+import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import type { GuildDetailDTO } from "@features/guild/dto";
 import type { AppError } from "@utils/error";
 import { queryKeys } from "@utils/query";

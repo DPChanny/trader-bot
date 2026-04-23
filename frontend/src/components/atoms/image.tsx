@@ -1,7 +1,7 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useState } from "react";
 import { clsx } from "clsx";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { JSX } from "preact";
+import type { JSX } from "react";
 import styles from "@styles/components/atoms/image.module.css";
 
 const imageVariants = cva(styles.root, {

@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import styles from "@styles/components/atoms/link.module.css";
-import type { JSX } from "preact";
-import { route } from "preact-router";
+import type { JSX } from "react";
+import { useNavigate } from "react-router-dom";
 
 function getVariantClass(children: JSX.Element["props"]["children"]) {
   if (typeof children === "string" || typeof children === "number") {
@@ -23,6 +23,8 @@ export function InternalLink({
   href,
   ...props
 }: InternalLinkProps) {
+  const navigate = useNavigate();
+
   const handleClick: NonNullable<InternalLinkProps["onClick"]> = (e) => {
     props.onClick?.(e);
     if (e.defaultPrevented) return;
@@ -30,7 +32,7 @@ export function InternalLink({
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
     e.preventDefault();
-    route(href);
+    navigate(href);
   };
 
   return (

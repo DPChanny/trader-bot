@@ -1,7 +1,12 @@
-import { useState, useEffect } from "preact/hooks";
-import { render } from "preact";
-import Router from "preact-router";
-import { QueryClientProvider } from "@tanstack/preact-query";
+import { useState, useEffect } from "react";
+import { createRoot } from "react-dom/client";
+import {
+  BrowserRouter,
+  Routes as RouterRoutes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { MemberPage } from "@pages/memberPage/memberPage";
 import { PresetPage } from "@pages/presetPage/presetPage";
 import { HomePage } from "@pages/homePage";
@@ -24,21 +29,15 @@ import { PHASE } from "@utils/env";
 import { Routes } from "@utils/routes";
 import "@styles/index.css";
 
-import { route } from "preact-router";
-import type { RoutableProps } from "preact-router";
-
-function DefaultRedirectRoute({}: RoutableProps) {
-  useEffect(() => {
-    route(Routes.home.to, true);
-  }, []);
-  return null;
+function DefaultRedirectRoute() {
+  return <Navigate to={Routes.home.to} replace />;
 }
 
-function TermsOfServiceRoute({}: RoutableProps) {
+function TermsOfServiceRoute() {
   return <MarkedPage path="/terms-of-service.md" />;
 }
 
-function PrivacyPolicyRoute({}: RoutableProps) {
+function PrivacyPolicyRoute() {
   return <MarkedPage path="/privacy-policy.md" />;
 }
 
@@ -86,11 +85,6 @@ function App() {
     logout.mutate();
   };
 
-  const Route = (props: { path: string; page: any }) => {
-    const Page = props.page;
-    return <Page {...props} />;
-  };
-
   return (
     <div className="app-container">
       {globalError && (
@@ -111,30 +105,50 @@ function App() {
       <div className="app-body">
         {myUser.data && <SideMenu />}
         <div className="app-content">
-          <Router>
-            <Route
-              path={Routes.auth.loginCallback.pattern}
-              page={LoginCallbackPage}
-            />
-            <Route path={Routes.home.pattern} page={HomePage} />
-            <Route path={Routes.patch.pattern} page={PatchPage} />
-            <Route path={Routes.announcement.pattern} page={AnnouncementPage} />
-            <TermsOfServiceRoute path={Routes.termsOfService.pattern} />
-            <PrivacyPolicyRoute path={Routes.privacyPolicy.pattern} />
-            <Route path={Routes.guild.preset.pattern} page={PresetPage} />
-            <Route path={Routes.guild.member.pattern} page={MemberPage} />
-            <Route path={Routes.guild.auction.pattern} page={AuctionPage} />
-            <DefaultRedirectRoute default />
-          </Router>
+          <BrowserRouter>
+            <RouterRoutes>
+              <Route
+                path={Routes.auth.loginCallback.pattern}
+                element={<LoginCallbackPage />}
+              />
+              <Route path={Routes.home.pattern} element={<HomePage />} />
+              <Route path={Routes.patch.pattern} element={<PatchPage />} />
+              <Route
+                path={Routes.announcement.pattern}
+                element={<AnnouncementPage />}
+              />
+              <Route
+                path={Routes.termsOfService.pattern}
+                element={<TermsOfServiceRoute />}
+              />
+              <Route
+                path={Routes.privacyPolicy.pattern}
+                element={<PrivacyPolicyRoute />}
+              />
+              <Route
+                path={Routes.guild.preset.pattern}
+                element={<PresetPage />}
+              />
+              <Route
+                path={Routes.guild.member.pattern}
+                element={<MemberPage />}
+              />
+              <Route
+                path={Routes.guild.auction.pattern}
+                element={<AuctionPage />}
+              />
+              <Route path="*" element={<DefaultRedirectRoute />} />
+            </RouterRoutes>
+          </BrowserRouter>
         </div>
       </div>
     </div>
   );
 }
 
-render(
+const root = createRoot(document.getElementById("app")!);
+root.render(
   <QueryClientProvider client={queryClient}>
     <App />
   </QueryClientProvider>,
-  document.getElementById("app")!,
 );

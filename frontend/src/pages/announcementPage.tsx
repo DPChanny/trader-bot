@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "preact/hooks";
-import { route } from "preact-router";
+import { useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Column, Page } from "@components/atoms/layout";
 import { Title } from "@components/atoms/text";
 import { PrimarySection, SecondarySection } from "@components/surfaces/section";
@@ -11,6 +11,7 @@ import { Routes } from "@utils/routes";
 import { MarkedPage } from "./markedPage";
 
 export function AnnouncementPage() {
+  const navigate = useNavigate();
   const idParam =
     useRouteQueryParam("id")
       ?.replace(/^\/+|\/+$/g, "")
@@ -37,7 +38,7 @@ export function AnnouncementPage() {
     }
 
     if (!targetAnn) {
-      route(Routes.announcement.to, true);
+      navigate(Routes.announcement.to, { replace: true });
     }
   }, [manifest.isLoading, targetId, targetAnn]);
 

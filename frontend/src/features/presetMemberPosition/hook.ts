@@ -2,7 +2,7 @@ import {
   useMutation,
   useQueryClient,
   type UseMutationResult,
-} from "@tanstack/preact-query";
+} from "@tanstack/react-query";
 import {
   createPresetMemberPosition,
   deletePresetMemberPosition,

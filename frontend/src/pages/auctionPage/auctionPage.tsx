@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useState } from "react";
 import { useAuction } from "@features/auction/hook";
 import { useAuctionId, useGuildId, usePresetId } from "@hooks/route";
 import { TeamList } from "./teamList";
