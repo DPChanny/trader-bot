@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import { queryOptions, useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { marked } from "marked";
 import { queryKeys } from "@utils/query";
 import { Phase } from "@utils/env";
@@ -22,54 +22,56 @@ export type Manifest = {
   };
 };
 
-const EMPTY_MANIFEST: Manifest = {
-  announcements: [],
-  patches: {
-    notes: { beta: [], prod: [] },
-    plans: [],
-  },
-};
-
-async function fetchManifest(): Promise<Manifest> {
+export async function fetchManifest(): Promise<Manifest | null> {
   try {
     const response = await fetch("/manifest.json");
     if (!response.ok) {
-      return EMPTY_MANIFEST;
+      return null;
     }
-
     return (await response.json()) as Manifest;
   } catch {
-    return EMPTY_MANIFEST;
+    return null;
   }
 }
 
-export function useManifest(): UseQueryResult<Manifest, Error> {
-  return useQuery({
+export function manifestQueryOptions() {
+  return queryOptions({
     queryKey: queryKeys.manifest(),
     queryFn: fetchManifest,
   });
 }
 
-async function fetchMarked(path: string): Promise<string> {
+export function useManifest(): UseQueryResult<Manifest | null, Error> {
+  return useQuery(manifestQueryOptions());
+}
+
+export async function fetchMarked(path: string): Promise<string | null> {
   try {
     const response = await fetch(path);
     if (!response.ok) {
-      return "";
+      return null;
     }
-
     const markedSource = await response.text();
     return marked.parse(markedSource, {
       gfm: true,
       async: false,
-    });
+    }) as string;
   } catch {
-    return "";
+    return null;
   }
 }
 
-export function useMarked(path: string): UseQueryResult<string, Error> {
-  return useQuery({
+export function markedQueryOptions(path: string) {
+  return queryOptions({
     queryKey: ["marked", path] as const,
     queryFn: () => fetchMarked(path),
+    staleTime: Infinity,
+  });
+}
+
+export function useMarked(path: string): UseQueryResult<string | null, Error> {
+  return useQuery({
+    ...markedQueryOptions(path),
+    enabled: !!path,
   });
 }

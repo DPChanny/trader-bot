@@ -1,18 +1,26 @@
 import { useState, useEffect } from "react";
-import { createRootRoute, Outlet, Navigate } from "@tanstack/react-router";
+import { createRootRouteWithContext, Outlet, Navigate } from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
 import { Header } from "@components/header";
 import { SideMenu } from "@components/sideMenu/sideMenu";
 import { Modal, ModalFooter } from "@components/modal";
 import { Error } from "@components/molecules/error";
 import { PrimaryButton } from "@components/atoms/button";
 import { useRefreshToken, useLogin, useLogout } from "@features/auth/hook";
-import { useManifest } from "@hooks/public";
+import { useManifest, manifestQueryOptions } from "@hooks/public";
 import { useMyUser } from "@features/user/hook";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import { PHASE } from "@utils/env";
 
-export const Route = createRootRoute({
+export interface MyRouterContext {
+  queryClient: QueryClient;
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: RootComponent,
+  loader: ({ context: { queryClient } }) => {
+    void queryClient.prefetchQuery(manifestQueryOptions());
+  },
   notFoundComponent: () => {
     return <Navigate to="/" replace />;
   },
