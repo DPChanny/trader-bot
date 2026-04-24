@@ -39,8 +39,8 @@ setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 
 @asynccontextmanager
 async def lifespan(_):
+    setup_redis()
     await setup_db()
-    await setup_redis()
 
     async def _subscribe():
         r = get_redis()
