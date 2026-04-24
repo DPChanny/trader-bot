@@ -11,10 +11,10 @@ from shared.utils.env import (
 from shared.utils.error import HTTPError, UnexpectedErrorCode
 
 
-DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize"
-DISCORD_TOKEN_URL = "https://discord.com/api/oauth2/token"
-DISCORD_USERS_URL = "https://discord.com/api/users"
-DISCORD_CHANNELS_URL = "https://discord.com/api/channels"
+_DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize"
+_DISCORD_TOKEN_URL = "https://discord.com/api/oauth2/token"
+_DISCORD_USERS_URL = "https://discord.com/api/users"
+_DISCORD_CHANNELS_URL = "https://discord.com/api/channels"
 
 
 def _get_login_callback_url() -> str:
@@ -30,7 +30,7 @@ def get_login_url(state_token: str | None = None) -> str:
     }
     if state_token:
         params["state"] = state_token
-    return f"{DISCORD_OAUTH_URL}?{urllib.parse.urlencode(params)}"
+    return f"{_DISCORD_OAUTH_URL}?{urllib.parse.urlencode(params)}"
 
 
 async def get_me(code: str) -> dict:
@@ -43,7 +43,7 @@ async def get_me(code: str) -> dict:
     }
     async with httpx.AsyncClient() as client:
         access_token_response = await client.post(
-            DISCORD_TOKEN_URL,
+            _DISCORD_TOKEN_URL,
             data=data,
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
@@ -52,7 +52,7 @@ async def get_me(code: str) -> dict:
         access_token = access_token_response.json()["access_token"]
 
         me_response = await client.get(
-            f"{DISCORD_USERS_URL}/@me",
+            f"{_DISCORD_USERS_URL}/@me",
             headers={"Authorization": f"Bearer {access_token}"},
         )
         if me_response.status_code != 200:
@@ -68,7 +68,7 @@ async def send_message(user_id: int, embeds: list[dict]) -> None:
 
     async with httpx.AsyncClient() as client:
         ch_response = await client.post(
-            f"{DISCORD_USERS_URL}/@me/channels",
+            f"{_DISCORD_USERS_URL}/@me/channels",
             headers=headers,
             json={"recipient_id": str(user_id)},
         )
@@ -77,7 +77,7 @@ async def send_message(user_id: int, embeds: list[dict]) -> None:
 
         channel_id = ch_response.json()["id"]
         msg_response = await client.post(
-            f"{DISCORD_CHANNELS_URL}/{channel_id}/messages",
+            f"{_DISCORD_CHANNELS_URL}/{channel_id}/messages",
             headers=headers,
             json={"embeds": embeds},
         )

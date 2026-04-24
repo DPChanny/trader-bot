@@ -3,7 +3,7 @@ import uuid
 from typing import Any, ClassVar
 
 from shared.dtos.preset import PresetDetailDTO
-from shared.utils.redis import get_redis
+from backend.utils.redis import get_redis
 
 from .auction import Auction, Bid, Team
 

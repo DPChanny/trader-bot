@@ -39,7 +39,7 @@ setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 async def lifespan(_):
     await setup_db()
 
-    from shared.utils.redis import close_redis, get_redis
+    from backend.utils.redis import close_redis, get_redis
 
     from .auction.auction_manager import AuctionManager
 

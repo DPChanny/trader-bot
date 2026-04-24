@@ -9,7 +9,8 @@ from fastapi import Header
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 from shared.utils.error import AuthErrorCode, HTTPError, TokenError, TokenErrorCode
-from shared.utils.redis import get_redis
+
+from .redis import get_redis
 
 
 _ACCESS_TOKEN_LIFETIME = timedelta(minutes=15)
