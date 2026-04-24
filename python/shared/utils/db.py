@@ -19,8 +19,8 @@ from .env import (
 )
 
 
-_DB_CONNECT_MAX_RETRIES = 5
-_DB_CONNECT_BASE_DELAY = 1.0
+_RDS_CONNECT_MAX_RETRIES = 5
+_RDS_CONNECT_BASE_DELAY = 1.0
 _RDS_ENDPOINT_CACHE_LIFETIME = timedelta(minutes=5)
 _RDS_AUTH_TOKEN_CACHE_LIFETIME = timedelta(minutes=14)
 
@@ -119,7 +119,7 @@ async def _async_creator() -> asyncpg.Connection:
     phase = get_phase()
     last_exc: Exception | None = None
 
-    for attempt in range(1, _DB_CONNECT_MAX_RETRIES + 1):
+    for attempt in range(1, _RDS_CONNECT_MAX_RETRIES + 1):
         try:
             if phase == "dev":
                 return await asyncpg.connect(
@@ -154,8 +154,8 @@ async def _async_creator() -> asyncpg.Connection:
                 )
         except Exception as exc:
             last_exc = exc
-            delay = _DB_CONNECT_BASE_DELAY * (2 ** (attempt - 1))
-            if attempt < _DB_CONNECT_MAX_RETRIES:
+            delay = _RDS_CONNECT_BASE_DELAY * (2 ** (attempt - 1))
+            if attempt < _RDS_CONNECT_MAX_RETRIES:
                 await asyncio.sleep(delay)
 
     raise last_exc
@@ -166,8 +166,8 @@ _engine = create_async_engine(
     async_creator=_async_creator,
     pool_pre_ping=True,
     pool_recycle=600,
-    pool_size=20,
-    max_overflow=10,
+    pool_size=10,
+    max_overflow=5,
 )
 
 _sessionmaker = async_sessionmaker(

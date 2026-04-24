@@ -1,4 +1,5 @@
 import asyncio
+import json
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 
@@ -38,16 +39,32 @@ setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 async def lifespan(_):
     await setup_db()
 
-    from .auction.auction_manager import AuctionManager
-    from .auction.redis import subscribe_event
+    from shared.utils.redis import close_redis, get_redis
 
-    redis_task = asyncio.create_task(subscribe_event(AuctionManager._on_redis_event))
+    from .auction.auction_manager import AuctionManager
+
+    async def _subscribe():
+        r = get_redis()
+        pubsub = r.pubsub()
+        await pubsub.subscribe("auctions:event")
+        try:
+            async for message in pubsub.listen():
+                if message["type"] == "message":
+                    await AuctionManager._on_redis_event(
+                        message["channel"], json.loads(message["data"])
+                    )
+        except asyncio.CancelledError:
+            await pubsub.unsubscribe("auctions:event")
+            await pubsub.close()
+
+    redis_task = asyncio.create_task(_subscribe())
 
     yield
 
     redis_task.cancel()
     with suppress(asyncio.CancelledError):
         await redis_task
+    await close_redis()
 
 
 app = FastAPI(title="Trader Bot API", version="0.1.0", lifespan=lifespan)

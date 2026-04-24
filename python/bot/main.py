@@ -2,8 +2,7 @@ import asyncio
 import sys
 from pathlib import Path
 
-from discord import Intents
-from discord.ext import commands
+from discord import Client, Intents
 
 from shared.utils.env import get_discord_bot_token
 from shared.utils.error import AppError, UnexpectedErrorCode, handle_app_error
@@ -21,11 +20,11 @@ setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 
 
 async def main() -> None:
-    intents = Intents.default()
-    intents.message_content = True
+    intents = Intents(default=False)
     intents.members = True
+    intents.guilds = True
 
-    bot = commands.Bot(command_prefix="!", intents=intents)
+    bot = Client(intents=intents)
 
     include_on_ready_router(bot)
     include_guild_router(bot)
