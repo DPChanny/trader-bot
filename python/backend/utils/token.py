@@ -100,17 +100,18 @@ class ExchangeToken:
 
 class StateToken:
     @classmethod
-    async def create(cls, redirect_path: str | None) -> str:
+    async def create(cls, payload: dict) -> str:
         state = token_urlsafe(32)
         r = get_redis()
-        value = redirect_path if redirect_path is not None else ""
         await r.setex(
-            f"state_token:{state}", int(_STATE_TOKEN_LIFETIME.total_seconds()), value
+            f"state_token:{state}",
+            int(_STATE_TOKEN_LIFETIME.total_seconds()),
+            json.dumps(payload),
         )
         return state
 
     @classmethod
-    async def consume(cls, state_token: str | None) -> str | None:
+    async def consume(cls, state_token: str | None) -> dict:
         if not state_token:
             raise TokenError(TokenErrorCode.ExchangeFailed)
 
@@ -121,7 +122,7 @@ class StateToken:
             raise TokenError(TokenErrorCode.ExchangeFailed)
 
         await r.delete(key)
-        return data if data != "" else None
+        return json.loads(data)
 
 
 async def verify_access_token(authorization: str = Header(None)) -> int:

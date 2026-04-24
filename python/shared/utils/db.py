@@ -20,11 +20,10 @@ from .env import (
 
 _DB_CONNECT_MAX_RETRIES = 5
 _DB_CONNECT_BASE_DELAY = 1.0
+_RDS_CACHE_LIFETIME = timedelta(minutes=14)
 
 
 class _RDSCache:
-    _lifetime = timedelta(minutes=14)
-
     def __init__(self) -> None:
         self.auth_token: str | None = None
         self.auth_token_expires_at = 0.0
@@ -51,7 +50,7 @@ class _RDSCache:
                 )
 
             self.auth_token = auth_token
-            self.auth_token_expires_at = now + self._lifetime.total_seconds()
+            self.auth_token_expires_at = now + _RDS_CACHE_LIFETIME.total_seconds()
             return auth_token
 
     def invalidate_auth_token(self) -> None:

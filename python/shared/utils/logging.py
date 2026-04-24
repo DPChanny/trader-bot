@@ -23,8 +23,8 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 from .env import get_log_file, get_log_level, get_log_text
 
 
-REDACT_KEYS = {"accesstoken", "refreshtoken", "exchangetoken"}
-QUERY_REDACT_KEYS = {"code", "state", "statetoken", "exchangetoken"}
+_REDACT_KEYS = {"accesstoken", "refreshtoken", "exchangetoken"}
+_QUERY_PARAMS_REDACT_KEYS = {"code", "state", "statetoken", "exchangetoken"}
 
 
 type JSONPrimitive = str | int | float | bool | None
@@ -43,19 +43,19 @@ def _redact(value: LogValue) -> Any:
         for key, item in value.items():
             normalized_key = key.replace("_", "").replace("-", "").lower()
 
-            if normalized_key == "query" and isinstance(item, dict):
-                redacted_query: dict[str, Any] = {}
+            if normalized_key == "query_params" and isinstance(item, dict):
+                redacted_query_params: dict[str, Any] = {}
                 for query_key, query_value in item.items():
                     normalized_query_key = (
                         query_key.replace("_", "").replace("-", "").lower()
                     )
-                    if normalized_query_key in QUERY_REDACT_KEYS:
-                        redacted_query[query_key] = "[REDACTED]"
+                    if normalized_query_key in _QUERY_PARAMS_REDACT_KEYS:
+                        redacted_query_params[query_key] = "[REDACTED]"
                     else:
-                        redacted_query[query_key] = _redact(query_value)
+                        redacted_query_params[query_key] = _redact(query_value)
 
-                redacted[key] = redacted_query
-            elif normalized_key in REDACT_KEYS:
+                redacted[key] = redacted_query_params
+            elif normalized_key in _REDACT_KEYS:
                 redacted[key] = "[REDACTED]"
             else:
                 redacted[key] = _redact(item)

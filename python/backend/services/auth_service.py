@@ -15,7 +15,7 @@ from ..utils.token import AccessToken, ExchangeToken, RefreshToken, StateToken
 
 @http_service
 async def login_service(redirect_path: str | None = None) -> RedirectResponse:
-    state_token = await StateToken.create(redirect_path)
+    state_token = await StateToken.create({"redirect_path": redirect_path})
     return RedirectResponse(url=get_login_url(state_token))
 
 
@@ -36,7 +36,8 @@ async def login_callback_service(
 
     exchange_token = await ExchangeToken.create(access_token, refresh_token)
     try:
-        redirect_path = await StateToken.consume(state_token)
+        payload = await StateToken.consume(state_token)
+        redirect_path = payload.get("redirect_path")
     except TokenError as e:
         raise HTTPError(e.code) from None
 
