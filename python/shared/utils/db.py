@@ -20,44 +20,43 @@ from .env import (
 
 _DB_CONNECT_MAX_RETRIES = 5
 _DB_CONNECT_BASE_DELAY = 1.0
-_RDS_AUTH_TOKEN_CACHE_LIFETIME = timedelta(minutes=14)
 
 
 class _RDSCache:
+    _lifetime = timedelta(minutes=14)
+
     def __init__(self) -> None:
-        self.rds_auth_token: str | None = None
-        self.rds_auth_token_expires_at = 0.0
-        self.rds_auth_token_lock = asyncio.Lock()
+        self.auth_token: str | None = None
+        self.auth_token_expires_at = 0.0
+        self.auth_token_lock = asyncio.Lock()
 
-    async def get_rds_auth_token(self, db_endpoint: str) -> str:
+    async def get_auth_token(self, db_endpoint: str) -> str:
         now = time.monotonic()
-        if self.rds_auth_token and now < self.rds_auth_token_expires_at:
-            return self.rds_auth_token
+        if self.auth_token and now < self.auth_token_expires_at:
+            return self.auth_token
 
-        async with self.rds_auth_token_lock:
+        async with self.auth_token_lock:
             now = time.monotonic()
-            if self.rds_auth_token and now < self.rds_auth_token_expires_at:
-                return self.rds_auth_token
+            if self.auth_token and now < self.auth_token_expires_at:
+                return self.auth_token
 
             async with aioboto3.Session().client(
                 "rds", region_name=get_db_region()
             ) as client:
-                token = await client.generate_db_auth_token(
+                auth_token = await client.generate_db_auth_token(
                     DBHostname=db_endpoint,
                     Port=int(get_db_port()),
                     DBUsername=get_db_user(),
                     Region=get_db_region(),
                 )
 
-            self.rds_auth_token = token
-            self.rds_auth_token_expires_at = (
-                now + _RDS_AUTH_TOKEN_CACHE_LIFETIME.total_seconds()
-            )
-            return token
+            self.auth_token = auth_token
+            self.auth_token_expires_at = now + self._lifetime.total_seconds()
+            return auth_token
 
-    def invalidate_rds_auth_token(self) -> None:
-        self.rds_auth_token = None
-        self.rds_auth_token_expires_at = 0.0
+    def invalidate_auth_token(self) -> None:
+        self.auth_token = None
+        self.auth_token_expires_at = 0.0
 
 
 _rds_cache = _RDSCache()
@@ -82,7 +81,7 @@ async def _async_creator() -> asyncpg.Connection:
                     ssl="disable",
                 )
 
-            db_password = await _rds_cache.get_rds_auth_token(db_host)
+            db_password = await _rds_cache.get_auth_token(db_host)
             try:
                 return await asyncpg.connect(
                     host=db_host,
@@ -93,8 +92,8 @@ async def _async_creator() -> asyncpg.Connection:
                     ssl="require",
                 )
             except asyncpg.InvalidPasswordError:
-                _rds_cache.invalidate_rds_auth_token()
-                db_password = await _rds_cache.get_rds_auth_token(db_host)
+                _rds_cache.invalidate_auth_token()
+                db_password = await _rds_cache.get_auth_token(db_host)
                 return await asyncpg.connect(
                     host=db_host,
                     port=db_port,
