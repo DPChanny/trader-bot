@@ -34,42 +34,32 @@ type JSONValue = (
 type LogValue = JSONValue | BaseModel
 
 
-def _redact(value: LogValue) -> Any:
+def _redact(value: LogValue, keys: list = _REDACT_KEYS) -> Any:
     if isinstance(value, BaseModel):
-        return _redact(value.model_dump(mode="json", exclude_unset=True))
+        return _redact(value.model_dump(mode="json", exclude_unset=True), keys=keys)
 
     if isinstance(value, dict):
         redacted: dict[str, Any] = {}
         for key, item in value.items():
             normalized_key = key.replace("_", "").replace("-", "").lower()
 
-            if normalized_key == "query_params" and isinstance(item, dict):
-                redacted_query_params: dict[str, Any] = {}
-                for query_key, query_value in item.items():
-                    normalized_query_key = (
-                        query_key.replace("_", "").replace("-", "").lower()
-                    )
-                    if normalized_query_key in _QUERY_PARAMS_REDACT_KEYS:
-                        redacted_query_params[query_key] = "[REDACTED]"
-                    else:
-                        redacted_query_params[query_key] = _redact(query_value)
-
-                redacted[key] = redacted_query_params
-            elif normalized_key in _REDACT_KEYS:
+            if normalized_key == "queryparams":
+                redacted[key] = _redact(item, keys=_QUERY_PARAMS_REDACT_KEYS)
+            elif normalized_key in keys:
                 redacted[key] = "[REDACTED]"
             else:
-                redacted[key] = _redact(item)
+                redacted[key] = _redact(item, keys=keys)
 
         return redacted
 
     if isinstance(value, list):
-        result = [_redact(item) for item in value[:3]]
+        result = [_redact(item, keys=keys) for item in value[:3]]
         if len(value) > 3:
             result.append("[TRUNCATED]")
         return result
 
     if isinstance(value, tuple):
-        result = tuple(_redact(item) for item in value[:3])
+        result = tuple(_redact(item, keys=keys) for item in value[:3])
         return (*result, "[TRUNCATED]") if len(value) > 3 else result
 
     return value
