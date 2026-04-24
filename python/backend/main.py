@@ -17,7 +17,9 @@ from shared.utils.error import (
     handle_http_error,
 )
 from shared.utils.logging import HTTPLogger, WSLogger, setup_logging
+from shared.utils.redis import close_redis, get_redis, setup_redis
 
+from .auction.auction_manager import AuctionManager
 from .routers import (
     auction_router,
     auth_router,
@@ -38,10 +40,7 @@ setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 @asynccontextmanager
 async def lifespan(_):
     await setup_db()
-
-    from backend.utils.redis import close_redis, get_redis
-
-    from .auction.auction_manager import AuctionManager
+    await setup_redis()
 
     async def _subscribe():
         r = get_redis()

@@ -31,19 +31,19 @@ async def login_callback_service(
 
     user = await upsert_user(discord_id, name, avatar_hash, session)
 
-    access_token, _ = AccessToken.create(user.discord_id)
-    refresh_token, _ = RefreshToken.create(user.discord_id)
+    access_token = AccessToken.create(user.discord_id)
+    refresh_token = RefreshToken.create(user.discord_id)
 
-    exchange_token = await ExchangeToken.create(access_token, refresh_token)
-    try:
-        payload = await StateToken.consume(state_token)
-        redirect_path = payload.get("redirect_path")
-    except TokenError as e:
-        raise HTTPError(e.code) from None
-
+    exchange_token = await ExchangeToken.create(
+        {"access_token": access_token, "refresh_token": refresh_token}
+    )
     params = {"exchangeToken": exchange_token}
-    if redirect_path:
-        params["redirect"] = redirect_path
+    if state_token is not None:
+        try:
+            payload = await StateToken.consume(state_token)
+            params["redirect"] = payload["redirect_path"]
+        except TokenError as e:
+            raise HTTPError(e.code) from None
 
     redirect_url = (
         f"{get_app_origin()}/auth/login/callback?{urllib.parse.urlencode(params)}"
@@ -54,12 +54,12 @@ async def login_callback_service(
 @http_service
 async def exchange_token_service(dto: ExchangeTokenDTO) -> JWTTokenDTO:
     try:
-        token_pair = await ExchangeToken.consume(dto.exchange_token)
+        payload = await ExchangeToken.consume(dto.exchange_token)
+        return JWTTokenDTO(
+            access_token=payload["access_token"], refresh_token=payload["refresh_token"]
+        )
     except TokenError as e:
         raise HTTPError(e.code) from None
-
-    token, refresh_token = token_pair
-    return JWTTokenDTO(access_token=token, refresh_token=refresh_token)
 
 
 @http_service
@@ -68,6 +68,6 @@ async def refresh_token_service(dto: RefreshTokenDTO) -> JWTTokenDTO:
         rt_payload = RefreshToken.decode(dto.refresh_token)
     except TokenError as e:
         raise HTTPError(e.code) from None
-    access_token, _ = AccessToken.create(rt_payload.user_id)
-    new_refresh_token, _ = RefreshToken.create(rt_payload.user_id)
+    access_token = AccessToken.create(rt_payload.user_id)
+    new_refresh_token = RefreshToken.create(rt_payload.user_id)
     return JWTTokenDTO(access_token=access_token, refresh_token=new_refresh_token)

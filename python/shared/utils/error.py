@@ -22,7 +22,7 @@ class AuthErrorCode(IntEnum):
 class TokenErrorCode(IntEnum):
     IncorrectJWTToken = 4102
     ExpiredJWTToken = 4103
-    ExchangeFailed = 4104
+    ConsumeFailed = 4104
 
 
 class ValidationErrorCode(IntEnum):

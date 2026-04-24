@@ -20,7 +20,7 @@ setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 
 
 async def main() -> None:
-    intents = Intents(default=False)
+    intents = Intents().none()
     intents.members = True
     intents.guilds = True
 

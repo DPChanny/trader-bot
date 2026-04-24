@@ -9,14 +9,7 @@ from fastapi import Header
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
 from shared.utils.error import AuthErrorCode, HTTPError, TokenError, TokenErrorCode
-
-from .redis import get_redis
-
-
-_ACCESS_TOKEN_LIFETIME = timedelta(minutes=15)
-_REFRESH_TOKEN_LIFETIME = timedelta(days=15)
-_EXCHANGE_TOKEN_LIFETIME = timedelta(seconds=60)
-_STATE_TOKEN_LIFETIME = timedelta(minutes=5)
+from shared.utils.redis import get_redis
 
 
 class JWTToken:
@@ -30,10 +23,10 @@ class JWTToken:
     _lifetime: ClassVar[timedelta]
 
     @classmethod
-    def create(cls, user_id: int) -> tuple[str, JWTToken.Payload]:
+    def create(cls, user_id: int) -> str:
         expires_at = datetime.now(UTC) + cls._lifetime
         payload = cls.Payload(user_id=user_id, expires_at=expires_at, type=cls._type)
-        token = jwt.encode(
+        jwt_token = jwt.encode(
             {
                 "user_id": payload.user_id,
                 "exp": int(payload.expires_at.timestamp()),
@@ -42,7 +35,7 @@ class JWTToken:
             get_jwt_secret(),
             algorithm=get_jwt_algorithm(),
         )
-        return token, payload
+        return jwt_token
 
     @classmethod
     def decode(cls, jwt_token: str) -> JWTToken.Payload:
@@ -64,66 +57,48 @@ class JWTToken:
 
 
 class AccessToken(JWTToken):
-    _type = "access"
-    _lifetime = _ACCESS_TOKEN_LIFETIME
+    _type = "access_token"
+    _lifetime = timedelta(minutes=15)
 
 
 class RefreshToken(JWTToken):
-    _type = "refresh"
-    _lifetime = _REFRESH_TOKEN_LIFETIME
+    _type = "refresh_token"
+    _lifetime = timedelta(days=15)
 
 
-class ExchangeToken:
-    @classmethod
-    async def create(cls, access_token: str, refresh_token: str) -> str:
-        code = token_urlsafe(32)
-        r = get_redis()
-        payload = {"access_token": access_token, "refresh_token": refresh_token}
-        await r.setex(
-            f"exchange_token:{code}",
-            int(_EXCHANGE_TOKEN_LIFETIME.total_seconds()),
-            json.dumps(payload),
-        )
-        return code
+class RedisToken:
+    _key: ClassVar[str]
+    _lifetime: ClassVar[timedelta]
 
-    @classmethod
-    async def consume(cls, exchange_token: str) -> tuple[str, str]:
-        r = get_redis()
-        key = f"exchange_token:{exchange_token}"
-        data = await r.get(key)
-        if not data:
-            raise TokenError(TokenErrorCode.ExchangeFailed)
-
-        await r.delete(key)
-        payload = json.loads(data)
-        return payload["access_token"], payload["refresh_token"]
-
-
-class StateToken:
     @classmethod
     async def create(cls, payload: dict) -> str:
-        state = token_urlsafe(32)
+        redis_token = token_urlsafe(32)
         r = get_redis()
         await r.setex(
-            f"state_token:{state}",
-            int(_STATE_TOKEN_LIFETIME.total_seconds()),
+            f"{cls._key}:{redis_token}",
+            int(cls._lifetime.total_seconds()),
             json.dumps(payload),
         )
-        return state
+        return redis_token
 
     @classmethod
-    async def consume(cls, state_token: str | None) -> dict:
-        if not state_token:
-            raise TokenError(TokenErrorCode.ExchangeFailed)
-
+    async def consume(cls, redis_token: str) -> dict:
         r = get_redis()
-        key = f"state_token:{state_token}"
-        data = await r.get(key)
+        key = f"{cls._key}:{redis_token}"
+        data = await r.getdel(key)
         if data is None:
-            raise TokenError(TokenErrorCode.ExchangeFailed)
-
-        await r.delete(key)
+            raise TokenError(TokenErrorCode.ConsumeFailed)
         return json.loads(data)
+
+
+class ExchangeToken(RedisToken):
+    _key = "exchange_token"
+    _lifetime = timedelta(seconds=60)
+
+
+class StateToken(RedisToken):
+    _key = "state_token"
+    _lifetime = timedelta(minutes=5)
 
 
 async def verify_access_token(authorization: str = Header(None)) -> int:

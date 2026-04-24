@@ -15,7 +15,7 @@ export const BackendErrorCode = {
   Token: {
     IncorrectJWTToken: 4102,
     ExpiredJWTToken: 4103,
-    ExchangeFailed: 4104,
+    ConsumeFailed: 4104,
   },
   Validation: {
     Invalid: 4201,
@@ -75,11 +75,11 @@ function getErrorMessage(code: number): string {
     case BackendErrorCode.Auth.Unauthorized:
       return "로그인이 필요합니다";
     case BackendErrorCode.Token.IncorrectJWTToken:
-      return "잘못된 인증 토큰입니다";
+      return "잘못된 JWT 토큰입니다";
     case BackendErrorCode.Token.ExpiredJWTToken:
-      return "만료된 인증 토큰입니다";
-    case BackendErrorCode.Token.ExchangeFailed:
-      return "인증 토큰 교환에 실패했습니다";
+      return "만료된 JWT 토큰입니다";
+    case BackendErrorCode.Token.ConsumeFailed:
+      return "토큰 사용에 실패했습니다";
 
     case BackendErrorCode.Validation.Invalid:
       return "유효하지 않은 입력입니다";
