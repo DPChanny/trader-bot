@@ -12,150 +12,101 @@ from .env import (
     get_db_host,
     get_db_name,
     get_db_port,
+    get_db_region,
     get_db_user,
     get_phase,
-    get_rds_instance_id,
-    get_rds_region,
 )
 
 
-_RDS_CONNECT_MAX_RETRIES = 5
-_RDS_CONNECT_BASE_DELAY = 1.0
-_RDS_ENDPOINT_CACHE_LIFETIME = timedelta(minutes=5)
+_DB_CONNECT_MAX_RETRIES = 5
+_DB_CONNECT_BASE_DELAY = 1.0
 _RDS_AUTH_TOKEN_CACHE_LIFETIME = timedelta(minutes=14)
 
 
 class _RDSCache:
     def __init__(self) -> None:
-        self.rds_endpoint: str | None = None
-        self.rds_endpoint_expires_at_monotonic = 0.0
         self.rds_auth_token: str | None = None
-        self.rds_auth_token_expires_at_monotonic = 0.0
-        self.rds_auth_token_endpoint: str | None = None
-        self.rds_endpoint_lock = asyncio.Lock()
+        self.rds_auth_token_expires_at = 0.0
         self.rds_auth_token_lock = asyncio.Lock()
-
-    async def get_rds_endpoint(self) -> str:
-        now = time.monotonic()
-        if self.rds_endpoint and now < self.rds_endpoint_expires_at_monotonic:
-            return self.rds_endpoint
-
-        async with self.rds_endpoint_lock:
-            now = time.monotonic()
-            if self.rds_endpoint and now < self.rds_endpoint_expires_at_monotonic:
-                return self.rds_endpoint
-
-            async with aioboto3.Session().client(
-                "rds", region_name=get_rds_region()
-            ) as client:
-                response = await client.describe_db_instances(
-                    DBInstanceIdentifier=get_rds_instance_id()
-                )
-                endpoint = response["DBInstances"][0]["Endpoint"]["Address"]
-
-            self.rds_endpoint = endpoint
-            self.rds_endpoint_expires_at_monotonic = (
-                now + _RDS_ENDPOINT_CACHE_LIFETIME.total_seconds()
-            )
-            return endpoint
 
     async def get_rds_auth_token(self, db_endpoint: str) -> str:
         now = time.monotonic()
-        if (
-            self.rds_auth_token
-            and self.rds_auth_token_endpoint == db_endpoint
-            and now < self.rds_auth_token_expires_at_monotonic
-        ):
+        if self.rds_auth_token and now < self.rds_auth_token_expires_at:
             return self.rds_auth_token
 
         async with self.rds_auth_token_lock:
             now = time.monotonic()
-            if (
-                self.rds_auth_token
-                and self.rds_auth_token_endpoint == db_endpoint
-                and now < self.rds_auth_token_expires_at_monotonic
-            ):
+            if self.rds_auth_token and now < self.rds_auth_token_expires_at:
                 return self.rds_auth_token
 
             async with aioboto3.Session().client(
-                "rds", region_name=get_rds_region()
+                "rds", region_name=get_db_region()
             ) as client:
                 token = await client.generate_db_auth_token(
                     DBHostname=db_endpoint,
                     Port=int(get_db_port()),
                     DBUsername=get_db_user(),
-                    Region=get_rds_region(),
+                    Region=get_db_region(),
                 )
 
             self.rds_auth_token = token
-            self.rds_auth_token_endpoint = db_endpoint
-            self.rds_auth_token_expires_at_monotonic = (
+            self.rds_auth_token_expires_at = (
                 now + _RDS_AUTH_TOKEN_CACHE_LIFETIME.total_seconds()
             )
             return token
 
     def invalidate_rds_auth_token(self) -> None:
         self.rds_auth_token = None
-        self.rds_auth_token_endpoint = None
-        self.rds_auth_token_expires_at_monotonic = 0.0
+        self.rds_auth_token_expires_at = 0.0
 
 
 _rds_cache = _RDSCache()
 
 
-async def _get_rds_endpoint() -> str:
-    return await _rds_cache.get_rds_endpoint()
-
-
-async def _get_rds_auth_token(db_endpoint: str) -> str:
-    return await _rds_cache.get_rds_auth_token(db_endpoint)
-
-
-def _invalidate_rds_auth_token_cache() -> None:
-    _rds_cache.invalidate_rds_auth_token()
-
-
 async def _async_creator() -> asyncpg.Connection:
     phase = get_phase()
+    db_host = get_db_host()
+    db_port = int(get_db_port())
+    db_user = get_db_user()
+    db_name = get_db_name()
     last_exc: Exception | None = None
 
-    for attempt in range(1, _RDS_CONNECT_MAX_RETRIES + 1):
+    for attempt in range(1, _DB_CONNECT_MAX_RETRIES + 1):
         try:
             if phase == "dev":
                 return await asyncpg.connect(
-                    host=get_db_host(),
-                    port=int(get_db_port()),
-                    user=get_db_user(),
-                    database=get_db_name(),
+                    host=db_host,
+                    port=db_port,
+                    user=db_user,
+                    database=db_name,
                     ssl="disable",
                 )
 
-            db_endpoint = await _get_rds_endpoint()
-            db_password = await _get_rds_auth_token(db_endpoint)
+            db_password = await _rds_cache.get_rds_auth_token(db_host)
             try:
                 return await asyncpg.connect(
-                    host=db_endpoint,
-                    port=int(get_db_port()),
-                    user=get_db_user(),
+                    host=db_host,
+                    port=db_port,
+                    user=db_user,
                     password=db_password,
-                    database=get_db_name(),
+                    database=db_name,
                     ssl="require",
                 )
             except asyncpg.InvalidPasswordError:
-                _invalidate_rds_auth_token_cache()
-                db_password = await _get_rds_auth_token(db_endpoint)
+                _rds_cache.invalidate_rds_auth_token()
+                db_password = await _rds_cache.get_rds_auth_token(db_host)
                 return await asyncpg.connect(
-                    host=db_endpoint,
-                    port=int(get_db_port()),
-                    user=get_db_user(),
+                    host=db_host,
+                    port=db_port,
+                    user=db_user,
                     password=db_password,
-                    database=get_db_name(),
+                    database=db_name,
                     ssl="require",
                 )
         except Exception as exc:
             last_exc = exc
-            delay = _RDS_CONNECT_BASE_DELAY * (2 ** (attempt - 1))
-            if attempt < _RDS_CONNECT_MAX_RETRIES:
+            delay = _DB_CONNECT_BASE_DELAY * (2 ** (attempt - 1))
+            if attempt < _DB_CONNECT_MAX_RETRIES:
                 await asyncio.sleep(delay)
 
     raise last_exc

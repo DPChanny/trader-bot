@@ -38,7 +38,6 @@ jobs:
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          RDS_REGION: ${{ vars.AWS_REGION }}
         run: |
           set -euo pipefail
 
@@ -61,10 +60,11 @@ jobs:
           BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
           BOT_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
           DOMAIN=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].domain')
-          RDS_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].rds')
+          DB_HOST=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].db_host')
+          DB_REGION=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].db_region')
 
           MISSING_DEPLOY_MAP_VALUES=""
-          for KEY in backend bot domain rds; do
+          for KEY in backend bot domain db_host db_region; do
             VALUE=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key]')
             if [ -z "$VALUE" ]; then
               if [ -z "$MISSING_DEPLOY_MAP_VALUES" ]; then
@@ -86,7 +86,7 @@ jobs:
           API_ORIGIN="https://$DOMAIN"
 
           MISSING_VARS=""
-          for VAR in DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET JWT_SECRET DOMAIN RDS_INSTANCE_ID RDS_REGION; do
+          for VAR in DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET JWT_SECRET DOMAIN DB_HOST DB_REGION; do
             if [ -z "${!VAR}" ]; then
               if [ -z "$MISSING_VARS" ]; then
                 MISSING_VARS="$VAR"
@@ -109,8 +109,8 @@ jobs:
             "APP_ORIGIN=$APP_ORIGIN" \
             "API_ORIGIN=$API_ORIGIN" \
             "JWT_SECRET=$JWT_SECRET" \
-            "RDS_INSTANCE_ID=$RDS_INSTANCE_ID" \
-            "RDS_REGION=$RDS_REGION")"
+            "DB_HOST=$DB_HOST" \
+            "DB_REGION=$DB_REGION")"
 
           {
             echo "PHASE=$PHASE"

@@ -3,7 +3,8 @@
     "redis": "i-0000000000000000",
     "backend": "i-0000000000000000",
     "bot": "i-0000000000000000",
-    "rds": "example-beta-rds",
+    "db_host": "example-beta-rds.com",
+    "db_region": "ap-northeast-2",
     "domain": "beta.example.com",
     "bucket": "example-beta-bucket-frontend",
     "cloudfront": "AAAAAAAAAAAAAA"
@@ -12,7 +13,8 @@
     "redis": "i-0000000000000000",
     "backend": "i-0000000000000000",
     "bot": "i-0000000000000000",
-    "rds": "example-prod-rds",
+    "db_host": "example-prod-rds.com",
+    "db_region": "ap-northeast-2",
     "domain": "example.com",
     "bucket": "example-prod-bucket-frontend",
     "cloudfront": "AAAAAAAAAAAAAA"

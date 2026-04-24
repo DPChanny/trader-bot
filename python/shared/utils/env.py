@@ -7,23 +7,24 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
-_jwt_secret = os.getenv("JWT_SECRET") or token_hex(32)
 
-
-def _get_required_env(key: str) -> str:
-    return os.environ[key]
+def get_phase() -> str:
+    phase = os.getenv("PHASE", "dev").lower()
+    if phase in ("dev", "beta", "prod"):
+        return phase
+    return "dev"
 
 
 def get_discord_bot_token() -> str:
-    return _get_required_env("DISCORD_BOT_TOKEN")
+    return os.environ["DISCORD_BOT_TOKEN"]
 
 
 def get_discord_client_id() -> str:
-    return _get_required_env("DISCORD_CLIENT_ID")
+    return os.environ["DISCORD_CLIENT_ID"]
 
 
 def get_discord_client_secret() -> str:
-    return _get_required_env("DISCORD_CLIENT_SECRET")
+    return os.environ["DISCORD_CLIENT_SECRET"]
 
 
 def get_app_origin() -> str:
@@ -34,12 +35,7 @@ def get_api_origin() -> str:
     return os.getenv("API_ORIGIN", "http://127.0.0.1:8000")
 
 
-def get_phase() -> str:
-    phase = os.getenv("PHASE", "dev").lower()
-    if phase in ("dev", "beta", "prod"):
-        return phase
-
-    return "dev"
+_jwt_secret = os.getenv("JWT_SECRET") or token_hex(32)
 
 
 def get_jwt_secret() -> str:
@@ -50,12 +46,12 @@ def get_jwt_algorithm() -> str:
     return os.getenv("JWT_ALGORITHM", "HS256")
 
 
-def get_db_port() -> str:
-    return os.getenv("DB_PORT", "5432")
-
-
 def get_db_host() -> str:
     return os.getenv("DB_HOST", "127.0.0.1")
+
+
+def get_db_port() -> str:
+    return os.getenv("DB_PORT", "5432")
 
 
 def get_db_user() -> str:
@@ -64,6 +60,10 @@ def get_db_user() -> str:
 
 def get_db_name() -> str:
     return os.getenv("DB_NAME", "trader-bot")
+
+
+def get_db_region() -> str:
+    return os.getenv("DB_REGION", "ap-northeast-2")
 
 
 def get_redis_host() -> str:
@@ -76,14 +76,6 @@ def get_redis_port() -> int:
 
 def get_redis_db() -> int:
     return int(os.getenv("REDIS_DB", "0"))
-
-
-def get_rds_region() -> str:
-    return os.getenv("RDS_REGION", "ap-northeast-2")
-
-
-def get_rds_instance_id() -> str:
-    return _get_required_env("RDS_INSTANCE_ID")
 
 
 def get_log_level() -> str:
