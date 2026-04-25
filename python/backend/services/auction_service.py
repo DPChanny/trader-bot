@@ -54,9 +54,7 @@ async def create_auction_service(
         raise HTTPError(ValidationErrorCode.Invalid)
 
     preset_snapshot = PresetDetailDTO.model_validate(preset)
-    auction = await AuctionManager.create_auction(
-        preset_snapshot=preset_snapshot, is_public=dto.is_public
-    )
+    auction = await AuctionManager.create_auction(preset_snapshot=preset_snapshot)
 
     app_origin = get_app_origin()
     auction_url = f"{app_origin}/auction/{auction.auction_id}"
@@ -122,9 +120,6 @@ async def connect_service(
                 team_id = team.team_id
                 break
 
-    if member_id is None and not auction.is_public:
-        raise WSError(AuctionErrorCode.ForbiddenAccess)
-
     await AuctionManager.on_connect(auction_id, ws, member_id)
 
     event.result = {"auction_id": auction.auction_id, "member_id": member_id}
@@ -139,7 +134,7 @@ async def place_bid_service(
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)
 
-    await AuctionManager.on_bid(auction.auction_id, member_id, dto.amount)
+    await AuctionManager.on_place_bid(auction.auction_id, member_id, dto.amount)
 
 
 @ws_service

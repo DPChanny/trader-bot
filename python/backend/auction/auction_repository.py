@@ -24,12 +24,14 @@ class AuctionRepository:
         cls, auction_id: int, on_expire: Callable[[], Awaitable[None]]
     ) -> Auction | None:
         r = get_redis()
-        data = await r.hgetall(cls._key(auction_id))
+        async with r.pipeline(transaction=False) as pipe:
+            pipe.hgetall(cls._key(auction_id))
+            pipe.hgetall(cls._key(auction_id, ":teams"))
+            pipe.lrange(cls._key(auction_id, ":auction_queue"), 0, -1)
+            pipe.lrange(cls._key(auction_id, ":unsold_queue"), 0, -1)
+            data, teams_raw, aq_raw, uq_raw = await pipe.execute()
         if not data:
             return None
-        teams_raw = await r.hgetall(cls._key(auction_id, ":teams"))
-        aq_raw = await r.lrange(cls._key(auction_id, ":auction_queue"), 0, -1)
-        uq_raw = await r.lrange(cls._key(auction_id, ":unsold_queue"), 0, -1)
         preset_snapshot = PresetDetailDTO.model_validate_json(data["preset_snapshot"])
         teams = [Team.model_validate_json(v) for v in teams_raw.values()]
         bid = (
@@ -40,7 +42,6 @@ class AuctionRepository:
         return Auction(
             auction_id=auction_id,
             preset_snapshot=preset_snapshot,
-            is_public=data["is_public"] == "True",
             teams=teams,
             auction_queue=[int(x) for x in aq_raw],
             unsold_queue=[int(x) for x in uq_raw],
@@ -61,7 +62,6 @@ class AuctionRepository:
             "bid_leader_id": "",
             "preset_id": str(auction.preset_snapshot.preset_id),
             "guild_id": str(auction.preset_snapshot.guild_id),
-            "is_public": str(auction.is_public),
             "preset_snapshot": auction.preset_snapshot.model_dump_json(),
         }
         async with r.pipeline(transaction=True) as pipe:
@@ -78,41 +78,40 @@ class AuctionRepository:
             await pipe.execute()
 
     @classmethod
-    async def incr_connected_leader_count(cls, auction_id: int) -> int:
+    async def incr_connected_leader_count_and_emit(
+        cls, auction_id: int, event_type: AuctionMessageType
+    ) -> int:
         r = get_redis()
-        return int(await r.incr(cls._key(auction_id, ":connected_leader_count")))
+        async with r.pipeline(transaction=False) as pipe:
+            pipe.incr(cls._key(auction_id, ":connected_leader_count"))
+            pipe.publish(
+                cls._key(auction_id, ":event"),
+                json.dumps({"type": event_type.value, "payload": {}}),
+            )
+            new_count, _ = await pipe.execute()
+        return int(new_count)
 
     @classmethod
-    async def decr_connected_leader_count(cls, auction_id: int) -> None:
+    async def decr_connected_leader_count_and_emit(
+        cls, auction_id: int, event_type: AuctionMessageType
+    ) -> None:
         r = get_redis()
-        await r.decr(cls._key(auction_id, ":connected_leader_count"))
+        async with r.pipeline(transaction=False) as pipe:
+            pipe.decr(cls._key(auction_id, ":connected_leader_count"))
+            pipe.publish(
+                cls._key(auction_id, ":event"),
+                json.dumps({"type": event_type.value, "payload": {}}),
+            )
+            await pipe.execute()
 
     @classmethod
-    async def queue_lengths(cls, auction_id: int) -> tuple[int, int]:
+    async def peek_queues(cls, auction_id: int) -> tuple[int | None, list[int]]:
         r = get_redis()
-        aq_len = await r.llen(cls._key(auction_id, ":auction_queue"))
-        uq_len = await r.llen(cls._key(auction_id, ":unsold_queue"))
-        return aq_len, uq_len
-
-    @classmethod
-    async def get_all_queue_members(
-        cls, auction_id: int
-    ) -> tuple[list[int], list[int]]:
-        r = get_redis()
-        aq = [
-            int(x)
-            for x in await r.lrange(cls._key(auction_id, ":auction_queue"), 0, -1)
-        ]
-        uq = [
-            int(x) for x in await r.lrange(cls._key(auction_id, ":unsold_queue"), 0, -1)
-        ]
-        return aq, uq
-
-    @classmethod
-    async def get_next_in_queue(cls, auction_id: int) -> int | None:
-        r = get_redis()
-        val = await r.lindex(cls._key(auction_id, ":auction_queue"), 0)
-        return int(val) if val else None
+        async with r.pipeline(transaction=False) as pipe:
+            pipe.lindex(cls._key(auction_id, ":auction_queue"), 0)
+            pipe.lrange(cls._key(auction_id, ":unsold_queue"), 0, -1)
+            next_aq, uq_raw = await pipe.execute()
+        return (int(next_aq) if next_aq else None), [int(x) for x in uq_raw]
 
     @classmethod
     async def acquire_state_lock(cls, auction_id: int) -> bool:

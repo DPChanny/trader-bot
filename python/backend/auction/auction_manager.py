@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import random
+import uuid
 from typing import Any, ClassVar
 
 from fastapi import WebSocket
@@ -10,7 +12,7 @@ from shared.dtos.auction import AuctionMessageType, Status
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.redis import get_redis
 
-from .auction import Auction
+from .auction import Auction, Team
 from .auction_repository import AuctionRepository
 
 
@@ -81,9 +83,8 @@ class AuctionManager:
         if auction.status != Status.WAITING:
             return
 
-        new_count = await AuctionRepository.incr_connected_leader_count(auction_id)
-        await AuctionRepository.emit(
-            auction_id, AuctionMessageType.LEADER_CONNECTED, {}
+        new_count = await AuctionRepository.incr_connected_leader_count_and_emit(
+            auction_id, AuctionMessageType.LEADER_CONNECTED
         )
 
         if new_count < auction.leader_count:
@@ -113,9 +114,8 @@ class AuctionManager:
             and auction.is_leader(member_id)
             and auction.status == Status.WAITING
         ):
-            await AuctionRepository.decr_connected_leader_count(auction_id)
-            await AuctionRepository.emit(
-                auction_id, AuctionMessageType.LEADER_DISCONNECTED, {}
+            await AuctionRepository.decr_connected_leader_count_and_emit(
+                auction_id, AuctionMessageType.LEADER_DISCONNECTED
             )
 
     @classmethod
@@ -136,7 +136,7 @@ class AuctionManager:
         await cls._do_next_player(auction_id)
 
     @classmethod
-    async def on_bid(cls, auction_id: int, leader_id: int, amount: int) -> None:
+    async def on_place_bid(cls, auction_id: int, leader_id: int, amount: int) -> None:
         auction = cls._auctions.get(auction_id)
         if not auction:
             return
@@ -185,10 +185,10 @@ class AuctionManager:
         if not auction:
             return
 
-        aq_len, uq_len = await AuctionRepository.queue_lengths(auction_id)
+        next_member_id, uq_members = await AuctionRepository.peek_queues(auction_id)
 
-        if aq_len == 0:
-            if uq_len == 0:
+        if next_member_id is None:
+            if not uq_members:
                 await AuctionRepository.emit(
                     auction_id,
                     AuctionMessageType.STATUS,
@@ -197,16 +197,14 @@ class AuctionManager:
                 )
                 return
 
-            _, uq_members = await AuctionRepository.get_all_queue_members(auction_id)
             await AuctionRepository.emit_recycle_and_next(auction_id, uq_members)
         else:
-            member_id = await AuctionRepository.get_next_in_queue(auction_id)
             await AuctionRepository.emit(
                 auction_id,
                 AuctionMessageType.NEXT_MEMBER,
                 {},
                 hset={
-                    "player_id": str(member_id),
+                    "player_id": str(next_member_id),
                     "bid_amount": "",
                     "bid_leader_id": "",
                 },
@@ -214,10 +212,33 @@ class AuctionManager:
             )
 
     @classmethod
-    async def create_auction(
-        cls, preset_snapshot: PresetDetailDTO, is_public: bool
-    ) -> Auction:
-        auction = Auction.create(preset_snapshot, is_public, cls._make_on_expire)
+    async def create_auction(cls, preset_snapshot: PresetDetailDTO) -> Auction:
+        auction_id = uuid.uuid4().int
+        leaders = [pm for pm in preset_snapshot.preset_members if pm.is_leader]
+        teams = [
+            Team(
+                team_id=i,
+                leader_id=leader.member_id,
+                member_ids=[leader.member_id],
+                points=preset_snapshot.points,
+            )
+            for i, leader in enumerate(leaders)
+        ]
+        non_leaders = [
+            pm.member_id for pm in preset_snapshot.preset_members if not pm.is_leader
+        ]
+        random.shuffle(non_leaders)
+        auction = Auction(
+            auction_id=auction_id,
+            preset_snapshot=preset_snapshot,
+            teams=teams,
+            auction_queue=non_leaders,
+            unsold_queue=[],
+            status=Status.WAITING,
+            player_id=None,
+            bid=None,
+            on_expire=cls._get_on_expire(auction_id),
+        )
         cls._auctions[auction.auction_id] = auction
 
         await AuctionRepository.save(auction)
@@ -230,7 +251,7 @@ class AuctionManager:
             return cls._auctions[auction_id]
 
         auction = await AuctionRepository.load(
-            auction_id, cls._make_on_expire(auction_id)
+            auction_id, cls._get_on_expire(auction_id)
         )
         if not auction:
             cls._auctions.pop(auction_id, None)
@@ -248,7 +269,7 @@ class AuctionManager:
         return auction
 
     @classmethod
-    def _make_on_expire(cls, auction_id: int) -> Any:
+    def _get_on_expire(cls, auction_id: int) -> Any:
         async def on_expire() -> None:
             await cls.on_timer_expire(auction_id)
 

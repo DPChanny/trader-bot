@@ -63,7 +63,6 @@ class InitPayloadDTO(BaseDTO):
 
 
 class CreateAuctionDTO(BaseDTO):
-    is_public: bool
     send_invite: bool
 
 

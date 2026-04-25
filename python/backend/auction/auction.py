@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import random
-import uuid
 from collections.abc import Awaitable, Callable
 
 from fastapi import WebSocket
@@ -32,7 +30,6 @@ class Auction:
         self,
         auction_id: int,
         preset_snapshot: PresetDetailDTO,
-        is_public: bool,
         teams: list[Team],
         auction_queue: list[int],
         unsold_queue: list[int],
@@ -43,7 +40,6 @@ class Auction:
     ):
         self.auction_id = auction_id
         self.preset_snapshot = preset_snapshot
-        self.is_public = is_public
         self.team_size = preset_snapshot.team_size
 
         self.teams = teams
@@ -69,50 +65,9 @@ class Auction:
         self._timer_task: asyncio.Task | None = None
         self.timer = preset_snapshot.timer
 
-    @classmethod
-    def create(
-        cls,
-        preset_snapshot: PresetDetailDTO,
-        is_public: bool,
-        on_expire_factory: Callable[[int], Callable[[], Awaitable[None]]],
-    ) -> Auction:
-        auction_id = uuid.uuid4().int
-        leaders = [pm for pm in preset_snapshot.preset_members if pm.is_leader]
-        teams = [
-            Team(
-                team_id=i,
-                leader_id=leader.member_id,
-                member_ids=[leader.member_id],
-                points=preset_snapshot.points,
-            )
-            for i, leader in enumerate(leaders)
-        ]
-        non_leaders = [
-            pm.member_id for pm in preset_snapshot.preset_members if not pm.is_leader
-        ]
-        random.shuffle(non_leaders)
-        return cls(
-            auction_id=auction_id,
-            preset_snapshot=preset_snapshot,
-            is_public=is_public,
-            teams=teams,
-            auction_queue=non_leaders,
-            unsold_queue=[],
-            status=Status.WAITING,
-            player_id=None,
-            bid=None,
-            on_expire=on_expire_factory(auction_id),
-        )
-
     @property
     def leader_count(self) -> int:
         return len(self._leader_member_ids)
-
-    @property
-    def connected_leader_count(self) -> int:
-        return sum(
-            1 for mid in self._member_id_to_ws_sets if mid in self._leader_member_ids
-        )
 
     def is_leader(self, member_id: int) -> bool:
         return member_id in self._leader_member_ids

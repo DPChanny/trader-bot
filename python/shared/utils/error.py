@@ -33,7 +33,6 @@ class AuctionErrorCode(IntEnum):
     BidTeamFull = 4203
     BidTooHigh = 4204
     BidTooLow = 4205
-    ForbiddenAccess = 4301
     BidNotLeader = 4302
     NotFound = 4401
 
