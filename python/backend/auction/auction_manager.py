@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import asyncio
 import json
 import random
@@ -91,9 +89,9 @@ class AuctionManager:
             return
 
         repo = AuctionRepository(auction_id)
-        new_count = await repo.publish_leader_connected()
+        new_connected_leader_count = await repo.publish_leader_connected()
 
-        if new_count < auction.leader_count:
+        if new_connected_leader_count < auction.connected_leader_count:
             return
         if not await repo.acquire_state_lock():
             return
@@ -150,7 +148,16 @@ class AuctionManager:
             return
 
         repo = AuctionRepository(auction_id)
-        sold_team = auction.resolve_sold()
+        sold_team = None
+        if auction.bid is not None and auction.player_id is not None:
+            team = auction._member_id_to_team.get(auction.bid.leader_id)
+            if team is not None:
+                sold_team = Team(
+                    team_id=team.team_id,
+                    leader_id=team.leader_id,
+                    member_ids=team.member_ids + [auction.player_id],
+                    points=team.points - auction.bid.amount,
+                )
         if sold_team is not None:
             await repo.publish_member_sold(sold_team)
         else:
@@ -165,7 +172,7 @@ class AuctionManager:
         if not auction:
             return
 
-        completed = await AuctionRepository(auction_id).publish_next_player()
+        completed = not await AuctionRepository(auction_id).publish_next_player()
         if completed:
             await AuctionRepository(auction_id).publish_status(Status.COMPLETED)
 

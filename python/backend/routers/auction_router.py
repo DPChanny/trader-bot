@@ -52,22 +52,22 @@ async def create_auction_route(
     return await create_auction_service(guild_id, user_id, preset_id, dto, session)
 
 
-def _get_message_envelope_dto(message: str) -> AuctionEventEnvelopeDTO:
-    if len(message) > 1024:
+def _parse_event_envelope(text: str) -> AuctionEventEnvelopeDTO:
+    if len(text) > 1024:
         raise WSError(ValidationErrorCode.Invalid)
     try:
-        return AuctionEventEnvelopeDTO.model_validate(json.loads(message))
+        return AuctionEventEnvelopeDTO.model_validate(json.loads(text))
     except ValidationError, JSONDecodeError:
         raise WSError(ValidationErrorCode.Invalid) from None
 
 
-def _get_message_payload_dto[TPayloadDTO: BaseModel](
-    envelope_dto: AuctionEventEnvelopeDTO,
+def _parse_event_payload[TPayloadDTO: BaseModel](
+    event_envelope: AuctionEventEnvelopeDTO,
     payload_cls: type[TPayloadDTO],
     error_code: AppErrorCode,
 ) -> TPayloadDTO:
     try:
-        return payload_cls.model_validate(envelope_dto.payload)
+        return payload_cls.model_validate(event_envelope.payload)
     except ValidationError:
         raise WSError(error_code) from None
 
@@ -80,11 +80,11 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
     try:
         await ws.accept()
 
-        auth_envelope = _get_message_envelope_dto(await ws.receive_text())
-        if auth_envelope.type != AuctionEventType.AUTH:
+        auth_event = _parse_event_envelope(await ws.receive_text())
+        if auth_event.type != AuctionEventType.AUTH:
             raise WSError(AuthErrorCode.Unauthorized)
-        auth_payload_dto = _get_message_payload_dto(
-            auth_envelope, AuthPayloadDTO, AuthErrorCode.Unauthorized
+        auth_payload_dto = _parse_event_payload(
+            auth_event, AuthPayloadDTO, AuthErrorCode.Unauthorized
         )
         auction, member_id, team_id = await connect_service(
             ws, auction_id, auth_payload_dto, session
@@ -102,12 +102,12 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
 
         while True:
             try:
-                place_bid_envelope = _get_message_envelope_dto(await ws.receive_text())
-                if place_bid_envelope.type != AuctionEventType.PLACE_BID:
+                place_bid_event = _parse_event_envelope(await ws.receive_text())
+                if place_bid_event.type != AuctionEventType.PLACE_BID:
                     raise WSError(ValidationErrorCode.Invalid)
 
-                place_bid_payload_dto = _get_message_payload_dto(
-                    place_bid_envelope, PlaceBidPayloadDTO, ValidationErrorCode.Invalid
+                place_bid_payload_dto = _parse_event_payload(
+                    place_bid_event, PlaceBidPayloadDTO, ValidationErrorCode.Invalid
                 )
                 await place_bid_service(auction, member_id, place_bid_payload_dto)
             except WSError as e:

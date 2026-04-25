@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import asyncio
 from collections.abc import Awaitable, Callable
 
@@ -48,9 +46,7 @@ class Auction:
         self.bid = bid
 
         self._on_timer_expire = on_timer_expire
-        self._leader_member_ids = {
-            pm.member_id for pm in preset_snapshot.preset_members if pm.is_leader
-        }
+        self._leader_member_ids = {team.leader_id for team in teams}
         self._member_id_to_team: dict[int, Team] = {
             member_id: team for team in teams for member_id in team.member_ids
         }
@@ -64,24 +60,11 @@ class Auction:
         self.timer = preset_snapshot.timer
 
     @property
-    def leader_count(self) -> int:
+    def connected_leader_count(self) -> int:
         return len(self._leader_member_ids)
 
     def is_leader(self, member_id: int) -> bool:
         return member_id in self._leader_member_ids
-
-    def resolve_sold(self) -> Team | None:
-        if self.bid is None or self.player_id is None:
-            return None
-        team = self._member_id_to_team.get(self.bid.leader_id)
-        if team is None:
-            return None
-        return Team(
-            team_id=team.team_id,
-            leader_id=team.leader_id,
-            member_ids=team.member_ids + [self.player_id],
-            points=team.points - self.bid.amount,
-        )
 
     def on_next_player(self) -> None:
         if self.auction_queue:
@@ -158,11 +141,11 @@ class Auction:
         if not ws_list:
             return
 
-        envelope = {"type": event_type, "payload": payload}
+        event = {"type": event_type, "payload": payload}
         disconnected: list[WebSocket] = []
         for ws in ws_list:
             try:
-                await ws.send_json(envelope)
+                await ws.send_json(event)
             except Exception:
                 disconnected.append(ws)
 

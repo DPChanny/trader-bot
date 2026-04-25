@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import json
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -19,18 +17,18 @@ _NEXT_PLAYER_SCRIPT = """
         redis.call('HSET', KEYS[3], 'player_id', next_player_id, 'bid_amount', '', 'bid_leader_id', '')
         redis.call('LPOP', KEYS[1])
         redis.call('PUBLISH', KEYS[4], ARGV[1])
-        return 0
+        return 1
     end
     local unsold_queue = redis.call('LRANGE', KEYS[2], 0, -1)
     if #unsold_queue == 0 then
-        return 1
+        return 0
     end
     redis.call('DEL', KEYS[2])
     redis.call('RPUSH', KEYS[1], unpack(unsold_queue))
     local next_player_id = redis.call('LPOP', KEYS[1])
     redis.call('HSET', KEYS[3], 'player_id', next_player_id, 'bid_amount', '', 'bid_leader_id', '')
     redis.call('PUBLISH', KEYS[4], ARGV[1])
-    return 0
+    return 1
 """
 
 
