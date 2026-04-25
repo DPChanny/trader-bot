@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import random
+import uuid
 from collections.abc import Awaitable, Callable
 
 from fastapi import WebSocket
@@ -69,9 +71,69 @@ class Auction:
         self._timer_task: asyncio.Task | None = None
         self.timer = preset_snapshot.timer
 
+    @classmethod
+    def create(
+        cls,
+        preset_snapshot: PresetDetailDTO,
+        is_public: bool,
+        on_expire_factory: Callable[[int], Callable[[], Awaitable[None]]],
+    ) -> Auction:
+        auction_id = uuid.uuid4().int
+        leaders = [pm for pm in preset_snapshot.preset_members if pm.is_leader]
+        teams = [
+            Team(
+                team_id=i,
+                leader_id=leader.member_id,
+                member_ids=[leader.member_id],
+                points=preset_snapshot.points,
+            )
+            for i, leader in enumerate(leaders)
+        ]
+        non_leaders = [
+            pm.member_id for pm in preset_snapshot.preset_members if not pm.is_leader
+        ]
+        random.shuffle(non_leaders)
+        return cls(
+            auction_id=auction_id,
+            preset_snapshot=preset_snapshot,
+            is_public=is_public,
+            teams=teams,
+            auction_queue=non_leaders,
+            unsold_queue=[],
+            status=Status.WAITING,
+            player_id=None,
+            bid=None,
+            on_expire=on_expire_factory(auction_id),
+        )
+
     @property
     def connected_member_ids(self) -> list[int]:
         return list(self._member_id_to_ws_sets.keys())
+
+    def all_leaders_connected(self, connected_ids: set[int]) -> bool:
+        return self._leader_member_ids.issubset(connected_ids)
+
+    def resolve_sold(self) -> Team | None:
+        if self.bid is None or self.player_id is None:
+            return None
+        team = self._member_id_to_team.get(self.bid.leader_id)
+        if team is None:
+            return None
+        return Team(
+            team_id=team.team_id,
+            leader_id=team.leader_id,
+            member_ids=team.member_ids + [self.player_id],
+            points=team.points - self.bid.amount,
+        )
+
+    def forced_fill_team(self, total_remaining: int) -> Team | None:
+        incomplete = [t for t in self.teams if len(t.member_ids) < self.team_size]
+        if len(incomplete) != 1:
+            return None
+        team = incomplete[0]
+        if total_remaining == self.team_size - len(team.member_ids):
+            return team
+        return None
 
     def apply(self, event_type: AuctionMessageType, payload: dict) -> None:
         if event_type == AuctionMessageType.NEXT_MEMBER:
