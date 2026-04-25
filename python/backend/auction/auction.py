@@ -44,8 +44,6 @@ class Auction:
         self.auction_id = auction_id
         self.preset_snapshot = preset_snapshot
         self.is_public = is_public
-        self.guild_id = preset_snapshot.guild_id
-        self.preset_id = preset_snapshot.preset_id
         self.team_size = preset_snapshot.team_size
 
         self.teams = teams
@@ -107,11 +105,14 @@ class Auction:
         )
 
     @property
-    def connected_member_ids(self) -> list[int]:
-        return list(self._member_id_to_ws_sets.keys())
+    def leader_count(self) -> int:
+        return len(self._leader_member_ids)
 
-    def all_leaders_connected(self, connected_ids: set[int]) -> bool:
-        return self._leader_member_ids.issubset(connected_ids)
+    @property
+    def connected_leader_count(self) -> int:
+        return sum(
+            1 for mid in self._member_id_to_ws_sets if mid in self._leader_member_ids
+        )
 
     def is_leader(self, member_id: int) -> bool:
         return member_id in self._leader_member_ids
@@ -129,24 +130,15 @@ class Auction:
             points=team.points - self.bid.amount,
         )
 
-    def forced_fill_team(self, total_remaining: int) -> Team | None:
-        incomplete = [t for t in self.teams if len(t.member_ids) < self.team_size]
-        if len(incomplete) != 1:
-            return None
-        team = incomplete[0]
-        if total_remaining == self.team_size - len(team.member_ids):
-            return team
-        return None
-
     def apply(self, event_type: AuctionMessageType, payload: dict) -> None:
         if event_type == AuctionMessageType.NEXT_MEMBER:
-            member_id = payload["member_id"]
-            if not self.auction_queue:
+            if self.auction_queue:
+                self.player_id = self.auction_queue[0]
+                self.auction_queue = self.auction_queue[1:]
+            else:
+                self.player_id = self.unsold_queue[0]
                 self.auction_queue = self.unsold_queue[1:]
                 self.unsold_queue = []
-            else:
-                self.auction_queue = self.auction_queue[1:]
-            self.player_id = member_id
             self.bid = None
             self.start_timer()
 

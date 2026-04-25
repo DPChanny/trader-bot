@@ -14,10 +14,14 @@ from .auction import Auction
 from .auction_repository import AuctionRepository
 
 
+_COUNTDOWN_SECONDS = 5
+
+
 class AuctionManager:
     _auctions: ClassVar[dict[int, Auction]] = {}
     _pubsub: ClassVar[Any] = None
     _listener_task: ClassVar[asyncio.Task | None] = None
+    _countdown_tasks: ClassVar[dict[int, asyncio.Task]] = {}
 
     @classmethod
     async def setup(cls) -> None:
@@ -31,6 +35,9 @@ class AuctionManager:
             cls._listener_task.cancel()
             with asyncio.suppress(asyncio.CancelledError):
                 await cls._listener_task
+        for task in cls._countdown_tasks.values():
+            task.cancel()
+        cls._countdown_tasks.clear()
         if cls._pubsub:
             await cls._pubsub.close()
 
@@ -69,24 +76,56 @@ class AuctionManager:
             return
 
         is_new = auction.connect(ws, member_id)
-        if not is_new or member_id is None or auction.status != Status.WAITING:
+        if not is_new or member_id is None or not auction.is_leader(member_id):
             return
-        if not auction.is_leader(member_id):
+        if auction.status != Status.WAITING:
+            return
+
+        new_count = await AuctionRepository.incr_connected_leader_count(auction_id)
+        await AuctionRepository.emit(
+            auction_id, AuctionMessageType.LEADER_CONNECTED, {}
+        )
+
+        if new_count < auction.leader_count:
+            return
+        if not await AuctionRepository.acquire_state_lock(auction_id):
             return
 
         await AuctionRepository.emit(
             auction_id,
-            AuctionMessageType.MEMBER_CONNECTED,
-            {"member_id": member_id},
-            sadd_connected=member_id,
+            AuctionMessageType.STATUS,
+            {"status": Status.PENDING.value},
+            hset={"status": str(Status.PENDING.value)},
+        )
+        cls._countdown_tasks[auction_id] = asyncio.create_task(
+            cls._start_auction(auction_id)
         )
 
-        connected = await AuctionRepository.get_connected_member_ids(auction_id)
-        if not auction.all_leaders_connected(connected):
+    @classmethod
+    async def on_disconnect(cls, auction_id: int, ws: WebSocket) -> None:
+        auction = cls._auctions.get(auction_id)
+        if not auction:
             return
+        member_id, is_last = auction.disconnect(ws)
+        if (
+            is_last
+            and member_id is not None
+            and auction.is_leader(member_id)
+            and auction.status == Status.WAITING
+        ):
+            await AuctionRepository.decr_connected_leader_count(auction_id)
+            await AuctionRepository.emit(
+                auction_id, AuctionMessageType.LEADER_DISCONNECTED, {}
+            )
 
-        if not await AuctionRepository.acquire_state_lock(auction_id):
+    @classmethod
+    async def _start_auction(cls, auction_id: int) -> None:
+        try:
+            await asyncio.sleep(_COUNTDOWN_SECONDS)
+        except asyncio.CancelledError:
             return
+        finally:
+            cls._countdown_tasks.pop(auction_id, None)
 
         await AuctionRepository.emit(
             auction_id,
@@ -94,15 +133,7 @@ class AuctionManager:
             {"status": Status.RUNNING.value},
             hset={"status": str(Status.RUNNING.value)},
         )
-        if auction.player_id is None:
-            await cls._do_next_player(auction_id)
-
-    @classmethod
-    async def on_disconnect(cls, auction_id: int, ws: WebSocket) -> None:
-        auction = cls._auctions.get(auction_id)
-        if not auction:
-            return
-        auction.disconnect(ws)
+        await cls._do_next_player(auction_id)
 
     @classmethod
     async def on_bid(cls, auction_id: int, leader_id: int, amount: int) -> None:
@@ -173,7 +204,7 @@ class AuctionManager:
             await AuctionRepository.emit(
                 auction_id,
                 AuctionMessageType.NEXT_MEMBER,
-                {"member_id": member_id},
+                {},
                 hset={
                     "player_id": str(member_id),
                     "bid_amount": "",
@@ -207,6 +238,10 @@ class AuctionManager:
 
         if auction.status == Status.RUNNING and auction.player_id is not None:
             auction.start_timer()
+        elif auction.status == Status.PENDING:
+            cls._countdown_tasks[auction_id] = asyncio.create_task(
+                cls._start_auction(auction_id)
+            )
 
         cls._auctions[auction_id] = auction
         await AuctionRepository.subscribe(auction_id, cls._pubsub)

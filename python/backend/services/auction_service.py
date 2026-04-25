@@ -106,7 +106,9 @@ async def connect_service(
         try:
             user_id = AccessToken.decode(access_token).user_id
             pm = await PresetMemberRepository(session).get_by_user_id(
-                user_id, auction.preset_id, auction.guild_id
+                user_id,
+                auction.preset_snapshot.preset_id,
+                auction.preset_snapshot.guild_id,
             )
             if pm is not None:
                 member_id = pm.member_id

@@ -9,8 +9,9 @@ from .preset import PresetDetailDTO
 
 class Status(IntEnum):
     WAITING = 0
-    RUNNING = 1
-    COMPLETED = 2
+    PENDING = 1
+    RUNNING = 2
+    COMPLETED = 3
 
 
 class AuctionMessageType(IntEnum):
@@ -23,7 +24,8 @@ class AuctionMessageType(IntEnum):
     BID_PLACED = 6
     MEMBER_SOLD = 7
     MEMBER_UNSOLD = 8
-    MEMBER_CONNECTED = 9
+    LEADER_CONNECTED = 9
+    LEADER_DISCONNECTED = 10
     NEXT_MEMBER = 11
 
 
@@ -41,19 +43,16 @@ class BidDTO(BaseDTO):
 
 class AuctionDTO(BaseDTO):
     auction_id: BigInt
-    guild_id: BigInt
-    preset_id: int
     status: Status
-    player_id: int | None
-    bid: BidDTO | None
-    timer: int
+    connected_leader_count: int
 
 
 class AuctionDetailDTO(AuctionDTO):
+    player_id: int | None
+    bid: BidDTO | None
     teams: list[TeamDTO]
     auction_queue: list[int]
     unsold_queue: list[int]
-    connected_member_ids: list[int]
     preset_snapshot: PresetDetailDTO | None
 
 
@@ -68,45 +67,12 @@ class CreateAuctionDTO(BaseDTO):
     send_invite: bool
 
 
-class TimerPayloadDTO(BaseDTO):
-    timer: int
-
-
-class StatusPayloadDTO(BaseDTO):
-    status: Status
-
-
-class NextMemberPayloadDTO(BaseDTO):
-    member_id: int
-
-
-class MemberSoldPayloadDTO(BaseDTO):
-    pass
-
-
-class MemberUnsoldPayloadDTO(BaseDTO):
-    pass
-
-
 class PlaceBidPayloadDTO(BaseDTO):
     amount: int = Field(ge=1, le=10000)
 
 
 class AuthPayloadDTO(BaseDTO):
     access_token: str | None
-
-
-class BidPlacedPayloadDTO(BaseDTO):
-    leader_id: int
-    amount: int
-
-
-class MemberConnectedPayloadDTO(BaseDTO):
-    member_id: int
-
-
-class MemberDisconnectedPayloadDTO(BaseDTO):
-    member_id: int
 
 
 class ErrorPayloadDTO(BaseDTO):

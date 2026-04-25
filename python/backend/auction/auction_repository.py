@@ -59,8 +59,8 @@ class AuctionRepository:
             "player_id": "",
             "bid_amount": "",
             "bid_leader_id": "",
-            "preset_id": str(auction.preset_id),
-            "guild_id": str(auction.guild_id),
+            "preset_id": str(auction.preset_snapshot.preset_id),
+            "guild_id": str(auction.preset_snapshot.guild_id),
             "is_public": str(auction.is_public),
             "preset_snapshot": auction.preset_snapshot.model_dump_json(),
         }
@@ -78,10 +78,14 @@ class AuctionRepository:
             await pipe.execute()
 
     @classmethod
-    async def get_connected_member_ids(cls, auction_id: int) -> set[int]:
+    async def incr_connected_leader_count(cls, auction_id: int) -> int:
         r = get_redis()
-        raw = await r.smembers(cls._key(auction_id, ":connected_member_ids"))
-        return {int(x) for x in raw}
+        return int(await r.incr(cls._key(auction_id, ":connected_leader_count")))
+
+    @classmethod
+    async def decr_connected_leader_count(cls, auction_id: int) -> None:
+        r = get_redis()
+        await r.decr(cls._key(auction_id, ":connected_leader_count"))
 
     @classmethod
     async def queue_lengths(cls, auction_id: int) -> tuple[int, int]:
@@ -141,7 +145,6 @@ class AuctionRepository:
         hset_teams: dict | None = None,
         lpop_aq: bool = False,
         rpush_uq: int | None = None,
-        sadd_connected: int | None = None,
     ) -> None:
         r = get_redis()
         async with r.pipeline(transaction=True) as pipe:
@@ -154,8 +157,6 @@ class AuctionRepository:
                 pipe.lpop(cls._key(auction_id, ":auction_queue"))
             if rpush_uq is not None:
                 pipe.rpush(cls._key(auction_id, ":unsold_queue"), rpush_uq)
-            if sadd_connected is not None:
-                pipe.sadd(cls._key(auction_id, ":connected_member_ids"), sadd_connected)
             pipe.publish(
                 cls._key(auction_id, ":event"),
                 json.dumps({"type": event_type.value, "payload": payload}),
@@ -183,31 +184,7 @@ class AuctionRepository:
             pipe.publish(
                 cls._key(auction_id, ":event"),
                 json.dumps(
-                    {
-                        "type": AuctionMessageType.NEXT_MEMBER.value,
-                        "payload": {"member_id": member_id},
-                    }
-                ),
-            )
-            await pipe.execute()
-
-    @classmethod
-    async def emit_forced_fill(
-        cls, auction_id: int, team_id: int, team_json: str
-    ) -> None:
-        r = get_redis()
-        async with r.pipeline(transaction=True) as pipe:
-            pipe.hset(
-                cls._key(auction_id),
-                mapping={"player_id": "", "bid_amount": "", "bid_leader_id": ""},
-            )
-            pipe.hset(cls._key(auction_id, ":teams"), str(team_id), team_json)
-            pipe.delete(cls._key(auction_id, ":auction_queue"))
-            pipe.delete(cls._key(auction_id, ":unsold_queue"))
-            pipe.publish(
-                cls._key(auction_id, ":event"),
-                json.dumps(
-                    {"type": AuctionMessageType.MEMBER_SOLD.value, "payload": {}}
+                    {"type": AuctionMessageType.NEXT_MEMBER.value, "payload": {}}
                 ),
             )
             await pipe.execute()
