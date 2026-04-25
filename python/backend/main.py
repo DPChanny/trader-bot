@@ -39,7 +39,7 @@ setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 async def lifespan(_):
     await setup_redis()
     await setup_db()
-    await AuctionManager.setup_listener()
+    await AuctionManager.setup()
 
     yield
 

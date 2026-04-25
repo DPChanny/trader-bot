@@ -18,7 +18,7 @@ class AuctionEventType(IntEnum):
     AUTH = 0
     INIT = 1
     ERROR = 2
-    TIMER = 3
+    TICK = 3
     STATUS = 4
     PLACE_BID = 5
     BID_PLACED = 6
