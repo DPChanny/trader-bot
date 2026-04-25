@@ -9,7 +9,7 @@ from shared.dtos.auction import AuctionEventType, Status
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.redis import get_redis
 
-from .auction import Auction, Team
+from .auction import Auction, Bid, Team
 from .auction_repository import AuctionRepository
 
 
@@ -59,7 +59,10 @@ class AuctionManager:
                                 auction.on_next_player()
                             case AuctionEventType.BID_PLACED:
                                 auction.on_bid_placed(
-                                    payload["leader_id"], payload["amount"]
+                                    Bid(
+                                        leader_id=payload["leader_id"],
+                                        amount=payload["amount"],
+                                    )
                                 )
                             case AuctionEventType.MEMBER_SOLD:
                                 auction.on_member_sold()
@@ -81,10 +84,12 @@ class AuctionManager:
         if not auction:
             return
 
-        is_new = auction.connect(ws, member_id)
-        if not is_new or member_id is None or not auction.is_leader(member_id):
-            return
-        if auction.status != Status.WAITING:
+        auction.connect(ws, member_id)
+        if (
+            member_id is None
+            or not auction.is_leader(member_id)
+            or auction.status != Status.WAITING
+        ):
             return
 
         repo = AuctionRepository(auction_id)
@@ -106,14 +111,7 @@ class AuctionManager:
         auction = cls._auctions.get(auction_id)
         if not auction:
             return
-        member_id, is_last = auction.disconnect(ws)
-        if (
-            is_last
-            and member_id is not None
-            and auction.is_leader(member_id)
-            and auction.status == Status.WAITING
-        ):
-            await AuctionRepository(auction_id).publish_leader_disconnected()
+        auction.disconnect(ws)
 
     @classmethod
     async def _start_auction(cls, auction_id: int) -> None:
@@ -128,14 +126,14 @@ class AuctionManager:
         await cls._next_player(auction_id)
 
     @classmethod
-    async def on_place_bid(cls, auction_id: int, leader_id: int, amount: int) -> None:
+    async def on_place_bid(cls, auction_id: int, bid: Bid) -> None:
         auction = cls._auctions.get(auction_id)
         if not auction:
             return
 
-        auction.validate_bid(leader_id, amount)
+        auction.validate_bid(bid)
 
-        await AuctionRepository(auction_id).publish_bid_placed(leader_id, amount)
+        await AuctionRepository(auction_id).publish_bid_placed(bid)
 
     @classmethod
     async def on_timer_expire(cls, auction_id: int) -> None:

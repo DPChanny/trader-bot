@@ -74,10 +74,7 @@ class Auction:
             member_id: team for team in teams for member_id in team.member_ids
         }
 
-        self._member_id_to_ws_sets: dict[int, set[WebSocket]] = {}
-        self._public_ws_set: set[WebSocket] = set()
-        self._ws_to_member_id: dict[WebSocket, int | None] = {}
-        self._bid_cooldown: dict[int, float] = {}
+        self._ws_set: set[WebSocket] = set()
 
         self._timer_task: asyncio.Task | None = None
 
@@ -99,8 +96,8 @@ class Auction:
         self.bid = None
         self.start_timer()
 
-    def on_bid_placed(self, leader_id: int, amount: int) -> None:
-        self.bid = Bid(amount=amount, leader_id=leader_id)
+    def on_bid_placed(self, bid: Bid) -> None:
+        self.bid = bid
         self.start_timer()
 
     def on_member_sold(self) -> None:
@@ -123,77 +120,42 @@ class Auction:
     def on_status(self, status: int) -> None:
         self.status = Status(status)
 
-    def connect(self, ws: WebSocket, member_id: int | None) -> bool:
-        if member_id is None:
-            self._public_ws_set.add(ws)
-            self._ws_to_member_id[ws] = None
-            return False
+    def connect(self, ws: WebSocket, member_id: int | None) -> None:
+        self._ws_set.add(ws)
 
-        is_new = member_id not in self._member_id_to_ws_sets
-        if is_new:
-            self._member_id_to_ws_sets[member_id] = set()
-        self._member_id_to_ws_sets[member_id].add(ws)
-        self._ws_to_member_id[ws] = member_id
-        return is_new
-
-    def disconnect(self, ws: WebSocket) -> tuple[int | None, bool]:
-        member_id = self._ws_to_member_id.pop(ws, None)
-
-        if member_id is None:
-            self._public_ws_set.discard(ws)
-            return None, False
-
-        member_ws_set = self._member_id_to_ws_sets.get(member_id)
-        if not member_ws_set:
-            return member_id, True
-
-        member_ws_set.discard(ws)
-        if member_ws_set:
-            return member_id, False
-
-        del self._member_id_to_ws_sets[member_id]
-        return member_id, True
+    def disconnect(self, ws: WebSocket) -> None:
+        self._ws_set.discard(ws)
 
     async def broadcast(self, event_type: AuctionEventType, payload: dict) -> None:
-        ws_list: list[WebSocket] = [
-            ws for ws_set in self._member_id_to_ws_sets.values() for ws in ws_set
-        ]
-        ws_list.extend(self._public_ws_set)
-
-        if not ws_list:
+        if not self._ws_set:
             return
 
         event = {"type": event_type, "payload": payload}
-        disconnected: list[WebSocket] = []
-        for ws in ws_list:
+        invalid_ws_set: set[WebSocket] = set()
+        for ws in self._ws_set:
             try:
                 await ws.send_json(event)
             except Exception:
-                disconnected.append(ws)
+                invalid_ws_set.add(ws)
 
-        for ws in disconnected:
+        for ws in invalid_ws_set:
             self.disconnect(ws)
 
-    def validate_bid(self, leader_id: int, amount: int) -> None:
+    def validate_bid(self, bid: Bid) -> None:
         if self.status != Status.RUNNING or self.player_id is None:
             return
 
-        now = asyncio.get_event_loop().time()
-        if now - self._bid_cooldown.get(leader_id, 0) < 1.0:
-            return
-        self._bid_cooldown[leader_id] = now
-
-        if leader_id not in self._leader_member_ids:
+        if bid.leader_id not in self._leader_member_ids:
             raise WSError(AuctionErrorCode.BidNotLeader)
 
-        team = self._member_id_to_team.get(leader_id)
+        team = self._member_id_to_team.get(bid.leader_id)
         if not team or len(team.member_ids) >= self.preset_snapshot.team_size:
             raise WSError(AuctionErrorCode.BidTeamFull)
 
         remaining_slots = self.preset_snapshot.team_size - len(team.member_ids)
-        if amount > team.points - (remaining_slots - 1):
+        if bid.amount > team.points - (remaining_slots - 1):
             raise WSError(AuctionErrorCode.BidTooHigh)
-        if amount < ((self.bid.amount + 1) if self.bid else 1):
+        if bid.amount < ((self.bid.amount + 1) if self.bid else 1):
             raise WSError(AuctionErrorCode.BidTooLow)
 
     def start_timer(self) -> None:

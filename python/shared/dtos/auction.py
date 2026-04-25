@@ -25,8 +25,7 @@ class AuctionEventType(IntEnum):
     MEMBER_SOLD = 7
     MEMBER_UNSOLD = 8
     LEADER_CONNECTED = 9
-    LEADER_DISCONNECTED = 10
-    NEXT_PLAYER = 11
+    NEXT_PLAYER = 10
 
 
 class TeamDTO(BaseDTO):

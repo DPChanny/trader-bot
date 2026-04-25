@@ -108,18 +108,6 @@ class AuctionRepository:
             new_count, _ = await pipe.execute()
         return int(new_count)
 
-    async def publish_leader_disconnected(self) -> None:
-        r = get_redis()
-        async with r.pipeline(transaction=False) as pipe:
-            pipe.decr(self._key(":connected_leader_count"))
-            pipe.publish(
-                self._key(":event"),
-                json.dumps(
-                    {"type": AuctionEventType.LEADER_DISCONNECTED.value, "payload": {}}
-                ),
-            )
-            await pipe.execute()
-
     async def publish_next_player(self) -> bool:
         result = await get_redis().eval(
             _NEXT_PLAYER_SCRIPT,
@@ -163,19 +151,22 @@ class AuctionRepository:
             )
             await pipe.execute()
 
-    async def publish_bid_placed(self, leader_id: int, amount: int) -> None:
+    async def publish_bid_placed(self, bid: Bid) -> None:
         r = get_redis()
         async with r.pipeline(transaction=True) as pipe:
             pipe.hset(
                 self._key(),
-                mapping={"bid_amount": str(amount), "bid_leader_id": str(leader_id)},
+                mapping={
+                    "bid_amount": str(bid.amount),
+                    "bid_leader_id": str(bid.leader_id),
+                },
             )
             pipe.publish(
                 self._key(":event"),
                 json.dumps(
                     {
                         "type": AuctionEventType.BID_PLACED.value,
-                        "payload": {"leader_id": leader_id, "amount": amount},
+                        "payload": {"leader_id": bid.leader_id, "amount": bid.amount},
                     }
                 ),
             )

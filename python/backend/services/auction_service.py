@@ -25,7 +25,7 @@ from shared.utils.error import (
 )
 from shared.utils.service import Event, http_service, ws_service
 
-from ..auction import Auction, AuctionManager
+from ..auction import Auction, AuctionManager, Bid
 from ..utils.discord import send_message
 from ..utils.member import verify_role
 from ..utils.token import AccessToken
@@ -134,7 +134,9 @@ async def place_bid_service(
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)
 
-    await AuctionManager.on_place_bid(auction.auction_id, member_id, dto.amount)
+    await AuctionManager.on_place_bid(
+        auction.auction_id, Bid(leader_id=member_id, amount=dto.amount)
+    )
 
 
 @ws_service
