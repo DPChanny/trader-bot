@@ -86,14 +86,15 @@ class AuctionManager:
 
         is_new_leader = auction.connect(ws, member_id)
         if is_new_leader:
-            await AuctionRepository(auction_id).publish_leader_connected()
+            repo = AuctionRepository(auction_id)
+            await repo.publish_leader_connected()
             if (
                 auction.status == Status.WAITING
                 and auction.connected_leader_count == auction.leader_count
-                and await AuctionRepository(auction_id).acquire_state_lock()
+                and await repo.acquire_state_lock()
             ):
-                await AuctionRepository(auction_id).publish_status(Status.PENDING)
-                await AuctionRepository(auction_id).release_state_lock()
+                await repo.publish_status(Status.PENDING)
+                await repo.release_state_lock()
                 cls._start_auction_tasks[auction_id] = asyncio.create_task(
                     cls._start_auction(auction_id)
                 )
@@ -131,14 +132,15 @@ class AuctionManager:
 
     @classmethod
     async def on_timer_expire(cls, auction_id: int) -> None:
-        if not await AuctionRepository(auction_id).acquire_timer_lock():
+        repo = AuctionRepository(auction_id)
+        if not await repo.acquire_timer_lock():
             return
 
         auction = cls._auctions.get(auction_id)
         if not auction or auction.status != Status.RUNNING or auction.player_id is None:
+            await repo.release_timer_lock()
             return
 
-        repo = AuctionRepository(auction_id)
         bid = auction.bid
         team = (
             auction._member_id_to_team.get(bid.leader_id) if bid is not None else None

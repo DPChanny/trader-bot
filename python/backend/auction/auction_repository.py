@@ -141,7 +141,7 @@ class AuctionRepository:
 
     async def acquire_state_lock(self) -> bool:
         r = get_redis()
-        return bool(await r.set(self._key(":state_lock"), "1", nx=True))
+        return bool(await r.set(self._key(":state_lock"), "1", nx=True, ex=30))
 
     async def release_state_lock(self) -> None:
         r = get_redis()
@@ -149,7 +149,7 @@ class AuctionRepository:
 
     async def acquire_timer_lock(self) -> bool:
         r = get_redis()
-        return bool(await r.set(self._key(":timer_lock"), "1", nx=True))
+        return bool(await r.set(self._key(":timer_lock"), "1", nx=True, ex=30))
 
     async def release_timer_lock(self) -> None:
         r = get_redis()
