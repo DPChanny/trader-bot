@@ -1,4 +1,5 @@
 import asyncio
+import random
 from collections.abc import Awaitable, Callable
 
 from fastapi import WebSocket
@@ -26,9 +27,9 @@ class Auction:
         self,
         auction_id: int,
         preset_snapshot: PresetDetailDTO,
-        teams: list[Team],
-        auction_queue: list[int],
         on_timer_expire: Callable[[], Awaitable[None]],
+        teams: list[Team] | None = None,
+        auction_queue: list[int] | None = None,
         unsold_queue: list[int] | None = None,
         status: Status = Status.WAITING,
         player_id: int | None = None,
@@ -36,7 +37,29 @@ class Auction:
     ):
         self.auction_id = auction_id
         self.preset_snapshot = preset_snapshot
-        self.team_size = preset_snapshot.team_size
+
+        if teams is None:
+            leader_ids = [
+                pm.member_id for pm in preset_snapshot.preset_members if pm.is_leader
+            ]
+            teams = [
+                Team(
+                    team_id=i,
+                    leader_id=leader_id,
+                    member_ids=[leader_id],
+                    points=preset_snapshot.points,
+                )
+                for i, leader_id in enumerate(leader_ids)
+            ]
+
+        if auction_queue is None:
+            non_leader_ids = [
+                pm.member_id
+                for pm in preset_snapshot.preset_members
+                if not pm.is_leader
+            ]
+            random.shuffle(non_leader_ids)
+            auction_queue = non_leader_ids
 
         self.teams = teams
         self.auction_queue = auction_queue
@@ -57,7 +80,6 @@ class Auction:
         self._bid_cooldown: dict[int, float] = {}
 
         self._timer_task: asyncio.Task | None = None
-        self.timer = preset_snapshot.timer
 
     @property
     def connected_leader_count(self) -> int:
@@ -165,10 +187,10 @@ class Auction:
             raise WSError(AuctionErrorCode.BidNotLeader)
 
         team = self._member_id_to_team.get(leader_id)
-        if not team or len(team.member_ids) >= self.team_size:
+        if not team or len(team.member_ids) >= self.preset_snapshot.team_size:
             raise WSError(AuctionErrorCode.BidTeamFull)
 
-        remaining_slots = self.team_size - len(team.member_ids)
+        remaining_slots = self.preset_snapshot.team_size - len(team.member_ids)
         if amount > team.points - (remaining_slots - 1):
             raise WSError(AuctionErrorCode.BidTooHigh)
         if amount < ((self.bid.amount + 1) if self.bid else 1):
@@ -185,7 +207,7 @@ class Auction:
 
     async def _timer(self) -> None:
         try:
-            remaining = self.timer
+            remaining = self.preset_snapshot.timer
             while remaining > 0:
                 await self.broadcast(AuctionEventType.TIMER, {"timer": remaining})
                 await asyncio.sleep(1)

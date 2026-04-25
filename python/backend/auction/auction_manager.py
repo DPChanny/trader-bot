@@ -1,6 +1,5 @@
 import asyncio
 import json
-import random
 import uuid
 from typing import Any, ClassVar
 
@@ -179,27 +178,9 @@ class AuctionManager:
     @classmethod
     async def create_auction(cls, preset_snapshot: PresetDetailDTO) -> Auction:
         auction_id = uuid.uuid4().int
-        leader_ids = [
-            pm.member_id for pm in preset_snapshot.preset_members if pm.is_leader
-        ]
-        teams = [
-            Team(
-                team_id=i,
-                leader_id=leader_id,
-                member_ids=[leader_id],
-                points=preset_snapshot.points,
-            )
-            for i, leader_id in enumerate(leader_ids)
-        ]
-        non_leader_ids = [
-            pm.member_id for pm in preset_snapshot.preset_members if not pm.is_leader
-        ]
-        random.shuffle(non_leader_ids)
         auction = Auction(
             auction_id=auction_id,
             preset_snapshot=preset_snapshot,
-            teams=teams,
-            auction_queue=non_leader_ids,
             on_timer_expire=cls._get_on_timer_expire(auction_id),
         )
         cls._auctions[auction.auction_id] = auction
@@ -231,7 +212,7 @@ class AuctionManager:
 
     @classmethod
     def _get_on_timer_expire(cls, auction_id: int) -> Any:
-        async def on_expire() -> None:
+        async def _on_timer_expire() -> None:
             await cls.on_timer_expire(auction_id)
 
-        return on_expire
+        return _on_timer_expire

@@ -79,8 +79,6 @@ class AuctionRepository:
             "player_id": "",
             "bid_amount": "",
             "bid_leader_id": "",
-            "preset_id": str(auction.preset_snapshot.preset_id),
-            "guild_id": str(auction.preset_snapshot.guild_id),
             "preset_snapshot": auction.preset_snapshot.model_dump_json(),
         }
         async with r.pipeline(transaction=True) as pipe:
