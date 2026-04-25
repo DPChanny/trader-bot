@@ -113,6 +113,9 @@ class Auction:
     def all_leaders_connected(self, connected_ids: set[int]) -> bool:
         return self._leader_member_ids.issubset(connected_ids)
 
+    def is_leader(self, member_id: int) -> bool:
+        return member_id in self._leader_member_ids
+
     def resolve_sold(self) -> Team | None:
         if self.bid is None or self.player_id is None:
             return None
@@ -152,26 +155,11 @@ class Auction:
             self.start_timer()
 
         elif event_type == AuctionMessageType.MEMBER_SOLD:
-            if self.player_id is not None:
-                team = (
-                    self._member_id_to_team.get(self.bid.leader_id)
-                    if self.bid
-                    else None
-                )
-                if team:
-                    team.member_ids.append(self.player_id)
-                    team.points -= self.bid.amount
-                    self._member_id_to_team[self.player_id] = team
-            else:
-                for team in self.teams:
-                    if len(team.member_ids) < self.team_size:
-                        remaining = self.auction_queue + self.unsold_queue
-                        for mid in remaining:
-                            team.member_ids.append(mid)
-                            self._member_id_to_team[mid] = team
-                        self.auction_queue = []
-                        self.unsold_queue = []
-                        break
+            team = self._member_id_to_team.get(self.bid.leader_id) if self.bid else None
+            if team and self.player_id is not None:
+                team.member_ids.append(self.player_id)
+                team.points -= self.bid.amount
+                self._member_id_to_team[self.player_id] = team
             self.player_id = None
             self.bid = None
             self.stop_timer()
@@ -185,14 +173,6 @@ class Auction:
 
         elif event_type == AuctionMessageType.STATUS:
             self.status = Status(payload["status"])
-            if self.status == Status.WAITING:
-                self.stop_timer()
-
-        elif event_type in (
-            AuctionMessageType.MEMBER_CONNECTED,
-            AuctionMessageType.MEMBER_DISCONNECTED,
-        ):
-            pass
 
     def connect(self, ws: WebSocket, member_id: int | None) -> bool:
         if member_id is None:

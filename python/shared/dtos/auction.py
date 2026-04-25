@@ -24,7 +24,6 @@ class AuctionMessageType(IntEnum):
     MEMBER_SOLD = 7
     MEMBER_UNSOLD = 8
     MEMBER_CONNECTED = 9
-    MEMBER_DISCONNECTED = 10
     NEXT_MEMBER = 11
 
 

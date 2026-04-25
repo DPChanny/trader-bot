@@ -10,7 +10,7 @@ from shared.dtos.auction import AuctionMessageType, Status
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.redis import get_redis
 
-from .auction import Auction, Team
+from .auction import Auction
 from .auction_repository import AuctionRepository
 
 
@@ -69,7 +69,9 @@ class AuctionManager:
             return
 
         is_new = auction.connect(ws, member_id)
-        if not is_new or member_id is None:
+        if not is_new or member_id is None or auction.status != Status.WAITING:
+            return
+        if not auction.is_leader(member_id):
             return
 
         await AuctionRepository.emit(
@@ -78,9 +80,6 @@ class AuctionManager:
             {"member_id": member_id},
             sadd_connected=member_id,
         )
-
-        if auction.status != Status.WAITING:
-            return
 
         connected = await AuctionRepository.get_connected_member_ids(auction_id)
         if not auction.all_leaders_connected(connected):
@@ -103,32 +102,7 @@ class AuctionManager:
         auction = cls._auctions.get(auction_id)
         if not auction:
             return
-
-        member_id, is_last = auction.disconnect(ws)
-        if not is_last or member_id is None:
-            return
-
-        await AuctionRepository.emit(
-            auction_id,
-            AuctionMessageType.MEMBER_DISCONNECTED,
-            {"member_id": member_id},
-            srem_connected=member_id,
-        )
-
-        if auction.status != Status.RUNNING:
-            return
-
-        connected = await AuctionRepository.get_connected_member_ids(auction_id)
-        if auction.all_leaders_connected(connected):
-            return
-
-        await AuctionRepository.emit(
-            auction_id,
-            AuctionMessageType.STATUS,
-            {"status": Status.WAITING.value},
-            hset={"status": str(Status.WAITING.value)},
-            del_state_lock=True,
-        )
+        auction.disconnect(ws)
 
     @classmethod
     async def on_bid(cls, auction_id: int, leader_id: int, amount: int) -> None:
@@ -181,28 +155,6 @@ class AuctionManager:
             return
 
         aq_len, uq_len = await AuctionRepository.queue_lengths(auction_id)
-
-        forced_team = auction.forced_fill_team(aq_len + uq_len)
-        if forced_team is not None:
-            aq_members, uq_members = await AuctionRepository.get_all_queue_members(
-                auction_id
-            )
-            updated_team = Team(
-                team_id=forced_team.team_id,
-                leader_id=forced_team.leader_id,
-                member_ids=forced_team.member_ids + aq_members + uq_members,
-                points=forced_team.points,
-            )
-            await AuctionRepository.emit_forced_fill(
-                auction_id, forced_team.team_id, updated_team.model_dump_json()
-            )
-            await AuctionRepository.emit(
-                auction_id,
-                AuctionMessageType.STATUS,
-                {"status": Status.COMPLETED.value},
-                hset={"status": str(Status.COMPLETED.value)},
-            )
-            return
 
         if aq_len == 0:
             if uq_len == 0:

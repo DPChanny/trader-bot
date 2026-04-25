@@ -141,11 +141,7 @@ class AuctionRepository:
         hset_teams: dict | None = None,
         lpop_aq: bool = False,
         rpush_uq: int | None = None,
-        del_uq: bool = False,
-        rpush_aq: list[int] | None = None,
         sadd_connected: int | None = None,
-        srem_connected: int | None = None,
-        del_state_lock: bool = False,
     ) -> None:
         r = get_redis()
         async with r.pipeline(transaction=True) as pipe:
@@ -158,16 +154,8 @@ class AuctionRepository:
                 pipe.lpop(cls._key(auction_id, ":auction_queue"))
             if rpush_uq is not None:
                 pipe.rpush(cls._key(auction_id, ":unsold_queue"), rpush_uq)
-            if del_uq:
-                pipe.delete(cls._key(auction_id, ":unsold_queue"))
-            if rpush_aq:
-                pipe.rpush(cls._key(auction_id, ":auction_queue"), *rpush_aq)
             if sadd_connected is not None:
                 pipe.sadd(cls._key(auction_id, ":connected_member_ids"), sadd_connected)
-            if srem_connected is not None:
-                pipe.srem(cls._key(auction_id, ":connected_member_ids"), srem_connected)
-            if del_state_lock:
-                pipe.delete(cls._key(auction_id, ":state_lock"))
             pipe.publish(
                 cls._key(auction_id, ":event"),
                 json.dumps({"type": event_type.value, "payload": payload}),
