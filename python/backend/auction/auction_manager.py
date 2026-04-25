@@ -145,9 +145,7 @@ class AuctionManager:
         repo = AuctionRepository(auction_id)
         sold_team = auction.resolve_sold()
         if sold_team is not None:
-            await repo.publish_member_sold(
-                sold_team.team_id, sold_team.model_dump_json()
-            )
+            await repo.publish_member_sold(sold_team)
         else:
             await repo.publish_member_unsold(auction.player_id)
 

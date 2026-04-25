@@ -13,13 +13,24 @@ from .auction import Auction, Bid, Team
 
 _AUCTION_LIFETIME = 3600
 
-_RECYCLE_SCRIPT = """
-    local unsold_queue = redis.call('LRANGE', KEYS[1], 0, -1)
-    redis.call('DEL', KEYS[1])
-    redis.call('RPUSH', KEYS[2], unpack(unsold_queue))
-    redis.call('LPOP', KEYS[2])
-    redis.call('HSET', KEYS[3], 'player_id', unsold_queue[1], 'bid_amount', '', 'bid_leader_id', '')
+_NEXT_PLAYER_SCRIPT = """
+    local next_player_id = redis.call('LINDEX', KEYS[1], 0)
+    if next_player_id then
+        redis.call('HSET', KEYS[3], 'player_id', next_player_id, 'bid_amount', '', 'bid_leader_id', '')
+        redis.call('LPOP', KEYS[1])
+        redis.call('PUBLISH', KEYS[4], ARGV[1])
+        return 0
+    end
+    local unsold_queue = redis.call('LRANGE', KEYS[2], 0, -1)
+    if #unsold_queue == 0 then
+        return 1
+    end
+    redis.call('DEL', KEYS[2])
+    redis.call('RPUSH', KEYS[1], unpack(unsold_queue))
+    local next_player_id = redis.call('LPOP', KEYS[1])
+    redis.call('HSET', KEYS[3], 'player_id', next_player_id, 'bid_amount', '', 'bid_leader_id', '')
     redis.call('PUBLISH', KEYS[4], ARGV[1])
+    return 0
 """
 
 
@@ -117,45 +128,16 @@ class AuctionRepository:
             await pipe.execute()
 
     async def publish_next_player(self) -> bool:
-        r = get_redis()
-        async with r.pipeline(transaction=False) as pipe:
-            pipe.lindex(self._key(":auction_queue"), 0)
-            pipe.llen(self._key(":unsold_queue"))
-            next_player_id, unsold_queue_len = await pipe.execute()
-
-        if next_player_id:
-            async with r.pipeline(transaction=True) as pipe:
-                pipe.hset(
-                    self._key(),
-                    mapping={
-                        "player_id": next_player_id,
-                        "bid_amount": "",
-                        "bid_leader_id": "",
-                    },
-                )
-                pipe.lpop(self._key(":auction_queue"))
-                pipe.publish(
-                    self._key(":event"),
-                    json.dumps(
-                        {"type": AuctionMessageType.NEXT_PLAYER.value, "payload": {}}
-                    ),
-                )
-                await pipe.execute()
-            return False
-
-        if unsold_queue_len == 0:
-            return True
-
-        await r.eval(
-            _RECYCLE_SCRIPT,
+        result = await get_redis().eval(
+            _NEXT_PLAYER_SCRIPT,
             4,
-            self._key(":unsold_queue"),
             self._key(":auction_queue"),
+            self._key(":unsold_queue"),
             self._key(),
             self._key(":event"),
             json.dumps({"type": AuctionMessageType.NEXT_PLAYER.value, "payload": {}}),
         )
-        return False
+        return bool(result)
 
     async def acquire_state_lock(self) -> bool:
         r = get_redis()
@@ -206,14 +188,14 @@ class AuctionRepository:
             )
             await pipe.execute()
 
-    async def publish_member_sold(self, team_id: int, team_json: str) -> None:
+    async def publish_member_sold(self, team: Team) -> None:
         r = get_redis()
         async with r.pipeline(transaction=True) as pipe:
             pipe.hset(
                 self._key(),
                 mapping={"player_id": "", "bid_amount": "", "bid_leader_id": ""},
             )
-            pipe.hset(self._key(":teams"), str(team_id), team_json)
+            pipe.hset(self._key(":teams"), str(team.team_id), team.model_dump_json())
             pipe.publish(
                 self._key(":event"),
                 json.dumps(
