@@ -14,7 +14,7 @@ class Status(IntEnum):
     COMPLETED = 3
 
 
-class AuctionMessageType(IntEnum):
+class AuctionEventType(IntEnum):
     AUTH = 0
     INIT = 1
     ERROR = 2
@@ -78,6 +78,6 @@ class ErrorPayloadDTO(BaseDTO):
     code: int
 
 
-class AuctionMessageEnvelopeDTO(BaseDTO):
-    type: AuctionMessageType
+class AuctionEventEnvelopeDTO(BaseDTO):
+    type: AuctionEventType
     payload: Any | None

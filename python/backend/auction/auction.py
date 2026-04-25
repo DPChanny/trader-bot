@@ -6,7 +6,7 @@ from collections.abc import Awaitable, Callable
 from fastapi import WebSocket
 from pydantic import BaseModel
 
-from shared.dtos.auction import AuctionMessageType, Status
+from shared.dtos.auction import AuctionEventType, Status
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, WSError
 
@@ -24,19 +24,17 @@ class Bid(BaseModel):
 
 
 class Auction:
-    Status = Status
-
     def __init__(
         self,
         auction_id: int,
         preset_snapshot: PresetDetailDTO,
         teams: list[Team],
         auction_queue: list[int],
-        unsold_queue: list[int],
-        status: Status,
-        player_id: int | None,
-        bid: Bid | None,
-        on_expire: Callable[[], Awaitable[None]],
+        on_timer_expire: Callable[[], Awaitable[None]],
+        unsold_queue: list[int] | None = None,
+        status: Status = Status.WAITING,
+        player_id: int | None = None,
+        bid: Bid | None = None,
     ):
         self.auction_id = auction_id
         self.preset_snapshot = preset_snapshot
@@ -44,12 +42,12 @@ class Auction:
 
         self.teams = teams
         self.auction_queue = auction_queue
-        self.unsold_queue = unsold_queue
+        self.unsold_queue = unsold_queue if unsold_queue is not None else []
         self.status = status
         self.player_id = player_id
         self.bid = bid
 
-        self._on_expire = on_expire
+        self._on_timer_expire = on_timer_expire
         self._leader_member_ids = {
             pm.member_id for pm in preset_snapshot.preset_members if pm.is_leader
         }
@@ -85,41 +83,40 @@ class Auction:
             points=team.points - self.bid.amount,
         )
 
-    def apply(self, event_type: AuctionMessageType, payload: dict) -> None:
-        if event_type == AuctionMessageType.NEXT_PLAYER:
-            if self.auction_queue:
-                self.player_id = self.auction_queue[0]
-                self.auction_queue = self.auction_queue[1:]
-            else:
-                self.player_id = self.unsold_queue[0]
-                self.auction_queue = self.unsold_queue[1:]
-                self.unsold_queue = []
-            self.bid = None
-            self.start_timer()
+    def on_next_player(self) -> None:
+        if self.auction_queue:
+            self.player_id = self.auction_queue[0]
+            self.auction_queue = self.auction_queue[1:]
+        else:
+            self.player_id = self.unsold_queue[0]
+            self.auction_queue = self.unsold_queue[1:]
+            self.unsold_queue = []
+        self.bid = None
+        self.start_timer()
 
-        elif event_type == AuctionMessageType.BID_PLACED:
-            self.bid = Bid(amount=payload["amount"], leader_id=payload["leader_id"])
-            self.start_timer()
+    def on_bid_placed(self, leader_id: int, amount: int) -> None:
+        self.bid = Bid(amount=amount, leader_id=leader_id)
+        self.start_timer()
 
-        elif event_type == AuctionMessageType.MEMBER_SOLD:
-            team = self._member_id_to_team.get(self.bid.leader_id) if self.bid else None
-            if team and self.player_id is not None:
-                team.member_ids.append(self.player_id)
-                team.points -= self.bid.amount
-                self._member_id_to_team[self.player_id] = team
-            self.player_id = None
-            self.bid = None
-            self.stop_timer()
+    def on_member_sold(self) -> None:
+        team = self._member_id_to_team.get(self.bid.leader_id) if self.bid else None
+        if team and self.player_id is not None:
+            team.member_ids.append(self.player_id)
+            team.points -= self.bid.amount
+            self._member_id_to_team[self.player_id] = team
+        self.player_id = None
+        self.bid = None
+        self.stop_timer()
 
-        elif event_type == AuctionMessageType.MEMBER_UNSOLD:
-            if self.player_id is not None:
-                self.unsold_queue.append(self.player_id)
-            self.player_id = None
-            self.bid = None
-            self.stop_timer()
+    def on_member_unsold(self) -> None:
+        if self.player_id is not None:
+            self.unsold_queue.append(self.player_id)
+        self.player_id = None
+        self.bid = None
+        self.stop_timer()
 
-        elif event_type == AuctionMessageType.STATUS:
-            self.status = Status(payload["status"])
+    def on_status(self, status: int) -> None:
+        self.status = Status(status)
 
     def connect(self, ws: WebSocket, member_id: int | None) -> bool:
         if member_id is None:
@@ -152,7 +149,7 @@ class Auction:
         del self._member_id_to_ws_sets[member_id]
         return member_id, True
 
-    async def broadcast(self, event_type: AuctionMessageType, payload: dict) -> None:
+    async def broadcast(self, event_type: AuctionEventType, payload: dict) -> None:
         ws_list: list[WebSocket] = [
             ws for ws_set in self._member_id_to_ws_sets.values() for ws in ws_set
         ]
@@ -207,9 +204,9 @@ class Auction:
         try:
             remaining = self.timer
             while remaining > 0:
-                await self.broadcast(AuctionMessageType.TIMER, {"timer": remaining})
+                await self.broadcast(AuctionEventType.TIMER, {"timer": remaining})
                 await asyncio.sleep(1)
                 remaining -= 1
-            asyncio.create_task(self._on_expire())
+            asyncio.create_task(self._on_timer_expire())
         except asyncio.CancelledError:
             pass

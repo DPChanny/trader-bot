@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.auction import (
     AuctionDetailDTO,
     AuctionDTO,
-    AuctionMessageEnvelopeDTO,
-    AuctionMessageType,
+    AuctionEventEnvelopeDTO,
+    AuctionEventType,
     AuthPayloadDTO,
     CreateAuctionDTO,
     ErrorPayloadDTO,
@@ -52,17 +52,17 @@ async def create_auction_route(
     return await create_auction_service(guild_id, user_id, preset_id, dto, session)
 
 
-def _get_message_envelope_dto(message: str) -> AuctionMessageEnvelopeDTO:
+def _get_message_envelope_dto(message: str) -> AuctionEventEnvelopeDTO:
     if len(message) > 1024:
         raise WSError(ValidationErrorCode.Invalid)
     try:
-        return AuctionMessageEnvelopeDTO.model_validate(json.loads(message))
+        return AuctionEventEnvelopeDTO.model_validate(json.loads(message))
     except ValidationError, JSONDecodeError:
         raise WSError(ValidationErrorCode.Invalid) from None
 
 
 def _get_message_payload_dto[TPayloadDTO: BaseModel](
-    envelope_dto: AuctionMessageEnvelopeDTO,
+    envelope_dto: AuctionEventEnvelopeDTO,
     payload_cls: type[TPayloadDTO],
     error_code: AppErrorCode,
 ) -> TPayloadDTO:
@@ -81,7 +81,7 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
         await ws.accept()
 
         auth_envelope = _get_message_envelope_dto(await ws.receive_text())
-        if auth_envelope.type != AuctionMessageType.AUTH:
+        if auth_envelope.type != AuctionEventType.AUTH:
             raise WSError(AuthErrorCode.Unauthorized)
         auth_payload_dto = _get_message_payload_dto(
             auth_envelope, AuthPayloadDTO, AuthErrorCode.Unauthorized
@@ -95,15 +95,15 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
             auction=auction_detail_dto, team_id=team_id, member_id=member_id
         )
         await ws.send_json(
-            AuctionMessageEnvelopeDTO(
-                type=AuctionMessageType.INIT, payload=init_payload_dto
+            AuctionEventEnvelopeDTO(
+                type=AuctionEventType.INIT, payload=init_payload_dto
             ).model_dump(mode="json")
         )
 
         while True:
             try:
                 place_bid_envelope = _get_message_envelope_dto(await ws.receive_text())
-                if place_bid_envelope.type != AuctionMessageType.PLACE_BID:
+                if place_bid_envelope.type != AuctionEventType.PLACE_BID:
                     raise WSError(ValidationErrorCode.Invalid)
 
                 place_bid_payload_dto = _get_message_payload_dto(
@@ -113,8 +113,8 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
             except WSError as e:
                 handle_ws_error(e)
                 await ws.send_json(
-                    AuctionMessageEnvelopeDTO(
-                        type=AuctionMessageType.ERROR,
+                    AuctionEventEnvelopeDTO(
+                        type=AuctionEventType.ERROR,
                         payload=ErrorPayloadDTO(code=e.code),
                     ).model_dump(mode="json")
                 )
