@@ -78,6 +78,14 @@ class ErrorPayloadDTO(BaseDTO):
     code: int
 
 
+class TickPayloadDTO(BaseDTO):
+    timer: int
+
+
+class StatusPayloadDTO(BaseDTO):
+    status: Status
+
+
 class AuctionEventEnvelopeDTO(BaseDTO):
     type: AuctionEventType
     payload: Any | None

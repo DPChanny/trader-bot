@@ -1,11 +1,17 @@
 import asyncio
 import random
 from collections.abc import Awaitable, Callable
+from typing import Any
 
 from fastapi import WebSocket
 from pydantic import BaseModel
 
-from shared.dtos.auction import AuctionEventType, Status
+from shared.dtos.auction import (
+    AuctionEventEnvelopeDTO,
+    AuctionEventType,
+    Status,
+    TickPayloadDTO,
+)
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, WSError
 
@@ -149,11 +155,13 @@ class Auction:
                     return True
         return False
 
-    async def broadcast(self, event_type: AuctionEventType, payload: dict) -> None:
+    async def broadcast(self, event_type: AuctionEventType, payload: Any) -> None:
         if not self._ws_set:
             return
 
-        event = {"type": event_type, "payload": payload}
+        event = AuctionEventEnvelopeDTO(type=event_type, payload=payload).model_dump(
+            mode="json"
+        )
         invalid_ws_set: set[WebSocket] = set()
         for ws in self._ws_set:
             try:
@@ -195,7 +203,7 @@ class Auction:
 
     async def _timer(self, remaining: int) -> None:
         while remaining > 0:
-            await self.broadcast(AuctionEventType.TICK, {"timer": remaining})
+            await self.broadcast(AuctionEventType.TICK, TickPayloadDTO(timer=remaining))
             await asyncio.sleep(1)
             remaining -= 1
         asyncio.create_task(self._on_timer_expire())

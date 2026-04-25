@@ -1,12 +1,18 @@
 import asyncio
-import json
 import time
 import uuid
 from typing import Any, ClassVar
 
 from fastapi import WebSocket
+from pydantic import ValidationError
 
-from shared.dtos.auction import AuctionEventType, Status
+from shared.dtos.auction import (
+    AuctionEventEnvelopeDTO,
+    AuctionEventType,
+    BidDTO,
+    Status,
+    StatusPayloadDTO,
+)
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.redis import get_redis
 
@@ -47,31 +53,32 @@ class AuctionManager:
                 try:
                     parts = message["channel"].split(":")
                     auction_id = int(parts[1])
-                    data = json.loads(message["data"])
+                    envelope = AuctionEventEnvelopeDTO.model_validate_json(
+                        message["data"]
+                    )
                     auction = cls._auctions.get(auction_id)
                     if auction:
-                        event_type = AuctionEventType(data["type"])
-                        payload = data["payload"]
-                        match event_type:
+                        match envelope.type:
                             case AuctionEventType.NEXT_PLAYER:
                                 auction.on_next_player()
                             case AuctionEventType.BID_PLACED:
+                                bid = BidDTO.model_validate(envelope.payload)
                                 auction.on_bid_placed(
-                                    Bid(
-                                        leader_id=payload["leader_id"],
-                                        amount=payload["amount"],
-                                    )
+                                    Bid(leader_id=bid.leader_id, amount=bid.amount)
                                 )
                             case AuctionEventType.MEMBER_SOLD:
                                 auction.on_member_sold()
                             case AuctionEventType.MEMBER_UNSOLD:
                                 auction.on_member_unsold()
                             case AuctionEventType.STATUS:
-                                auction.on_status(payload["status"])
+                                status_payload = StatusPayloadDTO.model_validate(
+                                    envelope.payload
+                                )
+                                auction.on_status(status_payload.status)
                                 if auction.status == Status.COMPLETED:
                                     cls._auctions.pop(auction_id, None)
-                        await auction.broadcast(event_type, payload)
-                except ValueError, IndexError, KeyError:
+                        await auction.broadcast(envelope.type, envelope.payload)
+                except ValueError, IndexError, KeyError, ValidationError:
                     continue
         except asyncio.CancelledError:
             pass

@@ -1,9 +1,14 @@
-import json
 import time
 from collections.abc import Awaitable, Callable
 from typing import Any
 
-from shared.dtos.auction import AuctionEventType, Status
+from shared.dtos.auction import (
+    AuctionEventEnvelopeDTO,
+    AuctionEventType,
+    BidDTO,
+    Status,
+    StatusPayloadDTO,
+)
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.redis import get_redis
 
@@ -104,18 +109,18 @@ class AuctionRepository:
         r = get_redis()
         await r.publish(
             self._key(":event"),
-            json.dumps(
-                {"type": AuctionEventType.LEADER_CONNECTED.value, "payload": {}}
-            ),
+            AuctionEventEnvelopeDTO(
+                type=AuctionEventType.LEADER_CONNECTED, payload=None
+            ).model_dump_json(),
         )
 
     async def publish_leader_disconnected(self) -> None:
         r = get_redis()
         await r.publish(
             self._key(":event"),
-            json.dumps(
-                {"type": AuctionEventType.LEADER_DISCONNECTED.value, "payload": {}}
-            ),
+            AuctionEventEnvelopeDTO(
+                type=AuctionEventType.LEADER_DISCONNECTED, payload=None
+            ).model_dump_json(),
         )
 
     async def publish_next_player(self) -> bool:
@@ -126,7 +131,9 @@ class AuctionRepository:
             self._key(":unsold_queue"),
             self._key(),
             self._key(":event"),
-            json.dumps({"type": AuctionEventType.NEXT_PLAYER.value, "payload": {}}),
+            AuctionEventEnvelopeDTO(
+                type=AuctionEventType.NEXT_PLAYER, payload=None
+            ).model_dump_json(),
         )
         return bool(result)
 
@@ -161,12 +168,10 @@ class AuctionRepository:
             pipe.hset(self._key(), mapping={"status": str(status.value)})
             pipe.publish(
                 self._key(":event"),
-                json.dumps(
-                    {
-                        "type": AuctionEventType.STATUS.value,
-                        "payload": {"status": status.value},
-                    }
-                ),
+                AuctionEventEnvelopeDTO(
+                    type=AuctionEventType.STATUS,
+                    payload=StatusPayloadDTO(status=status),
+                ).model_dump_json(),
             )
             await pipe.execute()
 
@@ -182,12 +187,10 @@ class AuctionRepository:
             )
             pipe.publish(
                 self._key(":event"),
-                json.dumps(
-                    {
-                        "type": AuctionEventType.BID_PLACED.value,
-                        "payload": {"leader_id": bid.leader_id, "amount": bid.amount},
-                    }
-                ),
+                AuctionEventEnvelopeDTO(
+                    type=AuctionEventType.BID_PLACED,
+                    payload=BidDTO(leader_id=bid.leader_id, amount=bid.amount),
+                ).model_dump_json(),
             )
             await pipe.execute()
 
@@ -201,7 +204,9 @@ class AuctionRepository:
             pipe.hset(self._key(":teams"), str(team.team_id), team.model_dump_json())
             pipe.publish(
                 self._key(":event"),
-                json.dumps({"type": AuctionEventType.MEMBER_SOLD.value, "payload": {}}),
+                AuctionEventEnvelopeDTO(
+                    type=AuctionEventType.MEMBER_SOLD, payload=None
+                ).model_dump_json(),
             )
             await pipe.execute()
 
@@ -215,8 +220,8 @@ class AuctionRepository:
             pipe.rpush(self._key(":unsold_queue"), player_id)
             pipe.publish(
                 self._key(":event"),
-                json.dumps(
-                    {"type": AuctionEventType.MEMBER_UNSOLD.value, "payload": {}}
-                ),
+                AuctionEventEnvelopeDTO(
+                    type=AuctionEventType.MEMBER_UNSOLD, payload=None
+                ).model_dump_json(),
             )
             await pipe.execute()
