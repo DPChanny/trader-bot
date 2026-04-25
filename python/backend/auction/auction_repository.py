@@ -13,6 +13,15 @@ from .auction import Auction, Bid, Team
 
 _AUCTION_LIFETIME = 3600
 
+_RECYCLE_SCRIPT = """
+    local unsold_queue = redis.call('LRANGE', KEYS[1], 0, -1)
+    redis.call('DEL', KEYS[1])
+    redis.call('RPUSH', KEYS[2], unpack(unsold_queue))
+    redis.call('LPOP', KEYS[2])
+    redis.call('HSET', KEYS[3], 'player_id', unsold_queue[1], 'bid_amount', '', 'bid_leader_id', '')
+    redis.call('PUBLISH', KEYS[4], ARGV[1])
+"""
+
 
 class AuctionRepository:
     def __init__(self, auction_id: int) -> None:
@@ -107,13 +116,46 @@ class AuctionRepository:
             )
             await pipe.execute()
 
-    async def get_queues(self) -> tuple[int | None, list[int]]:
+    async def publish_next_player(self) -> bool:
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
             pipe.lindex(self._key(":auction_queue"), 0)
-            pipe.lrange(self._key(":unsold_queue"), 0, -1)
-            next_aq, uq_raw = await pipe.execute()
-        return (int(next_aq) if next_aq else None), [int(x) for x in uq_raw]
+            pipe.llen(self._key(":unsold_queue"))
+            next_player_id, unsold_queue_len = await pipe.execute()
+
+        if next_player_id:
+            async with r.pipeline(transaction=True) as pipe:
+                pipe.hset(
+                    self._key(),
+                    mapping={
+                        "player_id": next_player_id,
+                        "bid_amount": "",
+                        "bid_leader_id": "",
+                    },
+                )
+                pipe.lpop(self._key(":auction_queue"))
+                pipe.publish(
+                    self._key(":event"),
+                    json.dumps(
+                        {"type": AuctionMessageType.NEXT_PLAYER.value, "payload": {}}
+                    ),
+                )
+                await pipe.execute()
+            return False
+
+        if unsold_queue_len == 0:
+            return True
+
+        await r.eval(
+            _RECYCLE_SCRIPT,
+            4,
+            self._key(":unsold_queue"),
+            self._key(":auction_queue"),
+            self._key(),
+            self._key(":event"),
+            json.dumps({"type": AuctionMessageType.NEXT_PLAYER.value, "payload": {}}),
+        )
+        return False
 
     async def acquire_state_lock(self) -> bool:
         r = get_redis()
@@ -192,49 +234,6 @@ class AuctionRepository:
                 self._key(":event"),
                 json.dumps(
                     {"type": AuctionMessageType.MEMBER_UNSOLD.value, "payload": {}}
-                ),
-            )
-            await pipe.execute()
-
-    async def publish_next_player(self, member_id: int) -> None:
-        r = get_redis()
-        async with r.pipeline(transaction=True) as pipe:
-            pipe.hset(
-                self._key(),
-                mapping={
-                    "player_id": str(member_id),
-                    "bid_amount": "",
-                    "bid_leader_id": "",
-                },
-            )
-            pipe.lpop(self._key(":auction_queue"))
-            pipe.publish(
-                self._key(":event"),
-                json.dumps(
-                    {"type": AuctionMessageType.NEXT_PLAYER.value, "payload": {}}
-                ),
-            )
-            await pipe.execute()
-
-    async def publish_recycle_and_next(self, uq_members: list[int]) -> None:
-        member_id = uq_members[0]
-        r = get_redis()
-        async with r.pipeline(transaction=True) as pipe:
-            pipe.delete(self._key(":unsold_queue"))
-            pipe.rpush(self._key(":auction_queue"), *uq_members)
-            pipe.lpop(self._key(":auction_queue"))
-            pipe.hset(
-                self._key(),
-                mapping={
-                    "player_id": str(member_id),
-                    "bid_amount": "",
-                    "bid_leader_id": "",
-                },
-            )
-            pipe.publish(
-                self._key(":event"),
-                json.dumps(
-                    {"type": AuctionMessageType.NEXT_PLAYER.value, "payload": {}}
                 ),
             )
             await pipe.execute()

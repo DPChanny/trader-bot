@@ -160,16 +160,9 @@ class AuctionManager:
         if not auction:
             return
 
-        next_player_id, unsold_queue = await AuctionRepository(auction_id).get_queues()
-
-        if next_player_id is None:
-            if not unsold_queue:
-                await AuctionRepository(auction_id).publish_status(Status.COMPLETED)
-                return
-
-            await AuctionRepository(auction_id).publish_recycle_and_next(unsold_queue)
-        else:
-            await AuctionRepository(auction_id).publish_next_player(next_player_id)
+        completed = await AuctionRepository(auction_id).publish_next_player()
+        if completed:
+            await AuctionRepository(auction_id).publish_status(Status.COMPLETED)
 
     @classmethod
     async def create_auction(cls, preset_snapshot: PresetDetailDTO) -> Auction:
