@@ -28,6 +28,7 @@ class Auction:
         auction_id: int,
         preset_snapshot: PresetDetailDTO,
         on_timer_expire: Callable[[], Awaitable[None]],
+        on_timer_start: Callable[[], Awaitable[None]],
         teams: list[Team] | None = None,
         auction_queue: list[int] | None = None,
         unsold_queue: list[int] | None = None,
@@ -69,6 +70,7 @@ class Auction:
         self.bid = bid
 
         self._on_timer_expire = on_timer_expire
+        self._on_timer_start = on_timer_start
         self._leader_member_ids = {team.leader_id for team in teams}
         self._member_id_to_team: dict[int, Team] = {
             member_id: team for team in teams for member_id in team.member_ids
@@ -158,22 +160,21 @@ class Auction:
         if bid.amount < ((self.bid.amount + 1) if self.bid else 1):
             raise WSError(AuctionErrorCode.BidTooLow)
 
-    def start_timer(self) -> None:
+    def start_timer(self, remaining: int | None = None) -> None:
         self.stop_timer()
-        self._timer_task = asyncio.create_task(self._timer())
+        asyncio.create_task(self._on_timer_start())
+        self._timer_task = asyncio.create_task(
+            self._timer(remaining or self.preset_snapshot.timer)
+        )
 
     def stop_timer(self) -> None:
         if self._timer_task and not self._timer_task.done():
             self._timer_task.cancel()
         self._timer_task = None
 
-    async def _timer(self) -> None:
-        try:
-            remaining = self.preset_snapshot.timer
-            while remaining > 0:
-                await self.broadcast(AuctionEventType.TIMER, {"timer": remaining})
-                await asyncio.sleep(1)
-                remaining -= 1
-            asyncio.create_task(self._on_timer_expire())
-        except asyncio.CancelledError:
-            pass
+    async def _timer(self, remaining: int) -> None:
+        while remaining > 0:
+            await self.broadcast(AuctionEventType.TICK, {"timer": remaining})
+            await asyncio.sleep(1)
+            remaining -= 1
+        asyncio.create_task(self._on_timer_expire())

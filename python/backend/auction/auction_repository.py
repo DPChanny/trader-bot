@@ -1,4 +1,5 @@
 import json
+import time
 from collections.abc import Awaitable, Callable
 from typing import Any
 
@@ -40,7 +41,10 @@ class AuctionRepository:
         return f"auction:{self.auction_id}{suffix}"
 
     async def load(
-        self, on_timer_expire: Callable[[], Awaitable[None]], pubsub: Any
+        self,
+        on_timer_expire: Callable[[], Awaitable[None]],
+        on_timer_start: Callable[[], Awaitable[None]],
+        pubsub: Any,
     ) -> Auction | None:
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
@@ -64,6 +68,7 @@ class AuctionRepository:
             teams=teams,
             auction_queue=[int(x) for x in aq_raw],
             on_timer_expire=on_timer_expire,
+            on_timer_start=on_timer_start,
             unsold_queue=[int(x) for x in uq_raw],
             status=Status(int(data["status"])),
             player_id=int(data["player_id"]) if data.get("player_id") else None,
@@ -119,6 +124,18 @@ class AuctionRepository:
             json.dumps({"type": AuctionEventType.NEXT_PLAYER.value, "payload": {}}),
         )
         return bool(result)
+
+    async def set_timer_started_at(self) -> None:
+        r = get_redis()
+        await r.hset(self._key(), "timer_started_at", str(int(time.time())))
+
+    async def get_timer_remaining(self, timer_duration: int) -> int:
+        r = get_redis()
+        value = await r.hget(self._key(), "timer_started_at")
+        if not value:
+            return timer_duration
+        elapsed = int(time.time()) - int(value)
+        return max(1, timer_duration - elapsed)
 
     async def acquire_state_lock(self) -> bool:
         r = get_redis()

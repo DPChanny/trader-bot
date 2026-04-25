@@ -13,30 +13,27 @@ from .auction import Auction, Bid, Team
 from .auction_repository import AuctionRepository
 
 
-_COUNTDOWN_SECONDS = 5
-
-
 class AuctionManager:
     _auctions: ClassVar[dict[int, Auction]] = {}
     _pubsub: ClassVar[Any] = None
     _listener_task: ClassVar[asyncio.Task | None] = None
-    _countdown_tasks: ClassVar[dict[int, asyncio.Task]] = {}
+    _start_auction_tasks: ClassVar[dict[int, asyncio.Task]] = {}
 
     @classmethod
-    async def setup_listener(cls) -> None:
+    async def setup(cls) -> None:
         r = get_redis()
         cls._pubsub = r.pubsub()
         cls._listener_task = asyncio.create_task(cls._listener())
 
     @classmethod
-    async def cleanup_listener(cls) -> None:
+    async def cleanup(cls) -> None:
         if cls._listener_task:
             cls._listener_task.cancel()
             with asyncio.suppress(asyncio.CancelledError):
                 await cls._listener_task
-        for task in cls._countdown_tasks.values():
+        for task in cls._start_auction_tasks.values():
             task.cancel()
-        cls._countdown_tasks.clear()
+        cls._start_auction_tasks.clear()
         if cls._pubsub:
             await cls._pubsub.close()
 
@@ -70,6 +67,8 @@ class AuctionManager:
                                 auction.on_member_unsold()
                             case AuctionEventType.STATUS:
                                 auction.on_status(payload["status"])
+                                if auction.status == Status.COMPLETED:
+                                    cls._auctions.pop(auction_id, None)
                         await auction.broadcast(event_type, payload)
                 except ValueError, IndexError, KeyError:
                     continue
@@ -102,7 +101,7 @@ class AuctionManager:
 
         await repo.publish_status(Status.PENDING)
         await repo.release_state_lock()
-        cls._countdown_tasks[auction_id] = asyncio.create_task(
+        cls._start_auction_tasks[auction_id] = asyncio.create_task(
             cls._start_auction(auction_id)
         )
 
@@ -116,11 +115,11 @@ class AuctionManager:
     @classmethod
     async def _start_auction(cls, auction_id: int) -> None:
         try:
-            await asyncio.sleep(_COUNTDOWN_SECONDS)
+            await asyncio.sleep(5)
         except asyncio.CancelledError:
             return
         finally:
-            cls._countdown_tasks.pop(auction_id, None)
+            cls._start_auction_tasks.pop(auction_id, None)
 
         await AuctionRepository(auction_id).publish_status(Status.RUNNING)
         await cls._next_player(auction_id)
@@ -180,6 +179,7 @@ class AuctionManager:
             auction_id=auction_id,
             preset_snapshot=preset_snapshot,
             on_timer_expire=cls._get_on_timer_expire(auction_id),
+            on_timer_start=cls._get_on_timer_start(auction_id),
         )
         cls._auctions[auction.auction_id] = auction
 
@@ -193,15 +193,20 @@ class AuctionManager:
             return cls._auctions[auction_id]
 
         repo = AuctionRepository(auction_id)
-        auction = await repo.load(cls._get_on_timer_expire(auction_id), cls._pubsub)
+        auction = await repo.load(
+            cls._get_on_timer_expire(auction_id),
+            cls._get_on_timer_start(auction_id),
+            cls._pubsub,
+        )
         if not auction:
             cls._auctions.pop(auction_id, None)
             return None
 
         if auction.status == Status.RUNNING and auction.player_id is not None:
-            auction.start_timer()
+            remaining = await repo.get_timer_remaining(auction.preset_snapshot.timer)
+            auction.start_timer(remaining)
         elif auction.status == Status.PENDING:
-            cls._countdown_tasks[auction_id] = asyncio.create_task(
+            cls._start_auction_tasks[auction_id] = asyncio.create_task(
                 cls._start_auction(auction_id)
             )
 
@@ -214,3 +219,10 @@ class AuctionManager:
             await cls.on_timer_expire(auction_id)
 
         return _on_timer_expire
+
+    @classmethod
+    def _get_on_timer_start(cls, auction_id: int) -> Any:
+        async def _on_timer_start() -> None:
+            await AuctionRepository(auction_id).set_timer_started_at()
+
+        return _on_timer_start
