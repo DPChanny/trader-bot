@@ -1,3 +1,4 @@
+import asyncio
 import json
 import uuid
 from typing import Any, ClassVar
@@ -9,21 +10,60 @@ from .auction import Auction, Bid, Team
 
 
 class AuctionManager:
-    _local_auctions: ClassVar[dict[int, Auction]] = {}
+    _auctions: ClassVar[dict[int, Auction]] = {}
+    _pubsub: ClassVar[Any] = None
+    _listener_task: ClassVar[asyncio.Task | None] = None
 
     @classmethod
-    async def _on_redis_event(cls, _: str, data: Any):
-        auction_id = data.get("auction_id")
-        event_type = data.get("type")
-        payload = data.get("payload")
+    async def setup(cls):
+        r = get_redis()
+        cls._pubsub = r.pubsub()
+        cls._listener_task = asyncio.create_task(cls._listen())
 
-        auction = cls._local_auctions.get(auction_id)
+    @classmethod
+    async def cleanup(cls):
+        if cls._listener_task:
+            cls._listener_task.cancel()
+            with asyncio.suppress(asyncio.CancelledError):
+                await cls._listener_task
+        if cls._pubsub:
+            await cls._pubsub.close()
+
+    @classmethod
+    async def _listen(cls):
+        try:
+            async for message in cls._pubsub.listen():
+                if message["type"] == "message":
+                    channel = message["channel"]
+                    try:
+                        auction_id = int(channel.split(":")[1])
+                        data = json.loads(message["data"])
+                        await cls._on_auction_event(auction_id, data)
+                    except ValueError, IndexError:
+                        continue
+        except asyncio.CancelledError:
+            pass
+
+    @classmethod
+    async def _on_auction_event(cls, auction_id: int, data: Any):
+        event_type = data.get("type")
+        event_payload = data.get("payload")
+
+        auction = cls._auctions.get(auction_id)
         if auction:
-            await auction.handle_redis_event(event_type, payload)
+            await auction.handle_redis_event(event_type, event_payload)
+
+            from shared.dtos.auction import Status
+
+            if (
+                event_type == "status"
+                and event_payload.get("status") == Status.COMPLETED.value
+            ):
+                await cls.remove_auction(auction_id)
 
     @classmethod
     async def _publish_and_sync(cls, auction_id: int, event_type: str, payload: Any):
-        auction = cls._local_auctions.get(auction_id)
+        auction = cls._auctions.get(auction_id)
         if not auction:
             return
 
@@ -42,7 +82,7 @@ class AuctionManager:
         async with r.pipeline(transaction=True) as pipe:
             pipe.hset(f"auction:{auction_id}", mapping=data)
             pipe.publish(
-                "auctions:event",
+                f"auction:{auction_id}:event",
                 json.dumps(
                     {"auction_id": auction_id, "type": event_type, "payload": payload}
                 ),
@@ -55,7 +95,8 @@ class AuctionManager:
     ) -> Auction:
         auction_id = uuid.uuid4().int
         auction = Auction(auction_id, preset_snapshot, is_public, cls._publish_and_sync)
-        cls._local_auctions[auction_id] = auction
+        cls._auctions[auction_id] = auction
+        await cls._pubsub.subscribe(f"auction:{auction_id}:event")
 
         r = get_redis()
         key = f"auction:{auction_id}"
@@ -81,8 +122,8 @@ class AuctionManager:
 
     @classmethod
     async def get_auction(cls, auction_id: int) -> Auction | None:
-        if auction_id in cls._local_auctions:
-            return cls._local_auctions[auction_id]
+        if auction_id in cls._auctions:
+            return cls._auctions[auction_id]
 
         r = get_redis()
         data = await r.hgetall(f"auction:{auction_id}")
@@ -114,5 +155,13 @@ class AuctionManager:
         auction.auction_queue = json.loads(data.get("auction_queue", "[]"))
         auction.unsold_queue = json.loads(data.get("unsold_queue", "[]"))
 
-        cls._local_auctions[auction_id] = auction
+        cls._auctions[auction_id] = auction
+        await cls._pubsub.subscribe(f"auction:{auction_id}:event")
         return auction
+
+    @classmethod
+    async def remove_auction(cls, auction_id: int):
+        if auction_id in cls._auctions:
+            del cls._auctions[auction_id]
+            if cls._pubsub:
+                await cls._pubsub.unsubscribe(f"auction:{auction_id}:event")

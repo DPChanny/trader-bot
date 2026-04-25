@@ -6,7 +6,7 @@ from shared.utils.env import get_redis_db, get_redis_host, get_redis_port
 _redis: redis.Redis | None = None
 
 
-def setup_redis():
+async def setup_redis():
     global _redis
     _redis = redis.Redis(
         connection_pool=redis.ConnectionPool(
@@ -15,8 +15,11 @@ def setup_redis():
             db=get_redis_db(),
             decode_responses=True,
             health_check_interval=30,
+            max_connections=10,
+            timeout=5,
         )
     )
+    await _redis.ping()
 
 
 def get_redis() -> redis.Redis:

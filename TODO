@@ -1,0 +1,6 @@
+pm2 2 worker
+nginx load balancer
+t4g small rds
+t4g small backend
+t4g micro bot
+t4g micro redis

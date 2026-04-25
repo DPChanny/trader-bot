@@ -63,51 +63,47 @@ _rds_cache = _RDSCache()
 
 async def _async_creator() -> asyncpg.Connection:
     phase = get_phase()
-    db_host = get_db_host()
-    db_port = int(get_db_port())
-    db_user = get_db_user()
-    db_name = get_db_name()
-    last_exc: Exception | None = None
+    host = get_db_host()
+    port = int(get_db_port())
+    user = get_db_user()
+    name = get_db_name()
+    last_exception: Exception | None = None
 
     for attempt in range(1, _DB_CONNECT_MAX_RETRIES + 1):
         try:
             if phase == "dev":
                 return await asyncpg.connect(
-                    host=db_host,
-                    port=db_port,
-                    user=db_user,
-                    database=db_name,
-                    ssl="disable",
+                    host=host, port=port, user=user, database=name, ssl="disable"
                 )
 
-            db_password = await _rds_cache.get_auth_token(db_host)
+            password = await _rds_cache.get_auth_token(host)
             try:
                 return await asyncpg.connect(
-                    host=db_host,
-                    port=db_port,
-                    user=db_user,
-                    password=db_password,
-                    database=db_name,
+                    host=host,
+                    port=port,
+                    user=user,
+                    password=password,
+                    database=name,
                     ssl="require",
                 )
             except asyncpg.InvalidPasswordError:
                 _rds_cache.invalidate_auth_token()
-                db_password = await _rds_cache.get_auth_token(db_host)
+                password = await _rds_cache.get_auth_token(host)
                 return await asyncpg.connect(
-                    host=db_host,
-                    port=db_port,
-                    user=db_user,
-                    password=db_password,
-                    database=db_name,
+                    host=host,
+                    port=port,
+                    user=user,
+                    password=password,
+                    database=name,
                     ssl="require",
                 )
-        except Exception as exc:
-            last_exc = exc
+        except Exception as exception:
+            last_exception = exception
             delay = _DB_CONNECT_BASE_DELAY * (2 ** (attempt - 1))
             if attempt < _DB_CONNECT_MAX_RETRIES:
                 await asyncio.sleep(delay)
 
-    raise last_exc
+    raise last_exception
 
 
 _engine = create_async_engine(
@@ -127,6 +123,11 @@ _sessionmaker = async_sessionmaker(
 async def setup_db():
     async with _engine.begin() as conn:
         await conn.run_sync(BaseEntity.metadata.create_all, checkfirst=True)
+
+
+async def close_db():
+    if _engine:
+        await _engine.dispose()
 
 
 async def get_session() -> AsyncGenerator[AsyncSession]:

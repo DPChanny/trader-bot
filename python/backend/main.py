@@ -1,6 +1,4 @@
-import asyncio
-import json
-from contextlib import asynccontextmanager, suppress
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -8,7 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from shared.utils.db import setup_db
+from shared.utils.db import close_db, setup_db
 from shared.utils.env import get_app_origin
 from shared.utils.error import (
     HTTPError,
@@ -17,7 +15,7 @@ from shared.utils.error import (
     handle_http_error,
 )
 from shared.utils.logging import HTTPLogger, WSLogger, setup_logging
-from shared.utils.redis import close_redis, get_redis, setup_redis
+from shared.utils.redis import close_redis, setup_redis
 
 from .auction.auction_manager import AuctionManager
 from .routers import (
@@ -39,34 +37,18 @@ setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 
 @asynccontextmanager
 async def lifespan(_):
-    setup_redis()
+    await setup_redis()
     await setup_db()
-
-    async def _subscribe():
-        r = get_redis()
-        pubsub = r.pubsub()
-        await pubsub.subscribe("auctions:event")
-        try:
-            async for message in pubsub.listen():
-                if message["type"] == "message":
-                    await AuctionManager._on_redis_event(
-                        message["channel"], json.loads(message["data"])
-                    )
-        except asyncio.CancelledError:
-            await pubsub.unsubscribe("auctions:event")
-            await pubsub.close()
-
-    redis_task = asyncio.create_task(_subscribe())
+    await AuctionManager.setup()
 
     yield
 
-    redis_task.cancel()
-    with suppress(asyncio.CancelledError):
-        await redis_task
+    await AuctionManager.cleanup()
+    await close_db()
     await close_redis()
 
 
-app = FastAPI(title="Trader Bot API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Trader Bot API", version="0.4.0", lifespan=lifespan)
 
 
 @app.exception_handler(HTTPError)
