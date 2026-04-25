@@ -123,7 +123,7 @@ async def connect_service(
     if member_id is None and not auction.is_public:
         raise WSError(AuctionErrorCode.ForbiddenAccess)
 
-    await auction.connect(ws, member_id)
+    await AuctionManager.on_connect(auction_id, ws, member_id)
 
     event.result = {"auction_id": auction.auction_id, "member_id": member_id}
 
@@ -137,11 +137,9 @@ async def place_bid_service(
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)
 
-    await auction.place_bid(member_id, dto.amount)
+    await AuctionManager.on_bid(auction.auction_id, member_id, dto.amount)
 
 
 @ws_service
-async def disconnect_service(
-    auction: Auction, member_id: int | None, ws: WebSocket, event: Event
-) -> None:
-    await auction.disconnect(ws, member_id)
+async def disconnect_service(auction: Auction, ws: WebSocket, event: Event) -> None:
+    await AuctionManager.on_disconnect(auction.auction_id, ws)

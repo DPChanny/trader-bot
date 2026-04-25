@@ -57,7 +57,7 @@ def _get_message_envelope_dto(message: str) -> AuctionMessageEnvelopeDTO:
         raise WSError(ValidationErrorCode.Invalid)
     try:
         return AuctionMessageEnvelopeDTO.model_validate(json.loads(message))
-    except (ValidationError, JSONDecodeError):
+    except ValidationError, JSONDecodeError:
         raise WSError(ValidationErrorCode.Invalid) from None
 
 
@@ -127,4 +127,4 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
         pass
     finally:
         if auction is not None:
-            await disconnect_service(auction, member_id, ws)
+            await disconnect_service(auction, ws)

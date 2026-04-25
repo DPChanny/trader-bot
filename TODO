@@ -4,3 +4,9 @@ t4g small rds
 t4g small backend
 t4g micro bot
 t4g micro redis
+redis conf
+router.py?
+upsert opt
+on ready opt
+pagenation
+workflow 개편

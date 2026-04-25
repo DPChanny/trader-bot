@@ -45,8 +45,8 @@ class AuctionDTO(BaseDTO):
     guild_id: BigInt
     preset_id: int
     status: Status
-    current_member_id: int | None
-    current_bid: BidDTO | None
+    player_id: int | None
+    bid: BidDTO | None
     timer: int
 
 
@@ -79,18 +79,14 @@ class StatusPayloadDTO(BaseDTO):
 
 class NextMemberPayloadDTO(BaseDTO):
     member_id: int
-    auction_queue: list[int]
-    unsold_queue: list[int]
 
 
 class MemberSoldPayloadDTO(BaseDTO):
-    teams: list[TeamDTO]
-    auction_queue: list[int]
-    unsold_queue: list[int]
+    pass
 
 
 class MemberUnsoldPayloadDTO(BaseDTO):
-    member_id: int
+    pass
 
 
 class PlaceBidPayloadDTO(BaseDTO):
