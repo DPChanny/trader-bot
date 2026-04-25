@@ -86,7 +86,7 @@ class Auction:
         )
 
     def apply(self, event_type: AuctionMessageType, payload: dict) -> None:
-        if event_type == AuctionMessageType.NEXT_MEMBER:
+        if event_type == AuctionMessageType.NEXT_PLAYER:
             if self.auction_queue:
                 self.player_id = self.auction_queue[0]
                 self.auction_queue = self.auction_queue[1:]

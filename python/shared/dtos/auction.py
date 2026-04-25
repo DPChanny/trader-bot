@@ -26,7 +26,7 @@ class AuctionMessageType(IntEnum):
     MEMBER_UNSOLD = 8
     LEADER_CONNECTED = 9
     LEADER_DISCONNECTED = 10
-    NEXT_MEMBER = 11
+    NEXT_PLAYER = 11
 
 
 class TeamDTO(BaseDTO):

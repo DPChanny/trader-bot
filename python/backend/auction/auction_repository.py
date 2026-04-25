@@ -15,20 +15,21 @@ _AUCTION_LIFETIME = 3600
 
 
 class AuctionRepository:
-    @staticmethod
-    def _key(auction_id: int, suffix: str = "") -> str:
-        return f"auction:{auction_id}{suffix}"
+    def __init__(self, auction_id: int) -> None:
+        self.auction_id = auction_id
 
-    @classmethod
+    def _key(self, suffix: str = "") -> str:
+        return f"auction:{self.auction_id}{suffix}"
+
     async def load(
-        cls, auction_id: int, on_expire: Callable[[], Awaitable[None]]
+        self, on_expire: Callable[[], Awaitable[None]], pubsub: Any
     ) -> Auction | None:
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
-            pipe.hgetall(cls._key(auction_id))
-            pipe.hgetall(cls._key(auction_id, ":teams"))
-            pipe.lrange(cls._key(auction_id, ":auction_queue"), 0, -1)
-            pipe.lrange(cls._key(auction_id, ":unsold_queue"), 0, -1)
+            pipe.hgetall(self._key())
+            pipe.hgetall(self._key(":teams"))
+            pipe.lrange(self._key(":auction_queue"), 0, -1)
+            pipe.lrange(self._key(":unsold_queue"), 0, -1)
             data, teams_raw, aq_raw, uq_raw = await pipe.execute()
         if not data:
             return None
@@ -39,8 +40,8 @@ class AuctionRepository:
             if data.get("bid_amount")
             else None
         )
-        return Auction(
-            auction_id=auction_id,
+        auction = Auction(
+            auction_id=self.auction_id,
             preset_snapshot=preset_snapshot,
             teams=teams,
             auction_queue=[int(x) for x in aq_raw],
@@ -50,11 +51,11 @@ class AuctionRepository:
             bid=bid,
             on_expire=on_expire,
         )
+        await pubsub.subscribe(self._key(":event"))
+        return auction
 
-    @classmethod
-    async def save(cls, auction: Auction) -> None:
+    async def save(self, auction: Auction, pubsub: Any) -> None:
         r = get_redis()
-        aid = auction.auction_id
         state_mapping = {
             "status": str(auction.status.value),
             "player_id": "",
@@ -65,115 +66,165 @@ class AuctionRepository:
             "preset_snapshot": auction.preset_snapshot.model_dump_json(),
         }
         async with r.pipeline(transaction=True) as pipe:
-            pipe.hset(cls._key(aid), mapping=state_mapping)
-            pipe.expire(cls._key(aid), _AUCTION_LIFETIME)
+            pipe.hset(self._key(), mapping=state_mapping)
+            pipe.expire(self._key(), _AUCTION_LIFETIME)
             for team in auction.teams:
                 pipe.hset(
-                    cls._key(aid, ":teams"), str(team.team_id), team.model_dump_json()
+                    self._key(":teams"), str(team.team_id), team.model_dump_json()
                 )
-            pipe.expire(cls._key(aid, ":teams"), _AUCTION_LIFETIME)
+            pipe.expire(self._key(":teams"), _AUCTION_LIFETIME)
             if auction.auction_queue:
-                pipe.rpush(cls._key(aid, ":auction_queue"), *auction.auction_queue)
-                pipe.expire(cls._key(aid, ":auction_queue"), _AUCTION_LIFETIME)
+                pipe.rpush(self._key(":auction_queue"), *auction.auction_queue)
+                pipe.expire(self._key(":auction_queue"), _AUCTION_LIFETIME)
             await pipe.execute()
+        await pubsub.subscribe(self._key(":event"))
 
-    @classmethod
-    async def incr_connected_leader_count_and_emit(
-        cls, auction_id: int, event_type: AuctionMessageType
-    ) -> int:
+    async def publish_leader_connected(self) -> int:
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
-            pipe.incr(cls._key(auction_id, ":connected_leader_count"))
+            pipe.incr(self._key(":connected_leader_count"))
             pipe.publish(
-                cls._key(auction_id, ":event"),
-                json.dumps({"type": event_type.value, "payload": {}}),
+                self._key(":event"),
+                json.dumps(
+                    {"type": AuctionMessageType.LEADER_CONNECTED.value, "payload": {}}
+                ),
             )
             new_count, _ = await pipe.execute()
         return int(new_count)
 
-    @classmethod
-    async def decr_connected_leader_count_and_emit(
-        cls, auction_id: int, event_type: AuctionMessageType
-    ) -> None:
+    async def publish_leader_disconnected(self) -> None:
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
-            pipe.decr(cls._key(auction_id, ":connected_leader_count"))
+            pipe.decr(self._key(":connected_leader_count"))
             pipe.publish(
-                cls._key(auction_id, ":event"),
-                json.dumps({"type": event_type.value, "payload": {}}),
+                self._key(":event"),
+                json.dumps(
+                    {
+                        "type": AuctionMessageType.LEADER_DISCONNECTED.value,
+                        "payload": {},
+                    }
+                ),
             )
             await pipe.execute()
 
-    @classmethod
-    async def peek_queues(cls, auction_id: int) -> tuple[int | None, list[int]]:
+    async def get_queues(self) -> tuple[int | None, list[int]]:
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
-            pipe.lindex(cls._key(auction_id, ":auction_queue"), 0)
-            pipe.lrange(cls._key(auction_id, ":unsold_queue"), 0, -1)
+            pipe.lindex(self._key(":auction_queue"), 0)
+            pipe.lrange(self._key(":unsold_queue"), 0, -1)
             next_aq, uq_raw = await pipe.execute()
         return (int(next_aq) if next_aq else None), [int(x) for x in uq_raw]
 
-    @classmethod
-    async def acquire_state_lock(cls, auction_id: int) -> bool:
+    async def acquire_state_lock(self) -> bool:
         r = get_redis()
-        return bool(
-            await r.set(
-                cls._key(auction_id, ":state_lock"), "1", nx=True, ex=_AUCTION_LIFETIME
-            )
-        )
+        return bool(await r.set(self._key(":state_lock"), "1", nx=True))
 
-    @classmethod
-    async def acquire_timer_lock(cls, auction_id: int) -> bool:
+    async def release_state_lock(self) -> None:
         r = get_redis()
-        return bool(
-            await r.set(cls._key(auction_id, ":timer_lock"), "1", nx=True, ex=10)
-        )
+        await r.delete(self._key(":state_lock"))
 
-    @classmethod
-    async def subscribe(cls, auction_id: int, pubsub: Any) -> None:
-        await pubsub.subscribe(cls._key(auction_id, ":event"))
+    async def acquire_timer_lock(self) -> bool:
+        r = get_redis()
+        return bool(await r.set(self._key(":timer_lock"), "1", nx=True))
 
-    @classmethod
-    async def emit(
-        cls,
-        auction_id: int,
-        event_type: AuctionMessageType,
-        payload: dict,
-        *,
-        hset: dict | None = None,
-        hset_teams: dict | None = None,
-        lpop_aq: bool = False,
-        rpush_uq: int | None = None,
-    ) -> None:
+    async def release_timer_lock(self) -> None:
+        r = get_redis()
+        await r.delete(self._key(":timer_lock"))
+
+    async def publish_status(self, status: Status) -> None:
         r = get_redis()
         async with r.pipeline(transaction=True) as pipe:
-            if hset:
-                pipe.hset(cls._key(auction_id), mapping=hset)
-            if hset_teams:
-                for team_id, val in hset_teams.items():
-                    pipe.hset(cls._key(auction_id, ":teams"), str(team_id), val)
-            if lpop_aq:
-                pipe.lpop(cls._key(auction_id, ":auction_queue"))
-            if rpush_uq is not None:
-                pipe.rpush(cls._key(auction_id, ":unsold_queue"), rpush_uq)
+            pipe.hset(self._key(), mapping={"status": str(status.value)})
             pipe.publish(
-                cls._key(auction_id, ":event"),
-                json.dumps({"type": event_type.value, "payload": payload}),
+                self._key(":event"),
+                json.dumps(
+                    {
+                        "type": AuctionMessageType.STATUS.value,
+                        "payload": {"status": status.value},
+                    }
+                ),
             )
             await pipe.execute()
 
-    @classmethod
-    async def emit_recycle_and_next(
-        cls, auction_id: int, uq_members: list[int]
-    ) -> None:
+    async def publish_bid_placed(self, leader_id: int, amount: int) -> None:
+        r = get_redis()
+        async with r.pipeline(transaction=True) as pipe:
+            pipe.hset(
+                self._key(),
+                mapping={"bid_amount": str(amount), "bid_leader_id": str(leader_id)},
+            )
+            pipe.publish(
+                self._key(":event"),
+                json.dumps(
+                    {
+                        "type": AuctionMessageType.BID_PLACED.value,
+                        "payload": {"leader_id": leader_id, "amount": amount},
+                    }
+                ),
+            )
+            await pipe.execute()
+
+    async def publish_member_sold(self, team_id: int, team_json: str) -> None:
+        r = get_redis()
+        async with r.pipeline(transaction=True) as pipe:
+            pipe.hset(
+                self._key(),
+                mapping={"player_id": "", "bid_amount": "", "bid_leader_id": ""},
+            )
+            pipe.hset(self._key(":teams"), str(team_id), team_json)
+            pipe.publish(
+                self._key(":event"),
+                json.dumps(
+                    {"type": AuctionMessageType.MEMBER_SOLD.value, "payload": {}}
+                ),
+            )
+            await pipe.execute()
+
+    async def publish_member_unsold(self, player_id: int) -> None:
+        r = get_redis()
+        async with r.pipeline(transaction=True) as pipe:
+            pipe.hset(
+                self._key(),
+                mapping={"player_id": "", "bid_amount": "", "bid_leader_id": ""},
+            )
+            pipe.rpush(self._key(":unsold_queue"), player_id)
+            pipe.publish(
+                self._key(":event"),
+                json.dumps(
+                    {"type": AuctionMessageType.MEMBER_UNSOLD.value, "payload": {}}
+                ),
+            )
+            await pipe.execute()
+
+    async def publish_next_player(self, member_id: int) -> None:
+        r = get_redis()
+        async with r.pipeline(transaction=True) as pipe:
+            pipe.hset(
+                self._key(),
+                mapping={
+                    "player_id": str(member_id),
+                    "bid_amount": "",
+                    "bid_leader_id": "",
+                },
+            )
+            pipe.lpop(self._key(":auction_queue"))
+            pipe.publish(
+                self._key(":event"),
+                json.dumps(
+                    {"type": AuctionMessageType.NEXT_PLAYER.value, "payload": {}}
+                ),
+            )
+            await pipe.execute()
+
+    async def publish_recycle_and_next(self, uq_members: list[int]) -> None:
         member_id = uq_members[0]
         r = get_redis()
         async with r.pipeline(transaction=True) as pipe:
-            pipe.delete(cls._key(auction_id, ":unsold_queue"))
-            pipe.rpush(cls._key(auction_id, ":auction_queue"), *uq_members)
-            pipe.lpop(cls._key(auction_id, ":auction_queue"))
+            pipe.delete(self._key(":unsold_queue"))
+            pipe.rpush(self._key(":auction_queue"), *uq_members)
+            pipe.lpop(self._key(":auction_queue"))
             pipe.hset(
-                cls._key(auction_id),
+                self._key(),
                 mapping={
                     "player_id": str(member_id),
                     "bid_amount": "",
@@ -181,9 +232,9 @@ class AuctionRepository:
                 },
             )
             pipe.publish(
-                cls._key(auction_id, ":event"),
+                self._key(":event"),
                 json.dumps(
-                    {"type": AuctionMessageType.NEXT_MEMBER.value, "payload": {}}
+                    {"type": AuctionMessageType.NEXT_PLAYER.value, "payload": {}}
                 ),
             )
             await pipe.execute()

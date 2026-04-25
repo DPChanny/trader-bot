@@ -48,7 +48,7 @@ export enum AuctionMessageType {
   MEMBER_UNSOLD = 8,
   MEMBER_CONNECTED = 9,
   MEMBER_DISCONNECTED = 10,
-  NEXT_MEMBER = 11,
+  NEXT_PLAYER = 11,
 }
 
 export interface AuctionMessageEnvelopeDTO<TPayload = unknown> {
@@ -84,7 +84,7 @@ export interface BidPlacedPayloadDTO {
   amount: number;
 }
 
-export interface NextMemberPayloadDTO {
+export interface NextPlayerPayloadDTO {
   memberId: number;
   auctionQueue: number[];
   unsoldQueue: number[];

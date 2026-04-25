@@ -29,7 +29,7 @@ class AuctionManager:
     async def setup(cls) -> None:
         r = get_redis()
         cls._pubsub = r.pubsub()
-        cls._listener_task = asyncio.create_task(cls._listen())
+        cls._listener_task = asyncio.create_task(cls._listener())
 
     @classmethod
     async def cleanup(cls) -> None:
@@ -44,7 +44,7 @@ class AuctionManager:
             await cls._pubsub.close()
 
     @classmethod
-    async def _listen(cls) -> None:
+    async def _listener(cls) -> None:
         try:
             async for message in cls._pubsub.listen():
                 if message["type"] != "message":
@@ -83,21 +83,16 @@ class AuctionManager:
         if auction.status != Status.WAITING:
             return
 
-        new_count = await AuctionRepository.incr_connected_leader_count_and_emit(
-            auction_id, AuctionMessageType.LEADER_CONNECTED
-        )
+        repo = AuctionRepository(auction_id)
+        new_count = await repo.publish_leader_connected()
 
         if new_count < auction.leader_count:
             return
-        if not await AuctionRepository.acquire_state_lock(auction_id):
+        if not await repo.acquire_state_lock():
             return
 
-        await AuctionRepository.emit(
-            auction_id,
-            AuctionMessageType.STATUS,
-            {"status": Status.PENDING.value},
-            hset={"status": str(Status.PENDING.value)},
-        )
+        await repo.publish_status(Status.PENDING)
+        await repo.release_state_lock()
         cls._countdown_tasks[auction_id] = asyncio.create_task(
             cls._start_auction(auction_id)
         )
@@ -114,9 +109,7 @@ class AuctionManager:
             and auction.is_leader(member_id)
             and auction.status == Status.WAITING
         ):
-            await AuctionRepository.decr_connected_leader_count_and_emit(
-                auction_id, AuctionMessageType.LEADER_DISCONNECTED
-            )
+            await AuctionRepository(auction_id).publish_leader_disconnected()
 
     @classmethod
     async def _start_auction(cls, auction_id: int) -> None:
@@ -127,13 +120,8 @@ class AuctionManager:
         finally:
             cls._countdown_tasks.pop(auction_id, None)
 
-        await AuctionRepository.emit(
-            auction_id,
-            AuctionMessageType.STATUS,
-            {"status": Status.RUNNING.value},
-            hset={"status": str(Status.RUNNING.value)},
-        )
-        await cls._do_next_player(auction_id)
+        await AuctionRepository(auction_id).publish_status(Status.RUNNING)
+        await cls._next_player(auction_id)
 
     @classmethod
     async def on_place_bid(cls, auction_id: int, leader_id: int, amount: int) -> None:
@@ -143,73 +131,45 @@ class AuctionManager:
 
         auction.validate_bid(leader_id, amount)
 
-        await AuctionRepository.emit(
-            auction_id,
-            AuctionMessageType.BID_PLACED,
-            {"leader_id": leader_id, "amount": amount},
-            hset={"bid_amount": str(amount), "bid_leader_id": str(leader_id)},
-        )
+        await AuctionRepository(auction_id).publish_bid_placed(leader_id, amount)
 
     @classmethod
     async def on_timer_expire(cls, auction_id: int) -> None:
-        if not await AuctionRepository.acquire_timer_lock(auction_id):
+        if not await AuctionRepository(auction_id).acquire_timer_lock():
             return
 
         auction = cls._auctions.get(auction_id)
         if not auction or auction.status != Status.RUNNING or auction.player_id is None:
             return
 
+        repo = AuctionRepository(auction_id)
         sold_team = auction.resolve_sold()
         if sold_team is not None:
-            await AuctionRepository.emit(
-                auction_id,
-                AuctionMessageType.MEMBER_SOLD,
-                {},
-                hset={"player_id": "", "bid_amount": "", "bid_leader_id": ""},
-                hset_teams={sold_team.team_id: sold_team.model_dump_json()},
+            await repo.publish_member_sold(
+                sold_team.team_id, sold_team.model_dump_json()
             )
         else:
-            await AuctionRepository.emit(
-                auction_id,
-                AuctionMessageType.MEMBER_UNSOLD,
-                {},
-                hset={"player_id": "", "bid_amount": "", "bid_leader_id": ""},
-                rpush_uq=auction.player_id,
-            )
+            await repo.publish_member_unsold(auction.player_id)
 
-        await cls._do_next_player(auction_id)
+        await cls._next_player(auction_id)
+        await repo.release_timer_lock()
 
     @classmethod
-    async def _do_next_player(cls, auction_id: int) -> None:
+    async def _next_player(cls, auction_id: int) -> None:
         auction = cls._auctions.get(auction_id)
         if not auction:
             return
 
-        next_member_id, uq_members = await AuctionRepository.peek_queues(auction_id)
+        next_player_id, unsold_queue = await AuctionRepository(auction_id).get_queues()
 
-        if next_member_id is None:
-            if not uq_members:
-                await AuctionRepository.emit(
-                    auction_id,
-                    AuctionMessageType.STATUS,
-                    {"status": Status.COMPLETED.value},
-                    hset={"status": str(Status.COMPLETED.value)},
-                )
+        if next_player_id is None:
+            if not unsold_queue:
+                await AuctionRepository(auction_id).publish_status(Status.COMPLETED)
                 return
 
-            await AuctionRepository.emit_recycle_and_next(auction_id, uq_members)
+            await AuctionRepository(auction_id).publish_recycle_and_next(unsold_queue)
         else:
-            await AuctionRepository.emit(
-                auction_id,
-                AuctionMessageType.NEXT_MEMBER,
-                {},
-                hset={
-                    "player_id": str(next_member_id),
-                    "bid_amount": "",
-                    "bid_leader_id": "",
-                },
-                lpop_aq=True,
-            )
+            await AuctionRepository(auction_id).publish_next_player(next_player_id)
 
     @classmethod
     async def create_auction(cls, preset_snapshot: PresetDetailDTO) -> Auction:
@@ -241,8 +201,8 @@ class AuctionManager:
         )
         cls._auctions[auction.auction_id] = auction
 
-        await AuctionRepository.save(auction)
-        await AuctionRepository.subscribe(auction.auction_id, cls._pubsub)
+        repo = AuctionRepository(auction_id)
+        await repo.save(auction, cls._pubsub)
         return auction
 
     @classmethod
@@ -250,9 +210,8 @@ class AuctionManager:
         if auction_id in cls._auctions:
             return cls._auctions[auction_id]
 
-        auction = await AuctionRepository.load(
-            auction_id, cls._get_on_expire(auction_id)
-        )
+        repo = AuctionRepository(auction_id)
+        auction = await repo.load(cls._get_on_expire(auction_id), cls._pubsub)
         if not auction:
             cls._auctions.pop(auction_id, None)
             return None
@@ -265,7 +224,6 @@ class AuctionManager:
             )
 
         cls._auctions[auction_id] = auction
-        await AuctionRepository.subscribe(auction_id, cls._pubsub)
         return auction
 
     @classmethod

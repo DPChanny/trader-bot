@@ -92,7 +92,7 @@ export function useAuction(): {
         break;
       }
 
-      case AuctionMessageType.NEXT_MEMBER: {
+      case AuctionMessageType.NEXT_PLAYER: {
         setAuction((prev) => {
           return prev
             ? {
