@@ -100,18 +100,23 @@ class AuctionRepository:
             await pipe.execute()
         await pubsub.subscribe(self._key(":event"))
 
-    async def publish_leader_connected(self) -> int:
+    async def publish_leader_connected(self) -> None:
         r = get_redis()
-        async with r.pipeline(transaction=False) as pipe:
-            pipe.incr(self._key(":connected_leader_count"))
-            pipe.publish(
-                self._key(":event"),
-                json.dumps(
-                    {"type": AuctionEventType.LEADER_CONNECTED.value, "payload": {}}
-                ),
-            )
-            new_count, _ = await pipe.execute()
-        return int(new_count)
+        await r.publish(
+            self._key(":event"),
+            json.dumps(
+                {"type": AuctionEventType.LEADER_CONNECTED.value, "payload": {}}
+            ),
+        )
+
+    async def publish_leader_disconnected(self) -> None:
+        r = get_redis()
+        await r.publish(
+            self._key(":event"),
+            json.dumps(
+                {"type": AuctionEventType.LEADER_DISCONNECTED.value, "payload": {}}
+            ),
+        )
 
     async def publish_next_player(self) -> bool:
         result = await get_redis().eval(
@@ -129,13 +134,10 @@ class AuctionRepository:
         r = get_redis()
         await r.hset(self._key(), "timer_started_at", str(int(time.time())))
 
-    async def get_timer_remaining(self, timer_duration: int) -> int:
+    async def get_timer_started_at(self) -> int | None:
         r = get_redis()
         value = await r.hget(self._key(), "timer_started_at")
-        if not value:
-            return timer_duration
-        elapsed = int(time.time()) - int(value)
-        return max(1, timer_duration - elapsed)
+        return int(value) if value else None
 
     async def acquire_state_lock(self) -> bool:
         r = get_redis()

@@ -1,5 +1,6 @@
 import asyncio
 import json
+import time
 import uuid
 from typing import Any, ClassVar
 
@@ -83,34 +84,28 @@ class AuctionManager:
         if not auction:
             return
 
-        auction.connect(ws, member_id)
-        if (
-            member_id is None
-            or not auction.is_leader(member_id)
-            or auction.status != Status.WAITING
-        ):
-            return
-
-        repo = AuctionRepository(auction_id)
-        new_connected_leader_count = await repo.publish_leader_connected()
-
-        if new_connected_leader_count < auction.connected_leader_count:
-            return
-        if not await repo.acquire_state_lock():
-            return
-
-        await repo.publish_status(Status.PENDING)
-        await repo.release_state_lock()
-        cls._start_auction_tasks[auction_id] = asyncio.create_task(
-            cls._start_auction(auction_id)
-        )
+        is_new_leader = auction.connect(ws, member_id)
+        if is_new_leader:
+            await AuctionRepository(auction_id).publish_leader_connected()
+            if (
+                auction.status == Status.WAITING
+                and auction.connected_leader_count == auction.leader_count
+                and await AuctionRepository(auction_id).acquire_state_lock()
+            ):
+                await AuctionRepository(auction_id).publish_status(Status.PENDING)
+                await AuctionRepository(auction_id).release_state_lock()
+                cls._start_auction_tasks[auction_id] = asyncio.create_task(
+                    cls._start_auction(auction_id)
+                )
 
     @classmethod
     async def on_disconnect(cls, auction_id: int, ws: WebSocket) -> None:
         auction = cls._auctions.get(auction_id)
         if not auction:
             return
-        auction.disconnect(ws)
+        is_last_leader = auction.disconnect(ws)
+        if is_last_leader:
+            await AuctionRepository(auction_id).publish_leader_disconnected()
 
     @classmethod
     async def _start_auction(cls, auction_id: int) -> None:
@@ -144,20 +139,22 @@ class AuctionManager:
             return
 
         repo = AuctionRepository(auction_id)
-        sold_team = None
-        if auction.bid is not None and auction.player_id is not None:
-            team = auction._member_id_to_team.get(auction.bid.leader_id)
-            if team is not None:
-                sold_team = Team(
+        bid = auction.bid
+        team = (
+            auction._member_id_to_team.get(bid.leader_id) if bid is not None else None
+        )
+
+        if team is None:
+            await repo.publish_member_unsold(auction.player_id)
+        else:
+            await repo.publish_member_sold(
+                Team(
                     team_id=team.team_id,
                     leader_id=team.leader_id,
                     member_ids=team.member_ids + [auction.player_id],
-                    points=team.points - auction.bid.amount,
+                    points=team.points - bid.amount,
                 )
-        if sold_team is not None:
-            await repo.publish_member_sold(sold_team)
-        else:
-            await repo.publish_member_unsold(auction.player_id)
+            )
 
         await cls._next_player(auction_id)
         await repo.release_timer_lock()
@@ -202,13 +199,18 @@ class AuctionManager:
             cls._auctions.pop(auction_id, None)
             return None
 
-        if auction.status == Status.RUNNING and auction.player_id is not None:
-            remaining = await repo.get_timer_remaining(auction.preset_snapshot.timer)
-            auction.start_timer(remaining)
-        elif auction.status == Status.PENDING:
-            cls._start_auction_tasks[auction_id] = asyncio.create_task(
-                cls._start_auction(auction_id)
+        if auction.status == Status.RUNNING:
+            timer_started_at = await repo.get_timer_started_at()
+            remaining = (
+                max(
+                    1,
+                    auction.preset_snapshot.timer
+                    - (int(time.time()) - timer_started_at),
+                )
+                if timer_started_at is not None
+                else auction.preset_snapshot.timer
             )
+            auction.start_timer(remaining)
 
         cls._auctions[auction_id] = auction
         return auction

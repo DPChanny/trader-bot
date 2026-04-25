@@ -77,11 +77,17 @@ class Auction:
         }
 
         self._ws_set: set[WebSocket] = set()
+        self._ws_to_leader_id: dict[WebSocket, int] = {}
+        self._leader_id_to_ws_set: dict[int, set[WebSocket]] = {}
 
         self._timer_task: asyncio.Task | None = None
 
     @property
     def connected_leader_count(self) -> int:
+        return len(self._leader_id_to_ws_set)
+
+    @property
+    def leader_count(self) -> int:
         return len(self._leader_member_ids)
 
     def is_leader(self, member_id: int) -> bool:
@@ -122,11 +128,26 @@ class Auction:
     def on_status(self, status: int) -> None:
         self.status = Status(status)
 
-    def connect(self, ws: WebSocket, member_id: int | None) -> None:
+    def connect(self, ws: WebSocket, member_id: int | None) -> bool:
         self._ws_set.add(ws)
+        if member_id is not None and member_id in self._leader_member_ids:
+            self._ws_to_leader_id[ws] = member_id
+            is_new_leader = member_id not in self._leader_id_to_ws_set
+            self._leader_id_to_ws_set.setdefault(member_id, set()).add(ws)
+            return is_new_leader
+        return False
 
-    def disconnect(self, ws: WebSocket) -> None:
+    def disconnect(self, ws: WebSocket) -> bool:
         self._ws_set.discard(ws)
+        leader_id = self._ws_to_leader_id.pop(ws, None)
+        if leader_id is not None:
+            ws_set = self._leader_id_to_ws_set.get(leader_id)
+            if ws_set is not None:
+                ws_set.discard(ws)
+                if not ws_set:
+                    del self._leader_id_to_ws_set[leader_id]
+                    return True
+        return False
 
     async def broadcast(self, event_type: AuctionEventType, payload: dict) -> None:
         if not self._ws_set:
