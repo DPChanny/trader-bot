@@ -14,8 +14,8 @@ def _parse_args() -> argparse.Namespace:
 def main() -> None:
     args = _parse_args()
     user_id = args.discord_user_id
-    access_token, _ = AccessToken.create(user_id)
-    refresh_token, _ = RefreshToken.create(user_id)
+    access_token = AccessToken.create(user_id)
+    refresh_token = RefreshToken.create(user_id)
 
     access_cmd = (
         'document.cookie = "accessToken=' + access_token + '; path=/; SameSite=Lax";'

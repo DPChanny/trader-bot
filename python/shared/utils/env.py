@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from secrets import token_hex
 
 from dotenv import load_dotenv
 
@@ -35,11 +34,10 @@ def get_api_origin() -> str:
     return os.getenv("API_ORIGIN", "http://127.0.0.1:8000")
 
 
-_jwt_secret = os.getenv("JWT_SECRET") or token_hex(32)
-
-
 def get_jwt_secret() -> str:
-    return _jwt_secret
+    return os.getenv(
+        "JWT_SECRET", "0000000000000000000000000000000000000000000000000000000000000000"
+    )
 
 
 def get_jwt_algorithm() -> str:

@@ -1,9 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
+import { PresetPage } from "@pages/presetPage/presetPage";
 
-export const Route = createFileRoute('/guild/$guildId/preset/$presetId/')({
-  component: RouteComponent,
-})
-
-function RouteComponent() {
-  return <div>Hello "/guild/$guildId/preset/$presetId/"!</div>
-}
+export const Route = createFileRoute("/guild/$guildId/preset/$presetId/")({
+  component: PresetPage,
+});
