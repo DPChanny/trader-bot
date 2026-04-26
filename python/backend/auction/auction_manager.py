@@ -4,6 +4,7 @@ import uuid
 from typing import Any, ClassVar
 
 from fastapi import WebSocket
+from loguru import logger
 from pydantic import ValidationError
 
 from shared.dtos.auction import (
@@ -16,7 +17,7 @@ from shared.dtos.auction import (
     StatusPayloadDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
-from shared.utils.redis import get_redis
+from shared.utils.redis import get_pubsub_redis
 
 from .auction import Auction, Bid
 from .auction_repository import AuctionRepository
@@ -28,10 +29,12 @@ class AuctionManager:
     _listener_task: ClassVar[asyncio.Task | None] = None
     _start_auction_tasks: ClassVar[dict[int, asyncio.Task]] = {}
 
+    _KEEPALIVE_CHANNEL = "auction:__listener__"
+
     @classmethod
     async def setup(cls) -> None:
-        r = get_redis()
-        cls._pubsub = r.pubsub()
+        cls._pubsub = get_pubsub_redis().pubsub()
+        await cls._pubsub.subscribe(cls._KEEPALIVE_CHANNEL)
         cls._listener_task = asyncio.create_task(cls._listener())
 
     @classmethod
@@ -75,6 +78,10 @@ class AuctionManager:
                                 auction.on_member_sold()
                             case AuctionEventType.MEMBER_UNSOLD:
                                 auction.on_member_unsold()
+                            case AuctionEventType.LEADER_CONNECTED:
+                                auction.connected_leader_count += 1
+                            case AuctionEventType.LEADER_DISCONNECTED:
+                                auction.connected_leader_count -= 1
                             case AuctionEventType.STATUS:
                                 status_payload = StatusPayloadDTO.model_validate(
                                     envelope.payload
@@ -90,6 +97,8 @@ class AuctionManager:
                     continue
         except asyncio.CancelledError:
             pass
+        except Exception as e:
+            logger.error(f"Listener lost Redis connection: {type(e).__name__}: {e}")
 
     @classmethod
     async def on_connect(
@@ -113,10 +122,10 @@ class AuctionManager:
 
         if is_new_leader:
             repo = AuctionRepository(auction_id)
-            await repo.publish_leader_connected()
+            new_count = await repo.publish_leader_connected()
             if (
                 auction.status == Status.WAITING
-                and auction.connected_leader_count == auction.leader_count
+                and new_count == auction.leader_count
                 and await repo.acquire_state_lock()
             ):
                 await repo.publish_status(Status.PENDING)

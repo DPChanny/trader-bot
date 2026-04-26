@@ -41,6 +41,7 @@ class Auction:
         status: Status = Status.WAITING,
         player_id: int | None = None,
         bid: Bid | None = None,
+        connected_leader_count: int = 0,
     ):
         self.auction_id = auction_id
         self.preset_snapshot = preset_snapshot
@@ -74,6 +75,7 @@ class Auction:
         self.status = status
         self.player_id = player_id
         self.bid = bid
+        self.connected_leader_count = connected_leader_count
 
         self._on_timer_expire = on_timer_expire
         self._on_timer_start = on_timer_start
@@ -87,10 +89,6 @@ class Auction:
         self._leader_id_to_ws_set: dict[int, set[WebSocket]] = {}
 
         self._timer_task: asyncio.Task | None = None
-
-    @property
-    def connected_leader_count(self) -> int:
-        return len(self._leader_id_to_ws_set)
 
     @property
     def leader_count(self) -> int:

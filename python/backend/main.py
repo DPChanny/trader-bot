@@ -43,7 +43,7 @@ async def lifespan(_):
 
     yield
 
-    await AuctionManager.cleanup_listener()
+    await AuctionManager.cleanup()
     await close_db()
     await close_redis()
 

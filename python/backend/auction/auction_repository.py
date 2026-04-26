@@ -45,7 +45,9 @@ class AuctionRepository:
         self.auction_id = auction_id
 
     def _key(self, suffix: str = "") -> str:
-        return f"auction:{self.auction_id}{suffix}"
+        if suffix:
+            return f"auction:{self.auction_id}:{suffix}"
+        return f"auction:{self.auction_id}"
 
     async def load(
         self,
@@ -55,9 +57,9 @@ class AuctionRepository:
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
             pipe.hgetall(self._key())
-            pipe.hgetall(self._key(":teams"))
-            pipe.lrange(self._key(":auction_queue"), 0, -1)
-            pipe.lrange(self._key(":unsold_queue"), 0, -1)
+            pipe.hgetall(self._key("teams"))
+            pipe.lrange(self._key("auction_queue"), 0, -1)
+            pipe.lrange(self._key("unsold_queue"), 0, -1)
             data, teams_raw, aq_raw, uq_raw = await pipe.execute()
         if not data:
             return None
@@ -79,14 +81,15 @@ class AuctionRepository:
             status=Status(int(data["status"])),
             player_id=int(data["player_id"]) if data.get("player_id") else None,
             bid=bid,
+            connected_leader_count=int(data.get("connected_leader_count") or 0),
         )
         return auction
 
     async def subscribe(self, pubsub: Any) -> None:
-        await pubsub.subscribe(self._key(":event"))
+        await pubsub.subscribe(self._key("event"))
 
     async def unsubscribe(self, pubsub: Any) -> None:
-        await pubsub.unsubscribe(self._key(":event"))
+        await pubsub.unsubscribe(self._key("event"))
 
     async def save(self, auction: Auction) -> None:
         r = get_redis()
@@ -96,49 +99,55 @@ class AuctionRepository:
             "bid_amount": "",
             "bid_leader_id": "",
             "preset_snapshot": auction.preset_snapshot.model_dump_json(),
+            "connected_leader_count": "0",
         }
         async with r.pipeline(transaction=True) as pipe:
             pipe.hset(self._key(), mapping=state_mapping)
             pipe.expire(self._key(), _AUCTION_LIFETIME)
             for team in auction.teams:
-                pipe.hset(
-                    self._key(":teams"), str(team.team_id), team.model_dump_json()
-                )
-            pipe.expire(self._key(":teams"), _AUCTION_LIFETIME)
+                pipe.hset(self._key("teams"), str(team.team_id), team.model_dump_json())
+            pipe.expire(self._key("teams"), _AUCTION_LIFETIME)
             if auction.auction_queue:
-                pipe.rpush(self._key(":auction_queue"), *auction.auction_queue)
-                pipe.expire(self._key(":auction_queue"), _AUCTION_LIFETIME)
+                pipe.rpush(self._key("auction_queue"), *auction.auction_queue)
+                pipe.expire(self._key("auction_queue"), _AUCTION_LIFETIME)
             if auction.unsold_queue:
-                pipe.rpush(self._key(":unsold_queue"), *auction.unsold_queue)
-                pipe.expire(self._key(":unsold_queue"), _AUCTION_LIFETIME)
+                pipe.rpush(self._key("unsold_queue"), *auction.unsold_queue)
+                pipe.expire(self._key("unsold_queue"), _AUCTION_LIFETIME)
             await pipe.execute()
 
-    async def publish_leader_connected(self) -> None:
+    async def publish_leader_connected(self) -> int:
         r = get_redis()
-        await r.publish(
-            self._key(":event"),
-            AuctionEventEnvelopeDTO(
-                type=AuctionEventType.LEADER_CONNECTED, payload=None
-            ).model_dump_json(),
-        )
+        async with r.pipeline(transaction=True) as pipe:
+            pipe.hincrby(self._key(), "connected_leader_count", 1)
+            pipe.publish(
+                self._key("event"),
+                AuctionEventEnvelopeDTO(
+                    type=AuctionEventType.LEADER_CONNECTED, payload=None
+                ).model_dump_json(),
+            )
+            results = await pipe.execute()
+        return int(results[0])
 
     async def publish_leader_disconnected(self) -> None:
         r = get_redis()
-        await r.publish(
-            self._key(":event"),
-            AuctionEventEnvelopeDTO(
-                type=AuctionEventType.LEADER_DISCONNECTED, payload=None
-            ).model_dump_json(),
-        )
+        async with r.pipeline(transaction=True) as pipe:
+            pipe.hincrby(self._key(), "connected_leader_count", -1)
+            pipe.publish(
+                self._key("event"),
+                AuctionEventEnvelopeDTO(
+                    type=AuctionEventType.LEADER_DISCONNECTED, payload=None
+                ).model_dump_json(),
+            )
+            await pipe.execute()
 
     async def publish_next_player(self) -> bool:
         result = await get_redis().eval(
             _NEXT_PLAYER_SCRIPT,
             4,
-            self._key(":auction_queue"),
-            self._key(":unsold_queue"),
+            self._key("auction_queue"),
+            self._key("unsold_queue"),
             self._key(),
-            self._key(":event"),
+            self._key("event"),
             AuctionEventEnvelopeDTO(
                 type=AuctionEventType.NEXT_PLAYER, payload=None
             ).model_dump_json(),
@@ -156,26 +165,26 @@ class AuctionRepository:
 
     async def acquire_state_lock(self) -> bool:
         r = get_redis()
-        return bool(await r.set(self._key(":state_lock"), "1", nx=True, ex=30))
+        return bool(await r.set(self._key("state_lock"), "1", nx=True, ex=30))
 
     async def release_state_lock(self) -> None:
         r = get_redis()
-        await r.delete(self._key(":state_lock"))
+        await r.delete(self._key("state_lock"))
 
     async def acquire_timer_lock(self) -> bool:
         r = get_redis()
-        return bool(await r.set(self._key(":timer_lock"), "1", nx=True, ex=30))
+        return bool(await r.set(self._key("timer_lock"), "1", nx=True, ex=30))
 
     async def release_timer_lock(self) -> None:
         r = get_redis()
-        await r.delete(self._key(":timer_lock"))
+        await r.delete(self._key("timer_lock"))
 
     async def publish_status(self, status: Status) -> None:
         r = get_redis()
         async with r.pipeline(transaction=True) as pipe:
             pipe.hset(self._key(), mapping={"status": str(status.value)})
             pipe.publish(
-                self._key(":event"),
+                self._key("event"),
                 AuctionEventEnvelopeDTO(
                     type=AuctionEventType.STATUS,
                     payload=StatusPayloadDTO(status=status),
@@ -194,7 +203,7 @@ class AuctionRepository:
                 },
             )
             pipe.publish(
-                self._key(":event"),
+                self._key("event"),
                 AuctionEventEnvelopeDTO(
                     type=AuctionEventType.BID_PLACED,
                     payload=BidDTO(leader_id=bid.leader_id, amount=bid.amount),
@@ -209,9 +218,9 @@ class AuctionRepository:
                 self._key(),
                 mapping={"player_id": "", "bid_amount": "", "bid_leader_id": ""},
             )
-            pipe.hset(self._key(":teams"), str(team.team_id), team.model_dump_json())
+            pipe.hset(self._key("teams"), str(team.team_id), team.model_dump_json())
             pipe.publish(
-                self._key(":event"),
+                self._key("event"),
                 AuctionEventEnvelopeDTO(
                     type=AuctionEventType.MEMBER_SOLD, payload=None
                 ).model_dump_json(),
@@ -225,10 +234,10 @@ class AuctionRepository:
                 self._key(),
                 mapping={"player_id": "", "bid_amount": "", "bid_leader_id": ""},
             )
-            pipe.rpush(self._key(":unsold_queue"), player_id)
-            pipe.expire(self._key(":unsold_queue"), _AUCTION_LIFETIME)
+            pipe.rpush(self._key("unsold_queue"), player_id)
+            pipe.expire(self._key("unsold_queue"), _AUCTION_LIFETIME)
             pipe.publish(
-                self._key(":event"),
+                self._key("event"),
                 AuctionEventEnvelopeDTO(
                     type=AuctionEventType.MEMBER_UNSOLD, payload=None
                 ).model_dump_json(),
