@@ -30,7 +30,9 @@ _NEXT_PLAYER_SCRIPT = """
         return 0
     end
     redis.call('DEL', KEYS[2])
-    redis.call('RPUSH', KEYS[1], unpack(unsold_queue))
+    for _, id in ipairs(unsold_queue) do
+        redis.call('RPUSH', KEYS[1], id)
+    end
     local next_player_id = redis.call('LPOP', KEYS[1])
     redis.call('HSET', KEYS[3], 'player_id', next_player_id, 'bid_amount', '', 'bid_leader_id', '')
     redis.call('PUBLISH', KEYS[4], ARGV[1])
@@ -102,6 +104,9 @@ class AuctionRepository:
             if auction.auction_queue:
                 pipe.rpush(self._key(":auction_queue"), *auction.auction_queue)
                 pipe.expire(self._key(":auction_queue"), _AUCTION_LIFETIME)
+            if auction.unsold_queue:
+                pipe.rpush(self._key(":unsold_queue"), *auction.unsold_queue)
+                pipe.expire(self._key(":unsold_queue"), _AUCTION_LIFETIME)
             await pipe.execute()
         await pubsub.subscribe(self._key(":event"))
 

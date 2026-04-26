@@ -1,6 +1,3 @@
-import json
-from json import JSONDecodeError
-
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -56,8 +53,8 @@ def _parse_event_envelope(text: str) -> AuctionEventEnvelopeDTO:
     if len(text) > 1024:
         raise WSError(ValidationErrorCode.Invalid)
     try:
-        return AuctionEventEnvelopeDTO.model_validate(json.loads(text))
-    except ValidationError, JSONDecodeError:
+        return AuctionEventEnvelopeDTO.model_validate_json(text)
+    except ValidationError, ValueError:
         raise WSError(ValidationErrorCode.Invalid) from None
 
 

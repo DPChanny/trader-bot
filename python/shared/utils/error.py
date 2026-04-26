@@ -30,9 +30,9 @@ class ValidationErrorCode(IntEnum):
 
 
 class AuctionErrorCode(IntEnum):
+    BidInvalidState = 4202
     BidTeamFull = 4203
-    BidTooHigh = 4204
-    BidTooLow = 4205
+    BidInvalidAmount = 4204
     BidNotLeader = 4302
     NotFound = 4401
 

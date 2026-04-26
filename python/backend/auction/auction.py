@@ -131,8 +131,8 @@ class Auction:
         self.bid = None
         self.stop_timer()
 
-    def on_status(self, status: int) -> None:
-        self.status = Status(status)
+    def on_status(self, status: Status) -> None:
+        self.status = status
 
     def connect(self, ws: WebSocket, member_id: int | None) -> bool:
         self._ws_set.add(ws)
@@ -159,22 +159,25 @@ class Auction:
         if not self._ws_set:
             return
 
-        event = AuctionEventEnvelopeDTO(type=event_type, payload=payload).model_dump(
-            mode="json"
-        )
-        invalid_ws_set: set[WebSocket] = set()
-        for ws in self._ws_set:
-            try:
-                await ws.send_json(event)
-            except Exception:
-                invalid_ws_set.add(ws)
+        data = AuctionEventEnvelopeDTO(
+            type=event_type, payload=payload
+        ).model_dump_json()
 
+        results = await asyncio.gather(
+            *[ws.send_text(data) for ws in self._ws_set], return_exceptions=True
+        )
+
+        invalid_ws_set = {
+            ws
+            for ws, result in zip(self._ws_set, results, strict=False)
+            if isinstance(result, Exception)
+        }
         for ws in invalid_ws_set:
             self.disconnect(ws)
 
     def validate_bid(self, bid: Bid) -> None:
         if self.status != Status.RUNNING or self.player_id is None:
-            return
+            raise WSError(AuctionErrorCode.BidInvalidState)
 
         if bid.leader_id not in self._leader_member_ids:
             raise WSError(AuctionErrorCode.BidNotLeader)
@@ -185,9 +188,9 @@ class Auction:
 
         remaining_slots = self.preset_snapshot.team_size - len(team.member_ids)
         if bid.amount > team.points - (remaining_slots - 1):
-            raise WSError(AuctionErrorCode.BidTooHigh)
+            raise WSError(AuctionErrorCode.BidInvalidAmount)
         if bid.amount < ((self.bid.amount + 1) if self.bid else 1):
-            raise WSError(AuctionErrorCode.BidTooLow)
+            raise WSError(AuctionErrorCode.BidInvalidAmount)
 
     def start_timer(self, remaining: int | None = None) -> None:
         self.stop_timer()
@@ -202,8 +205,10 @@ class Auction:
         self._timer_task = None
 
     async def _timer(self, remaining: int) -> None:
+        loop = asyncio.get_event_loop()
+        deadline = loop.time() + remaining
         while remaining > 0:
             await self.broadcast(AuctionEventType.TICK, TickPayloadDTO(timer=remaining))
-            await asyncio.sleep(1)
             remaining -= 1
+            await asyncio.sleep(max(0, deadline - remaining - loop.time()))
         asyncio.create_task(self._on_timer_expire())
