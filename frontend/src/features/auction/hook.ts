@@ -1,11 +1,14 @@
 import { useMutation, type UseMutationResult } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { createAuction } from "@features/auction/api";
-import { Status, AuctionMessageType } from "@features/auction/dto";
+import { Status, AuctionEventType } from "@features/auction/dto";
 import type {
   AuctionDetailDTO,
-  AuctionMessageEnvelopeDTO,
+  AuctionEventEnvelopeDTO,
+  BidPlacedPayloadDTO,
   InitPayloadDTO,
+  StatusPayloadDTO,
+  TickPayloadDTO,
 } from "@features/auction/dto";
 import {
   AuthPayloadSchema,
@@ -24,19 +27,23 @@ import { getAccessToken } from "@features/auth/token";
 
 export function useAuction(): {
   auction: AuctionDetailDTO | null;
+  timer: number;
   teamId: number | null;
   memberId: number | null;
   connect: (guildId: string, presetId: number, auctionId: string) => void;
   placeBid: (amount: number) => void;
   isConnected: boolean;
   wasConnected: boolean;
+  pendingAlert: boolean;
   error: WSError | null;
 } {
   const [isConnected, setIsConnected] = useState(false);
   const [wasConnected, setWasConnected] = useState(false);
   const [auction, setAuction] = useState<AuctionDetailDTO | null>(null);
+  const [timer, setTimer] = useState(0);
   const [teamId, setTeamId] = useState<number | null>(null);
   const [memberId, setMemberId] = useState<number | null>(null);
+  const [pendingAlert, setPendingAlert] = useState(false);
   const [error, setError] = useState<WSError | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
@@ -48,12 +55,12 @@ export function useAuction(): {
     }
   };
 
-  const handleAuctionMessage = (message: AuctionMessageEnvelopeDTO) => {
+  const handleAuctionMessage = (message: AuctionEventEnvelopeDTO) => {
     const rawPayload = message.payload;
     const dto = toCamelCase(rawPayload);
 
     switch (message.type) {
-      case AuctionMessageType.INIT: {
+      case AuctionEventType.INIT: {
         setError(null);
         const initPayload = dto as InitPayloadDTO;
         setAuction(initPayload.auction);
@@ -62,117 +69,110 @@ export function useAuction(): {
         break;
       }
 
-      case AuctionMessageType.MEMBER_CONNECTED: {
-        setAuction((prev) =>
-          prev
-            ? {
-                ...prev,
-                connectedMemberIds: prev.connectedMemberIds.includes(
-                  dto.memberId,
-                )
-                  ? prev.connectedMemberIds
-                  : [...prev.connectedMemberIds, dto.memberId],
-              }
-            : prev,
-        );
-        break;
-      }
-
-      case AuctionMessageType.MEMBER_DISCONNECTED: {
-        setAuction((prev) =>
-          prev
-            ? {
-                ...prev,
-                connectedMemberIds: prev.connectedMemberIds.filter(
-                  (id) => id !== dto.memberId,
-                ),
-              }
-            : prev,
-        );
-        break;
-      }
-
-      case AuctionMessageType.NEXT_PLAYER: {
-        setAuction((prev) => {
-          return prev
-            ? {
-                ...prev,
-                currentMemberId: dto.memberId,
-                currentBid: null,
-                auctionQueue: dto.auctionQueue,
-                unsoldQueue: dto.unsoldQueue,
-              }
-            : prev;
-        });
-        break;
-      }
-
-      case AuctionMessageType.MEMBER_SOLD: {
-        setAuction((prev) => {
-          return prev
-            ? {
-                ...prev,
-                teams: dto.teams,
-                auctionQueue: dto.auctionQueue,
-                unsoldQueue: dto.unsoldQueue,
-              }
-            : prev;
-        });
-        break;
-      }
-
-      case AuctionMessageType.MEMBER_UNSOLD: {
+      case AuctionEventType.NEXT_PLAYER: {
+        // Mirrors backend on_next_player: dequeue from auction_queue, or swap unsold_queue → auction_queue
         setAuction((prev) => {
           if (!prev) return prev;
+          let playerId: number;
+          let auctionQueue: number[];
+          let unsoldQueue: number[];
+          if (prev.auctionQueue.length > 0) {
+            const [first, ...rest] = prev.auctionQueue;
+            if (first === undefined) return prev;
+            playerId = first;
+            auctionQueue = rest;
+            unsoldQueue = prev.unsoldQueue;
+          } else {
+            const [first, ...rest] = prev.unsoldQueue;
+            if (first === undefined) return prev;
+            playerId = first;
+            auctionQueue = rest;
+            unsoldQueue = [];
+          }
+          return { ...prev, playerId, auctionQueue, unsoldQueue, bid: null };
+        });
+        setTimer(0);
+        break;
+      }
 
+      case AuctionEventType.MEMBER_SOLD: {
+        // Mirrors backend on_member_sold: update team membership and points
+        setAuction((prev) => {
+          if (!prev || prev.playerId === null || prev.bid === null) return prev;
+          const { playerId, bid } = prev;
+          const teams = prev.teams.map((team) =>
+            team.leaderId === bid.leaderId
+              ? {
+                  ...team,
+                  memberIds: [...team.memberIds, playerId],
+                  points: team.points - bid.amount,
+                }
+              : team,
+          );
+          return { ...prev, teams, playerId: null, bid: null };
+        });
+        break;
+      }
+
+      case AuctionEventType.MEMBER_UNSOLD: {
+        // Mirrors backend on_member_unsold: push player to unsold_queue
+        setAuction((prev) => {
+          if (!prev || prev.playerId === null) return prev;
           return {
             ...prev,
-            unsoldQueue: prev.unsoldQueue.includes(dto.memberId)
-              ? prev.unsoldQueue
-              : [...prev.unsoldQueue, dto.memberId],
+            unsoldQueue: [...prev.unsoldQueue, prev.playerId],
+            playerId: null,
+            bid: null,
           };
         });
         break;
       }
 
-      case AuctionMessageType.TIMER: {
-        setAuction((prev) => (prev ? { ...prev, timer: dto.timer } : null));
+      case AuctionEventType.TICK: {
+        const tickPayload = dto as TickPayloadDTO;
+        setTimer(tickPayload.timer);
         break;
       }
 
-      case AuctionMessageType.BID_PLACED: {
+      case AuctionEventType.BID_PLACED: {
         setError(null);
+        const bidPayload = dto as BidPlacedPayloadDTO;
         setAuction((prev) => {
           if (!prev) return prev;
           return {
             ...prev,
-            currentBid: {
-              amount: dto.amount,
-              leaderId: dto.leaderId,
-            },
+            bid: { amount: bidPayload.amount, leaderId: bidPayload.leaderId },
           };
         });
         break;
       }
 
-      case AuctionMessageType.STATUS: {
-        setAuction((prev) =>
-          prev
-            ? {
-                ...prev,
-                status: dto.status,
-                timer: dto.status === Status.COMPLETED ? 0 : prev.timer,
-                currentMemberId:
-                  dto.status === Status.COMPLETED ? null : prev.currentMemberId,
-                currentBid:
-                  dto.status === Status.COMPLETED ? null : prev.currentBid,
-              }
-            : null,
-        );
+      case AuctionEventType.STATUS: {
+        const statusPayload = dto as StatusPayloadDTO;
+        setAuction((prev) => {
+          if (!prev) return null;
+          const next = { ...prev, status: statusPayload.status };
+          if (statusPayload.status === Status.COMPLETED) {
+            next.playerId = null;
+            next.bid = null;
+          }
+          return next;
+        });
+        if (statusPayload.status === Status.PENDING) {
+          setPendingAlert(true);
+        } else if (statusPayload.status === Status.RUNNING) {
+          setPendingAlert(false);
+        } else if (statusPayload.status === Status.COMPLETED) {
+          setTimer(0);
+        }
         break;
       }
 
-      case AuctionMessageType.ERROR: {
+      case AuctionEventType.LEADER_CONNECTED:
+      case AuctionEventType.LEADER_DISCONNECTED:
+        break;
+
+      case AuctionEventType.ERROR: {
         handleError(dto.code);
         break;
       }
@@ -187,8 +187,10 @@ export function useAuction(): {
     setIsConnected(false);
     setWasConnected(false);
     setAuction(null);
+    setTimer(0);
     setTeamId(null);
     setMemberId(null);
+    setPendingAlert(false);
     setError(null);
 
     const ws = new WebSocket(
@@ -206,9 +208,9 @@ export function useAuction(): {
 
       ws.send(
         JSON.stringify({
-          type: AuctionMessageType.AUTH,
+          type: AuctionEventType.AUTH,
           payload: authPayloadResult.data,
-        } satisfies AuctionMessageEnvelopeDTO<{ access_token: string | null }>),
+        } satisfies AuctionEventEnvelopeDTO<{ access_token: string | null }>),
       );
       opened = true;
       setIsConnected(true);
@@ -217,7 +219,7 @@ export function useAuction(): {
 
     ws.onmessage = (event) => {
       try {
-        const message = JSON.parse(event.data) as AuctionMessageEnvelopeDTO;
+        const message = JSON.parse(event.data) as AuctionEventEnvelopeDTO;
         handleAuctionMessage(message);
       } catch {
         handleError(FrontendErrorCode.Validation.Invalid);
@@ -252,8 +254,8 @@ export function useAuction(): {
       return;
     }
 
-    const message: AuctionMessageEnvelopeDTO<{ amount: number }> = {
-      type: AuctionMessageType.PLACE_BID,
+    const message: AuctionEventEnvelopeDTO<{ amount: number }> = {
+      type: AuctionEventType.PLACE_BID,
       payload: placeBidPayloadResult.data,
     };
 
@@ -269,12 +271,14 @@ export function useAuction(): {
 
   return {
     auction,
+    timer,
     teamId,
     memberId,
     connect,
     placeBid,
     isConnected,
     wasConnected,
+    pendingAlert,
     error,
   };
 }

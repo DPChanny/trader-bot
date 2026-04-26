@@ -10,6 +10,10 @@ const STATUS_ENTRIES: Record<Status, StatusEntry> = {
     key: Status.WAITING,
     displayName: "대기중",
   },
+  [Status.PENDING]: {
+    key: Status.PENDING,
+    displayName: "준비중",
+  },
   [Status.RUNNING]: {
     key: Status.RUNNING,
     displayName: "진행중",

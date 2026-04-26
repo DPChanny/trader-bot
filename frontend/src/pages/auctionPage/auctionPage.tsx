@@ -19,7 +19,6 @@ import { PresetMemberCard } from "@components/presetMemberCard";
 import { Input } from "@components/atoms/input";
 import { Text, Title } from "@components/atoms/text";
 import { ErrorModal } from "./errorModal";
-import { AuctionPageContextProvider } from "./auctionPageContext";
 import { getStatusEntries } from "@features/auction/enum";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 import { Status } from "@features/auction/dto";
@@ -31,9 +30,9 @@ import {
 
 function isBidErrorCode(code: number): boolean {
   switch (code) {
+    case BackendErrorCode.Auction.BidInvalidState:
     case BackendErrorCode.Auction.BidTeamFull:
-    case BackendErrorCode.Auction.BidTooHigh:
-    case BackendErrorCode.Auction.BidTooLow:
+    case BackendErrorCode.Auction.BidInvalidAmount:
     case BackendErrorCode.Auction.BidNotLeader:
       return true;
     default:
@@ -55,7 +54,9 @@ function isModalErrorCode(code: number): boolean {
 export function AuctionPage() {
   const { auctionId } = useParams({ strict: false }) as { auctionId: string };
   const { guildId } = useParams({ strict: false }) as { guildId: string };
-  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as {
+    presetId: string;
+  };
   const presetId = parseInt(presetIdStr, 10);
 
   const [bidAmount, setBidAmount] = useState<string>("");
@@ -63,12 +64,13 @@ export function AuctionPage() {
 
   const {
     auction,
+    timer,
     teamId,
-    memberId,
     connect,
     placeBid,
     isConnected,
     wasConnected,
+    pendingAlert,
     error: rawError,
   } = useAuction();
 
@@ -77,11 +79,11 @@ export function AuctionPage() {
   }, [auctionId]);
 
   const isLeader = teamId !== null;
-  const connectedMemberIds = auction?.connectedMemberIds ?? [];
 
   const isCompleted = auction?.status === Status.COMPLETED;
   const isRunning = auction?.status === Status.RUNNING;
   const isWaiting = auction?.status === Status.WAITING;
+  const isPending = auction?.status === Status.PENDING;
   const isDisconnected = wasConnected && !isConnected && !isCompleted;
 
   const bidError =
@@ -161,12 +163,13 @@ export function AuctionPage() {
     ? "연결 끊김"
     : statusEntries[auction.status].displayName;
 
-  const currentMember = auction.currentMemberId
-    ? (presetMemberMap.get(auction.currentMemberId) ?? null)
+  const currentMember = auction.playerId
+    ? (presetMemberMap.get(auction.playerId) ?? null)
     : null;
-  const showCurrentMember = isWaiting || isCompleted || currentMember === null;
+  const showCurrentMember =
+    isWaiting || isPending || isCompleted || currentMember === null;
 
-  const currentBidLeaderId = auction.currentBid?.leaderId;
+  const currentBidLeaderId = auction.bid?.leaderId;
   const currentBidLeader =
     currentBidLeaderId !== null && currentBidLeaderId !== undefined
       ? presetMemberMap.get(currentBidLeaderId)
@@ -185,110 +188,109 @@ export function AuctionPage() {
   const isValidBidAmount =
     parsedBidAmount > 0 && parsedBidAmount % pointScale === 0;
 
-  const viewContext = {
-    connectedMemberIds,
-    clientMemberId: memberId ?? undefined,
-  };
-
   return (
-    <AuctionPageContextProvider value={viewContext}>
-      <Page>
-        {modalError && (
-          <ErrorModal error={modalError} onClose={() => setModalError(null)} />
-        )}
+    <Page>
+      {modalError && (
+        <ErrorModal error={modalError} onClose={() => setModalError(null)} />
+      )}
 
-        <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
-          <SecondarySection fill minSize>
-            <Title>팀 목록</Title>
-            <TeamList
-              teams={auction.teams}
-              presetMemberMap={presetMemberMap}
-              teamSize={teamSize}
-              pointScale={pointScale}
-            />
-          </SecondarySection>
-        </PrimarySection>
+      {pendingAlert && (
+        <SecondarySection>
+          <Text variantWeight="bold">곧 경매가 시작됩니다</Text>
+        </SecondarySection>
+      )}
 
-        <PrimarySection minSize style={{ flex: 2 }}>
-          <SecondarySection fill minSize>
-            <Title>{presetSnapshot?.name}</Title>
-            <Column fill>
-              <TertiarySection fill>
-                <Column fill center>
-                  {showCurrentMember ? (
-                    <Text>{statusText}</Text>
-                  ) : (
-                    <PresetMemberCard presetMember={currentMember} />
-                  )}
-                </Column>
-              </TertiarySection>
+      <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
+        <SecondarySection fill minSize>
+          <Title>팀 목록</Title>
+          <TeamList
+            teams={auction.teams}
+            presetMemberMap={presetMemberMap}
+            teamSize={teamSize}
+            pointScale={pointScale}
+          />
+        </SecondarySection>
+      </PrimarySection>
 
-              <TertiarySection>
-                <Row wrap>
-                  <FlexItem>
-                    <Column>
-                      <InfoCard label="남은 시간">
-                        <Text variantWeight="bold" variantSize="large">
-                          {auction.timer}
-                        </Text>
-                      </InfoCard>
-                      <InfoCard label="입찰 포인트">
-                        <Text variantWeight="bold" variantSize="large">
-                          {(auction.currentBid?.amount || 0) * pointScale}
-                        </Text>
-                      </InfoCard>
-                    </Column>
-                  </FlexItem>
-                  <FlexItem>
-                    <InfoCard label="입찰 팀장">
-                      {currentBidLeader && (
-                        <PresetMemberCard presetMember={currentBidLeader} />
-                      )}
+      <PrimarySection minSize style={{ flex: 2 }}>
+        <SecondarySection fill minSize>
+          <Title>{presetSnapshot?.name}</Title>
+          <Column fill>
+            <TertiarySection fill>
+              <Column fill center>
+                {showCurrentMember ? (
+                  <Text>{statusText}</Text>
+                ) : (
+                  <PresetMemberCard presetMember={currentMember} />
+                )}
+              </Column>
+            </TertiarySection>
+
+            <TertiarySection>
+              <Row wrap>
+                <FlexItem>
+                  <Column>
+                    <InfoCard label="남은 시간">
+                      <Text variantWeight="bold" variantSize="large">
+                        {timer}
+                      </Text>
                     </InfoCard>
+                    <InfoCard label="입찰 포인트">
+                      <Text variantWeight="bold" variantSize="large">
+                        {(auction.bid?.amount || 0) * pointScale}
+                      </Text>
+                    </InfoCard>
+                  </Column>
+                </FlexItem>
+                <FlexItem>
+                  <InfoCard label="입찰 팀장">
+                    {currentBidLeader && (
+                      <PresetMemberCard presetMember={currentBidLeader} />
+                    )}
+                  </InfoCard>
+                </FlexItem>
+              </Row>
+            </TertiarySection>
+            {canBid && (
+              <TertiarySection>
+                <Row>
+                  {bidError && (
+                    <Error error={bidError}>입찰 처리에 실패했습니다</Error>
+                  )}
+                  <FlexItem>
+                    <Input
+                      type="number"
+                      placeholder={`입찰 금액 (${pointScale}의 배수)`}
+                      value={bidAmount}
+                      onValueChange={setBidAmount}
+                    />
                   </FlexItem>
+                  <PrimaryButton
+                    onClick={handlePlaceBid}
+                    disabled={!bidAmount || !isValidBidAmount}
+                  >
+                    입찰하기
+                  </PrimaryButton>
                 </Row>
               </TertiarySection>
-              {canBid && (
-                <TertiarySection>
-                  <Row>
-                    {bidError && (
-                      <Error error={bidError}>입찰 처리에 실패했습니다</Error>
-                    )}
-                    <FlexItem>
-                      <Input
-                        type="number"
-                        placeholder={`입찰 금액 (${pointScale}의 배수)`}
-                        value={bidAmount}
-                        onValueChange={setBidAmount}
-                      />
-                    </FlexItem>
-                    <PrimaryButton
-                      onClick={handlePlaceBid}
-                      disabled={!bidAmount || !isValidBidAmount}
-                    >
-                      입찰하기
-                    </PrimaryButton>
-                  </Row>
-                </TertiarySection>
-              )}
-            </Column>
-          </SecondarySection>
-        </PrimarySection>
-
-        <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
-          <Column fill minSize>
-            <SecondarySection fill minSize overflow="hidden">
-              <Title>경매 순서</Title>
-              <PresetMemberGrid presetMembers={auctionQueuePresetMembers} />
-            </SecondarySection>
-
-            <SecondarySection fill minSize overflow="hidden">
-              <Title>유찰 목록</Title>
-              <PresetMemberGrid presetMembers={unsoldQueuePresetMembers} />
-            </SecondarySection>
+            )}
           </Column>
-        </PrimarySection>
-      </Page>
-    </AuctionPageContextProvider>
+        </SecondarySection>
+      </PrimarySection>
+
+      <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
+        <Column fill minSize>
+          <SecondarySection fill minSize overflow="hidden">
+            <Title>경매 순서</Title>
+            <PresetMemberGrid presetMembers={auctionQueuePresetMembers} />
+          </SecondarySection>
+
+          <SecondarySection fill minSize overflow="hidden">
+            <Title>유찰 목록</Title>
+            <PresetMemberGrid presetMembers={unsoldQueuePresetMembers} />
+          </SecondarySection>
+        </Column>
+      </PrimarySection>
+    </Page>
   );
 }

@@ -1,6 +1,5 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { checkJWTToken, getRefreshToken } from "@features/auth/token";
-import { PresetPage } from "@pages/presetPage/presetPage";
 
 export const Route = createFileRoute("/guild/$guildId/preset/$presetId")({
   beforeLoad: () => {
@@ -8,5 +7,5 @@ export const Route = createFileRoute("/guild/$guildId/preset/$presetId")({
       throw redirect({ to: "/", replace: true });
     }
   },
-  component: PresetPage,
+  component: Outlet,
 });

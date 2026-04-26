@@ -16,7 +16,8 @@ async def setup_redis():
             decode_responses=True,
             health_check_interval=30,
             max_connections=10,
-            timeout=5,
+            socket_connect_timeout=5,
+            socket_timeout=5,
         )
     )
     await _redis.ping()

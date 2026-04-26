@@ -1,41 +1,18 @@
 import styles from "@styles/components/memberCard.module.css";
 import { Card } from "./surfaces/card";
-import { Dot, type DotProps } from "./molecules/dot";
 import { Badge } from "./atoms/badge";
 import { Image } from "./atoms/image";
 import { Row } from "./atoms/layout";
 import { Name } from "./atoms/text";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
-import { useContext } from "react";
-import { AuctionPageContext } from "@pages/auctionPage/auctionPageContext";
-
-function getDotColor(
-  isConnected?: boolean,
-  isClientMember?: boolean,
-): DotProps["variantColor"] {
-  if (isClientMember) return "blue";
-  if (isConnected === true) return "green";
-  if (isConnected === false) return "red";
-  return undefined;
-}
 
 export type PresetMemberCardProps = {
   presetMember: PresetMemberDetailDTO;
 };
 
 export function PresetMemberCard({ presetMember }: PresetMemberCardProps) {
-  const context = useContext(AuctionPageContext);
-  const isConnected = context
-    ? context.connectedMemberIds.includes(presetMember.memberId)
-    : undefined;
-  const isClientMember =
-    context?.clientMemberId !== undefined
-      ? context.clientMemberId === presetMember.memberId
-      : undefined;
-
   const { member, tier, presetMemberPositions, isLeader } = presetMember;
   const visiblePositions = presetMemberPositions?.slice(0, 3) ?? [];
-  const variantColor = getDotColor(isConnected, isClientMember);
 
   return (
     <Card
@@ -44,9 +21,6 @@ export function PresetMemberCard({ presetMember }: PresetMemberCardProps) {
       className={styles.memberCard}
       gap="xs"
     >
-      <div className={styles.topLeft}>
-        {variantColor && <Dot variantColor={variantColor} />}
-      </div>
       <div className={styles.topRight}>
         {tier && (
           <Badge variantColor="red">
@@ -86,4 +60,3 @@ export function PresetMemberCard({ presetMember }: PresetMemberCardProps) {
     </Card>
   );
 }
-

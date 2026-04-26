@@ -11,12 +11,6 @@
   width: 5rem;
 }
 
-.topLeft {
-  position: absolute;
-  top: var(--space-xs);
-  left: var(--space-xs);
-}
-
 .topRight {
   position: absolute;
   top: var(--space-xs);

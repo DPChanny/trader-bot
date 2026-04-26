@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as GuildGuildIdMemberRouteImport } from './routes/guild/$guildId/member'
 import { Route as AuthLoginCallbackRouteImport } from './routes/auth/login/callback'
 import { Route as GuildGuildIdPresetPresetIdRouteImport } from './routes/guild/$guildId/preset/$presetId'
+import { Route as GuildGuildIdPresetPresetIdIndexRouteImport } from './routes/guild/$guildId/preset/$presetId/index'
 import { Route as GuildGuildIdPresetPresetIdAuctionAuctionIdRouteImport } from './routes/guild/$guildId/preset/$presetId/auction/$auctionId'
 
 const TermsOfServiceRoute = TermsOfServiceRouteImport.update({
@@ -60,6 +61,12 @@ const GuildGuildIdPresetPresetIdRoute =
     path: '/guild/$guildId/preset/$presetId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const GuildGuildIdPresetPresetIdIndexRoute =
+  GuildGuildIdPresetPresetIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => GuildGuildIdPresetPresetIdRoute,
+  } as any)
 const GuildGuildIdPresetPresetIdAuctionAuctionIdRoute =
   GuildGuildIdPresetPresetIdAuctionAuctionIdRouteImport.update({
     id: '/auction/$auctionId',
@@ -76,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/auth/login/callback': typeof AuthLoginCallbackRoute
   '/guild/$guildId/member': typeof GuildGuildIdMemberRoute
   '/guild/$guildId/preset/$presetId': typeof GuildGuildIdPresetPresetIdRouteWithChildren
+  '/guild/$guildId/preset/$presetId/': typeof GuildGuildIdPresetPresetIdIndexRoute
   '/guild/$guildId/preset/$presetId/auction/$auctionId': typeof GuildGuildIdPresetPresetIdAuctionAuctionIdRoute
 }
 export interface FileRoutesByTo {
@@ -86,7 +94,7 @@ export interface FileRoutesByTo {
   '/terms-of-service': typeof TermsOfServiceRoute
   '/auth/login/callback': typeof AuthLoginCallbackRoute
   '/guild/$guildId/member': typeof GuildGuildIdMemberRoute
-  '/guild/$guildId/preset/$presetId': typeof GuildGuildIdPresetPresetIdRouteWithChildren
+  '/guild/$guildId/preset/$presetId': typeof GuildGuildIdPresetPresetIdIndexRoute
   '/guild/$guildId/preset/$presetId/auction/$auctionId': typeof GuildGuildIdPresetPresetIdAuctionAuctionIdRoute
 }
 export interface FileRoutesById {
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   '/auth/login/callback': typeof AuthLoginCallbackRoute
   '/guild/$guildId/member': typeof GuildGuildIdMemberRoute
   '/guild/$guildId/preset/$presetId': typeof GuildGuildIdPresetPresetIdRouteWithChildren
+  '/guild/$guildId/preset/$presetId/': typeof GuildGuildIdPresetPresetIdIndexRoute
   '/guild/$guildId/preset/$presetId/auction/$auctionId': typeof GuildGuildIdPresetPresetIdAuctionAuctionIdRoute
 }
 export interface FileRouteTypes {
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
     | '/auth/login/callback'
     | '/guild/$guildId/member'
     | '/guild/$guildId/preset/$presetId'
+    | '/guild/$guildId/preset/$presetId/'
     | '/guild/$guildId/preset/$presetId/auction/$auctionId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
     | '/auth/login/callback'
     | '/guild/$guildId/member'
     | '/guild/$guildId/preset/$presetId'
+    | '/guild/$guildId/preset/$presetId/'
     | '/guild/$guildId/preset/$presetId/auction/$auctionId'
   fileRoutesById: FileRoutesById
 }
@@ -206,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuildGuildIdPresetPresetIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guild/$guildId/preset/$presetId/': {
+      id: '/guild/$guildId/preset/$presetId/'
+      path: '/'
+      fullPath: '/guild/$guildId/preset/$presetId/'
+      preLoaderRoute: typeof GuildGuildIdPresetPresetIdIndexRouteImport
+      parentRoute: typeof GuildGuildIdPresetPresetIdRoute
+    }
     '/guild/$guildId/preset/$presetId/auction/$auctionId': {
       id: '/guild/$guildId/preset/$presetId/auction/$auctionId'
       path: '/auction/$auctionId'
@@ -217,11 +235,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface GuildGuildIdPresetPresetIdRouteChildren {
+  GuildGuildIdPresetPresetIdIndexRoute: typeof GuildGuildIdPresetPresetIdIndexRoute
   GuildGuildIdPresetPresetIdAuctionAuctionIdRoute: typeof GuildGuildIdPresetPresetIdAuctionAuctionIdRoute
 }
 
 const GuildGuildIdPresetPresetIdRouteChildren: GuildGuildIdPresetPresetIdRouteChildren =
   {
+    GuildGuildIdPresetPresetIdIndexRoute: GuildGuildIdPresetPresetIdIndexRoute,
     GuildGuildIdPresetPresetIdAuctionAuctionIdRoute:
       GuildGuildIdPresetPresetIdAuctionAuctionIdRoute,
   }

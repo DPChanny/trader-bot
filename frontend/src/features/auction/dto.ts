@@ -3,25 +3,23 @@ import type { PresetDetailDTO } from "@features/preset/dto";
 
 export enum Status {
   WAITING = 0,
-  RUNNING = 1,
-  COMPLETED = 2,
+  PENDING = 1,
+  RUNNING = 2,
+  COMPLETED = 3,
 }
 
 export interface AuctionDTO {
   auctionId: string;
-  guildId: string;
-  presetId: number;
   status: Status;
-  currentMemberId: number | null;
-  currentBid: BidDTO | null;
-  timer: number;
+  connectedLeaderCount: number;
 }
 
 export interface AuctionDetailDTO extends AuctionDTO {
+  playerId: number | null;
+  bid: BidDTO | null;
   teams: TeamDTO[];
   auctionQueue: number[];
   unsoldQueue: number[];
-  connectedMemberIds: number[];
   presetSnapshot: PresetDetailDTO | null;
 }
 
@@ -32,27 +30,26 @@ export interface InitPayloadDTO {
 }
 
 export interface CreateAuctionDTO {
-  isPublic: boolean;
   sendInvite: boolean;
 }
 
-export enum AuctionMessageType {
+export enum AuctionEventType {
   AUTH = 0,
   INIT = 1,
   ERROR = 2,
-  TIMER = 3,
+  TICK = 3,
   STATUS = 4,
   PLACE_BID = 5,
   BID_PLACED = 6,
   MEMBER_SOLD = 7,
   MEMBER_UNSOLD = 8,
-  MEMBER_CONNECTED = 9,
-  MEMBER_DISCONNECTED = 10,
+  LEADER_CONNECTED = 9,
+  LEADER_DISCONNECTED = 10,
   NEXT_PLAYER = 11,
 }
 
-export interface AuctionMessageEnvelopeDTO<TPayload = unknown> {
-  type: AuctionMessageType;
+export interface AuctionEventEnvelopeDTO<TPayload = unknown> {
+  type: AuctionEventType;
   payload: TPayload;
 }
 
@@ -84,35 +81,11 @@ export interface BidPlacedPayloadDTO {
   amount: number;
 }
 
-export interface NextPlayerPayloadDTO {
-  memberId: number;
-  auctionQueue: number[];
-  unsoldQueue: number[];
-}
-
-export interface MemberSoldPayloadDTO {
-  teams: TeamDTO[];
-  auctionQueue: number[];
-  unsoldQueue: number[];
-}
-
-export interface MemberUnsoldPayloadDTO {
-  memberId: number;
-}
-
-export interface MemberConnectedPayloadDTO {
-  memberId: number;
-}
-
-export interface MemberDisconnectedPayloadDTO {
-  memberId: number;
-}
-
 export interface ErrorPayloadDTO {
   code: number;
 }
 
-export interface TimerPayloadDTO {
+export interface TickPayloadDTO {
   timer: number;
 }
 

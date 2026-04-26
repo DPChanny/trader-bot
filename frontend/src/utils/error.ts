@@ -21,10 +21,9 @@ export const BackendErrorCode = {
     Invalid: 4201,
   },
   Auction: {
+    BidInvalidState: 4202,
     BidTeamFull: 4203,
-    BidTooHigh: 4204,
-    BidTooLow: 4205,
-    ForbiddenAccess: 4301,
+    BidInvalidAmount: 4204,
     BidNotLeader: 4302,
     NotFound: 4401,
   },
@@ -84,19 +83,16 @@ function getErrorMessage(code: number): string {
     case BackendErrorCode.Validation.Invalid:
       return "유효하지 않은 입력입니다";
 
-    case BackendErrorCode.Auction.ForbiddenAccess:
-      return "경매 접근 권한이 없습니다";
-    case BackendErrorCode.Auction.NotFound:
-      return "경매를 찾을 수 없습니다";
-
+    case BackendErrorCode.Auction.BidInvalidState:
+      return "경매가 진행 중이 아니거나 현재 선수가 없습니다";
     case BackendErrorCode.Auction.BidTeamFull:
       return "팀 인원을 초과해 입찰할 수 없습니다";
-    case BackendErrorCode.Auction.BidTooHigh:
-      return "입찰 금액이 너무 높아 입찰할 수 없습니다";
-    case BackendErrorCode.Auction.BidTooLow:
-      return "입찰 금액이 너무 낮아 입찰할 수 없습니다";
+    case BackendErrorCode.Auction.BidInvalidAmount:
+      return "유효하지 않은 입찰 금액입니다";
     case BackendErrorCode.Auction.BidNotLeader:
       return "팀장이 아니면 입찰할 수 없습니다";
+    case BackendErrorCode.Auction.NotFound:
+      return "경매를 찾을 수 없습니다";
 
     case BackendErrorCode.Guild.NotFound:
       return "서버를 찾을 수 없습니다";
