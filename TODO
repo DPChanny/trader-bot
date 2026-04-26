@@ -1,14 +1,19 @@
+auction refactor
+auction logging
+router.py? opt
+bot opt
+    upsert opt
+    on ready opt
+pagenation
+preset copy
+subscription
+    toss payment
+redis conf
 pm2 2 worker
 nginx load balancer
+infra .sh 개편
+workflow 개편
 t4g small rds
 t4g small backend
-t4g micro bot
+t4g small bot
 t4g micro redis
-redis conf
-router.py?
-upsert opt
-on ready opt
-pagenation
-workflow 개편
-preset copy
-수익
