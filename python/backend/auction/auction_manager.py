@@ -12,15 +12,17 @@ from shared.dtos.auction import (
     AuctionEventEnvelopeDTO,
     AuctionEventType,
     BidDTO,
+    ErrorPayloadDTO,
     InitPayloadDTO,
     Status,
     StatusPayloadDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
+from shared.utils.error import AuctionErrorCode
 from shared.utils.redis import get_pubsub_redis
 
 from .auction import Auction, Bid
-from .auction_repository import AuctionRepository
+from .auction_repository import _AUCTION_LIFETIME, AuctionRepository
 
 
 class AuctionManager:
@@ -28,6 +30,7 @@ class AuctionManager:
     _pubsub: ClassVar[Any] = None
     _listener_task: ClassVar[asyncio.Task | None] = None
     _start_auction_tasks: ClassVar[dict[int, asyncio.Task]] = {}
+    _expiry_tasks: ClassVar[dict[int, asyncio.Task]] = {}
 
     _KEEPALIVE_CHANNEL = "auction:__listener__"
 
@@ -46,11 +49,40 @@ class AuctionManager:
         for task in cls._start_auction_tasks.values():
             task.cancel()
         cls._start_auction_tasks.clear()
+        for task in cls._expiry_tasks.values():
+            task.cancel()
+        cls._expiry_tasks.clear()
         for auction in cls._auctions.values():
             auction.stop_timer()
         cls._auctions.clear()
         if cls._pubsub:
             await cls._pubsub.close()
+
+    @classmethod
+    def _schedule_expiry(cls, auction_id: int, ttl: int) -> None:
+        task = asyncio.create_task(cls._expire_auction(auction_id, ttl))
+        cls._expiry_tasks[auction_id] = task
+
+    @classmethod
+    async def _expire_auction(cls, auction_id: int, ttl: int) -> None:
+        try:
+            await asyncio.sleep(ttl)
+        except asyncio.CancelledError:
+            return
+        finally:
+            cls._expiry_tasks.pop(auction_id, None)
+
+        auction = cls._auctions.pop(auction_id, None)
+        if auction is None:
+            return
+
+        cls._start_auction_tasks.pop(auction_id, None)
+        auction.stop_timer()
+        await auction.broadcast(
+            AuctionEventType.ERROR, ErrorPayloadDTO(code=AuctionErrorCode.Expired)
+        )
+        await AuctionRepository(auction_id).unsubscribe(cls._pubsub)
+        logger.warning(f"Auction {auction_id} expired and was cleaned up")
 
     @classmethod
     async def _listener(cls) -> None:
@@ -102,12 +134,8 @@ class AuctionManager:
 
     @classmethod
     async def on_connect(
-        cls, auction_id: int, ws: WebSocket, member_id: int | None
+        cls, auction: Auction, ws: WebSocket, member_id: int | None
     ) -> None:
-        auction = cls._auctions.get(auction_id)
-        if not auction:
-            return
-
         auction_detail_dto = AuctionDetailDTO.model_validate(auction)
         init_payload_dto = InitPayloadDTO(
             auction=auction_detail_dto, member_id=member_id
@@ -118,10 +146,13 @@ class AuctionManager:
             ).model_dump(mode="json")
         )
 
+        if auction.status == Status.COMPLETED:
+            return
+
         is_new_leader = auction.connect(ws, member_id)
 
         if is_new_leader:
-            repo = AuctionRepository(auction_id)
+            repo = AuctionRepository(auction.auction_id)
             new_count = await repo.publish_leader_connected()
             if (
                 auction.status == Status.WAITING
@@ -130,18 +161,17 @@ class AuctionManager:
             ):
                 await repo.publish_status(Status.PENDING)
                 await repo.release_state_lock()
-                cls._start_auction_tasks[auction_id] = asyncio.create_task(
-                    cls._start_auction(auction_id)
+                cls._start_auction_tasks[auction.auction_id] = asyncio.create_task(
+                    cls._start_auction(auction.auction_id)
                 )
 
     @classmethod
-    async def on_disconnect(cls, auction_id: int, ws: WebSocket) -> None:
-        auction = cls._auctions.get(auction_id)
-        if not auction:
+    async def on_disconnect(cls, auction: Auction, ws: WebSocket) -> None:
+        if auction.status == Status.COMPLETED:
             return
         is_last_leader = auction.disconnect(ws)
         if is_last_leader:
-            await AuctionRepository(auction_id).publish_leader_disconnected()
+            await AuctionRepository(auction.auction_id).publish_leader_disconnected()
 
     @classmethod
     async def _start_auction(cls, auction_id: int) -> None:
@@ -209,6 +239,7 @@ class AuctionManager:
         repo = AuctionRepository(auction_id)
         await repo.save(auction)
         await repo.subscribe(cls._pubsub)
+        cls._schedule_expiry(auction_id, _AUCTION_LIFETIME)
         return auction
 
     @classmethod
@@ -237,8 +268,11 @@ class AuctionManager:
             )
             auction.start_timer(remaining)
 
-        cls._auctions[auction_id] = auction
-        await repo.subscribe(cls._pubsub)
+        if auction.status != Status.COMPLETED:
+            cls._auctions[auction_id] = auction
+            await repo.subscribe(cls._pubsub)
+            ttl = await repo.get_ttl()
+            cls._schedule_expiry(auction_id, ttl)
         return auction
 
     @classmethod

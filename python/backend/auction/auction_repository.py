@@ -91,6 +91,11 @@ class AuctionRepository:
     async def unsubscribe(self, pubsub: Any) -> None:
         await pubsub.unsubscribe(self._key("event"))
 
+    async def get_ttl(self) -> int:
+        r = get_redis()
+        ttl = await r.ttl(self._key())
+        return max(ttl, 0)
+
     async def save(self, auction: Auction) -> None:
         r = get_redis()
         state_mapping = {

@@ -26,6 +26,7 @@ export const BackendErrorCode = {
     BidInvalidAmount: 4204,
     BidNotLeader: 4302,
     NotFound: 4401,
+    Expired: 4410,
   },
   Guild: {
     NotFound: 4402,

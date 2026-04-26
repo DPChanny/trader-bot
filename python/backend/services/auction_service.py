@@ -113,7 +113,7 @@ async def connect_service(
         except TokenError as e:
             raise WSError(e.code) from None
 
-    await AuctionManager.on_connect(auction_id, ws, member_id)
+    await AuctionManager.on_connect(auction, ws, member_id)
 
     event.result = {"auction_id": auction.auction_id, "member_id": member_id}
 
@@ -134,4 +134,4 @@ async def place_bid_service(
 
 @ws_service
 async def disconnect_service(auction: Auction, ws: WebSocket, event: Event) -> None:
-    await AuctionManager.on_disconnect(auction.auction_id, ws)
+    await AuctionManager.on_disconnect(auction, ws)
