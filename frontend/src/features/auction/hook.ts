@@ -28,22 +28,18 @@ import { getAccessToken } from "@features/auth/token";
 export function useAuction(): {
   auction: AuctionDetailDTO | null;
   timer: number;
-  teamId: number | null;
   memberId: number | null;
   connect: (guildId: string, presetId: number, auctionId: string) => void;
   placeBid: (amount: number) => void;
   isConnected: boolean;
   wasConnected: boolean;
-  pendingAlert: boolean;
   error: WSError | null;
 } {
   const [isConnected, setIsConnected] = useState(false);
   const [wasConnected, setWasConnected] = useState(false);
   const [auction, setAuction] = useState<AuctionDetailDTO | null>(null);
   const [timer, setTimer] = useState(0);
-  const [teamId, setTeamId] = useState<number | null>(null);
   const [memberId, setMemberId] = useState<number | null>(null);
-  const [pendingAlert, setPendingAlert] = useState(false);
   const [error, setError] = useState<WSError | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
@@ -64,7 +60,6 @@ export function useAuction(): {
         setError(null);
         const initPayload = dto as InitPayloadDTO;
         setAuction(initPayload.auction);
-        setTeamId(initPayload.teamId);
         setMemberId(initPayload.memberId);
         break;
       }
@@ -158,18 +153,27 @@ export function useAuction(): {
           }
           return next;
         });
-        if (statusPayload.status === Status.PENDING) {
-          setPendingAlert(true);
-        } else if (statusPayload.status === Status.RUNNING) {
-          setPendingAlert(false);
-        } else if (statusPayload.status === Status.COMPLETED) {
+        if (statusPayload.status === Status.COMPLETED) {
           setTimer(0);
+          wsRef.current?.close();
         }
         break;
       }
 
       case AuctionEventType.LEADER_CONNECTED:
+        setAuction((prev) =>
+          prev
+            ? { ...prev, connectedLeaderCount: prev.connectedLeaderCount + 1 }
+            : prev,
+        );
+        break;
+
       case AuctionEventType.LEADER_DISCONNECTED:
+        setAuction((prev) =>
+          prev
+            ? { ...prev, connectedLeaderCount: prev.connectedLeaderCount - 1 }
+            : prev,
+        );
         break;
 
       case AuctionEventType.ERROR: {
@@ -188,9 +192,7 @@ export function useAuction(): {
     setWasConnected(false);
     setAuction(null);
     setTimer(0);
-    setTeamId(null);
     setMemberId(null);
-    setPendingAlert(false);
     setError(null);
 
     const ws = new WebSocket(
@@ -236,6 +238,8 @@ export function useAuction(): {
       }
       if (event.code === 1000 && opened) {
         setError(null);
+      } else if (opened) {
+        handleError(FrontendErrorCode.Unexpected.External);
       }
     };
 
@@ -272,13 +276,11 @@ export function useAuction(): {
   return {
     auction,
     timer,
-    teamId,
     memberId,
     connect,
     placeBid,
     isConnected,
     wasConnected,
-    pendingAlert,
     error,
   };
 }

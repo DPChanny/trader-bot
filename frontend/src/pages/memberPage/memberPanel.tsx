@@ -21,7 +21,7 @@ import {
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
 import { buildPatchDTO } from "@utils/dto";
-import { getRoleEntries } from "@features/member/enum";
+import { getRoleEntries } from "@features/member/dto";
 
 interface MemberPanelProps {
   member: MemberDetailDTO;

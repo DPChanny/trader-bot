@@ -3,14 +3,12 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction import (
-    AuctionDetailDTO,
     AuctionDTO,
     AuctionEventEnvelopeDTO,
     AuctionEventType,
     AuthPayloadDTO,
     CreateAuctionDTO,
     ErrorPayloadDTO,
-    InitPayloadDTO,
     PlaceBidPayloadDTO,
     Status,
 )
@@ -83,18 +81,8 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
         auth_payload_dto = _parse_event_payload(
             auth_event, AuthPayloadDTO, AuthErrorCode.Unauthorized
         )
-        auction, member_id, team_id = await connect_service(
+        auction, member_id = await connect_service(
             ws, auction_id, auth_payload_dto, session
-        )
-
-        auction_detail_dto = AuctionDetailDTO.model_validate(auction)
-        init_payload_dto = InitPayloadDTO(
-            auction=auction_detail_dto, team_id=team_id, member_id=member_id
-        )
-        await ws.send_json(
-            AuctionEventEnvelopeDTO(
-                type=AuctionEventType.INIT, payload=init_payload_dto
-            ).model_dump(mode="json")
         )
 
         while True:

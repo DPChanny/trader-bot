@@ -25,7 +25,6 @@ export interface AuctionDetailDTO extends AuctionDTO {
 
 export interface InitPayloadDTO {
   auction: AuctionDetailDTO;
-  teamId: number | null;
   memberId: number | null;
 }
 

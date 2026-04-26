@@ -19,7 +19,6 @@ import { PresetMemberCard } from "@components/presetMemberCard";
 import { Input } from "@components/atoms/input";
 import { Text, Title } from "@components/atoms/text";
 import { ErrorModal } from "./errorModal";
-import { getStatusEntries } from "@features/auction/enum";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 import { Status } from "@features/auction/dto";
 import {
@@ -65,12 +64,11 @@ export function AuctionPage() {
   const {
     auction,
     timer,
-    teamId,
+    memberId,
     connect,
     placeBid,
     isConnected,
     wasConnected,
-    pendingAlert,
     error: rawError,
   } = useAuction();
 
@@ -78,13 +76,11 @@ export function AuctionPage() {
     connect(guildId, presetId, auctionId);
   }, [auctionId]);
 
-  const isLeader = teamId !== null;
-
   const isCompleted = auction?.status === Status.COMPLETED;
   const isRunning = auction?.status === Status.RUNNING;
   const isWaiting = auction?.status === Status.WAITING;
   const isPending = auction?.status === Status.PENDING;
-  const isDisconnected = wasConnected && !isConnected && !isCompleted;
+  const isDisconnected = wasConnected && !isConnected && rawError !== null;
 
   const bidError =
     !isCompleted && rawError !== null && isBidErrorCode(rawError.code)
@@ -113,7 +109,9 @@ export function AuctionPage() {
   if (
     !isCompleted &&
     rawError !== null &&
-    (auction === null || (bidError === null && modalError === null))
+    (auction === null ||
+      isDisconnected ||
+      (bidError === null && modalError === null))
   ) {
     return (
       <Page>
@@ -154,20 +152,18 @@ export function AuctionPage() {
     .filter((m): m is PresetMemberDetailDTO => m !== undefined);
 
   const clientTeam =
-    teamId !== null ? auction.teams.find((t) => t.teamId === teamId) : null;
+    memberId !== null
+      ? (auction.teams.find((t) => t.leaderId === memberId) ?? null)
+      : null;
+  const isLeader = clientTeam !== null;
   const clientTeamSize = clientTeam ? clientTeam.memberIds.length : 0;
   const isClientTeamFull = clientTeamSize >= teamSize;
-  const canBid = isRunning && isLeader && !isClientTeamFull;
-  const statusEntries = getStatusEntries();
-  const statusText = isDisconnected
-    ? "연결 끊김"
-    : statusEntries[auction.status].displayName;
+  const canBid =
+    isRunning && isLeader && !isClientTeamFull && auction.playerId !== null;
 
   const currentMember = auction.playerId
     ? (presetMemberMap.get(auction.playerId) ?? null)
     : null;
-  const showCurrentMember =
-    isWaiting || isPending || isCompleted || currentMember === null;
 
   const currentBidLeaderId = auction.bid?.leaderId;
   const currentBidLeader =
@@ -194,12 +190,6 @@ export function AuctionPage() {
         <ErrorModal error={modalError} onClose={() => setModalError(null)} />
       )}
 
-      {pendingAlert && (
-        <SecondarySection>
-          <Text variantWeight="bold">곧 경매가 시작됩니다</Text>
-        </SecondarySection>
-      )}
-
       <PrimarySection minSize overflow="hidden" style={{ flex: 3 }}>
         <SecondarySection fill minSize>
           <Title>팀 목록</Title>
@@ -214,15 +204,22 @@ export function AuctionPage() {
 
       <PrimarySection minSize style={{ flex: 2 }}>
         <SecondarySection fill minSize>
-          <Title>{presetSnapshot?.name}</Title>
+          <Title>{presetSnapshot?.name} </Title>
           <Column fill>
             <TertiarySection fill>
               <Column fill center>
-                {showCurrentMember ? (
-                  <Text>{statusText}</Text>
-                ) : (
+                {isWaiting ? (
+                  <Text>
+                    팀장 {auction.teams.length - auction.connectedLeaderCount}명
+                    접속 대기 중
+                  </Text>
+                ) : isPending ? (
+                  <Text>경매가 곧 시작됩니다</Text>
+                ) : isCompleted ? (
+                  <Text>경매가 완료되었습니다</Text>
+                ) : currentMember !== null ? (
                   <PresetMemberCard presetMember={currentMember} />
-                )}
+                ) : null}
               </Column>
             </TertiarySection>
 
@@ -251,23 +248,24 @@ export function AuctionPage() {
                 </FlexItem>
               </Row>
             </TertiarySection>
-            {canBid && (
+            {isLeader && (
               <TertiarySection>
+                {bidError && (
+                  <Error error={bidError}>입찰 처리에 실패했습니다</Error>
+                )}
                 <Row>
-                  {bidError && (
-                    <Error error={bidError}>입찰 처리에 실패했습니다</Error>
-                  )}
                   <FlexItem>
                     <Input
                       type="number"
                       placeholder={`입찰 금액 (${pointScale}의 배수)`}
                       value={bidAmount}
                       onValueChange={setBidAmount}
+                      disabled={!canBid}
                     />
                   </FlexItem>
                   <PrimaryButton
                     onClick={handlePlaceBid}
-                    disabled={!bidAmount || !isValidBidAmount}
+                    disabled={!canBid || !bidAmount || !isValidBidAmount}
                   >
                     입찰하기
                   </PrimaryButton>

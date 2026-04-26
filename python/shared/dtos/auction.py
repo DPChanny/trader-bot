@@ -58,7 +58,6 @@ class AuctionDetailDTO(AuctionDTO):
 
 class InitPayloadDTO(BaseDTO):
     auction: AuctionDetailDTO
-    team_id: int | None
     member_id: int | None
 
 

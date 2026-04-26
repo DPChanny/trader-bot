@@ -7,9 +7,11 @@ from fastapi import WebSocket
 from pydantic import ValidationError
 
 from shared.dtos.auction import (
+    AuctionDetailDTO,
     AuctionEventEnvelopeDTO,
     AuctionEventType,
     BidDTO,
+    InitPayloadDTO,
     Status,
     StatusPayloadDTO,
 )
@@ -97,7 +99,18 @@ class AuctionManager:
         if not auction:
             return
 
+        auction_detail_dto = AuctionDetailDTO.model_validate(auction)
+        init_payload_dto = InitPayloadDTO(
+            auction=auction_detail_dto, member_id=member_id
+        )
+        await ws.send_json(
+            AuctionEventEnvelopeDTO(
+                type=AuctionEventType.INIT, payload=init_payload_dto
+            ).model_dump(mode="json")
+        )
+
         is_new_leader = auction.connect(ws, member_id)
+
         if is_new_leader:
             repo = AuctionRepository(auction_id)
             await repo.publish_leader_connected()

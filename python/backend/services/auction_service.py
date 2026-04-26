@@ -91,7 +91,7 @@ async def connect_service(
     dto: AuthPayloadDTO,
     session: AsyncSession,
     event: Event,
-) -> tuple[Auction, int | None, int | None]:
+) -> tuple[Auction, int | None]:
     auction = await AuctionManager.get_auction(auction_id)
 
     if not auction:
@@ -113,18 +113,11 @@ async def connect_service(
         except TokenError as e:
             raise WSError(e.code) from None
 
-    team_id: int | None = None
-    if member_id is not None:
-        for team in auction.teams:
-            if team.leader_id == member_id:
-                team_id = team.team_id
-                break
-
     await AuctionManager.on_connect(auction_id, ws, member_id)
 
     event.result = {"auction_id": auction.auction_id, "member_id": member_id}
 
-    return auction, member_id, team_id
+    return auction, member_id
 
 
 @ws_service
