@@ -51,7 +51,6 @@ class AuctionRepository:
         self,
         on_timer_expire: Callable[[], Awaitable[None]],
         on_timer_start: Callable[[], Awaitable[None]],
-        pubsub: Any,
     ) -> Auction | None:
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
@@ -81,10 +80,15 @@ class AuctionRepository:
             player_id=int(data["player_id"]) if data.get("player_id") else None,
             bid=bid,
         )
-        await pubsub.subscribe(self._key(":event"))
         return auction
 
-    async def save(self, auction: Auction, pubsub: Any) -> None:
+    async def subscribe(self, pubsub: Any) -> None:
+        await pubsub.subscribe(self._key(":event"))
+
+    async def unsubscribe(self, pubsub: Any) -> None:
+        await pubsub.unsubscribe(self._key(":event"))
+
+    async def save(self, auction: Auction) -> None:
         r = get_redis()
         state_mapping = {
             "status": str(auction.status.value),
@@ -108,7 +112,6 @@ class AuctionRepository:
                 pipe.rpush(self._key(":unsold_queue"), *auction.unsold_queue)
                 pipe.expire(self._key(":unsold_queue"), _AUCTION_LIFETIME)
             await pipe.execute()
-        await pubsub.subscribe(self._key(":event"))
 
     async def publish_leader_connected(self) -> None:
         r = get_redis()
@@ -223,6 +226,7 @@ class AuctionRepository:
                 mapping={"player_id": "", "bid_amount": "", "bid_leader_id": ""},
             )
             pipe.rpush(self._key(":unsold_queue"), player_id)
+            pipe.expire(self._key(":unsold_queue"), _AUCTION_LIFETIME)
             pipe.publish(
                 self._key(":event"),
                 AuctionEventEnvelopeDTO(

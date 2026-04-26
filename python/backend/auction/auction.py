@@ -133,6 +133,8 @@ class Auction:
 
     def on_status(self, status: Status) -> None:
         self.status = status
+        if status == Status.COMPLETED:
+            self.stop_timer()
 
     def connect(self, ws: WebSocket, member_id: int | None) -> bool:
         self._ws_set.add(ws)
@@ -163,17 +165,14 @@ class Auction:
             type=event_type, payload=payload
         ).model_dump_json()
 
+        ws_list = list(self._ws_set)
         results = await asyncio.gather(
-            *[ws.send_text(data) for ws in self._ws_set], return_exceptions=True
+            *[ws.send_text(data) for ws in ws_list], return_exceptions=True
         )
 
-        invalid_ws_set = {
-            ws
-            for ws, result in zip(self._ws_set, results, strict=False)
-            if isinstance(result, Exception)
-        }
-        for ws in invalid_ws_set:
-            self.disconnect(ws)
+        for ws, result in zip(ws_list, results, strict=True):
+            if isinstance(result, Exception):
+                self.disconnect(ws)
 
     def validate_bid(self, bid: Bid) -> None:
         if self.status != Status.RUNNING or self.player_id is None:
@@ -192,6 +191,19 @@ class Auction:
         if bid.amount < ((self.bid.amount + 1) if self.bid else 1):
             raise WSError(AuctionErrorCode.BidInvalidAmount)
 
+    def settle(self) -> Team | None:
+        if self.player_id is None or self.bid is None:
+            return None
+        team = self._member_id_to_team.get(self.bid.leader_id)
+        if team is None:
+            return None
+        return Team(
+            team_id=team.team_id,
+            leader_id=team.leader_id,
+            member_ids=team.member_ids + [self.player_id],
+            points=team.points - self.bid.amount,
+        )
+
     def start_timer(self, remaining: int | None = None) -> None:
         self.stop_timer()
         asyncio.create_task(self._on_timer_start())
@@ -205,7 +217,7 @@ class Auction:
         self._timer_task = None
 
     async def _timer(self, remaining: int) -> None:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         deadline = loop.time() + remaining
         while remaining > 0:
             await self.broadcast(AuctionEventType.TICK, TickPayloadDTO(timer=remaining))

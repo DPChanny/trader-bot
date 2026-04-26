@@ -16,7 +16,7 @@ from shared.dtos.auction import (
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.redis import get_redis
 
-from .auction import Auction, Bid, Team
+from .auction import Auction, Bid
 from .auction_repository import AuctionRepository
 
 
@@ -41,6 +41,9 @@ class AuctionManager:
         for task in cls._start_auction_tasks.values():
             task.cancel()
         cls._start_auction_tasks.clear()
+        for auction in cls._auctions.values():
+            auction.stop_timer()
+        cls._auctions.clear()
         if cls._pubsub:
             await cls._pubsub.close()
 
@@ -77,6 +80,9 @@ class AuctionManager:
                                 auction.on_status(status_payload.status)
                                 if auction.status == Status.COMPLETED:
                                     cls._auctions.pop(auction_id, None)
+                                    await AuctionRepository(auction_id).unsubscribe(
+                                        cls._pubsub
+                                    )
                         await auction.broadcast(envelope.type, envelope.payload)
                 except ValueError, IndexError, KeyError, ValidationError:
                     continue
@@ -148,22 +154,11 @@ class AuctionManager:
             await repo.release_timer_lock()
             return
 
-        bid = auction.bid
-        team = (
-            auction._member_id_to_team.get(bid.leader_id) if bid is not None else None
-        )
-
-        if team is None:
+        result_team = auction.settle()
+        if result_team is None:
             await repo.publish_member_unsold(auction.player_id)
         else:
-            await repo.publish_member_sold(
-                Team(
-                    team_id=team.team_id,
-                    leader_id=team.leader_id,
-                    member_ids=team.member_ids + [auction.player_id],
-                    points=team.points - bid.amount,
-                )
-            )
+            await repo.publish_member_sold(result_team)
 
         await cls._next_player(auction_id)
         await repo.release_timer_lock()
@@ -190,7 +185,8 @@ class AuctionManager:
         cls._auctions[auction.auction_id] = auction
 
         repo = AuctionRepository(auction_id)
-        await repo.save(auction, cls._pubsub)
+        await repo.save(auction)
+        await repo.subscribe(cls._pubsub)
         return auction
 
     @classmethod
@@ -200,9 +196,7 @@ class AuctionManager:
 
         repo = AuctionRepository(auction_id)
         auction = await repo.load(
-            cls._get_on_timer_expire(auction_id),
-            cls._get_on_timer_start(auction_id),
-            cls._pubsub,
+            cls._get_on_timer_expire(auction_id), cls._get_on_timer_start(auction_id)
         )
         if not auction:
             cls._auctions.pop(auction_id, None)
@@ -222,6 +216,7 @@ class AuctionManager:
             auction.start_timer(remaining)
 
         cls._auctions[auction_id] = auction
+        await repo.subscribe(cls._pubsub)
         return auction
 
     @classmethod
