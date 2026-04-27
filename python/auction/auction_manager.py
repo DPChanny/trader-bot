@@ -4,14 +4,19 @@ from typing import Any, ClassVar
 from loguru import logger
 from pydantic import ValidationError
 
-from shared.dtos.auction import AuctionRequestEnvelopeDTO, AuctionRequestType
+from shared.dtos.auction import (
+    AUCTION_LIFETIME,
+    AuctionRequestEnvelopeDTO,
+    AuctionRequestType,
+    Status,
+)
 from shared.utils.redis import get_pubsub
 
-from .repository import AuctionWorkerRepository
-from .worker import AuctionWorker
+from .auction import Auction
+from .auction_repository import AuctionRepository
 
 
-class AuctionWorkerManager:
+class AuctionManager:
     _pubsub: ClassVar[Any] = None
     _loops: ClassVar[dict[int, asyncio.Task]] = {}
     _listener_task: ClassVar[asyncio.Task | None] = None
@@ -37,9 +42,17 @@ class AuctionWorkerManager:
         await cls._pubsub.close()
 
     @classmethod
+    def _run_auction(cls, auction_id: int, auction: Auction) -> None:
+        task = asyncio.create_task(auction.run())
+        cls._loops[auction_id] = task
+        task.add_done_callback(lambda t, aid=auction_id: cls._loops.pop(aid, None))
+
+    @classmethod
     async def _recover(cls) -> None:
-        active = await AuctionWorkerRepository.scan_active_auctions()
-        for auction_id, detail in active:
+        all_auctions = await AuctionRepository.get_all()
+        for auction_id, detail in all_auctions:
+            if detail.status == Status.COMPLETED:
+                continue
             if auction_id in cls._loops:
                 continue
             if not detail.preset_snapshot:
@@ -48,14 +61,8 @@ class AuctionWorkerManager:
                 )
                 continue
             logger.info(f"Recovering auction {auction_id}")
-            worker = AuctionWorker(
-                auction_id=auction_id,
-                preset_snapshot=detail.preset_snapshot,
-                resume=True,
-            )
-            task = asyncio.create_task(worker.run())
-            cls._loops[auction_id] = task
-            task.add_done_callback(lambda t, aid=auction_id: cls._loops.pop(aid, None))
+            ttl = await AuctionRepository(auction_id).get_ttl()
+            cls._run_auction(auction_id, Auction(detail, ttl))
 
     @classmethod
     async def _listener(cls) -> None:
@@ -91,16 +98,13 @@ class AuctionWorkerManager:
 
                     preset = payload.preset_snapshot
 
-                    worker = AuctionWorker(
-                        auction_id=auction_id, preset_snapshot=preset, resume=False
-                    )
-                    repo = AuctionWorkerRepository(auction_id)
+                    repo = AuctionRepository(auction_id)
                     await repo.set(preset_snapshot=preset)
-                    task = asyncio.create_task(worker.run())
-                    cls._loops[auction_id] = task
-                    task.add_done_callback(
-                        lambda t, aid=auction_id: cls._loops.pop(aid, None)
-                    )
+                    detail = await repo.get_detail()
+                    if not detail:
+                        continue
+                    await repo.publish_create_response()
+                    cls._run_auction(auction_id, Auction(detail, AUCTION_LIFETIME))
             except asyncio.CancelledError:
                 return
             except Exception as e:

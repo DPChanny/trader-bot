@@ -43,7 +43,7 @@ def get_pubsub() -> redis.client.PubSub:
     return _pubsub.pubsub()
 
 
-async def close_redis():
+async def cleanup_redis():
     global _redis, _pubsub
     if _redis:
         await _redis.close()

@@ -125,7 +125,7 @@ async def setup_db():
         await conn.run_sync(BaseEntity.metadata.create_all, checkfirst=True)
 
 
-async def close_db():
+async def cleanup_db():
     if _engine:
         await _engine.dispose()
 

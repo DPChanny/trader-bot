@@ -3,56 +3,44 @@
 from loguru import logger
 
 from shared.dtos.auction import (
-    AUCTION_LIFETIME,
-    AuctionEventEnvelopeDTO,
+    AuctionDetailDTO,
     AuctionEventType,
     AuctionRequestEnvelopeDTO,
     AuctionRequestType,
     BidDTO,
-    BidPlacedEventPayloadDTO,
     LeaderConnectedEventPayloadDTO,
     LeaderConnectedRequestPayloadDTO,
     LeaderDisconnectedEventPayloadDTO,
     LeaderDisconnectedRequestPayloadDTO,
     MemberSoldEventPayloadDTO,
     MemberUnsoldEventPayloadDTO,
-    NextPlayerEventPayloadDTO,
     Status,
     StatusEventPayloadDTO,
-    TeamDTO,
     TickEventPayloadDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
-from shared.utils.error import AuctionErrorCode
-from shared.utils.redis import get_pubsub, get_redis
+from shared.utils.redis import get_pubsub
 
-from .repository import AuctionWorkerRepository
-from .scripts import NEXT_PLAYER_SCRIPT, PLACE_BID_SCRIPT
+from .auction_repository import AuctionRepository
 
 
 _TICK_INTERVAL = 10
 _PENDING_DELAY = 5
 
 
-class AuctionWorker:
-    def __init__(
-        self, auction_id: int, preset_snapshot: PresetDetailDTO, *, resume: bool = False
-    ) -> None:
-        self.auction_id = auction_id
-        self.preset_snapshot = preset_snapshot
-        self.resume = resume
-        self.repo = AuctionWorkerRepository(auction_id)
+class Auction:
+    def __init__(self, detail: AuctionDetailDTO, ttl: int) -> None:
+        self.auction_id = detail.auction_id
+        self.preset_snapshot: PresetDetailDTO = detail.preset_snapshot
+        self.repo = AuctionRepository(detail.auction_id)
         self._pubsub = get_pubsub()
-        self._player_id: int | None = None
-        self._current_bid: BidDTO | None = None
-        self._teams: list[TeamDTO] = []
-        self._auction_queue: list[int] = []
-        self._unsold_queue: list[int] = []
-
-    def _key(self, suffix: str = "") -> str:
-        if suffix:
-            return f"auction:{self.auction_id}:{suffix}"
-        return f"auction:{self.auction_id}"
+        self._ttl = ttl
+        self._status = detail.status
+        self._player_id = detail.player_id
+        self._current_bid = detail.bid
+        self._teams = detail.teams
+        self._auction_queue = detail.auction_queue
+        self._unsold_queue = detail.unsold_queue
 
     @property
     def _team_size(self) -> int:
@@ -61,29 +49,15 @@ class AuctionWorker:
         )
 
     async def run(self) -> None:
-        ttl = AUCTION_LIFETIME if not self.resume else await self.repo.get_ttl()
-        bid_timer = self.preset_snapshot.timer
+        timer = self.preset_snapshot.timer
         leader_count = sum(
             1 for pm in self.preset_snapshot.preset_members if pm.is_leader
         )
 
         try:
             await self.repo.subscribe(self._pubsub)
-            async with asyncio.timeout(ttl):
-                detail = await self.repo.get_detail()
-                if not detail:
-                    return
-
-                self._teams = detail.teams
-                self._auction_queue = detail.auction_queue
-                self._unsold_queue = detail.unsold_queue
-                self._player_id = detail.player_id
-                self._current_bid = detail.bid
-
-                if not self.resume:
-                    await self.repo.publish_create_response()
-
-                if not self.resume or detail.status in (Status.WAITING, Status.PENDING):
+            async with asyncio.timeout(self._ttl):
+                if self._status in (Status.WAITING, Status.PENDING):
                     await self.repo.set_status(Status.WAITING)
 
                     async for message in self._pubsub.listen():
@@ -135,10 +109,19 @@ class AuctionWorker:
                     StatusEventPayloadDTO(status=Status.RUNNING),
                 )
 
-                while await self._next_player():
+                while True:
+                    next_result = await self.repo.next_player(
+                        self._auction_queue, self._unsold_queue, self._teams
+                    )
+                    if next_result is None:
+                        break
+                    self._player_id, self._auction_queue, self._unsold_queue = (
+                        next_result
+                    )
+                    self._current_bid = None
 
                     async def _tick() -> None:
-                        remaining = bid_timer
+                        remaining = timer
                         while remaining > 0:
                             await asyncio.sleep(min(_TICK_INTERVAL, remaining))
                             remaining -= _TICK_INTERVAL
@@ -150,7 +133,7 @@ class AuctionWorker:
 
                     tick = asyncio.create_task(_tick())
                     try:
-                        async with asyncio.timeout(bid_timer):
+                        async with asyncio.timeout(timer):
                             async for message in self._pubsub.listen():
                                 if message["type"] != "message":
                                     continue
@@ -164,9 +147,13 @@ class AuctionWorker:
                                     continue
                                 if envelope.type == AuctionRequestType.PLACE_BID:
                                     try:
-                                        await self._place_bid(
-                                            BidDTO.model_validate(envelope.payload)
-                                        )
+                                        bid = BidDTO.model_validate(envelope.payload)
+                                        if self._player_id is not None:
+                                            placed = await self.repo.place_bid(
+                                                bid, self._player_id, self._team_size
+                                            )
+                                            if placed:
+                                                self._current_bid = bid
                                     except Exception:
                                         continue
                     except TimeoutError:
@@ -220,76 +207,3 @@ class AuctionWorker:
         finally:
             await self.repo.unsubscribe(self._pubsub)
             await self._pubsub.close()
-
-    async def _next_player(self) -> bool:
-        if self._auction_queue:
-            next_player_id = self._auction_queue[0]
-            new_queue = self._auction_queue[1:]
-            new_unsold = self._unsold_queue
-        elif self._unsold_queue:
-            next_player_id = self._unsold_queue[0]
-            new_queue = self._unsold_queue[1:]
-            new_unsold = []
-        else:
-            return False
-
-        envelope = AuctionEventEnvelopeDTO(
-            type=AuctionEventType.NEXT_PLAYER,
-            payload=NextPlayerEventPayloadDTO(
-                player_id=next_player_id,
-                teams=self._teams,
-                auction_queue=new_queue,
-                unsold_queue=new_unsold,
-            ),
-        ).model_dump_json()
-
-        r = get_redis()
-        result = await r.eval(
-            NEXT_PLAYER_SCRIPT,
-            4,
-            self._key("auction_queue"),
-            self._key("unsold_queue"),
-            self._key(),
-            self._key("event"),
-            envelope,
-        )
-        if not result:
-            return False
-
-        self._player_id = next_player_id
-        self._auction_queue = new_queue
-        self._unsold_queue = new_unsold
-        self._current_bid = None
-        return True
-
-    async def _place_bid(self, bid: BidDTO) -> None:
-        if not self._player_id:
-            return
-
-        bid_placed_event = AuctionEventEnvelopeDTO(
-            type=AuctionEventType.BID_PLACED,
-            payload=BidPlacedEventPayloadDTO(
-                leader_id=bid.leader_id, amount=bid.amount, player_id=self._player_id
-            ),
-        ).model_dump_json()
-
-        r = get_redis()
-
-        result = await r.eval(
-            PLACE_BID_SCRIPT,
-            3,
-            self._key(),
-            self._key("teams"),
-            self._key("event"),
-            str(bid.leader_id),
-            str(bid.amount),
-            str(self._team_size),
-            bid_placed_event,
-            str(AuctionErrorCode.BidInvalidState),
-            str(AuctionErrorCode.BidTeamFull),
-            str(AuctionErrorCode.BidInvalidAmount),
-        )
-        if result != 0:
-            await self.repo.publish_bid_error(bid.leader_id, int(result))
-        else:
-            self._current_bid = bid

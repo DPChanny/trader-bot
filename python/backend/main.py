@@ -6,7 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from shared.utils.db import close_db, setup_db
+from shared.utils.db import cleanup_db, setup_db
 from shared.utils.env import get_app_origin
 from shared.utils.error import (
     HTTPError,
@@ -15,7 +15,7 @@ from shared.utils.error import (
     handle_http_error,
 )
 from shared.utils.logging import HTTPLogger, WSLogger, setup_logging
-from shared.utils.redis import close_redis, setup_redis
+from shared.utils.redis import cleanup_redis, setup_redis
 
 from .auction.auction_manager import AuctionManager
 from .routers import (
@@ -44,8 +44,8 @@ async def lifespan(_):
     yield
 
     await AuctionManager.cleanup()
-    await close_db()
-    await close_redis()
+    await cleanup_db()
+    await cleanup_redis()
 
 
 app = FastAPI(title="Trader Bot API", version="0.4.0", lifespan=lifespan)

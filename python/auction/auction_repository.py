@@ -10,63 +10,21 @@ from shared.dtos.auction import (
     AuctionResponseType,
     BidDTO,
     BidErrorResponsePayloadDTO,
+    BidPlacedEventPayloadDTO,
+    NextPlayerEventPayloadDTO,
     Status,
     TeamDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
+from shared.repositories.auction_repository import BaseAuctionRepository
+from shared.utils.error import AuctionErrorCode
 from shared.utils.redis import get_redis
 
+from .auction_scripts import NEXT_PLAYER_SCRIPT, PLACE_BID_SCRIPT
 
-class AuctionWorkerRepository:
-    def __init__(self, auction_id: int) -> None:
-        self.auction_id = auction_id
 
-    def _key(self, suffix: str = "") -> str:
-        if suffix:
-            return f"auction:{self.auction_id}:{suffix}"
-        return f"auction:{self.auction_id}"
-
-    async def get_detail(self) -> AuctionDetailDTO | None:
-        r = get_redis()
-        async with r.pipeline(transaction=False) as pipe:
-            pipe.hgetall(self._key())
-            pipe.hgetall(self._key("teams"))
-            pipe.lrange(self._key("auction_queue"), 0, -1)
-            pipe.lrange(self._key("unsold_queue"), 0, -1)
-            data, teams_raw, aq_raw, uq_raw = await pipe.execute()
-        if not data:
-            return None
-        teams = [TeamDTO.model_validate_json(v) for v in teams_raw.values()]
-        bid = (
-            BidDTO(amount=int(data["bid_amount"]), leader_id=int(data["bid_leader_id"]))
-            if data.get("bid_amount")
-            else None
-        )
-        preset_snapshot = (
-            PresetDetailDTO.model_validate_json(data["preset_snapshot"])
-            if data.get("preset_snapshot")
-            else None
-        )
-        return AuctionDetailDTO(
-            auction_id=self.auction_id,
-            status=Status(int(data["status"])),
-            connected_leader_count=int(data.get("connected_leader_count") or 0),
-            player_id=int(data["player_id"]) if data.get("player_id") else None,
-            bid=bid,
-            teams=teams,
-            auction_queue=[int(x) for x in aq_raw],
-            unsold_queue=[int(x) for x in uq_raw],
-            preset_snapshot=preset_snapshot,
-        )
-
-    async def get_ttl(self) -> int:
-        ttl = await get_redis().ttl(self._key())
-        return max(ttl, 0)
-
-    async def set(
-        self,
-        preset_snapshot: PresetDetailDTO,
-    ) -> None:
+class AuctionRepository(BaseAuctionRepository):
+    async def set(self, preset_snapshot: PresetDetailDTO) -> None:
         leader_ids = [
             pm.member_id for pm in preset_snapshot.preset_members if pm.is_leader
         ]
@@ -108,6 +66,10 @@ class AuctionWorkerRepository:
                 pipe.expire(self._key("auction_queue"), AUCTION_LIFETIME)
             await pipe.execute()
 
+    async def get_ttl(self) -> int:
+        ttl = await get_redis().ttl(self._key())
+        return max(ttl, 0)
+
     async def set_status(self, status: Status) -> None:
         await get_redis().hset(self._key(), "status", int(status))
 
@@ -115,13 +77,6 @@ class AuctionWorkerRepository:
         return int(
             await get_redis().hincrby(self._key(), "connected_leader_count", amount)
         )
-
-    async def acquire_lock(self, timeout: int = 5) -> bool:
-        result = await get_redis().set(self._key("lock"), "1", nx=True, ex=timeout)
-        return result is not None
-
-    async def release_lock(self) -> None:
-        await get_redis().delete(self._key("lock"))
 
     async def update_team(self, team: TeamDTO) -> None:
         await get_redis().hset(
@@ -157,8 +112,73 @@ class AuctionWorkerRepository:
     async def unsubscribe(self, pubsub: Any) -> None:
         await pubsub.unsubscribe(self._key("request"))
 
+    async def next_player(
+        self, auction_queue: list[int], unsold_queue: list[int], teams: list[TeamDTO]
+    ) -> tuple[int, list[int], list[int]] | None:
+        if auction_queue:
+            next_player_id = auction_queue[0]
+            next_auction_queue = auction_queue[1:]
+            next_unsold_queue = unsold_queue
+        elif unsold_queue:
+            next_player_id = unsold_queue[0]
+            next_auction_queue = unsold_queue[1:]
+            next_unsold_queue = []
+        else:
+            return None
+
+        envelope = AuctionEventEnvelopeDTO(
+            type=AuctionEventType.NEXT_PLAYER,
+            payload=NextPlayerEventPayloadDTO(
+                player_id=next_player_id,
+                teams=teams,
+                auction_queue=next_auction_queue,
+                unsold_queue=next_unsold_queue,
+            ),
+        ).model_dump_json()
+
+        result = await get_redis().eval(
+            NEXT_PLAYER_SCRIPT,
+            4,
+            self._key("auction_queue"),
+            self._key("unsold_queue"),
+            self._key(),
+            self._key("event"),
+            envelope,
+        )
+        if not result:
+            return None
+
+        return next_player_id, next_auction_queue, next_unsold_queue
+
+    async def place_bid(self, bid: BidDTO, player_id: int, team_size: int) -> bool:
+        bid_placed_event = AuctionEventEnvelopeDTO(
+            type=AuctionEventType.BID_PLACED,
+            payload=BidPlacedEventPayloadDTO(
+                leader_id=bid.leader_id, amount=bid.amount, player_id=player_id
+            ),
+        ).model_dump_json()
+
+        result = await get_redis().eval(
+            PLACE_BID_SCRIPT,
+            3,
+            self._key(),
+            self._key("teams"),
+            self._key("event"),
+            str(bid.leader_id),
+            str(bid.amount),
+            str(team_size),
+            bid_placed_event,
+            str(AuctionErrorCode.BidInvalidState),
+            str(AuctionErrorCode.BidTeamFull),
+            str(AuctionErrorCode.BidInvalidAmount),
+        )
+        if result != 0:
+            await self.publish_bid_error(bid.leader_id, int(result))
+            return False
+        return True
+
     @classmethod
-    async def scan_active_auctions(cls) -> list[tuple[int, AuctionDetailDTO]]:
+    async def get_all(cls) -> list[tuple[int, AuctionDetailDTO]]:
         r = get_redis()
         result: list[tuple[int, AuctionDetailDTO]] = []
         cursor = 0
@@ -174,7 +194,7 @@ class AuctionWorkerRepository:
                     continue
                 repo = cls(auction_id)
                 detail = await repo.get_detail()
-                if detail and detail.status not in (Status.COMPLETED,):
+                if detail:
                     result.append((auction_id, detail))
             if cursor == 0:
                 break

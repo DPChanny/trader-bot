@@ -3,9 +3,9 @@ import signal
 from pathlib import Path
 
 from shared.utils.logging import setup_logging
-from shared.utils.redis import close_redis, setup_redis
+from shared.utils.redis import cleanup_redis, setup_redis
 
-from .manager import AuctionWorkerManager
+from .auction_manager import AuctionManager
 
 
 setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
@@ -14,7 +14,7 @@ setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 async def main() -> None:
     await setup_redis()
 
-    await AuctionWorkerManager.setup()
+    await AuctionManager.setup()
 
     stop_event = asyncio.Event()
 
@@ -28,8 +28,8 @@ async def main() -> None:
 
     await stop_event.wait()
 
-    await AuctionWorkerManager.cleanup()
-    await close_redis()
+    await AuctionManager.cleanup()
+    await cleanup_redis()
 
 
 if __name__ == "__main__":
