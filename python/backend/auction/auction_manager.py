@@ -66,12 +66,11 @@ class AuctionManager:
                                 message["data"]
                             )
 
-                        is_completed = await auction.on_event(envelope)
+                        is_completed = await auction.handle_event(envelope)
                         if is_completed:
                             cls._auctions.pop(auction_id, None)
                             repo = AuctionRepository(auction_id)
-                            await repo.unsubscribe_event(cls._pubsub)
-                            await repo.unsubscribe_response(cls._pubsub)
+                            await repo.unsubscribe(cls._pubsub)
                     except ValueError, IndexError, KeyError, ValidationError:
                         continue
             except asyncio.CancelledError:
@@ -85,12 +84,6 @@ class AuctionManager:
     async def create_auction(cls, preset_snapshot: PresetDetailDTO) -> Auction:
         auction_id = uuid.uuid4().int
 
-        auction = Auction(auction_id=auction_id, preset_snapshot=preset_snapshot)
-        cls._auctions[auction_id] = auction
-
-        repo = AuctionRepository(auction_id)
-        await repo.subscribe(cls._pubsub)
-
         payload = CreateRequestPayloadDTO(
             auction_id=auction_id, preset_snapshot=preset_snapshot
         )
@@ -98,9 +91,13 @@ class AuctionManager:
 
         ok = await AuctionRepository.await_create_response(auction_id, timeout=5)
         if not ok:
-            cls._auctions.pop(auction_id, None)
-            await repo.unsubscribe(cls._pubsub)
             raise HTTPError(AuctionErrorCode.WorkerUnavailable)
+
+        auction = Auction(auction_id=auction_id, preset_snapshot=preset_snapshot)
+        cls._auctions[auction_id] = auction
+
+        repo = AuctionRepository(auction_id)
+        await repo.subscribe(cls._pubsub)
 
         return auction
 

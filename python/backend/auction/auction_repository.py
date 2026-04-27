@@ -14,8 +14,6 @@ from shared.utils.redis import get_redis
 
 
 class AuctionRepository:
-    _GLOBAL_REQUEST_CHANNEL = "auction:request"
-
     def __init__(self, auction_id: int) -> None:
         self.auction_id = auction_id
 
@@ -61,15 +59,11 @@ class AuctionRepository:
         ttl = await get_redis().ttl(self._key())
         return max(ttl, 0)
 
-    # ── pubsub subscription ───────────────────────────────────────────────────
-
     async def subscribe(self, pubsub: Any) -> None:
         await pubsub.subscribe(self._key("event"), self._key("response"))
 
     async def unsubscribe(self, pubsub: Any) -> None:
         await pubsub.unsubscribe(self._key("event"), self._key("response"))
-
-    # ── request publishing (Backend -> Worker) ────────────────────────────────
 
     async def publish_request(
         self, request_type: AuctionRequestType, payload: Any | None = None
@@ -84,7 +78,7 @@ class AuctionRepository:
     @classmethod
     async def publish_create_request(cls, payload: CreateRequestPayloadDTO) -> None:
         await get_redis().publish(
-            cls._GLOBAL_REQUEST_CHANNEL,
+            "auction:request",
             AuctionRequestEnvelopeDTO(
                 type=AuctionRequestType.CREATE, payload=payload
             ).model_dump_json(),

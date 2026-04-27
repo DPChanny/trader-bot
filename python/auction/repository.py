@@ -1,3 +1,4 @@
+import random
 from typing import Any
 
 from shared.dtos.auction import (
@@ -24,8 +25,6 @@ class AuctionWorkerRepository:
         if suffix:
             return f"auction:{self.auction_id}:{suffix}"
         return f"auction:{self.auction_id}"
-
-    # ── read ──────────────────────────────────────────────────────────────────
 
     async def get_detail(self) -> AuctionDetailDTO | None:
         r = get_redis()
@@ -64,14 +63,27 @@ class AuctionWorkerRepository:
         ttl = await get_redis().ttl(self._key())
         return max(ttl, 0)
 
-    # ── write: init ───────────────────────────────────────────────────────────
-
-    async def save(
+    async def set(
         self,
         preset_snapshot: PresetDetailDTO,
-        initial_teams: list[TeamDTO],
-        initial_queue: list[int],
     ) -> None:
+        leader_ids = [
+            pm.member_id for pm in preset_snapshot.preset_members if pm.is_leader
+        ]
+        initial_teams = [
+            TeamDTO(
+                team_id=i,
+                leader_id=leader_id,
+                member_ids=[leader_id],
+                points=preset_snapshot.points,
+            )
+            for i, leader_id in enumerate(leader_ids)
+        ]
+        initial_queue = [
+            pm.member_id for pm in preset_snapshot.preset_members if not pm.is_leader
+        ]
+        random.shuffle(initial_queue)
+
         r = get_redis()
         async with r.pipeline(transaction=True) as pipe:
             pipe.hset(
@@ -119,8 +131,6 @@ class AuctionWorkerRepository:
     async def push_unsold(self, player_id: int) -> None:
         await get_redis().rpush(self._key("unsold_queue"), player_id)
 
-    # ── publish: events (Worker -> Backend, broadcast) ───────────────────────
-
     async def publish_event(
         self, event_type: AuctionEventType, payload: Any | None = None
     ) -> None:
@@ -128,8 +138,6 @@ class AuctionWorkerRepository:
             self._key("event"),
             AuctionEventEnvelopeDTO(type=event_type, payload=payload).model_dump_json(),
         )
-
-    # ── publish: response (Worker -> Backend, targeted) ──────────────────────
 
     async def publish_bid_error(self, leader_id: int, code: int) -> None:
         await get_redis().publish(
@@ -140,20 +148,14 @@ class AuctionWorkerRepository:
             ).model_dump_json(),
         )
 
-    # ── publish: create response (Backend BLPOP release) ─────────────────────
-
     async def publish_create_response(self) -> None:
         await get_redis().lpush(f"auction:response:{self.auction_id}", "1")
-
-    # ── request channel (Backend -> Worker) ──────────────────────────────────
 
     async def subscribe(self, pubsub: Any) -> None:
         await pubsub.subscribe(self._key("request"))
 
     async def unsubscribe(self, pubsub: Any) -> None:
         await pubsub.unsubscribe(self._key("request"))
-
-    # ── recovery scan ────────────────────────────────────────────────────────
 
     @classmethod
     async def scan_active_auctions(cls) -> list[tuple[int, AuctionDetailDTO]]:

@@ -37,13 +37,6 @@ class Auction:
         self._ws_to_leader_id: dict[WebSocket, int] = {}
         self._leader_id_to_ws_set: dict[int, set[WebSocket]] = {}
 
-    @property
-    def leader_count(self) -> int:
-        return len(self._leader_member_ids)
-
-    def is_leader(self, member_id: int) -> bool:
-        return member_id in self._leader_member_ids
-
     async def connect(self, ws: WebSocket, member_id: int | None) -> None:
         auction_detail_dto = await self.repo.get_detail()
         await ws.send_json(
@@ -83,12 +76,12 @@ class Auction:
                         LeaderDisconnectedRequestPayloadDTO(leader_id=leader_id),
                     )
 
-    async def place_bid(self, bid: BidDTO) -> None:
-        if not self.is_leader(bid.leader_id):
+    async def place_bid(self, dto: BidDTO) -> None:
+        if dto.leader_id not in self._leader_member_ids:
             raise WSError(AuctionErrorCode.BidNotLeader)
-        await self.repo.publish_request(AuctionRequestType.PLACE_BID, bid)
+        await self.repo.publish_request(AuctionRequestType.PLACE_BID, dto)
 
-    async def on_event(
+    async def handle_event(
         self, envelope: AuctionEventEnvelopeDTO | AuctionResponseEnvelopeDTO
     ) -> bool:
         if isinstance(envelope, AuctionResponseEnvelopeDTO):

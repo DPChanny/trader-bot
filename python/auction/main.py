@@ -14,8 +14,7 @@ setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
 async def main() -> None:
     await setup_redis()
 
-    manager = AuctionWorkerManager()
-    await manager.setup()
+    await AuctionWorkerManager.setup()
 
     stop_event = asyncio.Event()
 
@@ -29,7 +28,7 @@ async def main() -> None:
 
     await stop_event.wait()
 
-    await manager.cleanup()
+    await AuctionWorkerManager.cleanup()
     await close_redis()
 
 
