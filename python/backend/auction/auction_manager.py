@@ -1,4 +1,5 @@
 import asyncio
+import random
 import time
 import uuid
 from typing import Any, ClassVar
@@ -8,25 +9,23 @@ from loguru import logger
 from pydantic import ValidationError
 
 from shared.dtos.auction import (
-    AuctionDetailDTO,
     AuctionEventEnvelopeDTO,
     AuctionEventType,
-    BidDTO,
     ErrorPayloadDTO,
     InitPayloadDTO,
     Status,
     StatusPayloadDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
-from shared.utils.error import AuctionErrorCode
+from shared.utils.error import AuctionErrorCode, WSError
 from shared.utils.redis import get_pubsub_redis
 
-from .auction import Auction, Bid
+from .auction import Auction, Bid, Team
 from .auction_repository import _AUCTION_LIFETIME, AuctionRepository
 
 
 class AuctionManager:
-    _auctions: ClassVar[dict[int, Auction]] = {}
+    _sessions: ClassVar[dict[int, Auction]] = {}
     _pubsub: ClassVar[Any] = None
     _listener_task: ClassVar[asyncio.Task | None] = None
     _start_auction_tasks: ClassVar[dict[int, asyncio.Task]] = {}
@@ -52,9 +51,9 @@ class AuctionManager:
         for task in cls._expiry_tasks.values():
             task.cancel()
         cls._expiry_tasks.clear()
-        for auction in cls._auctions.values():
-            auction.stop_timer()
-        cls._auctions.clear()
+        for session in cls._sessions.values():
+            session.stop_timer()
+        cls._sessions.clear()
         if cls._pubsub:
             await cls._pubsub.close()
 
@@ -72,13 +71,15 @@ class AuctionManager:
         finally:
             cls._expiry_tasks.pop(auction_id, None)
 
-        auction = cls._auctions.pop(auction_id, None)
-        if auction is None:
+        session = cls._sessions.pop(auction_id, None)
+        if session is None:
             return
 
-        cls._start_auction_tasks.pop(auction_id, None)
-        auction.stop_timer()
-        await auction.broadcast(
+        start_task = cls._start_auction_tasks.pop(auction_id, None)
+        if start_task:
+            start_task.cancel()
+        session.stop_timer()
+        await session.broadcast(
             AuctionEventType.ERROR, ErrorPayloadDTO(code=AuctionErrorCode.Expired)
         )
         await AuctionRepository(auction_id).unsubscribe(cls._pubsub)
@@ -86,57 +87,51 @@ class AuctionManager:
 
     @classmethod
     async def _listener(cls) -> None:
-        try:
-            async for message in cls._pubsub.listen():
-                if message["type"] != "message":
-                    continue
-                try:
-                    parts = message["channel"].split(":")
-                    auction_id = int(parts[1])
-                    envelope = AuctionEventEnvelopeDTO.model_validate_json(
-                        message["data"]
-                    )
-                    auction = cls._auctions.get(auction_id)
-                    if auction:
-                        match envelope.type:
-                            case AuctionEventType.NEXT_PLAYER:
-                                auction.on_next_player()
-                            case AuctionEventType.BID_PLACED:
-                                bid = BidDTO.model_validate(envelope.payload)
-                                auction.on_bid_placed(
-                                    Bid(leader_id=bid.leader_id, amount=bid.amount)
-                                )
-                            case AuctionEventType.MEMBER_SOLD:
-                                auction.on_member_sold()
-                            case AuctionEventType.MEMBER_UNSOLD:
-                                auction.on_member_unsold()
-                            case AuctionEventType.LEADER_CONNECTED:
-                                auction.connected_leader_count += 1
-                            case AuctionEventType.LEADER_DISCONNECTED:
-                                auction.connected_leader_count -= 1
-                            case AuctionEventType.STATUS:
-                                status_payload = StatusPayloadDTO.model_validate(
-                                    envelope.payload
-                                )
-                                auction.on_status(status_payload.status)
-                                if auction.status == Status.COMPLETED:
-                                    cls._auctions.pop(auction_id, None)
-                                    await AuctionRepository(auction_id).unsubscribe(
-                                        cls._pubsub
+        while True:
+            try:
+                async for message in cls._pubsub.listen():
+                    if message["type"] != "message":
+                        continue
+                    try:
+                        parts = message["channel"].split(":")
+                        auction_id = int(parts[1])
+                        envelope = AuctionEventEnvelopeDTO.model_validate_json(
+                            message["data"]
+                        )
+                        session = cls._sessions.get(auction_id)
+                        if session:
+                            match envelope.type:
+                                case (
+                                    AuctionEventType.NEXT_PLAYER
+                                    | AuctionEventType.BID_PLACED
+                                ):
+                                    session.start_timer()
+                                case AuctionEventType.STATUS:
+                                    status_payload = StatusPayloadDTO.model_validate(
+                                        envelope.payload
                                     )
-                        await auction.broadcast(envelope.type, envelope.payload)
-                except ValueError, IndexError, KeyError, ValidationError:
-                    continue
-        except asyncio.CancelledError:
-            pass
-        except Exception as e:
-            logger.error(f"Listener lost Redis connection: {type(e).__name__}: {e}")
+                                    if status_payload.status == Status.COMPLETED:
+                                        session.stop_timer()
+                                        cls._sessions.pop(auction_id, None)
+                                        await AuctionRepository(auction_id).unsubscribe(
+                                            cls._pubsub
+                                        )
+                            await session.broadcast(envelope.type, envelope.payload)
+                    except ValueError, IndexError, KeyError, ValidationError:
+                        continue
+            except asyncio.CancelledError:
+                return
+            except Exception:
+                pass
+
+            await asyncio.sleep(1)
 
     @classmethod
     async def on_connect(
-        cls, auction: Auction, ws: WebSocket, member_id: int | None
+        cls, session: Auction, ws: WebSocket, member_id: int | None
     ) -> None:
-        auction_detail_dto = AuctionDetailDTO.model_validate(auction)
+        repo = AuctionRepository(session.auction_id)
+        auction_detail_dto = await repo.get_detail()
         init_payload_dto = InitPayloadDTO(
             auction=auction_detail_dto, member_id=member_id
         )
@@ -146,32 +141,29 @@ class AuctionManager:
             ).model_dump(mode="json")
         )
 
-        if auction.status == Status.COMPLETED:
+        if auction_detail_dto.status == Status.COMPLETED:
             return
 
-        is_new_leader = auction.connect(ws, member_id)
+        is_new_leader = session.connect(ws, member_id)
 
         if is_new_leader:
-            repo = AuctionRepository(auction.auction_id)
             new_count = await repo.publish_leader_connected()
             if (
-                auction.status == Status.WAITING
-                and new_count == auction.leader_count
+                auction_detail_dto.status == Status.WAITING
+                and new_count == session.leader_count
                 and await repo.acquire_state_lock()
             ):
                 await repo.publish_status(Status.PENDING)
                 await repo.release_state_lock()
-                cls._start_auction_tasks[auction.auction_id] = asyncio.create_task(
-                    cls._start_auction(auction.auction_id)
+                cls._start_auction_tasks[session.auction_id] = asyncio.create_task(
+                    cls._start_auction(session.auction_id)
                 )
 
     @classmethod
-    async def on_disconnect(cls, auction: Auction, ws: WebSocket) -> None:
-        if auction.status == Status.COMPLETED:
-            return
-        is_last_leader = auction.disconnect(ws)
+    async def on_disconnect(cls, session: Auction, ws: WebSocket) -> None:
+        is_last_leader = session.disconnect(ws)
         if is_last_leader:
-            await AuctionRepository(auction.auction_id).publish_leader_disconnected()
+            await AuctionRepository(session.auction_id).publish_leader_disconnected()
 
     @classmethod
     async def _start_auction(cls, auction_id: int) -> None:
@@ -187,13 +179,18 @@ class AuctionManager:
 
     @classmethod
     async def on_place_bid(cls, auction_id: int, bid: Bid) -> None:
-        auction = cls._auctions.get(auction_id)
-        if not auction:
+        session = cls._sessions.get(auction_id)
+        if not session:
             return
 
-        auction.validate_bid(bid)
+        if not session.is_leader(bid.leader_id):
+            raise WSError(AuctionErrorCode.BidNotLeader)
 
-        await AuctionRepository(auction_id).publish_bid_placed(bid)
+        error_code = await AuctionRepository(auction_id).validate_and_place_bid(
+            bid, session.preset_snapshot.team_size
+        )
+        if error_code != 0:
+            raise WSError(error_code)
 
     @classmethod
     async def on_timer_expire(cls, auction_id: int) -> None:
@@ -201,26 +198,32 @@ class AuctionManager:
         if not await repo.acquire_timer_lock():
             return
 
-        auction = cls._auctions.get(auction_id)
-        if not auction or auction.status != Status.RUNNING or auction.player_id is None:
+        try:
+            status, player_id, bid = await repo.get_player_state()
+            if status != Status.RUNNING or player_id is None:
+                return
+
+            if bid is None:
+                await repo.publish_member_unsold(player_id)
+            else:
+                team = await repo.get_team_by_leader(bid.leader_id)
+                if team is None:
+                    await repo.publish_member_unsold(player_id)
+                else:
+                    result_team = Team(
+                        team_id=team.team_id,
+                        leader_id=team.leader_id,
+                        member_ids=team.member_ids + [player_id],
+                        points=team.points - bid.amount,
+                    )
+                    await repo.publish_member_sold(result_team)
+
+            await cls._next_player(auction_id)
+        finally:
             await repo.release_timer_lock()
-            return
-
-        result_team = auction.settle()
-        if result_team is None:
-            await repo.publish_member_unsold(auction.player_id)
-        else:
-            await repo.publish_member_sold(result_team)
-
-        await cls._next_player(auction_id)
-        await repo.release_timer_lock()
 
     @classmethod
     async def _next_player(cls, auction_id: int) -> None:
-        auction = cls._auctions.get(auction_id)
-        if not auction:
-            return
-
         completed = not await AuctionRepository(auction_id).publish_next_player()
         if completed:
             await AuctionRepository(auction_id).publish_status(Status.COMPLETED)
@@ -228,52 +231,72 @@ class AuctionManager:
     @classmethod
     async def create_auction(cls, preset_snapshot: PresetDetailDTO) -> Auction:
         auction_id = uuid.uuid4().int
-        auction = Auction(
+        leader_ids = [
+            pm.member_id for pm in preset_snapshot.preset_members if pm.is_leader
+        ]
+        initial_teams = [
+            Team(
+                team_id=i,
+                leader_id=leader_id,
+                member_ids=[leader_id],
+                points=preset_snapshot.points,
+            )
+            for i, leader_id in enumerate(leader_ids)
+        ]
+        non_leader_ids = [
+            pm.member_id for pm in preset_snapshot.preset_members if not pm.is_leader
+        ]
+        random.shuffle(non_leader_ids)
+
+        session = Auction(
             auction_id=auction_id,
             preset_snapshot=preset_snapshot,
             on_timer_expire=cls._get_on_timer_expire(auction_id),
             on_timer_start=cls._get_on_timer_start(auction_id),
         )
-        cls._auctions[auction.auction_id] = auction
+        cls._sessions[auction_id] = session
 
         repo = AuctionRepository(auction_id)
-        await repo.save(auction)
+        await repo.save(session, initial_teams, non_leader_ids)
         await repo.subscribe(cls._pubsub)
         cls._schedule_expiry(auction_id, _AUCTION_LIFETIME)
-        return auction
+        return session
 
     @classmethod
     async def get_auction(cls, auction_id: int) -> Auction | None:
-        if auction_id in cls._auctions:
-            return cls._auctions[auction_id]
+        if auction_id in cls._sessions:
+            return cls._sessions[auction_id]
 
         repo = AuctionRepository(auction_id)
-        auction = await repo.load(
-            cls._get_on_timer_expire(auction_id), cls._get_on_timer_start(auction_id)
-        )
-        if not auction:
-            cls._auctions.pop(auction_id, None)
+        state = await repo.get_state()
+        if not state:
             return None
 
-        if auction.status == Status.RUNNING:
+        status = Status(int(state["status"]))
+        preset_snapshot = PresetDetailDTO.model_validate_json(state["preset_snapshot"])
+
+        session = Auction(
+            auction_id=auction_id,
+            preset_snapshot=preset_snapshot,
+            on_timer_expire=cls._get_on_timer_expire(auction_id),
+            on_timer_start=cls._get_on_timer_start(auction_id),
+        )
+
+        if status == Status.RUNNING:
             timer_started_at = await repo.get_timer_started_at()
             remaining = (
-                max(
-                    1,
-                    auction.preset_snapshot.timer
-                    - (int(time.time()) - timer_started_at),
-                )
+                max(1, preset_snapshot.timer - (int(time.time()) - timer_started_at))
                 if timer_started_at is not None
-                else auction.preset_snapshot.timer
+                else preset_snapshot.timer
             )
-            auction.start_timer(remaining)
+            session.start_timer(remaining, update_start_time=False)
 
-        if auction.status != Status.COMPLETED:
-            cls._auctions[auction_id] = auction
+        if status != Status.COMPLETED:
+            cls._sessions[auction_id] = session
             await repo.subscribe(cls._pubsub)
             ttl = await repo.get_ttl()
             cls._schedule_expiry(auction_id, ttl)
-        return auction
+        return session
 
     @classmethod
     def _get_on_timer_expire(cls, auction_id: int) -> Any:
