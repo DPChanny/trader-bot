@@ -43,7 +43,7 @@ class AuctionManager:
 
     @classmethod
     def _run_auction(cls, auction_id: int, auction: Auction) -> None:
-        task = asyncio.create_task(auction.run())
+        task = asyncio.create_task(auction.main())
         cls._loops[auction_id] = task
         task.add_done_callback(lambda t, aid=auction_id: cls._loops.pop(aid, None))
 
