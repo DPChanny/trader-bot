@@ -61,21 +61,13 @@ class AuctionRepository:
         ttl = await get_redis().ttl(self._key())
         return max(ttl, 0)
 
-    # ── event channel (Worker -> Backend, broadcast) ──────────────────────────
+    # ── pubsub subscription ───────────────────────────────────────────────────
 
-    async def subscribe_event(self, pubsub: Any) -> None:
-        await pubsub.subscribe(self._key("event"))
+    async def subscribe(self, pubsub: Any) -> None:
+        await pubsub.subscribe(self._key("event"), self._key("response"))
 
-    async def unsubscribe_event(self, pubsub: Any) -> None:
-        await pubsub.unsubscribe(self._key("event"))
-
-    # ── response channel (Worker -> Backend, targeted) ────────────────────────
-
-    async def subscribe_response(self, pubsub: Any) -> None:
-        await pubsub.subscribe(self._key("response"))
-
-    async def unsubscribe_response(self, pubsub: Any) -> None:
-        await pubsub.unsubscribe(self._key("response"))
+    async def unsubscribe(self, pubsub: Any) -> None:
+        await pubsub.unsubscribe(self._key("event"), self._key("response"))
 
     # ── request publishing (Backend -> Worker) ────────────────────────────────
 

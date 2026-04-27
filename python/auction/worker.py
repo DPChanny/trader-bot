@@ -9,18 +9,22 @@ from shared.dtos.auction import (
     AuctionRequestEnvelopeDTO,
     AuctionRequestType,
     BidDTO,
-    BidPlacedPayloadDTO,
-    MemberSoldPayloadDTO,
-    MemberUnsoldPayloadDTO,
-    NextPlayerPayloadDTO,
+    BidPlacedEventPayloadDTO,
+    LeaderConnectedEventPayloadDTO,
+    LeaderConnectedRequestPayloadDTO,
+    LeaderDisconnectedEventPayloadDTO,
+    LeaderDisconnectedRequestPayloadDTO,
+    MemberSoldEventPayloadDTO,
+    MemberUnsoldEventPayloadDTO,
+    NextPlayerEventPayloadDTO,
     Status,
-    StatusPayloadDTO,
+    StatusEventPayloadDTO,
     TeamDTO,
-    TickPayloadDTO,
+    TickEventPayloadDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode
-from shared.utils.redis import get_pubsub_redis, get_redis
+from shared.utils.redis import get_pubsub, get_redis
 
 from .repository import AuctionWorkerRepository
 from .scripts import NEXT_PLAYER_SCRIPT, PLACE_BID_SCRIPT
@@ -38,7 +42,7 @@ class AuctionWorker:
         self.preset_snapshot = preset_snapshot
         self.resume = resume
         self.repo = AuctionWorkerRepository(auction_id)
-        self._pubsub = get_pubsub_redis().pubsub()
+        self._pubsub = get_pubsub()
         self._player_id: int | None = None
         self._current_bid: BidDTO | None = None
         self._teams: list[TeamDTO] = []
@@ -56,8 +60,6 @@ class AuctionWorker:
             [pm for pm in self.preset_snapshot.preset_members if pm.is_leader]
         )
 
-    # ── main flow ─────────────────────────────────────────────────────────────
-
     async def run(self) -> None:
         ttl = AUCTION_LIFETIME if not self.resume else await self.repo.get_ttl()
         bid_timer = self.preset_snapshot.timer
@@ -66,7 +68,7 @@ class AuctionWorker:
         )
 
         try:
-            await self.repo.subscribe_request(self._pubsub)
+            await self.repo.subscribe(self._pubsub)
             async with asyncio.timeout(ttl):
                 detail = await self.repo.get_detail()
                 if not detail:
@@ -94,23 +96,43 @@ class AuctionWorker:
                         except Exception:
                             continue
                         if envelope.type == AuctionRequestType.LEADER_CONNECTED:
-                            if (
-                                await self.repo.increment_connected_leader_count()
-                                >= leader_count
-                            ):
+                            req = LeaderConnectedRequestPayloadDTO.model_validate(
+                                envelope.payload
+                            )
+                            count = await self.repo.increment_connected_leader_count()
+                            await self.repo.publish_event(
+                                AuctionEventType.LEADER_CONNECTED,
+                                LeaderConnectedEventPayloadDTO(
+                                    leader_id=req.leader_id,
+                                    connected_leader_count=count,
+                                ),
+                            )
+                            if count >= leader_count:
                                 break
                         elif envelope.type == AuctionRequestType.LEADER_DISCONNECTED:
-                            await self.repo.increment_connected_leader_count(-1)
+                            req = LeaderDisconnectedRequestPayloadDTO.model_validate(
+                                envelope.payload
+                            )
+                            count = await self.repo.increment_connected_leader_count(-1)
+                            await self.repo.publish_event(
+                                AuctionEventType.LEADER_DISCONNECTED,
+                                LeaderDisconnectedEventPayloadDTO(
+                                    leader_id=req.leader_id,
+                                    connected_leader_count=count,
+                                ),
+                            )
 
                     await self.repo.set_status(Status.PENDING)
                     await self.repo.publish_event(
-                        AuctionEventType.STATUS, StatusPayloadDTO(status=Status.PENDING)
+                        AuctionEventType.STATUS,
+                        StatusEventPayloadDTO(status=Status.PENDING),
                     )
                     await asyncio.sleep(_PENDING_DELAY)
 
                 await self.repo.set_status(Status.RUNNING)
                 await self.repo.publish_event(
-                    AuctionEventType.STATUS, StatusPayloadDTO(status=Status.RUNNING)
+                    AuctionEventType.STATUS,
+                    StatusEventPayloadDTO(status=Status.RUNNING),
                 )
 
                 while await self._next_player():
@@ -123,7 +145,7 @@ class AuctionWorker:
                             if remaining > 0:
                                 await self.repo.publish_event(
                                     AuctionEventType.TICK,
-                                    TickPayloadDTO(timer=int(remaining)),
+                                    TickEventPayloadDTO(timer=int(remaining)),
                                 )
 
                     tick = asyncio.create_task(_tick())
@@ -167,7 +189,7 @@ class AuctionWorker:
                             await self.repo.update_team(team)
                         await self.repo.publish_event(
                             AuctionEventType.MEMBER_SOLD,
-                            MemberSoldPayloadDTO(
+                            MemberSoldEventPayloadDTO(
                                 player_id=self._player_id,
                                 leader_id=self._current_bid.leader_id,
                                 amount=self._current_bid.amount,
@@ -177,12 +199,13 @@ class AuctionWorker:
                         await self.repo.push_unsold(self._player_id)
                         await self.repo.publish_event(
                             AuctionEventType.MEMBER_UNSOLD,
-                            MemberUnsoldPayloadDTO(player_id=self._player_id),
+                            MemberUnsoldEventPayloadDTO(player_id=self._player_id),
                         )
 
                 await self.repo.set_status(Status.COMPLETED)
                 await self.repo.publish_event(
-                    AuctionEventType.STATUS, StatusPayloadDTO(status=Status.COMPLETED)
+                    AuctionEventType.STATUS,
+                    StatusEventPayloadDTO(status=Status.COMPLETED),
                 )
                 logger.info(f"Auction {self.auction_id} completed")
 
@@ -195,7 +218,7 @@ class AuctionWorker:
         except Exception as e:
             logger.error(f"Auction {self.auction_id} error: {type(e).__name__}: {e}")
         finally:
-            await self.repo.unsubscribe_request(self._pubsub)
+            await self.repo.unsubscribe(self._pubsub)
             await self._pubsub.close()
 
     async def _next_player(self) -> bool:
@@ -212,7 +235,7 @@ class AuctionWorker:
 
         envelope = AuctionEventEnvelopeDTO(
             type=AuctionEventType.NEXT_PLAYER,
-            payload=NextPlayerPayloadDTO(
+            payload=NextPlayerEventPayloadDTO(
                 player_id=next_player_id,
                 teams=self._teams,
                 auction_queue=new_queue,
@@ -245,7 +268,7 @@ class AuctionWorker:
 
         bid_placed_event = AuctionEventEnvelopeDTO(
             type=AuctionEventType.BID_PLACED,
-            payload=BidPlacedPayloadDTO(
+            payload=BidPlacedEventPayloadDTO(
                 leader_id=bid.leader_id, amount=bid.amount, player_id=self._player_id
             ),
         ).model_dump_json()

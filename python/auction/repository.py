@@ -147,10 +147,10 @@ class AuctionWorkerRepository:
 
     # ── request channel (Backend -> Worker) ──────────────────────────────────
 
-    async def subscribe_request(self, pubsub: Any) -> None:
+    async def subscribe(self, pubsub: Any) -> None:
         await pubsub.subscribe(self._key("request"))
 
-    async def unsubscribe_request(self, pubsub: Any) -> None:
+    async def unsubscribe(self, pubsub: Any) -> None:
         await pubsub.unsubscribe(self._key("request"))
 
     # ── recovery scan ────────────────────────────────────────────────────────

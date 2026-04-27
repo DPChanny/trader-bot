@@ -5,7 +5,7 @@ from loguru import logger
 from pydantic import ValidationError
 
 from shared.dtos.auction import AuctionRequestEnvelopeDTO, AuctionRequestType, TeamDTO
-from shared.utils.redis import get_pubsub_redis
+from shared.utils.redis import get_pubsub
 
 from .repository import AuctionWorkerRepository
 from .worker import AuctionWorker
@@ -15,7 +15,7 @@ class AuctionWorkerManager:
     _GLOBAL_REQUEST_CHANNEL = "auction:request"
 
     def __init__(self) -> None:
-        self._pubsub = get_pubsub_redis().pubsub()
+        self._pubsub = get_pubsub()
         self._loops: dict[int, asyncio.Task] = {}
         self._listener_task: asyncio.Task | None = None
 

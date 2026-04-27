@@ -6,10 +6,10 @@ from shared.dtos.auction import (
     AuctionDTO,
     AuctionEventEnvelopeDTO,
     AuctionEventType,
-    AuthPayloadDTO,
+    AuthEventPayloadDTO,
     CreateAuctionDTO,
-    ErrorPayloadDTO,
-    PlaceBidPayloadDTO,
+    ErrorEventPayloadDTO,
+    PlaceBidEventPayloadDTO,
 )
 from shared.utils.db import get_session
 from shared.utils.error import (
@@ -78,7 +78,7 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
         if auth_event.type != AuctionEventType.AUTH:
             raise WSError(AuthErrorCode.Unauthorized)
         auth_payload_dto = _parse_event_payload(
-            auth_event, AuthPayloadDTO, AuthErrorCode.Unauthorized
+            auth_event, AuthEventPayloadDTO, AuthErrorCode.Unauthorized
         )
         auction, member_id = await connect_service(
             ws, auction_id, auth_payload_dto, session
@@ -91,7 +91,9 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
                     raise WSError(ValidationErrorCode.Invalid)
 
                 place_bid_payload_dto = _parse_event_payload(
-                    place_bid_event, PlaceBidPayloadDTO, ValidationErrorCode.Invalid
+                    place_bid_event,
+                    PlaceBidEventPayloadDTO,
+                    ValidationErrorCode.Invalid,
                 )
                 await place_bid_service(auction, member_id, place_bid_payload_dto)
             except WSError as e:
@@ -99,7 +101,7 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
                 await ws.send_json(
                     AuctionEventEnvelopeDTO(
                         type=AuctionEventType.ERROR,
-                        payload=ErrorPayloadDTO(code=e.code),
+                        payload=ErrorEventPayloadDTO(code=e.code),
                     ).model_dump(mode="json")
                 )
                 continue

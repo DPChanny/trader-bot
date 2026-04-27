@@ -58,11 +58,11 @@ class BidDTO(BaseDTO):
 
 class AuctionDTO(BaseDTO):
     auction_id: BigInt
-    status: Status
-    connected_leader_count: int
 
 
 class AuctionDetailDTO(AuctionDTO):
+    status: Status
+    connected_leader_count: int
     player_id: int | None
     bid: BidDTO | None
     teams: list[TeamDTO]
@@ -71,52 +71,62 @@ class AuctionDetailDTO(AuctionDTO):
     preset_snapshot: PresetDetailDTO | None
 
 
-class InitPayloadDTO(BaseDTO):
-    auction: AuctionDetailDTO
-    member_id: int | None
-
-
 class CreateAuctionDTO(BaseDTO):
     send_invite: bool
 
 
-class PlaceBidPayloadDTO(BaseDTO):
+class InitEventPayloadDTO(BaseDTO):
+    auction: AuctionDetailDTO
+    member_id: int | None
+
+
+class PlaceBidEventPayloadDTO(BaseDTO):
     amount: int = Field(ge=1, le=10000)
 
 
-class AuthPayloadDTO(BaseDTO):
+class AuthEventPayloadDTO(BaseDTO):
     access_token: str | None
 
 
-class ErrorPayloadDTO(BaseDTO):
+class ErrorEventPayloadDTO(BaseDTO):
     code: int
 
 
-class TickPayloadDTO(BaseDTO):
+class TickEventPayloadDTO(BaseDTO):
     timer: int
 
 
-class StatusPayloadDTO(BaseDTO):
+class StatusEventPayloadDTO(BaseDTO):
     status: Status
 
 
-class BidPlacedPayloadDTO(BaseDTO):
+class BidPlacedEventPayloadDTO(BaseDTO):
     player_id: int
     leader_id: int
     amount: int
 
 
-class MemberSoldPayloadDTO(BaseDTO):
+class MemberSoldEventPayloadDTO(BaseDTO):
     player_id: int
     leader_id: int
     amount: int
 
 
-class MemberUnsoldPayloadDTO(BaseDTO):
+class MemberUnsoldEventPayloadDTO(BaseDTO):
     player_id: int
 
 
-class NextPlayerPayloadDTO(BaseDTO):
+class LeaderConnectedEventPayloadDTO(BaseDTO):
+    leader_id: int
+    connected_leader_count: int
+
+
+class LeaderDisconnectedEventPayloadDTO(BaseDTO):
+    leader_id: int
+    connected_leader_count: int
+
+
+class NextPlayerEventPayloadDTO(BaseDTO):
     player_id: int
     teams: list[TeamDTO]
     auction_queue: list[int]
@@ -126,6 +136,14 @@ class NextPlayerPayloadDTO(BaseDTO):
 class AuctionEventEnvelopeDTO(BaseDTO):
     type: AuctionEventType
     payload: Any | None
+
+
+class LeaderConnectedRequestPayloadDTO(BaseDTO):
+    leader_id: int
+
+
+class LeaderDisconnectedRequestPayloadDTO(BaseDTO):
+    leader_id: int
 
 
 class CreateRequestPayloadDTO(BaseDTO):

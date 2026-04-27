@@ -5,11 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction import (
     AuctionDTO,
-    AuthPayloadDTO,
+    AuthEventPayloadDTO,
     BidDTO,
     CreateAuctionDTO,
-    PlaceBidPayloadDTO,
-    Status,
+    PlaceBidEventPayloadDTO,
 )
 from shared.dtos.member import Role
 from shared.dtos.preset import PresetDetailDTO
@@ -83,16 +82,14 @@ async def create_auction_service(
     if dto.send_invite:
         await asyncio.gather(*[_send_invite(pm) for pm in preset_members])
 
-    return AuctionDTO(
-        auction_id=auction.auction_id, status=Status.WAITING, connected_leader_count=0
-    )
+    return AuctionDTO(auction_id=auction.auction_id)
 
 
 @ws_service
 async def connect_service(
     ws: WebSocket,
     auction_id: int,
-    dto: AuthPayloadDTO,
+    dto: AuthEventPayloadDTO,
     session: AsyncSession,
     event: Event,
 ) -> tuple[Auction, int | None]:
@@ -126,7 +123,7 @@ async def connect_service(
 
 @ws_service
 async def place_bid_service(
-    auction: Auction, member_id: int | None, dto: PlaceBidPayloadDTO, event: Event
+    auction: Auction, member_id: int | None, dto: PlaceBidEventPayloadDTO, event: Event
 ) -> None:
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)

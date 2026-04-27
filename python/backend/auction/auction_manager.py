@@ -13,7 +13,7 @@ from shared.dtos.auction import (
 )
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, HTTPError
-from shared.utils.redis import get_pubsub_redis
+from shared.utils.redis import get_pubsub
 
 from .auction import Auction
 from .auction_repository import AuctionRepository
@@ -24,12 +24,10 @@ class AuctionManager:
     _pubsub: ClassVar[Any] = None
     _listener_task: ClassVar[asyncio.Task | None] = None
 
-    _KEEPALIVE_CHANNEL = "auction:__listener__"
-
     @classmethod
     async def setup(cls) -> None:
-        cls._pubsub = get_pubsub_redis().pubsub()
-        await cls._pubsub.subscribe(cls._KEEPALIVE_CHANNEL)
+        cls._pubsub = get_pubsub()
+        await cls._pubsub.subscribe("auction:__listener__")
         cls._listener_task = asyncio.create_task(cls._listener())
 
     @classmethod
@@ -59,7 +57,6 @@ class AuctionManager:
                         if not auction:
                             continue
 
-                        # response channel: targeted (BID_ERROR etc.)
                         if channel.endswith(":response"):
                             envelope = AuctionResponseEnvelopeDTO.model_validate_json(
                                 message["data"]
@@ -92,8 +89,7 @@ class AuctionManager:
         cls._auctions[auction_id] = auction
 
         repo = AuctionRepository(auction_id)
-        await repo.subscribe_event(cls._pubsub)
-        await repo.subscribe_response(cls._pubsub)
+        await repo.subscribe(cls._pubsub)
 
         payload = CreateRequestPayloadDTO(
             auction_id=auction_id, preset_snapshot=preset_snapshot
@@ -103,8 +99,7 @@ class AuctionManager:
         ok = await AuctionRepository.await_create_response(auction_id, timeout=5)
         if not ok:
             cls._auctions.pop(auction_id, None)
-            await repo.unsubscribe_event(cls._pubsub)
-            await repo.unsubscribe_response(cls._pubsub)
+            await repo.unsubscribe(cls._pubsub)
             raise HTTPError(AuctionErrorCode.WorkerUnavailable)
 
         return auction
@@ -123,6 +118,5 @@ class AuctionManager:
 
         auction = Auction(auction_id=auction_id, preset_snapshot=detail.preset_snapshot)
         cls._auctions[auction_id] = auction
-        await repo.subscribe_event(cls._pubsub)
-        await repo.subscribe_response(cls._pubsub)
+        await repo.subscribe(cls._pubsub)
         return auction

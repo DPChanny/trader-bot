@@ -11,10 +11,12 @@ from shared.dtos.auction import (
     AuctionResponseType,
     BidDTO,
     BidErrorResponsePayloadDTO,
-    ErrorPayloadDTO,
-    InitPayloadDTO,
+    ErrorEventPayloadDTO,
+    InitEventPayloadDTO,
+    LeaderConnectedRequestPayloadDTO,
+    LeaderDisconnectedRequestPayloadDTO,
     Status,
-    StatusPayloadDTO,
+    StatusEventPayloadDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, WSError
@@ -47,7 +49,9 @@ class Auction:
         await ws.send_json(
             AuctionEventEnvelopeDTO(
                 type=AuctionEventType.INIT,
-                payload=InitPayloadDTO(auction=auction_detail_dto, member_id=member_id),
+                payload=InitEventPayloadDTO(
+                    auction=auction_detail_dto, member_id=member_id
+                ),
             ).model_dump(mode="json")
         )
 
@@ -61,7 +65,8 @@ class Auction:
             self._leader_id_to_ws_set.setdefault(member_id, set()).add(ws)
             if is_new_leader:
                 await self.repo.publish_request(
-                    AuctionRequestType.LEADER_CONNECTED, {"member_id": member_id}
+                    AuctionRequestType.LEADER_CONNECTED,
+                    LeaderConnectedRequestPayloadDTO(leader_id=member_id),
                 )
 
     async def disconnect(self, ws: WebSocket) -> None:
@@ -74,7 +79,8 @@ class Auction:
                 if not ws_set:
                     del self._leader_id_to_ws_set[leader_id]
                     await self.repo.publish_request(
-                        AuctionRequestType.LEADER_DISCONNECTED, {"member_id": leader_id}
+                        AuctionRequestType.LEADER_DISCONNECTED,
+                        LeaderDisconnectedRequestPayloadDTO(leader_id=leader_id),
                     )
 
     async def place_bid(self, bid: BidDTO) -> None:
@@ -91,7 +97,7 @@ class Auction:
                 ws_set = self._leader_id_to_ws_set.get(payload.leader_id, set())
                 error_msg = AuctionEventEnvelopeDTO(
                     type=AuctionEventType.ERROR,
-                    payload=ErrorPayloadDTO(code=payload.code),
+                    payload=ErrorEventPayloadDTO(code=payload.code),
                 ).model_dump_json()
                 for ws in list(ws_set):
                     try:
@@ -102,7 +108,7 @@ class Auction:
 
         match envelope.type:
             case AuctionEventType.STATUS:
-                status_payload = StatusPayloadDTO.model_validate(envelope.payload)
+                status_payload = StatusEventPayloadDTO.model_validate(envelope.payload)
                 if status_payload.status == Status.COMPLETED:
                     self.stop()
                     await self.broadcast(envelope.type, envelope.payload)
