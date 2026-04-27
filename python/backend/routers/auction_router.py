@@ -10,7 +10,6 @@ from shared.dtos.auction import (
     CreateAuctionDTO,
     ErrorPayloadDTO,
     PlaceBidPayloadDTO,
-    Status,
 )
 from shared.utils.db import get_session
 from shared.utils.error import (
@@ -104,9 +103,6 @@ async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
                     ).model_dump(mode="json")
                 )
                 continue
-
-            if auction.status == Status.COMPLETED:
-                break
 
     except WebSocketDisconnect:
         pass

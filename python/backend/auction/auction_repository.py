@@ -1,30 +1,21 @@
-import time
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from shared.dtos.auction import (
     AuctionDetailDTO,
-    AuctionEventEnvelopeDTO,
-    AuctionEventType,
+    AuctionRequestEnvelopeDTO,
+    AuctionRequestType,
     BidDTO,
+    CreateRequestPayloadDTO,
     Status,
-    StatusPayloadDTO,
     TeamDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
-from shared.utils.error import AuctionErrorCode
 from shared.utils.redis import get_redis
-
-from .auction_script import NEXT_PLAYER_SCRIPT, PLACE_BID_SCRIPT
-
-
-if TYPE_CHECKING:
-    from .auction import Auction
-
-
-_AUCTION_LIFETIME = 3600
 
 
 class AuctionRepository:
+    _GLOBAL_REQUEST_CHANNEL = "auction:request"
+
     def __init__(self, auction_id: int) -> None:
         self.auction_id = auction_id
 
@@ -66,187 +57,50 @@ class AuctionRepository:
             preset_snapshot=preset_snapshot,
         )
 
-    async def get_player_state(self) -> tuple[Status, int | None, BidDTO | None]:
-        values = await get_redis().hmget(
-            self._key(), "status", "player_id", "bid_amount", "bid_leader_id"
-        )
-        status_raw, player_id_raw, bid_amount_raw, bid_leader_id_raw = values
-        status = Status(int(status_raw)) if status_raw else Status.WAITING
-        player_id = int(player_id_raw) if player_id_raw else None
-        bid = (
-            BidDTO(amount=int(bid_amount_raw), leader_id=int(bid_leader_id_raw))
-            if bid_amount_raw
-            else None
-        )
-        return status, player_id, bid
-
-    async def get_team_by_leader(self, leader_id: int) -> TeamDTO | None:
-        team_json = await get_redis().hget(self._key("teams"), str(leader_id))
-        return TeamDTO.model_validate_json(team_json) if team_json else None
-
-    async def publish_place_bid(self, bid: BidDTO, team_size: int) -> int:
-        event_json = AuctionEventEnvelopeDTO(
-            type=AuctionEventType.BID_PLACED, payload=bid
-        ).model_dump_json()
-        result = await get_redis().eval(
-            PLACE_BID_SCRIPT,
-            3,
-            self._key(),
-            self._key("teams"),
-            self._key("event"),
-            str(bid.leader_id),
-            str(bid.amount),
-            str(team_size),
-            event_json,
-            str(AuctionErrorCode.BidInvalidState),
-            str(AuctionErrorCode.BidTeamFull),
-            str(AuctionErrorCode.BidInvalidAmount),
-        )
-        return int(result)
-
-    async def subscribe(self, pubsub: Any) -> None:
-        await pubsub.subscribe(self._key("event"))
-
-    async def unsubscribe(self, pubsub: Any) -> None:
-        await pubsub.unsubscribe(self._key("event"))
-
     async def get_ttl(self) -> int:
         ttl = await get_redis().ttl(self._key())
         return max(ttl, 0)
 
-    async def save(
-        self, session: Auction, initial_teams: list[TeamDTO], initial_queue: list[int]
+    # ── event channel (Worker -> Backend, broadcast) ──────────────────────────
+
+    async def subscribe_event(self, pubsub: Any) -> None:
+        await pubsub.subscribe(self._key("event"))
+
+    async def unsubscribe_event(self, pubsub: Any) -> None:
+        await pubsub.unsubscribe(self._key("event"))
+
+    # ── response channel (Worker -> Backend, targeted) ────────────────────────
+
+    async def subscribe_response(self, pubsub: Any) -> None:
+        await pubsub.subscribe(self._key("response"))
+
+    async def unsubscribe_response(self, pubsub: Any) -> None:
+        await pubsub.unsubscribe(self._key("response"))
+
+    # ── request publishing (Backend -> Worker) ────────────────────────────────
+
+    async def publish_request(
+        self, request_type: AuctionRequestType, payload: Any | None = None
     ) -> None:
-        r = get_redis()
-        state_mapping = {
-            "status": str(Status.WAITING.value),
-            "player_id": "",
-            "bid_amount": "",
-            "bid_leader_id": "",
-            "preset_snapshot": session.preset_snapshot.model_dump_json(),
-            "connected_leader_count": "0",
-        }
-        async with r.pipeline(transaction=True) as pipe:
-            pipe.hset(self._key(), mapping=state_mapping)
-            pipe.expire(self._key(), _AUCTION_LIFETIME)
-            for team in initial_teams:
-                pipe.hset(
-                    self._key("teams"), str(team.leader_id), team.model_dump_json()
-                )
-            pipe.expire(self._key("teams"), _AUCTION_LIFETIME)
-            if initial_queue:
-                pipe.rpush(self._key("auction_queue"), *initial_queue)
-                pipe.expire(self._key("auction_queue"), _AUCTION_LIFETIME)
-            await pipe.execute()
-
-    async def publish_leader_connected(self) -> int:
-        r = get_redis()
-        async with r.pipeline(transaction=True) as pipe:
-            pipe.hincrby(self._key(), "connected_leader_count", 1)
-            pipe.publish(
-                self._key("event"),
-                AuctionEventEnvelopeDTO(
-                    type=AuctionEventType.LEADER_CONNECTED, payload=None
-                ).model_dump_json(),
-            )
-            results = await pipe.execute()
-        return int(results[0])
-
-    async def publish_leader_disconnected(self) -> None:
-        r = get_redis()
-        async with r.pipeline(transaction=True) as pipe:
-            pipe.hincrby(self._key(), "connected_leader_count", -1)
-            pipe.publish(
-                self._key("event"),
-                AuctionEventEnvelopeDTO(
-                    type=AuctionEventType.LEADER_DISCONNECTED, payload=None
-                ).model_dump_json(),
-            )
-            await pipe.execute()
-
-    async def publish_next_player(self) -> bool:
-        result = await get_redis().eval(
-            NEXT_PLAYER_SCRIPT,
-            4,
-            self._key("auction_queue"),
-            self._key("unsold_queue"),
-            self._key(),
-            self._key("event"),
-            AuctionEventEnvelopeDTO(
-                type=AuctionEventType.NEXT_PLAYER, payload=None
-            ).model_dump_json(),
-        )
-        return bool(result)
-
-    async def set_timer_started_at(self) -> None:
-        await get_redis().hset(self._key(), "timer_started_at", str(int(time.time())))
-
-    async def get_timer_started_at(self) -> int | None:
-        value = await get_redis().hget(self._key(), "timer_started_at")
-        return int(value) if value else None
-
-    async def acquire_state_lock(self) -> bool:
-        return bool(await get_redis().set(self._key("state_lock"), "1", nx=True, ex=30))
-
-    async def release_state_lock(self) -> None:
-        await get_redis().delete(self._key("state_lock"))
-
-    async def acquire_timer_lock(self) -> bool:
-        return bool(await get_redis().set(self._key("timer_lock"), "1", nx=True, ex=30))
-
-    async def release_timer_lock(self) -> None:
-        await get_redis().delete(self._key("timer_lock"))
-
-    async def publish_timer_expired(self) -> None:
         await get_redis().publish(
-            self._key("event"),
-            AuctionEventEnvelopeDTO(
-                type=AuctionEventType.TIMER_EXPIRED, payload=None
+            self._key("request"),
+            AuctionRequestEnvelopeDTO(
+                type=request_type, payload=payload
             ).model_dump_json(),
         )
 
-    async def publish_status(self, status: Status) -> None:
-        r = get_redis()
-        async with r.pipeline(transaction=True) as pipe:
-            pipe.hset(self._key(), mapping={"status": str(status.value)})
-            pipe.publish(
-                self._key("event"),
-                AuctionEventEnvelopeDTO(
-                    type=AuctionEventType.STATUS,
-                    payload=StatusPayloadDTO(status=status),
-                ).model_dump_json(),
-            )
-            await pipe.execute()
+    @classmethod
+    async def publish_create_request(cls, payload: CreateRequestPayloadDTO) -> None:
+        await get_redis().publish(
+            cls._GLOBAL_REQUEST_CHANNEL,
+            AuctionRequestEnvelopeDTO(
+                type=AuctionRequestType.CREATE, payload=payload
+            ).model_dump_json(),
+        )
 
-    async def publish_member_sold(self, team: TeamDTO) -> None:
-        r = get_redis()
-        async with r.pipeline(transaction=True) as pipe:
-            pipe.hset(
-                self._key(),
-                mapping={"player_id": "", "bid_amount": "", "bid_leader_id": ""},
-            )
-            pipe.hset(self._key("teams"), str(team.leader_id), team.model_dump_json())
-            pipe.publish(
-                self._key("event"),
-                AuctionEventEnvelopeDTO(
-                    type=AuctionEventType.MEMBER_SOLD, payload=None
-                ).model_dump_json(),
-            )
-            await pipe.execute()
-
-    async def publish_member_unsold(self, player_id: int) -> None:
-        r = get_redis()
-        async with r.pipeline(transaction=True) as pipe:
-            pipe.hset(
-                self._key(),
-                mapping={"player_id": "", "bid_amount": "", "bid_leader_id": ""},
-            )
-            pipe.rpush(self._key("unsold_queue"), player_id)
-            pipe.expire(self._key("unsold_queue"), _AUCTION_LIFETIME)
-            pipe.publish(
-                self._key("event"),
-                AuctionEventEnvelopeDTO(
-                    type=AuctionEventType.MEMBER_UNSOLD, payload=None
-                ).model_dump_json(),
-            )
-            await pipe.execute()
+    @classmethod
+    async def await_create_response(cls, auction_id: int, timeout: int = 5) -> bool:
+        result = await get_redis().blpop(
+            f"auction:response:{auction_id}", timeout=timeout
+        )
+        return result is not None

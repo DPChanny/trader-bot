@@ -23,6 +23,13 @@
       "presentation": { "panel": "dedicated" }
     },
     {
+      "label": "Run Auction Dev",
+      "type": "shell",
+      "command": "uv run python -m auction.main",
+      "options": { "cwd": "${workspaceFolder}/python" },
+      "presentation": { "panel": "dedicated" }
+    },
+    {
       "label": "Run Database Dev",
       "type": "shell",
       "command": "docker compose -f infra/postgres/docker/docker-compose.yml up -d postgres",
@@ -61,7 +68,8 @@
         "Run Redis Dev",
         "Run Frontend Dev",
         "Run Backend Dev",
-        "Run Bot Dev"
+        "Run Bot Dev",
+        "Run Auction Dev"
       ],
       "dependsOrder": "parallel",
       "group": { "kind": "build", "isDefault": true }

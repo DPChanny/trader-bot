@@ -7,6 +7,9 @@ from . import BaseDTO, BigInt
 from .preset import PresetDetailDTO
 
 
+AUCTION_LIFETIME = 3600
+
+
 class Status(IntEnum):
     WAITING = 0
     PENDING = 1
@@ -27,7 +30,18 @@ class AuctionEventType(IntEnum):
     LEADER_CONNECTED = 9
     LEADER_DISCONNECTED = 10
     NEXT_PLAYER = 11
-    TIMER_EXPIRED = 12
+    EXPIRED = 12
+
+
+class AuctionRequestType(IntEnum):
+    CREATE = 0
+    PLACE_BID = 1
+    LEADER_CONNECTED = 2
+    LEADER_DISCONNECTED = 3
+
+
+class AuctionResponseType(IntEnum):
+    BID_ERROR = 0
 
 
 class TeamDTO(BaseDTO):
@@ -86,6 +100,49 @@ class StatusPayloadDTO(BaseDTO):
     status: Status
 
 
+class BidPlacedPayloadDTO(BaseDTO):
+    player_id: int
+    leader_id: int
+    amount: int
+
+
+class MemberSoldPayloadDTO(BaseDTO):
+    player_id: int
+    leader_id: int
+    amount: int
+
+
+class MemberUnsoldPayloadDTO(BaseDTO):
+    player_id: int
+
+
+class NextPlayerPayloadDTO(BaseDTO):
+    player_id: int
+    teams: list[TeamDTO]
+    auction_queue: list[int]
+    unsold_queue: list[int]
+
+
 class AuctionEventEnvelopeDTO(BaseDTO):
     type: AuctionEventType
+    payload: Any | None
+
+
+class CreateRequestPayloadDTO(BaseDTO):
+    auction_id: BigInt
+    preset_snapshot: PresetDetailDTO
+
+
+class BidErrorResponsePayloadDTO(BaseDTO):
+    leader_id: int
+    code: int
+
+
+class AuctionRequestEnvelopeDTO(BaseDTO):
+    type: AuctionRequestType
+    payload: Any | None
+
+
+class AuctionResponseEnvelopeDTO(BaseDTO):
+    type: AuctionResponseType
     payload: Any | None

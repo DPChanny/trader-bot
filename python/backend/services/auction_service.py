@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.auction import (
     AuctionDTO,
     AuthPayloadDTO,
+    BidDTO,
     CreateAuctionDTO,
     PlaceBidPayloadDTO,
     Status,
@@ -26,7 +27,7 @@ from shared.utils.error import (
 )
 from shared.utils.service import Event, http_service, ws_service
 
-from ..auction import Auction, AuctionManager, Bid
+from ..auction import Auction, AuctionManager
 from ..utils.discord import send_message
 from ..utils.member import verify_role
 from ..utils.token import AccessToken
@@ -116,7 +117,7 @@ async def connect_service(
         except TokenError as e:
             raise WSError(e.code) from None
 
-    await auction.connect(ws, member_id, AuctionManager._pubsub)
+    await auction.connect(ws, member_id)
 
     event.result = {"auction_id": auction.auction_id, "member_id": member_id}
 
@@ -130,7 +131,7 @@ async def place_bid_service(
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)
 
-    await auction.place_bid(Bid(leader_id=member_id, amount=dto.amount))
+    await auction.place_bid(BidDTO(leader_id=member_id, amount=dto.amount))
 
 
 @ws_service

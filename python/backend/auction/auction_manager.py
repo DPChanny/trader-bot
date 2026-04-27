@@ -1,6 +1,4 @@
 import asyncio
-import random
-import time
 import uuid
 from typing import Any, ClassVar
 
@@ -9,24 +7,22 @@ from pydantic import ValidationError
 
 from shared.dtos.auction import (
     AuctionEventEnvelopeDTO,
-    AuctionEventType,
-    ErrorPayloadDTO,
+    AuctionResponseEnvelopeDTO,
+    CreateRequestPayloadDTO,
     Status,
-    TeamDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
-from shared.utils.error import AuctionErrorCode
+from shared.utils.error import AuctionErrorCode, HTTPError
 from shared.utils.redis import get_pubsub_redis
 
 from .auction import Auction
-from .auction_repository import _AUCTION_LIFETIME, AuctionRepository
+from .auction_repository import AuctionRepository
 
 
 class AuctionManager:
     _auctions: ClassVar[dict[int, Auction]] = {}
     _pubsub: ClassVar[Any] = None
     _listener_task: ClassVar[asyncio.Task | None] = None
-    _expiry_tasks: ClassVar[dict[int, asyncio.Task]] = {}
 
     _KEEPALIVE_CHANNEL = "auction:__listener__"
 
@@ -42,39 +38,11 @@ class AuctionManager:
             cls._listener_task.cancel()
             with asyncio.suppress(asyncio.CancelledError):
                 await cls._listener_task
-        for task in cls._expiry_tasks.values():
-            task.cancel()
-        cls._expiry_tasks.clear()
         for auction in cls._auctions.values():
             auction.stop()
         cls._auctions.clear()
         if cls._pubsub:
             await cls._pubsub.close()
-
-    @classmethod
-    def _schedule_expiry(cls, auction_id: int, ttl: int) -> None:
-        task = asyncio.create_task(cls._expire_auction(auction_id, ttl))
-        cls._expiry_tasks[auction_id] = task
-
-    @classmethod
-    async def _expire_auction(cls, auction_id: int, ttl: int) -> None:
-        try:
-            await asyncio.sleep(ttl)
-        except asyncio.CancelledError:
-            return
-        finally:
-            cls._expiry_tasks.pop(auction_id, None)
-
-        auction = cls._auctions.pop(auction_id, None)
-        if auction is None:
-            return
-
-        auction.stop()
-        await auction.broadcast(
-            AuctionEventType.ERROR, ErrorPayloadDTO(code=AuctionErrorCode.Expired)
-        )
-        await auction.repo.unsubscribe(cls._pubsub)
-        logger.warning(f"Auction {auction_id} expired and was cleaned up")
 
     @classmethod
     async def _listener(cls) -> None:
@@ -84,17 +52,29 @@ class AuctionManager:
                     if message["type"] != "message":
                         continue
                     try:
-                        parts = message["channel"].split(":")
+                        channel: str = message["channel"]
+                        parts = channel.split(":")
                         auction_id = int(parts[1])
-                        envelope = AuctionEventEnvelopeDTO.model_validate_json(
-                            message["data"]
-                        )
                         auction = cls._auctions.get(auction_id)
-                        if auction:
-                            is_completed = await auction.on_event(envelope)
-                            if is_completed:
-                                cls._auctions.pop(auction_id, None)
-                                await auction.repo.unsubscribe(cls._pubsub)
+                        if not auction:
+                            continue
+
+                        # response channel: targeted (BID_ERROR etc.)
+                        if channel.endswith(":response"):
+                            envelope = AuctionResponseEnvelopeDTO.model_validate_json(
+                                message["data"]
+                            )
+                        else:
+                            envelope = AuctionEventEnvelopeDTO.model_validate_json(
+                                message["data"]
+                            )
+
+                        is_completed = await auction.on_event(envelope)
+                        if is_completed:
+                            cls._auctions.pop(auction_id, None)
+                            repo = AuctionRepository(auction_id)
+                            await repo.unsubscribe_event(cls._pubsub)
+                            await repo.unsubscribe_response(cls._pubsub)
                     except ValueError, IndexError, KeyError, ValidationError:
                         continue
             except asyncio.CancelledError:
@@ -107,29 +87,26 @@ class AuctionManager:
     @classmethod
     async def create_auction(cls, preset_snapshot: PresetDetailDTO) -> Auction:
         auction_id = uuid.uuid4().int
-        leader_ids = [
-            pm.member_id for pm in preset_snapshot.preset_members if pm.is_leader
-        ]
-        initial_teams = [
-            TeamDTO(
-                team_id=i,
-                leader_id=leader_id,
-                member_ids=[leader_id],
-                points=preset_snapshot.points,
-            )
-            for i, leader_id in enumerate(leader_ids)
-        ]
-        non_leader_ids = [
-            pm.member_id for pm in preset_snapshot.preset_members if not pm.is_leader
-        ]
-        random.shuffle(non_leader_ids)
 
         auction = Auction(auction_id=auction_id, preset_snapshot=preset_snapshot)
         cls._auctions[auction_id] = auction
 
-        await auction.repo.save(auction, initial_teams, non_leader_ids)
-        await auction.repo.subscribe(cls._pubsub)
-        cls._schedule_expiry(auction_id, _AUCTION_LIFETIME)
+        repo = AuctionRepository(auction_id)
+        await repo.subscribe_event(cls._pubsub)
+        await repo.subscribe_response(cls._pubsub)
+
+        payload = CreateRequestPayloadDTO(
+            auction_id=auction_id, preset_snapshot=preset_snapshot
+        )
+        await AuctionRepository.publish_create_request(payload)
+
+        ok = await AuctionRepository.await_create_response(auction_id, timeout=5)
+        if not ok:
+            cls._auctions.pop(auction_id, None)
+            await repo.unsubscribe_event(cls._pubsub)
+            await repo.unsubscribe_response(cls._pubsub)
+            raise HTTPError(AuctionErrorCode.WorkerUnavailable)
+
         return auction
 
     @classmethod
@@ -141,25 +118,11 @@ class AuctionManager:
         detail = await repo.get_detail()
         if not detail or not detail.preset_snapshot:
             return None
+        if detail.status == Status.COMPLETED:
+            return None
 
         auction = Auction(auction_id=auction_id, preset_snapshot=detail.preset_snapshot)
-
-        if detail.status == Status.RUNNING:
-            timer_started_at = await repo.get_timer_started_at()
-            remaining = (
-                max(
-                    1,
-                    detail.preset_snapshot.timer
-                    - (int(time.time()) - timer_started_at),
-                )
-                if timer_started_at is not None
-                else detail.preset_snapshot.timer
-            )
-            auction.start_timer(remaining, update_start_time=False)
-
-        if detail.status != Status.COMPLETED:
-            cls._auctions[auction_id] = auction
-            await auction.repo.subscribe(cls._pubsub)
-            ttl = await repo.get_ttl()
-            cls._schedule_expiry(auction_id, ttl)
+        cls._auctions[auction_id] = auction
+        await repo.subscribe_event(cls._pubsub)
+        await repo.subscribe_response(cls._pubsub)
         return auction

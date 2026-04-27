@@ -36,6 +36,7 @@ class AuctionErrorCode(IntEnum):
     BidNotLeader = 4302
     NotFound = 4401
     Expired = 4410
+    WorkerUnavailable = 5001
 
 
 class GuildErrorCode(IntEnum):

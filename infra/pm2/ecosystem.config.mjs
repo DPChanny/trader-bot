@@ -13,4 +13,11 @@ export const apps = [
     args: "run -m bot.main",
     kill_timeout: 3000,
   },
+  {
+    name: "trader-bot-pm2-auction",
+    cwd: "/home/ubuntu/trader-bot/python",
+    script: "uv",
+    args: "run -m auction.main",
+    kill_timeout: 3000,
+  },
 ];
