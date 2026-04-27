@@ -55,10 +55,10 @@ async def create_auction_service(
         raise HTTPError(ValidationErrorCode.Invalid)
 
     preset_snapshot = PresetDetailDTO.model_validate(preset)
-    session = await AuctionManager.create_auction(preset_snapshot=preset_snapshot)
+    auction = await AuctionManager.create_auction(preset_snapshot=preset_snapshot)
 
     app_origin = get_app_origin()
-    auction_url = f"{app_origin}/auction/{session.auction_id}"
+    auction_url = f"{app_origin}/auction/{auction.auction_id}"
 
     async def _send_invite(pm: PresetMember):
         try:
@@ -83,7 +83,7 @@ async def create_auction_service(
         await asyncio.gather(*[_send_invite(pm) for pm in preset_members])
 
     return AuctionDTO(
-        auction_id=session.auction_id, status=Status.WAITING, connected_leader_count=0
+        auction_id=auction.auction_id, status=Status.WAITING, connected_leader_count=0
     )
 
 
@@ -95,9 +95,9 @@ async def connect_service(
     session: AsyncSession,
     event: Event,
 ) -> tuple[Auction, int | None]:
-    auction_session = await AuctionManager.get_auction(auction_id)
+    auction = await AuctionManager.get_auction(auction_id)
 
-    if not auction_session:
+    if not auction:
         raise WSError(AuctionErrorCode.NotFound)
 
     access_token = dto.access_token
@@ -108,19 +108,19 @@ async def connect_service(
             user_id = AccessToken.decode(access_token).user_id
             pm = await PresetMemberRepository(session).get_by_user_id(
                 user_id,
-                auction_session.preset_snapshot.preset_id,
-                auction_session.preset_snapshot.guild_id,
+                auction.preset_snapshot.preset_id,
+                auction.preset_snapshot.guild_id,
             )
             if pm is not None:
                 member_id = pm.member_id
         except TokenError as e:
             raise WSError(e.code) from None
 
-    await AuctionManager.on_connect(auction_session, ws, member_id)
+    await auction.connect(ws, member_id, AuctionManager._pubsub)
 
-    event.result = {"auction_id": auction_session.auction_id, "member_id": member_id}
+    event.result = {"auction_id": auction.auction_id, "member_id": member_id}
 
-    return auction_session, member_id
+    return auction, member_id
 
 
 @ws_service
@@ -130,11 +130,9 @@ async def place_bid_service(
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)
 
-    await AuctionManager.on_place_bid(
-        auction.auction_id, Bid(leader_id=member_id, amount=dto.amount)
-    )
+    await auction.place_bid(Bid(leader_id=member_id, amount=dto.amount))
 
 
 @ws_service
 async def disconnect_service(auction: Auction, ws: WebSocket, event: Event) -> None:
-    await AuctionManager.on_disconnect(auction, ws)
+    await auction.disconnect(ws)
