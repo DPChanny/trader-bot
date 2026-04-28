@@ -19,14 +19,15 @@ class BaseAuctionRepository:
             pipe.hgetall(self._key("teams"))
             pipe.lrange(self._key("auction_queue"), 0, -1)
             pipe.lrange(self._key("unsold_queue"), 0, -1)
+            pipe.hgetall(self._key("bid"))
             pipe.ttl(self._key())
-            data, teams_raw, aq_raw, uq_raw, ttl = await pipe.execute()
+            data, teams_raw, aq_raw, uq_raw, bid_raw, ttl = await pipe.execute()
         if not data:
             return None
         teams = [TeamDTO.model_validate_json(v) for v in teams_raw.values()]
         bid = (
-            BidDTO(amount=int(data["bid_amount"]), leader_id=int(data["bid_leader_id"]))
-            if data.get("bid_amount")
+            BidDTO(amount=int(bid_raw["amount"]), leader_id=int(bid_raw["leader_id"]))
+            if bid_raw.get("amount")
             else None
         )
         preset_snapshot = (

@@ -57,8 +57,6 @@ class AuctionRepository(BaseAuctionRepository):
                     "status": int(Status.WAITING),
                     "connected_leader_count": 0,
                     "player_id": "",
-                    "bid_amount": "",
-                    "bid_leader_id": "",
                     "preset_snapshot": preset_snapshot.model_dump_json(),
                 },
             )
@@ -71,6 +69,8 @@ class AuctionRepository(BaseAuctionRepository):
             if auction_queue:
                 pipe.rpush(self._key("auction_queue"), *auction_queue)
                 pipe.expire(self._key("auction_queue"), AUCTION_LIFETIME)
+            pipe.delete(self._key("unsold_queue"))
+            pipe.delete(self._key("bid"))
             await pipe.execute()
 
     async def publish_status(self, status: Status) -> None:
@@ -114,9 +114,11 @@ class AuctionRepository(BaseAuctionRepository):
     ) -> None:
         await get_redis().eval(
             PUBLISH_MEMBER_SOLD_SCRIPT,
-            2,
+            4,
             self._key("teams"),
             self._key("event"),
+            self._key(),
+            self._key("bid"),
             str(leader_id),
             str(player_id),
             str(bid.amount),
@@ -130,8 +132,10 @@ class AuctionRepository(BaseAuctionRepository):
         ).model_dump_json()
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
+            pipe.hset(self._key(), "player_id", "")
+            pipe.delete(self._key("bid"))
             pipe.rpush(self._key("unsold_queue"), player_id)
-            pipe.expire(self._key("unsold_queue"), AUCTION_LIFETIME)
+            pipe.expireat(self._key("unsold_queue"), await r.expiretime(self._key()))
             pipe.publish(self._key("event"), event)
             await pipe.execute()
 
@@ -151,7 +155,11 @@ class AuctionRepository(BaseAuctionRepository):
         )
 
     async def publish_create_response(self) -> None:
-        await get_redis().lpush(f"auction:response:{self.auction_id}", "1")
+        r = get_redis()
+        async with r.pipeline(transaction=False) as pipe:
+            pipe.lpush(f"auction:response:{self.auction_id}", "1")
+            pipe.expire(f"auction:response:{self.auction_id}", 5)
+            await pipe.execute()
 
     async def subscribe(self, pubsub: Any) -> None:
         await pubsub.subscribe(self._key("request"))
@@ -162,12 +170,13 @@ class AuctionRepository(BaseAuctionRepository):
     async def next_player(self) -> int | None:
         result = await get_redis().eval(
             NEXT_PLAYER_SCRIPT,
-            5,
+            6,
             self._key("auction_queue"),
             self._key("unsold_queue"),
             self._key(),
             self._key("event"),
             self._key("teams"),
+            self._key("bid"),
             int(AuctionEventType.NEXT_PLAYER),
         )
         return int(result) if result else None
@@ -182,10 +191,11 @@ class AuctionRepository(BaseAuctionRepository):
 
         result = await get_redis().eval(
             PLACE_BID_SCRIPT,
-            3,
+            4,
             self._key(),
             self._key("teams"),
             self._key("event"),
+            self._key("bid"),
             str(dto.leader_id),
             str(dto.amount),
             str(team_size),

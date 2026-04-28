@@ -1,6 +1,8 @@
-auction logging
+auction completed message
 pagenation
 preset copy
+auction error
+auction logging
 bot opt
     upsert opt
     on ready opt

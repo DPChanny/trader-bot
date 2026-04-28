@@ -3,6 +3,7 @@ local unsold_queue = KEYS[2]
 local auction_key = KEYS[3]
 local event_channel = KEYS[4]
 local teams_key = KEYS[5]
+local bid_key = KEYS[6]
 local event_type = tonumber(ARGV[1])
 
 local player_id = redis.call('LPOP', auction_queue)
@@ -15,10 +16,12 @@ if not player_id then
     for _, id in ipairs(unsold) do
         redis.call('RPUSH', auction_queue, id)
     end
+    redis.call('EXPIREAT', auction_queue, redis.call('EXPIRETIME', auction_key))
     player_id = redis.call('LPOP', auction_queue)
 end
 
-redis.call('HSET', auction_key, 'player_id', player_id, 'bid_amount', '', 'bid_leader_id', '')
+redis.call('HSET', auction_key, 'player_id', player_id)
+redis.call('DEL', bid_key)
 
 local teams_flat = redis.call('HGETALL', teams_key)
 local teams = {}

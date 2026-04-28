@@ -106,10 +106,9 @@ class AuctionManager:
         detail = await repo.get_detail()
         if not detail or not detail.preset_snapshot:
             return None
-        if detail.status == Status.COMPLETED:
-            return None
-
         auction = Auction(auction_id=auction_id, preset_snapshot=detail.preset_snapshot)
+        if detail.status == Status.COMPLETED:
+            return auction
         cls._auctions[auction_id] = auction
         await repo.subscribe(cls._pubsub)
         return auction

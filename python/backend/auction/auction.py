@@ -103,8 +103,8 @@ class Auction:
             case AuctionEventType.STATUS:
                 status_payload = StatusEventPayloadDTO.model_validate(envelope.payload)
                 if status_payload.status == Status.COMPLETED:
-                    self.stop()
                     await self.broadcast(envelope.type, envelope.payload)
+                    self.stop()
                     return True
         await self.broadcast(envelope.type, envelope.payload)
         return False
