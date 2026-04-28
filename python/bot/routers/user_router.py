@@ -1,18 +1,17 @@
 from discord import User
 from discord.ext import commands
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.utils.router import bot_router
+from shared.utils.db import get_session
 
 from ..services import on_user_update_service
 
 
 def include_user_router(bot: commands.Bot) -> None:
     @bot.event
-    @bot_router
-    async def on_user_update(before: User, after: User, session: AsyncSession):
+    async def on_user_update(before: User, after: User):
         if (before.global_name or before.name) == (
             after.global_name or after.name
         ) and before.avatar == after.avatar:
             return
-        await on_user_update_service(after, session)
+        async for session in get_session():
+            await on_user_update_service(after, session)

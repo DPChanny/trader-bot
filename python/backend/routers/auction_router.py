@@ -19,7 +19,6 @@ from shared.utils.error import (
     WSError,
     handle_ws_error,
 )
-from shared.utils.router import ws_router
 
 from ..services.auction_service import (
     connect_service,
@@ -27,6 +26,7 @@ from ..services.auction_service import (
     disconnect_service,
     place_bid_service,
 )
+from ..utils.router import ws_router
 from ..utils.token import verify_access_token
 
 
@@ -68,7 +68,9 @@ def _parse_event_payload[TPayloadDTO: BaseModel](
 
 @auction_router.websocket("/{auction_id}")
 @ws_router
-async def auction_ws(ws: WebSocket, auction_id: int, session: AsyncSession):
+async def auction_ws(
+    ws: WebSocket, auction_id: int, session: AsyncSession = Depends(get_session)
+):
     member_id: int | None = None
     auction = None
     try:

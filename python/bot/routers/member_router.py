@@ -1,8 +1,7 @@
 from discord import Member
 from discord.ext import commands
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.utils.router import bot_router
+from shared.utils.db import get_session
 
 from ..services import (
     on_member_join_service,
@@ -13,22 +12,22 @@ from ..services import (
 
 def include_member_router(bot: commands.Bot) -> None:
     @bot.event
-    @bot_router
-    async def on_member_join(member: Member, session: AsyncSession):
+    async def on_member_join(member: Member):
         if member.bot:
             return
-        await on_member_join_service(member, session)
+        async for session in get_session():
+            await on_member_join_service(member, session)
 
     @bot.event
-    @bot_router
-    async def on_member_update(before: Member, after: Member, session: AsyncSession):
+    async def on_member_update(before: Member, after: Member):
         if after.bot:
             return
-        await on_member_update_service(before, after, session)
+        async for session in get_session():
+            await on_member_update_service(before, after, session)
 
     @bot.event
-    @bot_router
-    async def on_member_remove(member: Member, session: AsyncSession):
+    async def on_member_remove(member: Member):
         if member.bot:
             return
-        await on_member_remove_service(member, session)
+        async for session in get_session():
+            await on_member_remove_service(member, session)
