@@ -8,5 +8,7 @@
   "files.exclude": {
     "**/*.css.d.ts": true,
     "**/__pycache__": true
-  }
+  },
+
+  "Lua.diagnostics.globals": ["redis", "KEYS", "ARGV", "cjson"]
 }

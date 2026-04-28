@@ -34,8 +34,7 @@ class AuctionManager:
     async def cleanup(cls) -> None:
         if cls._listener_task:
             cls._listener_task.cancel()
-            with asyncio.suppress(asyncio.CancelledError):
-                await cls._listener_task
+            await cls._listener_task
         for auction in cls._auctions.values():
             auction.stop()
         cls._auctions.clear()

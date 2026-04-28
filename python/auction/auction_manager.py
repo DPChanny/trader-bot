@@ -27,12 +27,12 @@ class AuctionManager:
     async def cleanup(cls) -> None:
         if cls._listener_task:
             cls._listener_task.cancel()
-            with asyncio.suppress(asyncio.CancelledError):
-                await cls._listener_task
+            await cls._listener_task
         for auction in cls._auctions.values():
             await auction.cancel()
         cls._auctions.clear()
-        await cls._pubsub.close()
+        if cls._pubsub:
+            await cls._pubsub.close()
 
     @classmethod
     async def _recover(cls) -> None:
