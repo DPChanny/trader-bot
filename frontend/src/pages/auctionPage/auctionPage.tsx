@@ -30,7 +30,9 @@ import {
 function isBidErrorCode(code: number): boolean {
   switch (code) {
     case BackendErrorCode.Auction.BidTeamFull:
-    case BackendErrorCode.Auction.BidInvalidAmount:
+    case BackendErrorCode.Auction.BidTooLow:
+    case BackendErrorCode.Auction.BidTooHigh:
+    case BackendErrorCode.Auction.BidDuplicate:
     case BackendErrorCode.Auction.BidNotLeader:
       return true;
     default:

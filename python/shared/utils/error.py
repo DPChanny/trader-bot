@@ -31,11 +31,11 @@ class ValidationErrorCode(IntEnum):
 
 class AuctionErrorCode(IntEnum):
     BidTeamFull = 4203
-    BidInvalidAmount = 4204
+    BidTooLow = 4204
+    BidDuplicate = 4205
+    BidTooHigh = 4207
     BidNotLeader = 4302
     NotFound = 4401
-    Expired = 4410
-    WorkerUnavailable = 5001
 
 
 class GuildErrorCode(IntEnum):

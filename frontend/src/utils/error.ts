@@ -22,10 +22,11 @@ export const BackendErrorCode = {
   },
   Auction: {
     BidTeamFull: 4203,
-    BidInvalidAmount: 4204,
+    BidTooLow: 4204,
+    BidDuplicate: 4205,
+    BidTooHigh: 4207,
     BidNotLeader: 4302,
     NotFound: 4401,
-    Expired: 4410,
   },
   Guild: {
     NotFound: 4402,
@@ -84,9 +85,13 @@ function getErrorMessage(code: number): string {
       return "유효하지 않은 입력입니다";
 
     case BackendErrorCode.Auction.BidTeamFull:
-      return "팀 인원을 초과해 입찰할 수 없습니다";
-    case BackendErrorCode.Auction.BidInvalidAmount:
-      return "유효하지 않은 입찰 금액입니다";
+      return "팀 인원이 가득 차 입찰할 수 없습니다";
+    case BackendErrorCode.Auction.BidTooLow:
+      return "현재 입찰 포인트보다 높게 입찰해야 합니다";
+    case BackendErrorCode.Auction.BidDuplicate:
+      return "현재 입찰 중인 팀장은 재입찰할 수 없습니다";
+    case BackendErrorCode.Auction.BidTooHigh:
+      return "최대 입찰 가능 금액을 초과했습니다";
     case BackendErrorCode.Auction.BidNotLeader:
       return "팀장이 아니면 입찰할 수 없습니다";
     case BackendErrorCode.Auction.NotFound:

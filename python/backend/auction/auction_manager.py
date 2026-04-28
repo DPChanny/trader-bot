@@ -12,7 +12,7 @@ from shared.dtos.auction import (
     Status,
 )
 from shared.dtos.preset import PresetDetailDTO
-from shared.utils.error import AuctionErrorCode, HTTPError
+from shared.utils.error import AuctionErrorCode, HTTPError, UnexpectedErrorCode
 from shared.utils.redis import get_pubsub, listen
 
 from .auction import Auction
@@ -87,7 +87,7 @@ class AuctionManager:
 
         ok = await AuctionRepository.await_create_response(auction_id, timeout=5)
         if not ok:
-            raise HTTPError(AuctionErrorCode.WorkerUnavailable)
+            raise HTTPError(UnexpectedErrorCode.External)
 
         auction = Auction(auction_id=auction_id, preset_snapshot=preset_snapshot)
         cls._auctions[auction_id] = auction

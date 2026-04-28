@@ -101,6 +101,8 @@ class Auction:
     async def _recept(
         self, timer: int, player_id: int, team_size: int
     ) -> BidDTO | None:
+        bid_placed = asyncio.Event()
+
         async def _listen() -> BidDTO | None:
             bid: BidDTO | None = None
             with contextlib.suppress(asyncio.CancelledError):
@@ -113,6 +115,7 @@ class Auction:
                             )
                             if is_bid_placed:
                                 bid = _bid
+                                bid_placed.set()
                         except Exception:
                             continue
             return bid
@@ -123,6 +126,9 @@ class Auction:
             while remaining > 0:
                 await asyncio.sleep(1)
                 remaining -= 1
+                if bid_placed.is_set():
+                    bid_placed.clear()
+                    remaining = timer
                 await self.repo.publish_tick(remaining)
         finally:
             listen_task.cancel()

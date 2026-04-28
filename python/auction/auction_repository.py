@@ -201,7 +201,9 @@ class AuctionRepository(BaseAuctionRepository):
             str(team_size),
             event,
             str(AuctionErrorCode.BidTeamFull),
-            str(AuctionErrorCode.BidInvalidAmount),
+            str(AuctionErrorCode.BidTooLow),
+            str(AuctionErrorCode.BidDuplicate),
+            str(AuctionErrorCode.BidTooHigh),
         )
         if result != 0:
             await self.publish_bid_error(dto.leader_id, int(result))
