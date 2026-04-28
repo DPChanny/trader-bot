@@ -1,17 +1,22 @@
--- KEYS[1]=teams_key, KEYS[2]=event_channel
--- ARGV[1]=leader_id, ARGV[2]=player_id, ARGV[3]=amount, ARGV[4]=event_type_int
-local team_json = redis.call('HGET', KEYS[1], ARGV[1])
+local teams_key = KEYS[1]
+local event_channel = KEYS[2]
+local leader_id = ARGV[1]
+local player_id = tonumber(ARGV[2])
+local amount = tonumber(ARGV[3])
+local event_type = tonumber(ARGV[4])
+
+local team_json = redis.call('HGET', teams_key, leader_id)
 if not team_json then return end
 local team = cjson.decode(team_json)
-table.insert(team['member_ids'], tonumber(ARGV[2]))
-team['points'] = team['points'] - tonumber(ARGV[3])
-redis.call('HSET', KEYS[1], ARGV[1], cjson.encode(team))
+table.insert(team['member_ids'], player_id)
+team['points'] = team['points'] - amount
+redis.call('HSET', teams_key, leader_id, cjson.encode(team))
 local event = cjson.encode({
-    type = tonumber(ARGV[4]),
+    type = event_type,
     payload = {
-        player_id = tonumber(ARGV[2]),
-        leader_id = tonumber(ARGV[1]),
-        amount = tonumber(ARGV[3]),
+        player_id = player_id,
+        leader_id = tonumber(leader_id),
+        amount = amount,
     },
 })
-redis.call('PUBLISH', KEYS[2], event)
+redis.call('PUBLISH', event_channel, event)

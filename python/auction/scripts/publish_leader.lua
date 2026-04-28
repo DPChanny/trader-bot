@@ -1,13 +1,16 @@
--- KEYS[1]=auction_key, KEYS[2]=event_channel
--- ARGV[1]=increment (+1 or -1), ARGV[2]=event_type_int, ARGV[3]=leader_id
--- Returns new connected_leader_count
-local count = redis.call('HINCRBY', KEYS[1], 'connected_leader_count', ARGV[1])
+local auction_key = KEYS[1]
+local event_channel = KEYS[2]
+local increment = ARGV[1]
+local event_type = tonumber(ARGV[2])
+local leader_id = tonumber(ARGV[3])
+
+local count = redis.call('HINCRBY', auction_key, 'connected_leader_count', increment)
 local event = cjson.encode({
-    type = tonumber(ARGV[2]),
+    type = event_type,
     payload = {
-        leader_id = tonumber(ARGV[3]),
+        leader_id = leader_id,
         connected_leader_count = count,
     },
 })
-redis.call('PUBLISH', KEYS[2], event)
+redis.call('PUBLISH', event_channel, event)
 return count

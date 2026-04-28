@@ -27,9 +27,6 @@ from .scripts import (
     PLACE_BID_SCRIPT,
     PUBLISH_LEADER_SCRIPT,
     PUBLISH_MEMBER_SOLD_SCRIPT,
-    PUBLISH_MEMBER_UNSOLD_SCRIPT,
-    PUBLISH_STATUS_SCRIPT,
-    PUBLISH_TICK_SCRIPT,
 )
 
 
@@ -38,7 +35,7 @@ class AuctionRepository(BaseAuctionRepository):
         leader_ids = [
             pm.member_id for pm in preset_snapshot.preset_members if pm.is_leader
         ]
-        initial_teams = [
+        teams = [
             TeamDTO(
                 team_id=i,
                 leader_id=leader_id,
@@ -47,10 +44,10 @@ class AuctionRepository(BaseAuctionRepository):
             )
             for i, leader_id in enumerate(leader_ids)
         ]
-        initial_queue = [
+        auction_queue = [
             pm.member_id for pm in preset_snapshot.preset_members if not pm.is_leader
         ]
-        random.shuffle(initial_queue)
+        random.shuffle(auction_queue)
 
         r = get_redis()
         async with r.pipeline(transaction=True) as pipe:
@@ -66,13 +63,13 @@ class AuctionRepository(BaseAuctionRepository):
                 },
             )
             pipe.expire(self._key(), AUCTION_LIFETIME)
-            for team in initial_teams:
+            for team in teams:
                 pipe.hset(
                     self._key("teams"), str(team.leader_id), team.model_dump_json()
                 )
             pipe.expire(self._key("teams"), AUCTION_LIFETIME)
-            if initial_queue:
-                pipe.rpush(self._key("auction_queue"), *initial_queue)
+            if auction_queue:
+                pipe.rpush(self._key("auction_queue"), *auction_queue)
                 pipe.expire(self._key("auction_queue"), AUCTION_LIFETIME)
             await pipe.execute()
 
@@ -80,14 +77,11 @@ class AuctionRepository(BaseAuctionRepository):
         event = AuctionEventEnvelopeDTO(
             type=AuctionEventType.STATUS, payload=StatusEventPayloadDTO(status=status)
         ).model_dump_json()
-        await get_redis().eval(
-            PUBLISH_STATUS_SCRIPT,
-            2,
-            self._key(),
-            self._key("event"),
-            int(status),
-            event,
-        )
+        r = get_redis()
+        async with r.pipeline(transaction=False) as pipe:
+            pipe.hset(self._key(), "status", int(status))
+            pipe.publish(self._key("event"), event)
+            await pipe.execute()
 
     async def publish_leader_connected(self, leader_id: int) -> int:
         return int(
@@ -130,24 +124,21 @@ class AuctionRepository(BaseAuctionRepository):
         )
 
     async def publish_member_unsold(self, player_id: int) -> None:
-        envelope = AuctionEventEnvelopeDTO(
+        event = AuctionEventEnvelopeDTO(
             type=AuctionEventType.MEMBER_UNSOLD,
             payload=MemberUnsoldEventPayloadDTO(player_id=player_id),
         ).model_dump_json()
-        await get_redis().eval(
-            PUBLISH_MEMBER_UNSOLD_SCRIPT,
-            2,
-            self._key("unsold_queue"),
-            self._key("event"),
-            player_id,
-            envelope,
-        )
+        r = get_redis()
+        async with r.pipeline(transaction=False) as pipe:
+            pipe.rpush(self._key("unsold_queue"), player_id)
+            pipe.publish(self._key("event"), event)
+            await pipe.execute()
 
     async def publish_tick(self, remaining: int) -> None:
-        envelope = AuctionEventEnvelopeDTO(
+        event = AuctionEventEnvelopeDTO(
             type=AuctionEventType.TICK, payload=TickEventPayloadDTO(timer=remaining)
         ).model_dump_json()
-        await get_redis().eval(PUBLISH_TICK_SCRIPT, 1, self._key("event"), envelope)
+        await get_redis().publish(self._key("event"), event)
 
     async def publish_bid_error(self, leader_id: int, code: int) -> None:
         await get_redis().publish(
@@ -181,7 +172,7 @@ class AuctionRepository(BaseAuctionRepository):
         return int(result) if result else None
 
     async def place_bid(self, dto: BidDTO, player_id: int, team_size: int) -> bool:
-        bid_placed_event = AuctionEventEnvelopeDTO(
+        event = AuctionEventEnvelopeDTO(
             type=AuctionEventType.BID_PLACED,
             payload=BidPlacedEventPayloadDTO(
                 leader_id=dto.leader_id, amount=dto.amount, player_id=player_id
@@ -197,7 +188,7 @@ class AuctionRepository(BaseAuctionRepository):
             str(dto.leader_id),
             str(dto.amount),
             str(team_size),
-            bid_placed_event,
+            event,
             str(AuctionErrorCode.BidInvalidState),
             str(AuctionErrorCode.BidTeamFull),
             str(AuctionErrorCode.BidInvalidAmount),
