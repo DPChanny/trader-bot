@@ -8,14 +8,9 @@ from shared.dtos.auction import (
     AuctionRequestEnvelopeDTO,
     AuctionRequestType,
     BidDTO,
-    LeaderConnectedEventPayloadDTO,
     LeaderConnectedRequestPayloadDTO,
-    LeaderDisconnectedEventPayloadDTO,
     LeaderDisconnectedRequestPayloadDTO,
-    MemberSoldEventPayloadDTO,
-    MemberUnsoldEventPayloadDTO,
     Status,
-    StatusEventPayloadDTO,
     TickEventPayloadDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
@@ -46,24 +41,15 @@ class Auction:
                 if self._status in (Status.WAITING, Status.PENDING):
                     await self._wait()
 
-                await self.repo.set_status(Status.RUNNING)
-                await self.repo.publish_event(
-                    AuctionEventType.STATUS,
-                    StatusEventPayloadDTO(status=Status.RUNNING),
-                )
+                await self.repo.publish_status(Status.RUNNING)
                 await self._run()
 
-                await self.repo.set_status(Status.COMPLETED)
-                await self.repo.publish_event(
-                    AuctionEventType.STATUS,
-                    StatusEventPayloadDTO(status=Status.COMPLETED),
-                )
+                await self.repo.publish_status(Status.COMPLETED)
                 logger.info(f"Auction {self.auction_id} completed")
 
         except TimeoutError:
             logger.warning(f"Auction {self.auction_id} expired")
-            await self.repo.set_status(Status.COMPLETED)
-            await self.repo.publish_event(AuctionEventType.EXPIRED)
+            await self.repo.publish_status(Status.COMPLETED)
         except asyncio.CancelledError:
             pass
         except Exception as e:
@@ -73,7 +59,7 @@ class Auction:
             await self._pubsub.close()
 
     async def _wait(self) -> None:
-        await self.repo.set_status(Status.WAITING)
+        await self.repo.publish_status(Status.WAITING)
 
         async for message in self._pubsub.listen():
             if message["type"] != "message":
@@ -86,31 +72,16 @@ class Auction:
                 continue
             if envelope.type == AuctionRequestType.LEADER_CONNECTED:
                 req = LeaderConnectedRequestPayloadDTO.model_validate(envelope.payload)
-                count = await self.repo.increment_connected_leader_count()
-                await self.repo.publish_event(
-                    AuctionEventType.LEADER_CONNECTED,
-                    LeaderConnectedEventPayloadDTO(
-                        leader_id=req.leader_id, connected_leader_count=count
-                    ),
-                )
+                count = await self.repo.publish_leader_connected(req.leader_id)
                 if count >= len(self._teams):
                     break
             elif envelope.type == AuctionRequestType.LEADER_DISCONNECTED:
                 req = LeaderDisconnectedRequestPayloadDTO.model_validate(
                     envelope.payload
                 )
-                count = await self.repo.increment_connected_leader_count(-1)
-                await self.repo.publish_event(
-                    AuctionEventType.LEADER_DISCONNECTED,
-                    LeaderDisconnectedEventPayloadDTO(
-                        leader_id=req.leader_id, connected_leader_count=count
-                    ),
-                )
+                count = await self.repo.publish_leader_disconnected(req.leader_id)
 
-        await self.repo.set_status(Status.PENDING)
-        await self.repo.publish_event(
-            AuctionEventType.STATUS, StatusEventPayloadDTO(status=Status.PENDING)
-        )
+        await self.repo.publish_status(Status.PENDING)
         await asyncio.sleep(5)
 
     async def _run(self) -> None:
@@ -134,21 +105,11 @@ class Auction:
                 if team:
                     team.member_ids.append(self._player_id)
                     team.points -= self._bid.amount
-                    await self.repo.update_team(team)
-                await self.repo.publish_event(
-                    AuctionEventType.MEMBER_SOLD,
-                    MemberSoldEventPayloadDTO(
-                        player_id=self._player_id,
-                        leader_id=self._bid.leader_id,
-                        amount=self._bid.amount,
-                    ),
-                )
+                    await self.repo.publish_member_sold(
+                        team, self._player_id, self._bid
+                    )
             elif self._player_id:
-                await self.repo.push_unsold(self._player_id)
-                await self.repo.publish_event(
-                    AuctionEventType.MEMBER_UNSOLD,
-                    MemberUnsoldEventPayloadDTO(player_id=self._player_id),
-                )
+                await self.repo.publish_member_unsold(self._player_id)
 
     async def _recept(self, timer: int) -> None:
         async def _tick() -> None:

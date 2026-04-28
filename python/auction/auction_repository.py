@@ -11,8 +11,13 @@ from shared.dtos.auction import (
     BidDTO,
     BidErrorResponsePayloadDTO,
     BidPlacedEventPayloadDTO,
+    LeaderConnectedEventPayloadDTO,
+    LeaderDisconnectedEventPayloadDTO,
+    MemberSoldEventPayloadDTO,
+    MemberUnsoldEventPayloadDTO,
     NextPlayerEventPayloadDTO,
     Status,
+    StatusEventPayloadDTO,
     TeamDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
@@ -70,21 +75,53 @@ class AuctionRepository(BaseAuctionRepository):
         ttl = await get_redis().ttl(self._key())
         return max(ttl, 0)
 
-    async def set_status(self, status: Status) -> None:
+    async def publish_status(self, status: Status) -> None:
         await get_redis().hset(self._key(), "status", int(status))
-
-    async def increment_connected_leader_count(self, amount: int = 1) -> int:
-        return int(
-            await get_redis().hincrby(self._key(), "connected_leader_count", amount)
+        await self.publish_event(
+            AuctionEventType.STATUS, StatusEventPayloadDTO(status=status)
         )
 
-    async def update_team(self, team: TeamDTO) -> None:
+    async def publish_leader_connected(self, leader_id: int) -> int:
+        count = int(await get_redis().hincrby(self._key(), "connected_leader_count", 1))
+        await self.publish_event(
+            AuctionEventType.LEADER_CONNECTED,
+            LeaderConnectedEventPayloadDTO(
+                leader_id=leader_id, connected_leader_count=count
+            ),
+        )
+        return count
+
+    async def publish_leader_disconnected(self, leader_id: int) -> int:
+        count = int(
+            await get_redis().hincrby(self._key(), "connected_leader_count", -1)
+        )
+        await self.publish_event(
+            AuctionEventType.LEADER_DISCONNECTED,
+            LeaderDisconnectedEventPayloadDTO(
+                leader_id=leader_id, connected_leader_count=count
+            ),
+        )
+        return count
+
+    async def publish_member_sold(
+        self, team: TeamDTO, player_id: int, bid: BidDTO
+    ) -> None:
         await get_redis().hset(
             self._key("teams"), str(team.leader_id), team.model_dump_json()
         )
+        await self.publish_event(
+            AuctionEventType.MEMBER_SOLD,
+            MemberSoldEventPayloadDTO(
+                player_id=player_id, leader_id=bid.leader_id, amount=bid.amount
+            ),
+        )
 
-    async def push_unsold(self, player_id: int) -> None:
+    async def publish_member_unsold(self, player_id: int) -> None:
         await get_redis().rpush(self._key("unsold_queue"), player_id)
+        await self.publish_event(
+            AuctionEventType.MEMBER_UNSOLD,
+            MemberUnsoldEventPayloadDTO(player_id=player_id),
+        )
 
     async def publish_event(
         self, event_type: AuctionEventType, payload: Any | None = None

@@ -30,7 +30,6 @@ class AuctionEventType(IntEnum):
     LEADER_CONNECTED = 9
     LEADER_DISCONNECTED = 10
     NEXT_PLAYER = 11
-    EXPIRED = 12
 
 
 class AuctionRequestType(IntEnum):

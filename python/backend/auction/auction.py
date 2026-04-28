@@ -106,10 +106,6 @@ class Auction:
                     self.stop()
                     await self.broadcast(envelope.type, envelope.payload)
                     return True
-            case AuctionEventType.EXPIRED:
-                self.stop()
-                await self.broadcast(envelope.type, envelope.payload)
-                return True
         await self.broadcast(envelope.type, envelope.payload)
         return False
 
