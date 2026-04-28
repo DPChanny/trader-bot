@@ -22,15 +22,12 @@ from .auction_repository import AuctionRepository
 
 class Auction:
     def __init__(
-        self,
-        detail: AuctionDetailDTO,
-        ttl: int,
-        on_done: Callable[[], None] | None = None,
+        self, detail: AuctionDetailDTO, on_done: Callable[[], None] | None = None
     ) -> None:
         self.auction_id = detail.auction_id
         self.repo = AuctionRepository(detail.auction_id)
         self._pubsub = get_pubsub()
-        self._task = asyncio.create_task(self._main(detail, ttl))
+        self._task = asyncio.create_task(self._main(detail))
         if on_done:
             self._task.add_done_callback(lambda _: on_done())
 
@@ -39,10 +36,10 @@ class Auction:
         with contextlib.suppress(asyncio.CancelledError):
             await self._task
 
-    async def _main(self, detail: AuctionDetailDTO, ttl: int) -> None:
+    async def _main(self, detail: AuctionDetailDTO) -> None:
         try:
             await self.repo.subscribe(self._pubsub)
-            async with asyncio.timeout(ttl):
+            async with asyncio.timeout(detail.ttl):
                 if detail.status in (Status.WAITING, Status.PENDING):
                     await self._wait(len(detail.teams))
 

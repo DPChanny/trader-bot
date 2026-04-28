@@ -68,6 +68,7 @@ class AuctionDetailDTO(AuctionDTO):
     auction_queue: list[int]
     unsold_queue: list[int]
     preset_snapshot: PresetDetailDTO | None
+    ttl: int
 
 
 class CreateAuctionDTO(BaseDTO):

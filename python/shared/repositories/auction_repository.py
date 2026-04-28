@@ -19,7 +19,8 @@ class BaseAuctionRepository:
             pipe.hgetall(self._key("teams"))
             pipe.lrange(self._key("auction_queue"), 0, -1)
             pipe.lrange(self._key("unsold_queue"), 0, -1)
-            data, teams_raw, aq_raw, uq_raw = await pipe.execute()
+            pipe.ttl(self._key())
+            data, teams_raw, aq_raw, uq_raw, ttl = await pipe.execute()
         if not data:
             return None
         teams = [TeamDTO.model_validate_json(v) for v in teams_raw.values()]
@@ -43,4 +44,5 @@ class BaseAuctionRepository:
             auction_queue=[int(x) for x in aq_raw],
             unsold_queue=[int(x) for x in uq_raw],
             preset_snapshot=preset_snapshot,
+            ttl=max(ttl, 0),
         )

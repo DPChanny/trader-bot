@@ -4,12 +4,7 @@ from typing import Any, ClassVar
 from loguru import logger
 from pydantic import ValidationError
 
-from shared.dtos.auction import (
-    AUCTION_LIFETIME,
-    AuctionRequestEnvelopeDTO,
-    AuctionRequestType,
-    Status,
-)
+from shared.dtos.auction import AuctionRequestEnvelopeDTO, AuctionRequestType, Status
 from shared.utils.redis import get_pubsub
 
 from .auction import Auction
@@ -53,9 +48,8 @@ class AuctionManager:
                 )
                 continue
             logger.info(f"Recovering auction {auction_id}")
-            ttl = await AuctionRepository(auction_id).get_ttl()
             cls._auctions[auction_id] = Auction(
-                detail, ttl, on_done=lambda aid=auction_id: cls._auctions.pop(aid, None)
+                detail, on_done=lambda aid=auction_id: cls._auctions.pop(aid, None)
             )
 
     @classmethod
@@ -100,7 +94,6 @@ class AuctionManager:
                     await repo.publish_create_response()
                     cls._auctions[auction_id] = Auction(
                         detail,
-                        AUCTION_LIFETIME,
                         on_done=lambda aid=auction_id: cls._auctions.pop(aid, None),
                     )
             except asyncio.CancelledError:

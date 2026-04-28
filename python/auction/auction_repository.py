@@ -71,10 +71,6 @@ class AuctionRepository(BaseAuctionRepository):
                 pipe.expire(self._key("auction_queue"), AUCTION_LIFETIME)
             await pipe.execute()
 
-    async def get_ttl(self) -> int:
-        ttl = await get_redis().ttl(self._key())
-        return max(ttl, 0)
-
     async def publish_status(self, status: Status) -> None:
         await get_redis().hset(self._key(), "status", int(status))
         await self.publish_event(
