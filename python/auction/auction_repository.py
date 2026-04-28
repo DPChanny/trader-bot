@@ -11,11 +11,7 @@ from shared.dtos.auction import (
     BidDTO,
     BidErrorResponsePayloadDTO,
     BidPlacedEventPayloadDTO,
-    LeaderConnectedEventPayloadDTO,
-    LeaderDisconnectedEventPayloadDTO,
-    MemberSoldEventPayloadDTO,
     MemberUnsoldEventPayloadDTO,
-    NextPlayerEventPayloadDTO,
     Status,
     StatusEventPayloadDTO,
     TeamDTO,
@@ -26,7 +22,15 @@ from shared.repositories.auction_repository import BaseAuctionRepository
 from shared.utils.error import AuctionErrorCode
 from shared.utils.redis import get_redis
 
-from .auction_scripts import NEXT_PLAYER_SCRIPT, PLACE_BID_SCRIPT
+from .scripts import (
+    NEXT_PLAYER_SCRIPT,
+    PLACE_BID_SCRIPT,
+    PUBLISH_LEADER_SCRIPT,
+    PUBLISH_MEMBER_SOLD_SCRIPT,
+    PUBLISH_MEMBER_UNSOLD_SCRIPT,
+    PUBLISH_STATUS_SCRIPT,
+    PUBLISH_TICK_SCRIPT,
+)
 
 
 class AuctionRepository(BaseAuctionRepository):
@@ -76,70 +80,74 @@ class AuctionRepository(BaseAuctionRepository):
         event = AuctionEventEnvelopeDTO(
             type=AuctionEventType.STATUS, payload=StatusEventPayloadDTO(status=status)
         ).model_dump_json()
-        async with get_redis().pipeline(transaction=False) as pipe:
-            pipe.hset(self._key(), "status", int(status))
-            pipe.publish(self._key("event"), event)
-            await pipe.execute()
+        await get_redis().eval(
+            PUBLISH_STATUS_SCRIPT,
+            2,
+            self._key(),
+            self._key("event"),
+            int(status),
+            event,
+        )
 
     async def publish_leader_connected(self, leader_id: int) -> int:
-        count = int(await get_redis().hincrby(self._key(), "connected_leader_count", 1))
-        await get_redis().publish(
-            self._key("event"),
-            AuctionEventEnvelopeDTO(
-                type=AuctionEventType.LEADER_CONNECTED,
-                payload=LeaderConnectedEventPayloadDTO(
-                    leader_id=leader_id, connected_leader_count=count
-                ),
-            ).model_dump_json(),
+        return int(
+            await get_redis().eval(
+                PUBLISH_LEADER_SCRIPT,
+                2,
+                self._key(),
+                self._key("event"),
+                1,
+                int(AuctionEventType.LEADER_CONNECTED),
+                leader_id,
+            )
         )
-        return count
 
     async def publish_leader_disconnected(self, leader_id: int) -> int:
-        count = int(
-            await get_redis().hincrby(self._key(), "connected_leader_count", -1)
+        return int(
+            await get_redis().eval(
+                PUBLISH_LEADER_SCRIPT,
+                2,
+                self._key(),
+                self._key("event"),
+                -1,
+                int(AuctionEventType.LEADER_DISCONNECTED),
+                leader_id,
+            )
         )
-        await get_redis().publish(
-            self._key("event"),
-            AuctionEventEnvelopeDTO(
-                type=AuctionEventType.LEADER_DISCONNECTED,
-                payload=LeaderDisconnectedEventPayloadDTO(
-                    leader_id=leader_id, connected_leader_count=count
-                ),
-            ).model_dump_json(),
-        )
-        return count
 
     async def publish_member_sold(
-        self, team: TeamDTO, player_id: int, bid: BidDTO
+        self, leader_id: int, player_id: int, bid: BidDTO
     ) -> None:
-        event = AuctionEventEnvelopeDTO(
-            type=AuctionEventType.MEMBER_SOLD,
-            payload=MemberSoldEventPayloadDTO(
-                player_id=player_id, leader_id=bid.leader_id, amount=bid.amount
-            ),
-        ).model_dump_json()
-        async with get_redis().pipeline(transaction=False) as pipe:
-            pipe.hset(self._key("teams"), str(team.leader_id), team.model_dump_json())
-            pipe.publish(self._key("event"), event)
-            await pipe.execute()
+        await get_redis().eval(
+            PUBLISH_MEMBER_SOLD_SCRIPT,
+            2,
+            self._key("teams"),
+            self._key("event"),
+            str(leader_id),
+            str(player_id),
+            str(bid.amount),
+            str(int(AuctionEventType.MEMBER_SOLD)),
+        )
 
     async def publish_member_unsold(self, player_id: int) -> None:
-        event = AuctionEventEnvelopeDTO(
+        envelope = AuctionEventEnvelopeDTO(
             type=AuctionEventType.MEMBER_UNSOLD,
             payload=MemberUnsoldEventPayloadDTO(player_id=player_id),
         ).model_dump_json()
-        async with get_redis().pipeline(transaction=False) as pipe:
-            pipe.rpush(self._key("unsold_queue"), player_id)
-            pipe.publish(self._key("event"), event)
-            await pipe.execute()
+        await get_redis().eval(
+            PUBLISH_MEMBER_UNSOLD_SCRIPT,
+            2,
+            self._key("unsold_queue"),
+            self._key("event"),
+            player_id,
+            envelope,
+        )
 
     async def publish_tick(self, remaining: int) -> None:
-        await get_redis().publish(
-            self._key("event"),
-            AuctionEventEnvelopeDTO(
-                type=AuctionEventType.TICK, payload=TickEventPayloadDTO(timer=remaining)
-            ).model_dump_json(),
-        )
+        envelope = AuctionEventEnvelopeDTO(
+            type=AuctionEventType.TICK, payload=TickEventPayloadDTO(timer=remaining)
+        ).model_dump_json()
+        await get_redis().eval(PUBLISH_TICK_SCRIPT, 1, self._key("event"), envelope)
 
     async def publish_bid_error(self, leader_id: int, code: int) -> None:
         await get_redis().publish(
@@ -159,49 +167,24 @@ class AuctionRepository(BaseAuctionRepository):
     async def unsubscribe(self, pubsub: Any) -> None:
         await pubsub.unsubscribe(self._key("request"))
 
-    async def next_player(
-        self, auction_queue: list[int], unsold_queue: list[int], teams: list[TeamDTO]
-    ) -> tuple[int, list[int], list[int]] | None:
-        if auction_queue:
-            next_player_id = auction_queue[0]
-            next_auction_queue = auction_queue[1:]
-            next_unsold_queue = unsold_queue
-        elif unsold_queue:
-            next_player_id = unsold_queue[0]
-            next_auction_queue = unsold_queue[1:]
-            next_unsold_queue = []
-        else:
-            return None
-
-        envelope = AuctionEventEnvelopeDTO(
-            type=AuctionEventType.NEXT_PLAYER,
-            payload=NextPlayerEventPayloadDTO(
-                player_id=next_player_id,
-                teams=teams,
-                auction_queue=next_auction_queue,
-                unsold_queue=next_unsold_queue,
-            ),
-        ).model_dump_json()
-
+    async def next_player(self) -> int | None:
         result = await get_redis().eval(
             NEXT_PLAYER_SCRIPT,
-            4,
+            5,
             self._key("auction_queue"),
             self._key("unsold_queue"),
             self._key(),
             self._key("event"),
-            envelope,
+            self._key("teams"),
+            int(AuctionEventType.NEXT_PLAYER),
         )
-        if not result:
-            return None
+        return int(result) if result else None
 
-        return next_player_id, next_auction_queue, next_unsold_queue
-
-    async def place_bid(self, bid: BidDTO, player_id: int, team_size: int) -> bool:
+    async def place_bid(self, dto: BidDTO, player_id: int, team_size: int) -> bool:
         bid_placed_event = AuctionEventEnvelopeDTO(
             type=AuctionEventType.BID_PLACED,
             payload=BidPlacedEventPayloadDTO(
-                leader_id=bid.leader_id, amount=bid.amount, player_id=player_id
+                leader_id=dto.leader_id, amount=dto.amount, player_id=player_id
             ),
         ).model_dump_json()
 
@@ -211,8 +194,8 @@ class AuctionRepository(BaseAuctionRepository):
             self._key(),
             self._key("teams"),
             self._key("event"),
-            str(bid.leader_id),
-            str(bid.amount),
+            str(dto.leader_id),
+            str(dto.amount),
             str(team_size),
             bid_placed_event,
             str(AuctionErrorCode.BidInvalidState),
@@ -220,7 +203,7 @@ class AuctionRepository(BaseAuctionRepository):
             str(AuctionErrorCode.BidInvalidAmount),
         )
         if result != 0:
-            await self.publish_bid_error(bid.leader_id, int(result))
+            await self.publish_bid_error(dto.leader_id, int(result))
             return False
         return True
 

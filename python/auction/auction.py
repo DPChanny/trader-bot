@@ -20,29 +20,28 @@ from .auction_repository import AuctionRepository
 
 class Auction:
     def __init__(
-        self, detail: AuctionDetailDTO, on_done: Callable[[], None] | None = None
+        self, dto: AuctionDetailDTO, on_done: Callable[[], None] | None = None
     ) -> None:
-        self.auction_id = detail.auction_id
-        self.repo = AuctionRepository(detail.auction_id)
+        self.auction_id = dto.auction_id
+        self.repo = AuctionRepository(dto.auction_id)
         self._pubsub = get_pubsub()
-        self._task = asyncio.create_task(self._main(detail))
+        self._task = asyncio.create_task(self._main(dto))
         if on_done:
             self._task.add_done_callback(lambda _: on_done())
 
     async def cancel(self) -> None:
         self._task.cancel()
-        with contextlib.suppress(asyncio.CancelledError):
-            await self._task
+        await self._task
 
-    async def _main(self, detail: AuctionDetailDTO) -> None:
+    async def _main(self, dto: AuctionDetailDTO) -> None:
         try:
             await self.repo.subscribe(self._pubsub)
-            async with asyncio.timeout(detail.ttl):
-                if detail.status in (Status.WAITING, Status.PENDING):
-                    await self._wait(len(detail.teams))
+            async with asyncio.timeout(dto.ttl):
+                if dto.status in (Status.WAITING, Status.PENDING):
+                    await self._wait(len(dto.teams))
 
                 await self._pend()
-                await self._run(detail)
+                await self._run(dto)
 
                 await self.repo.publish_status(Status.COMPLETED)
                 logger.info(f"Auction {self.auction_id} completed")
@@ -85,32 +84,22 @@ class Auction:
         await self.repo.publish_status(Status.PENDING)
         await asyncio.sleep(5)
 
-    async def _run(self, detail: AuctionDetailDTO) -> None:
+    async def _run(self, dto: AuctionDetailDTO) -> None:
         await self.repo.publish_status(Status.RUNNING)
 
-        timer = detail.preset_snapshot.timer
-        team_size = detail.preset_snapshot.team_size
-        teams = detail.teams
-        auction_queue = detail.auction_queue
-        unsold_queue = detail.unsold_queue
+        timer = dto.preset_snapshot.timer
+        team_size = dto.preset_snapshot.team_size
 
         while True:
-            next_result = await self.repo.next_player(
-                auction_queue, unsold_queue, teams
-            )
-            if next_result is None:
+            player_id = await self.repo.next_player()
+            if player_id is None:
                 break
-            player_id, auction_queue, unsold_queue = next_result
 
             bid = await self._recept(timer, player_id, team_size)
 
-            if bid and player_id:
-                team = next((t for t in teams if t.leader_id == bid.leader_id), None)
-                if team:
-                    team.member_ids.append(player_id)
-                    team.points -= bid.amount
-                    await self.repo.publish_member_sold(team, player_id, bid)
-            elif player_id:
+            if bid:
+                await self.repo.publish_member_sold(bid.leader_id, player_id, bid)
+            else:
                 await self.repo.publish_member_unsold(player_id)
 
     async def _recept(
@@ -120,11 +109,12 @@ class Auction:
 
         async def _tick() -> None:
             remaining = timer
-            while remaining > 0:
-                await asyncio.sleep(min(100, remaining))
-                remaining -= 100
-                if remaining > 0:
-                    await self.repo.publish_tick(int(remaining))
+            with contextlib.suppress(asyncio.CancelledError):
+                while remaining > 0:
+                    await asyncio.sleep(min(100, remaining))
+                    remaining -= 100
+                    if remaining > 0:
+                        await self.repo.publish_tick(int(remaining))
 
         tick = asyncio.create_task(_tick())
         try:
@@ -140,15 +130,18 @@ class Auction:
                         continue
                     if envelope.type == AuctionRequestType.PLACE_BID:
                         try:
-                            b = BidDTO.model_validate(envelope.payload)
-                            placed = await self.repo.place_bid(b, player_id, team_size)
-                            if placed:
-                                bid = b
+                            bid_candidate = BidDTO.model_validate(envelope.payload)
+                            is_placed = await self.repo.place_bid(
+                                bid_candidate, player_id, team_size
+                            )
+                            if is_placed:
+                                bid = bid_candidate
                         except Exception:
                             continue
         except TimeoutError:
             pass
         finally:
             tick.cancel()
+            await tick
 
         return bid
