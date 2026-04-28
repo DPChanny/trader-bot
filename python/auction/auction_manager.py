@@ -18,7 +18,7 @@ from .auction_repository import AuctionRepository
 
 class AuctionManager:
     _pubsub: ClassVar[Any] = None
-    _loops: ClassVar[dict[int, asyncio.Task]] = {}
+    _auctions: ClassVar[dict[int, Auction]] = {}
     _listener_task: ClassVar[asyncio.Task | None] = None
 
     @classmethod
@@ -34,18 +34,10 @@ class AuctionManager:
             cls._listener_task.cancel()
             with asyncio.suppress(asyncio.CancelledError):
                 await cls._listener_task
-        for task in cls._loops.values():
-            task.cancel()
-        if cls._loops:
-            await asyncio.gather(*cls._loops.values(), return_exceptions=True)
-        cls._loops.clear()
+        for auction in cls._auctions.values():
+            await auction.cancel()
+        cls._auctions.clear()
         await cls._pubsub.close()
-
-    @classmethod
-    def _run_auction(cls, auction_id: int, auction: Auction) -> None:
-        task = asyncio.create_task(auction.main())
-        cls._loops[auction_id] = task
-        task.add_done_callback(lambda t, aid=auction_id: cls._loops.pop(aid, None))
 
     @classmethod
     async def _recover(cls) -> None:
@@ -53,7 +45,7 @@ class AuctionManager:
         for auction_id, detail in all_auctions:
             if detail.status == Status.COMPLETED:
                 continue
-            if auction_id in cls._loops:
+            if auction_id in cls._auctions:
                 continue
             if not detail.preset_snapshot:
                 logger.warning(
@@ -62,7 +54,9 @@ class AuctionManager:
                 continue
             logger.info(f"Recovering auction {auction_id}")
             ttl = await AuctionRepository(auction_id).get_ttl()
-            cls._run_auction(auction_id, Auction(detail, ttl))
+            cls._auctions[auction_id] = Auction(
+                detail, ttl, on_done=lambda aid=auction_id: cls._auctions.pop(aid, None)
+            )
 
     @classmethod
     async def _listener(cls) -> None:
@@ -92,7 +86,7 @@ class AuctionManager:
                         continue
 
                     auction_id = payload.auction_id
-                    if auction_id in cls._loops:
+                    if auction_id in cls._auctions:
                         logger.warning(f"Auction {auction_id} already running")
                         continue
 
@@ -104,7 +98,11 @@ class AuctionManager:
                     if not detail:
                         continue
                     await repo.publish_create_response()
-                    cls._run_auction(auction_id, Auction(detail, AUCTION_LIFETIME))
+                    cls._auctions[auction_id] = Auction(
+                        detail,
+                        AUCTION_LIFETIME,
+                        on_done=lambda aid=auction_id: cls._auctions.pop(aid, None),
+                    )
             except asyncio.CancelledError:
                 return
             except Exception as e:
