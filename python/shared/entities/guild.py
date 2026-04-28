@@ -17,6 +17,7 @@ class Guild(BaseEntity):
     discord_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     name: Mapped[str] = mapped_column(String(256))
     icon_hash: Mapped[str | None] = mapped_column(String(64))
+    invite_channel_id: Mapped[int | None] = mapped_column(BigInteger)
 
     presets: Mapped[list[Preset]] = relationship("Preset", viewonly=True)
     members: Mapped[list[Member]] = relationship("Member", viewonly=True)

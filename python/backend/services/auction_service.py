@@ -1,4 +1,4 @@
-import asyncio
+import contextlib
 
 from fastapi import WebSocket
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,12 +7,10 @@ from shared.dtos.auction import (
     AuctionDTO,
     AuthEventPayloadDTO,
     BidDTO,
-    CreateAuctionDTO,
     PlaceBidEventPayloadDTO,
 )
 from shared.dtos.member import Role
 from shared.dtos.preset import PresetDetailDTO
-from shared.entities import PresetMember
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin
@@ -27,18 +25,14 @@ from shared.utils.error import (
 from shared.utils.service import Event, http_service, ws_service
 
 from ..auction import Auction, AuctionManager
-from ..utils.discord import send_message
+from ..utils.discord import send_channel_message
 from ..utils.member import verify_role
 from ..utils.token import AccessToken
 
 
 @http_service
 async def create_auction_service(
-    guild_id: int,
-    user_id: int,
-    preset_id: int,
-    dto: CreateAuctionDTO,
-    session: AsyncSession,
+    guild_id: int, user_id: int, preset_id: int, session: AsyncSession
 ) -> AuctionDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
@@ -59,28 +53,23 @@ async def create_auction_service(
 
     app_origin = get_app_origin()
     auction_url = f"{app_origin}/auction/{auction.auction_id}"
+    invite_channel_id = preset.guild.invite_channel_id
 
-    async def _send_invite(pm: PresetMember):
-        try:
-            member = pm.member
-            role = "팀장" if pm.is_leader else "선수"
-            embed = [
-                {
-                    "title": "Trader Bot 경매",
-                    "fields": [
-                        {"name": "길드", "value": preset.guild.name, "inline": True},
-                        {"name": "프리셋", "value": preset.name, "inline": True},
-                        {"name": "역할", "value": role, "inline": True},
-                        {"name": "참가 링크", "value": auction_url, "inline": False},
-                    ],
-                }
-            ]
-            await send_message(member.user_id, embed)
-        except Exception:
-            pass
+    if invite_channel_id is not None:
+        mentions = " ".join(f"<@{pm.member.user_id}>" for pm in preset_members)
+        embed = [
+            {
+                "title": "Trader Bot 경매",
+                "fields": [
+                    {"name": "길드", "value": preset.guild.name, "inline": True},
+                    {"name": "프리셋", "value": preset.name, "inline": True},
+                    {"name": "참가 링크", "value": auction_url, "inline": False},
+                ],
+            }
+        ]
 
-    if dto.send_invite:
-        await asyncio.gather(*[_send_invite(pm) for pm in preset_members])
+        with contextlib.suppress(Exception):
+            await send_channel_message(invite_channel_id, mentions, embed)
 
     return AuctionDTO(auction_id=auction.auction_id)
 

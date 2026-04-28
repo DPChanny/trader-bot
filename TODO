@@ -1,4 +1,3 @@
-auction completed message
 pagenation
 preset copy
 auction error
@@ -6,6 +5,8 @@ auction logging
 bot opt
     upsert opt
     on ready opt
+    slash command opt
+    intent & permission opt
 subscription
     toss payment
 redis conf

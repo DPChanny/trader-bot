@@ -14,10 +14,10 @@ import { EditButton, DeleteButton, Button } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
-import { CreateAuctionModal } from "./createAuctionModal";
 import { AuctionCreatedModal } from "./auctionCreatedModal";
 import { NameTitle, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
+import { useCreateAuction } from "@features/auction/hook";
 
 export function PresetPage() {
   const { guildId } = useParams({ strict: false }) as { guildId: string };
@@ -28,8 +28,8 @@ export function PresetPage() {
 
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const [showCreate, setShowCreate] = useState(false);
   const [createdAuctionId, setCreatedAuctionId] = useState<string | null>(null);
+  const createAuction = useCreateAuction();
 
   const preset = usePreset(guildId, presetId);
   const presetMembers = usePresetMembers(guildId, presetId);
@@ -47,8 +47,8 @@ export function PresetPage() {
   if (presetMembers.data) {
     if (leaderCount < 2) {
       presetValidMessage = `현재 팀장 인원(${leaderCount}명)이 최소 인원(2명)보다 적습니다.`;
-    } else if (presetMemberCount < requiredPresetMembers) {
-      presetValidMessage = `현재 전체 인원(${presetMemberCount}명)이 권장 인원(${requiredPresetMembers}명)보다 적습니다.`;
+    } else if (presetMemberCount !== requiredPresetMembers) {
+      presetValidMessage = `현재 전체 인원(${presetMemberCount}명)이 권장 인원(${requiredPresetMembers}명)과 일치하지 않습니다.`;
     }
   }
 
@@ -112,7 +112,15 @@ export function PresetPage() {
         {canCreateAuction && (
           <Button
             variantIntent={auctionButtonIntent}
-            onClick={() => setShowCreate(true)}
+            onClick={() =>
+              createAuction.mutate(
+                { guildId, presetId },
+                {
+                  onSuccess: (result) => setCreatedAuctionId(result.auctionId),
+                },
+              )
+            }
+            disabled={!canStartAuction || createAuction.isPending}
           >
             경매 생성
           </Button>
@@ -129,17 +137,6 @@ export function PresetPage() {
       )}
 
       {showDelete && <DeletePresetModal onClose={() => setShowDelete(false)} />}
-
-      {showCreate && (
-        <CreateAuctionModal
-          onClose={() => setShowCreate(false)}
-          onSuccess={(auctionId) => {
-            setShowCreate(false);
-            setCreatedAuctionId(auctionId);
-          }}
-          isHardError={!canStartAuction}
-        />
-      )}
 
       {createdAuctionId && (
         <AuctionCreatedModal

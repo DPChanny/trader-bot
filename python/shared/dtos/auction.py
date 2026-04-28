@@ -71,10 +71,6 @@ class AuctionDetailDTO(AuctionDTO):
     ttl: int
 
 
-class CreateAuctionDTO(BaseDTO):
-    send_invite: bool
-
-
 class InitEventPayloadDTO(BaseDTO):
     auction: AuctionDetailDTO
     member_id: int | None

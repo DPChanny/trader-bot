@@ -7,7 +7,6 @@ from shared.dtos.auction import (
     AuctionEventEnvelopeDTO,
     AuctionEventType,
     AuthEventPayloadDTO,
-    CreateAuctionDTO,
     ErrorEventPayloadDTO,
     PlaceBidEventPayloadDTO,
 )
@@ -39,11 +38,10 @@ auction_router = APIRouter(
 async def create_auction_route(
     guild_id: int,
     preset_id: int,
-    dto: CreateAuctionDTO,
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),
 ) -> AuctionDTO:
-    return await create_auction_service(guild_id, user_id, preset_id, dto, session)
+    return await create_auction_service(guild_id, user_id, preset_id, session)
 
 
 def _parse_event_envelope(text: str) -> AuctionEventEnvelopeDTO:

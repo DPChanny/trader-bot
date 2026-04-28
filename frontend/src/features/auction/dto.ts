@@ -28,10 +28,6 @@ export interface InitPayloadDTO {
   memberId: number | null;
 }
 
-export interface CreateAuctionDTO {
-  sendInvite: boolean;
-}
-
 export enum AuctionEventType {
   AUTH = 0,
   INIT = 1,

@@ -60,26 +60,18 @@ async def get_me(code: str) -> dict:
         return me_response.json()
 
 
-async def send_message(user_id: int, embeds: list[dict]) -> None:
+async def send_channel_message(
+    channel_id: int, content: str, embeds: list[dict]
+) -> None:
     headers = {
         "Authorization": f"Bot {get_discord_bot_token()}",
         "Content-Type": "application/json",
     }
-
     async with httpx.AsyncClient() as client:
-        ch_response = await client.post(
-            f"{_DISCORD_USERS_URL}/@me/channels",
-            headers=headers,
-            json={"recipient_id": str(user_id)},
-        )
-        if ch_response.status_code != 200:
-            raise HTTPError(UnexpectedErrorCode.External)
-
-        channel_id = ch_response.json()["id"]
-        msg_response = await client.post(
+        response = await client.post(
             f"{_DISCORD_CHANNELS_URL}/{channel_id}/messages",
             headers=headers,
-            json={"embeds": embeds},
+            json={"content": content, "embeds": embeds},
         )
-        if msg_response.status_code != 200:
+        if response.status_code != 200:
             raise HTTPError(UnexpectedErrorCode.External)

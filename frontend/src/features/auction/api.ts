@@ -1,5 +1,5 @@
-import type { CreateAuctionDTO, AuctionDTO } from "@features/auction/dto";
-import { toCamelCase, toSnakeCase } from "@utils/dto";
+import type { AuctionDTO } from "@features/auction/dto";
+import { toCamelCase } from "@utils/dto";
 import { getAuctionEndpoint } from "@utils/env";
 import { handleHTTPError } from "@utils/error";
 import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
@@ -7,19 +7,16 @@ import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 export async function createAuction({
   guildId,
   presetId,
-  dto,
 }: {
   guildId: string;
   presetId: number;
-  dto: CreateAuctionDTO;
 }): Promise<AuctionDTO> {
   const response = await fetch(getAuctionEndpoint(guildId, presetId), {
     method: "POST",
     headers: getHeaders(getAuthHeader(), getJsonHeader()),
-    body: JSON.stringify(toSnakeCase(dto)),
+    body: JSON.stringify({}),
   });
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
   return toCamelCase<AuctionDTO>(json);
 }
-

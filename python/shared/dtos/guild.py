@@ -7,6 +7,7 @@ class GuildDTO(BaseDTO):
     discord_id: BigInt
     name: str
     icon_hash: str | None
+    invite_channel_id: BigInt | None
 
 
 class GuildDetailDTO(GuildDTO):
