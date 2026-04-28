@@ -29,7 +29,6 @@ import {
 
 function isBidErrorCode(code: number): boolean {
   switch (code) {
-    case BackendErrorCode.Auction.BidInvalidState:
     case BackendErrorCode.Auction.BidTeamFull:
     case BackendErrorCode.Auction.BidInvalidAmount:
     case BackendErrorCode.Auction.BidNotLeader:

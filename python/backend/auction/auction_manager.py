@@ -13,7 +13,7 @@ from shared.dtos.auction import (
 )
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, HTTPError
-from shared.utils.redis import get_pubsub
+from shared.utils.redis import get_pubsub, listen
 
 from .auction import Auction
 from .auction_repository import AuctionRepository
@@ -45,24 +45,21 @@ class AuctionManager:
     async def _listener(cls) -> None:
         while True:
             try:
-                async for message in cls._pubsub.listen():
-                    if message["type"] != "message":
-                        continue
+                async for message in listen(cls._pubsub):
                     try:
-                        channel: str = message["channel"]
-                        parts = channel.split(":")
+                        parts = message.channel.split(":")
                         auction_id = int(parts[1])
                         auction = cls._auctions.get(auction_id)
                         if not auction:
                             continue
 
-                        if channel.endswith(":response"):
+                        if message.channel.endswith(":response"):
                             envelope = AuctionResponseEnvelopeDTO.model_validate_json(
-                                message["data"]
+                                message.data
                             )
                         else:
                             envelope = AuctionEventEnvelopeDTO.model_validate_json(
-                                message["data"]
+                                message.data
                             )
 
                         is_completed = await auction.handle_event(envelope)

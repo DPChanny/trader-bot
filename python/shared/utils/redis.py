@@ -1,6 +1,22 @@
+from collections.abc import AsyncIterator
+from dataclasses import dataclass
+
 import redis.asyncio as redis
 
 from shared.utils.env import get_redis_db, get_redis_host, get_redis_port
+
+
+@dataclass(frozen=True)
+class Message:
+    channel: str
+    data: str
+
+
+async def listen(pubsub: redis.client.PubSub) -> AsyncIterator[Message]:
+    async for message in pubsub.listen():
+        if message["type"] != "message":
+            continue
+        yield Message(channel=message["channel"], data=message["data"])
 
 
 _redis: redis.Redis | None = None

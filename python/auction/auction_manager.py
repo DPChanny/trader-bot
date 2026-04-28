@@ -2,13 +2,13 @@ import asyncio
 from typing import Any, ClassVar
 
 from loguru import logger
-from pydantic import ValidationError
 
-from shared.dtos.auction import AuctionRequestEnvelopeDTO, AuctionRequestType, Status
+from shared.dtos.auction import AuctionRequestType, CreateRequestPayloadDTO, Status
 from shared.utils.redis import get_pubsub
 
 from .auction import Auction
 from .auction_repository import AuctionRepository
+from .utils import listen
 
 
 class AuctionManager:
@@ -56,32 +56,19 @@ class AuctionManager:
     async def _listener(cls) -> None:
         while True:
             try:
-                async for message in cls._pubsub.listen():
-                    if message["type"] != "message":
-                        continue
-                    try:
-                        envelope = AuctionRequestEnvelopeDTO.model_validate_json(
-                            message["data"]
-                        )
-                    except ValidationError, Exception:
-                        continue
-
+                async for envelope in listen(cls._pubsub):
                     if envelope.type != AuctionRequestType.CREATE:
                         continue
-
-                    from shared.dtos.auction import CreateRequestPayloadDTO
 
                     try:
                         payload = CreateRequestPayloadDTO.model_validate(
                             envelope.payload
                         )
-                    except ValidationError, Exception:
-                        logger.error("Invalid CREATE request payload")
+                    except Exception:
                         continue
 
                     auction_id = payload.auction_id
                     if auction_id in cls._auctions:
-                        logger.warning(f"Auction {auction_id} already running")
                         continue
 
                     preset = payload.preset_snapshot

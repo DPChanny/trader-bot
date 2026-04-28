@@ -5,22 +5,14 @@ local leader_id = ARGV[1]
 local amount = tonumber(ARGV[2])
 local team_size = tonumber(ARGV[3])
 local event = ARGV[4]
-local err_invalid_state = tonumber(ARGV[5])
-local err_team_full = tonumber(ARGV[6])
-local err_invalid_amount = tonumber(ARGV[7])
+local err_team_full = tonumber(ARGV[5])
+local err_invalid_amount = tonumber(ARGV[6])
 
-local state = redis.call('HMGET', auction_key, 'status', 'player_id', 'bid_amount')
-local status = state[1]
-local player_id = state[2]
-local bid_amount_raw = state[3]
-
-if status ~= '2' or not player_id or player_id == '' then
-    return err_invalid_state
-end
+local bid_amount_raw = redis.call('HGET', auction_key, 'bid_amount')
 
 local team_json = redis.call('HGET', teams_key, leader_id)
 if not team_json then
-    return err_invalid_state
+    return err_team_full
 end
 
 local team = cjson.decode(team_json)

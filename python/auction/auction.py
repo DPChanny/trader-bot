@@ -6,7 +6,6 @@ from loguru import logger
 
 from shared.dtos.auction import (
     AuctionDetailDTO,
-    AuctionRequestEnvelopeDTO,
     AuctionRequestType,
     BidDTO,
     LeaderConnectedRequestPayloadDTO,
@@ -16,6 +15,7 @@ from shared.dtos.auction import (
 from shared.utils.redis import get_pubsub
 
 from .auction_repository import AuctionRepository
+from .utils import listen
 
 
 class Auction:
@@ -37,10 +37,10 @@ class Auction:
         try:
             await self.repo.subscribe(self._pubsub)
             async with asyncio.timeout(dto.ttl):
-                if dto.status in (Status.WAITING, Status.PENDING):
+                if dto.status == Status.WAITING:
                     await self._wait(len(dto.teams))
-
-                await self._pend()
+                if dto.status in (Status.WAITING, Status.PENDING):
+                    await self._pend()
                 await self._run(dto)
 
                 await self.repo.publish_status(Status.COMPLETED)
@@ -60,25 +60,21 @@ class Auction:
     async def _wait(self, team_count: int) -> None:
         await self.repo.publish_status(Status.WAITING)
 
-        async for message in self._pubsub.listen():
-            if message["type"] != "message":
-                continue
-            try:
-                envelope = AuctionRequestEnvelopeDTO.model_validate_json(
-                    message["data"]
-                )
-            except Exception:
-                continue
+        async for envelope in listen(self._pubsub):
             if envelope.type == AuctionRequestType.LEADER_CONNECTED:
-                req = LeaderConnectedRequestPayloadDTO.model_validate(envelope.payload)
-                count = await self.repo.publish_leader_connected(req.leader_id)
-                if count >= team_count:
-                    break
-            elif envelope.type == AuctionRequestType.LEADER_DISCONNECTED:
-                req = LeaderDisconnectedRequestPayloadDTO.model_validate(
+                request = LeaderConnectedRequestPayloadDTO.model_validate(
                     envelope.payload
                 )
-                await self.repo.publish_leader_disconnected(req.leader_id)
+                connected_leader_count = await self.repo.publish_leader_connected(
+                    request.leader_id
+                )
+                if connected_leader_count >= team_count:
+                    break
+            elif envelope.type == AuctionRequestType.LEADER_DISCONNECTED:
+                request = LeaderDisconnectedRequestPayloadDTO.model_validate(
+                    envelope.payload
+                )
+                await self.repo.publish_leader_disconnected(request.leader_id)
 
     async def _pend(self) -> None:
         await self.repo.publish_status(Status.PENDING)
@@ -111,31 +107,23 @@ class Auction:
             remaining = timer
             with contextlib.suppress(asyncio.CancelledError):
                 while remaining > 0:
-                    await asyncio.sleep(min(100, remaining))
-                    remaining -= 100
+                    await asyncio.sleep(1)
+                    remaining -= 1
                     if remaining > 0:
-                        await self.repo.publish_tick(int(remaining))
+                        await self.repo.publish_tick(remaining)
 
         tick = asyncio.create_task(_tick())
         try:
             async with asyncio.timeout(timer):
-                async for message in self._pubsub.listen():
-                    if message["type"] != "message":
-                        continue
-                    try:
-                        envelope = AuctionRequestEnvelopeDTO.model_validate_json(
-                            message["data"]
-                        )
-                    except Exception:
-                        continue
+                async for envelope in listen(self._pubsub):
                     if envelope.type == AuctionRequestType.PLACE_BID:
                         try:
-                            bid_candidate = BidDTO.model_validate(envelope.payload)
-                            is_placed = await self.repo.place_bid(
-                                bid_candidate, player_id, team_size
+                            _bid = BidDTO.model_validate(envelope.payload)
+                            is_bid_placed = await self.repo.place_bid(
+                                _bid, player_id, team_size
                             )
-                            if is_placed:
-                                bid = bid_candidate
+                            if is_bid_placed:
+                                bid = _bid
                         except Exception:
                             continue
         except TimeoutError:

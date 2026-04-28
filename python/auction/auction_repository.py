@@ -131,6 +131,7 @@ class AuctionRepository(BaseAuctionRepository):
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
             pipe.rpush(self._key("unsold_queue"), player_id)
+            pipe.expire(self._key("unsold_queue"), AUCTION_LIFETIME)
             pipe.publish(self._key("event"), event)
             await pipe.execute()
 
@@ -189,7 +190,6 @@ class AuctionRepository(BaseAuctionRepository):
             str(dto.amount),
             str(team_size),
             event,
-            str(AuctionErrorCode.BidInvalidState),
             str(AuctionErrorCode.BidTeamFull),
             str(AuctionErrorCode.BidInvalidAmount),
         )

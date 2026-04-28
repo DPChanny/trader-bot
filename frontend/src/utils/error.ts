@@ -21,7 +21,6 @@ export const BackendErrorCode = {
     Invalid: 4201,
   },
   Auction: {
-    BidInvalidState: 4202,
     BidTeamFull: 4203,
     BidInvalidAmount: 4204,
     BidNotLeader: 4302,
@@ -84,8 +83,6 @@ function getErrorMessage(code: number): string {
     case BackendErrorCode.Validation.Invalid:
       return "유효하지 않은 입력입니다";
 
-    case BackendErrorCode.Auction.BidInvalidState:
-      return "경매가 진행 중이 아니거나 현재 선수가 없습니다";
     case BackendErrorCode.Auction.BidTeamFull:
       return "팀 인원을 초과해 입찰할 수 없습니다";
     case BackendErrorCode.Auction.BidInvalidAmount:
