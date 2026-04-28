@@ -6,14 +6,12 @@ from loguru import logger
 
 from shared.dtos.auction import (
     AuctionDetailDTO,
-    AuctionEventType,
     AuctionRequestEnvelopeDTO,
     AuctionRequestType,
     BidDTO,
     LeaderConnectedRequestPayloadDTO,
     LeaderDisconnectedRequestPayloadDTO,
     Status,
-    TickEventPayloadDTO,
 )
 from shared.utils.redis import get_pubsub
 
@@ -126,9 +124,7 @@ class Auction:
                 await asyncio.sleep(min(100, remaining))
                 remaining -= 100
                 if remaining > 0:
-                    await self.repo.publish_event(
-                        AuctionEventType.TICK, TickEventPayloadDTO(timer=int(remaining))
-                    )
+                    await self.repo.publish_tick(int(remaining))
 
         tick = asyncio.create_task(_tick())
         try:

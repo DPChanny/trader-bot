@@ -19,6 +19,7 @@ from shared.dtos.auction import (
     Status,
     StatusEventPayloadDTO,
     TeamDTO,
+    TickEventPayloadDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
 from shared.repositories.auction_repository import BaseAuctionRepository
@@ -72,18 +73,24 @@ class AuctionRepository(BaseAuctionRepository):
             await pipe.execute()
 
     async def publish_status(self, status: Status) -> None:
-        await get_redis().hset(self._key(), "status", int(status))
-        await self.publish_event(
-            AuctionEventType.STATUS, StatusEventPayloadDTO(status=status)
-        )
+        event = AuctionEventEnvelopeDTO(
+            type=AuctionEventType.STATUS, payload=StatusEventPayloadDTO(status=status)
+        ).model_dump_json()
+        async with get_redis().pipeline(transaction=False) as pipe:
+            pipe.hset(self._key(), "status", int(status))
+            pipe.publish(self._key("event"), event)
+            await pipe.execute()
 
     async def publish_leader_connected(self, leader_id: int) -> int:
         count = int(await get_redis().hincrby(self._key(), "connected_leader_count", 1))
-        await self.publish_event(
-            AuctionEventType.LEADER_CONNECTED,
-            LeaderConnectedEventPayloadDTO(
-                leader_id=leader_id, connected_leader_count=count
-            ),
+        await get_redis().publish(
+            self._key("event"),
+            AuctionEventEnvelopeDTO(
+                type=AuctionEventType.LEADER_CONNECTED,
+                payload=LeaderConnectedEventPayloadDTO(
+                    leader_id=leader_id, connected_leader_count=count
+                ),
+            ).model_dump_json(),
         )
         return count
 
@@ -91,40 +98,47 @@ class AuctionRepository(BaseAuctionRepository):
         count = int(
             await get_redis().hincrby(self._key(), "connected_leader_count", -1)
         )
-        await self.publish_event(
-            AuctionEventType.LEADER_DISCONNECTED,
-            LeaderDisconnectedEventPayloadDTO(
-                leader_id=leader_id, connected_leader_count=count
-            ),
+        await get_redis().publish(
+            self._key("event"),
+            AuctionEventEnvelopeDTO(
+                type=AuctionEventType.LEADER_DISCONNECTED,
+                payload=LeaderDisconnectedEventPayloadDTO(
+                    leader_id=leader_id, connected_leader_count=count
+                ),
+            ).model_dump_json(),
         )
         return count
 
     async def publish_member_sold(
         self, team: TeamDTO, player_id: int, bid: BidDTO
     ) -> None:
-        await get_redis().hset(
-            self._key("teams"), str(team.leader_id), team.model_dump_json()
-        )
-        await self.publish_event(
-            AuctionEventType.MEMBER_SOLD,
-            MemberSoldEventPayloadDTO(
+        event = AuctionEventEnvelopeDTO(
+            type=AuctionEventType.MEMBER_SOLD,
+            payload=MemberSoldEventPayloadDTO(
                 player_id=player_id, leader_id=bid.leader_id, amount=bid.amount
             ),
-        )
+        ).model_dump_json()
+        async with get_redis().pipeline(transaction=False) as pipe:
+            pipe.hset(self._key("teams"), str(team.leader_id), team.model_dump_json())
+            pipe.publish(self._key("event"), event)
+            await pipe.execute()
 
     async def publish_member_unsold(self, player_id: int) -> None:
-        await get_redis().rpush(self._key("unsold_queue"), player_id)
-        await self.publish_event(
-            AuctionEventType.MEMBER_UNSOLD,
-            MemberUnsoldEventPayloadDTO(player_id=player_id),
-        )
+        event = AuctionEventEnvelopeDTO(
+            type=AuctionEventType.MEMBER_UNSOLD,
+            payload=MemberUnsoldEventPayloadDTO(player_id=player_id),
+        ).model_dump_json()
+        async with get_redis().pipeline(transaction=False) as pipe:
+            pipe.rpush(self._key("unsold_queue"), player_id)
+            pipe.publish(self._key("event"), event)
+            await pipe.execute()
 
-    async def publish_event(
-        self, event_type: AuctionEventType, payload: Any | None = None
-    ) -> None:
+    async def publish_tick(self, remaining: int) -> None:
         await get_redis().publish(
             self._key("event"),
-            AuctionEventEnvelopeDTO(type=event_type, payload=payload).model_dump_json(),
+            AuctionEventEnvelopeDTO(
+                type=AuctionEventType.TICK, payload=TickEventPayloadDTO(timer=remaining)
+            ).model_dump_json(),
         )
 
     async def publish_bid_error(self, leader_id: int, code: int) -> None:
