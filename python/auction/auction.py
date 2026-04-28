@@ -101,20 +101,9 @@ class Auction:
     async def _recept(
         self, timer: int, player_id: int, team_size: int
     ) -> BidDTO | None:
-        bid: BidDTO | None = None
-
-        async def _tick() -> None:
-            remaining = timer
+        async def _listen() -> BidDTO | None:
+            bid: BidDTO | None = None
             with contextlib.suppress(asyncio.CancelledError):
-                while remaining > 0:
-                    await asyncio.sleep(1)
-                    remaining -= 1
-                    if remaining > 0:
-                        await self.repo.publish_tick(remaining)
-
-        tick = asyncio.create_task(_tick())
-        try:
-            async with asyncio.timeout(timer):
                 async for envelope in listen(self._pubsub):
                     if envelope.type == AuctionRequestType.PLACE_BID:
                         try:
@@ -126,10 +115,17 @@ class Auction:
                                 bid = _bid
                         except Exception:
                             continue
-        except TimeoutError:
-            pass
-        finally:
-            tick.cancel()
-            await tick
+            return bid
 
-        return bid
+        listen_task = asyncio.create_task(_listen())
+        try:
+            remaining = timer
+            while remaining > 0:
+                await asyncio.sleep(1)
+                remaining -= 1
+                await self.repo.publish_tick(remaining)
+        finally:
+            listen_task.cancel()
+            await listen_task
+
+        return listen_task.result()

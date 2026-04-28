@@ -1,10 +1,9 @@
 auction logging
-router.py? opt
+pagenation
+preset copy
 bot opt
     upsert opt
     on ready opt
-pagenation
-preset copy
 subscription
     toss payment
 redis conf
