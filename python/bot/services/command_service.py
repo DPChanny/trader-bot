@@ -11,7 +11,8 @@ async def set_invite_channel_service(
     guild_id: int, channel_id: int | None, session: AsyncSession, event: Event
 ) -> None:
     repo = GuildRepository(session)
-    entity = await repo.update_invite_channel(guild_id, channel_id)
+    entity = await repo.get_by_id(guild_id)
     if entity is None:
         raise AppError(GuildErrorCode.NotFound)
+    entity.invite_channel_id = channel_id
     event.result = GuildDTO.model_validate(entity)

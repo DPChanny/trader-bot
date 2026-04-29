@@ -1,8 +1,10 @@
 from discord import Guild as DiscordGuild
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild import GuildDTO
 from shared.dtos.member import Role
+from shared.entities import Member
 from shared.repositories.guild_repository import GuildRepository
 from shared.repositories.member_repository import MemberRepository
 from shared.repositories.user_repository import UserRepository
@@ -70,9 +72,13 @@ async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict[str, ob
     member_repo = MemberRepository(session)
     await member_repo.bulk_upsert(member_dicts)
 
-    removed_count = await member_repo.delete_stale_by_guild_id(
-        guild_id, active_user_ids
-    )
+    removed_count = 0
+    if active_user_ids:
+        stmt = delete(Member).where(
+            Member.guild_id == guild_id, Member.user_id.not_in(active_user_ids)
+        )
+        result = await session.execute(stmt)
+        removed_count = result.rowcount
 
     return {
         "guild": guild_dto,

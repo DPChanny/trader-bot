@@ -47,17 +47,6 @@ class MemberRepository(BaseRepository):
             )
             await self.session.execute(stmt)
 
-    async def delete_stale_by_guild_id(
-        self, guild_id: int, active_user_ids: set[int]
-    ) -> int:
-        if not active_user_ids:
-            return 0
-        stmt = delete(Member).where(
-            Member.guild_id == guild_id, Member.user_id.not_in(active_user_ids)
-        )
-        result = await self.session.execute(stmt)
-        return result.rowcount
-
     async def get_by_id(self, member_id: int, guild_id: int) -> Member | None:
         result = await self.session.execute(
             select(Member).where(
