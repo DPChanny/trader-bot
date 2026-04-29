@@ -12,7 +12,7 @@ from shared.dtos.auction import (
     Status,
 )
 from shared.dtos.preset import PresetDetailDTO
-from shared.utils.error import AuctionErrorCode, HTTPError, UnexpectedErrorCode
+from shared.utils.error import HTTPError, UnexpectedErrorCode
 from shared.utils.redis import get_pubsub, listen
 
 from .auction import Auction

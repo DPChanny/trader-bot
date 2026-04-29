@@ -15,4 +15,4 @@ workflow 개편
 t4g small rds
 t4g small backend
 t4g small bot
-t4g micro redis
+t4g small redis + auction

@@ -2,7 +2,7 @@ import type { AuctionDTO } from "@features/auction/dto";
 import { toCamelCase } from "@utils/dto";
 import { getAuctionEndpoint } from "@utils/env";
 import { handleHTTPError } from "@utils/error";
-import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
+import { getAuthHeader, getHeaders } from "@utils/api";
 
 export async function createAuction({
   guildId,

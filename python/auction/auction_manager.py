@@ -1,14 +1,21 @@
 import asyncio
+import contextlib
 from typing import Any, ClassVar
 
 from loguru import logger
 
-from shared.dtos.auction import AuctionRequestType, CreateRequestPayloadDTO, Status
+from shared.dtos.auction import (
+    AuctionDetailDTO,
+    AuctionRequestEnvelopeDTO,
+    AuctionRequestType,
+    CreateRequestPayloadDTO,
+    Status,
+)
 from shared.utils.redis import get_pubsub
+from shared.utils.redis import listen as _listen
 
 from .auction import Auction
 from .auction_repository import AuctionRepository
-from .utils import listen
 
 
 class AuctionManager:
@@ -28,9 +35,10 @@ class AuctionManager:
         if cls._listener_task:
             cls._listener_task.cancel()
             await cls._listener_task
-        for auction in cls._auctions.values():
-            await auction.cancel()
+        auctions = list(cls._auctions.values())
         cls._auctions.clear()
+        for auction in auctions:
+            await auction.cancel()
         if cls._pubsub:
             await cls._pubsub.close()
 
@@ -48,41 +56,74 @@ class AuctionManager:
                 )
                 continue
             logger.info(f"Recovering auction {auction_id}")
-            cls._auctions[auction_id] = Auction(
-                detail, on_done=lambda aid=auction_id: cls._auctions.pop(aid, None)
-            )
+            await cls._setup_auction(auction_id, detail)
+
+    @classmethod
+    async def _setup_auction(cls, auction_id: int, detail: AuctionDetailDTO) -> None:
+        await AuctionRepository(auction_id).subscribe(cls._pubsub)
+        auction = Auction(detail)
+        cls._auctions[auction_id] = auction
+        asyncio.create_task(cls._cleanup_auction(auction_id, auction))
+
+    @classmethod
+    async def _cleanup_auction(cls, auction_id: int, auction: Auction) -> None:
+        await auction.wait()
+        cls._auctions.pop(auction_id, None)
+        with contextlib.suppress(Exception):
+            await AuctionRepository(auction_id).unsubscribe(cls._pubsub)
 
     @classmethod
     async def _listener(cls) -> None:
         while True:
             try:
-                async for envelope in listen(cls._pubsub):
-                    if envelope.type != AuctionRequestType.CREATE:
-                        continue
+                async for message in _listen(cls._pubsub):
+                    if message.channel == "auction:request":
+                        try:
+                            envelope = AuctionRequestEnvelopeDTO.model_validate_json(
+                                message.data
+                            )
+                        except Exception:
+                            continue
 
-                    try:
-                        payload = CreateRequestPayloadDTO.model_validate(
-                            envelope.payload
-                        )
-                    except Exception:
-                        continue
+                        if envelope.type != AuctionRequestType.CREATE:
+                            continue
 
-                    auction_id = payload.auction_id
-                    if auction_id in cls._auctions:
-                        continue
+                        try:
+                            payload = CreateRequestPayloadDTO.model_validate(
+                                envelope.payload
+                            )
+                        except Exception:
+                            continue
 
-                    preset = payload.preset_snapshot
+                        auction_id = payload.auction_id
+                        if auction_id in cls._auctions:
+                            continue
 
-                    repo = AuctionRepository(auction_id)
-                    await repo.set(preset_snapshot=preset)
-                    detail = await repo.get_detail()
-                    if not detail:
-                        continue
-                    await repo.publish_create_response()
-                    cls._auctions[auction_id] = Auction(
-                        detail,
-                        on_done=lambda aid=auction_id: cls._auctions.pop(aid, None),
-                    )
+                        repo = AuctionRepository(auction_id)
+                        await repo.set(preset_snapshot=payload.preset_snapshot)
+                        detail = await repo.get_detail()
+                        if not detail:
+                            continue
+                        await repo.publish_create_response()
+                        await cls._setup_auction(auction_id, detail)
+                    else:
+                        parts = message.channel.split(":")
+                        if len(parts) != 3:
+                            continue
+                        try:
+                            auction_id = int(parts[1])
+                        except ValueError:
+                            continue
+                        auction = cls._auctions.get(auction_id)
+                        if auction is None:
+                            continue
+                        try:
+                            envelope = AuctionRequestEnvelopeDTO.model_validate_json(
+                                message.data
+                            )
+                            await auction.handle_request(envelope)
+                        except Exception:
+                            continue
             except asyncio.CancelledError:
                 return
             except Exception as e:

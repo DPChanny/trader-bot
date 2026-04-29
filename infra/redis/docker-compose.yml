@@ -7,15 +7,11 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
-    command: ["redis-server", "--appendonly", "yes"]
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     volumes:
-      - trader-bot-dev-vol-redis:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 20
-
-volumes:
-  trader-bot-dev-vol-redis:
-    name: trader-bot-dev-vol-redis
