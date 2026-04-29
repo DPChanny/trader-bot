@@ -13,8 +13,7 @@ export async function createAuction({
 }): Promise<AuctionDTO> {
   const response = await fetch(getAuctionEndpoint(guildId, presetId), {
     method: "POST",
-    headers: getHeaders(getAuthHeader(), getJsonHeader()),
-    body: JSON.stringify({}),
+    headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();

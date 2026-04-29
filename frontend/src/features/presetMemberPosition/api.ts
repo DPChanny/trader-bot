@@ -46,9 +46,8 @@ export async function deletePresetMemberPosition({
     `${getPresetMemberPositionEndpoint(guildId, presetId, presetMemberId)}/${presetMemberPositionId}`,
     {
       method: "DELETE",
-      headers: getHeaders(getAuthHeader(), getJsonHeader()),
+      headers: getHeaders(getAuthHeader()),
     },
   );
   if (!response.ok) await handleHTTPError(response);
 }
-

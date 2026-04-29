@@ -86,9 +86,8 @@ export async function deleteTier({
     `${getTierEndpoint(guildId, presetId)}/${tierId}`,
     {
       method: "DELETE",
-      headers: getHeaders(getAuthHeader(), getJsonHeader()),
+      headers: getHeaders(getAuthHeader()),
     },
   );
   if (!response.ok) await handleHTTPError(response);
 }
-

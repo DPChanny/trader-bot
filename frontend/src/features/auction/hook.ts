@@ -205,6 +205,7 @@ export function useAuction(): {
         access_token: getAccessToken(),
       });
       if (!authPayloadResult.success) {
+        ws.close();
         return;
       }
 

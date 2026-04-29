@@ -90,9 +90,8 @@ export async function deletePresetMember({
     `${getPresetMemberEndpoint(guildId, presetId)}/${presetMemberId}`,
     {
       method: "DELETE",
-      headers: getHeaders(getAuthHeader(), getJsonHeader()),
+      headers: getHeaders(getAuthHeader()),
     },
   );
   if (!response.ok) await handleHTTPError(response);
 }
-
