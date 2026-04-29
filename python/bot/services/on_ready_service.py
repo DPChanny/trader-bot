@@ -11,15 +11,10 @@ from shared.utils.service import Event, bot_service
 from ..utils.guild import delete_guild, sync_guild
 
 
-async def _sync_guild(
-    guild, sem: asyncio.Semaphore, results: list, errors: list
-) -> None:
+async def _sync_guild(guild, sem: asyncio.Semaphore) -> dict:
     async with sem:
-        try:
-            async for session in get_session():
-                results.append(await sync_guild(guild, session))
-        except Exception as e:
-            errors.append({"guild_id": guild.id, "error": str(e)})
+        async for session in get_session():
+            return await sync_guild(guild, session)
 
 
 @bot_service
@@ -28,14 +23,18 @@ async def on_ready_service(
 ) -> None:
     synced_guild_ids: set[int] = set()
     synced_guilds: list[dict[str, object]] = []
-    errors: list[dict] = []
+    failed_guild_ids: list[int] = []
 
     sem = asyncio.Semaphore(10)
-    tasks = [_sync_guild(guild, sem, synced_guilds, errors) for guild in bot.guilds]
-    await asyncio.gather(*tasks)
+    tasks = [_sync_guild(guild, sem) for guild in bot.guilds]
+    task_results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    for result in synced_guilds:
-        synced_guild_ids.add(result["guild"].discord_id)
+    for guild, result in zip(bot.guilds, task_results, strict=True):
+        if isinstance(result, BaseException):
+            failed_guild_ids.append(guild.id)
+        else:
+            synced_guilds.append(result)
+            synced_guild_ids.add(result["guild"].discord_id)
 
     guild_repo = GuildRepository(session)
     guild_entities = await guild_repo.get_all()
@@ -50,6 +49,6 @@ async def on_ready_service(
         "removed_guild_count": len(removed_guilds),
         "removed_guilds": removed_guilds,
         "synced_guilds": synced_guilds,
-        "error_count": len(errors),
-        "errors": errors,
+        "failed_guild_count": len(failed_guild_ids),
+        "failed_guild_ids": failed_guild_ids,
     }
