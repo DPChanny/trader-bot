@@ -4,7 +4,7 @@
       "files": {
         "collect_list": [
           {
-            "file_path": "/home/ubuntu/trader-bot/python/bot/logs/log.log",
+            "file_path": "/var/log/trader-bot/bot/log.log",
             "log_group_name": "trader-bot-prod-lg-bot",
             "log_stream_name": "{instance_id}",
             "retention_in_days": 7

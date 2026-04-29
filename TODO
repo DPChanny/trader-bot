@@ -16,3 +16,5 @@ t4g small rds
 t4g small backend
 t4g small bot
 t4g small redis + auction
+
+트래픽 초과 시 동작 예측
