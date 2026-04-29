@@ -7,8 +7,6 @@ cd /
 
 apt-get install -y --no-install-recommends nginx
 
-nginx -t
-
 systemctl disable nginx
 systemctl stop nginx || true
 

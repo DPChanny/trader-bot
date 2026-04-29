@@ -8,13 +8,10 @@ bot opt
     slash command opt
     intent & permission opt
 subscription
-    toss payment
-redis conf
-infra .sh 개편
-workflow 개편
 t4g small rds
 t4g small backend
 t4g small bot
 t4g small redis + auction
 
+workflow 개편
 트래픽 초과 시 동작 예측

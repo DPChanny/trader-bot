@@ -11,4 +11,4 @@ if [ -d "/home/ubuntu/trader-bot/python" ]; then
 	sudo -H -u ubuntu bash -lc 'uv sync --frozen --project /home/ubuntu/trader-bot/python'
 fi
 
-bash /home/ubuntu/trader-bot/infra/pm2/ami.sh
+bash /home/ubuntu/trader-bot/infra/pm2/install.sh

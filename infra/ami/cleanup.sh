@@ -8,7 +8,7 @@ cd /
 find /tmp -mindepth 1 -delete || true
 find /var/tmp -mindepth 1 -delete || true
 
-find /var/log -type f -exec truncate -s 0 {} + || true
+find /var/log -type f -not -path '/var/log/trader-bot/*' -exec truncate -s 0 {} + || true
 find /opt/aws/amazon-cloudwatch-agent/logs -type f -exec truncate -s 0 {} + || true
 
 truncate -s 0 /home/ubuntu/.bash_history || true

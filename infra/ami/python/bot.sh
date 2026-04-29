@@ -8,4 +8,7 @@ cd /
 bash /home/ubuntu/trader-bot/infra/ami/setup.sh
 bash /home/ubuntu/trader-bot/infra/ami/python/setup.sh
 
+install -d -m 755 /var/log/trader-bot
+install -d -m 755 -o ubuntu -g ubuntu /var/log/trader-bot/bot
+
 bash /home/ubuntu/trader-bot/infra/ami/cleanup.sh
