@@ -52,8 +52,19 @@ export type ButtonProps = Omit<
   variantContent?: VariantProps<typeof buttonVariants>["variantContent"];
 };
 
-export function PressedButton({ isPressed, ...props }: PressedButtonProps) {
-  return <button type="button" aria-pressed={isPressed} {...props} />;
+export function PressedButton({
+  isPressed,
+  className,
+  ...props
+}: PressedButtonProps) {
+  return (
+    <button
+      type="button"
+      aria-pressed={isPressed}
+      className={clsx(styles.pressedButton, className)}
+      {...props}
+    />
+  );
 }
 
 export function Button({

@@ -1,7 +1,6 @@
 import { MemberCard } from "./memberCard";
 import { PressedButton } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
-import styles from "@styles/components/memberGrid.module.css";
 import type { MemberDetailDTO } from "@features/member/dto";
 import { TertiarySection } from "./surfaces/section";
 
@@ -25,7 +24,6 @@ export function MemberGrid({
             return (
               <PressedButton
                 key={member.memberId}
-                className={styles.gridButton}
                 onClick={onClick ? () => onClick(member.memberId) : undefined}
                 isPressed={isSelected}
                 disabled={!onClick}
@@ -39,4 +37,3 @@ export function MemberGrid({
     </TertiarySection>
   );
 }
-

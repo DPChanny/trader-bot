@@ -1,4 +1,24 @@
-﻿.button {
+﻿.pressedButton {
+  appearance: none;
+  background: none;
+  border: none;
+  outline: none;
+
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  line-height: inherit;
+}
+
+.pressedButton:not(:disabled) {
+  cursor: pointer;
+}
+
+.pressedButton:disabled {
+  cursor: default;
+}
+
+.button {
   display: inline-flex;
   align-items: center;
   justify-content: center;

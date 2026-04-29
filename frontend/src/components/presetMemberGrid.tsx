@@ -1,8 +1,6 @@
-
 import { PresetMemberCard } from "./presetMemberCard";
 import { PressedButton } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
-import styles from "@styles/components/memberGrid.module.css";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 import { TertiarySection } from "./surfaces/section";
 
@@ -34,7 +32,6 @@ export function PresetMemberGrid({
             return (
               <PressedButton
                 key={presetMember.presetMemberId}
-                className={styles.gridButton}
                 onClick={
                   onClick ? (event) => onClick(presetMember, event) : undefined
                 }
@@ -50,4 +47,3 @@ export function PresetMemberGrid({
     </TertiarySection>
   );
 }
-
