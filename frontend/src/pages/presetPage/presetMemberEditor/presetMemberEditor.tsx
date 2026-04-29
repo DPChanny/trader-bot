@@ -21,7 +21,6 @@ import {
 } from "@components/surfaces/section";
 import { Row } from "@components/atoms/layout";
 import { Title } from "@components/atoms/text";
-import { useInfiniteScroll } from "@hooks/useInfiniteScroll";
 import { Input } from "@components/atoms/input";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 
@@ -110,15 +109,6 @@ export function PresetMemberEditor() {
   const allMembers = useMemo(
     () => membersData?.pages.flatMap((p) => p.items) ?? [],
     [membersData],
-  );
-
-  const presetMemberSentinelRef = useInfiniteScroll(
-    fetchNextPresetMembers,
-    hasNextPresetMembers ?? false,
-  );
-  const memberSentinelRef = useInfiniteScroll(
-    fetchNextMembers,
-    hasNextMembers ?? false,
   );
 
   const createPresetMember = useCreatePresetMember();
@@ -239,7 +229,8 @@ export function PresetMemberEditor() {
               )}
               selectedMemberId={selectedPresetMemberId}
               onClick={handlePresetMemberClick}
-              sentinelRef={presetMemberSentinelRef}
+              fetchNextPage={fetchNextPresetMembers}
+              hasNextPage={hasNextPresetMembers ?? false}
             />
           )}
         </SecondarySection>
@@ -279,7 +270,8 @@ export function PresetMemberEditor() {
             <MemberGrid
               members={candidateMembers}
               onClick={canManage ? handleAddMember : undefined}
-              sentinelRef={memberSentinelRef}
+              fetchNextPage={fetchNextMembers}
+              hasNextPage={hasNextMembers ?? false}
             />
           )}
         </SecondarySection>

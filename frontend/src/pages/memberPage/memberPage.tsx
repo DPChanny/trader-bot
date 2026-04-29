@@ -2,18 +2,17 @@ import { useParams } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { useInfiniteMembers } from "@features/member/hook";
 import { MemberGrid } from "@components/memberGrid";
+import { Page } from "@components/atoms/layout";
 import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
 } from "@components/surfaces/section";
-import { Page } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
 import { MemberPanel } from "./memberPanel";
 import { Title } from "@components/atoms/text";
 import { Row } from "@components/atoms/layout";
-import { useInfiniteScroll } from "@hooks/useInfiniteScroll";
 import { Input } from "@components/atoms/input";
 import type { MemberDetailDTO } from "@features/member/dto";
 
@@ -36,8 +35,6 @@ export function MemberPage() {
     () => data?.pages.flatMap((p) => p.items) ?? [],
     [data],
   );
-
-  const sentinelRef = useInfiniteScroll(fetchNextPage, hasNextPage ?? false);
 
   const selectedMember = useMemo(
     () =>
@@ -74,7 +71,8 @@ export function MemberPage() {
               members={members}
               selectedMemberId={selectedMemberId}
               onClick={setSelectedMemberId}
-              sentinelRef={sentinelRef}
+              fetchNextPage={fetchNextPage}
+              hasNextPage={hasNextPage ?? false}
             />
           )}
         </SecondarySection>

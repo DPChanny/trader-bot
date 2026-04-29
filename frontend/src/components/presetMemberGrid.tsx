@@ -3,7 +3,7 @@ import { PressedButton } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 import { TertiarySection } from "./surfaces/section";
-import type { RefObject } from "react";
+import { useInfiniteScroll } from "@hooks/useInfiniteScroll";
 
 interface PresetMemberGridProps {
   presetMembers: PresetMemberDetailDTO[];
@@ -12,22 +12,30 @@ interface PresetMemberGridProps {
     presetMember: PresetMemberDetailDTO,
     event: React.MouseEvent<HTMLButtonElement>,
   ) => void;
-  sentinelRef?: RefObject<HTMLDivElement | null>;
+  fetchNextPage?: () => void;
+  hasNextPage?: boolean;
 }
 
 export function PresetMemberGrid({
   presetMembers,
   selectedMemberId,
   onClick,
-  sentinelRef,
+  fetchNextPage,
+  hasNextPage,
 }: PresetMemberGridProps) {
+  const { scrollRef, onScroll } = useInfiniteScroll(
+    fetchNextPage ?? (() => {}),
+    hasNextPage ?? false,
+    [presetMembers],
+  );
+
   const leaders = presetMembers.filter((pm) => pm.isLeader);
   const nonLeaders = presetMembers.filter((pm) => !pm.isLeader);
   const sorted = [...leaders, ...nonLeaders];
 
   return (
     <TertiarySection minSize fill>
-      <Scroll axis="both">
+      <Scroll axis="both" ref={scrollRef} onScroll={onScroll}>
         <Row wrap centerOnWrap>
           {sorted.map((presetMember) => {
             const isSelected = selectedMemberId === presetMember.presetMemberId;
@@ -46,7 +54,6 @@ export function PresetMemberGrid({
             );
           })}
         </Row>
-        <div ref={sentinelRef} />
       </Scroll>
     </TertiarySection>
   );

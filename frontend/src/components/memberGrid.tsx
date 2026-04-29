@@ -3,24 +3,32 @@ import { PressedButton } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
 import type { MemberDetailDTO } from "@features/member/dto";
 import { TertiarySection } from "./surfaces/section";
-import type { RefObject } from "react";
+import { useInfiniteScroll } from "@hooks/useInfiniteScroll";
 
 interface MemberGridProps {
   members: MemberDetailDTO[];
   onClick?: (memberId: number) => void;
   selectedMemberId?: number | null;
-  sentinelRef?: RefObject<HTMLDivElement | null>;
+  fetchNextPage?: () => void;
+  hasNextPage?: boolean;
 }
 
 export function MemberGrid({
   members,
   onClick,
   selectedMemberId,
-  sentinelRef,
+  fetchNextPage,
+  hasNextPage,
 }: MemberGridProps) {
+  const { scrollRef, onScroll } = useInfiniteScroll(
+    fetchNextPage ?? (() => {}),
+    hasNextPage ?? false,
+    [members],
+  );
+
   return (
     <TertiarySection minSize fill>
-      <Scroll axis="both">
+      <Scroll axis="both" ref={scrollRef} onScroll={onScroll}>
         <Row wrap centerOnWrap>
           {members.map((member) => {
             const isSelected = selectedMemberId === member.memberId;
@@ -36,7 +44,6 @@ export function MemberGrid({
             );
           })}
         </Row>
-        <div ref={sentinelRef} />
       </Scroll>
     </TertiarySection>
   );

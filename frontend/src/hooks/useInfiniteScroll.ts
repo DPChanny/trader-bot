@@ -3,25 +3,28 @@ import { useEffect, useRef } from "react";
 export function useInfiniteScroll(
   fetchNextPage: () => void,
   hasNextPage: boolean,
-): React.RefObject<HTMLDivElement | null> {
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  deps: unknown[],
+) {
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
+    const el = scrollRef.current;
+    if (!el || !hasNextPage) return;
+    if (el.scrollHeight <= el.clientHeight) {
+      fetchNextPage();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasNextPage, fetchNextPage, ...deps]);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && hasNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0 },
-    );
+  const onScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    if (
+      hasNextPage &&
+      el.scrollTop + el.clientHeight >= el.scrollHeight - 100
+    ) {
+      fetchNextPage();
+    }
+  };
 
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage]);
-
-  return sentinelRef;
+  return { scrollRef, onScroll };
 }
