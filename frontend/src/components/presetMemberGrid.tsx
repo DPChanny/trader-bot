@@ -3,6 +3,7 @@ import { PressedButton } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 import { TertiarySection } from "./surfaces/section";
+import type { RefObject } from "react";
 
 interface PresetMemberGridProps {
   presetMembers: PresetMemberDetailDTO[];
@@ -11,12 +12,14 @@ interface PresetMemberGridProps {
     presetMember: PresetMemberDetailDTO,
     event: React.MouseEvent<HTMLButtonElement>,
   ) => void;
+  sentinelRef?: RefObject<HTMLDivElement | null>;
 }
 
 export function PresetMemberGrid({
   presetMembers,
   selectedMemberId,
   onClick,
+  sentinelRef,
 }: PresetMemberGridProps) {
   const leaders = presetMembers.filter((pm) => pm.isLeader);
   const nonLeaders = presetMembers.filter((pm) => !pm.isLeader);
@@ -43,6 +46,7 @@ export function PresetMemberGrid({
             );
           })}
         </Row>
+        <div ref={sentinelRef} />
       </Scroll>
     </TertiarySection>
   );

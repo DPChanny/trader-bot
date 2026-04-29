@@ -1,4 +1,3 @@
-pagenation
 bot opt
     upsert opt
     on ready opt

@@ -1,13 +1,17 @@
 import {
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
+  type InfiniteData,
+  type UseInfiniteQueryResult,
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import type { MemberDetailDTO } from "@features/member/dto";
 import { Role } from "@features/member/dto";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
+import type { CursorPageDTO } from "@utils/dto";
 import {
   getMember,
   getMembers,
@@ -27,12 +31,19 @@ export function useMyMember(
   });
 }
 
-export function useMembers(
+export function useInfiniteMembers(
   guildId: string,
-): UseQueryResult<MemberDetailDTO[], AppError> {
-  return useQuery({
-    queryKey: queryKeys.members(guildId),
-    queryFn: (): Promise<MemberDetailDTO[]> => getMembers(guildId),
+  search?: string,
+): UseInfiniteQueryResult<
+  InfiniteData<CursorPageDTO<MemberDetailDTO>>,
+  AppError
+> {
+  return useInfiniteQuery({
+    queryKey: queryKeys.members(guildId, search),
+    queryFn: ({ pageParam }) =>
+      getMembers({ guildId, search, cursor: pageParam }),
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     staleTime: queryStaleTimes.interactive,
   });
 }
@@ -59,9 +70,20 @@ export function useUpdateMember(): UseMutationResult<
   return useMutation({
     mutationFn: updateMember,
     onSuccess: (data, variables) => {
-      queryClient.setQueryData<MemberDetailDTO[]>(
-        queryKeys.members(variables.guildId),
-        (old) => old?.map((m) => (m.memberId === data.memberId ? data : m)),
+      queryClient.setQueriesData<InfiniteData<CursorPageDTO<MemberDetailDTO>>>(
+        { queryKey: ["members", variables.guildId] },
+        (old) =>
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  items: page.items.map((m) =>
+                    m.memberId === data.memberId ? data : m,
+                  ),
+                })),
+              }
+            : old,
       );
       queryClient.setQueryData<MemberDetailDTO>(
         queryKeys.member(variables.guildId, variables.memberId),
@@ -71,12 +93,24 @@ export function useUpdateMember(): UseMutationResult<
         queryKeys.myMember(variables.guildId),
         (old) => (old?.memberId === data.memberId ? data : old),
       );
-      queryClient.setQueriesData<PresetMemberDetailDTO[]>(
+      queryClient.setQueriesData<
+        InfiniteData<CursorPageDTO<PresetMemberDetailDTO>>
+      >(
         { queryKey: queryKeys.presetMembersGuildScope(variables.guildId) },
         (old) =>
-          old?.map((pm) =>
-            pm.member.memberId === data.memberId ? { ...pm, member: data } : pm,
-          ),
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  items: page.items.map((pm) =>
+                    pm.member.memberId === data.memberId
+                      ? { ...pm, member: data }
+                      : pm,
+                  ),
+                })),
+              }
+            : old,
       );
       queryClient.setQueriesData<PresetMemberDetailDTO>(
         { queryKey: ["presetMember", variables.guildId] as const },
@@ -93,4 +127,3 @@ export function useVerifyRole(guildId: string, required: Role): boolean {
   const { data: myMember } = useMyMember(guildId);
   return (myMember?.role ?? Role.VIEWER) >= required;
 }
-

@@ -1,7 +1,7 @@
 import { useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { usePreset } from "@features/preset/hook";
-import { usePresetMembers } from "@features/presetMember/hook";
+import { useInfinitePresetMembers } from "@features/presetMember/hook";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
 import { TierEditor } from "./tierEditor/tierEditor";
@@ -39,20 +39,20 @@ export function PresetPage() {
   const createAuction = useCreateAuction();
 
   const preset = usePreset(guildId, presetId);
-  const presetMembers = usePresetMembers(guildId, presetId);
+  const presetMembers = useInfinitePresetMembers(guildId, presetId);
+  const allPresetMembers = presetMembers.data?.pages.flatMap((p) => p.items);
   const canView = useVerifyRole(guildId, Role.VIEWER);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   const canAdmin = useVerifyRole(guildId, Role.ADMIN);
   const canCreateAuction = canAdmin;
   const teamSize = preset.data?.teamSize ?? 0;
-  const leaderCount =
-    presetMembers.data?.filter((pm) => pm.isLeader).length ?? 0;
-  const presetMemberCount = presetMembers.data?.length ?? 0;
+  const leaderCount = allPresetMembers?.filter((pm) => pm.isLeader).length ?? 0;
+  const presetMemberCount = allPresetMembers?.length ?? 0;
   const requiredPresetMembers = leaderCount * teamSize;
-  const canStartAuction = !!presetMembers.data && leaderCount >= 2;
+  const canStartAuction = !!allPresetMembers && leaderCount >= 2;
 
   let presetValidMessage = "";
-  if (presetMembers.data) {
+  if (allPresetMembers) {
     if (leaderCount < 2) {
       presetValidMessage = `현재 팀장 인원(${leaderCount}명)이 최소 인원(2명)보다 적습니다.`;
     } else if (presetMemberCount !== requiredPresetMembers) {

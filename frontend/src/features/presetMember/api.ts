@@ -3,21 +3,34 @@ import type {
   PresetMemberDetailDTO,
   UpdatePresetMemberDTO,
 } from "@features/presetMember/dto";
+import type { CursorPageDTO } from "@utils/dto";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getPresetMemberEndpoint } from "@utils/env";
 import { handleHTTPError } from "@utils/error";
 import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
-export async function getPresetMembers(
-  guildId: string,
-  presetId: number,
-): Promise<PresetMemberDetailDTO[]> {
-  const response = await fetch(getPresetMemberEndpoint(guildId, presetId), {
-    headers: getHeaders(getAuthHeader()),
-  });
+export async function getPresetMembers({
+  guildId,
+  presetId,
+  search,
+  cursor,
+}: {
+  guildId: string;
+  presetId: number;
+  search?: string;
+  cursor?: number;
+}): Promise<CursorPageDTO<PresetMemberDetailDTO>> {
+  const params = new URLSearchParams();
+  if (search) params.set("search", search);
+  if (cursor !== undefined) params.set("cursor", String(cursor));
+  const query = params.toString();
+  const response = await fetch(
+    `${getPresetMemberEndpoint(guildId, presetId)}${query ? `?${query}` : ""}`,
+    { headers: getHeaders(getAuthHeader()) },
+  );
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
-  return toCamelCase<PresetMemberDetailDTO[]>(json);
+  return toCamelCase<CursorPageDTO<PresetMemberDetailDTO>>(json);
 }
 
 export async function getPresetMember(

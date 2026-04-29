@@ -1,7 +1,7 @@
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import selectinload
 
-from ..entities import Member
+from ..entities import Member, User
 from . import BaseRepository
 
 
@@ -36,10 +36,24 @@ class MemberRepository(BaseRepository):
         )
         return result.scalar_one_or_none()
 
-    async def get_all_by_guild_id(self, guild_id: int) -> list[Member]:
-        result = await self.session.execute(
+    async def get_all_by_guild_id(
+        self, guild_id: int, search: str | None = None, cursor: int | None = None
+    ) -> list[Member]:
+        stmt = (
             select(Member)
             .options(selectinload(Member.user))
             .where(Member.guild_id == guild_id)
         )
+        if search:
+            stmt = stmt.join(Member.user).where(
+                or_(
+                    Member.alias.ilike(f"%{search}%"),
+                    Member.name.ilike(f"%{search}%"),
+                    User.name.ilike(f"%{search}%"),
+                )
+            )
+        if cursor is not None:
+            stmt = stmt.where(Member.member_id > cursor)
+        stmt = stmt.order_by(Member.member_id).limit(50)
+        result = await self.session.execute(stmt)
         return list(result.scalars().all())

@@ -1,7 +1,10 @@
 import {
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
+  type InfiniteData,
+  type UseInfiniteQueryResult,
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
@@ -14,6 +17,7 @@ import {
 } from "@features/presetMember/api";
 import { queryKeys, queryStaleTimes } from "@utils/query";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
+import type { CursorPageDTO } from "@utils/dto";
 import type { AppError } from "@utils/error";
 
 function invalidatePresetMemberQueries(
@@ -29,13 +33,20 @@ function invalidatePresetMemberQueries(
   });
 }
 
-export function usePresetMembers(
+export function useInfinitePresetMembers(
   guildId: string,
   presetId: number,
-): UseQueryResult<PresetMemberDetailDTO[], AppError> {
-  return useQuery({
-    queryKey: queryKeys.presetMembers(guildId, presetId),
-    queryFn: () => getPresetMembers(guildId, presetId),
+  search?: string,
+): UseInfiniteQueryResult<
+  InfiniteData<CursorPageDTO<PresetMemberDetailDTO>>,
+  AppError
+> {
+  return useInfiniteQuery({
+    queryKey: queryKeys.presetMembers(guildId, presetId, search),
+    queryFn: ({ pageParam }) =>
+      getPresetMembers({ guildId, presetId, search, cursor: pageParam }),
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     staleTime: queryStaleTimes.interactive,
   });
 }
@@ -63,10 +74,6 @@ export function useCreatePresetMember(): UseMutationResult<
   return useMutation({
     mutationFn: createPresetMember,
     onSuccess: (data, variables) => {
-      queryClient.setQueryData<PresetMemberDetailDTO[]>(
-        queryKeys.presetMembers(variables.guildId, variables.presetId),
-        (old) => (old ? [...old, data] : [data]),
-      );
       queryClient.setQueryData<PresetMemberDetailDTO>(
         queryKeys.presetMember(
           variables.guildId,
@@ -95,12 +102,22 @@ export function useUpdatePresetMember(): UseMutationResult<
   return useMutation({
     mutationFn: updatePresetMember,
     onSuccess: (data, variables) => {
-      queryClient.setQueryData<PresetMemberDetailDTO[]>(
-        queryKeys.presetMembers(variables.guildId, variables.presetId),
+      queryClient.setQueriesData<
+        InfiniteData<CursorPageDTO<PresetMemberDetailDTO>>
+      >(
+        { queryKey: ["presetMembers", variables.guildId, variables.presetId] },
         (old) =>
-          old?.map((pm) =>
-            pm.presetMemberId === data.presetMemberId ? data : pm,
-          ),
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  items: page.items.map((pm) =>
+                    pm.presetMemberId === data.presetMemberId ? data : pm,
+                  ),
+                })),
+              }
+            : old,
       );
       queryClient.setQueryData<PresetMemberDetailDTO>(
         queryKeys.presetMember(
@@ -130,10 +147,22 @@ export function useDeletePresetMember(): UseMutationResult<
   return useMutation({
     mutationFn: deletePresetMember,
     onSuccess: (_, variables) => {
-      queryClient.setQueryData<PresetMemberDetailDTO[]>(
-        queryKeys.presetMembers(variables.guildId, variables.presetId),
+      queryClient.setQueriesData<
+        InfiniteData<CursorPageDTO<PresetMemberDetailDTO>>
+      >(
+        { queryKey: ["presetMembers", variables.guildId, variables.presetId] },
         (old) =>
-          old?.filter((pm) => pm.presetMemberId !== variables.presetMemberId),
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  items: page.items.filter(
+                    (pm) => pm.presetMemberId !== variables.presetMemberId,
+                  ),
+                })),
+              }
+            : old,
       );
       queryClient.removeQueries({
         queryKey: queryKeys.presetMember(
@@ -150,4 +179,3 @@ export function useDeletePresetMember(): UseMutationResult<
     },
   });
 }
-

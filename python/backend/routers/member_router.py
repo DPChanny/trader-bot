@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import MemberDetailDTO, UpdateMemberDTO
+from shared.dtos.page import CursorPageDTO
 from shared.utils.db import get_session
 
 from ..services.member_service import (
@@ -25,13 +26,17 @@ async def get_my_member_route(
     return await get_my_member_service(guild_id, user_id, session)
 
 
-@member_router.get("", response_model=list[MemberDetailDTO])
+@member_router.get("", response_model=CursorPageDTO[MemberDetailDTO])
 async def get_members_route(
     guild_id: int,
+    search: str | None = Query(default=None),
+    cursor: int | None = Query(default=None),
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),
 ):
-    return await get_members_service(guild_id, user_id, session)
+    return await get_members_service(
+        guild_id, user_id, session, search=search, cursor=cursor
+    )
 
 
 @member_router.get("/{member_id}", response_model=MemberDetailDTO)

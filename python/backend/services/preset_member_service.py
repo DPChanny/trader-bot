@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import Role
+from shared.dtos.page import CursorPageDTO
 from shared.dtos.preset_member import (
     AddPresetMemberDTO,
     PresetMemberDetailDTO,
@@ -26,8 +27,14 @@ from ..utils.member import verify_role
 
 @http_service
 async def get_preset_members_service(
-    guild_id: int, user_id: int, preset_id: int, session: AsyncSession, event: Event
-) -> list[PresetMemberDetailDTO]:
+    guild_id: int,
+    user_id: int,
+    preset_id: int,
+    session: AsyncSession,
+    event: Event,
+    search: str | None = None,
+    cursor: int | None = None,
+) -> CursorPageDTO[PresetMemberDetailDTO]:
     await verify_role(guild_id, user_id, session, Role.VIEWER)
 
     preset_repo = PresetRepository(session)
@@ -35,7 +42,9 @@ async def get_preset_members_service(
         raise HTTPError(PresetErrorCode.NotFound)
 
     preset_member_repo = PresetMemberRepository(session)
-    members = await preset_member_repo.get_all_detail_by_preset_id(preset_id, guild_id)
+    members = await preset_member_repo.get_all_detail_by_preset_id(
+        preset_id, guild_id, search=search, cursor=cursor
+    )
 
     response: list[PresetMemberDetailDTO] = []
     event.result = []
@@ -43,7 +52,8 @@ async def get_preset_members_service(
         response.append(PresetMemberDetailDTO.model_validate(member))
         event.result.append(PresetMemberDTO.model_validate(member))
 
-    return response
+    next_cursor = members[-1].preset_member_id if len(members) == 50 else None
+    return CursorPageDTO[PresetMemberDetailDTO](items=response, next_cursor=next_cursor)
 
 
 @http_service

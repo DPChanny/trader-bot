@@ -21,12 +21,13 @@ export const queryKeys = {
     ["positions", guildId, presetId] as const,
   position: (guildId: string, presetId: number, positionId: number) =>
     ["position", guildId, presetId, positionId] as const,
-  members: (guildId: string) => ["members", guildId] as const,
+  members: (guildId: string, search?: string) =>
+    ["members", guildId, search ?? null] as const,
   myMember: (guildId: string) => ["member", guildId, "me"] as const,
   member: (guildId: string, memberId: number) =>
     ["member", guildId, memberId] as const,
-  presetMembers: (guildId: string, presetId: number) =>
-    ["presetMembers", guildId, presetId] as const,
+  presetMembers: (guildId: string, presetId: number, search?: string) =>
+    ["presetMembers", guildId, presetId, search ?? null] as const,
   presetMembersGuildScope: (guildId: string) =>
     ["presetMembers", guildId] as const,
   presetMember: (guildId: string, presetId: number, presetMemberId: number) =>

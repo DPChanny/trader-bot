@@ -1,13 +1,13 @@
 import { useParams } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
-import { useMembers } from "@features/member/hook";
+import { useInfiniteMembers } from "@features/member/hook";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
 import {
   useCreatePresetMember,
   useDeletePresetMember,
-  usePresetMembers,
+  useInfinitePresetMembers,
 } from "@features/presetMember/hook";
 import { MemberGrid } from "@components/memberGrid";
 import { PresetMemberGrid } from "@components/presetMemberGrid";
@@ -19,12 +19,17 @@ import {
   SecondarySection,
   TertiarySection,
 } from "@components/surfaces/section";
+import { Row } from "@components/atoms/layout";
 import { Title } from "@components/atoms/text";
+import { useInfiniteScroll } from "@hooks/useInfiniteScroll";
+import { Input } from "@components/atoms/input";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 
 export function PresetMemberEditor() {
   const { guildId } = useParams({ strict: false }) as { guildId: string };
-  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as {
+    presetId: string;
+  };
   const presetId = parseInt(presetIdStr, 10);
   const [selectedPresetMemberId, setSelectedPresetMemberId] = useState<
     number | null
@@ -35,6 +40,24 @@ export function PresetMemberEditor() {
   const [removingMemberIds, setRemovingMemberIds] = useState<Set<number>>(
     new Set(),
   );
+
+  const [presetMemberSearch, setPresetMemberSearchInput] = useState("");
+  const [presetMemberSearchDebounced, setPresetMemberSearch] = useState("");
+  const [memberSearch, setMemberSearchInput] = useState("");
+  const [memberSearchDebounced, setMemberSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(
+      () => setPresetMemberSearch(presetMemberSearch),
+      300,
+    );
+    return () => clearTimeout(timer);
+  }, [presetMemberSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMemberSearch(memberSearch), 300);
+    return () => clearTimeout(timer);
+  }, [memberSearch]);
 
   useEffect(() => {
     setSelectedPresetMemberId(null);
@@ -60,36 +83,64 @@ export function PresetMemberEditor() {
     });
 
   const {
-    data: presetMembers,
+    data: presetMembersData,
     isLoading: presetMembersLoading,
     error: presetMembersError,
-  } = usePresetMembers(guildId, presetId);
+    fetchNextPage: fetchNextPresetMembers,
+    hasNextPage: hasNextPresetMembers,
+  } = useInfinitePresetMembers(
+    guildId,
+    presetId,
+    presetMemberSearchDebounced || undefined,
+  );
+
   const {
-    data: members,
+    data: membersData,
     isLoading: membersLoading,
     error: membersError,
-  } = useMembers(guildId);
+    fetchNextPage: fetchNextMembers,
+    hasNextPage: hasNextMembers,
+  } = useInfiniteMembers(guildId, memberSearchDebounced || undefined);
+
+  const presetMembers = useMemo(
+    () => presetMembersData?.pages.flatMap((p) => p.items) ?? [],
+    [presetMembersData],
+  );
+
+  const allMembers = useMemo(
+    () => membersData?.pages.flatMap((p) => p.items) ?? [],
+    [membersData],
+  );
+
+  const presetMemberSentinelRef = useInfiniteScroll(
+    fetchNextPresetMembers,
+    hasNextPresetMembers ?? false,
+  );
+  const memberSentinelRef = useInfiniteScroll(
+    fetchNextMembers,
+    hasNextMembers ?? false,
+  );
 
   const createPresetMember = useCreatePresetMember();
   const deletePresetMember = useDeletePresetMember();
   const canManage = useVerifyRole(guildId, Role.ADMIN);
 
   const presetMemberIds = useMemo(
-    () => new Set(presetMembers?.map((pm) => pm.memberId) ?? []),
+    () => new Set(presetMembers.map((pm) => pm.memberId)),
     [presetMembers],
   );
 
   const candidateMembers = useMemo(
     () =>
-      members?.filter(
+      allMembers.filter(
         (m) =>
           !presetMemberIds.has(m.memberId) && !addingMemberIds.has(m.memberId),
-      ) ?? [],
-    [members, presetMemberIds, addingMemberIds],
+      ),
+    [allMembers, presetMemberIds, addingMemberIds],
   );
 
   useEffect(() => {
-    if (!presetMembers) return;
+    if (!presetMembers.length) return;
     const ids = new Set(presetMembers.map((pm) => pm.memberId));
     addingMemberIds.forEach((memberId) => {
       if (ids.has(memberId)) removeMemberIdFromAdding(memberId);
@@ -101,10 +152,10 @@ export function PresetMemberEditor() {
 
   const selectedPresetMember = useMemo(
     () =>
-      selectedPresetMemberId !== null && presetMembers
-        ? presetMembers.find(
+      selectedPresetMemberId !== null
+        ? (presetMembers.find(
             (pm) => pm.presetMemberId === selectedPresetMemberId,
-          )
+          ) ?? null)
         : null,
     [selectedPresetMemberId, presetMembers],
   );
@@ -163,7 +214,14 @@ export function PresetMemberEditor() {
     <>
       <PrimarySection minSize fill>
         <SecondarySection minSize fill>
-          <Title>프리셋 멤버 목록</Title>
+          <Row gap="sm" align="center" justify="between">
+            <Title>프리셋 멤버 목록</Title>
+            <Input
+              value={presetMemberSearch}
+              onValueChange={setPresetMemberSearchInput}
+              placeholder="이름 검색"
+            />
+          </Row>
           {presetMembersError ? (
             <TertiarySection fill>
               <Error error={presetMembersError}>
@@ -176,13 +234,12 @@ export function PresetMemberEditor() {
             </TertiarySection>
           ) : (
             <PresetMemberGrid
-              presetMembers={
-                presetMembers?.filter(
-                  (pm) => !removingMemberIds.has(pm.memberId),
-                ) ?? []
-              }
+              presetMembers={presetMembers.filter(
+                (pm) => !removingMemberIds.has(pm.memberId),
+              )}
               selectedMemberId={selectedPresetMemberId}
               onClick={handlePresetMemberClick}
+              sentinelRef={presetMemberSentinelRef}
             />
           )}
         </SecondarySection>
@@ -200,7 +257,14 @@ export function PresetMemberEditor() {
         )}
 
         <SecondarySection minSize fill>
-          <Title>멤버 목록</Title>
+          <Row gap="sm" align="center" justify="between">
+            <Title>멤버 목록</Title>
+            <Input
+              value={memberSearch}
+              onValueChange={setMemberSearchInput}
+              placeholder="이름 검색"
+            />
+          </Row>
           {membersError ? (
             <TertiarySection fill>
               <Error error={membersError}>
@@ -215,6 +279,7 @@ export function PresetMemberEditor() {
             <MemberGrid
               members={candidateMembers}
               onClick={canManage ? handleAddMember : undefined}
+              sentinelRef={memberSentinelRef}
             />
           )}
         </SecondarySection>

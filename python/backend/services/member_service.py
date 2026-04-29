@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import MemberDetailDTO, MemberDTO, Role, UpdateMemberDTO
+from shared.dtos.page import CursorPageDTO
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import HTTPError, MemberErrorCode
 from shared.utils.service import Event, http_service
@@ -35,11 +36,18 @@ async def get_member_service(
 
 @http_service
 async def get_members_service(
-    guild_id: int, user_id: int, session: AsyncSession, event: Event
-) -> list[MemberDetailDTO]:
+    guild_id: int,
+    user_id: int,
+    session: AsyncSession,
+    event: Event,
+    search: str | None = None,
+    cursor: int | None = None,
+) -> CursorPageDTO[MemberDetailDTO]:
     await verify_role(guild_id, user_id, session)
     member_repo = MemberRepository(session)
-    members = await member_repo.get_all_by_guild_id(guild_id)
+    members = await member_repo.get_all_by_guild_id(
+        guild_id, search=search, cursor=cursor
+    )
 
     response: list[MemberDetailDTO] = []
     event.result = []
@@ -47,7 +55,8 @@ async def get_members_service(
         response.append(MemberDetailDTO.model_validate(member))
         event.result.append(MemberDTO.model_validate(member))
 
-    return response
+    next_cursor = members[-1].member_id if len(members) == 50 else None
+    return CursorPageDTO[MemberDetailDTO](items=response, next_cursor=next_cursor)
 
 
 @http_service

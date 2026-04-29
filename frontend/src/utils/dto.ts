@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+export interface CursorPageDTO<T> {
+  items: T[];
+  nextCursor: number | null;
+}
+
 export const nameSchema = z.string().trim().min(1).max(256);
 
 export const nullableNameSchema = z
