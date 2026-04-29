@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from ..entities import Guild, Member
-from . import BaseRepository
+from . import CHUNK_SIZE, BaseRepository
 
 
 class GuildRepository(BaseRepository):
@@ -26,6 +26,16 @@ class GuildRepository(BaseRepository):
     async def get_all(self) -> list[Guild]:
         result = await self.session.execute(select(Guild))
         return list(result.scalars().all())
+
+    async def bulk_upsert(self, rows: list[dict]) -> None:
+        for i in range(0, len(rows), CHUNK_SIZE):
+            chunk = rows[i : i + CHUNK_SIZE]
+            stmt = pg_insert(Guild).values(chunk)
+            stmt = stmt.on_conflict_do_update(
+                index_elements=["discord_id"],
+                set_={"name": stmt.excluded.name, "icon_hash": stmt.excluded.icon_hash},
+            )
+            await self.session.execute(stmt)
 
     async def get_all_by_user_id(self, user_id: int) -> list[Guild]:
         result = await self.session.execute(

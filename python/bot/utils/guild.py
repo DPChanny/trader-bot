@@ -32,9 +32,6 @@ async def delete_guild(guild_id: int, session: AsyncSession) -> GuildDTO:
 
 
 async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict[str, object]:
-    guild_id = guild.id
-    guild_dto = await upsert_guild(guild, session)
-
     user_dicts: list[dict] = []
     member_dicts: list[dict] = []
     active_user_ids: set[int] = set()
@@ -57,7 +54,7 @@ async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict[str, ob
         )
         member_dicts.append(
             {
-                "guild_id": guild_id,
+                "guild_id": guild.id,
                 "user_id": member.id,
                 "name": member.nick,
                 "avatar_hash": member.guild_avatar.key if member.guild_avatar else None,
@@ -66,16 +63,14 @@ async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict[str, ob
         )
         active_user_ids.add(member.id)
 
-    user_repo = UserRepository(session)
-    await user_repo.bulk_upsert(user_dicts)
-
-    member_repo = MemberRepository(session)
-    await member_repo.bulk_upsert(member_dicts)
+    guild_dto = await upsert_guild(guild, session)
+    await UserRepository(session).bulk_upsert(user_dicts)
+    await MemberRepository(session).bulk_upsert(member_dicts)
 
     removed_count = 0
     if active_user_ids:
         stmt = delete(Member).where(
-            Member.guild_id == guild_id, Member.user_id.not_in(active_user_ids)
+            Member.guild_id == guild.id, Member.user_id.not_in(active_user_ids)
         )
         result = await session.execute(stmt)
         removed_count = result.rowcount
