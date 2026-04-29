@@ -61,8 +61,8 @@ jobs:
           fi
 
           MISSING_DEPLOY_MAP_VALUES=""
-          for KEY in backend bot auction domain db_host db_region; do
-            VALUE=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key]')
+          for KEY in backend bot auction domain db_host db_region redis_host; do
+            VALUE=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key] // empty')
             if [ -z "$VALUE" ]; then
               if [ -z "$MISSING_DEPLOY_MAP_VALUES" ]; then
                 MISSING_DEPLOY_MAP_VALUES=".${PHASE}.${KEY}"
@@ -77,9 +77,10 @@ jobs:
             exit 1
           fi
 
-          DOMAIN=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].domain')
-          DB_HOST=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].db_host')
-          DB_REGION=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].db_region')
+          DOMAIN=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].domain')
+          DB_HOST=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].db_host')
+          DB_REGION=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].db_region')
+          REDIS_HOST=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].redis_host')
 
           MISSING_VARS=""
           for VAR in DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET JWT_SECRET; do
@@ -109,7 +110,8 @@ jobs:
             "API_ORIGIN=$API_ORIGIN" \
             "JWT_SECRET=$JWT_SECRET" \
             "DB_HOST=$DB_HOST" \
-            "DB_REGION=$DB_REGION")"
+            "DB_REGION=$DB_REGION" \
+            "REDIS_HOST=$REDIS_HOST")"
 
           {
             echo "PHASE=$PHASE"

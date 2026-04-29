@@ -6,18 +6,19 @@ on:
   workflow_dispatch:
     inputs:
       phase:
-        description: "Phase(beta, prod)"
+        description: "Phase"
         required: true
       ref:
-        description: "Git ref (tag/branch/sha)"
-        required: true
+        description: "Ref"
+        required: false
+        default: "master"
 
 concurrency:
   group: deploy-frontend-${{ github.event_name == 'push' && github.ref_name || format('{0}-{1}', inputs.phase, inputs.ref) }}
   cancel-in-progress: false
 
 jobs:
-  run:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -60,15 +61,19 @@ jobs:
             fi
           else
             PHASE="${{ inputs.phase }}"
-          fi
 
-          DOMAIN=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].domain')
-          S3_BUCKET_NAME=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bucket')
-          CLOUDFRONT_DISTRIBUTION_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].cloudfront')
+            case "$PHASE" in
+              beta|prod) ;;
+              *)
+                echo "Invalid phase: $PHASE"
+                exit 1
+                ;;
+            esac
+          fi
 
           MISSING_DEPLOY_MAP_VALUES=""
           for KEY in domain bucket cloudfront; do
-            VALUE=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key]')
+            VALUE=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key] // empty')
             if [ -z "$VALUE" ]; then
               if [ -z "$MISSING_DEPLOY_MAP_VALUES" ]; then
                 MISSING_DEPLOY_MAP_VALUES=".${PHASE}.${KEY}"
@@ -97,6 +102,10 @@ jobs:
             echo "Missing variable or secret(s): $MISSING_VARS"
             exit 1
           fi
+
+          DOMAIN=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].domain')
+          S3_BUCKET_NAME=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].bucket')
+          CLOUDFRONT_DISTRIBUTION_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].cloudfront')
 
           {
             echo "PHASE=$PHASE"
