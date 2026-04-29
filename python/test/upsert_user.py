@@ -1,8 +1,8 @@
 import argparse
 import asyncio
 
+from shared.repositories.user_repository import UserRepository
 from shared.utils.db import get_session
-from shared.utils.upsert import upsert_user
 
 
 def _parse_args() -> argparse.Namespace:
@@ -17,7 +17,9 @@ async def main() -> None:
     args = _parse_args()
     try:
         async for session in get_session():
-            await upsert_user(args.discord_id, args.name, args.avatar_hash, session)
+            await UserRepository(session).upsert(
+                args.discord_id, args.name, args.avatar_hash
+            )
     except Exception:
         raise
 

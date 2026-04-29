@@ -4,8 +4,10 @@ from sqlalchemy import select
 
 from shared.dtos.member import Role
 from shared.entities import Position, Preset, Tier
+from shared.repositories.guild_repository import GuildRepository
+from shared.repositories.member_repository import MemberRepository
+from shared.repositories.user_repository import UserRepository
 from shared.utils.db import get_session
-from shared.utils.upsert import upsert_guild, upsert_member, upsert_user
 
 
 TEST_GUILD_ID = 0
@@ -101,11 +103,8 @@ async def _upsert_tiers(session, preset_id: int) -> int:
 async def main() -> None:
     try:
         async for session in get_session():
-            guild = await upsert_guild(
-                guild_id=TEST_GUILD_ID,
-                name=TEST_GUILD_NAME,
-                icon_hash=None,
-                session=session,
+            guild = await GuildRepository(session).upsert(
+                discord_id=TEST_GUILD_ID, name=TEST_GUILD_NAME, icon_hash=None
             )
 
             for i in range(USER_COUNT):
@@ -113,9 +112,9 @@ async def main() -> None:
                 user_name = f"test user {i}"
                 role = _role_for_index(i)
 
-                await upsert_user(user_id, user_name, None, session)
-                await upsert_member(
-                    guild.discord_id, user_id, session, user_name, None, role
+                await UserRepository(session).upsert(user_id, user_name, None)
+                await MemberRepository(session).upsert(
+                    guild.discord_id, user_id, user_name, None, role
                 )
 
             preset = await _upsert_preset(session, guild.discord_id)

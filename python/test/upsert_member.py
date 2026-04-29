@@ -2,8 +2,8 @@ import argparse
 import asyncio
 
 from shared.dtos.member import Role
+from shared.repositories.member_repository import MemberRepository
 from shared.utils.db import get_session
-from shared.utils.upsert import upsert_member
 
 
 def _parse_args() -> argparse.Namespace:
@@ -21,8 +21,12 @@ async def main() -> None:
     role = Role(args.role) if args.role is not None else None
     try:
         async for session in get_session():
-            await upsert_member(
-                args.guild_id, args.user_id, session, args.name, args.avatar_hash, role
+            await MemberRepository(session).upsert(
+                args.guild_id,
+                args.user_id,
+                args.name,
+                args.avatar_hash,
+                role if role is not None else Role.VIEWER,
             )
     except Exception:
         raise

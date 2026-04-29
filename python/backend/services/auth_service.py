@@ -7,7 +7,7 @@ from shared.dtos.auth import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
 from shared.utils.env import get_app_origin
 from shared.utils.error import HTTPError, TokenError
 from shared.utils.service import http_service
-from shared.utils.upsert import upsert_user
+from shared.repositories.user_repository import UserRepository
 
 from ..utils.discord import get_login_url, get_me
 from ..utils.token import AccessToken, ExchangeToken, RefreshToken, StateToken
@@ -29,7 +29,7 @@ async def login_callback_service(
     name = user_data.get("global_name") or user_data.get("username", "")
     avatar_hash = user_data.get("avatar")
 
-    user = await upsert_user(discord_id, name, avatar_hash, session)
+    user = await UserRepository(session).upsert(discord_id, name, avatar_hash)
 
     access_token = AccessToken.create(user.discord_id)
     refresh_token = RefreshToken.create(user.discord_id)

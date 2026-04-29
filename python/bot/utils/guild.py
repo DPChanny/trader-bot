@@ -2,34 +2,20 @@ from discord import Guild as DiscordGuild
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild import GuildDTO
-from shared.dtos.member import MemberDTO, Role
-from shared.entities import Guild
+from shared.dtos.member import Role
 from shared.repositories.guild_repository import GuildRepository
 from shared.repositories.member_repository import MemberRepository
+from shared.repositories.user_repository import UserRepository
 from shared.utils.error import AppError, GuildErrorCode
-
-from .member import (
-    delete_member,
-    sync_member,
-    sync_member_admin_role,
-    update_member_role,
-)
 
 
 async def upsert_guild(guild: DiscordGuild, session: AsyncSession) -> GuildDTO:
-    guild_id = guild.id
-    name = guild.name
-    icon_hash = guild.icon.key if guild.icon else None
     repo = GuildRepository(session)
-    entity = await repo.get_by_id(guild_id)
-    if entity is None:
-        entity = Guild(discord_id=guild_id, name=name, icon_hash=icon_hash)
-        session.add(entity)
-        await session.flush()
-    else:
-        entity.name = name
-        entity.icon_hash = icon_hash
-
+    entity = await repo.upsert(
+        discord_id=guild.id,
+        name=guild.name,
+        icon_hash=guild.icon.key if guild.icon else None,
+    )
     return GuildDTO.model_validate(entity)
 
 
@@ -47,36 +33,49 @@ async def sync_guild(guild: DiscordGuild, session: AsyncSession) -> dict[str, ob
     guild_id = guild.id
     guild_dto = await upsert_guild(guild, session)
 
-    synced_member_ids: set[int] = set()
-    synced_members: list[MemberDTO] = []
-    owner_dto: MemberDTO | None = None
+    user_dicts: list[dict] = []
+    member_dicts: list[dict] = []
+    active_user_ids: set[int] = set()
+
     async for member in guild.fetch_members():
         if member.bot:
             continue
-        member_dto = await sync_member(member, session)
-        synced_members.append(member_dto)
-        if member.guild_permissions.administrator and member.id != guild.owner_id:
-            await sync_member_admin_role(guild_id, member.id, True, session)
-        synced_member_ids.add(member.id)
+        if member.id == guild.owner_id:
+            role = Role.OWNER
+        elif member.guild_permissions.administrator:
+            role = Role.ADMIN
+        else:
+            role = Role.VIEWER
+        user_dicts.append(
+            {
+                "discord_id": member.id,
+                "name": member.global_name or member.name,
+                "avatar_hash": member.avatar.key if member.avatar else None,
+            }
+        )
+        member_dicts.append(
+            {
+                "guild_id": guild_id,
+                "user_id": member.id,
+                "name": member.nick,
+                "avatar_hash": member.guild_avatar.key if member.guild_avatar else None,
+                "role": role,
+            }
+        )
+        active_user_ids.add(member.id)
 
-    await session.flush()
-
-    owner_dto = await update_member_role(guild_id, guild.owner_id, Role.OWNER, session)
+    user_repo = UserRepository(session)
+    await user_repo.bulk_upsert(user_dicts)
 
     member_repo = MemberRepository(session)
-    removed_members: list[MemberDTO] = []
-    member_entities = await member_repo.get_all_by_guild_id(guild.id)
-    for member_entity in member_entities:
-        if member_entity.user_id in synced_member_ids:
-            continue
-        removed_dto = await delete_member(guild.id, member_entity.user_id, session)
-        removed_members.append(removed_dto)
+    await member_repo.bulk_upsert(member_dicts)
+
+    removed_count = await member_repo.delete_stale_by_guild_id(
+        guild_id, active_user_ids
+    )
 
     return {
         "guild": guild_dto,
-        "synced_member_count": len(synced_members),
-        "synced_members": synced_members,
-        "owner": owner_dto,
-        "removed_member_count": len(removed_members),
-        "removed_members": removed_members,
+        "synced_member_count": len(member_dicts),
+        "removed_member_count": removed_count,
     }

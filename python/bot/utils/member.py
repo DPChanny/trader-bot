@@ -2,7 +2,6 @@ from discord import Member as DiscordMember
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import MemberDTO, Role
-from shared.entities import Member
 from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import AppError, MemberErrorCode
 
@@ -10,24 +9,14 @@ from .user import sync_user
 
 
 async def upsert_member(member: DiscordMember, session: AsyncSession) -> MemberDTO:
-    guild_id = member.guild.id
-    user_id = member.id
     repo = MemberRepository(session)
-    entity = await repo.get_by_user_id(user_id, guild_id)
-    if entity is None:
-        entity = Member(
-            guild_id=guild_id,
-            user_id=user_id,
-            role=Role.VIEWER,
-            name=member.nick,
-            avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
-        )
-        session.add(entity)
-        await session.flush()
-    else:
-        entity.name = member.nick
-        entity.avatar_hash = member.guild_avatar.key if member.guild_avatar else None
-
+    entity = await repo.upsert(
+        guild_id=member.guild.id,
+        user_id=member.id,
+        name=member.nick,
+        avatar_hash=member.guild_avatar.key if member.guild_avatar else None,
+        role=Role.VIEWER,
+    )
     return MemberDTO.model_validate(entity)
 
 

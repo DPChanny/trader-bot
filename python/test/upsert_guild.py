@@ -1,8 +1,8 @@
 import argparse
 import asyncio
 
+from shared.repositories.guild_repository import GuildRepository
 from shared.utils.db import get_session
-from shared.utils.upsert import upsert_guild
 
 
 def _parse_args() -> argparse.Namespace:
@@ -17,7 +17,9 @@ async def main() -> None:
     args = _parse_args()
     try:
         async for session in get_session():
-            await upsert_guild(args.guild_id, args.name, args.icon_hash, session)
+            await GuildRepository(session).upsert(
+                args.guild_id, args.name, args.icon_hash
+            )
     except Exception:
         raise
 
