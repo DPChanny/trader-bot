@@ -91,7 +91,6 @@ class AuctionRepository(BaseAuctionRepository):
                 self._key("event"),
                 1,
                 int(AuctionEventType.LEADER_CONNECTED),
-                leader_id,
             )
         )
 
@@ -104,7 +103,6 @@ class AuctionRepository(BaseAuctionRepository):
                 self._key("event"),
                 -1,
                 int(AuctionEventType.LEADER_DISCONNECTED),
-                leader_id,
             )
         )
 
@@ -168,12 +166,11 @@ class AuctionRepository(BaseAuctionRepository):
     async def next_player(self) -> int | None:
         result = await get_redis().eval(
             NEXT_PLAYER_SCRIPT,
-            6,
+            5,
             self._key("auction_queue"),
             self._key("unsold_queue"),
             self._key(),
             self._key("event"),
-            self._key("teams"),
             self._key("bid"),
             int(AuctionEventType.NEXT_PLAYER),
         )

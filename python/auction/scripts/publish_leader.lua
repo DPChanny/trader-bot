@@ -2,7 +2,6 @@ local auction_key = KEYS[1]
 local event_channel = KEYS[2]
 local increment = ARGV[1]
 local event_type = tonumber(ARGV[2])
-local leader_id = tonumber(ARGV[3])
 
 local count = redis.call('HINCRBY', auction_key, 'connected_leader_count', increment)
 local event = cjson.encode({
