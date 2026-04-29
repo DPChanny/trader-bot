@@ -65,6 +65,7 @@ export function AuctionPage() {
   const {
     auction,
     timer,
+    ttl,
     memberId,
     connect,
     placeBid,
@@ -205,7 +206,13 @@ export function AuctionPage() {
 
       <PrimarySection minSize style={{ flex: 2 }}>
         <SecondarySection fill minSize>
-          <Title>{presetSnapshot?.name} </Title>
+          <Row align="center" justify="center">
+            <Title>{presetSnapshot?.name} </Title>
+            <Text>
+              {String(Math.floor(ttl / 60)).padStart(2, "0")}:
+              {String(ttl % 60).padStart(2, "0")}
+            </Text>
+          </Row>
           <Column fill>
             <TertiarySection fill>
               <Column fill center>

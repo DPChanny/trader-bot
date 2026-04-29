@@ -28,6 +28,7 @@ import { getAccessToken } from "@features/auth/token";
 export function useAuction(): {
   auction: AuctionDetailDTO | null;
   timer: number;
+  ttl: number;
   memberId: number | null;
   connect: (guildId: string, presetId: number, auctionId: string) => void;
   placeBid: (amount: number) => void;
@@ -39,6 +40,7 @@ export function useAuction(): {
   const [wasConnected, setWasConnected] = useState(false);
   const [auction, setAuction] = useState<AuctionDetailDTO | null>(null);
   const [timer, setTimer] = useState(0);
+  const [ttl, setTtl] = useState(0);
   const [memberId, setMemberId] = useState<number | null>(null);
   const [error, setError] = useState<WSError | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -61,6 +63,8 @@ export function useAuction(): {
         const initPayload = dto as InitPayloadDTO;
         setAuction(initPayload.auction);
         setMemberId(initPayload.memberId);
+        setTimer(initPayload.auction.timer);
+        setTtl(initPayload.auction.ttl);
         break;
       }
 
@@ -192,6 +196,7 @@ export function useAuction(): {
     setWasConnected(false);
     setAuction(null);
     setTimer(0);
+    setTtl(0);
     setMemberId(null);
     setError(null);
 
@@ -278,9 +283,16 @@ export function useAuction(): {
     };
   }, []);
 
+  useEffect(() => {
+    if (ttl <= 0) return;
+    const id = setInterval(() => setTtl((prev) => Math.max(prev - 1, 0)), 1000);
+    return () => clearInterval(id);
+  }, [ttl]);
+
   return {
     auction,
     timer,
+    ttl,
     memberId,
     connect,
     placeBid,

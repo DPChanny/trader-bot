@@ -7,11 +7,18 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    command: >
+      sh -c "install -d -m 755 -o redis -g redis /var/log/trader-bot/redis &&
+             redis-server /usr/local/etc/redis/redis.conf"
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - trader-bot-dev-vol-redis:/var/log/trader-bot/redis
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 20
+
+volumes:
+  trader-bot-dev-vol-redis:
+    name: trader-bot-dev-vol-redis

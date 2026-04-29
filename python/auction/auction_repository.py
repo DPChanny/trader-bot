@@ -56,6 +56,7 @@ class AuctionRepository(BaseAuctionRepository):
                     "status": int(Status.WAITING),
                     "connected_leader_count": 0,
                     "player_id": "",
+                    "timer": 0,
                     "preset_snapshot": preset_snapshot.model_dump_json(),
                 },
             )
@@ -139,7 +140,11 @@ class AuctionRepository(BaseAuctionRepository):
         event = AuctionEventEnvelopeDTO(
             type=AuctionEventType.TICK, payload=TickEventPayloadDTO(timer=remaining)
         ).model_dump_json()
-        await get_redis().publish(self._key("event"), event)
+        r = get_redis()
+        async with r.pipeline(transaction=False) as pipe:
+            pipe.hset(self._key(), "timer", remaining)
+            pipe.publish(self._key("event"), event)
+            await pipe.execute()
 
     async def publish_bid_error(self, leader_id: int, code: int) -> None:
         await get_redis().publish(

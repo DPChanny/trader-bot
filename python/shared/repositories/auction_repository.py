@@ -24,7 +24,6 @@ class BaseAuctionRepository:
             data, teams_raw, aq_raw, uq_raw, bid_raw, ttl = await pipe.execute()
         if not data:
             return None
-        teams = [TeamDTO.model_validate_json(v) for v in teams_raw.values()]
         bid = (
             BidDTO(amount=int(bid_raw["amount"]), leader_id=int(bid_raw["leader_id"]))
             if bid_raw.get("amount")
@@ -32,18 +31,19 @@ class BaseAuctionRepository:
         )
         preset_snapshot = (
             PresetDetailDTO.model_validate_json(data["preset_snapshot"])
-            if data.get("preset_snapshot")
+            if data["preset_snapshot"]
             else None
         )
         return AuctionDetailDTO(
             auction_id=self.auction_id,
             status=Status(int(data["status"])),
-            connected_leader_count=int(data.get("connected_leader_count") or 0),
-            player_id=int(data["player_id"]) if data.get("player_id") else None,
+            connected_leader_count=int(data["connected_leader_count"]),
+            player_id=int(data["player_id"]) if data["player_id"] else None,
             bid=bid,
-            teams=teams,
+            teams=[TeamDTO.model_validate_json(v) for v in teams_raw.values()],
             auction_queue=[int(x) for x in aq_raw],
             unsold_queue=[int(x) for x in uq_raw],
             preset_snapshot=preset_snapshot,
             ttl=max(ttl, 0),
+            timer=int(data["timer"]),
         )

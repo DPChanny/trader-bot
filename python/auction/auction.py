@@ -124,11 +124,12 @@ class Auction:
         try:
             remaining = timer
             while remaining > 0:
-                await asyncio.sleep(1)
-                remaining -= 1
-                if bid_placed.is_set():
+                try:
+                    await asyncio.wait_for(bid_placed.wait(), timeout=1)
                     bid_placed.clear()
                     remaining = timer
+                except TimeoutError:
+                    remaining -= 1
                 await self._repo.publish_tick(remaining)
         finally:
             listen_task.cancel()

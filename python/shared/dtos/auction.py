@@ -69,6 +69,7 @@ class AuctionDetailDTO(AuctionDTO):
     unsold_queue: list[int]
     preset_snapshot: PresetDetailDTO | None
     ttl: int
+    timer: int
 
 
 class InitEventPayloadDTO(BaseDTO):

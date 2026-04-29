@@ -22,6 +22,7 @@ export interface AuctionDetailDTO extends AuctionDTO {
   unsoldQueue: number[];
   presetSnapshot: PresetDetailDTO | null;
   ttl: number;
+  timer: number;
 }
 
 export interface InitPayloadDTO {
