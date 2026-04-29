@@ -1,6 +1,13 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, ForeignKey, SmallInteger, String, UniqueConstraint
+from sqlalchemy import (
+    BigInteger,
+    ForeignKey,
+    Index,
+    SmallInteger,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
@@ -14,7 +21,11 @@ if TYPE_CHECKING:
 
 class Member(BaseEntity):
     __tablename__ = "member"
-    __table_args__ = (UniqueConstraint("guild_id", "user_id"),)
+    __table_args__ = (
+        UniqueConstraint("guild_id", "user_id"),
+        Index("ix_member_guild_id", "guild_id"),
+        Index("ix_member_user_id", "user_id"),
+    )
 
     member_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     guild_id: Mapped[int] = mapped_column(
