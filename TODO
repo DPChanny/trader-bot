@@ -1,11 +1,11 @@
 pagenation
-auction error
-auction logging
 bot opt
     upsert opt
     on ready opt
     slash command opt
     intent & permission opt
+auction error
+auction logging
 subscription
 
 트래픽 초과 시 동작 예측

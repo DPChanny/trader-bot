@@ -60,6 +60,7 @@ VITE_GUILD_INVITE_URL=
 PHASE=dev
 
 DISCORD_BOT_TOKEN=
+
 DISCORD_CLIENT_ID=
 DISCORD_CLIENT_SECRET=
 
@@ -69,18 +70,24 @@ API_ORIGIN=http://127.0.0.1:8000
 JWT_SECRET=
 JWT_ALGORITHM=HS256
 
-RDS_INSTANCE_ID=
-RDS_REGION=ap-northeast-2
-
 DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_USER=trader-bot
 DB_NAME=trader-bot
+DB_REGION=ap-northeast-2
+
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_DB=0
+
+LOG_LEVEL=INFO
+LOG_TEXT=false
+LOG_FILE=true
 ```
 
-> `PHASE=dev`: uses local Postgres  
-> `PHASE=beta|prod`: switches to RDS address resolution and IAM auth  
-> Both backend and bot share `python/.env`
+> `PHASE=dev`: uses `DB_HOST` directly with password auth  
+> `PHASE=beta|prod`: uses `DB_HOST`/`DB_REGION` with IAM auth (injected by `deploy-python.yml`)  
+> All Python services (backend, bot, auction) share `python/.env`
 
 ### 3. Start local Postgres
 
@@ -155,18 +162,24 @@ cd python && uv run python -m auction.main
 {
   "beta": {
     "redis": "i-0000000000000000",
+    "redis_host": "10.0.0.1",
     "backend": "i-0000000000000000",
     "bot": "i-0000000000000000",
-    "rds": "example-beta-rds",
+    "auction": "i-0000000000000000",
+    "db_host": "example-beta-rds.com",
+    "db_region": "ap-northeast-2",
     "domain": "beta.example.com",
     "bucket": "example-beta-bucket-frontend",
     "cloudfront": "AAAAAAAAAAAAAA"
   },
   "prod": {
     "redis": "i-0000000000000000",
+    "redis_host": "10.0.0.1",
     "backend": "i-0000000000000000",
     "bot": "i-0000000000000000",
-    "rds": "example-prod-rds",
+    "auction": "i-0000000000000000",
+    "db_host": "example-prod-rds.com",
+    "db_region": "ap-northeast-2",
     "domain": "example.com",
     "bucket": "example-prod-bucket-frontend",
     "cloudfront": "AAAAAAAAAAAAAA"
@@ -177,23 +190,26 @@ cd python && uv run python -m auction.main
 | Field        | Meaning                    |
 | ------------ | -------------------------- |
 | `redis`      | Redis EC2 instance ID      |
+| `redis_host` | Redis internal IP (VPC)    |
 | `backend`    | Backend EC2 instance ID    |
 | `bot`        | Bot EC2 instance ID        |
-| `rds`        | RDS instance identifier    |
+| `auction`    | Auction EC2 instance ID    |
+| `db_host`    | RDS hostname               |
+| `db_region`  | RDS AWS region             |
 | `domain`     | Public domain              |
 | `bucket`     | Frontend S3 bucket         |
 | `cloudfront` | CloudFront distribution ID |
 
 Fields consumed per workflow:
 
-| Workflow                      | Fields used                       |
-| ----------------------------- | --------------------------------- |
-| `deploy-frontend.yml`         | `domain`, `bucket`, `cloudfront`  |
-| `deploy-python.yml`           | `backend`, `bot`, `domain`, `rds` |
-| `deploy-infra-cloudwatch.yml` | `backend`, `bot`, `redis`         |
-| `deploy-infra-nginx.yml`      | `backend`                         |
-| `deploy-infra-pm2.yml`        | `backend`, `bot`                  |
-| `deploy-infra-redis.yml`      | `redis`                           |
+| Workflow                      | Fields used                                                                 |
+| ----------------------------- | --------------------------------------------------------------------------- |
+| `deploy-frontend.yml`         | `domain`, `bucket`, `cloudfront`                                            |
+| `deploy-python.yml`           | `backend`, `bot`, `auction`, `domain`, `db_host`, `db_region`, `redis_host` |
+| `deploy-instance-backend.yml` | `backend`                                                                   |
+| `deploy-instance-bot.yml`     | `bot`                                                                       |
+| `deploy-instance-auction.yml` | `auction`                                                                   |
+| `deploy-instance-redis.yml`   | `redis`                                                                     |
 
 Generate one-line JSON locally:
 
@@ -207,15 +223,14 @@ jq -c . .github/workflows/deploy-map.example.json
 
 ### Application code only changed
 
-1. `deploy-python.yml` — roll out backend and bot
+1. `deploy-python.yml` — roll out backend, bot, and auction
 2. `deploy-frontend.yml` — publish frontend artifact
 
-### Infrastructure or AMI composition changed
+### New instance provisioned (first-time setup)
 
-1. Build or update the AMI using scripts in `infra/ami/`
-2. `deploy-infra.yml` — specify `phase`, `ref`, `ami`
-3. If Python runtime or env changed, also run `deploy-python.yml`
-4. If frontend artifact changed, also run `deploy-frontend.yml`
+1. Launch an EC2 instance from the appropriate AMI (built with scripts in `infra/ami/`)
+2. `deploy-instance.yml` — specify `phase` and `ref`; configures services on all instances in parallel
+3. Run `deploy-python.yml` to deploy the latest application code
 
 ---
 
@@ -233,57 +248,52 @@ jq -c . .github/workflows/deploy-map.example.json
 - Trigger: tag push (`v*`) or manual `workflow_dispatch`
 - Writes `python/.env` remotely via SSM
 - Checks out the requested ref on instances and runs `uv sync --frozen`
-- Fans out to `deploy-python-backend.yml` and `deploy-python-bot.yml`
+- Fans out to `deploy-python-backend.yml`, `deploy-python-bot.yml`, and `deploy-python-auction.yml`
 
 #### `deploy-python-backend.yml`
 
 - Trigger: `workflow_call` from `deploy-python.yml`
-- Reloads the backend process via PM2 (`trader-bot-pm2-backend`)
+- Reloads the backend processes via PM2 (`trader-bot-pm2-backend-0` on port 8000, `trader-bot-pm2-backend-1` on port 8001)
 
 #### `deploy-python-bot.yml`
 
 - Trigger: `workflow_call` from `deploy-python.yml`
 - Reloads the bot process via PM2 (`trader-bot-pm2-bot`)
 
+#### `deploy-python-auction.yml`
+
+- Trigger: `workflow_call` from `deploy-python.yml`
+- Reloads the auction process via PM2 (`trader-bot-pm2-auction`)
+
 ### Infrastructure deployment
 
-Infra workflows are manual or reusable only — intended for AMI provisioning and host capability rollout, not tag-push application deploys.
+Instance workflows are manual or reusable only — intended for first-time instance configuration after launching from an AMI, not application code deploys.
 
-#### `deploy-infra.yml`
+#### `deploy-instance.yml`
 
 - Trigger: manual `workflow_dispatch`
-- Inputs: `phase`, `ref`, `ami` (`backend` | `bot` | `redis` | `golden`)
-- Calls sub-workflows in dependency order
+- Inputs: `phase`, `ref`
+- Runs all four sub-workflows in parallel: `deploy-instance-backend.yml`, `deploy-instance-bot.yml`, `deploy-instance-auction.yml`, `deploy-instance-redis.yml`
 
-Dispatch rules:
-
-| Condition                         | Workflow triggered            |
-| --------------------------------- | ----------------------------- |
-| Always                            | `deploy-infra-cloudwatch.yml` |
-| `ami=redis` or `golden`           | `deploy-infra-redis.yml`      |
-| `ami=backend` or `golden`         | `deploy-infra-nginx.yml`      |
-| `ami=backend`, `bot`, or `golden` | `deploy-infra-pm2.yml`        |
-
-#### `deploy-infra-cloudwatch.yml`
+#### `deploy-instance-backend.yml`
 
 - Trigger: manual or `workflow_call`
-- Applies CloudWatch agent base config and role-specific append config
+- Git checkout → applies CloudWatch log config for backend → enables nginx with phase-specific site config (`nginx -t` validated) → enables `pm2-ubuntu` systemd service
 
-#### `deploy-infra-nginx.yml`
-
-- Trigger: manual or `workflow_call`
-- Deploys `infra/nginx/sites-available/trader-bot-{phase}-nginx.conf`
-- Validates with `nginx -t` and enables the service
-
-#### `deploy-infra-pm2.yml`
+#### `deploy-instance-bot.yml`
 
 - Trigger: manual or `workflow_call`
-- Enables PM2 as a system service (process supervisor setup only — app reload is handled by `deploy-python-*.yml`)
+- Git checkout → applies CloudWatch log config for bot → enables `pm2-ubuntu` systemd service
 
-#### `deploy-infra-redis.yml`
+#### `deploy-instance-auction.yml`
 
 - Trigger: manual or `workflow_call`
-- Enables Redis service and confirms health with `redis-cli ping`
+- Git checkout → applies CloudWatch log config for auction → enables `pm2-ubuntu` systemd service
+
+#### `deploy-instance-redis.yml`
+
+- Trigger: manual or `workflow_call`
+- Git checkout → applies CloudWatch log config for redis → enables `redis-server` service and confirms health with `redis-cli ping`
 
 ---
 
@@ -293,12 +303,12 @@ Dispatch rules:
 
 Use only these scripts as AMI build entrypoints:
 
-| Script                        | Target                  |
-| ----------------------------- | ----------------------- |
-| `infra/ami/python/backend.sh` | Backend host            |
-| `infra/ami/python/bot.sh`     | Bot host                |
-| `infra/ami/golden.sh`         | Full-stack golden image |
-| `infra/ami/redis.sh`          | Redis host              |
+| Script                        | Target       |
+| ----------------------------- | ------------ |
+| `infra/ami/python/backend.sh` | Backend host |
+| `infra/ami/python/bot.sh`     | Bot host     |
+| `infra/ami/python/auction.sh` | Auction host |
+| `infra/ami/redis.sh`          | Redis host   |
 
 Do not use `infra/ami/setup.sh`, `infra/ami/python/setup.sh`, or `infra/ami/cleanup.sh` directly as entrypoints.
 
@@ -316,11 +326,11 @@ Do not use `infra/ami/setup.sh`, `infra/ami/python/setup.sh`, or `infra/ami/clea
 - Installs `uv` and pre-runs `uv sync --frozen`
 - Delegates PM2 installation to `infra/pm2/ami.sh`
 
-#### `infra/ami/golden.sh`
+#### `infra/ami/python/auction.sh`
 
-- Full superset image bootstrap
-- Builds on Python host setup, adds nginx and redis packages
-- Leaves redis disabled/stopped by default
+- Auction host image bootstrap
+- Builds on Python host setup
+- Creates `/var/log/trader-bot/auction`
 - Finishes with `infra/ami/cleanup.sh`
 
 #### `infra/ami/python/backend.sh`
@@ -372,7 +382,8 @@ Do not use `infra/ami/setup.sh`, `infra/ami/python/setup.sh`, or `infra/ami/clea
 ### Runtime notes
 
 - PM2 app definitions: `infra/pm2/ecosystem.config.mjs`
-- Backend process name: `trader-bot-pm2-backend`
+- Backend process names: `trader-bot-pm2-backend-0` (port 8000), `trader-bot-pm2-backend-1` (port 8001)
 - Bot process name: `trader-bot-pm2-bot`
+- Auction process name: `trader-bot-pm2-auction`
 - Frontend deployment: S3 static hosting only
 - Python deployment: AWS SSM-based, no SSH
