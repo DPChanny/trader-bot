@@ -1,9 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import Role
-from shared.dtos.preset import CreatePresetDTO, PresetDTO, UpdatePresetDTO
-from shared.entities import Preset
+from shared.dtos.preset import (
+    CopyPresetDTO,
+    CreatePresetDTO,
+    PresetDTO,
+    UpdatePresetDTO,
+)
+from shared.entities import Position, Preset, Tier
+from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
+from shared.repositories.tier_repository import TierRepository
 from shared.utils.error import HTTPError, PresetErrorCode
 from shared.utils.service import Event, http_service
 
@@ -87,3 +94,56 @@ async def delete_preset_service(
 
     event.result = PresetDTO.model_validate(preset)
     await session.delete(preset)
+
+
+@http_service
+async def copy_preset_service(
+    guild_id: int,
+    user_id: int,
+    preset_id: int,
+    dto: CopyPresetDTO,
+    session: AsyncSession,
+) -> PresetDTO:
+    await verify_role(guild_id, user_id, session, Role.VIEWER)
+    await verify_role(dto.target_guild_id, user_id, session, Role.ADMIN)
+
+    preset_repo = PresetRepository(session)
+    source_preset = await preset_repo.get_by_id(preset_id, guild_id)
+    if source_preset is None:
+        raise HTTPError(PresetErrorCode.NotFound)
+
+    target_preset = Preset(
+        guild_id=dto.target_guild_id,
+        name=source_preset.name,
+        points=source_preset.points,
+        timer=source_preset.timer,
+        team_size=source_preset.team_size,
+        point_scale=source_preset.point_scale,
+    )
+    session.add(target_preset)
+    await session.flush()
+
+    tier_repo = TierRepository(session)
+    tiers = await tier_repo.get_all_by_preset_id(preset_id, guild_id)
+    for tier in tiers:
+        session.add(
+            Tier(
+                preset_id=target_preset.preset_id,
+                name=tier.name,
+                icon_url=tier.icon_url,
+            )
+        )
+
+    position_repo = PositionRepository(session)
+    positions = await position_repo.get_all_by_preset_id(preset_id, guild_id)
+    for position in positions:
+        session.add(
+            Position(
+                preset_id=target_preset.preset_id,
+                name=position.name,
+                icon_url=position.icon_url,
+            )
+        )
+
+    await session.flush()
+    return PresetDTO.model_validate(target_preset)

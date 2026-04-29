@@ -1,4 +1,8 @@
-import type { PresetDTO, CreatePresetDTO, UpdatePresetDTO } from "@features/preset/dto";
+import type {
+  PresetDTO,
+  CreatePresetDTO,
+  UpdatePresetDTO,
+} from "@features/preset/dto";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
 import { getPresetEndpoint } from "@utils/env";
 import { handleHTTPError } from "@utils/error";
@@ -75,3 +79,24 @@ export async function deletePreset({
   if (!response.ok) await handleHTTPError(response);
 }
 
+export async function copyPreset({
+  guildId,
+  presetId,
+  targetGuildId,
+}: {
+  guildId: string;
+  presetId: number;
+  targetGuildId: string;
+}): Promise<PresetDTO> {
+  const response = await fetch(
+    `${getPresetEndpoint(guildId)}/${presetId}/copy`,
+    {
+      method: "POST",
+      headers: getHeaders(getAuthHeader(), getJsonHeader()),
+      body: JSON.stringify(toSnakeCase({ targetGuildId })),
+    },
+  );
+  if (!response.ok) await handleHTTPError(response);
+  const json = await response.json();
+  return toCamelCase<PresetDTO>(json);
+}

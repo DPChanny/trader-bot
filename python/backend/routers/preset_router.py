@@ -1,10 +1,16 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.preset import CreatePresetDTO, PresetDTO, UpdatePresetDTO
+from shared.dtos.preset import (
+    CopyPresetDTO,
+    CreatePresetDTO,
+    PresetDTO,
+    UpdatePresetDTO,
+)
 from shared.utils.db import get_session
 
 from ..services.preset_service import (
+    copy_preset_service,
     create_preset_service,
     delete_preset_service,
     get_preset_service,
@@ -65,3 +71,14 @@ async def delete_preset_route(
     user_id: int = Depends(verify_access_token),
 ):
     await delete_preset_service(guild_id, user_id, preset_id, session)
+
+
+@preset_router.post("/{preset_id}/copy", response_model=PresetDTO)
+async def copy_preset_route(
+    guild_id: int,
+    preset_id: int,
+    dto: CopyPresetDTO,
+    session: AsyncSession = Depends(get_session),
+    user_id: int = Depends(verify_access_token),
+):
+    return await copy_preset_service(guild_id, user_id, preset_id, dto, session)

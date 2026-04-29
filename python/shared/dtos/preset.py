@@ -32,3 +32,7 @@ class UpdatePresetDTO(BaseDTO):
     timer: int | None = Field(default=None, ge=1, le=60)
     team_size: int | None = Field(default=None, ge=1, le=10)
     point_scale: int | None = Field(default=None, ge=1, le=10)
+
+
+class CopyPresetDTO(BaseDTO):
+    target_guild_id: BigInt

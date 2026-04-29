@@ -148,3 +148,18 @@ export function SaveButton(
     </Button>
   );
 }
+
+export function CopyButton(
+  props: Omit<ButtonProps, "children" | "variantContent">,
+) {
+  return (
+    <Button
+      variantContent="icon"
+      variantIntent="secondary"
+      title="복사"
+      {...props}
+    >
+      ⧉
+    </Button>
+  );
+}

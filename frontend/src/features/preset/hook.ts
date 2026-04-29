@@ -11,6 +11,7 @@ import {
   createPreset,
   updatePreset,
   deletePreset,
+  copyPreset,
 } from "@features/preset/api";
 import { queryKeys } from "@utils/query";
 import type { PresetDTO } from "@features/preset/dto";
@@ -133,3 +134,25 @@ export function useDeletePreset(): UseMutationResult<
   });
 }
 
+export function useCopyPreset(): UseMutationResult<
+  Awaited<ReturnType<typeof copyPreset>>,
+  AppError,
+  Parameters<typeof copyPreset>[0],
+  unknown
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: copyPreset,
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<PresetDTO[]>(
+        queryKeys.presets(variables.targetGuildId),
+        (old) => (old ? [...old, data] : [data]),
+      );
+      queryClient.setQueryData<PresetDTO>(
+        queryKeys.preset(variables.targetGuildId, data.presetId),
+        data,
+      );
+    },
+  });
+}

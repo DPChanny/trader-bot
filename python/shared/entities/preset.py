@@ -25,8 +25,8 @@ class Preset(BaseEntity):
     timer: Mapped[int] = mapped_column(SmallInteger)
     team_size: Mapped[int] = mapped_column(SmallInteger)
     point_scale: Mapped[int] = mapped_column(SmallInteger)
-    guild: Mapped[Guild] = relationship("Guild", viewonly=True)
 
+    guild: Mapped[Guild] = relationship("Guild", viewonly=True)
     tiers: Mapped[list[Tier]] = relationship("Tier", viewonly=True)
     positions: Mapped[list[Position]] = relationship("Position", viewonly=True)
     preset_members: Mapped[list[PresetMember]] = relationship(

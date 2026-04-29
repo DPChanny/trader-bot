@@ -10,10 +10,16 @@ import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
 import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { Fill, Row } from "@components/atoms/layout";
 import { Page } from "@components/atoms/layout";
-import { EditButton, DeleteButton, Button } from "@components/atoms/button";
+import {
+  EditButton,
+  DeleteButton,
+  Button,
+  CopyButton,
+} from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { UpdatePresetModal } from "./updatePresetModal";
 import { DeletePresetModal } from "./deletePresetModal";
+import { CopyPresetModal } from "./copyPresetModal";
 import { AuctionCreatedModal } from "./auctionCreatedModal";
 import { NameTitle, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
@@ -28,14 +34,16 @@ export function PresetPage() {
 
   const [showUpdate, setShowUpdate] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [showCopy, setShowCopy] = useState(false);
   const [createdAuctionId, setCreatedAuctionId] = useState<string | null>(null);
   const createAuction = useCreateAuction();
 
   const preset = usePreset(guildId, presetId);
   const presetMembers = usePresetMembers(guildId, presetId);
+  const canView = useVerifyRole(guildId, Role.VIEWER);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
-  const isAdmin = useVerifyRole(guildId, Role.ADMIN);
-  const canCreateAuction = isAdmin;
+  const canAdmin = useVerifyRole(guildId, Role.ADMIN);
+  const canCreateAuction = canAdmin;
   const teamSize = preset.data?.teamSize ?? 0;
   const leaderCount =
     presetMembers.data?.filter((pm) => pm.isLeader).length ?? 0;
@@ -67,13 +75,19 @@ export function PresetPage() {
           <Row justify="between" align="center">
             <NameTitle>{preset.data ? preset.data.name : "로딩중"}</NameTitle>
             <Row gap="sm" align="center">
+              {canView && (
+                <CopyButton
+                  variantSize="medium"
+                  onClick={() => setShowCopy(true)}
+                />
+              )}
               {canEdit && (
                 <EditButton
                   variantSize="medium"
                   onClick={() => setShowUpdate(true)}
                 />
               )}
-              {isAdmin && (
+              {canAdmin && (
                 <DeleteButton
                   variantSize="medium"
                   onClick={() => setShowDelete(true)}
@@ -137,6 +151,8 @@ export function PresetPage() {
       )}
 
       {showDelete && <DeletePresetModal onClose={() => setShowDelete(false)} />}
+
+      {showCopy && <CopyPresetModal onClose={() => setShowCopy(false)} />}
 
       {createdAuctionId && (
         <AuctionCreatedModal
