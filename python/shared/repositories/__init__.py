@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-CHUNK_SIZE = 500
+
+CHUNK_SIZE = 1000
 
 
 class BaseRepository:
