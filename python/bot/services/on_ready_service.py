@@ -74,7 +74,8 @@ async def on_ready_service(
     bot: commands.Bot, session: AsyncSession, event: Event
 ) -> None:
     synced_guild_ids: set[int] = set()
-    synced_count = 0
+    synced_guild_count = 0
+    synced_member_count = 0
     removed_member_count = 0
     failed_guild_ids: list[int] = []
 
@@ -94,6 +95,8 @@ async def on_ready_service(
             else:
                 batch_data.append(result)
                 synced_guild_ids.add(result.guild_dict["discord_id"])
+                synced_guild_count += 1
+                synced_member_count += len(result.member_dicts)
 
         if batch_data:
             async for db_session in get_session():
@@ -101,7 +104,11 @@ async def on_ready_service(
                     [d.guild_dict for d in batch_data]
                 )
                 await UserRepository(db_session).bulk_upsert(
-                    [u for d in batch_data for u in d.user_dicts]
+                    list(
+                        {
+                            u["discord_id"]: u for d in batch_data for u in d.user_dicts
+                        }.values()
+                    )
                 )
                 await MemberRepository(db_session).bulk_upsert(
                     [m for d in batch_data for m in d.member_dicts]
@@ -114,7 +121,6 @@ async def on_ready_service(
                         )
                         r = await db_session.execute(stmt)
                         removed_member_count += r.rowcount
-                synced_count += sum(len(d.member_dicts) for d in batch_data)
 
     guild_repo = GuildRepository(session)
     guild_entities = await guild_repo.get_all()
@@ -124,11 +130,10 @@ async def on_ready_service(
             continue
         removed_guilds.append(await delete_guild(guild_entity.discord_id, session))
 
-    event.detail |= {
-        "synced_guild_count": synced_count,
+    event.result = {
+        "synced_guild_count": synced_guild_count,
+        "synced_member_count": synced_member_count,
         "removed_guild_count": len(removed_guilds),
-        "removed_guilds": removed_guilds,
         "removed_member_count": removed_member_count,
         "failed_guild_count": len(failed_guild_ids),
-        "failed_guild_ids": failed_guild_ids,
     }
