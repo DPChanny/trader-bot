@@ -46,12 +46,7 @@ if #unsold_queue_ids == 0 then unsold_queue_ids = cjson.empty_array end
 
 local event = cjson.encode({
     type = event_type,
-    payload = {
-        player_id = tonumber(player_id),
-        teams = teams,
-        auction_queue = auction_queue_ids,
-        unsold_queue = unsold_queue_ids,
-    },
+    payload = cjson.null,
 })
 redis.call('PUBLISH', event_channel, event)
 return player_id

@@ -10,10 +10,10 @@ export interface PresetMemberDTO {
   memberId: number;
   tierId: number | null;
   isLeader: boolean;
-  infoUrl: string | null;
 }
 
 export interface PresetMemberDetailDTO extends PresetMemberDTO {
+  infoUrl: string | null;
   member: MemberDetailDTO;
   tier: TierDTO | null;
   presetMemberPositions: PresetMemberPositionDetailDTO[];

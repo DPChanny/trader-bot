@@ -10,17 +10,18 @@ export enum Status {
 
 export interface AuctionDTO {
   auctionId: string;
-  status: Status;
-  connectedLeaderCount: number;
 }
 
 export interface AuctionDetailDTO extends AuctionDTO {
+  status: Status;
+  connectedLeaderCount: number;
   playerId: number | null;
   bid: BidDTO | null;
   teams: TeamDTO[];
   auctionQueue: number[];
   unsoldQueue: number[];
   presetSnapshot: PresetDetailDTO | null;
+  ttl: number;
 }
 
 export interface InitPayloadDTO {

@@ -7,10 +7,7 @@ local leader_id = tonumber(ARGV[3])
 local count = redis.call('HINCRBY', auction_key, 'connected_leader_count', increment)
 local event = cjson.encode({
     type = event_type,
-    payload = {
-        leader_id = leader_id,
-        connected_leader_count = count,
-    },
+    payload = cjson.null,
 })
 redis.call('PUBLISH', event_channel, event)
 return count

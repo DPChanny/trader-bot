@@ -17,10 +17,6 @@ redis.call('HSET', auction_key, 'player_id', '')
 redis.call('DEL', bid_key)
 local event = cjson.encode({
     type = event_type,
-    payload = {
-        player_id = player_id,
-        leader_id = tonumber(leader_id),
-        amount = amount,
-    },
+    payload = cjson.null,
 })
 redis.call('PUBLISH', event_channel, event)

@@ -97,36 +97,8 @@ class StatusEventPayloadDTO(BaseDTO):
 
 
 class BidPlacedEventPayloadDTO(BaseDTO):
-    player_id: int
     leader_id: int
     amount: int
-
-
-class MemberSoldEventPayloadDTO(BaseDTO):
-    player_id: int
-    leader_id: int
-    amount: int
-
-
-class MemberUnsoldEventPayloadDTO(BaseDTO):
-    player_id: int
-
-
-class LeaderConnectedEventPayloadDTO(BaseDTO):
-    leader_id: int
-    connected_leader_count: int
-
-
-class LeaderDisconnectedEventPayloadDTO(BaseDTO):
-    leader_id: int
-    connected_leader_count: int
-
-
-class NextPlayerEventPayloadDTO(BaseDTO):
-    player_id: int
-    teams: list[TeamDTO]
-    auction_queue: list[int]
-    unsold_queue: list[int]
 
 
 class AuctionEventEnvelopeDTO(BaseDTO):

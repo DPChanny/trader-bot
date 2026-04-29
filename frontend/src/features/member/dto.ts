@@ -36,10 +36,10 @@ export interface MemberDTO {
   name: string | null;
   alias: string | null;
   avatarHash: string | null;
-  infoUrl: string | null;
 }
 
 export interface MemberDetailDTO extends MemberDTO {
+  infoUrl: string | null;
   avatarUrl: string | null;
   user: UserDetailDTO;
 }

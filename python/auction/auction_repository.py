@@ -11,7 +11,6 @@ from shared.dtos.auction import (
     BidDTO,
     BidErrorResponsePayloadDTO,
     BidPlacedEventPayloadDTO,
-    MemberUnsoldEventPayloadDTO,
     Status,
     StatusEventPayloadDTO,
     TeamDTO,
@@ -127,8 +126,7 @@ class AuctionRepository(BaseAuctionRepository):
 
     async def publish_member_unsold(self, player_id: int) -> None:
         event = AuctionEventEnvelopeDTO(
-            type=AuctionEventType.MEMBER_UNSOLD,
-            payload=MemberUnsoldEventPayloadDTO(player_id=player_id),
+            type=AuctionEventType.MEMBER_UNSOLD, payload=None
         ).model_dump_json()
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
@@ -185,7 +183,7 @@ class AuctionRepository(BaseAuctionRepository):
         event = AuctionEventEnvelopeDTO(
             type=AuctionEventType.BID_PLACED,
             payload=BidPlacedEventPayloadDTO(
-                leader_id=dto.leader_id, amount=dto.amount, player_id=player_id
+                leader_id=dto.leader_id, amount=dto.amount
             ),
         ).model_dump_json()
 
