@@ -21,3 +21,5 @@ git clone https://github.com/DPChanny/trader-bot /home/ubuntu/trader-bot
 chown -R ubuntu:ubuntu /home/ubuntu/trader-bot
 
 bash /home/ubuntu/trader-bot/infra/cloudwatch/install.sh
+
+install -d -m 755 /var/log/trader-bot

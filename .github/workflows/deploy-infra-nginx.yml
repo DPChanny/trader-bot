@@ -68,7 +68,6 @@ jobs:
             --arg phase "$PHASE" \
             --arg repo "/home/ubuntu/trader-bot" \
             '{commands: (
-              ($repo + "/infra/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf") as $source_conf |
               ("/etc/nginx/sites-available/trader-bot-" + $phase + "-nginx.conf") as $available_conf |
               ("/etc/nginx/sites-enabled/trader-bot-" + $phase + "-nginx.conf") as $enabled_conf |
               [
@@ -76,7 +75,6 @@ jobs:
               ("cd " + $repo),
               ("sudo -H -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -H -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              ("install -m 644 " + $source_conf + " " + $available_conf),
               ("ln -sfn " + $available_conf + " " + $enabled_conf),
               "nginx -t",
               "systemctl enable --now nginx",

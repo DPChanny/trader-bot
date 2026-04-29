@@ -10,7 +10,7 @@ on:
         description: "Git ref (tag/branch/sha)"
         required: true
       ami:
-        description: "AMI(backend, bot, redis, golden)"
+        description: "AMI(backend, bot, auction, redis)"
         required: true
 
 concurrency:
@@ -43,7 +43,7 @@ jobs:
           esac
 
           case "$AMI" in
-            backend|bot|redis|golden) ;;
+            backend|bot|auction|redis) ;;
             *)
               echo "Invalid ami: $AMI"
               exit 1
@@ -67,7 +67,7 @@ jobs:
 
   redis:
     needs: [prepare, cloudwatch]
-    if: needs.prepare.outputs.ami == 'redis' || needs.prepare.outputs.ami == 'golden'
+    if: needs.prepare.outputs.ami == 'redis'
     uses: ./.github/workflows/deploy-infra-redis.yml
     with:
       phase: ${{ needs.prepare.outputs.phase }}
@@ -79,7 +79,7 @@ jobs:
     if: |
       needs.cloudwatch.result == 'success' &&
       (needs.redis.result == 'success' || needs.redis.result == 'skipped') &&
-      (needs.prepare.outputs.ami == 'backend' || needs.prepare.outputs.ami == 'golden')
+      needs.prepare.outputs.ami == 'backend'
     uses: ./.github/workflows/deploy-infra-nginx.yml
     with:
       phase: ${{ needs.prepare.outputs.phase }}
@@ -91,7 +91,7 @@ jobs:
     if: |
       needs.cloudwatch.result == 'success' &&
       (needs.nginx.result == 'success' || needs.nginx.result == 'skipped') &&
-      (needs.prepare.outputs.ami == 'backend' || needs.prepare.outputs.ami == 'bot' || needs.prepare.outputs.ami == 'golden')
+      (needs.prepare.outputs.ami == 'backend' || needs.prepare.outputs.ami == 'bot' || needs.prepare.outputs.ami == 'auction')
     uses: ./.github/workflows/deploy-infra-pm2.yml
     with:
       phase: ${{ needs.prepare.outputs.phase }}

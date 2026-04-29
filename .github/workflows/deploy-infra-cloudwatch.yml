@@ -21,7 +21,7 @@ on:
         description: "Git ref (tag/branch/sha)"
         required: true
       ami:
-        description: "AMI(backend, bot, redis, golden)"
+        description: "AMI(backend, bot, auction, redis)"
         required: true
 
 concurrency:
@@ -51,7 +51,7 @@ jobs:
           AMI="${{ inputs.ami }}"
 
           case "$AMI" in
-            backend|bot|redis|golden) ;;
+            backend|bot|auction|redis) ;;
             *)
               echo "Invalid ami: $AMI"
               exit 1
@@ -60,10 +60,11 @@ jobs:
 
           BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
           BOT_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
+          AUCTION_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].auction')
           REDIS_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].redis')
 
           MISSING_DEPLOY_MAP_VALUES=""
-          for KEY in backend bot redis; do
+          for KEY in backend bot auction redis; do
             VALUE=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key]')
             if [ -z "$VALUE" ]; then
               if [ -z "$MISSING_DEPLOY_MAP_VALUES" ]; then
@@ -83,10 +84,10 @@ jobs:
             INSTANCE_IDS=$(printf '%s\n' "$BACKEND_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           elif [ "$AMI" = "bot" ]; then
             INSTANCE_IDS=$(printf '%s\n' "$BOT_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
+          elif [ "$AMI" = "auction" ]; then
+            INSTANCE_IDS=$(printf '%s\n' "$AUCTION_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           elif [ "$AMI" = "redis" ]; then
             INSTANCE_IDS=$(printf '%s\n' "$REDIS_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
-          else
-            INSTANCE_IDS=$(printf '%s\n%s\n%s\n' "$BACKEND_INSTANCE_ID" "$BOT_INSTANCE_ID" "$REDIS_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           fi
 
           if [ -z "$INSTANCE_IDS" ]; then
@@ -119,6 +120,7 @@ jobs:
               ($source_dir + "/agent.json") as $source_agent_json |
               ($source_dir + "/trader-bot-" + $phase + "-lg-backend.json") as $source_backend_json |
               ($source_dir + "/trader-bot-" + $phase + "-lg-bot.json") as $source_bot_json |
+              ($source_dir + "/trader-bot-" + $phase + "-lg-auction.json") as $source_auction_json |
               ($source_dir + "/trader-bot-" + $phase + "-lg-redis.json") as $source_redis_json |
               [
               "set -e",
@@ -126,13 +128,16 @@ jobs:
               ("sudo -H -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -H -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
                 ("amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $source_agent_json + " -s"),
-              "if [ \"" + $ami + "\" = \"backend\" ] || [ \"" + $ami + "\" = \"golden\" ]; then",
+              "if [ \"" + $ami + "\" = \"backend\" ]; then",
                 ("  amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_backend_json),
               "fi",
-              "if [ \"" + $ami + "\" = \"bot\" ] || [ \"" + $ami + "\" = \"golden\" ]; then",
+              "if [ \"" + $ami + "\" = \"bot\" ]; then",
                 ("  amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_bot_json),
               "fi",
-              "if [ \"" + $ami + "\" = \"redis\" ] || [ \"" + $ami + "\" = \"golden\" ]; then",
+              "if [ \"" + $ami + "\" = \"auction\" ]; then",
+                ("  amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_auction_json),
+              "fi",
+              "if [ \"" + $ami + "\" = \"redis\" ]; then",
                 ("  amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $source_redis_json),
               "fi",
               "systemctl enable --now amazon-cloudwatch-agent",

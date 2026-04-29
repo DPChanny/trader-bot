@@ -10,8 +10,6 @@ curl -fsSL "https://amazoncloudwatch-agent.s3.amazonaws.com/ubuntu/arm64/latest/
 dpkg -i "${TMP_DEB}" || apt-get -f install -y
 rm -f "${TMP_DEB}"
 
-command -v amazon-cloudwatch-agent-ctl >/dev/null
-
 install -d -m 755 /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d
 rm -f /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/* || true
 

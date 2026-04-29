@@ -21,7 +21,7 @@ on:
         description: "Git ref (tag/branch/sha)"
         required: true
       ami:
-        description: "AMI(backend, bot, golden)"
+        description: "AMI(backend, bot, auction)"
         required: true
 
 concurrency:
@@ -51,7 +51,7 @@ jobs:
           AMI="${{ inputs.ami }}"
 
           case "$AMI" in
-            backend|bot|golden) ;;
+            backend|bot|auction) ;;
             *)
               echo "Invalid ami: $AMI"
               exit 1
@@ -60,9 +60,10 @@ jobs:
 
           BACKEND_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
           BOT_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].bot')
+          AUCTION_INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].auction')
 
           MISSING_DEPLOY_MAP_VALUES=""
-          for KEY in backend bot; do
+          for KEY in backend bot auction; do
             VALUE=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key]')
             if [ -z "$VALUE" ]; then
               if [ -z "$MISSING_DEPLOY_MAP_VALUES" ]; then
@@ -82,8 +83,8 @@ jobs:
             INSTANCE_IDS=$(printf '%s\n' "$BACKEND_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           elif [ "$AMI" = "bot" ]; then
             INSTANCE_IDS=$(printf '%s\n' "$BOT_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
-          else
-            INSTANCE_IDS=$(printf '%s\n%s\n' "$BACKEND_INSTANCE_ID" "$BOT_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
+          elif [ "$AMI" = "auction" ]; then
+            INSTANCE_IDS=$(printf '%s\n' "$AUCTION_INSTANCE_ID" | awk 'NF' | sort -u | xargs)
           fi
 
           if [ -z "$INSTANCE_IDS" ]; then
