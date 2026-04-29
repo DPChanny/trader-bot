@@ -13,5 +13,7 @@ rm -f "${TMP_DEB}"
 install -d -m 755 /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d
 rm -f /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/* || true
 
+amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/ubuntu/trader-bot/infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json -s
+
 systemctl disable amazon-cloudwatch-agent
 systemctl stop amazon-cloudwatch-agent || true

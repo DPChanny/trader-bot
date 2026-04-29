@@ -1,4 +1,4 @@
-name: deploy-python-backend
+name: deploy-instance-redis
 
 on:
   workflow_call:
@@ -21,7 +21,7 @@ on:
         default: "master"
 
 concurrency:
-  group: deploy-python-backend-${{ inputs.phase }}-${{ inputs.ref }}
+  group: deploy-instance-redis-${{ inputs.phase }}
   cancel-in-progress: false
 
 jobs:
@@ -53,10 +53,10 @@ jobs:
               ;;
           esac
 
-          INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
+          INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].redis')
 
           if [ -z "$INSTANCE_ID" ]; then
-            echo "Missing DEPLOY_MAP value: .${PHASE}.backend"
+            echo "Missing DEPLOY_MAP value: .${PHASE}.redis"
             exit 1
           fi
 
@@ -75,20 +75,24 @@ jobs:
 
           COMMANDS_JSON=$(jq -n \
             --arg ref "$REF" \
+            --arg phase "$PHASE" \
             --arg repo "/home/ubuntu/trader-bot" \
             '{commands: (
-              ($repo + "/python") as $python_dir |
-              ($repo + "/infra/pm2/ecosystem.config.mjs") as $ecosystem |
+              ($repo + "/infra/cloudwatch/amazon-cloudwatch-agent.d") as $cw_dir |
+              ($cw_dir + "/trader-bot-" + $phase + "-lg-redis.json") as $cw_redis |
               [
               "set -e",
-              ("cd " + $repo),
               ("sudo -H -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -H -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              ("sudo -H -u ubuntu bash -lc \"uv sync --frozen --project " + $python_dir + "\""),
-              ("sudo -H -u ubuntu pm2 startOrReload " + $ecosystem + " --only trader-bot-pm2-backend-0,trader-bot-pm2-backend-1")
+              ("amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $cw_redis),
+              "systemctl enable --now amazon-cloudwatch-agent",
+              "systemctl is-active --quiet amazon-cloudwatch-agent",
+              "systemctl enable --now redis-server",
+              "systemctl is-active --quiet redis-server",
+              "redis-cli ping | grep -x PONG"
             ])}')
 
-          echo "[deploy-python-backend] phase=$PHASE instance=$INSTANCE_ID"
+          echo "[deploy-instance-redis] phase=$PHASE instance=$INSTANCE_ID"
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \

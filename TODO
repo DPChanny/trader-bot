@@ -8,10 +8,5 @@ bot opt
     slash command opt
     intent & permission opt
 subscription
-t4g small rds
-t4g small backend
-t4g small bot
-t4g small redis + auction
 
-workflow 개편
 트래픽 초과 시 동작 예측

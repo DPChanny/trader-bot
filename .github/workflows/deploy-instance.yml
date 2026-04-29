@@ -1,0 +1,45 @@
+name: deploy-instance
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: "Phase"
+        required: true
+      ref:
+        description: "Ref"
+        required: false
+        default: "master"
+
+concurrency:
+  group: deploy-instance-${{ inputs.phase }}
+  cancel-in-progress: false
+
+jobs:
+  backend:
+    uses: ./.github/workflows/deploy-instance-backend.yml
+    with:
+      phase: ${{ inputs.phase }}
+      ref: ${{ inputs.ref }}
+    secrets: inherit
+
+  bot:
+    uses: ./.github/workflows/deploy-instance-bot.yml
+    with:
+      phase: ${{ inputs.phase }}
+      ref: ${{ inputs.ref }}
+    secrets: inherit
+
+  auction:
+    uses: ./.github/workflows/deploy-instance-auction.yml
+    with:
+      phase: ${{ inputs.phase }}
+      ref: ${{ inputs.ref }}
+    secrets: inherit
+
+  redis:
+    uses: ./.github/workflows/deploy-instance-redis.yml
+    with:
+      phase: ${{ inputs.phase }}
+      ref: ${{ inputs.ref }}
+    secrets: inherit
