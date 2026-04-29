@@ -53,7 +53,7 @@ jobs:
               ;;
           esac
 
-          INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" '.[$phase].backend')
+          INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].backend // empty')
 
           if [ -z "$INSTANCE_ID" ]; then
             echo "Missing DEPLOY_MAP value: .${PHASE}.backend"

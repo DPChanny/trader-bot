@@ -152,7 +152,7 @@ jobs:
             ]}')
 
           for KEY in backend bot auction; do
-            INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -er --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key]')
+            INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key] // empty')
             echo "[deploy-python-env] phase=$PHASE role=$KEY instance=$INSTANCE_ID"
             COMMAND_ID=$(aws ssm send-command \
               --instance-ids "$INSTANCE_ID" \
