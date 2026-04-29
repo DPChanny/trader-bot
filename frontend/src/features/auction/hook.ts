@@ -231,6 +231,10 @@ export function useAuction(): {
     ws.onclose = (event) => {
       if (wsRef.current !== ws) return;
       setIsConnected(false);
+      if (event.code === 4001) {
+        handleError(FrontendErrorCode.Connection.Kicked);
+        return;
+      }
       const reasonCode = Number.parseInt(event.reason, 10);
       if (Number.isInteger(reasonCode) && isBackendErrorCode(reasonCode)) {
         handleError(reasonCode);

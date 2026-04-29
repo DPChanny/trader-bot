@@ -2,6 +2,9 @@ export const FrontendErrorCode = {
   Validation: {
     Invalid: 9101,
   },
+  Connection: {
+    Kicked: 9201,
+  },
   Unexpected: {
     Internal: 9501,
     External: 9502,
@@ -136,6 +139,9 @@ function getErrorMessage(code: number): string {
 
     case FrontendErrorCode.Validation.Invalid:
       return "유효하지 않은 입력입니다";
+
+    case FrontendErrorCode.Connection.Kicked:
+      return "다른 기기 또는 탭에서 접속하여 연결이 끊겼습니다";
 
     case FrontendErrorCode.Unexpected.Internal:
       return "클라이언트 내부에서 예기치 못한 문제가 발생했습니다";

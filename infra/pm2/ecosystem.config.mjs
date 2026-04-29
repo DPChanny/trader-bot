@@ -1,9 +1,16 @@
 export const apps = [
   {
-    name: "trader-bot-pm2-backend",
+    name: "trader-bot-pm2-backend-0",
     cwd: "/home/ubuntu/trader-bot/python",
     script: "uv",
     args: "run -m uvicorn backend.main:app --host 127.0.0.1 --port 8000",
+    kill_timeout: 3000,
+  },
+  {
+    name: "trader-bot-pm2-backend-1",
+    cwd: "/home/ubuntu/trader-bot/python",
+    script: "uv",
+    args: "run -m uvicorn backend.main:app --host 127.0.0.1 --port 8001",
     kill_timeout: 3000,
   },
   {

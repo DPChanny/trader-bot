@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 from typing import Any
 
 from fastapi import WebSocket
@@ -35,7 +36,7 @@ class Auction:
 
         self._ws_set: set[WebSocket] = set()
         self._ws_to_leader_id: dict[WebSocket, int] = {}
-        self._leader_id_to_ws_set: dict[int, set[WebSocket]] = {}
+        self._leader_id_to_ws: dict[int, WebSocket] = {}
 
     async def connect(self, ws: WebSocket, member_id: int | None) -> None:
         auction_detail_dto = await self.repo.get_detail()
@@ -54,9 +55,14 @@ class Auction:
         self._ws_set.add(ws)
         if member_id is not None and member_id in self._leader_member_ids:
             self._ws_to_leader_id[ws] = member_id
-            is_new_leader = member_id not in self._leader_id_to_ws_set
-            self._leader_id_to_ws_set.setdefault(member_id, set()).add(ws)
-            if is_new_leader:
+            existing_ws = self._leader_id_to_ws.get(member_id)
+            self._leader_id_to_ws[member_id] = ws
+            if existing_ws is not None:
+                self._ws_set.discard(existing_ws)
+                self._ws_to_leader_id.pop(existing_ws, None)
+                with contextlib.suppress(Exception):
+                    await existing_ws.close(code=4001)
+            else:
                 await self.repo.publish_request(
                     AuctionRequestType.LEADER_CONNECTED,
                     LeaderConnectedRequestPayloadDTO(leader_id=member_id),
@@ -65,16 +71,12 @@ class Auction:
     async def disconnect(self, ws: WebSocket) -> None:
         self._ws_set.discard(ws)
         leader_id = self._ws_to_leader_id.pop(ws, None)
-        if leader_id is not None:
-            ws_set = self._leader_id_to_ws_set.get(leader_id)
-            if ws_set is not None:
-                ws_set.discard(ws)
-                if not ws_set:
-                    del self._leader_id_to_ws_set[leader_id]
-                    await self.repo.publish_request(
-                        AuctionRequestType.LEADER_DISCONNECTED,
-                        LeaderDisconnectedRequestPayloadDTO(leader_id=leader_id),
-                    )
+        if leader_id is not None and self._leader_id_to_ws.get(leader_id) is ws:
+            del self._leader_id_to_ws[leader_id]
+            await self.repo.publish_request(
+                AuctionRequestType.LEADER_DISCONNECTED,
+                LeaderDisconnectedRequestPayloadDTO(leader_id=leader_id),
+            )
 
     async def place_bid(self, dto: BidDTO) -> None:
         if dto.leader_id not in self._leader_member_ids:
@@ -87,12 +89,12 @@ class Auction:
         if isinstance(envelope, AuctionResponseEnvelopeDTO):
             if envelope.type == AuctionResponseType.BID_ERROR:
                 payload = BidErrorResponsePayloadDTO.model_validate(envelope.payload)
-                ws_set = self._leader_id_to_ws_set.get(payload.leader_id, set())
-                error_msg = AuctionEventEnvelopeDTO(
-                    type=AuctionEventType.ERROR,
-                    payload=ErrorEventPayloadDTO(code=payload.code),
-                ).model_dump_json()
-                for ws in list(ws_set):
+                ws = self._leader_id_to_ws.get(payload.leader_id)
+                if ws is not None:
+                    error_msg = AuctionEventEnvelopeDTO(
+                        type=AuctionEventType.ERROR,
+                        payload=ErrorEventPayloadDTO(code=payload.code),
+                    ).model_dump_json()
                     try:
                         await ws.send_text(error_msg)
                     except Exception:
@@ -112,7 +114,7 @@ class Auction:
     def stop(self) -> None:
         self._ws_set.clear()
         self._ws_to_leader_id.clear()
-        self._leader_id_to_ws_set.clear()
+        self._leader_id_to_ws.clear()
 
     async def broadcast(self, event_type: AuctionEventType, payload: Any) -> None:
         if not self._ws_set:
