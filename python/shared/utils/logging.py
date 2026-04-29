@@ -73,6 +73,7 @@ class Event:
         WS_SERVICE = "ws_service"
         ERROR = "error"
         HTTP_MIDDLEWARE = "http_middleware"
+        WS_MIDDLEWARE = "ws_middleware"
 
     type: Type
     input: LogValue | None = None
@@ -300,6 +301,50 @@ class WSLogger:
 
         headers = Headers(scope=scope)
         request_id = headers.get("x-request-id") or str(uuid4())
+        latency_counter = perf_counter()
+
+        forwarded_for = headers.get("x-forwarded-for")
+        client = scope.get("client")
+        detail: dict[str, Any] = {
+            "ws": {
+                "request": {
+                    "id": request_id,
+                    "path": scope.get("path", ""),
+                    "user": {
+                        "ip": forwarded_for.split(",", maxsplit=1)[0].strip()
+                        if forwarded_for
+                        else (client[0] if client else None),
+                        "agent": headers.get("user-agent"),
+                    },
+                }
+            }
+        }
+
+        close_code: int | None = None
+
+        async def _receive() -> dict:
+            message = await receive()
+            if message.get("type") == "websocket.disconnect":
+                nonlocal close_code
+                close_code = message.get("code")
+            return message
+
+        async def _send(message: dict) -> None:
+            if message.get("type") == "websocket.close":
+                nonlocal close_code
+                close_code = message.get("code")
+            await send(message)
 
         async with logging_context({"ws": {"request": {"id": request_id}}}):
-            await self.app(scope, receive, send)
+            try:
+                await self.app(scope, _receive, _send)
+            finally:
+                latency_ms = round((perf_counter() - latency_counter) * 1000, 2)
+                detail["ws"]["response"] = {
+                    "close_code": close_code,
+                    "duration_ms": latency_ms,
+                }
+                level = "WARNING" if close_code == 4000 else "INFO"
+                logger.bind(event=Event(Event.Type.WS_MIDDLEWARE, detail=detail)).log(
+                    level, ""
+                )
