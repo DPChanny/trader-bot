@@ -1,8 +1,5 @@
 bot opt
-    upsert opt
-    on ready opt
     slash command opt
-    intent & permission opt
 트래픽 초과 시 동작 예측
 auction error
 auction logging

@@ -2,7 +2,7 @@ import asyncio
 import sys
 from pathlib import Path
 
-from discord import Client, Intents
+from discord import AutoShardedClient, Intents, MemberCacheFlags
 
 from shared.utils.env import get_discord_bot_token, get_log_dir
 from shared.utils.error import AppError, UnexpectedErrorCode, handle_app_error
@@ -24,7 +24,11 @@ async def main() -> None:
     intents.members = True
     intents.guilds = True
 
-    bot = Client(intents=intents)
+    bot = AutoShardedClient(
+        intents=intents,
+        member_cache_flags=MemberCacheFlags.none(),
+        chunk_guilds_at_startup=False,
+    )
 
     include_on_ready_router(bot)
     include_guild_router(bot)
