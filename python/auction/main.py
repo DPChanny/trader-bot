@@ -2,13 +2,14 @@ import asyncio
 import signal
 from pathlib import Path
 
+from shared.utils.env import get_log_dir
 from shared.utils.logging import setup_logging
 from shared.utils.redis import cleanup_redis, setup_redis
 
 from .auction_manager import AuctionManager
 
 
-setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
+setup_logging(log_dir=get_log_dir() or Path(__file__).resolve().parent / "logs")
 
 
 async def main() -> None:

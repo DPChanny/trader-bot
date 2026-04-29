@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from shared.utils.db import cleanup_db, setup_db
-from shared.utils.env import get_app_origin
+from shared.utils.env import get_app_origin, get_log_dir
 from shared.utils.error import (
     HTTPError,
     UnexpectedErrorCode,
@@ -32,7 +32,7 @@ from .routers import (
 )
 
 
-setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
+setup_logging(log_dir=get_log_dir() or Path(__file__).resolve().parent / "logs")
 
 
 @asynccontextmanager

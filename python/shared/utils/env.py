@@ -68,6 +68,11 @@ def get_redis_host() -> str:
     return os.getenv("REDIS_HOST", "127.0.0.1")
 
 
+def get_log_dir() -> Path | None:
+    log_dir = os.getenv("LOG_DIR")
+    return Path(log_dir) if log_dir else None
+
+
 def get_redis_port() -> int:
     return int(os.getenv("REDIS_PORT", "6379"))
 

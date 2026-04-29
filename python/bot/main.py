@@ -4,7 +4,7 @@ from pathlib import Path
 
 from discord import Client, Intents
 
-from shared.utils.env import get_discord_bot_token
+from shared.utils.env import get_discord_bot_token, get_log_dir
 from shared.utils.error import AppError, UnexpectedErrorCode, handle_app_error
 from shared.utils.logging import setup_logging
 
@@ -16,7 +16,7 @@ from .routers import (
 )
 
 
-setup_logging(log_dir=Path(__file__).resolve().parent / "logs")
+setup_logging(log_dir=get_log_dir() or Path(__file__).resolve().parent / "logs")
 
 
 async def main() -> None:

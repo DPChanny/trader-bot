@@ -5,6 +5,7 @@ export const apps = [
     script: "uv",
     args: "run -m uvicorn backend.main:app --host 127.0.0.1 --port 8000",
     kill_timeout: 3000,
+    env: { LOG_DIR: "/var/log/trader-bot/backend-0" },
   },
   {
     name: "trader-bot-pm2-backend-1",
@@ -12,6 +13,7 @@ export const apps = [
     script: "uv",
     args: "run -m uvicorn backend.main:app --host 127.0.0.1 --port 8001",
     kill_timeout: 3000,
+    env: { LOG_DIR: "/var/log/trader-bot/backend-1" },
   },
   {
     name: "trader-bot-pm2-bot",
@@ -19,6 +21,7 @@ export const apps = [
     script: "uv",
     args: "run -m bot.main",
     kill_timeout: 3000,
+    env: { LOG_DIR: "/var/log/trader-bot/bot" },
   },
   {
     name: "trader-bot-pm2-auction",
@@ -26,5 +29,6 @@ export const apps = [
     script: "uv",
     args: "run -m auction.main",
     kill_timeout: 3000,
+    env: { LOG_DIR: "/var/log/trader-bot/auction" },
   },
 ];
