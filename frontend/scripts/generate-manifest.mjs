@@ -25,7 +25,7 @@ async function getAnnouncements() {
       if (entry.isFile() && entry.name.endsWith(".md")) {
         const match = entry.name.match(/^(\d+)/);
         if (match) {
-          const id = match[1];
+          const id = parseInt(match[1], 10);
           const title = await extractTitle(path.join(dirPath, entry.name));
           items.push({ id, path: `/announcements/${entry.name}`, title });
         }

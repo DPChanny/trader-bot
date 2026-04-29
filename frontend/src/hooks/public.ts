@@ -1,10 +1,14 @@
-import { queryOptions, useQuery, type UseQueryResult } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useQuery,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { marked } from "marked";
 import { queryKeys } from "@utils/query";
 import { Phase } from "@utils/env";
 
 export type AnnouncementMeta = {
-  id: string;
+  id: number;
   path: string;
   title: string;
 };

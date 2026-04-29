@@ -7,46 +7,41 @@ import { Footer } from "@components/footer";
 import { AnnouncementList } from "@components/announcementList";
 import { useManifest } from "@hooks/public";
 
-
 import { MarkedPage } from "./markedPage";
 
 export function AnnouncementPage() {
   const navigate = useNavigate();
-  const search = useSearch({ strict: false }) as Record<string, string>;
-  const idParam = search.id
-      ?.replace(/^\/+|\/+$/g, "")
-      .trim() ?? "";
-  const id = idParam;
+  const search = useSearch({ strict: false }) as Record<string, unknown>;
+  const id = search.id != null ? parseInt(String(search.id), 10) : null;
 
   const manifest = useManifest();
   const announcements = manifest.data?.announcements ?? [];
-  const targetId = id?.trim();
 
   const announcementMap = useMemo(() => {
-    const map = new Map<string, (typeof announcements)[0]>();
+    const map = new Map<number, (typeof announcements)[0]>();
     for (const ann of announcements) {
       map.set(ann.id, ann);
     }
     return map;
   }, [announcements]);
 
-  const targetAnn = targetId ? announcementMap.get(targetId) : null;
+  const targetAnn = id !== null ? announcementMap.get(id) : null;
 
   useEffect(() => {
-    if (!targetId || manifest.isLoading) {
+    if (id === null || manifest.isLoading) {
       return;
     }
 
     if (!targetAnn) {
-      navigate({ to: '/announcement', replace: true });
+      navigate({ to: "/announcement", replace: true });
     }
-  }, [manifest.isLoading, targetId, targetAnn]);
+  }, [manifest.isLoading, id, targetAnn]);
 
-  if (targetId && targetAnn) {
+  if (id !== null && targetAnn) {
     return <MarkedPage path={targetAnn.path} />;
   }
 
-  if (targetId && !manifest.isLoading && !targetAnn) {
+  if (id !== null && !manifest.isLoading && !targetAnn) {
     return null;
   }
 
