@@ -2,13 +2,15 @@ import asyncio
 import sys
 from pathlib import Path
 
-from discord import AutoShardedClient, Intents, MemberCacheFlags
+from discord import Intents, MemberCacheFlags
+from discord.ext import commands
 
 from shared.utils.env import get_discord_bot_token, get_log_dir
 from shared.utils.error import AppError, UnexpectedErrorCode, handle_app_error
 from shared.utils.logging import setup_logging
 
 from .routers import (
+    include_command_router,
     include_guild_router,
     include_member_router,
     include_on_ready_router,
@@ -24,7 +26,8 @@ async def main() -> None:
     intents.members = True
     intents.guilds = True
 
-    bot = AutoShardedClient(
+    bot = commands.AutoShardedBot(
+        command_prefix=[],
         intents=intents,
         member_cache_flags=MemberCacheFlags.none(),
         chunk_guilds_at_startup=False,
@@ -34,6 +37,7 @@ async def main() -> None:
     include_guild_router(bot)
     include_member_router(bot)
     include_user_router(bot)
+    include_command_router(bot)
 
     @bot.event
     async def on_error(_event_method: str, *_args, **_kwargs) -> None:

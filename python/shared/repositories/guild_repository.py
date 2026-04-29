@@ -27,6 +27,15 @@ class GuildRepository(BaseRepository):
         result = await self.session.execute(select(Guild))
         return list(result.scalars().all())
 
+    async def update_invite_channel(
+        self, guild_id: int, channel_id: int | None
+    ) -> Guild | None:
+        entity = await self.get_by_id(guild_id)
+        if entity is None:
+            return None
+        entity.invite_channel_id = channel_id
+        return entity
+
     async def get_all_by_user_id(self, user_id: int) -> list[Guild]:
         result = await self.session.execute(
             select(Guild)
