@@ -106,11 +106,14 @@ class Auction:
                 payload = LeaderDisconnectedRequestPayloadDTO.model_validate(
                     envelope.payload
                 )
-                await self._repo.publish_leader_disconnected(payload.leader_id)
+                connected_leader_count = await self._repo.publish_leader_disconnected(
+                    payload.leader_id
+                )
                 logger.bind(
                     event=Event(
                         Event.Type.AUCTION_SERVICE,
                         input={"payload": payload},
+                        result={"connected_leader_count": connected_leader_count},
                         detail={"type": AuctionRequestType.LEADER_DISCONNECTED},
                     )
                 ).log("INFO", "")
@@ -158,8 +161,7 @@ class Auction:
                 logger.bind(
                     event=Event(
                         Event.Type.AUCTION_SERVICE,
-                        input={"bid": bid},
-                        result={"player_id": player_id},
+                        result={"player_id": player_id, "bid": bid},
                         detail={"type": AuctionPublishType.MEMBER_SOLD},
                     )
                 ).log("INFO", "")
@@ -185,30 +187,21 @@ class Auction:
                     envelope = await self._queue.get()
                     if envelope.type == AuctionRequestType.PLACE_BID:
                         try:
-                            _bid = BidDTO.model_validate(envelope.payload)
+                            payload = BidDTO.model_validate(envelope.payload)
                             is_bid_placed = await self._repo.place_bid(
-                                _bid, player_id, team_size
+                                payload, player_id, team_size
                             )
                             if is_bid_placed:
-                                bid = _bid
+                                bid = payload
                                 bid_placed.set()
-                                logger.bind(
-                                    event=Event(
-                                        Event.Type.AUCTION_SERVICE,
-                                        input={"bid": _bid},
-                                        result={"bid": bid},
-                                        detail={"type": AuctionRequestType.PLACE_BID},
-                                    )
-                                ).log("INFO", "")
-                            else:
-                                logger.bind(
-                                    event=Event(
-                                        Event.Type.AUCTION_SERVICE,
-                                        input={"bid": _bid},
-                                        result={"bid": bid},
-                                        detail={"type": AuctionRequestType.PLACE_BID},
-                                    )
-                                ).log("DEBUG", "")
+                            logger.bind(
+                                event=Event(
+                                    Event.Type.AUCTION_SERVICE,
+                                    input={"payload": payload},
+                                    result={"bid": bid},
+                                    detail={"type": AuctionRequestType.PLACE_BID},
+                                )
+                            ).log("INFO", "")
                         except Exception as e:
                             app_error = AppError(UnexpectedErrorCode.Internal)
                             app_error.__cause__ = e

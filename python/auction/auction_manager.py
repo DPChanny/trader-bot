@@ -11,8 +11,8 @@ from shared.dtos.auction import (
     CreateRequestPayloadDTO,
     Status,
 )
-from shared.utils.redis import get_pubsub, listen
 from shared.utils.logging import Event
+from shared.utils.redis import get_pubsub, listen
 
 from .auction import Auction
 from .auction_repository import AuctionRepository
@@ -52,12 +52,15 @@ class AuctionManager:
             if auction_id in cls._auctions:
                 continue
             if not auction.preset_snapshot:
-                logger.warning(
-                    f"Recovery: auction {auction_id} has no preset_snapshot, skipping"
-                )
                 continue
-            logger.info(f"Recovering auction {auction_id}")
             await cls._setup_auction(auction_id, auction)
+            logger.bind(
+                event=Event(
+                    Event.Type.AUCTION_SERVICE,
+                    result={"auction": auction},
+                    detail={"type": AuctionRequestType.RECOVER},
+                )
+            ).log("INFO", "")
 
     @classmethod
     async def _setup_auction(cls, auction_id: int, detail: AuctionDetailDTO) -> None:
@@ -89,15 +92,16 @@ class AuctionManager:
                 return
             repo = AuctionRepository(auction_id)
             await repo.set(preset_snapshot=payload.preset_snapshot)
-            detail = await repo.get_detail()
-            if not detail:
+            auction = await repo.get_detail()
+            if not auction:
                 return
             await repo.publish_create_response()
-            await cls._setup_auction(auction_id, detail)
+            await cls._setup_auction(auction_id, auction)
             logger.bind(
                 event=Event(
                     Event.Type.AUCTION_SERVICE,
                     input={"payload": payload},
+                    result={"auction": auction},
                     detail={"type": AuctionRequestType.CREATE},
                 )
             ).log("INFO", "")

@@ -51,6 +51,7 @@ class AuctionRequestType(IntEnum):
     PLACE_BID = 1
     LEADER_CONNECTED = 2
     LEADER_DISCONNECTED = 3
+    RECOVER = 4
 
 
 class AuctionResponseType(IntEnum):
