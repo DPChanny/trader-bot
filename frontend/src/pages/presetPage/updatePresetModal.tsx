@@ -63,9 +63,7 @@ export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
     const newTeamSize = Number(value) || 1;
     const storedPoints = Math.trunc(Number(displayPoints) / pointScaleNum);
     if (storedPoints < newTeamSize) {
-      setDisplayPoints(
-        String(Math.ceil(newTeamSize / pointScaleNum) * pointScaleNum),
-      );
+      setDisplayPoints(String(newTeamSize * pointScaleNum));
     }
   };
   const parseResult = UpdatePresetSchema.safeParse({

@@ -41,7 +41,7 @@ export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
     const currentPoints = Number(points);
     const storedPoints = Math.trunc(currentPoints / pointScaleNum);
     if (storedPoints < newTeamSize) {
-      setPoints(String(Math.ceil(newTeamSize / pointScaleNum) * pointScaleNum));
+      setPoints(String(newTeamSize * pointScaleNum));
     }
   };
   const parseResult = CreatePresetSchema.safeParse({
