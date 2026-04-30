@@ -1,4 +1,7 @@
 ﻿.pressedButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   appearance: none;
   background: none;
   border: none;

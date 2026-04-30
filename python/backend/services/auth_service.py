@@ -4,10 +4,10 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auth import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
+from shared.repositories.user_repository import UserRepository
 from shared.utils.env import get_app_origin
 from shared.utils.error import HTTPError, TokenError
 from shared.utils.service import http_service
-from shared.repositories.user_repository import UserRepository
 
 from ..utils.discord import get_login_url, get_me
 from ..utils.token import AccessToken, ExchangeToken, RefreshToken, StateToken

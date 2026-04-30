@@ -75,7 +75,7 @@ export function useLoginCallback() {
         const exchangeToken = params.get("exchangeToken");
 
         if (!exchangeToken) {
-          navigate({ to: "/", replace: true });
+          setError(new AppError(FrontendErrorCode.Unexpected.External));
           return;
         }
 

@@ -57,7 +57,7 @@ export function CopyPresetModal({ onClose }: CopyPresetModalProps) {
                 onClick={() => handleSelectGuild(guild.discordId)}
                 disabled={copyPreset.isPending}
               >
-                <Card direction="row" align="center" justify="center">
+                <Card direction="row" align="center" justify="center" fill>
                   <Image src={guild.iconUrl} alt={guild.name} />
                   <Name>{guild.name}</Name>
                 </Card>

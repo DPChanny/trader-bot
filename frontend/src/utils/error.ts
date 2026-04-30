@@ -98,7 +98,7 @@ function getErrorMessage(code: number): string {
     case BackendErrorCode.Auction.BidNotLeader:
       return "팀장이 아니면 입찰할 수 없습니다";
     case BackendErrorCode.Auction.NotFound:
-      return "경매를 찾을 수 없습니다";
+      return "경매가 만료되었거나 존재하지 않습니다";
 
     case BackendErrorCode.Guild.NotFound:
       return "서버를 찾을 수 없습니다";

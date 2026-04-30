@@ -118,7 +118,11 @@ export function AuctionPage() {
     return (
       <Page>
         <PrimarySection fill align="stretch" justify="center">
-          <Error error={rawError}>경매 정보를 불러오지 못했습니다</Error>
+          <Error error={rawError}>
+            {isDisconnected
+              ? "연결이 끊겼습니다"
+              : "경매 정보를 불러오지 못했습니다"}
+          </Error>
         </PrimarySection>
       </Page>
     );
