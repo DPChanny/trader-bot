@@ -1,8 +1,8 @@
 import asyncio
 import contextlib
-from typing import Any
 
 from fastapi import WebSocket
+from loguru import logger
 
 from shared.dtos.auction import (
     AuctionPublishEnvelopeDTO,
@@ -23,12 +23,13 @@ from shared.dtos.auction import (
 )
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, WSError
+from shared.utils.logging import Event
+
+from .auction_repository import AuctionRepository
 
 
 class Auction:
     def __init__(self, auction_id: int, preset_snapshot: PresetDetailDTO):
-        from .auction_repository import AuctionRepository
-
         self.auction_id = auction_id
         self.preset_snapshot = preset_snapshot
         self.repo = AuctionRepository(auction_id)
@@ -107,14 +108,10 @@ class Auction:
             case AuctionPublishType.STATUS:
                 status_payload = StatusEventPayloadDTO.model_validate(envelope.payload)
                 if status_payload.status == Status.COMPLETED:
-                    await self.broadcast(
-                        AuctionServerEventType(envelope.type.value), envelope.payload
-                    )
+                    await self.broadcast(envelope)
                     self.stop()
                     return True
-        await self.broadcast(
-            AuctionServerEventType(envelope.type.value), envelope.payload
-        )
+        await self.broadcast(envelope)
         return False
 
     def stop(self) -> None:
@@ -122,13 +119,26 @@ class Auction:
         self._ws_to_leader_id.clear()
         self._leader_id_to_ws.clear()
 
-    async def broadcast(self, event_type: AuctionServerEventType, payload: Any) -> None:
+    async def broadcast(self, envelope: AuctionPublishEnvelopeDTO) -> None:
         if not self._ws_set:
             return
+        event_type = AuctionServerEventType(envelope.type.value)
         data = AuctionServerEventEnvelopeDTO(
-            type=event_type, payload=payload
+            type=event_type, payload=envelope.payload
         ).model_dump_json()
         ws_list = list(self._ws_set)
+        level = "DEBUG" if event_type == AuctionServerEventType.TICK else "INFO"
+        logger.bind(
+            event=Event(
+                Event.Type.AUCTION_SERVICE,
+                input={
+                    "type": event_type,
+                    "payload": envelope.payload,
+                    "ws_count": len(ws_list),
+                },
+                detail={"auction_id": self.auction_id},
+            )
+        ).log(level, "")
         results = await asyncio.gather(
             *[ws.send_text(data) for ws in ws_list], return_exceptions=True
         )

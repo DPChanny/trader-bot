@@ -2,9 +2,6 @@ import asyncio
 import uuid
 from typing import Any, ClassVar
 
-from loguru import logger
-from pydantic import ValidationError
-
 from shared.dtos.auction import (
     AuctionPublishEnvelopeDTO,
     AuctionResponseEnvelopeDTO,
@@ -43,38 +40,24 @@ class AuctionManager:
 
     @classmethod
     async def _listener(cls) -> None:
-        while True:
-            try:
-                async for message in listen(cls._pubsub):
-                    try:
-                        parts = message.channel.split(":")
-                        auction_id = int(parts[1])
-                        auction = cls._auctions.get(auction_id)
-                        if not auction:
-                            continue
+        await listen(cls._pubsub, cls._handle_message)
 
-                        if message.channel.endswith(":response"):
-                            envelope = AuctionResponseEnvelopeDTO.model_validate_json(
-                                message.data
-                            )
-                        else:
-                            envelope = AuctionPublishEnvelopeDTO.model_validate_json(
-                                message.data
-                            )
-
-                        is_completed = await auction.handle_event(envelope)
-                        if is_completed:
-                            cls._auctions.pop(auction_id, None)
-                            repo = AuctionRepository(auction_id)
-                            await repo.unsubscribe(cls._pubsub)
-                    except ValueError, IndexError, KeyError, ValidationError:
-                        continue
-            except asyncio.CancelledError:
-                return
-            except Exception as e:
-                logger.error(f"Listener error: {type(e).__name__}: {e}")
-
-            await asyncio.sleep(1)
+    @classmethod
+    async def _handle_message(cls, message: dict) -> None:
+        parts = message["channel"].split(":")
+        auction_id = int(parts[1])
+        auction = cls._auctions.get(auction_id)
+        if not auction:
+            return
+        if message["channel"].endswith(":response"):
+            envelope = AuctionResponseEnvelopeDTO.model_validate_json(message["data"])
+        else:
+            envelope = AuctionPublishEnvelopeDTO.model_validate_json(message["data"])
+        is_completed = await auction.handle_event(envelope)
+        if is_completed:
+            cls._auctions.pop(auction_id, None)
+            repo = AuctionRepository(auction_id)
+            await repo.unsubscribe(cls._pubsub)
 
     @classmethod
     async def create_auction(cls, preset_snapshot: PresetDetailDTO) -> Auction:
