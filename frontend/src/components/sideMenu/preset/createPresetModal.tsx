@@ -120,8 +120,8 @@ export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
             label="타이머 (초)"
             type="number"
             value={timer}
-            placeholder="1초 ~ 60초"
-            min={1}
+            placeholder="5초 ~ 60초"
+            min={5}
             max={60}
             onValueChange={setTimer}
             required

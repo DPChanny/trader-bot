@@ -16,7 +16,9 @@ interface UpdateTierModalProps {
 
 export function UpdateTierModal({ tier, onClose }: UpdateTierModalProps) {
   const { guildId } = useParams({ strict: false }) as { guildId: string };
-  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as {
+    presetId: string;
+  };
   const presetId = parseInt(presetIdStr, 10);
   const [name, setName] = useState(tier.name);
   const [iconUrl, setIconUrl] = useState(tier.iconUrl ?? "");
@@ -63,6 +65,8 @@ export function UpdateTierModal({ tier, onClose }: UpdateTierModalProps) {
           label="티어 이름"
           type="text"
           value={name}
+          placeholder="1자 ~ 256자"
+          maxLength={256}
           onValueChange={setName}
           required
         />
@@ -70,6 +74,8 @@ export function UpdateTierModal({ tier, onClose }: UpdateTierModalProps) {
           label="아이콘 링크"
           type="text"
           value={iconUrl}
+          placeholder="최대 2048자"
+          maxLength={2048}
           onValueChange={setIconUrl}
         />
       </ModalForm>

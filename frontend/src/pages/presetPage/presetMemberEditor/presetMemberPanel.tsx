@@ -358,7 +358,8 @@ export function PresetMemberPanel({
               label="정보 링크"
               value={infoUrl}
               onValueChange={setInfoUrl}
-              placeholder={presetMember.member.infoUrl ?? undefined}
+              placeholder={presetMember.member.infoUrl ?? "최대 2048자"}
+              maxLength={2048}
               disabled={!canEdit || isSaving}
             />
             <Column gap="xs">
@@ -432,4 +433,3 @@ export function PresetMemberPanel({
     </PrimarySection>
   );
 }
-

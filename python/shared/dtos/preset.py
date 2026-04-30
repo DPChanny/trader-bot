@@ -22,7 +22,7 @@ class PresetDetailDTO(PresetDTO):
 class CreatePresetDTO(BaseDTO):
     name: NameStr
     points: int = Field(ge=0, le=10000)
-    timer: int = Field(ge=1, le=60)
+    timer: int = Field(ge=5, le=60)
     team_size: int = Field(ge=1, le=10)
     point_scale: int = Field(ge=1, le=100)
 
@@ -36,7 +36,7 @@ class CreatePresetDTO(BaseDTO):
 class UpdatePresetDTO(BaseDTO):
     name: NameStr | None = None
     points: int | None = Field(default=None, ge=0, le=10000)
-    timer: int | None = Field(default=None, ge=1, le=60)
+    timer: int | None = Field(default=None, ge=5, le=60)
     team_size: int | None = Field(default=None, ge=1, le=10)
     point_scale: int | None = Field(default=None, ge=1, le=100)
 
