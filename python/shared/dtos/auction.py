@@ -17,13 +17,16 @@ class Status(IntEnum):
     COMPLETED = 3
 
 
-class AuctionEventType(IntEnum):
+class AuctionClientEventType(IntEnum):
     AUTH = 0
+    PLACE_BID = 5
+
+
+class AuctionServerEventType(IntEnum):
     INIT = 1
     ERROR = 2
     TICK = 3
     STATUS = 4
-    PLACE_BID = 5
     BID_PLACED = 6
     MEMBER_SOLD = 7
     MEMBER_UNSOLD = 8
@@ -32,7 +35,18 @@ class AuctionEventType(IntEnum):
     NEXT_PLAYER = 11
 
 
-class AuctionRequestType(IntEnum):
+class AuctionPublishType(IntEnum):
+    TICK = 3
+    STATUS = 4
+    BID_PLACED = 6
+    MEMBER_SOLD = 7
+    MEMBER_UNSOLD = 8
+    LEADER_CONNECTED = 9
+    LEADER_DISCONNECTED = 10
+    NEXT_PLAYER = 11
+
+
+class AuctionCommandType(IntEnum):
     CREATE = 0
     PLACE_BID = 1
     LEADER_CONNECTED = 2
@@ -102,8 +116,18 @@ class BidPlacedEventPayloadDTO(BaseDTO):
     amount: int
 
 
-class AuctionEventEnvelopeDTO(BaseDTO):
-    type: AuctionEventType
+class AuctionClientEventEnvelopeDTO(BaseDTO):
+    type: AuctionClientEventType
+    payload: Any | None
+
+
+class AuctionServerEventEnvelopeDTO(BaseDTO):
+    type: AuctionServerEventType
+    payload: Any | None
+
+
+class AuctionPublishEnvelopeDTO(BaseDTO):
+    type: AuctionPublishType
     payload: Any | None
 
 
@@ -125,8 +149,8 @@ class BidErrorResponsePayloadDTO(BaseDTO):
     code: int
 
 
-class AuctionRequestEnvelopeDTO(BaseDTO):
-    type: AuctionRequestType
+class AuctionCommandEnvelopeDTO(BaseDTO):
+    type: AuctionCommandType
     payload: Any | None
 
 

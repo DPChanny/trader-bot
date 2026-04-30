@@ -1,10 +1,15 @@
 import { useMutation, type UseMutationResult } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { createAuction } from "@features/auction/api";
-import { Status, AuctionEventType } from "@features/auction/dto";
+import {
+  Status,
+  AuctionClientEventType,
+  AuctionServerEventType,
+} from "@features/auction/dto";
 import type {
   AuctionDetailDTO,
-  AuctionEventEnvelopeDTO,
+  AuctionClientEventEnvelopeDTO,
+  AuctionServerEventEnvelopeDTO,
   BidPlacedPayloadDTO,
   InitPayloadDTO,
   StatusPayloadDTO,
@@ -53,12 +58,12 @@ export function useAuction(): {
     }
   };
 
-  const handleAuctionMessage = (message: AuctionEventEnvelopeDTO) => {
+  const handleAuctionMessage = (message: AuctionServerEventEnvelopeDTO) => {
     const rawPayload = message.payload;
     const dto = toCamelCase(rawPayload);
 
     switch (message.type) {
-      case AuctionEventType.INIT: {
+      case AuctionServerEventType.INIT: {
         setError(null);
         const initPayload = dto as InitPayloadDTO;
         setAuction(initPayload.auction);
@@ -68,8 +73,7 @@ export function useAuction(): {
         break;
       }
 
-      case AuctionEventType.NEXT_PLAYER: {
-        // Mirrors backend on_next_player: dequeue from auction_queue, or swap unsold_queue → auction_queue
+      case AuctionServerEventType.NEXT_PLAYER: {
         setAuction((prev) => {
           if (!prev) return prev;
           let playerId: number;
@@ -94,8 +98,7 @@ export function useAuction(): {
         break;
       }
 
-      case AuctionEventType.MEMBER_SOLD: {
-        // Mirrors backend on_member_sold: update team membership and points
+      case AuctionServerEventType.MEMBER_SOLD: {
         setAuction((prev) => {
           if (!prev || prev.playerId === null || prev.bid === null) return prev;
           const { playerId, bid } = prev;
@@ -113,8 +116,7 @@ export function useAuction(): {
         break;
       }
 
-      case AuctionEventType.MEMBER_UNSOLD: {
-        // Mirrors backend on_member_unsold: push player to unsold_queue
+      case AuctionServerEventType.MEMBER_UNSOLD: {
         setAuction((prev) => {
           if (!prev || prev.playerId === null) return prev;
           return {
@@ -127,13 +129,13 @@ export function useAuction(): {
         break;
       }
 
-      case AuctionEventType.TICK: {
+      case AuctionServerEventType.TICK: {
         const tickPayload = dto as TickPayloadDTO;
         setTimer(tickPayload.timer);
         break;
       }
 
-      case AuctionEventType.BID_PLACED: {
+      case AuctionServerEventType.BID_PLACED: {
         setError(null);
         const bidPayload = dto as BidPlacedPayloadDTO;
         setAuction((prev) => {
@@ -146,7 +148,7 @@ export function useAuction(): {
         break;
       }
 
-      case AuctionEventType.STATUS: {
+      case AuctionServerEventType.STATUS: {
         const statusPayload = dto as StatusPayloadDTO;
         setAuction((prev) => {
           if (!prev) return null;
@@ -164,7 +166,7 @@ export function useAuction(): {
         break;
       }
 
-      case AuctionEventType.LEADER_CONNECTED:
+      case AuctionServerEventType.LEADER_CONNECTED:
         setAuction((prev) =>
           prev
             ? { ...prev, connectedLeaderCount: prev.connectedLeaderCount + 1 }
@@ -172,7 +174,7 @@ export function useAuction(): {
         );
         break;
 
-      case AuctionEventType.LEADER_DISCONNECTED:
+      case AuctionServerEventType.LEADER_DISCONNECTED:
         setAuction((prev) =>
           prev
             ? { ...prev, connectedLeaderCount: prev.connectedLeaderCount - 1 }
@@ -180,7 +182,7 @@ export function useAuction(): {
         );
         break;
 
-      case AuctionEventType.ERROR: {
+      case AuctionServerEventType.ERROR: {
         handleError(dto.code);
         break;
       }
@@ -216,9 +218,11 @@ export function useAuction(): {
 
       ws.send(
         JSON.stringify({
-          type: AuctionEventType.AUTH,
+          type: AuctionClientEventType.AUTH,
           payload: authPayloadResult.data,
-        } satisfies AuctionEventEnvelopeDTO<{ access_token: string | null }>),
+        } satisfies AuctionClientEventEnvelopeDTO<{
+          access_token: string | null;
+        }>),
       );
       opened = true;
       setIsConnected(true);
@@ -227,7 +231,7 @@ export function useAuction(): {
 
     ws.onmessage = (event) => {
       try {
-        const message = JSON.parse(event.data) as AuctionEventEnvelopeDTO;
+        const message = JSON.parse(event.data) as AuctionServerEventEnvelopeDTO;
         handleAuctionMessage(message);
       } catch {
         handleError(FrontendErrorCode.Validation.Invalid);
@@ -268,8 +272,8 @@ export function useAuction(): {
       return;
     }
 
-    const message: AuctionEventEnvelopeDTO<{ amount: number }> = {
-      type: AuctionEventType.PLACE_BID,
+    const message: AuctionClientEventEnvelopeDTO<{ amount: number }> = {
+      type: AuctionClientEventType.PLACE_BID,
       payload: placeBidPayloadResult.data,
     };
 

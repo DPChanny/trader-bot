@@ -6,7 +6,7 @@ from loguru import logger
 from pydantic import ValidationError
 
 from shared.dtos.auction import (
-    AuctionEventEnvelopeDTO,
+    AuctionPublishEnvelopeDTO,
     AuctionResponseEnvelopeDTO,
     CreateRequestPayloadDTO,
     Status,
@@ -58,7 +58,7 @@ class AuctionManager:
                                 message.data
                             )
                         else:
-                            envelope = AuctionEventEnvelopeDTO.model_validate_json(
+                            envelope = AuctionPublishEnvelopeDTO.model_validate_json(
                                 message.data
                             )
 

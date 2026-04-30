@@ -5,11 +5,13 @@ from typing import Any
 from fastapi import WebSocket
 
 from shared.dtos.auction import (
-    AuctionEventEnvelopeDTO,
-    AuctionEventType,
-    AuctionRequestType,
+    AuctionCommandType,
+    AuctionPublishEnvelopeDTO,
+    AuctionPublishType,
     AuctionResponseEnvelopeDTO,
     AuctionResponseType,
+    AuctionServerEventEnvelopeDTO,
+    AuctionServerEventType,
     BidDTO,
     BidErrorResponsePayloadDTO,
     ErrorEventPayloadDTO,
@@ -41,8 +43,8 @@ class Auction:
     async def connect(self, ws: WebSocket, member_id: int | None) -> None:
         auction_detail_dto = await self.repo.get_detail()
         await ws.send_json(
-            AuctionEventEnvelopeDTO(
-                type=AuctionEventType.INIT,
+            AuctionServerEventEnvelopeDTO(
+                type=AuctionServerEventType.INIT,
                 payload=InitEventPayloadDTO(
                     auction=auction_detail_dto, member_id=member_id
                 ),
@@ -64,7 +66,7 @@ class Auction:
                     await existing_ws.close(code=4001)
             else:
                 await self.repo.publish_request(
-                    AuctionRequestType.LEADER_CONNECTED,
+                    AuctionCommandType.LEADER_CONNECTED,
                     LeaderConnectedRequestPayloadDTO(leader_id=member_id),
                 )
 
@@ -74,25 +76,25 @@ class Auction:
         if leader_id is not None and self._leader_id_to_ws.get(leader_id) is ws:
             del self._leader_id_to_ws[leader_id]
             await self.repo.publish_request(
-                AuctionRequestType.LEADER_DISCONNECTED,
+                AuctionCommandType.LEADER_DISCONNECTED,
                 LeaderDisconnectedRequestPayloadDTO(leader_id=leader_id),
             )
 
     async def place_bid(self, dto: BidDTO) -> None:
         if dto.leader_id not in self._leader_member_ids:
             raise WSError(AuctionErrorCode.BidNotLeader)
-        await self.repo.publish_request(AuctionRequestType.PLACE_BID, dto)
+        await self.repo.publish_request(AuctionCommandType.PLACE_BID, dto)
 
     async def handle_event(
-        self, envelope: AuctionEventEnvelopeDTO | AuctionResponseEnvelopeDTO
+        self, envelope: AuctionPublishEnvelopeDTO | AuctionResponseEnvelopeDTO
     ) -> bool:
         if isinstance(envelope, AuctionResponseEnvelopeDTO):
             if envelope.type == AuctionResponseType.BID_ERROR:
                 payload = BidErrorResponsePayloadDTO.model_validate(envelope.payload)
                 ws = self._leader_id_to_ws.get(payload.leader_id)
                 if ws is not None:
-                    error_msg = AuctionEventEnvelopeDTO(
-                        type=AuctionEventType.ERROR,
+                    error_msg = AuctionServerEventEnvelopeDTO(
+                        type=AuctionServerEventType.ERROR,
                         payload=ErrorEventPayloadDTO(code=payload.code),
                     ).model_dump_json()
                     try:
@@ -102,13 +104,17 @@ class Auction:
             return False
 
         match envelope.type:
-            case AuctionEventType.STATUS:
+            case AuctionPublishType.STATUS:
                 status_payload = StatusEventPayloadDTO.model_validate(envelope.payload)
                 if status_payload.status == Status.COMPLETED:
-                    await self.broadcast(envelope.type, envelope.payload)
+                    await self.broadcast(
+                        AuctionServerEventType(envelope.type.value), envelope.payload
+                    )
                     self.stop()
                     return True
-        await self.broadcast(envelope.type, envelope.payload)
+        await self.broadcast(
+            AuctionServerEventType(envelope.type.value), envelope.payload
+        )
         return False
 
     def stop(self) -> None:
@@ -116,10 +122,10 @@ class Auction:
         self._ws_to_leader_id.clear()
         self._leader_id_to_ws.clear()
 
-    async def broadcast(self, event_type: AuctionEventType, payload: Any) -> None:
+    async def broadcast(self, event_type: AuctionServerEventType, payload: Any) -> None:
         if not self._ws_set:
             return
-        data = AuctionEventEnvelopeDTO(
+        data = AuctionServerEventEnvelopeDTO(
             type=event_type, payload=payload
         ).model_dump_json()
         ws_list = list(self._ws_set)

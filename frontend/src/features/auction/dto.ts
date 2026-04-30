@@ -30,13 +30,16 @@ export interface InitPayloadDTO {
   memberId: number | null;
 }
 
-export enum AuctionEventType {
+export enum AuctionClientEventType {
   AUTH = 0,
+  PLACE_BID = 5,
+}
+
+export enum AuctionServerEventType {
   INIT = 1,
   ERROR = 2,
   TICK = 3,
   STATUS = 4,
-  PLACE_BID = 5,
   BID_PLACED = 6,
   MEMBER_SOLD = 7,
   MEMBER_UNSOLD = 8,
@@ -45,8 +48,13 @@ export enum AuctionEventType {
   NEXT_PLAYER = 11,
 }
 
-export interface AuctionEventEnvelopeDTO<TPayload = unknown> {
-  type: AuctionEventType;
+export interface AuctionClientEventEnvelopeDTO<TPayload = unknown> {
+  type: AuctionClientEventType;
+  payload: TPayload;
+}
+
+export interface AuctionServerEventEnvelopeDTO<TPayload = unknown> {
+  type: AuctionServerEventType;
   payload: TPayload;
 }
 

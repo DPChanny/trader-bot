@@ -3,9 +3,11 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.auction import (
+    AuctionClientEventEnvelopeDTO,
+    AuctionClientEventType,
     AuctionDTO,
-    AuctionEventEnvelopeDTO,
-    AuctionEventType,
+    AuctionServerEventEnvelopeDTO,
+    AuctionServerEventType,
     AuthEventPayloadDTO,
     ErrorEventPayloadDTO,
     PlaceBidEventPayloadDTO,
@@ -44,17 +46,17 @@ async def create_auction_route(
     return await create_auction_service(guild_id, user_id, preset_id, session)
 
 
-def _parse_event_envelope(text: str) -> AuctionEventEnvelopeDTO:
+def _parse_event_envelope(text: str) -> AuctionClientEventEnvelopeDTO:
     if len(text) > 1024:
         raise WSError(ValidationErrorCode.Invalid)
     try:
-        return AuctionEventEnvelopeDTO.model_validate_json(text)
+        return AuctionClientEventEnvelopeDTO.model_validate_json(text)
     except ValidationError, ValueError:
         raise WSError(ValidationErrorCode.Invalid) from None
 
 
 def _parse_event_payload[TPayloadDTO: BaseModel](
-    event_envelope: AuctionEventEnvelopeDTO,
+    event_envelope: AuctionClientEventEnvelopeDTO,
     payload_cls: type[TPayloadDTO],
     error_code: AppErrorCode,
 ) -> TPayloadDTO:
@@ -75,7 +77,7 @@ async def auction_ws(
         await ws.accept()
 
         auth_event = _parse_event_envelope(await ws.receive_text())
-        if auth_event.type != AuctionEventType.AUTH:
+        if auth_event.type != AuctionClientEventType.AUTH:
             raise WSError(AuthErrorCode.Unauthorized)
         auth_payload_dto = _parse_event_payload(
             auth_event, AuthEventPayloadDTO, AuthErrorCode.Unauthorized
@@ -87,7 +89,7 @@ async def auction_ws(
         while True:
             try:
                 place_bid_event = _parse_event_envelope(await ws.receive_text())
-                if place_bid_event.type != AuctionEventType.PLACE_BID:
+                if place_bid_event.type != AuctionClientEventType.PLACE_BID:
                     raise WSError(ValidationErrorCode.Invalid)
 
                 place_bid_payload_dto = _parse_event_payload(
@@ -99,8 +101,8 @@ async def auction_ws(
             except WSError as e:
                 handle_ws_error(e)
                 await ws.send_json(
-                    AuctionEventEnvelopeDTO(
-                        type=AuctionEventType.ERROR,
+                    AuctionServerEventEnvelopeDTO(
+                        type=AuctionServerEventType.ERROR,
                         payload=ErrorEventPayloadDTO(code=e.code),
                     ).model_dump(mode="json")
                 )

@@ -4,8 +4,8 @@ from typing import Any
 from shared.dtos.auction import (
     AUCTION_LIFETIME,
     AuctionDetailDTO,
-    AuctionEventEnvelopeDTO,
-    AuctionEventType,
+    AuctionPublishEnvelopeDTO,
+    AuctionPublishType,
     AuctionResponseEnvelopeDTO,
     AuctionResponseType,
     BidDTO,
@@ -74,8 +74,8 @@ class AuctionRepository(BaseAuctionRepository):
             await pipe.execute()
 
     async def publish_status(self, status: Status) -> None:
-        event = AuctionEventEnvelopeDTO(
-            type=AuctionEventType.STATUS, payload=StatusEventPayloadDTO(status=status)
+        event = AuctionPublishEnvelopeDTO(
+            type=AuctionPublishType.STATUS, payload=StatusEventPayloadDTO(status=status)
         ).model_dump_json()
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
@@ -91,7 +91,7 @@ class AuctionRepository(BaseAuctionRepository):
                 self._key(),
                 self._key("event"),
                 1,
-                int(AuctionEventType.LEADER_CONNECTED),
+                int(AuctionPublishType.LEADER_CONNECTED),
             )
         )
 
@@ -103,7 +103,7 @@ class AuctionRepository(BaseAuctionRepository):
                 self._key(),
                 self._key("event"),
                 -1,
-                int(AuctionEventType.LEADER_DISCONNECTED),
+                int(AuctionPublishType.LEADER_DISCONNECTED),
             )
         )
 
@@ -120,12 +120,12 @@ class AuctionRepository(BaseAuctionRepository):
             str(leader_id),
             str(player_id),
             str(bid.amount),
-            str(int(AuctionEventType.MEMBER_SOLD)),
+            str(int(AuctionPublishType.MEMBER_SOLD)),
         )
 
     async def publish_member_unsold(self, player_id: int) -> None:
-        event = AuctionEventEnvelopeDTO(
-            type=AuctionEventType.MEMBER_UNSOLD, payload=None
+        event = AuctionPublishEnvelopeDTO(
+            type=AuctionPublishType.MEMBER_UNSOLD, payload=None
         ).model_dump_json()
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
@@ -137,8 +137,8 @@ class AuctionRepository(BaseAuctionRepository):
             await pipe.execute()
 
     async def publish_tick(self, remaining: int) -> None:
-        event = AuctionEventEnvelopeDTO(
-            type=AuctionEventType.TICK, payload=TickEventPayloadDTO(timer=remaining)
+        event = AuctionPublishEnvelopeDTO(
+            type=AuctionPublishType.TICK, payload=TickEventPayloadDTO(timer=remaining)
         ).model_dump_json()
         r = get_redis()
         async with r.pipeline(transaction=False) as pipe:
@@ -177,13 +177,13 @@ class AuctionRepository(BaseAuctionRepository):
             self._key(),
             self._key("event"),
             self._key("bid"),
-            int(AuctionEventType.NEXT_PLAYER),
+            int(AuctionPublishType.NEXT_PLAYER),
         )
         return int(result) if result else None
 
     async def place_bid(self, dto: BidDTO, player_id: int, team_size: int) -> bool:
-        event = AuctionEventEnvelopeDTO(
-            type=AuctionEventType.BID_PLACED,
+        event = AuctionPublishEnvelopeDTO(
+            type=AuctionPublishType.BID_PLACED,
             payload=BidPlacedEventPayloadDTO(
                 leader_id=dto.leader_id, amount=dto.amount
             ),
