@@ -32,6 +32,7 @@ export function Input({
   value,
   onValueChange,
   onInput,
+  onBlur,
   type = "text",
   min,
   max,
@@ -60,11 +61,9 @@ export function Input({
         if (type === "number" && val !== "") {
           const num = Number(val);
           if (!isNaN(num)) {
-            const minNum =
-              min !== undefined && min !== "" ? Number(min) : -Infinity;
             const maxNum =
               max !== undefined && max !== "" ? Number(max) : Infinity;
-            val = String(Math.min(maxNum, Math.max(minNum, num)));
+            val = String(Math.min(maxNum, num));
           }
         } else if (type === "text" && maxLength !== undefined) {
           if (val.length > maxLength) {
@@ -72,6 +71,24 @@ export function Input({
           }
         }
         onValueChange?.(val);
+      }}
+      onBlur={(e) => {
+        onBlur?.(e);
+        if (type === "number") {
+          const el = e.currentTarget as HTMLInputElement;
+          const val = el.value;
+          if (val !== "") {
+            const num = Number(val);
+            if (!isNaN(num)) {
+              const minNum =
+                min !== undefined && min !== "" ? Number(min) : -Infinity;
+              const maxNum =
+                max !== undefined && max !== "" ? Number(max) : Infinity;
+              const clamped = String(Math.min(maxNum, Math.max(minNum, num)));
+              if (clamped !== val) onValueChange?.(clamped);
+            }
+          }
+        }
       }}
       className={clsx(baseClass, className)}
       {...props}
