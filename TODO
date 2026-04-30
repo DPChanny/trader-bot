@@ -1,7 +1,9 @@
 auction error
 auction logging
 
-patch note
+docs
+    patch notes
+    patch plans
 
 launch 0.4.0
 
@@ -11,5 +13,9 @@ toss
         worker
     payment
         frontend
+docs
+    tos
+    pp
+    patch notes
 
-launch 1.0.0
+launch 0.5.0

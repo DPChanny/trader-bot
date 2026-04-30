@@ -19,7 +19,9 @@ export function UpdatePositionModal({
   onClose,
 }: UpdatePositionModalProps) {
   const { guildId } = useParams({ strict: false }) as { guildId: string };
-  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as {
+    presetId: string;
+  };
   const presetId = parseInt(presetIdStr, 10);
   const [name, setName] = useState(position.name);
   const [iconUrl, setIconUrl] = useState(position.iconUrl ?? "");
@@ -66,6 +68,8 @@ export function UpdatePositionModal({
           label="포지션 이름"
           type="text"
           value={name}
+          placeholder="1자 ~ 256자"
+          maxLength={256}
           onValueChange={setName}
           required
         />
@@ -73,6 +77,8 @@ export function UpdatePositionModal({
           label="아이콘 링크"
           type="text"
           value={iconUrl}
+          placeholder="최대 2048자"
+          maxLength={2048}
           onValueChange={setIconUrl}
         />
       </ModalForm>

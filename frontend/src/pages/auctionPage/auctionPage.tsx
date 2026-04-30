@@ -186,9 +186,15 @@ export function AuctionPage() {
     }
   };
 
+  const remainingSlots = teamSize - clientTeamSize - 1;
+  const maxDisplayBid =
+    ((clientTeam?.points ?? 0) - Math.max(0, remainingSlots)) * pointScale;
+
   const parsedBidAmount = Number(bidAmount);
   const isValidBidAmount =
-    parsedBidAmount > 0 && parsedBidAmount % pointScale === 0;
+    parsedBidAmount > 0 &&
+    parsedBidAmount % pointScale === 0 &&
+    parsedBidAmount <= maxDisplayBid;
 
   return (
     <Page>
@@ -269,9 +275,10 @@ export function AuctionPage() {
                   <FlexItem>
                     <Input
                       type="number"
-                      placeholder={`입찰 금액 (${pointScale}의 배수)`}
+                      placeholder={`${pointScale} ~ ${maxDisplayBid}`}
                       value={bidAmount}
                       min={pointScale}
+                      max={maxDisplayBid}
                       step={pointScale}
                       onValueChange={setBidAmount}
                       disabled={!canBid}

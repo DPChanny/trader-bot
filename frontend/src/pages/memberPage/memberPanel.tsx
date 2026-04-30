@@ -146,12 +146,15 @@ export function MemberPanel({ member, onClose }: MemberPanelProps) {
               value={alias}
               onValueChange={setAlias}
               placeholder={member.alias || member.name || member.user.name}
+              maxLength={256}
               disabled={!canEdit || isSaving}
             />
             <LabelInput
               label="정보 링크"
               value={infoUrl}
               onValueChange={setInfoUrl}
+              placeholder="최대 2048자"
+              maxLength={2048}
               disabled={!canEdit || isSaving}
             />
             <Column gap="xs">
