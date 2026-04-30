@@ -1,6 +1,7 @@
 import {
   useMutation,
   useQueryClient,
+  type InfiniteData,
   type UseMutationResult,
 } from "@tanstack/react-query";
 import {
@@ -10,6 +11,7 @@ import {
 import { queryKeys } from "@utils/query";
 import type { AppError } from "@utils/error";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
+import type { CursorPageDTO } from "@utils/dto";
 
 function invalidatePresetMemberPositionQueries(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -44,12 +46,24 @@ export function useCreatePresetMemberPosition(): UseMutationResult<
           : [...pm.presetMemberPositions, data],
       });
 
-      queryClient.setQueryData<PresetMemberDetailDTO[]>(
-        queryKeys.presetMembers(variables.guildId, variables.presetId),
+      queryClient.setQueriesData<
+        InfiniteData<CursorPageDTO<PresetMemberDetailDTO>>
+      >(
+        { queryKey: ["presetMembers", variables.guildId, variables.presetId] },
         (old) =>
-          old?.map((pm) =>
-            pm.presetMemberId === variables.presetMemberId ? appendPmp(pm) : pm,
-          ),
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  items: page.items.map((pm) =>
+                    pm.presetMemberId === variables.presetMemberId
+                      ? appendPmp(pm)
+                      : pm,
+                  ),
+                })),
+              }
+            : old,
       );
       queryClient.setQueryData<PresetMemberDetailDTO>(
         queryKeys.presetMember(
@@ -86,12 +100,24 @@ export function useDeletePresetMemberPosition(): UseMutationResult<
             pmp.presetMemberPositionId !== variables.presetMemberPositionId,
         ),
       });
-      queryClient.setQueryData<PresetMemberDetailDTO[]>(
-        queryKeys.presetMembers(variables.guildId, variables.presetId),
+      queryClient.setQueriesData<
+        InfiniteData<CursorPageDTO<PresetMemberDetailDTO>>
+      >(
+        { queryKey: ["presetMembers", variables.guildId, variables.presetId] },
         (old) =>
-          old?.map((pm) =>
-            pm.presetMemberId === variables.presetMemberId ? removePmp(pm) : pm,
-          ),
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  items: page.items.map((pm) =>
+                    pm.presetMemberId === variables.presetMemberId
+                      ? removePmp(pm)
+                      : pm,
+                  ),
+                })),
+              }
+            : old,
       );
       queryClient.setQueryData<PresetMemberDetailDTO>(
         queryKeys.presetMember(
@@ -109,4 +135,3 @@ export function useDeletePresetMemberPosition(): UseMutationResult<
     },
   });
 }
-

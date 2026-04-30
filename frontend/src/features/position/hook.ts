@@ -2,6 +2,7 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  type InfiniteData,
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
@@ -16,6 +17,7 @@ import { queryKeys } from "@utils/query";
 import type { PositionDTO } from "@features/position/dto";
 import type { AppError } from "@utils/error";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
+import type { CursorPageDTO } from "@utils/dto";
 
 function invalidatePositionRelatedQueries(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -112,17 +114,28 @@ export function useUpdatePosition(): UseMutationResult<
         ),
         data,
       );
-      queryClient.setQueryData<PresetMemberDetailDTO[]>(
-        queryKeys.presetMembers(variables.guildId, variables.presetId),
+      queryClient.setQueriesData<
+        InfiniteData<CursorPageDTO<PresetMemberDetailDTO>>
+      >(
+        { queryKey: ["presetMembers", variables.guildId, variables.presetId] },
         (old) =>
-          old?.map((pm) => ({
-            ...pm,
-            presetMemberPositions: pm.presetMemberPositions.map((pmp) =>
-              pmp.position.positionId === data.positionId
-                ? { ...pmp, position: data }
-                : pmp,
-            ),
-          })),
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  items: page.items.map((pm) => ({
+                    ...pm,
+                    presetMemberPositions: pm.presetMemberPositions.map(
+                      (pmp) =>
+                        pmp.position.positionId === data.positionId
+                          ? { ...pmp, position: data }
+                          : pmp,
+                    ),
+                  })),
+                })),
+              }
+            : old,
       );
       queryClient.setQueriesData<PresetMemberDetailDTO>(
         {
@@ -174,15 +187,25 @@ export function useDeletePosition(): UseMutationResult<
           variables.positionId,
         ),
       });
-      queryClient.setQueryData<PresetMemberDetailDTO[]>(
-        queryKeys.presetMembers(variables.guildId, variables.presetId),
+      queryClient.setQueriesData<
+        InfiniteData<CursorPageDTO<PresetMemberDetailDTO>>
+      >(
+        { queryKey: ["presetMembers", variables.guildId, variables.presetId] },
         (old) =>
-          old?.map((pm) => ({
-            ...pm,
-            presetMemberPositions: pm.presetMemberPositions.filter(
-              (pmp) => pmp.position.positionId !== variables.positionId,
-            ),
-          })),
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  items: page.items.map((pm) => ({
+                    ...pm,
+                    presetMemberPositions: pm.presetMemberPositions.filter(
+                      (pmp) => pmp.position.positionId !== variables.positionId,
+                    ),
+                  })),
+                })),
+              }
+            : old,
       );
       queryClient.setQueriesData<PresetMemberDetailDTO>(
         {
@@ -209,4 +232,3 @@ export function useDeletePosition(): UseMutationResult<
     },
   });
 }
-

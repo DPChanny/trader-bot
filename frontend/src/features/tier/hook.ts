@@ -2,6 +2,7 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  type InfiniteData,
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
@@ -16,6 +17,7 @@ import { queryKeys } from "@utils/query";
 import type { TierDTO } from "@features/tier/dto";
 import type { AppError } from "@utils/error";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
+import type { CursorPageDTO } from "@utils/dto";
 
 function replacePresetMemberTier(
   presetMember: PresetMemberDetailDTO,
@@ -134,9 +136,22 @@ export function useUpdateTier(): UseMutationResult<
         queryKeys.tier(variables.guildId, variables.presetId, variables.tierId),
         data,
       );
-      queryClient.setQueryData<PresetMemberDetailDTO[]>(
-        queryKeys.presetMembers(variables.guildId, variables.presetId),
-        (old) => old?.map((pm) => replacePresetMemberTier(pm, data)),
+      queryClient.setQueriesData<
+        InfiniteData<CursorPageDTO<PresetMemberDetailDTO>>
+      >(
+        { queryKey: ["presetMembers", variables.guildId, variables.presetId] },
+        (old) =>
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  items: page.items.map((pm) =>
+                    replacePresetMemberTier(pm, data),
+                  ),
+                })),
+              }
+            : old,
       );
       queryClient.setQueriesData<PresetMemberDetailDTO>(
         {
@@ -178,9 +193,22 @@ export function useDeleteTier(): UseMutationResult<
           variables.tierId,
         ),
       });
-      queryClient.setQueryData<PresetMemberDetailDTO[]>(
-        queryKeys.presetMembers(variables.guildId, variables.presetId),
-        (old) => old?.map((pm) => clearPresetMemberTier(pm, variables.tierId)),
+      queryClient.setQueriesData<
+        InfiniteData<CursorPageDTO<PresetMemberDetailDTO>>
+      >(
+        { queryKey: ["presetMembers", variables.guildId, variables.presetId] },
+        (old) =>
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  items: page.items.map((pm) =>
+                    clearPresetMemberTier(pm, variables.tierId),
+                  ),
+                })),
+              }
+            : old,
       );
       queryClient.setQueriesData<PresetMemberDetailDTO>(
         {
@@ -199,4 +227,3 @@ export function useDeleteTier(): UseMutationResult<
     },
   });
 }
-
