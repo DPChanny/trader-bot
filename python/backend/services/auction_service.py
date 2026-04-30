@@ -32,8 +32,10 @@ from ..utils.token import AccessToken
 
 @http_service
 async def create_auction_service(
-    guild_id: int, user_id: int, preset_id: int, session: AsyncSession
+    guild_id: int, user_id: int, preset_id: int, session: AsyncSession, event: Event
 ) -> AuctionDTO:
+    event.input = {"guild_id": guild_id, "preset_id": preset_id}
+
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
@@ -105,14 +107,15 @@ async def connect_service(
 
     await auction.connect(ws, member_id)
 
-    event.result = {"auction_id": auction.auction_id, "member_id": member_id}
+    event.input = {"auction_id": auction.auction_id}
+    event.result = {"member_id": member_id}
 
     return auction, member_id
 
 
 @ws_service
 async def place_bid_service(
-    auction: Auction, member_id: int | None, dto: PlaceBidEventPayloadDTO, event: Event
+    auction: Auction, member_id: int | None, dto: PlaceBidEventPayloadDTO
 ) -> None:
     if member_id is None:
         raise WSError(AuctionErrorCode.BidNotLeader)
@@ -121,5 +124,5 @@ async def place_bid_service(
 
 
 @ws_service
-async def disconnect_service(auction: Auction, ws: WebSocket, event: Event) -> None:
+async def disconnect_service(auction: Auction, ws: WebSocket) -> None:
     await auction.disconnect(ws)

@@ -2,7 +2,6 @@ import asyncio
 import contextlib
 
 from fastapi import WebSocket
-from loguru import logger
 
 from shared.dtos.auction import (
     AuctionPublishEnvelopeDTO,
@@ -23,7 +22,6 @@ from shared.dtos.auction import (
 )
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, WSError
-from shared.utils.logging import Event
 
 from .auction_repository import AuctionRepository
 
@@ -127,18 +125,6 @@ class Auction:
             type=event_type, payload=envelope.payload
         ).model_dump_json()
         ws_list = list(self._ws_set)
-        level = "DEBUG" if event_type == AuctionServerEventType.TICK else "INFO"
-        logger.bind(
-            event=Event(
-                Event.Type.AUCTION_SERVICE,
-                input={
-                    "type": event_type,
-                    "payload": envelope.payload,
-                    "ws_count": len(ws_list),
-                },
-                detail={"auction_id": self.auction_id},
-            )
-        ).log(level, "")
         results = await asyncio.gather(
             *[ws.send_text(data) for ws in ws_list], return_exceptions=True
         )
