@@ -1,3 +1,5 @@
+import contextlib
+
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -71,9 +73,8 @@ def _parse_event_payload[TPayloadDTO: BaseModel](
 async def auction_ws(
     ws: WebSocket, auction_id: int, session: AsyncSession = Depends(get_session)
 ):
-    member_id: int | None = None
     auction = None
-    try:
+    with contextlib.suppress(WebSocketDisconnect):
         await ws.accept()
 
         auth_event = _parse_event_envelope(await ws.receive_text())
@@ -108,8 +109,5 @@ async def auction_ws(
                 )
                 continue
 
-    except WebSocketDisconnect:
-        pass
-    finally:
-        if auction is not None:
-            await disconnect_service(auction, ws)
+    if auction is not None:
+        await disconnect_service(auction, ws)

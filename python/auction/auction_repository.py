@@ -211,9 +211,9 @@ class AuctionRepository(BaseAuctionRepository):
         return True
 
     @classmethod
-    async def get_all(cls) -> list[tuple[int, AuctionDetailDTO]]:
+    async def get_all(cls) -> list[AuctionDetailDTO]:
         r = get_redis()
-        result: list[tuple[int, AuctionDetailDTO]] = []
+        result: list[AuctionDetailDTO] = []
         cursor = 0
         while True:
             cursor, keys = await r.scan(cursor, match="auction:*", count=100)
@@ -228,7 +228,7 @@ class AuctionRepository(BaseAuctionRepository):
                 repo = cls(auction_id)
                 detail = await repo.get_detail()
                 if detail:
-                    result.append((auction_id, detail))
+                    result.append(detail)
             if cursor == 0:
                 break
         return result

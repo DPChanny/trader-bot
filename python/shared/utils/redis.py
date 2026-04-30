@@ -1,22 +1,33 @@
-from collections.abc import AsyncIterator
-from dataclasses import dataclass
+import asyncio
+from collections.abc import Awaitable, Callable
 
 import redis.asyncio as redis
 
 from shared.utils.env import get_redis_db, get_redis_host, get_redis_port
+from shared.utils.error import AppError, UnexpectedErrorCode, handle_app_error
 
 
-@dataclass(frozen=True)
-class Message:
-    channel: str
-    data: str
-
-
-async def listen(pubsub: redis.client.PubSub) -> AsyncIterator[Message]:
-    async for message in pubsub.listen():
-        if message["type"] != "message":
-            continue
-        yield Message(channel=message["channel"], data=message["data"])
+async def listen(
+    pubsub: redis.client.PubSub, handler: Callable[[dict], Awaitable[None]]
+) -> None:
+    while True:
+        try:
+            async for message in pubsub.listen():
+                if message["type"] != "message":
+                    continue
+                try:
+                    await handler(message)
+                except Exception as e:
+                    app_error = AppError(UnexpectedErrorCode.Internal)
+                    app_error.__cause__ = e
+                    handle_app_error(app_error)
+        except asyncio.CancelledError:
+            return
+        except Exception as e:
+            app_error = AppError(UnexpectedErrorCode.Internal)
+            app_error.__cause__ = e
+            handle_app_error(app_error)
+        await asyncio.sleep(1)
 
 
 _redis: redis.Redis | None = None
