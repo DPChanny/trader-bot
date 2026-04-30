@@ -1,8 +1,8 @@
 from typing import Any
 
 from shared.dtos.auction import (
-    AuctionCommandEnvelopeDTO,
-    AuctionCommandType,
+    AuctionRequestEnvelopeDTO,
+    AuctionRequestType,
     CreateRequestPayloadDTO,
 )
 from shared.repositories.auction_repository import BaseAuctionRepository
@@ -17,11 +17,11 @@ class AuctionRepository(BaseAuctionRepository):
         await pubsub.unsubscribe(self._key("event"), self._key("response"))
 
     async def publish_request(
-        self, request_type: AuctionCommandType, payload: Any | None = None
+        self, request_type: AuctionRequestType, payload: Any | None = None
     ) -> None:
         await get_redis().publish(
             self._key("request"),
-            AuctionCommandEnvelopeDTO(
+            AuctionRequestEnvelopeDTO(
                 type=request_type, payload=payload
             ).model_dump_json(),
         )
@@ -30,8 +30,8 @@ class AuctionRepository(BaseAuctionRepository):
     async def publish_create_request(cls, payload: CreateRequestPayloadDTO) -> None:
         await get_redis().publish(
             "auction:request",
-            AuctionCommandEnvelopeDTO(
-                type=AuctionCommandType.CREATE, payload=payload
+            AuctionRequestEnvelopeDTO(
+                type=AuctionRequestType.CREATE, payload=payload
             ).model_dump_json(),
         )
 

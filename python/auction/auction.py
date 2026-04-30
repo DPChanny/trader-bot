@@ -4,9 +4,9 @@ import contextlib
 from loguru import logger
 
 from shared.dtos.auction import (
-    AuctionCommandEnvelopeDTO,
-    AuctionCommandType,
     AuctionDetailDTO,
+    AuctionRequestEnvelopeDTO,
+    AuctionRequestType,
     BidDTO,
     LeaderConnectedRequestPayloadDTO,
     LeaderDisconnectedRequestPayloadDTO,
@@ -20,7 +20,7 @@ class Auction:
     def __init__(self, dto: AuctionDetailDTO) -> None:
         self.auction_id = dto.auction_id
         self._repo = AuctionRepository(dto.auction_id)
-        self._queue: asyncio.Queue[AuctionCommandEnvelopeDTO] = asyncio.Queue()
+        self._queue: asyncio.Queue[AuctionRequestEnvelopeDTO] = asyncio.Queue()
         self._task = asyncio.create_task(self._main(dto))
 
     async def cancel(self) -> None:
@@ -32,7 +32,7 @@ class Auction:
         with contextlib.suppress(asyncio.CancelledError):
             await self._task
 
-    async def handle_request(self, envelope: AuctionCommandEnvelopeDTO) -> None:
+    async def handle_request(self, envelope: AuctionRequestEnvelopeDTO) -> None:
         await self._queue.put(envelope)
 
     async def _main(self, dto: AuctionDetailDTO) -> None:
@@ -60,7 +60,7 @@ class Auction:
 
         while True:
             envelope = await self._queue.get()
-            if envelope.type == AuctionCommandType.LEADER_CONNECTED:
+            if envelope.type == AuctionRequestType.LEADER_CONNECTED:
                 request = LeaderConnectedRequestPayloadDTO.model_validate(
                     envelope.payload
                 )
@@ -69,7 +69,7 @@ class Auction:
                 )
                 if connected_leader_count >= team_count:
                     break
-            elif envelope.type == AuctionCommandType.LEADER_DISCONNECTED:
+            elif envelope.type == AuctionRequestType.LEADER_DISCONNECTED:
                 request = LeaderDisconnectedRequestPayloadDTO.model_validate(
                     envelope.payload
                 )
@@ -107,7 +107,7 @@ class Auction:
             with contextlib.suppress(asyncio.CancelledError):
                 while True:
                     envelope = await self._queue.get()
-                    if envelope.type == AuctionCommandType.PLACE_BID:
+                    if envelope.type == AuctionRequestType.PLACE_BID:
                         try:
                             _bid = BidDTO.model_validate(envelope.payload)
                             is_bid_placed = await self._repo.place_bid(

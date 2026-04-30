@@ -5,9 +5,9 @@ from typing import Any
 from fastapi import WebSocket
 
 from shared.dtos.auction import (
-    AuctionCommandType,
     AuctionPublishEnvelopeDTO,
     AuctionPublishType,
+    AuctionRequestType,
     AuctionResponseEnvelopeDTO,
     AuctionResponseType,
     AuctionServerEventEnvelopeDTO,
@@ -66,7 +66,7 @@ class Auction:
                     await existing_ws.close(code=4001)
             else:
                 await self.repo.publish_request(
-                    AuctionCommandType.LEADER_CONNECTED,
+                    AuctionRequestType.LEADER_CONNECTED,
                     LeaderConnectedRequestPayloadDTO(leader_id=member_id),
                 )
 
@@ -76,14 +76,14 @@ class Auction:
         if leader_id is not None and self._leader_id_to_ws.get(leader_id) is ws:
             del self._leader_id_to_ws[leader_id]
             await self.repo.publish_request(
-                AuctionCommandType.LEADER_DISCONNECTED,
+                AuctionRequestType.LEADER_DISCONNECTED,
                 LeaderDisconnectedRequestPayloadDTO(leader_id=leader_id),
             )
 
     async def place_bid(self, dto: BidDTO) -> None:
         if dto.leader_id not in self._leader_member_ids:
             raise WSError(AuctionErrorCode.BidNotLeader)
-        await self.repo.publish_request(AuctionCommandType.PLACE_BID, dto)
+        await self.repo.publish_request(AuctionRequestType.PLACE_BID, dto)
 
     async def handle_event(
         self, envelope: AuctionPublishEnvelopeDTO | AuctionResponseEnvelopeDTO

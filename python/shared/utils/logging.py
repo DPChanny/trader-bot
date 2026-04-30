@@ -71,6 +71,7 @@ class Event:
         HTTP_SERVICE = "http_service"
         BOT_SERVICE = "bot_service"
         WS_SERVICE = "ws_service"
+        AUCTION_SERVICE = "auction_service"
         ERROR = "error"
         HTTP_MIDDLEWARE = "http_middleware"
         WS_MIDDLEWARE = "ws_middleware"

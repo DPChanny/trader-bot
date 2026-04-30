@@ -6,6 +6,7 @@ docs
     patch plans
 
 infra
+    pm2 relaod check
 
 launch 0.4.0
 

@@ -46,7 +46,7 @@ class AuctionPublishType(IntEnum):
     NEXT_PLAYER = 11
 
 
-class AuctionCommandType(IntEnum):
+class AuctionRequestType(IntEnum):
     CREATE = 0
     PLACE_BID = 1
     LEADER_CONNECTED = 2
@@ -149,8 +149,8 @@ class BidErrorResponsePayloadDTO(BaseDTO):
     code: int
 
 
-class AuctionCommandEnvelopeDTO(BaseDTO):
-    type: AuctionCommandType
+class AuctionRequestEnvelopeDTO(BaseDTO):
+    type: AuctionRequestType
     payload: Any | None
 
 

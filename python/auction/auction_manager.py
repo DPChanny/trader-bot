@@ -5,9 +5,9 @@ from typing import Any, ClassVar
 from loguru import logger
 
 from shared.dtos.auction import (
-    AuctionCommandEnvelopeDTO,
-    AuctionCommandType,
     AuctionDetailDTO,
+    AuctionRequestEnvelopeDTO,
+    AuctionRequestType,
     CreateRequestPayloadDTO,
     Status,
 )
@@ -79,13 +79,13 @@ class AuctionManager:
                 async for message in _listen(cls._pubsub):
                     if message.channel == "auction:request":
                         try:
-                            envelope = AuctionCommandEnvelopeDTO.model_validate_json(
+                            envelope = AuctionRequestEnvelopeDTO.model_validate_json(
                                 message.data
                             )
                         except Exception:
                             continue
 
-                        if envelope.type != AuctionCommandType.CREATE:
+                        if envelope.type != AuctionRequestType.CREATE:
                             continue
 
                         try:
@@ -118,7 +118,7 @@ class AuctionManager:
                         if auction is None:
                             continue
                         try:
-                            envelope = AuctionCommandEnvelopeDTO.model_validate_json(
+                            envelope = AuctionRequestEnvelopeDTO.model_validate_json(
                                 message.data
                             )
                             await auction.handle_request(envelope)
