@@ -2,15 +2,24 @@ import { z } from "zod";
 import { nameSchema } from "@utils/dto";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 
-export const CreatePresetSchema = z.object({
+const BasePresetSchema = z.object({
   name: nameSchema,
-  points: z.coerce.number().int().min(0).max(1000),
+  points: z.coerce.number().int().min(0).max(10000),
   timer: z.coerce.number().int().min(1).max(60),
   teamSize: z.coerce.number().int().min(1).max(10),
-  pointScale: z.coerce.number().int().min(1).max(10),
+  pointScale: z.coerce.number().int().min(1).max(100),
 });
 
-export const UpdatePresetSchema = CreatePresetSchema.partial();
+export const CreatePresetSchema = BasePresetSchema.refine(
+  (data) => data.points >= data.teamSize,
+);
+
+export const UpdatePresetSchema = BasePresetSchema.partial().refine((data) => {
+  if (data.points !== undefined && data.teamSize !== undefined) {
+    return data.points >= data.teamSize;
+  }
+  return true;
+});
 
 export type CreatePresetDTO = z.infer<typeof CreatePresetSchema>;
 export type UpdatePresetDTO = z.infer<typeof UpdatePresetSchema>;

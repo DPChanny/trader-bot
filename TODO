@@ -1,12 +1,15 @@
 auction error
 auction logging
 
-팀장 toggle
-
-team size 기반 min points
-
 patch note
 
 launch 0.4.0
 
-subscription
+toss
+    subscription
+        enum plan
+        worker
+    payment
+        frontend
+
+launch 1.0.0

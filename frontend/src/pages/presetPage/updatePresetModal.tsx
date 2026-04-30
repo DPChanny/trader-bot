@@ -16,7 +16,9 @@ interface UpdatePresetModalProps {
 
 export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
   const { guildId } = useParams({ strict: false }) as { guildId: string };
-  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as {
+    presetId: string;
+  };
   const presetId = parseInt(presetIdStr, 10);
   const [name, setName] = useState(preset.name);
   const [displayPoints, setDisplayPoints] = useState(
@@ -43,6 +45,29 @@ export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
   ]);
 
   const pointScaleNum = Number(pointScale) || 1;
+  const teamSizeNum = Number(teamSize) || 1;
+
+  const handlePointScaleChange = (value: string) => {
+    setPointScale(value);
+    const newScale = Number(value) || 1;
+    const current = Number(displayPoints);
+    if (current > 0) {
+      const rounded = Math.round(current / newScale) * newScale;
+      const minAllowed = teamSizeNum * newScale;
+      setDisplayPoints(String(Math.max(rounded, minAllowed)));
+    }
+  };
+
+  const handleTeamSizeChange = (value: string) => {
+    setTeamSize(value);
+    const newTeamSize = Number(value) || 1;
+    const storedPoints = Math.trunc(Number(displayPoints) / pointScaleNum);
+    if (storedPoints < newTeamSize) {
+      setDisplayPoints(
+        String(Math.ceil(newTeamSize / pointScaleNum) * pointScaleNum),
+      );
+    }
+  };
   const parseResult = UpdatePresetSchema.safeParse({
     name,
     points: Math.trunc(Number(displayPoints) / pointScaleNum),
@@ -83,7 +108,10 @@ export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
         )}
         <LabelInput
           label="프리셋 이름"
+          type="text"
           value={name}
+          placeholder="1자 ~ 256자"
+          maxLength={256}
           onValueChange={setName}
           autoFocus
           required
@@ -93,6 +121,10 @@ export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
             label="포인트"
             type="number"
             value={displayPoints}
+            placeholder={`${teamSizeNum * pointScaleNum} ~ ${10000 * pointScaleNum}`}
+            min={teamSizeNum * pointScaleNum}
+            max={10000 * pointScaleNum}
+            step={pointScaleNum}
             onValueChange={setDisplayPoints}
             required
           />
@@ -100,7 +132,10 @@ export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
             label="포인트 단위"
             type="number"
             value={pointScale}
-            onValueChange={setPointScale}
+            placeholder="1 ~ 100"
+            min={1}
+            max={100}
+            onValueChange={handlePointScaleChange}
             required
           />
         </ModalRow>
@@ -110,6 +145,9 @@ export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
             label="타이머 (초)"
             type="number"
             value={timer}
+            placeholder="1초 ~ 60초"
+            min={1}
+            max={60}
             onValueChange={setTimer}
             required
           />
@@ -117,7 +155,10 @@ export function UpdatePresetModal({ preset, onClose }: UpdatePresetModalProps) {
             label="팀 크기"
             type="number"
             value={teamSize}
-            onValueChange={setTeamSize}
+            placeholder="1명 ~ 10명"
+            min={1}
+            max={10}
+            onValueChange={handleTeamSizeChange}
             required
           />
         </ModalRow>

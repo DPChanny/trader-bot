@@ -11,7 +11,7 @@ from shared.entities import Position, Preset, Tier
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
-from shared.utils.error import HTTPError, PresetErrorCode
+from shared.utils.error import HTTPError, PresetErrorCode, ValidationErrorCode
 from shared.utils.service import Event, http_service
 
 from ..utils.member import verify_role
@@ -74,6 +74,13 @@ async def update_preset_service(
     preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
         raise HTTPError(PresetErrorCode.NotFound)
+
+    effective_points = dto.points if dto.points is not None else preset.points
+    effective_team_size = (
+        dto.team_size if dto.team_size is not None else preset.team_size
+    )
+    if effective_points < effective_team_size:
+        raise HTTPError(ValidationErrorCode.Invalid)
 
     for key in dto.model_fields_set:
         setattr(preset, key, getattr(dto, key))

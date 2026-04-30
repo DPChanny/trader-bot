@@ -33,6 +33,9 @@ export function Input({
   onValueChange,
   onInput,
   type = "text",
+  min,
+  max,
+  maxLength,
   className,
   variantState,
   variantSize,
@@ -47,9 +50,28 @@ export function Input({
     <input
       type={type}
       value={value}
+      min={min}
+      max={max}
+      maxLength={maxLength}
       onInput={(e) => {
         onInput?.(e);
-        onValueChange?.((e.currentTarget as HTMLInputElement).value);
+        const el = e.currentTarget as HTMLInputElement;
+        let val = el.value;
+        if (type === "number" && val !== "") {
+          const num = Number(val);
+          if (!isNaN(num)) {
+            const minNum =
+              min !== undefined && min !== "" ? Number(min) : -Infinity;
+            const maxNum =
+              max !== undefined && max !== "" ? Number(max) : Infinity;
+            val = String(Math.min(maxNum, Math.max(minNum, num)));
+          }
+        } else if (type === "text" && maxLength !== undefined) {
+          if (val.length > maxLength) {
+            val = val.slice(0, maxLength);
+          }
+        }
+        onValueChange?.(val);
       }}
       className={clsx(baseClass, className)}
       {...props}

@@ -22,6 +22,28 @@ export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
   const createPreset = useCreatePreset();
 
   const pointScaleNum = Number(pointScale) || 1;
+  const teamSizeNum = Number(teamSize) || 1;
+
+  const handlePointScaleChange = (value: string) => {
+    setPointScale(value);
+    const newScale = Number(value) || 1;
+    const current = Number(points);
+    if (current > 0) {
+      const rounded = Math.round(current / newScale) * newScale;
+      const minAllowed = teamSizeNum * newScale;
+      setPoints(String(Math.max(rounded, minAllowed)));
+    }
+  };
+
+  const handleTeamSizeChange = (value: string) => {
+    setTeamSize(value);
+    const newTeamSize = Number(value) || 1;
+    const currentPoints = Number(points);
+    const storedPoints = Math.trunc(currentPoints / pointScaleNum);
+    if (storedPoints < newTeamSize) {
+      setPoints(String(Math.ceil(newTeamSize / pointScaleNum) * pointScaleNum));
+    }
+  };
   const parseResult = CreatePresetSchema.safeParse({
     name,
     points: Math.trunc(Number(points) / pointScaleNum),
@@ -65,6 +87,8 @@ export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
           label="프리셋 이름"
           type="text"
           value={name}
+          placeholder="1자 ~ 256자"
+          maxLength={256}
           onValueChange={setName}
           required
         />
@@ -73,7 +97,10 @@ export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
             label="포인트"
             type="number"
             value={points}
-            placeholder="1000"
+            placeholder={`${teamSizeNum * pointScaleNum} ~ ${10000 * pointScaleNum}`}
+            min={teamSizeNum * pointScaleNum}
+            max={10000 * pointScaleNum}
+            step={pointScaleNum}
             onValueChange={setPoints}
             required
           />
@@ -81,8 +108,10 @@ export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
             label="포인트 단위"
             type="number"
             value={pointScale}
-            placeholder="5"
-            onValueChange={setPointScale}
+            placeholder="1 ~ 100"
+            min={1}
+            max={100}
+            onValueChange={handlePointScaleChange}
             required
           />
         </ModalRow>
@@ -91,7 +120,9 @@ export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
             label="타이머 (초)"
             type="number"
             value={timer}
-            placeholder="15"
+            placeholder="1초 ~ 60초"
+            min={1}
+            max={60}
             onValueChange={setTimer}
             required
           />
@@ -99,8 +130,10 @@ export function CreatePresetModal({ onClose }: CreatePresetModalProps) {
             label="팀 크기"
             type="number"
             value={teamSize}
-            placeholder="5"
-            onValueChange={setTeamSize}
+            placeholder="1명 ~ 10명"
+            min={1}
+            max={10}
+            onValueChange={handleTeamSizeChange}
             required
           />
         </ModalRow>

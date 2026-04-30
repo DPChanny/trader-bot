@@ -182,6 +182,9 @@
   --color-input-error-border-focus: rgba(239, 68, 68, 0.9);
   --color-input-error-placeholder: rgba(252, 165, 165, 0.4);
 
+  --color-input-spinner: rgba(156, 163, 175, 0.5);
+  --color-input-spinner-hover: rgb(165, 180, 252);
+
   --color-scrollbar-bg: rgba(255, 255, 255, 0.15);
   --color-scrollbar-bg-hover: rgba(255, 255, 255, 0.3);
 

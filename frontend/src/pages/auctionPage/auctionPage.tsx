@@ -178,7 +178,7 @@ export function AuctionPage() {
       : null;
 
   const handlePlaceBid = () => {
-    const displayAmount = Number.parseInt(bidAmount, 10);
+    const displayAmount = Number(bidAmount);
     if (displayAmount > 0 && displayAmount % pointScale === 0) {
       const actualAmount = displayAmount / pointScale;
       placeBid(actualAmount);
@@ -186,7 +186,7 @@ export function AuctionPage() {
     }
   };
 
-  const parsedBidAmount = Number.parseInt(bidAmount, 10);
+  const parsedBidAmount = Number(bidAmount);
   const isValidBidAmount =
     parsedBidAmount > 0 && parsedBidAmount % pointScale === 0;
 
@@ -271,6 +271,8 @@ export function AuctionPage() {
                       type="number"
                       placeholder={`입찰 금액 (${pointScale}의 배수)`}
                       value={bidAmount}
+                      min={pointScale}
+                      step={pointScale}
                       onValueChange={setBidAmount}
                       disabled={!canBid}
                     />
