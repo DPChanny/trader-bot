@@ -48,11 +48,13 @@ cd ../python && uv sync
 **Frontend** — `frontend/.env.example` → `frontend/.env.local`
 
 ```env
-VITE_PHASE=dev
+VITE_PHASE=beta
 VITE_API_ORIGIN=http://127.0.0.1:8000
 VITE_DISCORD_CLIENT_ID=
 VITE_GUILD_INVITE_URL=
 ```
+
+> `VITE_PHASE` accepts `beta` or `prod`; any other value is treated as `beta`
 
 **Python** — `python/.env.example` → `python/.env`
 
@@ -67,7 +69,7 @@ DISCORD_CLIENT_SECRET=
 APP_ORIGIN=http://127.0.0.1:5173
 API_ORIGIN=http://127.0.0.1:8000
 
-JWT_SECRET=
+JWT_SECRET=0000000000000000000000000000000000000000000000000000000000000000
 JWT_ALGORITHM=HS256
 
 DB_HOST=127.0.0.1
@@ -252,17 +254,17 @@ jq -c . .github/workflows/deploy-map.example.json
 
 #### `deploy-python-backend.yml`
 
-- Trigger: `workflow_call` from `deploy-python.yml`
+- Trigger: `workflow_call` from `deploy-python.yml` or manual `workflow_dispatch`
 - Reloads the backend processes via PM2 (`trader-bot-pm2-backend-0` on port 8000, `trader-bot-pm2-backend-1` on port 8001)
 
 #### `deploy-python-bot.yml`
 
-- Trigger: `workflow_call` from `deploy-python.yml`
+- Trigger: `workflow_call` from `deploy-python.yml` or manual `workflow_dispatch`
 - Reloads the bot process via PM2 (`trader-bot-pm2-bot`)
 
 #### `deploy-python-auction.yml`
 
-- Trigger: `workflow_call` from `deploy-python.yml`
+- Trigger: `workflow_call` from `deploy-python.yml` or manual `workflow_dispatch`
 - Reloads the auction process via PM2 (`trader-bot-pm2-auction`)
 
 ### Infrastructure deployment
@@ -317,14 +319,16 @@ Do not use `infra/ami/setup.sh`, `infra/ami/python/setup.sh`, or `infra/ami/clea
 #### `infra/ami/setup.sh`
 
 - Base machine bootstrap — installs `git`, `curl`
+- Creates a 2G swap file if absent
 - Clones the repository to `/home/ubuntu/trader-bot`
-- Delegates CloudWatch agent installation to `infra/cloudwatch/ami.sh`
+- Delegates CloudWatch agent installation to `infra/cloudwatch/install.sh`
+- Creates `/var/log/trader-bot`
 
 #### `infra/ami/python/setup.sh`
 
 - Python application host bootstrap
 - Installs `uv` and pre-runs `uv sync --frozen`
-- Delegates PM2 installation to `infra/pm2/ami.sh`
+- Delegates PM2 installation to `infra/pm2/install.sh`
 
 #### `infra/ami/python/auction.sh`
 
@@ -336,19 +340,21 @@ Do not use `infra/ami/setup.sh`, `infra/ami/python/setup.sh`, or `infra/ami/clea
 #### `infra/ami/python/backend.sh`
 
 - Backend host image bootstrap
-- Builds on Python host setup, adds nginx
+- Builds on Python host setup, adds nginx (`infra/nginx/install.sh`)
+- Creates `/var/log/trader-bot/backend-0` and `/var/log/trader-bot/backend-1`
 - Finishes with `infra/ami/cleanup.sh`
 
 #### `infra/ami/python/bot.sh`
 
 - Bot host image bootstrap
-- Python host setup only — no nginx or redis
+- Builds on Python host setup
+- Creates `/var/log/trader-bot/bot`
 - Finishes with `infra/ami/cleanup.sh`
 
 #### `infra/ami/redis.sh`
 
 - Redis host image bootstrap
-- Base setup plus redis package only, left disabled/stopped
+- Base setup plus redis (`infra/redis/install.sh`) — installs package and deploys `redis.conf`, left disabled/stopped
 - Finishes with `infra/ami/cleanup.sh`
 
 #### `infra/ami/cleanup.sh`
@@ -360,19 +366,21 @@ Do not use `infra/ami/setup.sh`, `infra/ami/python/setup.sh`, or `infra/ami/clea
 
 ### Supporting AMI installers
 
-#### `infra/cloudwatch/ami.sh`
+#### `infra/cloudwatch/install.sh`
 
 - Installs CloudWatch agent package
-- Initializes agent config directory
-- Leaves service disabled/stopped for workflows to apply runtime config
+- Applies base agent config from `infra/cloudwatch/amazon-cloudwatch-agent.d/agent.json`
+- Initializes `/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/`
+- Leaves service disabled/stopped — deployment workflows append runtime log configs
 
-#### `infra/nginx/ami.sh`
+#### `infra/nginx/install.sh`
 
-- Installs nginx package and validates the default installation
+- Installs nginx package
 - Clears `sites-available` and `sites-enabled`
+- Symlinks `infra/nginx/sites-available/trader-bot-{beta,prod}-nginx.conf` into `sites-available`
 - Leaves service disabled/stopped
 
-#### `infra/pm2/ami.sh`
+#### `infra/pm2/install.sh`
 
 - Installs Node.js 24, latest npm, and PM2
 - Creates `/home/ubuntu/.pm2`
