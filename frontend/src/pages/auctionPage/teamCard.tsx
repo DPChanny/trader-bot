@@ -1,8 +1,8 @@
-import { PresetMemberGrid } from "@components/presetMemberGrid";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 import type { TeamDTO } from "@features/auction/dto";
+import { PresetMemberCard } from "@components/presetMemberCard";
 import { Card } from "@components/surfaces/card";
-import { Row } from "@components/atoms/layout";
+import { Row, Scroll } from "@components/atoms/layout";
 import { Name, Text } from "@components/atoms/text";
 
 type TeamCardProps = {
@@ -33,8 +33,16 @@ export function TeamCard({
         <Name>{teamName}</Name>
         <Text variantWeight="bold">{team.points * pointScale} 포인트</Text>
       </Row>
-      <PresetMemberGrid presetMembers={members} />
+      <Scroll axis="x">
+        <Row>
+          {members.map((member) => (
+            <PresetMemberCard
+              key={member.presetMemberId}
+              presetMember={member}
+            />
+          ))}
+        </Row>
+      </Scroll>
     </Card>
   );
 }
-

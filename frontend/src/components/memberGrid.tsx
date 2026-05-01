@@ -1,5 +1,5 @@
 import { MemberCard } from "./memberCard";
-import { PressedButton } from "./atoms/button";
+import { Button } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
 import type { MemberDetailDTO } from "@features/member/dto";
 import { TertiarySection } from "./surfaces/section";
@@ -33,14 +33,14 @@ export function MemberGrid({
           {members.map((member) => {
             const isSelected = selectedMemberId === member.memberId;
             return (
-              <PressedButton
+              <Button
                 key={member.memberId}
+                variantTone="ghost"
                 onClick={onClick ? () => onClick(member.memberId) : undefined}
                 isPressed={isSelected}
-                disabled={!onClick}
               >
                 <MemberCard member={member} />
-              </PressedButton>
+              </Button>
             );
           })}
         </Row>

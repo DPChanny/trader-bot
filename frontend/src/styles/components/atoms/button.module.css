@@ -1,27 +1,4 @@
-﻿.pressedButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  appearance: none;
-  background: none;
-  border: none;
-  outline: none;
-
-  font: inherit;
-  color: inherit;
-  text-align: inherit;
-  line-height: inherit;
-}
-
-.pressedButton:not(:disabled) {
-  cursor: pointer;
-}
-
-.pressedButton:disabled {
-  cursor: default;
-}
-
-.button {
+﻿.button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -208,4 +185,19 @@
   height: var(--space-11);
   font-size: var(--font-size-lg);
   padding: var(--padding-md);
+}
+
+.toneGhost {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-weight: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+.toneGhost:hover:not(:disabled),
+.toneGhost:active:not(:disabled) {
+  background: none;
+  color: inherit;
 }

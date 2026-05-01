@@ -282,6 +282,7 @@ export function AuctionPage() {
                       step={pointScale}
                       onValueChange={setBidAmount}
                       disabled={!canBid}
+                      style={{ width: "100%" }}
                     />
                   </FlexItem>
                   <PrimaryButton

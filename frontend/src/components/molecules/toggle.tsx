@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { clsx } from "clsx";
-import { PressedButton, type PressedButtonProps } from "../atoms/button";
+import { Button, type ButtonProps } from "../atoms/button";
 import styles from "@styles/components/molecules/toggle.module.css";
 
 const toggleVariants = cva(styles.toggle, {
@@ -17,7 +17,7 @@ const toggleVariants = cva(styles.toggle, {
   },
 });
 
-export type ToggleProps = PressedButtonProps & {
+export type ToggleProps = ButtonProps & {
   variantColor?: VariantProps<typeof toggleVariants>["variantColor"];
 };
 
@@ -30,7 +30,8 @@ export function Toggle({
   const baseClass = toggleVariants({ variantColor });
 
   return (
-    <PressedButton
+    <Button
+      variantTone="ghost"
       isPressed={isPressed}
       className={clsx(baseClass, className)}
       {...props}

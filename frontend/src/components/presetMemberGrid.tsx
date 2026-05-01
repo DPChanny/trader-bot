@@ -1,5 +1,5 @@
 import { PresetMemberCard } from "./presetMemberCard";
-import { PressedButton } from "./atoms/button";
+import { Button } from "./atoms/button";
 import { Row, Scroll } from "./atoms/layout";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 import { TertiarySection } from "./surfaces/section";
@@ -41,16 +41,16 @@ export function PresetMemberGrid({
             const isSelected = selectedMemberId === presetMember.presetMemberId;
 
             return (
-              <PressedButton
+              <Button
                 key={presetMember.presetMemberId}
+                variantTone="ghost"
                 onClick={
                   onClick ? (event) => onClick(presetMember, event) : undefined
                 }
                 isPressed={isSelected}
-                disabled={!onClick}
               >
                 <PresetMemberCard presetMember={presetMember} />
-              </PressedButton>
+              </Button>
             );
           })}
         </Row>

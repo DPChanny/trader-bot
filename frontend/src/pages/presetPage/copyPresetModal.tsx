@@ -1,8 +1,7 @@
 import { useParams } from "@tanstack/react-router";
 
 import { Modal, ModalFooter } from "@components/modal";
-import { SecondaryButton } from "@components/atoms/button";
-import { PressedButton } from "@components/atoms/button";
+import { SecondaryButton, Button } from "@components/atoms/button";
 import { Error } from "@components/molecules/error";
 import { Loading } from "@components/molecules/loading";
 import { Card } from "@components/surfaces/card";
@@ -52,8 +51,9 @@ export function CopyPresetModal({ onClose }: CopyPresetModalProps) {
             <Error error={guilds.error}>서버 목록을 불러오지 못했습니다</Error>
           ) : (
             (guilds.data ?? []).map((guild) => (
-              <PressedButton
+              <Button
                 key={guild.discordId}
+                variantTone="ghost"
                 onClick={() => handleSelectGuild(guild.discordId)}
                 disabled={copyPreset.isPending}
               >
@@ -61,7 +61,7 @@ export function CopyPresetModal({ onClose }: CopyPresetModalProps) {
                   <Image src={guild.iconUrl} alt={guild.name} />
                   <Name>{guild.name}</Name>
                 </Card>
-              </PressedButton>
+              </Button>
             ))
           )}
         </Scroll>
