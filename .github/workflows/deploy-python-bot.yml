@@ -86,6 +86,7 @@ jobs:
               ("sudo -H -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
               ("sudo -H -u ubuntu bash -lc \"uv sync --frozen --project " + $python_dir + "\""),
               ("sudo -H -u ubuntu pm2 startOrReload " + $ecosystem + " --only trader-bot-pm2-bot"),
+              "sudo -H -u ubuntu pm2 reset trader-bot-pm2-bot",
               "sudo -H -u ubuntu pm2 save"
             ])}')
 
