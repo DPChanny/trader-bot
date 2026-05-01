@@ -7,7 +7,7 @@ cd /
 
 apt-get install -y --no-install-recommends redis-server
 
-ln -sfn /home/ubuntu/trader-bot/infra/redis/redis.conf /etc/redis/redis.conf
+install -m 640 -o redis -g redis /home/ubuntu/trader-bot/infra/redis/redis.conf /etc/redis/redis.conf
 
 install -d -m 755 -o redis -g redis /var/log/trader-bot/redis
 
