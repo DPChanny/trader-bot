@@ -14,17 +14,22 @@ def include_command_router(bot: commands.Bot) -> None:
     @app_commands.default_permissions(administrator=True)
     @app_commands.guild_only()
     async def set_invite_channel_command(
-        interaction: discord.Interaction, channel: discord.TextChannel | None = None
+        interaction: discord.Interaction, channel: discord.TextChannel
     ) -> None:
-        channel_id = channel.id if channel else None
         async for session in get_session():
-            await set_invite_channel_service(interaction.guild_id, channel_id, session)
-        if channel:
-            await interaction.response.send_message(
-                f"경매 초대 채널이 {channel.mention}으로 설정되었습니다.",
-                ephemeral=True,
-            )
-        else:
-            await interaction.response.send_message(
-                "경매 초대 채널이 해제되었습니다.", ephemeral=True
-            )
+            await set_invite_channel_service(interaction.guild_id, channel.id, session)
+        await interaction.response.send_message(
+            f"경매 초대 채널이 {channel.mention}으로 설정되었습니다.", ephemeral=True
+        )
+
+    @bot.tree.command(
+        name="unset_invite_channel", description="경매 초대 채널을 해제합니다."
+    )
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.guild_only()
+    async def unset_invite_channel_command(interaction: discord.Interaction) -> None:
+        async for session in get_session():
+            await set_invite_channel_service(interaction.guild_id, None, session)
+        await interaction.response.send_message(
+            "경매 초대 채널이 해제되었습니다.", ephemeral=True
+        )

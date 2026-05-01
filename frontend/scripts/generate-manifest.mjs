@@ -110,9 +110,7 @@ async function main() {
     console.log(`Watching for changes in ${publicDir}...`);
     let timeoutId = null;
 
-    // Windows와 macOS에서 recursive: true 지원
     fs.watch(publicDir, { recursive: true }, (eventType, filename) => {
-      // manifest.json 자체 변경 무시 및 마크다운 파일만 필터링
       if (
         !filename ||
         filename === "manifest.json" ||
@@ -121,7 +119,6 @@ async function main() {
         return;
       }
 
-      // 디바운싱: 여러 파일 변경 이벤트가 한꺼번에 발생할 수 있으므로
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
