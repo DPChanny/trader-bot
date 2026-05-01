@@ -9,7 +9,7 @@ on:
       ref:
         description: "Ref"
         required: false
-        default: "master"
+        default: "origin/master"
 
 concurrency:
   group: deploy-instance-${{ inputs.phase }}

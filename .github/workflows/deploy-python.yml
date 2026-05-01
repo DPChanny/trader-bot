@@ -11,7 +11,7 @@ on:
       ref:
         description: "Ref"
         required: false
-        default: "master"
+        default: "origin/master"
 
 concurrency:
   group: deploy-python-${{ github.event_name == 'push' && github.ref_name || format('{0}-{1}', inputs.phase, inputs.ref) }}

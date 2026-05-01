@@ -4,6 +4,7 @@ import { PresetMemberCard } from "@components/presetMemberCard";
 import { Card } from "@components/surfaces/card";
 import { Row, Scroll } from "@components/atoms/layout";
 import { Name, Text } from "@components/atoms/text";
+import { TertiarySection } from "@components/surfaces/section";
 
 type TeamCardProps = {
   team: TeamDTO;
@@ -33,16 +34,18 @@ export function TeamCard({
         <Name>{teamName}</Name>
         <Text variantWeight="bold">{team.points * pointScale} 포인트</Text>
       </Row>
-      <Scroll axis="x">
-        <Row>
-          {members.map((member) => (
-            <PresetMemberCard
-              key={member.presetMemberId}
-              presetMember={member}
-            />
-          ))}
-        </Row>
-      </Scroll>
+      <TertiarySection>
+        <Scroll axis="x">
+          <Row>
+            {members.map((member) => (
+              <PresetMemberCard
+                key={member.presetMemberId}
+                presetMember={member}
+              />
+            ))}
+          </Row>
+        </Scroll>
+      </TertiarySection>
     </Card>
   );
 }

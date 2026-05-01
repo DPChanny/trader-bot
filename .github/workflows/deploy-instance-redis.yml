@@ -9,7 +9,7 @@ on:
       ref:
         required: false
         type: string
-        default: "master"
+        default: "origin/master"
   workflow_dispatch:
     inputs:
       phase:
@@ -18,7 +18,7 @@ on:
       ref:
         description: "Ref"
         required: false
-        default: "master"
+        default: "origin/master"
 
 concurrency:
   group: deploy-instance-redis-${{ inputs.phase }}
