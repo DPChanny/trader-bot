@@ -54,7 +54,9 @@ async def create_auction_service(
     auction = await AuctionManager.create_auction(preset_snapshot=preset_snapshot)
 
     app_origin = get_app_origin()
-    auction_url = f"{app_origin}/auction/{auction.auction_id}"
+    auction_url = (
+        f"{app_origin}/guild/{guild_id}/preset/{preset_id}/auction/{auction.auction_id}"
+    )
     invite_channel_id = preset.guild.invite_channel_id
 
     if invite_channel_id is not None:
