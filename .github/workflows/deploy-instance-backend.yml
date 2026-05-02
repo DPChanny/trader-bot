@@ -85,6 +85,7 @@ jobs:
               ("/etc/nginx/sites-enabled/trader-bot-" + $phase + "-nginx.conf") as $nginx_enabled |
               [
               "set -e",
+              ("sudo -H -u ubuntu git -C " + $repo + " fetch --prune origin"),
               ("sudo -H -u ubuntu git -C " + $repo + " fetch origin \"+refs/tags/*:refs/tags/*\""),
               ("sudo -H -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
               ("amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $cw_agent + " -s"),
