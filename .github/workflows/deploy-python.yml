@@ -136,11 +136,16 @@ jobs:
         run: |
           set -euo pipefail
           PHASE="${{ needs.prepare.outputs.phase }}"
+          REF="${{ needs.prepare.outputs.ref }}"
           APP_ORIGIN="${{ needs.prepare.outputs.app_origin }}"
           API_ORIGIN="${{ needs.prepare.outputs.api_origin }}"
           DB_HOST="${{ needs.prepare.outputs.db_host }}"
           DB_REGION="${{ needs.prepare.outputs.db_region }}"
           REDIS_HOST="${{ needs.prepare.outputs.redis_host }}"
+
+          REPO="/home/ubuntu/trader-bot"
+          PYTHON_DIR="$REPO/python"
+          ENV_PATH="$PYTHON_DIR/.env"
 
           ENV="$(printf '%s\n' \
             "PHASE=$PHASE" \
@@ -154,20 +159,27 @@ jobs:
             "DB_REGION=$DB_REGION" \
             "REDIS_HOST=$REDIS_HOST")"
 
-          ENV_PATH="/home/ubuntu/trader-bot/python/.env"
-
-          COMMANDS_JSON=$(jq -n \
-            --arg env "$ENV" \
-            --arg env_path "$ENV_PATH" \
-            '{commands: [
-              "set -e",
-              ("install -m 600 -o ubuntu -g ubuntu /dev/null " + $env_path),
-              ("sudo -H -u ubuntu sh -lc " + (("printf %s " + ($env | @sh) + " > " + $env_path) | @sh))
-            ]}')
-
           for KEY in backend bot auction; do
             INSTANCE_ID=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" --arg key "$KEY" '.[$phase][$key] // empty')
-            echo "[deploy-python-env] phase=$PHASE role=$KEY instance=$INSTANCE_ID"
+
+            COMMANDS_JSON=$(jq -n \
+              --arg env "$ENV" \
+              --arg env_path "$ENV_PATH" \
+              --arg ref "$REF" \
+              --arg repo "$REPO" \
+              --arg python_dir "$PYTHON_DIR" \
+              '{commands: [
+                "set -e",
+                ("install -m 600 -o ubuntu -g ubuntu /dev/null " + $env_path),
+                ("sudo -H -u ubuntu sh -lc " + (("printf %s " + ($env | @sh) + " > " + $env_path) | @sh)),
+                ("cd " + $repo),
+                "sudo -H -u ubuntu git fetch --prune origin",
+                "sudo -H -u ubuntu git fetch origin \"+refs/tags/*:refs/tags/*\"",
+                ("sudo -H -u ubuntu git checkout --detach " + $ref),
+                ("cd " + $python_dir),
+                "sudo -H -u ubuntu uv sync --frozen"
+              ]}')
+
             COMMAND_ID=$(aws ssm send-command \
               --instance-ids "$INSTANCE_ID" \
               --document-name "AWS-RunShellScript" \
@@ -199,21 +211,18 @@ jobs:
     uses: ./.github/workflows/deploy-python-backend.yml
     with:
       phase: ${{ needs.prepare.outputs.phase }}
-      ref: ${{ needs.prepare.outputs.ref }}
     secrets: inherit
 
   bot:
-    needs: [prepare, env]
+    needs: [prepare, backend]
     uses: ./.github/workflows/deploy-python-bot.yml
     with:
       phase: ${{ needs.prepare.outputs.phase }}
-      ref: ${{ needs.prepare.outputs.ref }}
     secrets: inherit
 
   auction:
-    needs: [prepare, env]
+    needs: [prepare, backend]
     uses: ./.github/workflows/deploy-python-auction.yml
     with:
       phase: ${{ needs.prepare.outputs.phase }}
-      ref: ${{ needs.prepare.outputs.ref }}
     secrets: inherit

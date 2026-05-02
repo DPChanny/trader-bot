@@ -6,22 +6,14 @@ on:
       phase:
         required: true
         type: string
-      ref:
-        required: false
-        type: string
-        default: "origin/master"
   workflow_dispatch:
     inputs:
       phase:
         description: "Phase"
         required: true
-      ref:
-        description: "Ref"
-        required: false
-        default: "origin/master"
 
 concurrency:
-  group: deploy-python-bot-${{ inputs.phase }}-${{ inputs.ref }}
+  group: deploy-python-bot-${{ inputs.phase }}
   cancel-in-progress: false
 
 jobs:
@@ -43,7 +35,6 @@ jobs:
           set -euo pipefail
 
           PHASE="${{ inputs.phase }}"
-          REF="${{ inputs.ref }}"
 
           case "$PHASE" in
             beta|prod) ;;
@@ -61,37 +52,24 @@ jobs:
           fi
 
           {
-            echo "PHASE=$PHASE"
-            echo "REF=$REF"
             echo "INSTANCE_ID=$INSTANCE_ID"
           } >> "$GITHUB_OUTPUT"
 
       - name: Run
         run: |
           set -euo pipefail
-          PHASE="${{ steps.prepare.outputs.PHASE }}"
-          REF="${{ steps.prepare.outputs.REF }}"
           INSTANCE_ID="${{ steps.prepare.outputs.INSTANCE_ID }}"
 
           COMMANDS_JSON=$(jq -n \
-            --arg ref "$REF" \
-            --arg repo "/home/ubuntu/trader-bot" \
             '{commands: (
-              ($repo + "/python") as $python_dir |
-              ($repo + "/infra/pm2/ecosystem.config.mjs") as $ecosystem |
+              "/home/ubuntu/trader-bot/infra/pm2/ecosystem.config.mjs" as $ecosystem |
               [
               "set -e",
-              ("cd " + $repo),
-              ("sudo -H -u ubuntu git -C " + $repo + " fetch --prune origin"),
-              ("sudo -H -u ubuntu git -C " + $repo + " fetch origin \"+refs/tags/*:refs/tags/*\""),
-              ("sudo -H -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
-              ("sudo -H -u ubuntu bash -lc \"uv sync --frozen --project " + $python_dir + "\""),
               ("sudo -H -u ubuntu pm2 startOrReload " + $ecosystem + " --only trader-bot-pm2-bot"),
               "sudo -H -u ubuntu pm2 reset trader-bot-pm2-bot",
               "sudo -H -u ubuntu pm2 save"
             ])}')
 
-          echo "[deploy-python-bot] phase=$PHASE instance=$INSTANCE_ID"
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
