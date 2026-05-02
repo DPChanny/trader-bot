@@ -47,11 +47,11 @@ class AuctionPublishType(IntEnum):
 
 
 class AuctionRequestType(IntEnum):
-    CREATE = 0
-    PLACE_BID = 1
-    LEADER_CONNECTED = 2
-    LEADER_DISCONNECTED = 3
-    RECOVER = 4
+    CREATE = 20
+    PLACE_BID = 21
+    LEADER_CONNECTED = 22
+    LEADER_DISCONNECTED = 23
+    RECOVER = 24
 
 
 class AuctionResponseType(IntEnum):
