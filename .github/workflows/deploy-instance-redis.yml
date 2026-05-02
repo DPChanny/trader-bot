@@ -83,7 +83,7 @@ jobs:
               ($cw_dir + "/trader-bot-" + $phase + "-lg-redis.json") as $cw_redis |
               [
               "set -e",
-              ("sudo -H -u ubuntu git -C " + $repo + " fetch --all --tags"),
+              ("sudo -H -u ubuntu git -C " + $repo + " fetch --prune origin \"+refs/tags/*:refs/tags/*\" --all"),
               ("sudo -H -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
               ("amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $cw_agent + " -s"),
               ("amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $cw_redis),
