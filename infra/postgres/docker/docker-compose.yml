@@ -3,7 +3,7 @@ name: postgres
 services:
   postgres:
     image: postgres:18.3
-    container_name: trader-bot-ctr-db
+    container_name: trader-bot-dev-ctr-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres

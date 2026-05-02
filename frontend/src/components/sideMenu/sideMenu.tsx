@@ -30,9 +30,11 @@ function getSideMenuWidthPx() {
 export function SideMenu() {
   const guilds = useGuilds();
   const { guildId } = useParams({ strict: false }) as { guildId?: string };
-  const { presetId: presetIdStr } = useParams({ strict: false }) as { presetId?: string };
+  const { presetId: presetIdStr } = useParams({ strict: false }) as {
+    presetId?: string;
+  };
   const presetId = presetIdStr ? parseInt(presetIdStr, 10) : undefined;
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [isOpening, setIsOpening] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isDraggingOpen, setIsDraggingOpen] = useState(false);
@@ -106,7 +108,9 @@ export function SideMenu() {
     };
   }, [isDraggingOpen]);
 
-  const handleOpenDragStart = (event: React.PointerEvent<HTMLButtonElement>) => {
+  const handleOpenDragStart = (
+    event: React.PointerEvent<HTMLButtonElement>,
+  ) => {
     if (isOpen) {
       return;
     }
@@ -195,7 +199,10 @@ export function SideMenu() {
               </Row>
               <Bar />
               <Fill>
-                <GuildList guilds={guilds.data ?? []} activeGuildId={guildId ?? null} />
+                <GuildList
+                  guilds={guilds.data ?? []}
+                  activeGuildId={guildId ?? null}
+                />
                 {guildId && <PresetList selectedPresetId={presetId ?? null} />}
               </Fill>
             </Fill>

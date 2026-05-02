@@ -3,16 +3,16 @@ name: redis
 services:
   redis:
     image: redis:7.0.15
-    container_name: trader-bot-ctr-redis
+    container_name: trader-bot-dev-ctr-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     command: >
-      sh -c "install -d -m 755 -o redis -g redis /var/log/trader-bot/redis &&
+      sh -c "chown redis:redis /var/log/redis &&
              redis-server /usr/local/etc/redis/redis.conf"
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
-      - trader-bot-dev-vol-redis:/var/log/trader-bot/redis
+      - trader-bot-dev-vol-redis:/var/log/redis
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
