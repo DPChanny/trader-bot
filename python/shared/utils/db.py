@@ -7,7 +7,6 @@ import aioboto3
 import asyncpg
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from ..entities import BaseEntity
 from .env import (
     get_db_host,
     get_db_name,
@@ -121,8 +120,12 @@ _sessionmaker = async_sessionmaker(
 
 
 async def setup_db():
-    async with _engine.begin() as conn:
-        await conn.run_sync(BaseEntity.metadata.create_all, checkfirst=True)
+    async with _engine.connect():
+        pass
+
+
+def get_engine():
+    return _engine
 
 
 async def cleanup_db():

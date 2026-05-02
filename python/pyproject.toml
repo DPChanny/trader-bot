@@ -15,6 +15,7 @@ dependencies = [
     "asyncpg",
     "aioboto3",
     "redis",
+    "alembic",
 ]
 
 [dependency-groups]
