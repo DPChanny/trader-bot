@@ -1,0 +1,18 @@
+name: deploy-frontend-public
+
+on:
+  push:
+    branches: ["master", "beta"]
+    paths: ["frontend/public/**"]
+
+concurrency:
+  group: deploy-frontend-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-frontend.yml
+    with:
+      phase: ${{ github.ref_name == 'master' && 'prod' || 'beta' }}
+      ref: ${{ github.ref_name }}
+    secrets: inherit
