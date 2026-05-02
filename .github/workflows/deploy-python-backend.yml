@@ -82,7 +82,8 @@ jobs:
               [
               "set -e",
               ("cd " + $repo),
-              ("sudo -H -u ubuntu git -C " + $repo + " fetch --prune origin \"+refs/tags/*:refs/tags/*\" --all"),
+              ("sudo -H -u ubuntu git -C " + $repo + " fetch --prune origin"),
+              ("sudo -H -u ubuntu git -C " + $repo + " fetch --all --tags"),
               ("sudo -H -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
               ("sudo -H -u ubuntu bash -lc \"uv sync --frozen --project " + $python_dir + "\""),
               ("sudo -H -u ubuntu pm2 startOrReload " + $ecosystem + " --only trader-bot-pm2-backend-0,trader-bot-pm2-backend-1"),
