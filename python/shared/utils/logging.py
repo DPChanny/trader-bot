@@ -199,7 +199,7 @@ def setup_logging(log_dir: str | Path) -> None:
             level=log_level,
             format="{extra[json]}",
             rotation="64 MB",
-            retention="7 days",
+            retention="1 days",
             compression="zip",
             enqueue=True,
             backtrace=False,
