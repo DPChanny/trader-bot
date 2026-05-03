@@ -91,3 +91,7 @@ def get_log_text() -> bool:
 
 def get_log_file() -> bool:
     return os.getenv("LOG_FILE", "true").lower() == "true"
+
+
+def get_toss_secret() -> str:
+    return os.environ["TOSS_SECRET"]

@@ -1,7 +1,6 @@
 toss
     subscription
-        enum plan
-        worker
+        worker -> task?
     payment
         frontend
 
@@ -9,5 +8,11 @@ docs
     tos
     pp
     patch notes
+
+toss
+    market dashboard
+    test page
+    validation
+
 
 launch 0.5.0
