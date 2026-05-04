@@ -9,6 +9,7 @@ from . import BaseEntity
 if TYPE_CHECKING:
     from .member import Member
     from .preset import Preset
+    from .subscription import Subscription
 
 
 class Guild(BaseEntity):
@@ -21,3 +22,6 @@ class Guild(BaseEntity):
 
     presets: Mapped[list[Preset]] = relationship("Preset", viewonly=True)
     members: Mapped[list[Member]] = relationship("Member", viewonly=True)
+    subscription: Mapped[Subscription | None] = relationship(
+        "Subscription", viewonly=True
+    )

@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.subscription import CreateSubscriptionDTO, SubscriptionDTO, Tier
 from shared.entities import Payment
+from shared.repositories.billing_repository import BillingRepository
 from shared.repositories.subscription_repository import SubscriptionRepository
 from shared.utils.error import HTTPError, SubscriptionErrorCode
 from shared.utils.service import http_service
@@ -24,7 +25,7 @@ async def create_subscription_service(
     sub_repo = SubscriptionRepository(session)
     existing = await sub_repo.get_by_guild_id(guild_id)
 
-    if existing is not None and existing.is_renewable:
+    if existing is not None and existing.expires_at > datetime.now(UTC):
         raise HTTPError(SubscriptionErrorCode.Duplicated)
 
     customer_key = str(user_id)
@@ -38,11 +39,14 @@ async def create_subscription_service(
 
     expires_at = datetime.now(UTC) + _TIER_PERIOD[dto.tier]
     subscription = await sub_repo.upsert(
-        guild_id=guild_id,
+        guild_id=guild_id, tier=int(dto.tier), expires_at=expires_at
+    )
+
+    billing_repo = BillingRepository(session)
+    await billing_repo.upsert(
+        subscription_id=subscription.subscription_id,
         user_id=user_id,
-        tier=int(dto.tier),
         billing_key=billing_key,
-        expires_at=expires_at,
     )
 
     session.add(

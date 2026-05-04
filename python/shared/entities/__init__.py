@@ -5,6 +5,7 @@ class BaseEntity(DeclarativeBase):
     pass
 
 
+from .billing import Billing
 from .guild import Guild
 from .member import Member
 from .payment import Payment
@@ -19,6 +20,7 @@ from .user import User
 
 __all__ = [
     "BaseEntity",
+    "Billing",
     "Guild",
     "Member",
     "Payment",

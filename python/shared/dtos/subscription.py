@@ -16,9 +16,7 @@ class Tier(IntEnum):
 class SubscriptionDTO(BaseDTO):
     subscription_id: int
     guild_id: BigInt
-    user_id: BigInt | None
     tier: Tier
-    is_renewable: bool
     expires_at: datetime
 
 

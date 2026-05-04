@@ -8,6 +8,7 @@ from . import BaseEntity
 
 if TYPE_CHECKING:
     from .position import Position
+    from .preset_member import PresetMember
 
 
 class PresetMemberPosition(BaseEntity):
@@ -28,4 +29,5 @@ class PresetMemberPosition(BaseEntity):
         ForeignKey("position.position_id", ondelete="CASCADE")
     )
 
+    preset_member: Mapped[PresetMember] = relationship("PresetMember", viewonly=True)
     position: Mapped[Position] = relationship("Position", viewonly=True)

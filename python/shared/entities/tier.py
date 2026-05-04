@@ -1,7 +1,13 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
+
+
+if TYPE_CHECKING:
+    from .preset import Preset
 
 
 class Tier(BaseEntity):
@@ -13,3 +19,5 @@ class Tier(BaseEntity):
     )
     name: Mapped[str] = mapped_column(String(256))
     icon_url: Mapped[str | None] = mapped_column(String(2048))
+
+    preset: Mapped[Preset] = relationship("Preset", viewonly=True)

@@ -1,9 +1,16 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, SmallInteger, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import BigInteger, DateTime, ForeignKey, SmallInteger
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
+
+
+if TYPE_CHECKING:
+    from .billing import Billing
+    from .guild import Guild
+    from .payment import Payment
 
 
 class Subscription(BaseEntity):
@@ -13,13 +20,9 @@ class Subscription(BaseEntity):
     guild_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("guild.discord_id", ondelete="CASCADE"), unique=True
     )
-    user_id: Mapped[int | None] = mapped_column(
-        BigInteger, ForeignKey("user.discord_id", ondelete="SET NULL")
-    )
     tier: Mapped[int] = mapped_column(SmallInteger)
-    billing_key: Mapped[str | None] = mapped_column(Text)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-    @property
-    def is_renewable(self) -> bool:
-        return self.billing_key is not None and self.user_id is not None
+    guild: Mapped[Guild] = relationship("Guild", viewonly=True)
+    billing: Mapped[Billing | None] = relationship("Billing", viewonly=True)
+    payments: Mapped[list[Payment]] = relationship("Payment", viewonly=True)

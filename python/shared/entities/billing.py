@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, ForeignKey, SmallInteger, String
+from sqlalchemy import BigInteger, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import BaseEntity
@@ -11,19 +11,17 @@ if TYPE_CHECKING:
     from .user import User
 
 
-class Payment(BaseEntity):
-    __tablename__ = "payment"
+class Billing(BaseEntity):
+    __tablename__ = "billing"
 
-    payment_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    billing_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     subscription_id: Mapped[int] = mapped_column(
-        ForeignKey("subscription.subscription_id", ondelete="CASCADE")
+        ForeignKey("subscription.subscription_id", ondelete="CASCADE"), unique=True
     )
     user_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("user.discord_id", ondelete="CASCADE")
     )
-    order_id: Mapped[str] = mapped_column(String(64), unique=True)
-    amount: Mapped[int] = mapped_column()
-    tier: Mapped[int] = mapped_column(SmallInteger)
+    billing_key: Mapped[str] = mapped_column(Text)
 
     subscription: Mapped[Subscription] = relationship("Subscription", viewonly=True)
     user: Mapped[User] = relationship("User", viewonly=True)

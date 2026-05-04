@@ -7,6 +7,7 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
+    from .preset import Preset
     from .preset_member_position import PresetMemberPosition
 
 
@@ -20,6 +21,7 @@ class Position(BaseEntity):
     name: Mapped[str] = mapped_column(String(256))
     icon_url: Mapped[str | None] = mapped_column(String(2048))
 
+    preset: Mapped[Preset] = relationship("Preset", viewonly=True)
     preset_member_positions: Mapped[list[PresetMemberPosition]] = relationship(
         "PresetMemberPosition", viewonly=True
     )
