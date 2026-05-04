@@ -21,6 +21,7 @@ from .auction.auction_manager import AuctionManager
 from .routers import (
     auction_router,
     auth_router,
+    billing_router,
     guild_router,
     member_router,
     position_router,
@@ -98,3 +99,4 @@ app.include_router(preset_member_position_router, prefix="/api")
 app.include_router(auction_router, prefix="/api")
 app.include_router(guild_router, prefix="/api")
 app.include_router(subscription_router, prefix="/api")
+app.include_router(billing_router, prefix="/api")
