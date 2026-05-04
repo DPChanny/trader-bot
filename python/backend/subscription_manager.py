@@ -83,7 +83,9 @@ class SubscriptionManager:
                         continue
 
                     new_expires_at = sub.expires_at + _TIER_PERIOD[tier]
-                    await sub_repo.update_renewal(sub.subscription_id, new_expires_at)
+                    await sub_repo.upsert(
+                        sub.guild_id, sub.billing_id, int(tier), new_expires_at
+                    )
                     session.add(
                         Payment(
                             subscription_id=sub.subscription_id,

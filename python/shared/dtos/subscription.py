@@ -2,13 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import IntEnum
-from typing import TYPE_CHECKING
 
 from . import BaseDTO, BigInt
-
-
-if TYPE_CHECKING:
-    from .billing import BillingDTO
 
 
 class Tier(IntEnum):
@@ -23,15 +18,6 @@ class SubscriptionDTO(BaseDTO):
     expires_at: datetime
 
 
-class SubscriptionDetailDTO(SubscriptionDTO):
-    billing: BillingDTO | None = None
-
-
-class CreateSubscriptionDTO(BaseDTO):
+class RegisterSubscriptionDTO(BaseDTO):
     billing_id: int
     tier: Tier
-
-
-class UpdateSubscriptionDTO(BaseDTO):
-    billing_id: int | None = None
-    tier: Tier | None = None

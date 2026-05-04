@@ -1,8 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
-from sqlalchemy.orm import selectinload
 
 from ..entities import Billing, Subscription
 from . import BaseRepository
@@ -12,20 +11,6 @@ class SubscriptionRepository(BaseRepository):
     async def get_by_guild_id(self, guild_id: int) -> Subscription | None:
         result = await self.session.execute(
             select(Subscription).where(Subscription.guild_id == guild_id)
-        )
-        return result.scalar_one_or_none()
-
-    async def get_detail_by_guild_id(self, guild_id: int) -> Subscription | None:
-        result = await self.session.execute(
-            select(Subscription)
-            .options(selectinload(Subscription.billing))
-            .where(Subscription.guild_id == guild_id)
-        )
-        return result.scalar_one_or_none()
-
-    async def get_by_id(self, subscription_id: int) -> Subscription | None:
-        result = await self.session.execute(
-            select(Subscription).where(Subscription.subscription_id == subscription_id)
         )
         return result.scalar_one_or_none()
 
@@ -54,10 +39,3 @@ class SubscriptionRepository(BaseRepository):
             .where(Subscription.expires_at <= cutoff)
         )
         return list(result.scalars().all())
-
-    async def update_renewal(self, subscription_id: int, expires_at: datetime) -> None:
-        await self.session.execute(
-            update(Subscription)
-            .where(Subscription.subscription_id == subscription_id)
-            .values(expires_at=expires_at)
-        )
