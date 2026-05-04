@@ -19,6 +19,9 @@ class Subscription(BaseEntity):
     guild_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("guild.discord_id", ondelete="CASCADE"), unique=True
     )
+    billing_id: Mapped[int | None] = mapped_column(
+        ForeignKey("billing.billing_id", ondelete="SET NULL")
+    )
     tier: Mapped[int] = mapped_column(SmallInteger)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 

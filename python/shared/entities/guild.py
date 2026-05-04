@@ -8,6 +8,7 @@ from . import BaseEntity
 
 if TYPE_CHECKING:
     from .member import Member
+    from .payment import Payment
     from .preset import Preset
     from .subscription import Subscription
 
@@ -25,3 +26,4 @@ class Guild(BaseEntity):
     subscription: Mapped[Subscription | None] = relationship(
         "Subscription", viewonly=True
     )
+    payments: Mapped[list[Payment]] = relationship("Payment", viewonly=True)

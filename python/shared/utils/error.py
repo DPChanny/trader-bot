@@ -79,6 +79,11 @@ class UserErrorCode(IntEnum):
     NotFound = 4409
 
 
+class BillingErrorCode(IntEnum):
+    Forbidden = 4306
+    NotFound = 4411
+
+
 class UnexpectedErrorCode(IntEnum):
     Internal = 5001
     External = 5002

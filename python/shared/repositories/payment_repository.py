@@ -5,10 +5,10 @@ from . import BaseRepository
 
 
 class PaymentRepository(BaseRepository):
-    async def get_all_by_subscription_id(self, subscription_id: int) -> list[Payment]:
+    async def get_all_by_guild_id(self, guild_id: int) -> list[Payment]:
         result = await self.session.execute(
             select(Payment)
-            .where(Payment.subscription_id == subscription_id)
+            .where(Payment.guild_id == guild_id)
             .order_by(Payment.payment_id.desc())
         )
         return list(result.scalars().all())

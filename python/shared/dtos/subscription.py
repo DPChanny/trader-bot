@@ -32,7 +32,7 @@ class SubscriptionDetailDTO(SubscriptionDTO):
 
 
 class CreateSubscriptionDTO(BaseDTO):
-    auth_key: str
+    billing_id: int
     tier: Tier
 
     @model_validator(mode="after")
@@ -42,11 +42,5 @@ class CreateSubscriptionDTO(BaseDTO):
         return self
 
 
-class UpdateSubscriptionDTO(BaseDTO):
-    tier: Tier
-
-    @model_validator(mode="after")
-    def validate(self) -> UpdateSubscriptionDTO:
-        if self.tier == Tier.FREE:
-            raise HTTPError(ValidationErrorCode.Invalid)
-        return self
+class UpdateSubscriptionBillingDTO(BaseDTO):
+    billing_id: int

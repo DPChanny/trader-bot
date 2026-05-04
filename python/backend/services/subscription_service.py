@@ -3,22 +3,20 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.member import Role
 from shared.dtos.subscription import (
     CreateSubscriptionDTO,
     SubscriptionDetailDTO,
     SubscriptionDTO,
     Tier,
-    UpdateSubscriptionDTO,
+    UpdateSubscriptionBillingDTO,
 )
 from shared.entities import Payment
 from shared.repositories.billing_repository import BillingRepository
 from shared.repositories.subscription_repository import SubscriptionRepository
-from shared.utils.error import HTTPError, SubscriptionErrorCode
+from shared.utils.error import BillingErrorCode, HTTPError, SubscriptionErrorCode
 from shared.utils.service import http_service
 
-from ..utils.member import verify_role
-from ..utils.toss import charge_billing_key, issue_billing_key
+from ..utils.toss import charge_billing_key
 
 
 _TIER_AMOUNT = {Tier.PLUS: 10000, Tier.PRO: 20000}
@@ -32,37 +30,37 @@ async def create_subscription_service(
 ) -> SubscriptionDTO:
     sub_repo = SubscriptionRepository(session)
     existing = await sub_repo.get_by_guild_id(guild_id)
-
     if existing is not None and existing.expires_at > datetime.now(UTC):
         raise HTTPError(SubscriptionErrorCode.Duplicated)
 
-    customer_key = str(user_id)
-    billing_key = await issue_billing_key(dto.auth_key, customer_key)
+    billing_repo = BillingRepository(session)
+    billing = await billing_repo.get_by_id(dto.billing_id)
+    if billing is None or billing.user_id != user_id:
+        raise HTTPError(BillingErrorCode.NotFound)
 
+    customer_key = str(user_id)
     order_id = uuid.uuid4().hex
     amount = _TIER_AMOUNT[dto.tier]
     order_name = _TIER_ORDER_NAME[dto.tier]
 
-    await charge_billing_key(billing_key, customer_key, order_id, amount, order_name)
+    payment_key = await charge_billing_key(
+        billing.billing_key, customer_key, order_id, amount, order_name
+    )
 
     expires_at = datetime.now(UTC) + _TIER_PERIOD[dto.tier]
     subscription = await sub_repo.upsert(
-        guild_id=guild_id, tier=int(dto.tier), expires_at=expires_at
-    )
-
-    billing_repo = BillingRepository(session)
-    await billing_repo.upsert(
-        subscription_id=subscription.subscription_id,
-        user_id=user_id,
-        billing_key=billing_key,
+        guild_id=guild_id,
+        billing_id=dto.billing_id,
+        tier=int(dto.tier),
+        expires_at=expires_at,
     )
 
     session.add(
         Payment(
-            subscription_id=subscription.subscription_id,
+            guild_id=guild_id,
             user_id=user_id,
             order_id=order_id,
-            amount=amount,
+            payment_key=payment_key,
             tier=int(dto.tier),
         )
     )
@@ -82,43 +80,22 @@ async def get_subscription_service(
 
 
 @http_service
-async def update_subscription_service(
-    guild_id: int, user_id: int, dto: UpdateSubscriptionDTO, session: AsyncSession
+async def update_subscription_billing_service(
+    guild_id: int,
+    user_id: int,
+    dto: UpdateSubscriptionBillingDTO,
+    session: AsyncSession,
 ) -> SubscriptionDTO:
-    await verify_role(guild_id, user_id, session, Role.ADMIN)
-
     sub_repo = SubscriptionRepository(session)
     subscription = await sub_repo.get_by_guild_id(guild_id)
-    if subscription is None or subscription.expires_at <= datetime.now(UTC):
+    if subscription is None:
         raise HTTPError(SubscriptionErrorCode.NotFound)
 
     billing_repo = BillingRepository(session)
-    billing = await billing_repo.get_by_subscription_id(subscription.subscription_id)
-    if billing is None:
-        raise HTTPError(SubscriptionErrorCode.NotFound)
+    billing = await billing_repo.get_by_id(dto.billing_id)
+    if billing is None or billing.user_id != user_id:
+        raise HTTPError(BillingErrorCode.NotFound)
 
-    customer_key = str(billing.user_id)
-    order_id = uuid.uuid4().hex
-    amount = _TIER_AMOUNT[dto.tier]
-    order_name = _TIER_ORDER_NAME[dto.tier]
-
-    await charge_billing_key(
-        billing.billing_key, customer_key, order_id, amount, order_name
-    )
-
-    expires_at = datetime.now(UTC) + _TIER_PERIOD[dto.tier]
-    subscription = await sub_repo.upsert(
-        guild_id=guild_id, tier=int(dto.tier), expires_at=expires_at
-    )
-
-    session.add(
-        Payment(
-            subscription_id=subscription.subscription_id,
-            user_id=user_id,
-            order_id=order_id,
-            amount=amount,
-            tier=int(dto.tier),
-        )
-    )
-
+    await sub_repo.update_billing(subscription.subscription_id, dto.billing_id)
+    subscription.billing_id = dto.billing_id
     return SubscriptionDTO.model_validate(subscription)

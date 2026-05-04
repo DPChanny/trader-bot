@@ -7,7 +7,9 @@ from . import BaseEntity
 
 
 if TYPE_CHECKING:
+    from .billing import Billing
     from .member import Member
+    from .payment import Payment
 
 
 class User(BaseEntity):
@@ -18,3 +20,5 @@ class User(BaseEntity):
     avatar_hash: Mapped[str | None] = mapped_column(String(64))
 
     members: Mapped[list[Member]] = relationship("Member", viewonly=True)
+    billings: Mapped[list[Billing]] = relationship("Billing", viewonly=True)
+    payments: Mapped[list[Payment]] = relationship("Payment", viewonly=True)

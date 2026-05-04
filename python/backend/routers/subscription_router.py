@@ -5,14 +5,14 @@ from shared.dtos.subscription import (
     CreateSubscriptionDTO,
     SubscriptionDetailDTO,
     SubscriptionDTO,
-    UpdateSubscriptionDTO,
+    UpdateSubscriptionBillingDTO,
 )
 from shared.utils.db import get_session
 
 from ..services.subscription_service import (
     create_subscription_service,
     get_subscription_service,
-    update_subscription_service,
+    update_subscription_billing_service,
 )
 from ..utils.token import verify_access_token
 
@@ -41,11 +41,11 @@ async def get_subscription_route(
     return await get_subscription_service(guild_id, session)
 
 
-@subscription_router.patch("", response_model=SubscriptionDTO)
-async def update_subscription_route(
+@subscription_router.patch("/billing", response_model=SubscriptionDTO)
+async def update_subscription_billing_route(
     guild_id: int,
-    dto: UpdateSubscriptionDTO,
+    dto: UpdateSubscriptionBillingDTO,
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),
 ):
-    return await update_subscription_service(guild_id, user_id, dto, session)
+    return await update_subscription_billing_service(guild_id, user_id, dto, session)

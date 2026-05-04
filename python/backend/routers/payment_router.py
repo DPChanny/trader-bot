@@ -8,9 +8,7 @@ from ..services.payment_service import get_guild_payments_service
 from ..utils.token import verify_access_token
 
 
-payment_router = APIRouter(
-    prefix="/guild/{guild_id}/subscription/payment", tags=["payment"]
-)
+payment_router = APIRouter(prefix="/guild/{guild_id}/payment", tags=["payment"])
 
 
 @payment_router.get("", response_model=list[PaymentDTO])
