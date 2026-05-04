@@ -5,6 +5,7 @@ from . import BaseDTO, BigInt
 
 
 class Tier(IntEnum):
+    FREE = 0
     PLUS = 1
     PRO = 2
 
@@ -18,9 +19,10 @@ class SubscriptionStatus(IntEnum):
 class SubscriptionDTO(BaseDTO):
     subscription_id: int
     guild_id: BigInt
+    user_id: BigInt | None
     tier: Tier
     status: SubscriptionStatus
-    expires_at: datetime | None
+    expires_at: datetime
 
 
 class IssueBillingKeyDTO(BaseDTO):
