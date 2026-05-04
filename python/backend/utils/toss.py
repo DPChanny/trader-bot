@@ -2,8 +2,8 @@ import base64
 
 import httpx
 
-from .env import get_toss_secret
-from .error import HTTPError, UnexpectedErrorCode
+from shared.utils.env import get_toss_secret
+from shared.utils.error import HTTPError, UnexpectedErrorCode
 
 
 _TOSS_API_URL = "https://api.tosspayments.com"

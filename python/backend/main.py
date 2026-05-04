@@ -31,6 +31,7 @@ from .routers import (
     tier_router,
     user_router,
 )
+from .subscription_manager import SubscriptionManager
 
 
 setup_logging(log_dir=get_log_dir() or Path(__file__).resolve().parent / "logs")
@@ -41,15 +42,17 @@ async def lifespan(_):
     await setup_redis()
     await setup_db()
     await AuctionManager.setup()
+    await SubscriptionManager.setup()
 
     yield
 
+    await SubscriptionManager.cleanup()
     await AuctionManager.cleanup()
     await cleanup_db()
     await cleanup_redis()
 
 
-app = FastAPI(title="Trader Bot API", version="0.4.0", lifespan=lifespan)
+app = FastAPI(title="Trader Bot API", version="0.5.0a0", lifespan=lifespan)
 
 
 @app.exception_handler(HTTPError)

@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from ..entities import Subscription
@@ -47,7 +47,7 @@ class SubscriptionRepository(BaseRepository):
         result = await self.session.execute(stmt)
         return result.scalars().one()
 
-    async def get_renewable(self, buffer: timedelta) -> list[Subscription]:
+    async def get_renewables(self, buffer: timedelta) -> list[Subscription]:
         cutoff = datetime.now(UTC) + buffer
         result = await self.session.execute(
             select(Subscription).where(
@@ -57,3 +57,17 @@ class SubscriptionRepository(BaseRepository):
             )
         )
         return list(result.scalars().all())
+
+    async def update_renewal(self, subscription_id: int, expires_at: datetime) -> None:
+        await self.session.execute(
+            update(Subscription)
+            .where(Subscription.subscription_id == subscription_id)
+            .values(expires_at=expires_at)
+        )
+
+    async def disable_renewal(self, subscription_id: int) -> None:
+        await self.session.execute(
+            update(Subscription)
+            .where(Subscription.subscription_id == subscription_id)
+            .values(billing_key=None)
+        )

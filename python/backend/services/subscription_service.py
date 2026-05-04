@@ -8,7 +8,8 @@ from shared.entities import Payment
 from shared.repositories.subscription_repository import SubscriptionRepository
 from shared.utils.error import HTTPError, SubscriptionErrorCode
 from shared.utils.service import http_service
-from shared.utils.toss import charge_billing_key, issue_billing_key
+
+from ..utils.toss import charge_billing_key, issue_billing_key
 
 
 _TIER_AMOUNT = {Tier.PLUS: 10000, Tier.PRO: 20000}

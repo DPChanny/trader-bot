@@ -61,7 +61,6 @@ class SubscriptionErrorCode(IntEnum):
     Duplicated = 4208
     NotOwner = 4307
     NotFound = 4410
-    PaymentFailed = 5003
 
 
 class PresetMemberErrorCode(IntEnum):
