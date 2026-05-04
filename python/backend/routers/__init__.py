@@ -6,6 +6,7 @@ from .position_router import position_router
 from .preset_member_position_router import preset_member_position_router
 from .preset_member_router import preset_member_router
 from .preset_router import preset_router
+from .subscription_router import subscription_router
 from .tier_router import tier_router
 from .user_router import user_router
 
@@ -19,6 +20,7 @@ __all__ = [
     "preset_member_position_router",
     "preset_member_router",
     "preset_router",
+    "subscription_router",
     "tier_router",
     "user_router",
 ]

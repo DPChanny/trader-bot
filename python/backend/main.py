@@ -27,6 +27,7 @@ from .routers import (
     preset_member_position_router,
     preset_member_router,
     preset_router,
+    subscription_router,
     tier_router,
     user_router,
 )
@@ -93,3 +94,4 @@ app.include_router(preset_member_router, prefix="/api")
 app.include_router(preset_member_position_router, prefix="/api")
 app.include_router(auction_router, prefix="/api")
 app.include_router(guild_router, prefix="/api")
+app.include_router(subscription_router, prefix="/api")

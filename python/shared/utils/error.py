@@ -58,7 +58,7 @@ class PresetErrorCode(IntEnum):
 
 
 class SubscriptionErrorCode(IntEnum):
-    AlreadyActive = 4306
+    Duplicated = 4208
     NotOwner = 4307
     NotFound = 4410
     PaymentFailed = 5003
