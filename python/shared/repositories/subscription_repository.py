@@ -61,10 +61,3 @@ class SubscriptionRepository(BaseRepository):
             .where(Subscription.subscription_id == subscription_id)
             .values(expires_at=expires_at)
         )
-
-    async def update_billing(self, subscription_id: int, billing_id: int) -> None:
-        await self.session.execute(
-            update(Subscription)
-            .where(Subscription.subscription_id == subscription_id)
-            .values(billing_id=billing_id)
-        )

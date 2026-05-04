@@ -6,7 +6,7 @@ from shared.utils.db import get_session
 
 from ..services.billing_service import (
     delete_billing_service,
-    get_my_billings_service,
+    get_billings_service,
     register_billing_service,
 )
 from ..utils.token import verify_access_token
@@ -20,7 +20,7 @@ async def get_billings_route(
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),
 ):
-    return await get_my_billings_service(user_id, session)
+    return await get_billings_service(user_id, session)
 
 
 @billing_router.post("", response_model=BillingDTO)

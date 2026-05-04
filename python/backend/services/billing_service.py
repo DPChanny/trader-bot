@@ -10,6 +10,13 @@ from ..utils.toss import delete_billing_key, issue_billing_key
 
 
 @http_service
+async def get_billings_service(user_id: int, session: AsyncSession) -> list[BillingDTO]:
+    billing_repo = BillingRepository(session)
+    billings = await billing_repo.get_all_by_user_id(user_id)
+    return [BillingDTO.model_validate(b) for b in billings]
+
+
+@http_service
 async def register_billing_service(
     user_id: int, auth_key: str, session: AsyncSession
 ) -> BillingDTO:
@@ -37,12 +44,3 @@ async def delete_billing_service(
 
     await delete_billing_key(billing.billing_key)
     await session.delete(billing)
-
-
-@http_service
-async def get_my_billings_service(
-    user_id: int, session: AsyncSession
-) -> list[BillingDTO]:
-    billing_repo = BillingRepository(session)
-    billings = await billing_repo.get_all_by_user_id(user_id)
-    return [BillingDTO.model_validate(b) for b in billings]

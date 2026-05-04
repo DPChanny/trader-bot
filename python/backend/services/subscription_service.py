@@ -1,6 +1,7 @@
 import uuid
 from datetime import UTC, datetime, timedelta
 
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.subscription import (
@@ -8,9 +9,9 @@ from shared.dtos.subscription import (
     SubscriptionDetailDTO,
     SubscriptionDTO,
     Tier,
-    UpdateSubscriptionBillingDTO,
+    UpdateSubscriptionDTO,
 )
-from shared.entities import Payment
+from shared.entities import Payment, Subscription
 from shared.repositories.billing_repository import BillingRepository
 from shared.repositories.subscription_repository import SubscriptionRepository
 from shared.utils.error import BillingErrorCode, HTTPError, SubscriptionErrorCode
@@ -80,22 +81,33 @@ async def get_subscription_service(
 
 
 @http_service
-async def update_subscription_billing_service(
-    guild_id: int,
-    user_id: int,
-    dto: UpdateSubscriptionBillingDTO,
-    session: AsyncSession,
+async def update_subscription_service(
+    guild_id: int, user_id: int, dto: UpdateSubscriptionDTO, session: AsyncSession
 ) -> SubscriptionDTO:
     sub_repo = SubscriptionRepository(session)
     subscription = await sub_repo.get_by_guild_id(guild_id)
     if subscription is None:
         raise HTTPError(SubscriptionErrorCode.NotFound)
 
-    billing_repo = BillingRepository(session)
-    billing = await billing_repo.get_by_id(dto.billing_id)
-    if billing is None or billing.user_id != user_id:
-        raise HTTPError(BillingErrorCode.NotFound)
+    values = {}
 
-    await sub_repo.update_billing(subscription.subscription_id, dto.billing_id)
-    subscription.billing_id = dto.billing_id
+    if dto.billing_id is not None:
+        billing_repo = BillingRepository(session)
+        billing = await billing_repo.get_by_id(dto.billing_id)
+        if billing is None or billing.user_id != user_id:
+            raise HTTPError(BillingErrorCode.NotFound)
+        values["billing_id"] = dto.billing_id
+
+    if dto.tier is not None:
+        values["tier"] = int(dto.tier)
+
+    if values:
+        await session.execute(
+            update(Subscription)
+            .where(Subscription.subscription_id == subscription.subscription_id)
+            .values(**values)
+        )
+        for k, v in values.items():
+            setattr(subscription, k, v)
+
     return SubscriptionDTO.model_validate(subscription)
