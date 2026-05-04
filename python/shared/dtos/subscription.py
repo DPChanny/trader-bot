@@ -1,6 +1,9 @@
 from datetime import datetime
 from enum import IntEnum
 
+from pydantic import model_validator
+
+from ..utils.error import HTTPError, ValidationErrorCode
 from . import BaseDTO, BigInt
 
 
@@ -10,21 +13,21 @@ class Tier(IntEnum):
     PRO = 2
 
 
-class SubscriptionStatus(IntEnum):
-    ACTIVE = 0
-    CANCELLED = 1
-    EXPIRED = 2
-
-
 class SubscriptionDTO(BaseDTO):
     subscription_id: int
     guild_id: BigInt
     user_id: BigInt | None
     tier: Tier
-    status: SubscriptionStatus
+    is_renewable: bool
     expires_at: datetime
 
 
-class IssueBillingKeyDTO(BaseDTO):
+class CreateSubscriptionDTO(BaseDTO):
     auth_key: str
     tier: Tier
+
+    @model_validator(mode="after")
+    def validate(self) -> CreateSubscriptionDTO:
+        if self.tier == Tier.FREE:
+            raise HTTPError(ValidationErrorCode.Invalid)
+        return self

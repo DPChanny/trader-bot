@@ -17,6 +17,9 @@ class Subscription(BaseEntity):
         BigInteger, ForeignKey("user.discord_id", ondelete="SET NULL")
     )
     tier: Mapped[int] = mapped_column(SmallInteger)
-    status: Mapped[int] = mapped_column(SmallInteger)
-    billing_key: Mapped[str] = mapped_column(Text)
+    billing_key: Mapped[str | None] = mapped_column(Text)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    @property
+    def is_renewable(self) -> bool:
+        return self.billing_key is not None and self.user_id is not None

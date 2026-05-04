@@ -7,6 +7,5 @@ class PaymentDTO(BaseDTO):
     subscription_id: int
     user_id: BigInt
     order_id: str
-    payment_key: str
     amount: int
     tier: Tier

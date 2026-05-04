@@ -57,6 +57,13 @@ class PresetErrorCode(IntEnum):
     NotFound = 4405
 
 
+class SubscriptionErrorCode(IntEnum):
+    AlreadyActive = 4306
+    NotOwner = 4307
+    NotFound = 4410
+    PaymentFailed = 5003
+
+
 class PresetMemberErrorCode(IntEnum):
     NotFound = 4406
 
