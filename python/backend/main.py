@@ -24,6 +24,7 @@ from .routers import (
     billing_router,
     guild_router,
     member_router,
+    payment_router,
     position_router,
     preset_member_position_router,
     preset_member_router,
@@ -100,3 +101,4 @@ app.include_router(auction_router, prefix="/api")
 app.include_router(guild_router, prefix="/api")
 app.include_router(subscription_router, prefix="/api")
 app.include_router(billing_router, prefix="/api")
+app.include_router(payment_router, prefix="/api")

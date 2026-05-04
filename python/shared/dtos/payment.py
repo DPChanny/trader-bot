@@ -4,8 +4,8 @@ from .subscription import Tier
 
 class PaymentDTO(BaseDTO):
     payment_id: int
-    subscription_id: int
-    user_id: BigInt
+    subscription_id: int | None
+    user_id: BigInt | None
     order_id: str
     amount: int
     tier: Tier

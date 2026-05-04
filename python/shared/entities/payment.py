@@ -1,29 +1,19 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy import BigInteger, ForeignKey, SmallInteger, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from . import BaseEntity
-
-
-if TYPE_CHECKING:
-    from .subscription import Subscription
-    from .user import User
 
 
 class Payment(BaseEntity):
     __tablename__ = "payment"
 
     payment_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    subscription_id: Mapped[int] = mapped_column(
-        ForeignKey("subscription.subscription_id", ondelete="CASCADE")
+    subscription_id: Mapped[int | None] = mapped_column(
+        ForeignKey("subscription.subscription_id", ondelete="SET NULL"), nullable=True
     )
-    user_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("user.discord_id", ondelete="CASCADE")
+    user_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("user.discord_id", ondelete="SET NULL"), nullable=True
     )
     order_id: Mapped[str] = mapped_column(String(64), unique=True)
     amount: Mapped[int] = mapped_column()
     tier: Mapped[int] = mapped_column(SmallInteger)
-
-    subscription: Mapped[Subscription] = relationship("Subscription", viewonly=True)
-    user: Mapped[User] = relationship("User", viewonly=True)

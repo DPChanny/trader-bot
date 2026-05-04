@@ -10,7 +10,6 @@ from . import BaseEntity
 if TYPE_CHECKING:
     from .billing import Billing
     from .guild import Guild
-    from .payment import Payment
 
 
 class Subscription(BaseEntity):
@@ -25,4 +24,3 @@ class Subscription(BaseEntity):
 
     guild: Mapped[Guild] = relationship("Guild", viewonly=True)
     billing: Mapped[Billing | None] = relationship("Billing", viewonly=True)
-    payments: Mapped[list[Payment]] = relationship("Payment", viewonly=True)

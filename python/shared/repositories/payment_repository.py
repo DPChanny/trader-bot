@@ -5,6 +5,14 @@ from . import BaseRepository
 
 
 class PaymentRepository(BaseRepository):
+    async def get_all_by_subscription_id(self, subscription_id: int) -> list[Payment]:
+        result = await self.session.execute(
+            select(Payment)
+            .where(Payment.subscription_id == subscription_id)
+            .order_by(Payment.payment_id.desc())
+        )
+        return list(result.scalars().all())
+
     async def get_all_by_user_id(self, user_id: int) -> list[Payment]:
         result = await self.session.execute(
             select(Payment)

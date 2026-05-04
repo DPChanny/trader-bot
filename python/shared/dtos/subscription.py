@@ -40,3 +40,13 @@ class CreateSubscriptionDTO(BaseDTO):
         if self.tier == Tier.FREE:
             raise HTTPError(ValidationErrorCode.Invalid)
         return self
+
+
+class UpdateSubscriptionDTO(BaseDTO):
+    tier: Tier
+
+    @model_validator(mode="after")
+    def validate(self) -> UpdateSubscriptionDTO:
+        if self.tier == Tier.FREE:
+            raise HTTPError(ValidationErrorCode.Invalid)
+        return self
