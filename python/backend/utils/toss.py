@@ -50,3 +50,13 @@ async def charge_billing_key(
         if response.status_code != 200:
             raise HTTPError(UnexpectedErrorCode.External)
         return response.json()["paymentKey"]
+
+
+async def delete_billing_key(billing_key: str) -> None:
+    async with httpx.AsyncClient() as client:
+        response = await client.delete(
+            f"{_TOSS_API_URL}/v1/billing/{billing_key}",
+            headers={"Authorization": _get_authorization_header()},
+        )
+        if response.status_code != 200:
+            raise HTTPError(UnexpectedErrorCode.External)

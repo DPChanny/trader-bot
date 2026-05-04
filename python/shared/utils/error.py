@@ -59,7 +59,6 @@ class PresetErrorCode(IntEnum):
 
 class SubscriptionErrorCode(IntEnum):
     Duplicated = 4208
-    NotOwner = 4307
     NotFound = 4410
 
 

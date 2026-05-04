@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from enum import IntEnum
 
@@ -13,11 +15,21 @@ class Tier(IntEnum):
     PRO = 2
 
 
+class BillingDTO(BaseDTO):
+    billing_id: int
+    subscription_id: int
+    user_id: BigInt
+
+
 class SubscriptionDTO(BaseDTO):
     subscription_id: int
     guild_id: BigInt
     tier: Tier
     expires_at: datetime
+
+
+class SubscriptionDetailDTO(SubscriptionDTO):
+    billing: BillingDTO | None = None
 
 
 class CreateSubscriptionDTO(BaseDTO):
@@ -29,3 +41,7 @@ class CreateSubscriptionDTO(BaseDTO):
         if self.tier == Tier.FREE:
             raise HTTPError(ValidationErrorCode.Invalid)
         return self
+
+
+class RegisterBillingDTO(BaseDTO):
+    auth_key: str

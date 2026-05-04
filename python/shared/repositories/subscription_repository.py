@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.orm import selectinload
 
 from ..entities import Billing, Subscription
 from . import BaseRepository
@@ -11,6 +12,14 @@ class SubscriptionRepository(BaseRepository):
     async def get_by_guild_id(self, guild_id: int) -> Subscription | None:
         result = await self.session.execute(
             select(Subscription).where(Subscription.guild_id == guild_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_detail_by_guild_id(self, guild_id: int) -> Subscription | None:
+        result = await self.session.execute(
+            select(Subscription)
+            .options(selectinload(Subscription.billing))
+            .where(Subscription.guild_id == guild_id)
         )
         return result.scalar_one_or_none()
 
