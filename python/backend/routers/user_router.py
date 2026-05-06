@@ -5,8 +5,11 @@ from shared.dtos.payment import PaymentDTO
 from shared.dtos.user import UserDetailDTO
 from shared.utils.db import get_session
 
-from ..services.payment_service import get_my_payments_service
-from ..services.user_service import delete_my_user_service, get_my_user_service
+from ..services.user_service import (
+    delete_my_user_service,
+    get_my_payments_service,
+    get_my_user_service,
+)
 from ..utils.token import verify_access_token
 
 

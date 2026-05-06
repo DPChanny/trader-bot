@@ -76,7 +76,3 @@ export function getPresetMemberPositionEndpoint(
 export function getSubscriptionEndpoint(guildId: string) {
   return `${GUILD_API_ENDPOINT}/${guildId}/subscription`;
 }
-
-export function getPaymentEndpoint(guildId: string) {
-  return `${GUILD_API_ENDPOINT}/${guildId}/payment`;
-}

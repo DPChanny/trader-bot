@@ -1,56 +1,67 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "@tanstack/react-router";
-import { Page, Column, Fill, Row } from "@components/atoms/layout";
+import { Page, Column, Fill, Row, Scroll } from "@components/atoms/layout";
 import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
 } from "@components/surfaces/section";
 import { NameTitle, Title, Text } from "@components/atoms/text";
-import { Bar } from "@components/atoms/bar";
-import {
-  PrimaryButton,
-  DangerButton,
-  SecondaryButton,
-} from "@components/atoms/button";
-import { Badge } from "@components/atoms/badge";
+import { PrimaryButton, SecondaryButton } from "@components/atoms/button";
 import { Card } from "@components/surfaces/card";
 import { Loading } from "@components/molecules/loading";
-import { Error } from "@components/molecules/error";
+import { Footer } from "@components/footer";
 import { useGuild } from "@features/guild/hook";
 import {
   useSubscription,
   useRegisterSubscription,
   useCancelSubscription,
 } from "@features/subscription/hook";
-import { usePayments } from "@features/payment/hook";
 import { useBillings } from "@features/billing/hook";
 import { requestBillingAuth } from "@features/billing/api";
 import { useMyUser } from "@features/user/hook";
 import { Plan } from "@features/subscription/dto";
 import { BackendErrorCode } from "@utils/error";
 
-const PLAN_LABEL: Record<Plan, string> = {
-  [Plan.PLUS]: "Plus",
-  [Plan.PRO]: "Pro",
-};
+type SelectedPlan = Plan | null; // null = FREE
 
 const PLAN_COLOR: Record<Plan, "gold" | "blue"> = {
   [Plan.PLUS]: "gold",
   [Plan.PRO]: "blue",
 };
 
-const PLAN_PRICE: Record<Plan, string> = {
-  [Plan.PLUS]: "₩10,000/월",
-  [Plan.PRO]: "₩20,000/월",
+type PlanDetail = {
+  label: string;
+  price: string;
+  color: "gray" | "gold" | "blue";
+  description: string;
+  features: string[];
 };
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat("ko-KR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(iso));
-}
+const FREE_DETAIL: PlanDetail = {
+  label: "FREE",
+  price: "₩0/월",
+  color: "gray",
+  description: "무료로 기본 기능을 사용해보세요.",
+  features: ["기본 경매 기능", "소규모 서버에 적합"],
+};
+
+const PLAN_DETAIL: Record<Plan, PlanDetail> = {
+  [Plan.PLUS]: {
+    label: "Plus",
+    price: "₩10,000/월",
+    color: "gold",
+    description: "더 많은 기능과 함께 서버를 운영하세요.",
+    features: ["기본 경매 기능", "확장된 멤버 지원", "우선 지원"],
+  },
+  [Plan.PRO]: {
+    label: "Pro",
+    price: "₩20,000/월",
+    color: "blue",
+    description: "모든 기능을 제한 없이 사용하세요.",
+    features: ["모든 경매 기능", "무제한 멤버 지원", "전담 지원"],
+  },
+};
 
 export function SubscriptionPage() {
   const { guildId } = useParams({ strict: false }) as { guildId: string };
@@ -64,7 +75,6 @@ export function SubscriptionPage() {
     error: subError,
   } = useSubscription(guildId);
   const { data: billings, isLoading: billingsLoading } = useBillings();
-  const { data: payments, isLoading: paymentsLoading } = usePayments(guildId);
   const { mutate: registerSubscription, isPending: isRegistering } =
     useRegisterSubscription();
   const { mutate: cancelSubscription, isPending: isCancelling } =
@@ -73,14 +83,7 @@ export function SubscriptionPage() {
   const [selectedBillingId, setSelectedBillingId] = useState<number | null>(
     null,
   );
-  const [selectedPlan, setSelectedPlan] = useState<Plan>(Plan.PLUS);
-
-  useEffect(() => {
-    if (subscription?.billingId) {
-      setSelectedBillingId(subscription.billingId);
-      setSelectedPlan(subscription.plan);
-    }
-  }, [subscription]);
+  const [selectedPlan, setSelectedPlan] = useState<SelectedPlan>(Plan.PLUS);
 
   const isNotFound = subError?.code === BackendErrorCode.Subscription.NotFound;
   const isCancelled = subscription != null && subscription.billingId === null;
@@ -94,27 +97,6 @@ export function SubscriptionPage() {
   const effectiveBillingId =
     selectedBillingId ?? billings?.[0]?.billingId ?? null;
 
-  const handleRegister = () => {
-    if (effectiveBillingId === null) return;
-    registerSubscription(
-      { guildId, dto: { billingId: effectiveBillingId, plan: selectedPlan } },
-      {
-        onSuccess: () =>
-          void navigate({ to: "/guild/$guildId/member", params: { guildId } }),
-      },
-    );
-  };
-
-  const handleCancel = () => {
-    cancelSubscription(
-      { guildId },
-      {
-        onSuccess: () =>
-          void navigate({ to: "/guild/$guildId/member", params: { guildId } }),
-      },
-    );
-  };
-
   const handleAddBilling = () => {
     if (!user) return;
     void requestBillingAuth({
@@ -123,168 +105,194 @@ export function SubscriptionPage() {
     });
   };
 
+  const handleSubscribe = () => {
+    if (selectedPlan === null) {
+      cancelSubscription(
+        { guildId },
+        {
+          onSuccess: () =>
+            void navigate({
+              to: "/guild/$guildId/member",
+              params: { guildId },
+            }),
+        },
+      );
+    } else {
+      if (effectiveBillingId === null) return;
+      registerSubscription(
+        { guildId, dto: { billingId: effectiveBillingId, plan: selectedPlan } },
+        {
+          onSuccess: () =>
+            void navigate({
+              to: "/guild/$guildId/member",
+              params: { guildId },
+            }),
+        },
+      );
+    }
+  };
+
+  const isCurrentPlan =
+    selectedPlan === null
+      ? isFree
+      : !isFree &&
+        subscription?.plan === selectedPlan &&
+        subscription?.billingId === effectiveBillingId;
+
+  const buttonDisabled =
+    isCurrentPlan ||
+    (selectedPlan !== null && effectiveBillingId === null) ||
+    isRegistering ||
+    isCancelling ||
+    (subLoading && subscription === undefined);
+
+  const buttonLabel = (() => {
+    if (isCurrentPlan) return "현재 플랜";
+    if (selectedPlan === null) return "구독 취소";
+    return isFree ? "구독 시작" : "플랜 변경";
+  })();
+
+  const detail =
+    selectedPlan === null ? FREE_DETAIL : PLAN_DETAIL[selectedPlan];
+
   return (
     <Page>
-      <PrimarySection minSize overflow="hidden" style={{ width: "25rem" }}>
-        <Row align="center" gap="sm">
-          <SecondaryButton
-            variantSize="small"
-            onClick={() =>
-              void navigate({
-                to: "/guild/$guildId/member",
-                params: { guildId },
-              })
-            }
-          >
-            ← 뒤로
-          </SecondaryButton>
-          <NameTitle>{guild.data?.name ?? "로딩중"}</NameTitle>
-        </Row>
-        <Bar />
-
-        <Fill overflow="auto">
-          <Column gap="md" fill>
+      <Column align="center" fill>
+        <PrimarySection width="page" minSize>
+          <Scroll>
             <SecondarySection gap="sm">
-              <Title>현재 구독</Title>
-              {subLoading ? (
-                <Loading />
-              ) : subError && !isNotFound ? (
-                <Error error={subError}>구독 정보를 불러오지 못했습니다</Error>
-              ) : (
-                <Card
-                  variantColor={
-                    isFree ? "gray" : PLAN_COLOR[subscription!.plan]
+              <Row align="center" gap="sm">
+                <SecondaryButton
+                  variantSize="small"
+                  onClick={() =>
+                    void navigate({
+                      to: "/guild/$guildId/member",
+                      params: { guildId },
+                    })
                   }
                 >
-                  <Row justify="between" align="center">
-                    <Column gap="xs">
-                      <Text variantWeight="semibold">
-                        {isFree ? "FREE" : PLAN_LABEL[subscription!.plan]}
-                      </Text>
-                      <Text variantSize="small">
-                        만료일:{" "}
-                        {isFree ? "없음" : formatDate(subscription!.expiresAt)}
-                      </Text>
-                    </Column>
-                    {!isFree && <Badge variantColor="green">활성</Badge>}
-                  </Row>
-                </Card>
-              )}
-            </SecondarySection>
-
-            <SecondarySection gap="sm">
-              <Row justify="between" align="center">
-                <Title>결제 수단</Title>
-                <PrimaryButton
-                  variantSize="small"
-                  onClick={handleAddBilling}
-                  disabled={!user}
-                >
-                  추가
-                </PrimaryButton>
+                  ← 뒤로
+                </SecondaryButton>
+                <NameTitle>{guild.data?.name ?? "로딩중"}</NameTitle>
               </Row>
-              {billingsLoading ? (
-                <TertiarySection fill>
-                  <Loading />
-                </TertiarySection>
-              ) : (
-                <TertiarySection fill>
-                  <Column gap="xs">
-                    {billings?.map((b, i) => (
-                      <Card
-                        key={b.billingId}
-                        direction="row"
-                        align="center"
-                        variantColor={
-                          effectiveBillingId === b.billingId ? "blue" : "gray"
-                        }
-                        onClick={() => setSelectedBillingId(b.billingId)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Text>결제 수단 #{i + 1}</Text>
-                      </Card>
-                    ))}
-                  </Column>
-                </TertiarySection>
-              )}
             </SecondarySection>
 
             <SecondarySection gap="sm">
-              <Title>플랜</Title>
+              <Title>플랜 선택</Title>
               <Row gap="sm">
-                {([Plan.PLUS, Plan.PRO] as Plan[]).map((plan) => (
+                <Fill>
                   <Card
-                    key={plan}
                     fill
                     center
-                    variantColor={
-                      selectedPlan === plan ? PLAN_COLOR[plan] : "gray"
-                    }
-                    onClick={() => setSelectedPlan(plan)}
-                    style={{ cursor: "pointer" }}
+                    variantColor="gray"
+                    onClick={() => setSelectedPlan(null)}
+                    style={{
+                      cursor: "pointer",
+                      opacity: selectedPlan !== null ? 0.5 : 1,
+                    }}
                   >
-                    <Text variantWeight="semibold">{PLAN_LABEL[plan]}</Text>
-                    <Text variantSize="small">{PLAN_PRICE[plan]}</Text>
+                    <Text variantWeight="semibold">FREE</Text>
+                    <Text variantSize="small">₩0/월</Text>
                   </Card>
+                </Fill>
+                {([Plan.PLUS, Plan.PRO] as Plan[]).map((plan) => (
+                  <Fill key={plan}>
+                    <Card
+                      fill
+                      center
+                      variantColor={
+                        selectedPlan === plan ? PLAN_COLOR[plan] : "gray"
+                      }
+                      onClick={() => setSelectedPlan(plan)}
+                      style={{
+                        cursor: "pointer",
+                        opacity:
+                          selectedPlan !== null && selectedPlan !== plan
+                            ? 0.5
+                            : 1,
+                      }}
+                    >
+                      <Text variantWeight="semibold">
+                        {PLAN_DETAIL[plan].label}
+                      </Text>
+                      <Text variantSize="small">{PLAN_DETAIL[plan].price}</Text>
+                    </Card>
+                  </Fill>
                 ))}
               </Row>
             </SecondarySection>
 
-            <SecondarySection fill gap="md">
-              <Title>결제 내역</Title>
-              {paymentsLoading ? (
-                <TertiarySection fill>
-                  <Loading />
-                </TertiarySection>
-              ) : (
-                <TertiarySection fill>
-                  <Column gap="sm">
-                    {[...(payments ?? [])].reverse().map((p) => (
-                      <Card
-                        key={p.paymentId}
-                        direction="row"
-                        align="center"
-                        justify="between"
-                        variantColor="gray"
-                      >
-                        <Badge variantColor={PLAN_COLOR[p.plan]}>
-                          {PLAN_LABEL[p.plan]}
-                        </Badge>
-                        <Text variantSize="small" tone="accent">
-                          {p.orderId.slice(0, 12)}…
-                        </Text>
-                      </Card>
+            <SecondarySection gap="sm">
+              <Card variantColor={detail.color}>
+                <Column gap="md">
+                  <Row justify="between" align="center">
+                    <Title>{detail.label}</Title>
+                    <Text variantWeight="semibold">{detail.price}</Text>
+                  </Row>
+                  <Text>{detail.description}</Text>
+                  <Column gap="xs">
+                    {detail.features.map((f) => (
+                      <Text key={f}>• {f}</Text>
                     ))}
                   </Column>
-                </TertiarySection>
-              )}
+                </Column>
+              </Card>
             </SecondarySection>
-          </Column>
-        </Fill>
-      </PrimarySection>
 
-      <PrimarySection fill>
-        <Row justify="between" align="center">
-          {!isFree && (
-            <DangerButton
-              variantSize="small"
-              onClick={handleCancel}
-              disabled={isCancelling}
-            >
-              구독 취소
-            </DangerButton>
-          )}
-          <Row gap="sm" justify="end" fill>
-            <PrimaryButton
-              variantSize="small"
-              onClick={handleRegister}
-              disabled={effectiveBillingId === null || isRegistering}
-            >
-              {isFree ? "구독 시작" : "변경"}
-            </PrimaryButton>
-          </Row>
-        </Row>
-      </PrimarySection>
+            {selectedPlan !== null && (
+              <SecondarySection gap="sm">
+                <Row justify="between" align="center">
+                  <Title>결제 수단</Title>
+                  <PrimaryButton
+                    variantSize="small"
+                    onClick={handleAddBilling}
+                    disabled={!user}
+                  >
+                    추가
+                  </PrimaryButton>
+                </Row>
+                {billingsLoading ? (
+                  <TertiarySection fill>
+                    <Loading />
+                  </TertiarySection>
+                ) : (
+                  <TertiarySection fill>
+                    <Column gap="xs">
+                      {billings?.map((b, i) => (
+                        <Card
+                          key={b.billingId}
+                          direction="row"
+                          align="center"
+                          variantColor={
+                            effectiveBillingId === b.billingId ? "blue" : "gray"
+                          }
+                          onClick={() => setSelectedBillingId(b.billingId)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <Text>결제 수단 #{i + 1}</Text>
+                        </Card>
+                      ))}
+                    </Column>
+                  </TertiarySection>
+                )}
+              </SecondarySection>
+            )}
+
+            <SecondarySection>
+              <Fill>
+                <PrimaryButton
+                  variantSize="large"
+                  onClick={handleSubscribe}
+                  disabled={buttonDisabled}
+                >
+                  {buttonLabel}
+                </PrimaryButton>
+              </Fill>
+            </SecondarySection>
+          </Scroll>
+        </PrimarySection>
+        <Footer />
+      </Column>
     </Page>
   );
 }

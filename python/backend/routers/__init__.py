@@ -3,7 +3,6 @@ from .auth_router import auth_router
 from .billing_router import billing_router
 from .guild_router import guild_router
 from .member_router import member_router
-from .payment_router import payment_router
 from .position_router import position_router
 from .preset_member_position_router import preset_member_position_router
 from .preset_member_router import preset_member_router
@@ -19,7 +18,6 @@ __all__ = [
     "billing_router",
     "guild_router",
     "member_router",
-    "payment_router",
     "position_router",
     "preset_member_position_router",
     "preset_member_router",

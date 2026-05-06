@@ -17,17 +17,17 @@ import { useBillings, useDeleteBilling } from "@features/billing/hook";
 import { useMyPayments, useDeleteMyUser, useMyUser } from "@features/user/hook";
 import { requestBillingAuth } from "@features/billing/api";
 import { removeJWTToken } from "@features/auth/token";
-import { Tier } from "@features/subscription/dto";
+import { Plan } from "@features/subscription/dto";
 import type { BillingDTO } from "@features/billing/dto";
 
-const TIER_LABEL: Record<Tier, string> = {
-  [Tier.PLUS]: "Plus",
-  [Tier.PRO]: "Pro",
+const PLAN_LABEL: Record<Plan, string> = {
+  [Plan.PLUS]: "Plus",
+  [Plan.PRO]: "Pro",
 };
 
-const TIER_COLOR: Record<Tier, "gold" | "blue"> = {
-  [Tier.PLUS]: "gold",
-  [Tier.PRO]: "blue",
+const PLAN_COLOR: Record<Plan, "gold" | "blue"> = {
+  [Plan.PLUS]: "gold",
+  [Plan.PRO]: "blue",
 };
 
 type BillingCardProps = {
@@ -142,8 +142,8 @@ export function MePage() {
                       justify="between"
                       variantColor="gray"
                     >
-                      <Badge variantColor={TIER_COLOR[p.tier]}>
-                        {TIER_LABEL[p.tier]}
+                      <Badge variantColor={PLAN_COLOR[p.plan]}>
+                        {PLAN_LABEL[p.plan]}
                       </Badge>
                       <Text variantSize="small" tone="accent">
                         {p.orderId.slice(0, 12)}…

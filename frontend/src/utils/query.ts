@@ -11,7 +11,6 @@ export const queryKeys = {
   myPayments: () => ["myPayments"] as const,
   billings: () => ["billings"] as const,
   subscription: (guildId: string) => ["subscription", guildId] as const,
-  payments: (guildId: string) => ["payments", guildId] as const,
   guilds: () => ["guilds"] as const,
   guild: (guildId: string) => ["guild", guildId] as const,
   presets: (guildId: string) => ["presets", guildId] as const,
