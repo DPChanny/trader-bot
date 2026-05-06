@@ -22,9 +22,9 @@ const PLAN_LABEL: Record<Plan, string> = {
   [Plan.PRO]: "Pro",
 };
 
-const PLAN_COLOR: Record<Plan, "gold" | "blue"> = {
-  [Plan.PLUS]: "gold",
-  [Plan.PRO]: "blue",
+const PLAN_COLOR: Record<Plan, "green" | "gold"> = {
+  [Plan.PLUS]: "green",
+  [Plan.PRO]: "gold",
 };
 
 function formatDate(iso: string): string {
