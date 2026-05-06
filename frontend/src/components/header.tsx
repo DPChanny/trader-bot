@@ -37,14 +37,16 @@ export function Header(props: HeaderProps) {
 
         {props.user ? (
           <Row align="center" gap="lg">
-            <Row align="center" gap="sm">
-              <Image
-                src={props.user.avatarUrl}
-                alt={props.user.name}
-                variantContent="avatar"
-              />
-              <Name>{props.user.name}</Name>
-            </Row>
+            <InternalLink to="/me">
+              <Row align="center" gap="sm">
+                <Image
+                  src={props.user.avatarUrl}
+                  alt={props.user.name}
+                  variantContent="avatar"
+                />
+                <Name>{props.user.name}</Name>
+              </Row>
+            </InternalLink>
             <DangerButton variantSize="small" onClick={props.onLogout}>
               로그아웃
             </DangerButton>

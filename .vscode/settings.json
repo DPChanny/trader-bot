@@ -7,7 +7,12 @@
 
   "files.exclude": {
     "**/*.css.d.ts": true,
-    "**/__pycache__": true
+    "**/__pycache__": true,
+    "python/**/logs": true,
+    "python/.venv": true,
+    "python/.ruff_cache": true,
+    "frontend/.tanstack": true,
+    "frontend/node_modules": true
   },
 
   "Lua.diagnostics.globals": ["redis", "KEYS", "ARGV", "cjson"]

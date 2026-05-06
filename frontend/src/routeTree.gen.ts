@@ -12,10 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsOfServiceRouteImport } from './routes/terms-of-service'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as PatchRouteImport } from './routes/patch'
+import { Route as MeRouteImport } from './routes/me'
 import { Route as AnnouncementRouteImport } from './routes/announcement'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GuildGuildIdSubscriptionRouteImport } from './routes/guild/$guildId/subscription'
 import { Route as GuildGuildIdMemberRouteImport } from './routes/guild/$guildId/member'
 import { Route as AuthLoginCallbackRouteImport } from './routes/auth/login/callback'
+import { Route as AuthBillingCallbackRouteImport } from './routes/auth/billing/callback'
 import { Route as GuildGuildIdPresetPresetIdRouteImport } from './routes/guild/$guildId/preset/$presetId'
 import { Route as GuildGuildIdPresetPresetIdIndexRouteImport } from './routes/guild/$guildId/preset/$presetId/index'
 import { Route as GuildGuildIdPresetPresetIdAuctionAuctionIdRouteImport } from './routes/guild/$guildId/preset/$presetId/auction/$auctionId'
@@ -35,6 +38,11 @@ const PatchRoute = PatchRouteImport.update({
   path: '/patch',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MeRoute = MeRouteImport.update({
+  id: '/me',
+  path: '/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnnouncementRoute = AnnouncementRouteImport.update({
   id: '/announcement',
   path: '/announcement',
@@ -45,6 +53,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuildGuildIdSubscriptionRoute =
+  GuildGuildIdSubscriptionRouteImport.update({
+    id: '/guild/$guildId/subscription',
+    path: '/guild/$guildId/subscription',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const GuildGuildIdMemberRoute = GuildGuildIdMemberRouteImport.update({
   id: '/guild/$guildId/member',
   path: '/guild/$guildId/member',
@@ -53,6 +67,11 @@ const GuildGuildIdMemberRoute = GuildGuildIdMemberRouteImport.update({
 const AuthLoginCallbackRoute = AuthLoginCallbackRouteImport.update({
   id: '/auth/login/callback',
   path: '/auth/login/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthBillingCallbackRoute = AuthBillingCallbackRouteImport.update({
+  id: '/auth/billing/callback',
+  path: '/auth/billing/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuildGuildIdPresetPresetIdRoute =
@@ -77,11 +96,14 @@ const GuildGuildIdPresetPresetIdAuctionAuctionIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/announcement': typeof AnnouncementRoute
+  '/me': typeof MeRoute
   '/patch': typeof PatchRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/terms-of-service': typeof TermsOfServiceRoute
+  '/auth/billing/callback': typeof AuthBillingCallbackRoute
   '/auth/login/callback': typeof AuthLoginCallbackRoute
   '/guild/$guildId/member': typeof GuildGuildIdMemberRoute
+  '/guild/$guildId/subscription': typeof GuildGuildIdSubscriptionRoute
   '/guild/$guildId/preset/$presetId': typeof GuildGuildIdPresetPresetIdRouteWithChildren
   '/guild/$guildId/preset/$presetId/': typeof GuildGuildIdPresetPresetIdIndexRoute
   '/guild/$guildId/preset/$presetId/auction/$auctionId': typeof GuildGuildIdPresetPresetIdAuctionAuctionIdRoute
@@ -89,11 +111,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/announcement': typeof AnnouncementRoute
+  '/me': typeof MeRoute
   '/patch': typeof PatchRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/terms-of-service': typeof TermsOfServiceRoute
+  '/auth/billing/callback': typeof AuthBillingCallbackRoute
   '/auth/login/callback': typeof AuthLoginCallbackRoute
   '/guild/$guildId/member': typeof GuildGuildIdMemberRoute
+  '/guild/$guildId/subscription': typeof GuildGuildIdSubscriptionRoute
   '/guild/$guildId/preset/$presetId': typeof GuildGuildIdPresetPresetIdIndexRoute
   '/guild/$guildId/preset/$presetId/auction/$auctionId': typeof GuildGuildIdPresetPresetIdAuctionAuctionIdRoute
 }
@@ -101,11 +126,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/announcement': typeof AnnouncementRoute
+  '/me': typeof MeRoute
   '/patch': typeof PatchRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/terms-of-service': typeof TermsOfServiceRoute
+  '/auth/billing/callback': typeof AuthBillingCallbackRoute
   '/auth/login/callback': typeof AuthLoginCallbackRoute
   '/guild/$guildId/member': typeof GuildGuildIdMemberRoute
+  '/guild/$guildId/subscription': typeof GuildGuildIdSubscriptionRoute
   '/guild/$guildId/preset/$presetId': typeof GuildGuildIdPresetPresetIdRouteWithChildren
   '/guild/$guildId/preset/$presetId/': typeof GuildGuildIdPresetPresetIdIndexRoute
   '/guild/$guildId/preset/$presetId/auction/$auctionId': typeof GuildGuildIdPresetPresetIdAuctionAuctionIdRoute
@@ -115,11 +143,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/announcement'
+    | '/me'
     | '/patch'
     | '/privacy-policy'
     | '/terms-of-service'
+    | '/auth/billing/callback'
     | '/auth/login/callback'
     | '/guild/$guildId/member'
+    | '/guild/$guildId/subscription'
     | '/guild/$guildId/preset/$presetId'
     | '/guild/$guildId/preset/$presetId/'
     | '/guild/$guildId/preset/$presetId/auction/$auctionId'
@@ -127,22 +158,28 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/announcement'
+    | '/me'
     | '/patch'
     | '/privacy-policy'
     | '/terms-of-service'
+    | '/auth/billing/callback'
     | '/auth/login/callback'
     | '/guild/$guildId/member'
+    | '/guild/$guildId/subscription'
     | '/guild/$guildId/preset/$presetId'
     | '/guild/$guildId/preset/$presetId/auction/$auctionId'
   id:
     | '__root__'
     | '/'
     | '/announcement'
+    | '/me'
     | '/patch'
     | '/privacy-policy'
     | '/terms-of-service'
+    | '/auth/billing/callback'
     | '/auth/login/callback'
     | '/guild/$guildId/member'
+    | '/guild/$guildId/subscription'
     | '/guild/$guildId/preset/$presetId'
     | '/guild/$guildId/preset/$presetId/'
     | '/guild/$guildId/preset/$presetId/auction/$auctionId'
@@ -151,11 +188,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnnouncementRoute: typeof AnnouncementRoute
+  MeRoute: typeof MeRoute
   PatchRoute: typeof PatchRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   TermsOfServiceRoute: typeof TermsOfServiceRoute
+  AuthBillingCallbackRoute: typeof AuthBillingCallbackRoute
   AuthLoginCallbackRoute: typeof AuthLoginCallbackRoute
   GuildGuildIdMemberRoute: typeof GuildGuildIdMemberRoute
+  GuildGuildIdSubscriptionRoute: typeof GuildGuildIdSubscriptionRoute
   GuildGuildIdPresetPresetIdRoute: typeof GuildGuildIdPresetPresetIdRouteWithChildren
 }
 
@@ -182,6 +222,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PatchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/me': {
+      id: '/me'
+      path: '/me'
+      fullPath: '/me'
+      preLoaderRoute: typeof MeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/announcement': {
       id: '/announcement'
       path: '/announcement'
@@ -196,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guild/$guildId/subscription': {
+      id: '/guild/$guildId/subscription'
+      path: '/guild/$guildId/subscription'
+      fullPath: '/guild/$guildId/subscription'
+      preLoaderRoute: typeof GuildGuildIdSubscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guild/$guildId/member': {
       id: '/guild/$guildId/member'
       path: '/guild/$guildId/member'
@@ -208,6 +262,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/login/callback'
       fullPath: '/auth/login/callback'
       preLoaderRoute: typeof AuthLoginCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/billing/callback': {
+      id: '/auth/billing/callback'
+      path: '/auth/billing/callback'
+      fullPath: '/auth/billing/callback'
+      preLoaderRoute: typeof AuthBillingCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guild/$guildId/preset/$presetId': {
@@ -254,11 +315,14 @@ const GuildGuildIdPresetPresetIdRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnnouncementRoute: AnnouncementRoute,
+  MeRoute: MeRoute,
   PatchRoute: PatchRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   TermsOfServiceRoute: TermsOfServiceRoute,
+  AuthBillingCallbackRoute: AuthBillingCallbackRoute,
   AuthLoginCallbackRoute: AuthLoginCallbackRoute,
   GuildGuildIdMemberRoute: GuildGuildIdMemberRoute,
+  GuildGuildIdSubscriptionRoute: GuildGuildIdSubscriptionRoute,
   GuildGuildIdPresetPresetIdRoute: GuildGuildIdPresetPresetIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport

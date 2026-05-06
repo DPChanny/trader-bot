@@ -48,8 +48,7 @@
       "type": "shell",
       "command": "npm run generate:dts:watch",
       "options": { "cwd": "${workspaceFolder}/frontend" },
-      "runOptions": { "runOn": "folderOpen" },
-      "presentation": { "reveal": "silent", "panel": "shared" },
+      "presentation": { "reveal": "never", "panel": "dedicated" },
       "isBackground": true
     },
     {
@@ -57,9 +56,16 @@
       "type": "shell",
       "command": "npm run generate:manifest:watch",
       "options": { "cwd": "${workspaceFolder}/frontend" },
-      "runOptions": { "runOn": "folderOpen" },
-      "presentation": { "reveal": "silent", "panel": "shared" },
+      "presentation": { "reveal": "never", "panel": "dedicated" },
       "isBackground": true
+    },
+    {
+      "label": "Run All Watch",
+      "dependsOn": ["Run DTS Watch", "Run Manifest Watch"],
+      "dependsOrder": "parallel",
+      "runOptions": { "runOn": "folderOpen" },
+      "group": { "kind": "build", "isDefault": false },
+      "presentation": { "reveal": "never" }
     },
     {
       "label": "Run All Dev",
