@@ -14,6 +14,7 @@ class Tier(IntEnum):
 class SubscriptionDTO(BaseDTO):
     subscription_id: int
     guild_id: BigInt
+    billing_id: int | None
     tier: Tier
     expires_at: datetime
 

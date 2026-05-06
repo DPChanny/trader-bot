@@ -5,6 +5,7 @@ from shared.dtos.subscription import RegisterSubscriptionDTO, SubscriptionDTO
 from shared.utils.db import get_session
 
 from ..services.subscription_service import (
+    cancel_subscription_service,
     get_subscription_service,
     register_subscription_service,
 )
@@ -33,3 +34,12 @@ async def get_subscription_route(
     _: int = Depends(verify_access_token),
 ):
     return await get_subscription_service(guild_id, session)
+
+
+@subscription_router.delete("", status_code=204)
+async def cancel_subscription_route(
+    guild_id: int,
+    session: AsyncSession = Depends(get_session),
+    user_id: int = Depends(verify_access_token),
+):
+    await cancel_subscription_service(guild_id, user_id, session)

@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.orm import joinedload
 
 from ..entities import Billing, Subscription
 from . import BaseRepository
@@ -37,5 +38,6 @@ class SubscriptionRepository(BaseRepository):
             select(Subscription)
             .join(Billing, Billing.billing_id == Subscription.billing_id)
             .where(Subscription.expires_at <= cutoff)
+            .options(joinedload(Subscription.billing))
         )
         return list(result.scalars().all())

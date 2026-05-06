@@ -6,7 +6,6 @@ from loguru import logger
 
 from shared.dtos.subscription import Tier
 from shared.entities import Payment
-from shared.repositories.billing_repository import BillingRepository
 from shared.repositories.subscription_repository import SubscriptionRepository
 from shared.utils.db import get_session
 from shared.utils.error import HTTPError
@@ -49,13 +48,10 @@ class SubscriptionManager:
         try:
             async for session in get_session():
                 sub_repo = SubscriptionRepository(session)
-                billing_repo = BillingRepository(session)
                 subscriptions = await sub_repo.get_renewables(_RENEWAL_BUFFER)
 
                 for sub in subscriptions:
-                    billing = await billing_repo.get_by_subscription_id(
-                        sub.subscription_id
-                    )
+                    billing = sub.billing
                     if billing is None:
                         continue
 
@@ -66,7 +62,7 @@ class SubscriptionManager:
                     customer_key = str(billing.user_id)
 
                     try:
-                        await charge_billing_key(
+                        payment_key = await charge_billing_key(
                             billing.billing_key,
                             customer_key,
                             order_id,
@@ -77,9 +73,7 @@ class SubscriptionManager:
                         logger.warning(
                             f"Renewal charge failed for subscription {sub.subscription_id}"
                         )
-                        await billing_repo.delete_by_subscription_id(
-                            sub.subscription_id
-                        )
+                        await session.delete(billing)
                         continue
 
                     new_expires_at = sub.expires_at + _TIER_PERIOD[tier]
@@ -88,10 +82,10 @@ class SubscriptionManager:
                     )
                     session.add(
                         Payment(
-                            subscription_id=sub.subscription_id,
+                            guild_id=sub.guild_id,
                             user_id=billing.user_id,
                             order_id=order_id,
-                            amount=amount,
+                            payment_key=payment_key,
                             tier=int(tier),
                         )
                     )

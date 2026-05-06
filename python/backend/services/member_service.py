@@ -74,7 +74,7 @@ async def update_member_service(
         await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     member_repo = MemberRepository(session)
-    member = await member_repo.get_by_id(member_id, guild_id)
+    member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
         raise HTTPError(MemberErrorCode.NotFound)
 
@@ -86,8 +86,5 @@ async def update_member_service(
     for key in dto.model_fields_set:
         setattr(member, key, getattr(dto, key))
 
-    member = await member_repo.get_detail_by_id(member_id, guild_id)
-    if member is None:
-        raise HTTPError(MemberErrorCode.NotFound)
     event.result = MemberDTO.model_validate(member)
     return MemberDetailDTO.model_validate(member)

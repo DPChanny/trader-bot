@@ -134,7 +134,7 @@ async def update_preset_member_service(
     await verify_role(guild_id, user_id, session, Role.EDITOR)
 
     preset_member_repo = PresetMemberRepository(session)
-    preset_member = await preset_member_repo.get_by_id(
+    preset_member = await preset_member_repo.get_detail_by_id(
         preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
@@ -149,9 +149,6 @@ async def update_preset_member_service(
                 raise HTTPError(TierErrorCode.NotFound)
         setattr(preset_member, key, value)
 
-    preset_member = await preset_member_repo.get_detail_by_id(
-        preset_member_id, preset_id, guild_id
-    )
     event.result = PresetMemberDTO.model_validate(preset_member)
     return PresetMemberDetailDTO.model_validate(preset_member)
 
@@ -168,17 +165,11 @@ async def delete_preset_member_service(
     await verify_role(guild_id, user_id, session, Role.ADMIN)
 
     preset_member_repo = PresetMemberRepository(session)
-    preset_member = await preset_member_repo.get_by_id(
+    preset_member = await preset_member_repo.get_detail_by_id(
         preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
         raise HTTPError(PresetMemberErrorCode.NotFound)
 
-    preset_member_detail = await preset_member_repo.get_detail_by_id(
-        preset_member_id, preset_id, guild_id
-    )
-    if preset_member_detail is None:
-        raise HTTPError(PresetMemberErrorCode.NotFound)
-
-    event.result = PresetMemberDTO.model_validate(preset_member_detail)
+    event.result = PresetMemberDTO.model_validate(preset_member)
     await session.delete(preset_member)
