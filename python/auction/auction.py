@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 import contextlib
 
 from loguru import logger
@@ -53,7 +53,7 @@ class Auction:
                         event=Event(
                             Event.Type.AUCTION_SERVICE,
                             result={"status": Status.COMPLETED},
-                            detail={"type": AuctionPublishType.STATUS},
+                            detail={"publish_type": AuctionPublishType.STATUS},
                         )
                     ).log("INFO", "")
 
@@ -63,7 +63,7 @@ class Auction:
                     event=Event(
                         Event.Type.AUCTION_SERVICE,
                         result={"status": Status.COMPLETED},
-                        detail={"type": AuctionPublishType.STATUS},
+                        detail={"publish_type": AuctionPublishType.STATUS},
                     )
                 ).log("WARNING", "")
             except asyncio.CancelledError:
@@ -79,7 +79,7 @@ class Auction:
             event=Event(
                 Event.Type.AUCTION_SERVICE,
                 result={"status": Status.WAITING},
-                detail={"type": AuctionPublishType.STATUS},
+                detail={"publish_type": AuctionPublishType.STATUS},
             )
         ).log("INFO", "")
 
@@ -97,7 +97,7 @@ class Auction:
                         Event.Type.AUCTION_SERVICE,
                         input={"payload": payload},
                         result={"connected_leader_count": connected_leader_count},
-                        detail={"type": AuctionRequestType.LEADER_CONNECTED},
+                        detail={"request_type": AuctionRequestType.LEADER_CONNECTED},
                     )
                 ).log("INFO", "")
                 if connected_leader_count >= team_count:
@@ -114,7 +114,7 @@ class Auction:
                         Event.Type.AUCTION_SERVICE,
                         input={"payload": payload},
                         result={"connected_leader_count": connected_leader_count},
-                        detail={"type": AuctionRequestType.LEADER_DISCONNECTED},
+                        detail={"request_type": AuctionRequestType.LEADER_DISCONNECTED},
                     )
                 ).log("INFO", "")
 
@@ -124,7 +124,7 @@ class Auction:
             event=Event(
                 Event.Type.AUCTION_SERVICE,
                 result={"status": Status.PENDING},
-                detail={"type": AuctionPublishType.STATUS},
+                detail={"publish_type": AuctionPublishType.STATUS},
             )
         ).log("INFO", "")
         await asyncio.sleep(5)
@@ -135,7 +135,7 @@ class Auction:
             event=Event(
                 Event.Type.AUCTION_SERVICE,
                 result={"status": Status.RUNNING},
-                detail={"type": AuctionPublishType.STATUS},
+                detail={"publish_type": AuctionPublishType.STATUS},
             )
         ).log("INFO", "")
 
@@ -150,7 +150,7 @@ class Auction:
                 event=Event(
                     Event.Type.AUCTION_SERVICE,
                     result={"player_id": player_id},
-                    detail={"type": AuctionPublishType.NEXT_PLAYER},
+                    detail={"publish_type": AuctionPublishType.NEXT_PLAYER},
                 )
             ).log("INFO", "")
 
@@ -162,7 +162,7 @@ class Auction:
                     event=Event(
                         Event.Type.AUCTION_SERVICE,
                         result={"player_id": player_id, "bid": bid},
-                        detail={"type": AuctionPublishType.MEMBER_SOLD},
+                        detail={"publish_type": AuctionPublishType.MEMBER_SOLD},
                     )
                 ).log("INFO", "")
             else:
@@ -171,7 +171,7 @@ class Auction:
                     event=Event(
                         Event.Type.AUCTION_SERVICE,
                         result={"player_id": player_id},
-                        detail={"type": AuctionPublishType.MEMBER_UNSOLD},
+                        detail={"publish_type": AuctionPublishType.MEMBER_UNSOLD},
                     )
                 ).log("INFO", "")
 
@@ -199,7 +199,9 @@ class Auction:
                                     Event.Type.AUCTION_SERVICE,
                                     input={"payload": payload},
                                     result={"bid": bid},
-                                    detail={"type": AuctionRequestType.PLACE_BID},
+                                    detail={
+                                        "request_type": AuctionRequestType.PLACE_BID
+                                    },
                                 )
                             ).log("INFO", "")
                         except Exception as e:

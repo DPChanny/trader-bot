@@ -57,8 +57,8 @@ class AuctionManager:
             logger.bind(
                 event=Event(
                     Event.Type.AUCTION_SERVICE,
-                    result={"auction": auction},
-                    detail={"type": AuctionRequestType.RECOVER},
+                    result={"auction_id": auction_id},
+                    detail={"request_type": AuctionRequestType.RECOVER},
                 )
             ).log("INFO", "")
 
@@ -101,8 +101,8 @@ class AuctionManager:
                 event=Event(
                     Event.Type.AUCTION_SERVICE,
                     input={"payload": payload},
-                    result={"auction": auction},
-                    detail={"type": AuctionRequestType.CREATE},
+                    result={"auction_id": auction_id},
+                    detail={"request_type": AuctionRequestType.CREATE},
                 )
             ).log("INFO", "")
         else:
