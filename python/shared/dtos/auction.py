@@ -33,9 +33,17 @@ class AuctionPublishType(IntEnum):
     NEXT_PLAYER = 9
 
 
-class AuctionServerEventType(AuctionPublishType):
+class AuctionServerEventType(IntEnum):
     INIT = 0
     ERROR = 1
+    TICK = 2
+    STATUS = 3
+    BID_PLACED = 4
+    MEMBER_SOLD = 5
+    MEMBER_UNSOLD = 6
+    LEADER_CONNECTED = 7
+    LEADER_DISCONNECTED = 8
+    NEXT_PLAYER = 9
 
 
 class AuctionRequestType(IntEnum):
