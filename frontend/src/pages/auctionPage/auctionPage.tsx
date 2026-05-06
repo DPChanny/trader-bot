@@ -1,6 +1,7 @@
 import { useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuction } from "@features/auction/hook";
+import { useMyUser } from "@features/user/hook";
 
 import { TeamList } from "./teamList";
 import { InfoCard } from "./infoCard";
@@ -62,6 +63,8 @@ export function AuctionPage() {
   const [bidAmount, setBidAmount] = useState<string>("");
   const [modalError, setModalError] = useState<WSError | null>(null);
 
+  const { data: me } = useMyUser();
+
   const {
     auction,
     timer,
@@ -76,7 +79,7 @@ export function AuctionPage() {
 
   useEffect(() => {
     connect(guildId, presetId, auctionId);
-  }, [auctionId]);
+  }, [auctionId, me?.discordId]);
 
   const isCompleted = auction?.status === Status.COMPLETED;
   const isRunning = auction?.status === Status.RUNNING;
