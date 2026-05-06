@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { checkJWTToken, getRefreshToken } from "@features/auth/token";
-import { MemberPage } from "@pages/memberPage/memberPage";
+import { GuildPage } from "@pages/guildPage/guildPage";
 
 export const Route = createFileRoute("/guild/$guildId/member")({
   beforeLoad: () => {
@@ -8,5 +8,5 @@ export const Route = createFileRoute("/guild/$guildId/member")({
       throw redirect({ to: "/", replace: true });
     }
   },
-  component: MemberPage,
+  component: GuildPage,
 });

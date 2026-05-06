@@ -2,9 +2,7 @@ import { useParams } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { useInfiniteMembers } from "@features/member/hook";
 import { MemberGrid } from "@components/memberGrid";
-import { Page } from "@components/atoms/layout";
 import {
-  PrimarySection,
   SecondarySection,
   TertiarySection,
 } from "@components/surfaces/section";
@@ -12,11 +10,11 @@ import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
 import { MemberPanel } from "./memberPanel";
 import { Title } from "@components/atoms/text";
-import { Row } from "@components/atoms/layout";
+import { Row, Fill } from "@components/atoms/layout";
 import { Input } from "@components/atoms/input";
 import type { MemberDetailDTO } from "@features/member/dto";
 
-export function MemberPage() {
+export function MemberEditor() {
   const { guildId } = useParams({ strict: false }) as { guildId: string };
 
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
@@ -47,8 +45,8 @@ export function MemberPage() {
   );
 
   return (
-    <Page>
-      <PrimarySection fill>
+    <>
+      <Fill overflow="hidden">
         <SecondarySection fill>
           <Row gap="sm" align="center" justify="between">
             <Title>멤버 목록</Title>
@@ -76,7 +74,7 @@ export function MemberPage() {
             />
           )}
         </SecondarySection>
-      </PrimarySection>
+      </Fill>
 
       {selectedMember && (
         <MemberPanel
@@ -84,6 +82,6 @@ export function MemberPage() {
           onClose={() => setSelectedMemberId(null)}
         />
       )}
-    </Page>
+    </>
   );
 }

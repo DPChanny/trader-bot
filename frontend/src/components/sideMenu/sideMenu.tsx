@@ -6,10 +6,8 @@ import { useGuilds } from "@features/guild/hook";
 
 import { CloseButton } from "@components/atoms/button";
 import { Fill, Row } from "@components/atoms/layout";
-import { Title, Text } from "@components/atoms/text";
+import { Title } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
-import { Card } from "@components/surfaces/card";
-import { InternalLink } from "@components/atoms/link";
 import { GuildList } from "./guild/guildList";
 import { PresetList } from "./preset/presetList";
 
@@ -207,19 +205,6 @@ export function SideMenu() {
                 />
                 {guildId && <PresetList selectedPresetId={presetId ?? null} />}
               </Fill>
-              {guildId && (
-                <>
-                  <Bar />
-                  <InternalLink
-                    to="/guild/$guildId/subscription"
-                    params={{ guildId }}
-                  >
-                    <Card direction="row" align="center" gap="sm">
-                      <Text>구독 관리</Text>
-                    </Card>
-                  </InternalLink>
-                </>
-              )}
             </Fill>
           </div>
         </div>

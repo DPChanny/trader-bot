@@ -1,18 +1,35 @@
-import { Page, Column, Row, Fill } from "@components/atoms/layout";
+import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { Page, Column, Row } from "@components/atoms/layout";
 import {
   PrimarySection,
   SecondarySection,
   TertiarySection,
 } from "@components/surfaces/section";
-import { Title, Text } from "@components/atoms/text";
+import { Title, Text, Name } from "@components/atoms/text";
 import { PrimaryButton, DangerButton } from "@components/atoms/button";
+import { Badge } from "@components/atoms/badge";
 import { Card } from "@components/surfaces/card";
+import { Image } from "@components/atoms/image";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
+import { Modal, ModalFooter } from "@components/modal";
 import { useBillings, useDeleteBilling } from "@features/billing/hook";
+import { useMyPayments, useDeleteMyUser, useMyUser } from "@features/user/hook";
 import { requestBillingAuth } from "@features/billing/api";
-import { useMyUser } from "@features/user/hook";
+import { removeJWTToken } from "@features/auth/token";
+import { Tier } from "@features/subscription/dto";
 import type { BillingDTO } from "@features/billing/dto";
+
+const TIER_LABEL: Record<Tier, string> = {
+  [Tier.PLUS]: "Plus",
+  [Tier.PRO]: "Pro",
+};
+
+const TIER_COLOR: Record<Tier, "gold" | "blue"> = {
+  [Tier.PLUS]: "gold",
+  [Tier.PRO]: "blue",
+};
 
 type BillingCardProps = {
   billing: BillingDTO;
@@ -37,9 +54,18 @@ function BillingCard({ index, onDelete, isDeleting }: BillingCardProps) {
 }
 
 export function MePage() {
+  const navigate = useNavigate();
   const { data: user } = useMyUser();
-  const { data: billings, isLoading, error } = useBillings();
+  const {
+    data: billings,
+    isLoading: billingsLoading,
+    error: billingsError,
+  } = useBillings();
+  const { data: payments, isLoading: paymentsLoading } = useMyPayments();
   const { mutate: deleteBilling, isPending: isDeleting } = useDeleteBilling();
+  const { mutate: deleteMyUser, isPending: isWithdrawing } = useDeleteMyUser();
+
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
   const handleAddBilling = () => {
     if (!user) return;
@@ -50,13 +76,42 @@ export function MePage() {
     });
   };
 
+  const handleWithdraw = () => {
+    deleteMyUser(undefined, {
+      onSuccess: () => {
+        removeJWTToken();
+        navigate({ to: "/", replace: true });
+      },
+    });
+  };
+
   return (
     <Page>
-      <PrimarySection fill padding="xl">
-        <Column gap="lg">
-          <Title align="start">내 계정</Title>
-          <SecondarySection>
-            <Column gap="md">
+      <Column align="center" fill>
+        <PrimarySection width="page" minSize fill>
+          <Column gap="lg" padding="xl" fill>
+            <Title>내 정보</Title>
+
+            <SecondarySection gap="sm" align="center">
+              <Image
+                src={user?.avatarUrl}
+                alt={user?.name}
+                variantContent="avatar"
+                variantSize="large"
+              />
+              <Text variantWeight="semibold">{user?.name ?? "로딩중"}</Text>
+              <Name>{user?.discordId ?? "—"}</Name>
+              <Row justify="end">
+                <DangerButton
+                  variantSize="small"
+                  onClick={() => setShowWithdrawModal(true)}
+                >
+                  탈퇴
+                </DangerButton>
+              </Row>
+            </SecondarySection>
+
+            <SecondarySection fill gap="md">
               <Row justify="between" align="center">
                 <Title align="start">결제 수단</Title>
                 <PrimaryButton
@@ -64,38 +119,97 @@ export function MePage() {
                   onClick={handleAddBilling}
                   disabled={!user}
                 >
-                  카드 추가
+                  추가
                 </PrimaryButton>
               </Row>
-              {isLoading ? (
-                <TertiarySection>
-                  <Fill center>
-                    <Loading />
-                  </Fill>
+              {billingsLoading ? (
+                <TertiarySection fill>
+                  <Loading />
                 </TertiarySection>
-              ) : error ? (
-                <Error error={error}>결제 수단을 불러오지 못했습니다</Error>
-              ) : !billings?.length ? (
-                <TertiarySection>
-                  <Text>등록된 결제 수단이 없습니다</Text>
+              ) : billingsError ? (
+                <TertiarySection fill>
+                  <Error error={billingsError}>
+                    결제 수단을 불러오지 못했습니다
+                  </Error>
                 </TertiarySection>
               ) : (
-                <Column gap="sm">
-                  {billings.map((b, i) => (
-                    <BillingCard
-                      key={b.billingId}
-                      billing={b}
-                      index={i}
-                      onDelete={() => deleteBilling({ billingId: b.billingId })}
-                      isDeleting={isDeleting}
-                    />
-                  ))}
-                </Column>
+                <TertiarySection fill>
+                  <Column gap="sm">
+                    {billings?.map((b, i) => (
+                      <BillingCard
+                        key={b.billingId}
+                        billing={b}
+                        index={i}
+                        onDelete={() =>
+                          deleteBilling({ billingId: b.billingId })
+                        }
+                        isDeleting={isDeleting}
+                      />
+                    ))}
+                  </Column>
+                </TertiarySection>
               )}
-            </Column>
-          </SecondarySection>
-        </Column>
-      </PrimarySection>
+            </SecondarySection>
+
+            <SecondarySection fill gap="md">
+              <Title align="start">결제 내역</Title>
+              {paymentsLoading ? (
+                <TertiarySection fill>
+                  <Loading />
+                </TertiarySection>
+              ) : (
+                <TertiarySection fill>
+                  <Column gap="sm">
+                    {[...(payments ?? [])].reverse().map((p) => (
+                      <Card
+                        key={p.paymentId}
+                        direction="row"
+                        align="center"
+                        justify="between"
+                        variantColor="gray"
+                      >
+                        <Badge variantColor={TIER_COLOR[p.tier]}>
+                          {TIER_LABEL[p.tier]}
+                        </Badge>
+                        <Text variantSize="small" tone="accent">
+                          {p.orderId.slice(0, 12)}…
+                        </Text>
+                      </Card>
+                    ))}
+                  </Column>
+                </TertiarySection>
+              )}
+            </SecondarySection>
+          </Column>
+        </PrimarySection>
+      </Column>
+
+      {showWithdrawModal && (
+        <Modal title="서비스 탈퇴" onClose={() => setShowWithdrawModal(false)}>
+          <Text>
+            결제 수단, 결제 내역, 구독이 삭제됩니다. Discord 계정 및 길드 정보는
+            유지됩니다.
+          </Text>
+          <ModalFooter>
+            <Row gap="sm" justify="end">
+              <PrimaryButton
+                variantSize="small"
+                onClick={() => setShowWithdrawModal(false)}
+                disabled={isWithdrawing}
+              >
+                취소
+              </PrimaryButton>
+              <DangerButton
+                variantSize="small"
+                onClick={handleWithdraw}
+                disabled={isWithdrawing}
+              >
+                탈퇴
+              </DangerButton>
+            </Row>
+          </ModalFooter>
+        </Modal>
+      )}
     </Page>
   );
 }

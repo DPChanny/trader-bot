@@ -15,5 +15,7 @@
     "frontend/node_modules": true
   },
 
-  "Lua.diagnostics.globals": ["redis", "KEYS", "ARGV", "cjson"]
+  "Lua.diagnostics.globals": ["redis", "KEYS", "ARGV", "cjson"],
+
+  "terminal.integrated.environmentChangesRelaunch": false
 }
