@@ -2,8 +2,6 @@ import asyncio
 import contextlib
 from typing import Any, ClassVar
 
-from loguru import logger
-
 from shared.dtos.auction import (
     AuctionDetailDTO,
     AuctionRequestEnvelopeDTO,
@@ -11,11 +9,11 @@ from shared.dtos.auction import (
     CreateRequestPayloadDTO,
     Status,
 )
-from shared.utils.logging import Event
 from shared.utils.redis import get_pubsub, listen
 
 from .auction import Auction
 from .auction_repository import AuctionRepository
+from .utils import log_request
 
 
 class AuctionManager:
@@ -54,13 +52,7 @@ class AuctionManager:
             if not auction.preset_snapshot:
                 continue
             await cls._setup_auction(auction_id, auction)
-            logger.bind(
-                event=Event(
-                    Event.Type.AUCTION_SERVICE,
-                    result={"auction_id": auction_id},
-                    detail={"request_type": AuctionRequestType.RECOVER},
-                )
-            ).log("INFO", "")
+            log_request(AuctionRequestType.RECOVER, result={"auction_id": auction_id})
 
     @classmethod
     async def _setup_auction(cls, auction_id: int, detail: AuctionDetailDTO) -> None:
@@ -97,14 +89,11 @@ class AuctionManager:
                 return
             await repo.publish_create_response()
             await cls._setup_auction(auction_id, auction)
-            logger.bind(
-                event=Event(
-                    Event.Type.AUCTION_SERVICE,
-                    input={"payload": payload},
-                    result={"auction_id": auction_id},
-                    detail={"request_type": AuctionRequestType.CREATE},
-                )
-            ).log("INFO", "")
+            log_request(
+                AuctionRequestType.CREATE,
+                input={"payload": payload},
+                result={"auction_id": auction_id},
+            )
         else:
             parts = message["channel"].split(":")
             auction_id = int(parts[1])

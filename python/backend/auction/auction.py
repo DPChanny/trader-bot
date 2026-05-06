@@ -2,7 +2,6 @@ import asyncio
 import contextlib
 
 from fastapi import WebSocket
-from loguru import logger
 
 from shared.dtos.auction import (
     AuctionPublishEnvelopeDTO,
@@ -23,9 +22,9 @@ from shared.dtos.auction import (
 )
 from shared.dtos.preset import PresetDetailDTO
 from shared.utils.error import AuctionErrorCode, WSError
-from shared.utils.logging import Event
 
 from .auction_repository import AuctionRepository
+from .utils import log_server_event
 
 
 class Auction:
@@ -51,13 +50,7 @@ class Auction:
                 ),
             ).model_dump(mode="json")
         )
-        logger.bind(
-            event=Event(
-                Event.Type.WS_SERVICE,
-                result={"member_id": member_id},
-                detail={"server_event_type": AuctionServerEventType.INIT},
-            )
-        ).log("INFO", "")
+        log_server_event(AuctionServerEventType.INIT, result={"member_id": member_id})
 
         if auction_detail_dto.status == Status.COMPLETED:
             return
@@ -107,29 +100,19 @@ class Auction:
                     ).model_dump_json()
                     try:
                         await ws.send_text(error_msg)
-                        logger.bind(
-                            event=Event(
-                                Event.Type.WS_SERVICE,
-                                result={"leader_id": payload.leader_id},
-                                detail={
-                                    "server_event_type": AuctionServerEventType.ERROR
-                                },
-                            )
-                        ).log("INFO", "")
+                        log_server_event(
+                            AuctionServerEventType.ERROR,
+                            result={"leader_id": payload.leader_id},
+                        )
                     except Exception:
                         await self.disconnect(ws)
             return False
 
         if envelope.type != AuctionPublishType.TICK:
-            logger.bind(
-                event=Event(
-                    Event.Type.WS_SERVICE,
-                    result={"ws_count": len(self._ws_set)},
-                    detail={
-                        "server_event_type": AuctionServerEventType(envelope.type.value)
-                    },
-                )
-            ).log("INFO", "")
+            log_server_event(
+                AuctionServerEventType(envelope.type.value),
+                result={"ws_count": len(self._ws_set)},
+            )
 
         match envelope.type:
             case AuctionPublishType.STATUS:

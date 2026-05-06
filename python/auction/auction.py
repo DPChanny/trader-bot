@@ -1,8 +1,6 @@
 import asyncio
 import contextlib
 
-from loguru import logger
-
 from shared.dtos.auction import (
     AuctionDetailDTO,
     AuctionPublishType,
@@ -14,9 +12,10 @@ from shared.dtos.auction import (
     Status,
 )
 from shared.utils.error import AppError, UnexpectedErrorCode, handle_app_error
-from shared.utils.logging import Event, logging_context
+from shared.utils.logging import logging_context
 
 from .auction_repository import AuctionRepository
+from .utils import log_publish, log_request
 
 
 class Auction:
@@ -49,23 +48,17 @@ class Auction:
                     await self._run(dto)
 
                     await self._repo.publish_status(Status.COMPLETED)
-                    logger.bind(
-                        event=Event(
-                            Event.Type.AUCTION_SERVICE,
-                            result={"status": Status.COMPLETED},
-                            detail={"publish_type": AuctionPublishType.STATUS},
-                        )
-                    ).log("INFO", "")
+                    log_publish(
+                        AuctionPublishType.STATUS, result={"status": Status.COMPLETED}
+                    )
 
             except TimeoutError:
                 await self._repo.publish_status(Status.COMPLETED)
-                logger.bind(
-                    event=Event(
-                        Event.Type.AUCTION_SERVICE,
-                        result={"status": Status.COMPLETED},
-                        detail={"publish_type": AuctionPublishType.STATUS},
-                    )
-                ).log("WARNING", "")
+                log_publish(
+                    AuctionPublishType.STATUS,
+                    result={"status": Status.COMPLETED},
+                    level="WARNING",
+                )
             except asyncio.CancelledError:
                 pass
             except Exception as e:
@@ -75,13 +68,7 @@ class Auction:
 
     async def _wait(self, team_count: int) -> None:
         await self._repo.publish_status(Status.WAITING)
-        logger.bind(
-            event=Event(
-                Event.Type.AUCTION_SERVICE,
-                result={"status": Status.WAITING},
-                detail={"publish_type": AuctionPublishType.STATUS},
-            )
-        ).log("INFO", "")
+        log_publish(AuctionPublishType.STATUS, result={"status": Status.WAITING})
 
         while True:
             envelope = await self._queue.get()
@@ -92,14 +79,11 @@ class Auction:
                 connected_leader_count = await self._repo.publish_leader_connected(
                     payload.leader_id
                 )
-                logger.bind(
-                    event=Event(
-                        Event.Type.AUCTION_SERVICE,
-                        input={"payload": payload},
-                        result={"connected_leader_count": connected_leader_count},
-                        detail={"request_type": AuctionRequestType.LEADER_CONNECTED},
-                    )
-                ).log("INFO", "")
+                log_request(
+                    AuctionRequestType.LEADER_CONNECTED,
+                    input={"payload": payload},
+                    result={"connected_leader_count": connected_leader_count},
+                )
                 if connected_leader_count >= team_count:
                     break
             elif envelope.type == AuctionRequestType.LEADER_DISCONNECTED:
@@ -109,35 +93,20 @@ class Auction:
                 connected_leader_count = await self._repo.publish_leader_disconnected(
                     payload.leader_id
                 )
-                logger.bind(
-                    event=Event(
-                        Event.Type.AUCTION_SERVICE,
-                        input={"payload": payload},
-                        result={"connected_leader_count": connected_leader_count},
-                        detail={"request_type": AuctionRequestType.LEADER_DISCONNECTED},
-                    )
-                ).log("INFO", "")
+                log_request(
+                    AuctionRequestType.LEADER_DISCONNECTED,
+                    input={"payload": payload},
+                    result={"connected_leader_count": connected_leader_count},
+                )
 
     async def _pend(self) -> None:
         await self._repo.publish_status(Status.PENDING)
-        logger.bind(
-            event=Event(
-                Event.Type.AUCTION_SERVICE,
-                result={"status": Status.PENDING},
-                detail={"publish_type": AuctionPublishType.STATUS},
-            )
-        ).log("INFO", "")
+        log_publish(AuctionPublishType.STATUS, result={"status": Status.PENDING})
         await asyncio.sleep(5)
 
     async def _run(self, dto: AuctionDetailDTO) -> None:
         await self._repo.publish_status(Status.RUNNING)
-        logger.bind(
-            event=Event(
-                Event.Type.AUCTION_SERVICE,
-                result={"status": Status.RUNNING},
-                detail={"publish_type": AuctionPublishType.STATUS},
-            )
-        ).log("INFO", "")
+        log_publish(AuctionPublishType.STATUS, result={"status": Status.RUNNING})
 
         timer = dto.preset_snapshot.timer
         team_size = dto.preset_snapshot.team_size
@@ -146,34 +115,21 @@ class Auction:
             player_id = await self._repo.next_player()
             if player_id is None:
                 break
-            logger.bind(
-                event=Event(
-                    Event.Type.AUCTION_SERVICE,
-                    result={"player_id": player_id},
-                    detail={"publish_type": AuctionPublishType.NEXT_PLAYER},
-                )
-            ).log("INFO", "")
+            log_publish(AuctionPublishType.NEXT_PLAYER, result={"player_id": player_id})
 
             bid = await self._recept(timer, player_id, team_size)
 
             if bid:
                 await self._repo.publish_member_sold(bid.leader_id, player_id, bid)
-                logger.bind(
-                    event=Event(
-                        Event.Type.AUCTION_SERVICE,
-                        result={"player_id": player_id, "bid": bid},
-                        detail={"publish_type": AuctionPublishType.MEMBER_SOLD},
-                    )
-                ).log("INFO", "")
+                log_publish(
+                    AuctionPublishType.MEMBER_SOLD,
+                    result={"player_id": player_id, "bid": bid},
+                )
             else:
                 await self._repo.publish_member_unsold(player_id)
-                logger.bind(
-                    event=Event(
-                        Event.Type.AUCTION_SERVICE,
-                        result={"player_id": player_id},
-                        detail={"publish_type": AuctionPublishType.MEMBER_UNSOLD},
-                    )
-                ).log("INFO", "")
+                log_publish(
+                    AuctionPublishType.MEMBER_UNSOLD, result={"player_id": player_id}
+                )
 
     async def _recept(
         self, timer: int, player_id: int, team_size: int
@@ -194,16 +150,11 @@ class Auction:
                             if is_bid_placed:
                                 bid = payload
                                 bid_placed.set()
-                            logger.bind(
-                                event=Event(
-                                    Event.Type.AUCTION_SERVICE,
-                                    input={"payload": payload},
-                                    result={"bid": bid},
-                                    detail={
-                                        "request_type": AuctionRequestType.PLACE_BID
-                                    },
-                                )
-                            ).log("INFO", "")
+                            log_request(
+                                AuctionRequestType.PLACE_BID,
+                                input={"payload": payload},
+                                result={"bid": bid},
+                            )
                         except Exception as e:
                             app_error = AppError(UnexpectedErrorCode.Internal)
                             app_error.__cause__ = e
