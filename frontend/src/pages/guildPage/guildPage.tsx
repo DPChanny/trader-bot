@@ -1,23 +1,128 @@
-import { useParams } from "@tanstack/react-router";
-import { Page } from "@components/atoms/layout";
-import { PrimarySection } from "@components/surfaces/section";
-import { NameTitle } from "@components/atoms/text";
+import { useParams, useNavigate } from "@tanstack/react-router";
+import { Page, Column, Fill, Row } from "@components/atoms/layout";
+import {
+  PrimarySection,
+  SecondarySection,
+} from "@components/surfaces/section";
+import { NameTitle, Title, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
+import { EditButton } from "@components/atoms/button";
+import { Badge } from "@components/atoms/badge";
+import { Card } from "@components/surfaces/card";
+import { Loading } from "@components/molecules/loading";
+import { Error } from "@components/molecules/error";
 import { useGuild } from "@features/guild/hook";
+import { useSubscription } from "@features/subscription/hook";
+import { useBillings } from "@features/billing/hook";
+import { useVerifyRole } from "@features/member/hook";
+import { Tier } from "@features/subscription/dto";
+import { Role } from "@features/member/dto";
+import { BackendErrorCode } from "@utils/error";
 import { MemberEditor } from "./memberEditor/memberEditor";
-import { SubscriptionEditor } from "./subscriptionEditor/subscriptionEditor";
+
+const TIER_LABEL: Record<Tier, string> = {
+  [Tier.PLUS]: "Plus",
+  [Tier.PRO]: "Pro",
+};
+
+const TIER_COLOR: Record<Tier, "gold" | "blue"> = {
+  [Tier.PLUS]: "gold",
+  [Tier.PRO]: "blue",
+};
+
+function formatDate(iso: string): string {
+  return new Intl.DateTimeFormat("ko-KR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(iso));
+}
 
 export function GuildPage() {
   const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const navigate = useNavigate();
 
   const guild = useGuild(guildId);
+  const isAdmin = useVerifyRole(guildId, Role.ADMIN);
+
+  const {
+    data: subscription,
+    isLoading: subLoading,
+    error: subError,
+  } = useSubscription(guildId);
+  const { data: billings } = useBillings();
+
+  const isNotFound = subError?.code === BackendErrorCode.Subscription.NotFound;
+  const isCancelled = subscription != null && subscription.billingId === null;
+  const isActive =
+    subscription != null &&
+    subscription.billingId !== null &&
+    new Date(subscription.expiresAt) > new Date();
+  const hasSub = subscription != null && !isNotFound;
+  const isFree = !hasSub || isCancelled || !isActive;
 
   return (
     <Page>
       <PrimarySection minSize overflow="hidden" style={{ width: "25rem" }}>
         <NameTitle>{guild.data?.name ?? "로딩중"}</NameTitle>
         <Bar />
-        <SubscriptionEditor />
+
+        <Fill overflow="auto">
+          <Column gap="md" fill>
+            <SecondarySection gap="sm">
+              <Row justify="between" align="center">
+                <Title>구독</Title>
+                {isAdmin && (
+                  <EditButton
+                    variantSize="small"
+                    onClick={() =>
+                      void navigate({
+                        to: "/guild/$guildId/subscription",
+                        params: { guildId },
+                      })
+                    }
+                  />
+                )}
+              </Row>
+
+              {subLoading ? (
+                <Loading />
+              ) : subError && !isNotFound ? (
+                <Error error={subError}>구독 정보를 불러오지 못했습니다</Error>
+              ) : (
+                <Card
+                  variantColor={
+                    isFree ? "gray" : TIER_COLOR[subscription!.tier]
+                  }
+                >
+                  <Row justify="between" align="center">
+                    <Column gap="xs">
+                      <Text variantWeight="semibold">
+                        {isFree ? "FREE" : TIER_LABEL[subscription!.tier]}
+                      </Text>
+                      <Text variantSize="small">
+                        만료일:{" "}
+                        {isFree ? "없음" : formatDate(subscription!.expiresAt)}
+                      </Text>
+                      <Text variantSize="small">
+                        결제 수단:{" "}
+                        {(() => {
+                          if (isFree) return "없음";
+                          const idx = billings?.findIndex(
+                            (b) => b.billingId === subscription!.billingId,
+                          );
+                          return idx !== undefined && idx >= 0
+                            ? `#${idx + 1}`
+                            : "없음";
+                        })()}
+                      </Text>
+                    </Column>
+                    {!isFree && <Badge variantColor="green">활성</Badge>}
+                  </Row>
+                </Card>
+              )}
+            </SecondarySection>
+          </Column>
+        </Fill>
       </PrimarySection>
 
       <MemberEditor />

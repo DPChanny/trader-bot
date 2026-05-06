@@ -43,18 +43,18 @@ export async function deleteBilling({
 
 export async function requestBillingAuth({
   customerKey,
-  successUrl,
-  failUrl,
+  redirectPath,
 }: {
   customerKey: string;
-  successUrl: string;
-  failUrl: string;
+  redirectPath: string;
 }): Promise<void> {
+  const callbackUrl = `${window.location.origin}/auth/billing/callback?redirect=${encodeURIComponent(redirectPath)}`;
+
   const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
   const payment = tossPayments.payment({ customerKey });
   await payment.requestBillingAuth({
     method: "CARD",
-    successUrl,
-    failUrl,
+    successUrl: callbackUrl,
+    failUrl: callbackUrl,
   });
 }

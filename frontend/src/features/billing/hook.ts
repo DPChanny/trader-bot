@@ -5,33 +5,66 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import type { BillingDTO } from "@features/billing/dto";
-import type { AppError } from "@utils/error";
+import { AppError, FrontendErrorCode } from "@utils/error";
 import { queryKeys } from "@utils/query";
 import { getBillings, registerBilling, deleteBilling } from "./api";
+
+function isRedirectPath(path: string | null): path is string {
+  return (
+    typeof path === "string" && path.startsWith("/") && !path.startsWith("//")
+  );
+}
+
+export function useBillingCallback() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const called = useRef(false);
+  const [error, setError] = useState<AppError | null>(null);
+
+  useEffect(() => {
+    if (called.current) return;
+    called.current = true;
+
+    const params = new URLSearchParams(window.location.search);
+    const authKey = params.get("authKey");
+    const redirect = params.get("redirect");
+
+    if (!isRedirectPath(redirect)) {
+      setError(new AppError(FrontendErrorCode.Unexpected.External));
+      return;
+    }
+
+    if (!authKey) {
+      setError(new AppError(FrontendErrorCode.Unexpected.External));
+      return;
+    }
+
+    registerBilling({ authKey })
+      .then((data) => {
+        queryClient.setQueryData<BillingDTO[]>(queryKeys.billings(), (old) =>
+          old ? [...old, data] : [data],
+        );
+        void navigate({ to: redirect, replace: true });
+      })
+      .catch((e: unknown) => {
+        setError(
+          e instanceof AppError
+            ? e
+            : new AppError(FrontendErrorCode.Unexpected.External),
+        );
+      });
+  }, []);
+
+  return { error };
+}
 
 export function useBillings(): UseQueryResult<BillingDTO[], AppError> {
   return useQuery({
     queryKey: queryKeys.billings(),
     queryFn: getBillings,
-  });
-}
-
-export function useRegisterBilling(): UseMutationResult<
-  Awaited<ReturnType<typeof registerBilling>>,
-  AppError,
-  Parameters<typeof registerBilling>[0],
-  unknown
-> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: registerBilling,
-    onSuccess: (data) => {
-      queryClient.setQueryData<BillingDTO[]>(queryKeys.billings(), (old) =>
-        old ? [...old, data] : [data],
-      );
-    },
   });
 }
 

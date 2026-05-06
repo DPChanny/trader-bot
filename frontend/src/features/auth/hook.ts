@@ -57,17 +57,6 @@ export function useLoginCallback() {
   const navigate = useNavigate();
   const [error, setError] = useState<AppError | null>(null);
 
-  const retry = () => {
-    const params = new URLSearchParams(window.location.search);
-    const redirectPath = params.get("redirect");
-    const redirectUrl = new URL(`${AUTH_API_ENDPOINT}/login`);
-    redirectUrl.searchParams.set(
-      "redirect",
-      isRedirectPath(redirectPath) ? redirectPath : "/",
-    );
-    window.location.href = redirectUrl.toString();
-  };
-
   useEffect(() => {
     async function handleLoginCallback() {
       try {
@@ -103,7 +92,7 @@ export function useLoginCallback() {
     void handleLoginCallback();
   }, []);
 
-  return { error, retry };
+  return { error };
 }
 
 export function useRefreshToken() {

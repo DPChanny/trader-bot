@@ -1,10 +1,10 @@
-import { useLoginCallback } from "@features/auth/hook";
+import { useBillingCallback } from "@features/billing/hook";
 import { Page, Fill, Column } from "@components/atoms/layout";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
 
-export function LoginCallbackPage() {
-  const { error } = useLoginCallback();
+export function BillingCallbackPage() {
+  const { error } = useBillingCallback();
 
   if (!error)
     return (
@@ -19,7 +19,7 @@ export function LoginCallbackPage() {
     <Page>
       <Fill center>
         <Column center gap="md">
-          <Error error={error}>로그인에 실패했습니다</Error>
+          <Error error={error}>결제 수단 등록에 실패했습니다</Error>
         </Column>
       </Fill>
     </Page>
