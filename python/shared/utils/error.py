@@ -80,7 +80,6 @@ class UserErrorCode(IntEnum):
 
 
 class BillingErrorCode(IntEnum):
-    Forbidden = 4306
     NotFound = 4411
 
 

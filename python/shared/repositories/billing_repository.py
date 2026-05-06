@@ -5,9 +5,11 @@ from . import BaseRepository
 
 
 class BillingRepository(BaseRepository):
-    async def get_by_id(self, billing_id: int) -> Billing | None:
+    async def get_by_id(self, billing_id: int, user_id: int) -> Billing | None:
         result = await self.session.execute(
-            select(Billing).where(Billing.billing_id == billing_id)
+            select(Billing).where(
+                Billing.billing_id == billing_id, Billing.user_id == user_id
+            )
         )
         return result.scalar_one_or_none()
 

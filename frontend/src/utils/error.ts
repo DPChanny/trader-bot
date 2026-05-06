@@ -59,6 +59,13 @@ export const BackendErrorCode = {
   User: {
     NotFound: 4409,
   },
+  Billing: {
+    NotFound: 4411,
+  },
+  Subscription: {
+    Duplicated: 4208,
+    NotFound: 4410,
+  },
   Unexpected: {
     Internal: 5001,
     External: 5002,
@@ -131,6 +138,14 @@ function getErrorMessage(code: number): string {
 
     case BackendErrorCode.User.NotFound:
       return "사용자를 찾을 수 없습니다";
+
+    case BackendErrorCode.Billing.NotFound:
+      return "결제 수단을 찾을 수 없습니다";
+
+    case BackendErrorCode.Subscription.Duplicated:
+      return "이미 동일한 구독이 존재합니다";
+    case BackendErrorCode.Subscription.NotFound:
+      return "구독을 찾을 수 없습니다";
 
     case BackendErrorCode.Unexpected.Internal:
       return "서버 내부에서 예기치 못한 문제가 발생했습니다";

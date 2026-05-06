@@ -17,6 +17,7 @@
   "dependencies": {
     "@tanstack/react-query": "latest",
     "@tanstack/react-router": "latest",
+    "@tosspayments/tosspayments-sdk": "latest",
     "class-variance-authority": "latest",
     "clsx": "latest",
     "marked": "latest",

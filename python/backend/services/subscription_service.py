@@ -31,8 +31,8 @@ async def register_subscription_service(
     existing = await sub_repo.get_by_guild_id(guild_id)
 
     billing_repo = BillingRepository(session)
-    billing = await billing_repo.get_by_id(dto.billing_id)
-    if billing is None or billing.user_id != user_id:
+    billing = await billing_repo.get_by_id(dto.billing_id, user_id)
+    if billing is None:
         raise HTTPError(BillingErrorCode.NotFound)
 
     now = datetime.now(UTC)

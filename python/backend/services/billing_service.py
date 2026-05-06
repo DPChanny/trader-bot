@@ -36,11 +36,9 @@ async def delete_billing_service(
     billing_id: int, user_id: int, session: AsyncSession
 ) -> None:
     billing_repo = BillingRepository(session)
-    billing = await billing_repo.get_by_id(billing_id)
+    billing = await billing_repo.get_by_id(billing_id, user_id)
     if billing is None:
         raise HTTPError(BillingErrorCode.NotFound)
-    if billing.user_id != user_id:
-        raise HTTPError(BillingErrorCode.Forbidden)
 
     await delete_billing_key(billing.billing_key)
     await session.delete(billing)

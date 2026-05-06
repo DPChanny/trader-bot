@@ -10,6 +10,10 @@ const WS_ENDPOINT = `${API_ORIGIN.replace(/^http/, "ws")}/api`;
 export const AUTH_API_ENDPOINT = `${API_ENDPOINT}/auth`;
 export const USER_API_ENDPOINT = `${API_ENDPOINT}/user`;
 export const GUILD_API_ENDPOINT = `${API_ENDPOINT}/guild`;
+export const BILLING_API_ENDPOINT = `${API_ENDPOINT}/user/@me/billing`;
+export const TOSS_CLIENT_KEY = import.meta.env[
+  "VITE_TOSS_CLIENT_KEY"
+] as string;
 
 export type Phase = "beta" | "prod";
 
@@ -67,4 +71,12 @@ export function getPresetMemberPositionEndpoint(
   ws?: boolean,
 ) {
   return `${getPresetMemberEndpoint(guildId, presetId, ws)}/${presetMemberId}/position`;
+}
+
+export function getSubscriptionEndpoint(guildId: string) {
+  return `${GUILD_API_ENDPOINT}/${guildId}/subscription`;
+}
+
+export function getPaymentEndpoint(guildId: string) {
+  return `${GUILD_API_ENDPOINT}/${guildId}/payment`;
 }
