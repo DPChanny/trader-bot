@@ -16,16 +16,16 @@ class SubscriptionRepository(BaseRepository):
         return result.scalar_one_or_none()
 
     async def upsert(
-        self, guild_id: int, billing_id: int, tier: int, expires_at: datetime
+        self, guild_id: int, billing_id: int, plan: int, expires_at: datetime
     ) -> Subscription:
         stmt = pg_insert(Subscription).values(
-            guild_id=guild_id, billing_id=billing_id, tier=tier, expires_at=expires_at
+            guild_id=guild_id, billing_id=billing_id, plan=plan, expires_at=expires_at
         )
         stmt = stmt.on_conflict_do_update(
             index_elements=["guild_id"],
             set_={
                 "billing_id": stmt.excluded.billing_id,
-                "tier": stmt.excluded.tier,
+                "plan": stmt.excluded.plan,
                 "expires_at": stmt.excluded.expires_at,
             },
         ).returning(Subscription)

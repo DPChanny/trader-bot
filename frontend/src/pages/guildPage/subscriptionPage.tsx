@@ -27,22 +27,22 @@ import { usePayments } from "@features/payment/hook";
 import { useBillings } from "@features/billing/hook";
 import { requestBillingAuth } from "@features/billing/api";
 import { useMyUser } from "@features/user/hook";
-import { Tier } from "@features/subscription/dto";
+import { Plan } from "@features/subscription/dto";
 import { BackendErrorCode } from "@utils/error";
 
-const TIER_LABEL: Record<Tier, string> = {
-  [Tier.PLUS]: "Plus",
-  [Tier.PRO]: "Pro",
+const PLAN_LABEL: Record<Plan, string> = {
+  [Plan.PLUS]: "Plus",
+  [Plan.PRO]: "Pro",
 };
 
-const TIER_COLOR: Record<Tier, "gold" | "blue"> = {
-  [Tier.PLUS]: "gold",
-  [Tier.PRO]: "blue",
+const PLAN_COLOR: Record<Plan, "gold" | "blue"> = {
+  [Plan.PLUS]: "gold",
+  [Plan.PRO]: "blue",
 };
 
-const TIER_PRICE: Record<Tier, string> = {
-  [Tier.PLUS]: "₩10,000/월",
-  [Tier.PRO]: "₩20,000/월",
+const PLAN_PRICE: Record<Plan, string> = {
+  [Plan.PLUS]: "₩10,000/월",
+  [Plan.PRO]: "₩20,000/월",
 };
 
 function formatDate(iso: string): string {
@@ -73,12 +73,12 @@ export function SubscriptionPage() {
   const [selectedBillingId, setSelectedBillingId] = useState<number | null>(
     null,
   );
-  const [selectedTier, setSelectedTier] = useState<Tier>(Tier.PLUS);
+  const [selectedPlan, setSelectedPlan] = useState<Plan>(Plan.PLUS);
 
   useEffect(() => {
     if (subscription?.billingId) {
       setSelectedBillingId(subscription.billingId);
-      setSelectedTier(subscription.tier);
+      setSelectedPlan(subscription.plan);
     }
   }, [subscription]);
 
@@ -97,7 +97,7 @@ export function SubscriptionPage() {
   const handleRegister = () => {
     if (effectiveBillingId === null) return;
     registerSubscription(
-      { guildId, dto: { billingId: effectiveBillingId, tier: selectedTier } },
+      { guildId, dto: { billingId: effectiveBillingId, plan: selectedPlan } },
       {
         onSuccess: () =>
           void navigate({ to: "/guild/$guildId/member", params: { guildId } }),
@@ -153,13 +153,13 @@ export function SubscriptionPage() {
               ) : (
                 <Card
                   variantColor={
-                    isFree ? "gray" : TIER_COLOR[subscription!.tier]
+                    isFree ? "gray" : PLAN_COLOR[subscription!.plan]
                   }
                 >
                   <Row justify="between" align="center">
                     <Column gap="xs">
                       <Text variantWeight="semibold">
-                        {isFree ? "FREE" : TIER_LABEL[subscription!.tier]}
+                        {isFree ? "FREE" : PLAN_LABEL[subscription!.plan]}
                       </Text>
                       <Text variantSize="small">
                         만료일:{" "}
@@ -212,19 +212,19 @@ export function SubscriptionPage() {
             <SecondarySection gap="sm">
               <Title>플랜</Title>
               <Row gap="sm">
-                {([Tier.PLUS, Tier.PRO] as Tier[]).map((tier) => (
+                {([Plan.PLUS, Plan.PRO] as Plan[]).map((plan) => (
                   <Card
-                    key={tier}
+                    key={plan}
                     fill
                     center
                     variantColor={
-                      selectedTier === tier ? TIER_COLOR[tier] : "gray"
+                      selectedPlan === plan ? PLAN_COLOR[plan] : "gray"
                     }
-                    onClick={() => setSelectedTier(tier)}
+                    onClick={() => setSelectedPlan(plan)}
                     style={{ cursor: "pointer" }}
                   >
-                    <Text variantWeight="semibold">{TIER_LABEL[tier]}</Text>
-                    <Text variantSize="small">{TIER_PRICE[tier]}</Text>
+                    <Text variantWeight="semibold">{PLAN_LABEL[plan]}</Text>
+                    <Text variantSize="small">{PLAN_PRICE[plan]}</Text>
                   </Card>
                 ))}
               </Row>
@@ -247,8 +247,8 @@ export function SubscriptionPage() {
                         justify="between"
                         variantColor="gray"
                       >
-                        <Badge variantColor={TIER_COLOR[p.tier]}>
-                          {TIER_LABEL[p.tier]}
+                        <Badge variantColor={PLAN_COLOR[p.plan]}>
+                          {PLAN_LABEL[p.plan]}
                         </Badge>
                         <Text variantSize="small" tone="accent">
                           {p.orderId.slice(0, 12)}…

@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from loguru import logger
 
-from shared.dtos.subscription import Tier
+from shared.dtos.subscription import Plan
 from shared.entities import Payment
 from shared.repositories.subscription_repository import SubscriptionRepository
 from shared.utils.db import get_session
@@ -13,9 +13,9 @@ from shared.utils.error import HTTPError
 from .utils.toss import charge_billing_key
 
 
-_TIER_AMOUNT = {Tier.PLUS: 10000, Tier.PRO: 20000}
-_TIER_ORDER_NAME = {Tier.PLUS: "Trader Bot Plus", Tier.PRO: "Trader Bot Pro"}
-_TIER_PERIOD = {Tier.PLUS: timedelta(days=30), Tier.PRO: timedelta(days=30)}
+_PLAN_AMOUNT = {Plan.PLUS: 10000, Plan.PRO: 20000}
+_PLAN_ORDER_NAME = {Plan.PLUS: "Trader Bot Plus", Plan.PRO: "Trader Bot Pro"}
+_PLAN_PERIOD = {Plan.PLUS: timedelta(days=30), Plan.PRO: timedelta(days=30)}
 
 _RENEWAL_BUFFER = timedelta(days=1)
 _RENEWAL_INTERVAL = timedelta(hours=1)
@@ -55,9 +55,9 @@ class SubscriptionManager:
                     if billing is None:
                         continue
 
-                    tier = Tier(sub.tier)
-                    amount = _TIER_AMOUNT[tier]
-                    order_name = _TIER_ORDER_NAME[tier]
+                    plan = Plan(sub.plan)
+                    amount = _PLAN_AMOUNT[plan]
+                    order_name = _PLAN_ORDER_NAME[plan]
                     order_id = uuid.uuid4().hex
                     customer_key = str(billing.user_id)
 
@@ -76,9 +76,9 @@ class SubscriptionManager:
                         await session.delete(billing)
                         continue
 
-                    new_expires_at = sub.expires_at + _TIER_PERIOD[tier]
+                    new_expires_at = sub.expires_at + _PLAN_PERIOD[plan]
                     await sub_repo.upsert(
-                        sub.guild_id, sub.billing_id, int(tier), new_expires_at
+                        sub.guild_id, sub.billing_id, int(plan), new_expires_at
                     )
                     session.add(
                         Payment(
@@ -86,7 +86,7 @@ class SubscriptionManager:
                             user_id=billing.user_id,
                             order_id=order_id,
                             payment_key=payment_key,
-                            tier=int(tier),
+                            plan=int(plan),
                         )
                     )
         except Exception:

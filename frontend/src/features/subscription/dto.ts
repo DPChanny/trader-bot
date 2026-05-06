@@ -1,19 +1,19 @@
-export const Tier = {
+export const Plan = {
   PLUS: 0,
   PRO: 1,
 } as const;
 
-export type Tier = (typeof Tier)[keyof typeof Tier];
+export type Plan = (typeof Plan)[keyof typeof Plan];
 
 export interface SubscriptionDTO {
   subscriptionId: number;
   guildId: string;
   billingId: number | null;
-  tier: Tier;
+  plan: Plan;
   expiresAt: string;
 }
 
 export interface RegisterSubscriptionDTO {
   billingId: number;
-  tier: Tier;
+  plan: Plan;
 }

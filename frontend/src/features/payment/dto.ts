@@ -1,4 +1,4 @@
-import type { Tier } from "@features/subscription/dto";
+import type { Plan } from "@features/subscription/dto";
 
 export interface PaymentDTO {
   paymentId: number;
@@ -6,5 +6,5 @@ export interface PaymentDTO {
   userId: string;
   orderId: string;
   paymentKey: string | null;
-  tier: Tier;
+  plan: Plan;
 }

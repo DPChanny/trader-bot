@@ -6,7 +6,7 @@ from enum import IntEnum
 from . import BaseDTO, BigInt
 
 
-class Tier(IntEnum):
+class Plan(IntEnum):
     PLUS = 0
     PRO = 1
 
@@ -15,10 +15,10 @@ class SubscriptionDTO(BaseDTO):
     subscription_id: int
     guild_id: BigInt
     billing_id: int | None
-    tier: Tier
+    plan: Plan
     expires_at: datetime
 
 
 class RegisterSubscriptionDTO(BaseDTO):
     billing_id: int
-    tier: Tier
+    plan: Plan

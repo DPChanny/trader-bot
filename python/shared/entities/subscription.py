@@ -22,7 +22,7 @@ class Subscription(BaseEntity):
     billing_id: Mapped[int | None] = mapped_column(
         ForeignKey("billing.billing_id", ondelete="SET NULL")
     )
-    tier: Mapped[int] = mapped_column(SmallInteger)
+    plan: Mapped[int] = mapped_column(SmallInteger)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     guild: Mapped[Guild] = relationship("Guild", viewonly=True)

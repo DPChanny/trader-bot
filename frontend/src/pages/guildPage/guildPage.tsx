@@ -1,9 +1,6 @@
 import { useParams, useNavigate } from "@tanstack/react-router";
 import { Page, Column, Fill, Row } from "@components/atoms/layout";
-import {
-  PrimarySection,
-  SecondarySection,
-} from "@components/surfaces/section";
+import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { NameTitle, Title, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
 import { EditButton } from "@components/atoms/button";
@@ -15,19 +12,19 @@ import { useGuild } from "@features/guild/hook";
 import { useSubscription } from "@features/subscription/hook";
 import { useBillings } from "@features/billing/hook";
 import { useVerifyRole } from "@features/member/hook";
-import { Tier } from "@features/subscription/dto";
+import { Plan } from "@features/subscription/dto";
 import { Role } from "@features/member/dto";
 import { BackendErrorCode } from "@utils/error";
 import { MemberEditor } from "./memberEditor/memberEditor";
 
-const TIER_LABEL: Record<Tier, string> = {
-  [Tier.PLUS]: "Plus",
-  [Tier.PRO]: "Pro",
+const PLAN_LABEL: Record<Plan, string> = {
+  [Plan.PLUS]: "Plus",
+  [Plan.PRO]: "Pro",
 };
 
-const TIER_COLOR: Record<Tier, "gold" | "blue"> = {
-  [Tier.PLUS]: "gold",
-  [Tier.PRO]: "blue",
+const PLAN_COLOR: Record<Plan, "gold" | "blue"> = {
+  [Plan.PLUS]: "gold",
+  [Plan.PRO]: "blue",
 };
 
 function formatDate(iso: string): string {
@@ -91,13 +88,13 @@ export function GuildPage() {
               ) : (
                 <Card
                   variantColor={
-                    isFree ? "gray" : TIER_COLOR[subscription!.tier]
+                    isFree ? "gray" : PLAN_COLOR[subscription!.plan]
                   }
                 >
                   <Row justify="between" align="center">
                     <Column gap="xs">
                       <Text variantWeight="semibold">
-                        {isFree ? "FREE" : TIER_LABEL[subscription!.tier]}
+                        {isFree ? "FREE" : PLAN_LABEL[subscription!.plan]}
                       </Text>
                       <Text variantSize="small">
                         만료일:{" "}

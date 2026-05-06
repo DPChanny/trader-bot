@@ -23,7 +23,7 @@ class Payment(BaseEntity):
     )
     order_id: Mapped[str] = mapped_column(String(64), unique=True)
     payment_key: Mapped[str | None] = mapped_column(Text)
-    tier: Mapped[int] = mapped_column(SmallInteger)
+    plan: Mapped[int] = mapped_column(SmallInteger)
 
     guild: Mapped[Guild | None] = relationship("Guild", viewonly=True)
     user: Mapped[User] = relationship("User", viewonly=True)

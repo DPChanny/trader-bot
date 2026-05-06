@@ -1,5 +1,5 @@
 from . import BaseDTO, BigInt
-from .subscription import Tier
+from .subscription import Plan
 
 
 class PaymentDTO(BaseDTO):
@@ -8,4 +8,4 @@ class PaymentDTO(BaseDTO):
     user_id: BigInt
     order_id: str
     payment_key: str | None
-    tier: Tier
+    plan: Plan
