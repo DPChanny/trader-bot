@@ -88,7 +88,7 @@ jobs:
               ("sudo -H -u ubuntu git -C " + $repo + " checkout --detach " + $ref),
               ("amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:" + $cw_agent + " -s"),
               ("amazon-cloudwatch-agent-ctl -a append-config -m ec2 -c file:" + $cw_bot),
-              "systemctl enable --now amazon-cloudwatch-agent",
+              "systemctl restart amazon-cloudwatch-agent",
               "systemctl is-active --quiet amazon-cloudwatch-agent",
               "systemctl enable pm2-ubuntu",
               "systemctl is-enabled --quiet pm2-ubuntu"
