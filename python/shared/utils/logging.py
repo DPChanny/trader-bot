@@ -6,7 +6,7 @@ from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC
-from enum import StrEnum
+from enum import IntEnum, StrEnum
 from pathlib import Path
 from time import perf_counter
 from typing import Any
@@ -61,6 +61,9 @@ def _redact(value: LogValue, keys: list = _REDACT_KEYS) -> Any:
     if isinstance(value, tuple):
         result = tuple(_redact(item, keys=keys) for item in value[:3])
         return (*result, "[TRUNCATED]") if len(value) > 3 else result
+
+    if isinstance(value, IntEnum):
+        return value.name
 
     return value
 
