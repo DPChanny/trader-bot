@@ -98,7 +98,7 @@ export function SubscriptionPage() {
   const handleAddBilling = () => {
     if (!user) return;
     void requestBillingAuth({
-      customerKey: user.discordId,
+      customerKey: `u-${user.discordId}`,
       redirectPath: `/guild/${guildId}/subscription`,
     });
   };

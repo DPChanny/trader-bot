@@ -68,7 +68,7 @@ export function MePage() {
   const handleAddBilling = () => {
     if (!user) return;
     void requestBillingAuth({
-      customerKey: user.discordId,
+      customerKey: `u-${user.discordId}`,
       redirectPath: "/me",
     });
   };

@@ -37,6 +37,17 @@ export function useBillingCallback() {
       return;
     }
 
+    // v2: Toss redirects to failUrl with ?code=...&message=... on failure/cancel
+    const code = params.get("code");
+    if (code !== null) {
+      if (code === "PAY_PROCESS_CANCELED") {
+        void navigate({ to: redirect, replace: true });
+      } else {
+        setError(new AppError(FrontendErrorCode.Unexpected.External));
+      }
+      return;
+    }
+
     if (!authKey) {
       setError(new AppError(FrontendErrorCode.Unexpected.External));
       return;

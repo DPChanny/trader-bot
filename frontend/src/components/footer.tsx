@@ -26,15 +26,19 @@ export function Footer() {
       </Row>
       <Column gap="xs">
         <Text variantSize="small" tone="accent">
-          상호명: 디피씨 스튜디오 (DPC Studio) · 대표자: 박경찬 · 고객센터: 공식
-          Discord 서버
+          {
+            "상호명: 디피씨 스튜디오 (DPC Studio) · 대표자: 박경찬 · 고객센터: 공식 Discord 서버"
+          }
         </Text>
         <Text variantSize="small" tone="accent">
-          사업자등록번호: 501-46-92980 · 통신판매업 신고번호:
+          {
+            "사업자등록번호: 501-46-92980 · 통신판매업 신고번호: 제 2026-서울강남-02599 호"
+          }
         </Text>
         <Text variantSize="small" tone="accent">
-          주소: 서울특별시 강남구 논현로 213, 104동 202호(도곡동,
-          역삼력키아파트)
+          {
+            "주소: 서울특별시 강남구 논현로 213, 104동 202호(도곡동, 역삼력키아파트)"
+          }
         </Text>
       </Column>
     </PrimarySection>

@@ -52,9 +52,23 @@ export async function requestBillingAuth({
 
   const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
   const payment = tossPayments.payment({ customerKey });
-  await payment.requestBillingAuth({
-    method: "CARD",
-    successUrl: callbackUrl,
-    failUrl: callbackUrl,
-  });
+  try {
+    await payment.requestBillingAuth({
+      method: "CARD",
+      successUrl: callbackUrl,
+      failUrl: callbackUrl,
+    });
+  } catch (e: unknown) {
+    if (
+      e != null &&
+      typeof e === "object" &&
+      (("code" in e && e.code === "PAY_PROCESS_CANCELED") ||
+        ("message" in e &&
+          typeof e.message === "string" &&
+          e.message.includes("취소")))
+    ) {
+      return;
+    }
+    throw e;
+  }
 }

@@ -59,7 +59,7 @@ class SubscriptionManager:
                     amount = _PLAN_AMOUNT[plan]
                     order_name = _PLAN_ORDER_NAME[plan]
                     order_id = uuid.uuid4().hex
-                    customer_key = str(billing.user_id)
+                    customer_key = f"u-{billing.user_id}"
 
                     try:
                         payment_key, amount = await charge_billing_key(

@@ -20,7 +20,7 @@ async def get_billings_service(user_id: int, session: AsyncSession) -> list[Bill
 async def register_billing_service(
     user_id: int, auth_key: str, session: AsyncSession
 ) -> BillingDTO:
-    customer_key = str(user_id)
+    customer_key = f"u-{user_id}"
     billing_key, name = await issue_billing_key(auth_key, customer_key)
 
     billing = Billing(user_id=user_id, billing_key=billing_key, name=name)

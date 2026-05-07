@@ -55,6 +55,7 @@ jobs:
           DEPLOY_MAP: ${{ vars.DEPLOY_MAP }}
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           GUILD_INVITE_URL: ${{ vars.GUILD_INVITE_URL }}
+          TOSS_CLIENT_KEY: ${{ vars.TOSS_CLIENT_KEY }}
         run: |
           set -euo pipefail
 
@@ -98,7 +99,7 @@ jobs:
           fi
 
           MISSING_VARS=""
-          for VAR in DISCORD_CLIENT_ID GUILD_INVITE_URL; do
+          for VAR in DISCORD_CLIENT_ID GUILD_INVITE_URL TOSS_CLIENT_KEY; do
             if [ -z "${!VAR}" ]; then
               if [ -z "$MISSING_VARS" ]; then
                 MISSING_VARS="$VAR"
@@ -121,6 +122,7 @@ jobs:
             echo "VITE_API_ORIGIN=https://${DOMAIN}"
             echo "VITE_DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID"
             echo "VITE_GUILD_INVITE_URL=$GUILD_INVITE_URL"
+            echo "VITE_TOSS_CLIENT_KEY=$TOSS_CLIENT_KEY"
             echo "S3_BUCKET_NAME=$S3_BUCKET_NAME"
             echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID"
           } >> "$GITHUB_OUTPUT"
@@ -132,6 +134,7 @@ jobs:
           VITE_API_ORIGIN: ${{ steps.prepare.outputs.VITE_API_ORIGIN }}
           VITE_DISCORD_CLIENT_ID: ${{ steps.prepare.outputs.VITE_DISCORD_CLIENT_ID }}
           VITE_GUILD_INVITE_URL: ${{ steps.prepare.outputs.VITE_GUILD_INVITE_URL }}
+          VITE_TOSS_CLIENT_KEY: ${{ steps.prepare.outputs.VITE_TOSS_CLIENT_KEY }}
           S3_BUCKET_NAME: ${{ steps.prepare.outputs.S3_BUCKET_NAME }}
           CLOUDFRONT_DISTRIBUTION_ID: ${{ steps.prepare.outputs.CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
