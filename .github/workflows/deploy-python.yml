@@ -37,6 +37,7 @@ jobs:
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          TOSS_SECRET: ${{ secrets.TOSS_SECRET }}
         run: |
           set -euo pipefail
 
