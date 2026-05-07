@@ -187,6 +187,17 @@ export function useAuction(): {
         break;
       }
 
+      case AuctionServerEventType.EXPIRED: {
+        setAuction((prev) =>
+          prev
+            ? { ...prev, status: Status.COMPLETED, playerId: null, bid: null }
+            : null,
+        );
+        setTimer(0);
+        wsRef.current?.close();
+        break;
+      }
+
       default:
         break;
     }

@@ -13,9 +13,12 @@ import { Card } from "@components/surfaces/card";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
 import { Modal, ModalFooter } from "@components/modal";
-import { useBillings, useDeleteBilling } from "@features/billing/hook";
+import {
+  useBillings,
+  useDeleteBilling,
+  useRequestBillingAuth,
+} from "@features/billing/hook";
 import { useMyPayments, useDeleteMyUser, useMyUser } from "@features/user/hook";
-import { requestBillingAuth } from "@features/billing/api";
 import { removeJWTToken } from "@features/auth/token";
 import { Plan } from "@features/subscription/dto";
 import type { BillingDTO } from "@features/billing/dto";
@@ -65,12 +68,11 @@ export function MePage() {
 
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
+  const addBilling = useRequestBillingAuth();
+
   const handleAddBilling = () => {
     if (!user) return;
-    void requestBillingAuth({
-      customerKey: `u-${user.discordId}`,
-      redirectPath: "/me",
-    });
+    void addBilling({ customerKey: `u-${user.discordId}` });
   };
 
   const handleWithdraw = () => {

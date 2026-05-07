@@ -2,7 +2,6 @@ import random
 from typing import Any
 
 from shared.dtos.auction import (
-    AUCTION_LIFETIME,
     AuctionDetailDTO,
     AuctionPublishEnvelopeDTO,
     AuctionPublishType,
@@ -60,15 +59,15 @@ class AuctionRepository(BaseAuctionRepository):
                     "preset_snapshot": preset_snapshot.model_dump_json(),
                 },
             )
-            pipe.expire(self._key(), AUCTION_LIFETIME)
+            pipe.expire(self._key(), 3600)
             for team in teams:
                 pipe.hset(
                     self._key("teams"), str(team.leader_id), team.model_dump_json()
                 )
-            pipe.expire(self._key("teams"), AUCTION_LIFETIME)
+            pipe.expire(self._key("teams"), 3600)
             if auction_queue:
                 pipe.rpush(self._key("auction_queue"), *auction_queue)
-                pipe.expire(self._key("auction_queue"), AUCTION_LIFETIME)
+                pipe.expire(self._key("auction_queue"), 3600)
             pipe.delete(self._key("unsold_queue"))
             pipe.delete(self._key("bid"))
             await pipe.execute()
@@ -82,6 +81,12 @@ class AuctionRepository(BaseAuctionRepository):
             pipe.hset(self._key(), "status", int(status))
             pipe.publish(self._key("event"), event)
             await pipe.execute()
+
+    async def publish_expired(self) -> None:
+        event = AuctionPublishEnvelopeDTO(
+            type=AuctionPublishType.EXPIRED, payload=None
+        ).model_dump_json()
+        await get_redis().publish(self._key("event"), event)
 
     async def publish_leader_connected(self, leader_id: int) -> int:
         return int(

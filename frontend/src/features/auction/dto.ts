@@ -46,6 +46,7 @@ export enum AuctionServerEventType {
   LEADER_CONNECTED = 7,
   LEADER_DISCONNECTED = 8,
   NEXT_PLAYER = 9,
+  EXPIRED = 10,
 }
 
 export interface AuctionClientEventEnvelopeDTO<TPayload = unknown> {

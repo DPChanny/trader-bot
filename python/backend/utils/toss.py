@@ -32,7 +32,7 @@ async def issue_billing_key(auth_key: str, customer_key: str) -> tuple[str, str]
         card = data.get("card") or {}
         card_type = card.get("cardType") or ""
         number = card.get("number") or ""
-        name = f"{card_type} ({number})".strip() if number else card_type
+        name = f"{card_type} {number}".strip() if number else card_type
         return billing_key, name
 
 

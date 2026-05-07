@@ -16,8 +16,7 @@ import {
   useRegisterSubscription,
   useCancelSubscription,
 } from "@features/subscription/hook";
-import { useBillings } from "@features/billing/hook";
-import { requestBillingAuth } from "@features/billing/api";
+import { useBillings, useRequestBillingAuth } from "@features/billing/hook";
 import { useMyUser } from "@features/user/hook";
 import { Plan } from "@features/subscription/dto";
 import { BackendErrorCode } from "@utils/error";
@@ -77,6 +76,7 @@ export function SubscriptionPage() {
     useRegisterSubscription();
   const { mutate: cancelSubscription, isPending: isCancelling } =
     useCancelSubscription();
+  const addBilling = useRequestBillingAuth();
 
   const [selectedBillingId, setSelectedBillingId] = useState<number | null>(
     null,
@@ -97,10 +97,7 @@ export function SubscriptionPage() {
 
   const handleAddBilling = () => {
     if (!user) return;
-    void requestBillingAuth({
-      customerKey: `u-${user.discordId}`,
-      redirectPath: `/guild/${guildId}/subscription`,
-    });
+    void addBilling({ customerKey: `u-${user.discordId}` });
   };
 
   const handleSubscribe = () => {

@@ -32,8 +32,6 @@ class AuctionManager:
         if cls._listener_task:
             cls._listener_task.cancel()
             await cls._listener_task
-        for auction in cls._auctions.values():
-            auction.stop()
         cls._auctions.clear()
         if cls._pubsub:
             await cls._pubsub.close()

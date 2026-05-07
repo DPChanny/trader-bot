@@ -7,9 +7,6 @@ from . import BaseDTO, BigInt
 from .preset import PresetDetailDTO
 
 
-AUCTION_LIFETIME = 3600
-
-
 class Status(IntEnum):
     WAITING = 0
     PENDING = 1
@@ -31,6 +28,7 @@ class AuctionPublishType(IntEnum):
     LEADER_CONNECTED = 7
     LEADER_DISCONNECTED = 8
     NEXT_PLAYER = 9
+    EXPIRED = 10
 
 
 class AuctionServerEventType(IntEnum):
@@ -44,6 +42,7 @@ class AuctionServerEventType(IntEnum):
     LEADER_CONNECTED = 7
     LEADER_DISCONNECTED = 8
     NEXT_PLAYER = 9
+    EXPIRED = 10
 
 
 class AuctionRequestType(IntEnum):

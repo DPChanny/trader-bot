@@ -119,15 +119,12 @@ class Auction:
                 status_payload = StatusEventPayloadDTO.model_validate(envelope.payload)
                 if status_payload.status == Status.COMPLETED:
                     await self.broadcast(envelope)
-                    self.stop()
                     return True
+            case AuctionPublishType.EXPIRED:
+                await self.broadcast(envelope)
+                return True
         await self.broadcast(envelope)
         return False
-
-    def stop(self) -> None:
-        self._ws_set.clear()
-        self._ws_to_leader_id.clear()
-        self._leader_id_to_ws.clear()
 
     async def broadcast(self, envelope: AuctionPublishEnvelopeDTO) -> None:
         if not self._ws_set:

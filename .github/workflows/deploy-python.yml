@@ -87,7 +87,7 @@ jobs:
           REDIS_HOST=$(printf '%s' "$DEPLOY_MAP" | jq -r --arg phase "$PHASE" '.[$phase].redis_host')
 
           MISSING_VARS=""
-          for VAR in DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET JWT_SECRET; do
+          for VAR in DISCORD_BOT_TOKEN DISCORD_CLIENT_ID DISCORD_CLIENT_SECRET JWT_SECRET TOSS_SECRET; do
             if [ -z "${!VAR}" ]; then
               if [ -z "$MISSING_VARS" ]; then
                 MISSING_VARS="$VAR"
@@ -133,6 +133,7 @@ jobs:
           DISCORD_CLIENT_ID: ${{ vars.DISCORD_CLIENT_ID }}
           DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          TOSS_SECRET: ${{ secrets.TOSS_SECRET }}
         run: |
           set -euo pipefail
           PHASE="${{ needs.prepare.outputs.phase }}"
@@ -155,6 +156,7 @@ jobs:
             "APP_ORIGIN=$APP_ORIGIN" \
             "API_ORIGIN=$API_ORIGIN" \
             "JWT_SECRET=$JWT_SECRET" \
+            "TOSS_SECRET=$TOSS_SECRET" \
             "DB_HOST=$DB_HOST" \
             "DB_REGION=$DB_REGION" \
             "REDIS_HOST=$REDIS_HOST")"

@@ -5,18 +5,17 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import type { BillingDTO } from "@features/billing/dto";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import { queryKeys } from "@utils/query";
-import { getBillings, registerBilling, deleteBilling } from "./api";
-
-function isRedirectPath(path: string | null): path is string {
-  return (
-    typeof path === "string" && path.startsWith("/") && !path.startsWith("//")
-  );
-}
+import {
+  getBillings,
+  registerBilling,
+  deleteBilling,
+  requestBillingAuth,
+} from "./api";
 
 export function useBillingCallback() {
   const queryClient = useQueryClient();
@@ -30,20 +29,22 @@ export function useBillingCallback() {
 
     const params = new URLSearchParams(window.location.search);
     const authKey = params.get("authKey");
-    const redirect = params.get("redirect");
-
-    if (!isRedirectPath(redirect)) {
-      setError(new AppError(FrontendErrorCode.Unexpected.External));
-      return;
-    }
+    const opener = window.opener as Window | null;
 
     // v2: Toss redirects to failUrl with ?code=...&message=... on failure/cancel
     const code = params.get("code");
     if (code !== null) {
-      if (code === "PAY_PROCESS_CANCELED") {
-        void navigate({ to: redirect, replace: true });
+      if (opener) {
+        const type =
+          code === "PAY_PROCESS_CANCELED"
+            ? "BILLING_AUTH_CANCELED"
+            : "BILLING_AUTH_ERROR";
+        opener.postMessage({ type }, window.location.origin);
+        window.close();
       } else {
-        setError(new AppError(FrontendErrorCode.Unexpected.External));
+        const redirect = sessionStorage.getItem("billingAuthRedirect") ?? "/me";
+        sessionStorage.removeItem("billingAuthRedirect");
+        void navigate({ to: redirect, replace: true });
       }
       return;
     }
@@ -55,21 +56,59 @@ export function useBillingCallback() {
 
     registerBilling({ authKey })
       .then((data) => {
-        queryClient.setQueryData<BillingDTO[]>(queryKeys.billings(), (old) =>
-          old ? [...old, data] : [data],
-        );
-        void navigate({ to: redirect, replace: true });
+        if (opener) {
+          opener.postMessage(
+            { type: "BILLING_AUTH_SUCCESS", billing: data },
+            window.location.origin,
+          );
+          window.close();
+        } else {
+          queryClient.setQueryData<BillingDTO[]>(queryKeys.billings(), (old) =>
+            old ? [...old, data] : [data],
+          );
+          const redirect =
+            sessionStorage.getItem("billingAuthRedirect") ?? "/me";
+          sessionStorage.removeItem("billingAuthRedirect");
+          void navigate({ to: redirect, replace: true });
+        }
       })
       .catch((e: unknown) => {
-        setError(
-          e instanceof AppError
-            ? e
-            : new AppError(FrontendErrorCode.Unexpected.External),
-        );
+        if (opener) {
+          opener.postMessage(
+            { type: "BILLING_AUTH_ERROR" },
+            window.location.origin,
+          );
+          window.close();
+        } else {
+          setError(
+            e instanceof AppError
+              ? e
+              : new AppError(FrontendErrorCode.Unexpected.External),
+          );
+        }
       });
   }, []);
 
   return { error };
+}
+
+export function useRequestBillingAuth() {
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    async ({ customerKey }: { customerKey: string }) => {
+      try {
+        const billing = await requestBillingAuth({ customerKey });
+        queryClient.setQueryData<BillingDTO[]>(queryKeys.billings(), (old) =>
+          old ? [...old, billing] : [billing],
+        );
+      } catch (e) {
+        if (e === null) return; // silently cancelled
+        throw e;
+      }
+    },
+    [queryClient],
+  );
 }
 
 export function useBillings(): UseQueryResult<BillingDTO[], AppError> {

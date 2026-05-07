@@ -53,12 +53,8 @@ class Auction:
                     )
 
             except TimeoutError:
-                await self._repo.publish_status(Status.COMPLETED)
-                log_publish(
-                    AuctionPublishType.STATUS,
-                    result={"status": Status.COMPLETED},
-                    level="WARNING",
-                )
+                await self._repo.publish_expired()
+                log_publish(AuctionPublishType.EXPIRED, level="WARNING")
             except asyncio.CancelledError:
                 pass
             except Exception as e:
