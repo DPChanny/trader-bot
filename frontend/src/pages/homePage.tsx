@@ -54,9 +54,9 @@ export function HomePage() {
 
   return (
     <Page>
-      <Column align="center" fill>
-        <PrimarySection width="page" minSize>
-          <Scroll>
+      <Scroll>
+        <Column align="center" style={{ minHeight: "100%" }}>
+          <PrimarySection width="page" style={{ flex: 1 }}>
             <SecondarySection>
               <img src="/banner.png" alt="Trader Bot" />
             </SecondarySection>
@@ -120,10 +120,10 @@ export function HomePage() {
                 ))}
               </Row>
             </SecondarySection>
-          </Scroll>
-        </PrimarySection>
-        <Footer />
-      </Column>
+          </PrimarySection>
+          <Footer />
+        </Column>
+      </Scroll>
     </Page>
   );
 }

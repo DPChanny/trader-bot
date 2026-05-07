@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "@tanstack/react-router";
-import { Page, Column, Fill, Row } from "@components/atoms/layout";
-import { PrimarySection, SecondarySection } from "@components/surfaces/section";
+import { Page, Column, Row, Fill, Scroll } from "@components/atoms/layout";
+import {
+  PrimarySection,
+  SecondarySection,
+  TertiarySection,
+} from "@components/surfaces/section";
 import { Title, Text } from "@components/atoms/text";
 import { Button, PrimaryButton } from "@components/atoms/button";
 import { Card } from "@components/surfaces/card";
@@ -145,79 +149,85 @@ export function SubscriptionPage() {
 
   return (
     <Page>
-      <Column align="center" fill>
-        <PrimarySection width="page" fill overflow="hidden">
-          <SecondarySection gap="sm">
-            <Title>구독 플랜</Title>
-            <Row gap="sm">
-              <Fill>
-                <Button
-                  variantTone="ghost"
-                  isPressed={selectedPlan === null}
-                  onClick={() => setSelectedPlan(null)}
-                >
-                  <Card fill center variantColor="blue">
-                    <Text variantWeight="semibold">FREE</Text>
-                    <Text variantSize="small">₩0/월</Text>
-                  </Card>
-                </Button>
-              </Fill>
-              {([Plan.PLUS, Plan.PRO] as Plan[]).map((plan) => (
-                <Fill key={plan}>
+      <Scroll>
+        <Column align="center" style={{ minHeight: "100%" }}>
+          <PrimarySection width="page" style={{ flex: 1 }}>
+            <SecondarySection gap="sm">
+              <Title>구독 플랜</Title>
+              <Row gap="sm">
+                <Fill>
                   <Button
                     variantTone="ghost"
-                    isPressed={selectedPlan === plan}
-                    onClick={() => setSelectedPlan(plan)}
+                    isPressed={selectedPlan === null}
+                    onClick={() => setSelectedPlan(null)}
                   >
-                    <Card fill center variantColor={PLAN_COLOR[plan]}>
-                      <Text variantWeight="semibold">
-                        {PLAN_DETAIL[plan].label}
-                      </Text>
-                      <Text variantSize="small">{PLAN_DETAIL[plan].price}</Text>
+                    <Card fill center variantColor="blue">
+                      <Text variantWeight="semibold">FREE</Text>
+                      <Text variantSize="small">₩0/월</Text>
                     </Card>
                   </Button>
                 </Fill>
-              ))}
-            </Row>
-          </SecondarySection>
-
-          <SecondarySection gap="sm">
-            <Card variantColor={detail.color}>
-              <Column gap="md">
-                <Row justify="between" align="center">
-                  <Title>{detail.label}</Title>
-                  <Text variantWeight="semibold">{detail.price}</Text>
-                </Row>
-                <Text>{detail.description}</Text>
-                <Column gap="xs">
-                  {detail.features.map((f) => (
-                    <Text key={f}>• {f}</Text>
-                  ))}
-                </Column>
-              </Column>
-            </Card>
-          </SecondarySection>
-
-          {selectedPlan !== null ? (
-            <SecondarySection fill overflow="hidden" gap="sm">
-              <Row justify="between" align="center">
-                <Title>결제 수단</Title>
-                <PrimaryButton
-                  variantSize="small"
-                  onClick={handleAddBilling}
-                  disabled={!user}
-                >
-                  추가
-                </PrimaryButton>
+                {([Plan.PLUS, Plan.PRO] as Plan[]).map((plan) => (
+                  <Fill key={plan}>
+                    <Button
+                      variantTone="ghost"
+                      isPressed={selectedPlan === plan}
+                      onClick={() => setSelectedPlan(plan)}
+                    >
+                      <Card fill center variantColor={PLAN_COLOR[plan]}>
+                        <Text variantWeight="semibold">
+                          {PLAN_DETAIL[plan].label}
+                        </Text>
+                        <Text variantSize="small">
+                          {PLAN_DETAIL[plan].price}
+                        </Text>
+                      </Card>
+                    </Button>
+                  </Fill>
+                ))}
               </Row>
-              {billingsLoading ? (
-                <Fill center>
-                  <Loading />
-                </Fill>
-              ) : (
-                <Fill overflow="auto">
+            </SecondarySection>
+
+            <SecondarySection gap="sm">
+              <Card variantColor={detail.color}>
+                <Column gap="md">
+                  <Row justify="between" align="center">
+                    <Title>{detail.label}</Title>
+                    <Text variantWeight="semibold">{detail.price}</Text>
+                  </Row>
+                  <Text>{detail.description}</Text>
                   <Column gap="xs">
-                    {billings?.map((b) => (
+                    {detail.features.map((f) => (
+                      <Text key={f}>• {f}</Text>
+                    ))}
+                  </Column>
+                </Column>
+              </Card>
+            </SecondarySection>
+
+            {selectedPlan !== null ? (
+              <SecondarySection fill gap="sm">
+                <Row justify="between" align="center">
+                  <Title>결제 수단</Title>
+                  <PrimaryButton
+                    variantSize="small"
+                    onClick={handleAddBilling}
+                    disabled={!user}
+                  >
+                    추가
+                  </PrimaryButton>
+                </Row>
+                {billingsLoading ? (
+                  <TertiarySection fill center>
+                    <Loading />
+                  </TertiarySection>
+                ) : !billings?.length ? (
+                  <TertiarySection fill center>
+                    <Text>등록된 결제 수단이 없습니다.</Text>
+                  </TertiarySection>
+                ) : (
+                  <TertiarySection fill gap="xs">
+                    {billings.map((b) => (
                       <Card
                         key={b.billingId}
                         direction="row"
@@ -231,34 +241,32 @@ export function SubscriptionPage() {
                         <Text>{b.name || "카드"}</Text>
                       </Card>
                     ))}
-                  </Column>
-                </Fill>
-              )}
-            </SecondarySection>
-          ) : (
-            <Fill />
-          )}
+                  </TertiarySection>
+                )}
+              </SecondarySection>
+            ) : null}
 
-          <SecondarySection gap="xs">
-            {selectedPlan !== null && (
-              <Text variantSize="small" tone="accent">
-                연결된 결제 수단으로 매월 자동 청구됩니다. 결제 수단 삭제를 통해
-                언제든지 자동결제를 중단할 수 있습니다.
-              </Text>
-            )}
-            <Fill>
-              <PrimaryButton
-                variantSize="large"
-                onClick={handleSubscribe}
-                disabled={buttonDisabled}
-              >
-                구독
-              </PrimaryButton>
-            </Fill>
-          </SecondarySection>
-        </PrimarySection>
-        <Footer />
-      </Column>
+            <SecondarySection gap="xs">
+              {selectedPlan !== null && (
+                <Text variantSize="small" tone="accent">
+                  연결된 결제 수단으로 매월 자동 청구됩니다. 결제 수단 삭제를
+                  통해 언제든지 자동결제를 중단할 수 있습니다.
+                </Text>
+              )}
+              <Fill>
+                <PrimaryButton
+                  variantSize="large"
+                  onClick={handleSubscribe}
+                  disabled={buttonDisabled}
+                >
+                  구독
+                </PrimaryButton>
+              </Fill>
+            </SecondarySection>
+          </PrimarySection>
+          <Footer />
+        </Column>
+      </Scroll>
     </Page>
   );
 }

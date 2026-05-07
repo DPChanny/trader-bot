@@ -1,5 +1,4 @@
 import { InternalLink } from "@components/atoms/link";
-import { Scroll } from "@components/atoms/layout";
 import { Text } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
 import { TertiarySection } from "@components/surfaces/section";
@@ -10,21 +9,31 @@ export function AnnouncementList() {
   const manifest = useManifest();
   const announcements = manifest.data?.announcements ?? [];
 
-  return (
-    <TertiarySection fill>
-      {manifest.isLoading ? (
+  if (manifest.isLoading) {
+    return (
+      <TertiarySection center>
         <Loading />
-      ) : (
-        <Scroll axis="y">
-          {announcements.map((ann) => (
-            <InternalLink key={ann.id} to="/announcement" search={{ id: ann.id }}>
-              <Card>
-                <Text>{ann.title}</Text>
-              </Card>
-            </InternalLink>
-          ))}
-        </Scroll>
-      )}
+      </TertiarySection>
+    );
+  }
+
+  if (announcements.length === 0) {
+    return (
+      <TertiarySection center>
+        <Text>공지가 없습니다.</Text>
+      </TertiarySection>
+    );
+  }
+
+  return (
+    <TertiarySection>
+      {announcements.map((ann) => (
+        <InternalLink key={ann.id} to="/announcement" search={{ id: ann.id }}>
+          <Card>
+            <Text>{ann.title}</Text>
+          </Card>
+        </InternalLink>
+      ))}
     </TertiarySection>
   );
 }

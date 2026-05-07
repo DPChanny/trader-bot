@@ -14,17 +14,17 @@ export function MarkedPage({ path }: MarkedPageProps) {
 
   return (
     <Page>
-      <Column align="center" fill>
-        <PrimarySection width="page" minSize fill>
-          <Scroll>
+      <Scroll>
+        <Column align="center" style={{ minHeight: "100%" }}>
+          <PrimarySection width="page" style={{ flex: 1 }}>
             <div
               className={styles.markedContent}
               dangerouslySetInnerHTML={{ __html: html }}
             />
-          </Scroll>
-        </PrimarySection>
-        <Footer />
-      </Column>
+          </PrimarySection>
+          <Footer />
+        </Column>
+      </Scroll>
     </Page>
   );
 }

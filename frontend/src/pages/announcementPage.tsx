@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { Column, Page } from "@components/atoms/layout";
+import { Page, Scroll, Column } from "@components/atoms/layout";
 import { Title } from "@components/atoms/text";
 import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { Footer } from "@components/footer";
@@ -47,15 +47,17 @@ export function AnnouncementPage() {
 
   return (
     <Page>
-      <Column align="center" fill>
-        <PrimarySection width="page" fill>
-          <SecondarySection fill>
-            <Title>공지</Title>
-            <AnnouncementList />
-          </SecondarySection>
-        </PrimarySection>
-        <Footer />
-      </Column>
+      <Scroll>
+        <Column align="center" style={{ minHeight: "100%" }}>
+          <PrimarySection width="page" style={{ flex: 1 }}>
+            <SecondarySection>
+              <Title>공지</Title>
+              <AnnouncementList />
+            </SecondarySection>
+          </PrimarySection>
+          <Footer />
+        </Column>
+      </Scroll>
     </Page>
   );
 }

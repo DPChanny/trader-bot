@@ -97,10 +97,7 @@ export function MePage() {
                 추가
               </PrimaryButton>
             </Row>
-            <Text variantSize="small" tone="accent">
-              결제 수단을 등록하면 자동결제에 동의한 것으로 간주됩니다. 수단
-              삭제 시 해당 수단에 연결된 구독의 자동결제가 중단됩니다.
-            </Text>
+
             {billingsLoading ? (
               <TertiarySection fill>
                 <Loading />
@@ -111,10 +108,14 @@ export function MePage() {
                   결제 수단을 불러오지 못했습니다
                 </Error>
               </TertiarySection>
+            ) : !billings?.length ? (
+              <TertiarySection fill center>
+                <Text>등록된 결제 수단이 없습니다.</Text>
+              </TertiarySection>
             ) : (
               <TertiarySection fill>
                 <Column gap="sm">
-                  {billings?.map((b) => (
+                  {billings.map((b) => (
                     <BillingCard
                       key={b.billingId}
                       billing={b}
@@ -125,6 +126,10 @@ export function MePage() {
                 </Column>
               </TertiarySection>
             )}
+            <Text tone="accent">
+              결제 수단을 등록하면 자동결제에 동의한 것으로 간주됩니다. 수단
+              삭제 시 해당 수단에 연결된 구독의 자동결제가 중단됩니다.
+            </Text>
           </SecondarySection>
 
           <SecondarySection fill gap="md">
@@ -133,10 +138,14 @@ export function MePage() {
               <TertiarySection fill>
                 <Loading />
               </TertiarySection>
+            ) : !(payments ?? []).length ? (
+              <TertiarySection fill center>
+                <Text>결제 내역이 없습니다.</Text>
+              </TertiarySection>
             ) : (
               <TertiarySection fill>
                 <Column gap="sm">
-                  {[...(payments ?? [])].reverse().map((p) => (
+                  {[...payments!].reverse().map((p) => (
                     <Card
                       key={p.paymentId}
                       direction="row"

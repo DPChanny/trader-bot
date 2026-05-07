@@ -2,7 +2,7 @@ import { MarkedPage } from "./markedPage";
 import { useEffect } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { InternalLink } from "@components/atoms/link";
-import { Column, Fill, Page, Scroll } from "@components/atoms/layout";
+import { Column, Page, Scroll } from "@components/atoms/layout";
 import { Text, Title } from "@components/atoms/text";
 import { Card } from "@components/surfaces/card";
 import {
@@ -15,13 +15,10 @@ import { useManifest } from "@hooks/public";
 
 import { PHASE } from "@utils/env";
 
-
 export function PatchPage() {
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) as Record<string, string>;
-  const versionParam = search.version
-      ?.replace(/^\/+|\/+$/g, "")
-      .trim() ?? "";
+  const versionParam = search.version?.replace(/^\/+|\/+$/g, "").trim() ?? "";
   const version = versionParam;
 
   const manifest = useManifest();
@@ -40,7 +37,7 @@ export function PatchPage() {
     }
 
     if (isInvalidVersion) {
-      navigate({ to: '/patch', replace: true });
+      navigate({ to: "/patch", replace: true });
       return;
     }
 
@@ -52,7 +49,7 @@ export function PatchPage() {
       !noteVersionSet.has(normalizedVersion) &&
       !planVersionSet.has(normalizedVersion)
     ) {
-      navigate({ to: '/patch', replace: true });
+      navigate({ to: "/patch", replace: true });
     }
   }, [
     isInvalidVersion,
@@ -94,15 +91,17 @@ export function PatchPage() {
 
   return (
     <Page>
-      <Column align="center" fill>
-        <PrimarySection width="page" fill>
-          {sections.map(({ title, versions }) => (
-            <Fill key={title}>
-              <SecondarySection fill>
+      <Scroll>
+        <Column align="center" style={{ minHeight: "100%" }}>
+          <PrimarySection width="page" style={{ flex: 1 }}>
+            {sections.map(({ title, versions }) => (
+              <SecondarySection key={title}>
                 <Title>{title}</Title>
-                <TertiarySection fill>
-                  <Scroll axis="y">
-                    {versions.map((item) => (
+                <TertiarySection>
+                  {versions.length === 0 ? (
+                    <Text>항목이 없습니다.</Text>
+                  ) : (
+                    versions.map((item) => (
                       <InternalLink
                         key={item.version}
                         to="/patch"
@@ -112,15 +111,15 @@ export function PatchPage() {
                           <Text>{item.version}</Text>
                         </Card>
                       </InternalLink>
-                    ))}
-                  </Scroll>
+                    ))
+                  )}
                 </TertiarySection>
               </SecondarySection>
-            </Fill>
-          ))}
-        </PrimarySection>
-        <Footer />
-      </Column>
+            ))}
+          </PrimarySection>
+          <Footer />
+        </Column>
+      </Scroll>
     </Page>
   );
 }
