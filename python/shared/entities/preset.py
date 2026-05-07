@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import BigInteger, ForeignKey, SmallInteger, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from . import BaseEntity
+from . import Base
 
 
 if TYPE_CHECKING:
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from .tier import Tier
 
 
-class Preset(BaseEntity):
+class Preset(Base):
     __tablename__ = "preset"
 
     preset_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

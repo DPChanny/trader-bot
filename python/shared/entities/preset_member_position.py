@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from . import BaseEntity
+from . import Base
 
 
 if TYPE_CHECKING:
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from .preset_member import PresetMember
 
 
-class PresetMemberPosition(BaseEntity):
+class PresetMemberPosition(Base):
     __tablename__ = "preset_member_position"
     __table_args__ = (
         UniqueConstraint(

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import BigInteger, DateTime, ForeignKey, SmallInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from . import BaseEntity
+from . import Base
 
 
 if TYPE_CHECKING:
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from .guild import Guild
 
 
-class Subscription(BaseEntity):
+class Subscription(Base):
     __tablename__ = "subscription"
 
     subscription_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

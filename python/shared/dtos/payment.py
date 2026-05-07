@@ -9,3 +9,4 @@ class PaymentDTO(BaseDTO):
     order_id: str
     payment_key: str | None
     plan: Plan
+    amount: int

@@ -5,7 +5,7 @@ from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import Role
-from shared.dtos.subscription import RegisterSubscriptionDTO, SubscriptionDTO, Plan
+from shared.dtos.subscription import Plan, RegisterSubscriptionDTO, SubscriptionDTO
 from shared.entities import Payment, Subscription
 from shared.repositories.billing_repository import BillingRepository
 from shared.repositories.subscription_repository import SubscriptionRepository
@@ -53,7 +53,7 @@ async def register_subscription_service(
             amount = round(
                 (_PLAN_AMOUNT[dto.plan] - _PLAN_AMOUNT[current_plan]) * ratio
             )
-            payment_key = await charge_billing_key(
+            payment_key, amount = await charge_billing_key(
                 billing.billing_key,
                 str(user_id),
                 order_id,
@@ -78,12 +78,13 @@ async def register_subscription_service(
                     order_id=order_id,
                     payment_key=payment_key,
                     plan=int(dto.plan),
+                    amount=amount,
                 )
             )
     else:
         order_id = uuid.uuid4().hex
         amount = _PLAN_AMOUNT[dto.plan]
-        payment_key = await charge_billing_key(
+        payment_key, amount = await charge_billing_key(
             billing.billing_key,
             str(user_id),
             order_id,
@@ -106,6 +107,7 @@ async def register_subscription_service(
                 order_id=order_id,
                 payment_key=payment_key,
                 plan=int(dto.plan),
+                amount=amount,
             )
         )
 

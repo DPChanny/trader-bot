@@ -21,9 +21,9 @@ async def register_billing_service(
     user_id: int, auth_key: str, session: AsyncSession
 ) -> BillingDTO:
     customer_key = str(user_id)
-    billing_key = await issue_billing_key(auth_key, customer_key)
+    billing_key, name = await issue_billing_key(auth_key, customer_key)
 
-    billing = Billing(user_id=user_id, billing_key=billing_key)
+    billing = Billing(user_id=user_id, billing_key=billing_key, name=name)
     session.add(billing)
     await session.flush()
     await session.refresh(billing)

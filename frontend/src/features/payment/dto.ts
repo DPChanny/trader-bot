@@ -7,4 +7,5 @@ export interface PaymentDTO {
   orderId: string;
   paymentKey: string | null;
   plan: Plan;
+  amount: number;
 }

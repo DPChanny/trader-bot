@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from . import BaseEntity
+from . import Base
 
 
 if TYPE_CHECKING:
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from .preset_member_position import PresetMemberPosition
 
 
-class Position(BaseEntity):
+class Position(Base):
     __tablename__ = "position"
 
     position_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

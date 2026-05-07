@@ -62,7 +62,7 @@ class SubscriptionManager:
                     customer_key = str(billing.user_id)
 
                     try:
-                        payment_key = await charge_billing_key(
+                        payment_key, amount = await charge_billing_key(
                             billing.billing_key,
                             customer_key,
                             order_id,
@@ -73,7 +73,6 @@ class SubscriptionManager:
                         logger.warning(
                             f"Renewal charge failed for subscription {sub.subscription_id}"
                         )
-                        await session.delete(billing)
                         continue
 
                     new_expires_at = sub.expires_at + _PLAN_PERIOD[plan]
@@ -87,6 +86,7 @@ class SubscriptionManager:
                             order_id=order_id,
                             payment_key=payment_key,
                             plan=int(plan),
+                            amount=amount,
                         )
                     )
         except Exception:

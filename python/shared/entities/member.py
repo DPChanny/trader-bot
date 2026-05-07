@@ -10,7 +10,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from . import BaseEntity
+from . import Base
 
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from .user import User
 
 
-class Member(BaseEntity):
+class Member(Base):
     __tablename__ = "member"
     __table_args__ = (
         UniqueConstraint("guild_id", "user_id"),

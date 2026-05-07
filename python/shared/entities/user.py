@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from . import BaseEntity
+from . import Base
 
 
 if TYPE_CHECKING:
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from .payment import Payment
 
 
-class User(BaseEntity):
+class User(Base):
     __tablename__ = "user"
 
     discord_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)

@@ -3,14 +3,14 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from . import BaseEntity
+from . import Base
 
 
 if TYPE_CHECKING:
     from .preset import Preset
 
 
-class Tier(BaseEntity):
+class Tier(Base):
     __tablename__ = "tier"
 
     tier_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

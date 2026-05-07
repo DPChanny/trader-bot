@@ -1,12 +1,12 @@
 import asyncio
 
 from alembic import context
-from shared.entities import BaseEntity
+from shared.entities import Base
 from shared.utils.db import get_engine
 
 
 def do_run_migrations(connection) -> None:
-    context.configure(connection=connection, target_metadata=BaseEntity.metadata)
+    context.configure(connection=connection, target_metadata=Base.metadata)
     with context.begin_transaction():
         context.run_migrations()
 
