@@ -32,15 +32,14 @@ const PLAN_COLOR: Record<Plan, "gold" | "blue"> = {
 
 type BillingCardProps = {
   billing: BillingDTO;
-  index: number;
   onDelete: () => void;
   isDeleting: boolean;
 };
 
-function BillingCard({ index, onDelete, isDeleting }: BillingCardProps) {
+function BillingCard({ billing, onDelete, isDeleting }: BillingCardProps) {
   return (
     <Card direction="row" align="center" justify="between" variantColor="gray">
-      <Text>결제 수단 #{index + 1}</Text>
+      <Text>{billing.name || "카드"}</Text>
       <DangerButton
         variantSize="small"
         onClick={onDelete}
@@ -98,6 +97,10 @@ export function MePage() {
                 추가
               </PrimaryButton>
             </Row>
+            <Text variantSize="small" tone="accent">
+              결제 수단을 등록하면 자동결제에 동의한 것으로 간주됩니다. 수단
+              삭제 시 해당 수단에 연결된 구독의 자동결제가 중단됩니다.
+            </Text>
             {billingsLoading ? (
               <TertiarySection fill>
                 <Loading />
@@ -111,11 +114,10 @@ export function MePage() {
             ) : (
               <TertiarySection fill>
                 <Column gap="sm">
-                  {billings?.map((b, i) => (
+                  {billings?.map((b) => (
                     <BillingCard
                       key={b.billingId}
                       billing={b}
-                      index={i}
                       onDelete={() => deleteBilling({ billingId: b.billingId })}
                       isDeleting={isDeleting}
                     />

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "@tanstack/react-router";
 import { Page, Column, Fill, Row } from "@components/atoms/layout";
 import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { Title, Text } from "@components/atoms/text";
-import { PrimaryButton } from "@components/atoms/button";
+import { Button, PrimaryButton } from "@components/atoms/button";
 import { Card } from "@components/surfaces/card";
 import { Loading } from "@components/molecules/loading";
 import { Footer } from "@components/footer";
@@ -140,12 +140,6 @@ export function SubscriptionPage() {
     isCancelling ||
     (subLoading && subscription === undefined);
 
-  const buttonLabel = (() => {
-    if (isCurrentPlan) return "현재 플랜";
-    if (selectedPlan === null) return "구독 취소";
-    return isFree ? "구독 시작" : "플랜 변경";
-  })();
-
   const detail =
     selectedPlan === null ? FREE_DETAIL : PLAN_DETAIL[selectedPlan];
 
@@ -154,42 +148,34 @@ export function SubscriptionPage() {
       <Column align="center" fill>
         <PrimarySection width="page" fill overflow="hidden">
           <SecondarySection gap="sm">
-            <Title>플랜 선택</Title>
+            <Title>구독 플랜</Title>
             <Row gap="sm">
               <Fill>
-                <Card
-                  fill
-                  center
-                  variantColor="gray"
+                <Button
+                  variantTone="ghost"
+                  isPressed={selectedPlan === null}
                   onClick={() => setSelectedPlan(null)}
-                  style={{
-                    cursor: "pointer",
-                    opacity: selectedPlan === null ? 1 : 0.5,
-                  }}
                 >
-                  <Text variantWeight="semibold">FREE</Text>
-                  <Text variantSize="small">₩0/월</Text>
-                </Card>
+                  <Card fill center variantColor="blue">
+                    <Text variantWeight="semibold">FREE</Text>
+                    <Text variantSize="small">₩0/월</Text>
+                  </Card>
+                </Button>
               </Fill>
               {([Plan.PLUS, Plan.PRO] as Plan[]).map((plan) => (
                 <Fill key={plan}>
-                  <Card
-                    fill
-                    center
-                    variantColor={
-                      selectedPlan === plan ? PLAN_COLOR[plan] : "gray"
-                    }
+                  <Button
+                    variantTone="ghost"
+                    isPressed={selectedPlan === plan}
                     onClick={() => setSelectedPlan(plan)}
-                    style={{
-                      cursor: "pointer",
-                      opacity: selectedPlan === plan ? 1 : 0.5,
-                    }}
                   >
-                    <Text variantWeight="semibold">
-                      {PLAN_DETAIL[plan].label}
-                    </Text>
-                    <Text variantSize="small">{PLAN_DETAIL[plan].price}</Text>
-                  </Card>
+                    <Card fill center variantColor={PLAN_COLOR[plan]}>
+                      <Text variantWeight="semibold">
+                        {PLAN_DETAIL[plan].label}
+                      </Text>
+                      <Text variantSize="small">{PLAN_DETAIL[plan].price}</Text>
+                    </Card>
+                  </Button>
                 </Fill>
               ))}
             </Row>
@@ -231,7 +217,7 @@ export function SubscriptionPage() {
               ) : (
                 <Fill overflow="auto">
                   <Column gap="xs">
-                    {billings?.map((b, i) => (
+                    {billings?.map((b) => (
                       <Card
                         key={b.billingId}
                         direction="row"
@@ -242,7 +228,7 @@ export function SubscriptionPage() {
                         onClick={() => setSelectedBillingId(b.billingId)}
                         style={{ cursor: "pointer" }}
                       >
-                        <Text>결제 수단 #{i + 1}</Text>
+                        <Text>{b.name || "카드"}</Text>
                       </Card>
                     ))}
                   </Column>
@@ -253,14 +239,20 @@ export function SubscriptionPage() {
             <Fill />
           )}
 
-          <SecondarySection>
+          <SecondarySection gap="xs">
+            {selectedPlan !== null && (
+              <Text variantSize="small" tone="accent">
+                연결된 결제 수단으로 매월 자동 청구됩니다. 결제 수단 삭제를 통해
+                언제든지 자동결제를 중단할 수 있습니다.
+              </Text>
+            )}
             <Fill>
               <PrimaryButton
                 variantSize="large"
                 onClick={handleSubscribe}
                 disabled={buttonDisabled}
               >
-                {buttonLabel}
+                구독
               </PrimaryButton>
             </Fill>
           </SecondarySection>
