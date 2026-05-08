@@ -8,7 +8,7 @@ from shared.utils.env import (
     get_discord_client_id,
     get_discord_client_secret,
 )
-from shared.utils.error import HTTPError, UnexpectedErrorCode
+from shared.utils.error import HTTPError, UnexpectedErrorCode, log_external_error
 
 
 _DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize"
@@ -48,6 +48,7 @@ async def get_me(code: str) -> dict:
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
         if access_token_response.status_code != 200:
+            log_external_error(access_token_response)
             raise HTTPError(UnexpectedErrorCode.External)
         access_token = access_token_response.json()["access_token"]
 
@@ -56,6 +57,7 @@ async def get_me(code: str) -> dict:
             headers={"Authorization": f"Bearer {access_token}"},
         )
         if me_response.status_code != 200:
+            log_external_error(me_response)
             raise HTTPError(UnexpectedErrorCode.External)
         return me_response.json()
 
@@ -74,4 +76,5 @@ async def send_channel_message(
             json={"content": content, "embeds": embeds},
         )
         if response.status_code != 200:
+            log_external_error(response)
             raise HTTPError(UnexpectedErrorCode.External)

@@ -136,9 +136,12 @@ def get_error_level(error: AppError) -> str:
     return "ERROR" if error.code >= 5000 else "WARNING"
 
 
-def _log_error(error: AppError, level: str) -> None:
+def _log_error(
+    error: AppError, level: str, detail: dict[str, object] | None = None
+) -> None:
     event = Event(Event.Type.ERROR)
-    detail: dict[str, object] = {}
+    if detail is None:
+        detail = {}
 
     detail["code"] = error.code
     if level == "ERROR":
@@ -155,16 +158,12 @@ def handle_app_error(error: AppError) -> None:
 
 
 def log_external_error(response: httpx.Response) -> None:
-    logger.warning(
-        "external request failed | status={} body={}",
-        response.status_code,
-        response.text,
-    )
+    error = AppError(UnexpectedErrorCode.External)
+    _log_error(error, "WARNING", {"response": response.text})
 
 
 def handle_http_error(error: HTTPError) -> JSONResponse:
-    if error.code != UnexpectedErrorCode.External:
-        _log_error(error, get_error_level(error))
+    _log_error(error, get_error_level(error))
     return JSONResponse(status_code=error.status_code, content={"code": error.code})
 
 
