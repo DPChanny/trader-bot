@@ -1,4 +1,6 @@
-export interface UserDTO {
+import type { BaseEntityDTO } from "@utils/dto";
+
+export interface UserDTO extends BaseEntityDTO {
   discordId: string;
   name: string;
   avatarHash: string | null;

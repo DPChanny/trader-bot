@@ -22,6 +22,7 @@ import { useMyPayments, useDeleteMyUser, useMyUser } from "@features/user/hook";
 import { removeJWTToken } from "@features/auth/token";
 import { Plan } from "@features/subscription/dto";
 import type { BillingDTO } from "@features/billing/dto";
+import type { PaymentDetailDTO } from "@features/payment/dto";
 
 const PLAN_LABEL: Record<Plan, string> = {
   [Plan.PLUS]: "Plus",
@@ -50,6 +51,40 @@ function BillingCard({ billing, onDelete, isDeleting }: BillingCardProps) {
       >
         삭제
       </DangerButton>
+    </Card>
+  );
+}
+
+type PaymentCardProps = {
+  payment: PaymentDetailDTO;
+};
+
+function PaymentCard({ payment }: PaymentCardProps) {
+  const date = new Date(payment.createdAt).toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  return (
+    <Card direction="column" variantColor={PLAN_COLOR[payment.plan]}>
+      <Row justify="between" align="center">
+        <Badge variantColor={PLAN_COLOR[payment.plan]}>
+          {PLAN_LABEL[payment.plan]}
+        </Badge>
+        <Text variantSize="small" tone="accent">
+          {date}
+        </Text>
+      </Row>
+      <Row justify="between" align="center">
+        <Text variantSize="small">{payment.guild?.name ?? "알 수 없음"}</Text>
+        <Text variantSize="small" variantWeight="semibold">
+          {payment.amount.toLocaleString("ko-KR")}원
+        </Text>
+      </Row>
+      <Text variantSize="small" tone="accent">
+        {payment.billing?.name ?? "알 수 없음"}
+      </Text>
     </Card>
   );
 }
@@ -148,20 +183,7 @@ export function MePage() {
               <TertiarySection fill>
                 <Column gap="sm">
                   {[...payments!].reverse().map((p) => (
-                    <Card
-                      key={p.paymentId}
-                      direction="row"
-                      align="center"
-                      justify="between"
-                      variantColor="gray"
-                    >
-                      <Badge variantColor={PLAN_COLOR[p.plan]}>
-                        {PLAN_LABEL[p.plan]}
-                      </Badge>
-                      <Text variantSize="small" tone="accent">
-                        {p.orderId.slice(0, 12)}…
-                      </Text>
-                    </Card>
+                    <PaymentCard key={p.paymentId} payment={p} />
                   ))}
                 </Column>
               </TertiarySection>

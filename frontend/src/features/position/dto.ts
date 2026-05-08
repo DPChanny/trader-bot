@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { nameSchema, nullableUrlSchema } from "@utils/dto";
+import type { BaseEntityDTO } from "@utils/dto";
 
 export const AddPositionSchema = z.object({
   name: nameSchema,
@@ -11,7 +12,7 @@ export const UpdatePositionSchema = AddPositionSchema.partial();
 export type AddPositionDTO = z.infer<typeof AddPositionSchema>;
 export type UpdatePositionDTO = z.infer<typeof UpdatePositionSchema>;
 
-export interface PositionDTO {
+export interface PositionDTO extends BaseEntityDTO {
   positionId: number;
   presetId: number;
   name: string;

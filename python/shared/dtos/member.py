@@ -2,7 +2,7 @@ from enum import IntEnum
 
 from pydantic import computed_field
 
-from . import BaseDTO, BigInt, NullableNameStr, NullableUrlStr
+from . import BaseDTO, BaseEntityDTO, BigInt, NullableNameStr, NullableUrlStr
 from .user import UserDetailDTO
 
 
@@ -13,7 +13,7 @@ class Role(IntEnum):
     OWNER = 3
 
 
-class MemberDTO(BaseDTO):
+class MemberDTO(BaseEntityDTO):
     member_id: int
     guild_id: BigInt
     user_id: BigInt

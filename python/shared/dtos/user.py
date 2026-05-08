@@ -1,9 +1,9 @@
 from pydantic import computed_field
 
-from . import BaseDTO, BigInt
+from . import BaseDTO, BaseEntityDTO, BigInt
 
 
-class UserDTO(BaseDTO):
+class UserDTO(BaseEntityDTO):
     discord_id: BigInt
     name: str
     avatar_hash: str | None

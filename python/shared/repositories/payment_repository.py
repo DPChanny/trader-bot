@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from ..entities import Payment
 from . import BaseRepository
@@ -17,6 +18,7 @@ class PaymentRepository(BaseRepository):
         result = await self.session.execute(
             select(Payment)
             .where(Payment.user_id == user_id)
+            .options(selectinload(Payment.guild), selectinload(Payment.billing))
             .order_by(Payment.payment_id.desc())
         )
         return list(result.scalars().all())

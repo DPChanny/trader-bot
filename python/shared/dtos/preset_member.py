@@ -1,10 +1,10 @@
-from . import BaseDTO, NullableUrlStr
+from . import BaseDTO, BaseEntityDTO, NullableUrlStr
 from .member import MemberDetailDTO
 from .preset_member_position import PresetMemberPositionDetailDTO
 from .tier import TierDTO
 
 
-class PresetMemberDTO(BaseDTO):
+class PresetMemberDTO(BaseEntityDTO):
     preset_member_id: int
     preset_id: int
     member_id: int

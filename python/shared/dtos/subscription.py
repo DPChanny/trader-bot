@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import IntEnum
 
-from . import BaseDTO, BigInt
+from . import BaseDTO, BaseEntityDTO, BigInt
 
 
 class Plan(IntEnum):
@@ -11,7 +11,7 @@ class Plan(IntEnum):
     PRO = 1
 
 
-class SubscriptionDTO(BaseDTO):
+class SubscriptionDTO(BaseEntityDTO):
     subscription_id: int
     guild_id: BigInt
     billing_id: int | None

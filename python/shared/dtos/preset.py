@@ -1,11 +1,11 @@
 from pydantic import Field, model_validator
 
 from ..utils.error import HTTPError, ValidationErrorCode
-from . import BaseDTO, BigInt, NameStr
+from . import BaseDTO, BaseEntityDTO, BigInt, NameStr
 from .preset_member import PresetMemberDetailDTO
 
 
-class PresetDTO(BaseDTO):
+class PresetDTO(BaseEntityDTO):
     preset_id: int
     guild_id: BigInt
     name: str

@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { nullableUrlSchema } from "@utils/dto";
+import type { BaseEntityDTO } from "@utils/dto";
 import type { MemberDetailDTO } from "@features/member/dto";
 import type { PresetMemberPositionDetailDTO } from "@features/presetMemberPosition/dto";
 import type { TierDTO } from "@features/tier/dto";
 
-export interface PresetMemberDTO {
+export interface PresetMemberDTO extends BaseEntityDTO {
   presetMemberId: number;
   presetId: number;
   memberId: number;

@@ -1,8 +1,8 @@
-from . import BaseDTO
+from . import BaseDTO, BaseEntityDTO
 from .position import PositionDTO
 
 
-class PresetMemberPositionDTO(BaseDTO):
+class PresetMemberPositionDTO(BaseEntityDTO):
     preset_member_position_id: int
     preset_member_id: int
     position_id: int

@@ -1,6 +1,7 @@
+import type { BaseEntityDTO } from "@utils/dto";
 import type { PositionDTO } from "@features/position/dto";
 
-export interface PresetMemberPositionDTO {
+export interface PresetMemberPositionDTO extends BaseEntityDTO {
   presetMemberPositionId: number;
   presetMemberId: number;
   positionId: number;

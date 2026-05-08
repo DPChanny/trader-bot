@@ -1,7 +1,7 @@
-from . import BaseDTO, NameStr, NullableUrlStr
+from . import BaseDTO, BaseEntityDTO, NameStr, NullableUrlStr
 
 
-class TierDTO(BaseDTO):
+class TierDTO(BaseEntityDTO):
     tier_id: int
     preset_id: int
     name: str

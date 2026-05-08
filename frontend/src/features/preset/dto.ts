@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { nameSchema } from "@utils/dto";
+import type { BaseEntityDTO } from "@utils/dto";
 import type { PresetMemberDetailDTO } from "@features/presetMember/dto";
 
 const BasePresetSchema = z.object({
@@ -24,7 +25,7 @@ export const UpdatePresetSchema = BasePresetSchema.partial().refine((data) => {
 export type CreatePresetDTO = z.infer<typeof CreatePresetSchema>;
 export type UpdatePresetDTO = z.infer<typeof UpdatePresetSchema>;
 
-export interface PresetDTO {
+export interface PresetDTO extends BaseEntityDTO {
   presetId: number;
   guildId: string;
   name: string;

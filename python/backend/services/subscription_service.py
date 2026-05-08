@@ -55,7 +55,7 @@ async def register_subscription_service(
             )
             payment_key, amount = await charge_billing_key(
                 billing.billing_key,
-                str(user_id),
+                f"u-{user_id}",
                 order_id,
                 amount,
                 _PLAN_ORDER_NAME[dto.plan],
@@ -75,6 +75,7 @@ async def register_subscription_service(
                 Payment(
                     guild_id=guild_id,
                     user_id=user_id,
+                    billing_id=dto.billing_id,
                     order_id=order_id,
                     payment_key=payment_key,
                     plan=int(dto.plan),
@@ -86,7 +87,7 @@ async def register_subscription_service(
         amount = _PLAN_AMOUNT[dto.plan]
         payment_key, amount = await charge_billing_key(
             billing.billing_key,
-            str(user_id),
+            f"u-{user_id}",
             order_id,
             amount,
             _PLAN_ORDER_NAME[dto.plan],
@@ -104,6 +105,7 @@ async def register_subscription_service(
             Payment(
                 guild_id=guild_id,
                 user_id=user_id,
+                billing_id=dto.billing_id,
                 order_id=order_id,
                 payment_key=payment_key,
                 plan=int(dto.plan),

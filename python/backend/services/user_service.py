@@ -1,7 +1,7 @@
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.payment import PaymentDTO
+from shared.dtos.payment import PaymentDetailDTO
 from shared.dtos.user import UserDetailDTO, UserDTO
 from shared.entities import Billing, Payment
 from shared.repositories.payment_repository import PaymentRepository
@@ -25,10 +25,10 @@ async def get_my_user_service(
 @http_service
 async def get_my_payments_service(
     user_id: int, session: AsyncSession
-) -> list[PaymentDTO]:
+) -> list[PaymentDetailDTO]:
     payment_repo = PaymentRepository(session)
     payments = await payment_repo.get_all_by_user_id(user_id)
-    return [PaymentDTO.model_validate(p) for p in payments]
+    return [PaymentDetailDTO.model_validate(p) for p in payments]
 
 
 @http_service

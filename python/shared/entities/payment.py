@@ -7,6 +7,7 @@ from . import Base
 
 
 if TYPE_CHECKING:
+    from .billing import Billing
     from .guild import Guild
     from .user import User
 
@@ -21,10 +22,14 @@ class Payment(Base):
     user_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("user.discord_id", ondelete="CASCADE")
     )
+    billing_id: Mapped[int | None] = mapped_column(
+        ForeignKey("billing.billing_id", ondelete="SET NULL")
+    )
     order_id: Mapped[str] = mapped_column(String(64), unique=True)
     payment_key: Mapped[str | None] = mapped_column(Text)
     plan: Mapped[int] = mapped_column(SmallInteger)
     amount: Mapped[int] = mapped_column()
 
+    billing: Mapped[Billing | None] = relationship("Billing", viewonly=True)
     guild: Mapped[Guild | None] = relationship("Guild", viewonly=True)
     user: Mapped[User] = relationship("User", viewonly=True)

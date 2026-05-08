@@ -9,7 +9,7 @@ import { getMyUser, getMyPayments, deleteMyUser } from "@features/user/api";
 import { queryKeys } from "@utils/query";
 import { getAccessToken } from "@features/auth/token";
 import type { UserDetailDTO } from "@features/user/dto";
-import type { PaymentDTO } from "@features/payment/dto";
+import type { PaymentDetailDTO } from "@features/payment/dto";
 import type { AppError } from "@utils/error";
 
 export function useMyUser(): UseQueryResult<UserDetailDTO | null, AppError> {
@@ -22,7 +22,7 @@ export function useMyUser(): UseQueryResult<UserDetailDTO | null, AppError> {
   });
 }
 
-export function useMyPayments(): UseQueryResult<PaymentDTO[], AppError> {
+export function useMyPayments(): UseQueryResult<PaymentDetailDTO[], AppError> {
   return useQuery({
     queryKey: queryKeys.myPayments(),
     queryFn: getMyPayments,

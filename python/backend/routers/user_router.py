@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.payment import PaymentDTO
+from shared.dtos.payment import PaymentDetailDTO
 from shared.dtos.user import UserDetailDTO
 from shared.utils.db import get_session
 
@@ -24,7 +24,7 @@ async def get_my_user_route(
     return await get_my_user_service(user_id, session)
 
 
-@user_router.get("/@me/payment", response_model=list[PaymentDTO])
+@user_router.get("/@me/payment", response_model=list[PaymentDetailDTO])
 async def get_my_payments_route(
     session: AsyncSession = Depends(get_session),
     user_id: int = Depends(verify_access_token),

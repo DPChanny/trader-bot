@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+export interface BaseEntityDTO {
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CursorPageDTO<T> {
   items: T[];
   nextCursor: number | null;

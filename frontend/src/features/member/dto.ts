@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { nullableNameSchema, nullableUrlSchema } from "@utils/dto";
+import type { BaseEntityDTO } from "@utils/dto";
 import type { UserDetailDTO } from "@features/user/dto";
 
 export enum Role {
@@ -28,7 +29,7 @@ export function getRoleEntries(): Record<Role, RoleEntry> {
   return ROLE_ENTRIES;
 }
 
-export interface MemberDTO {
+export interface MemberDTO extends BaseEntityDTO {
   memberId: number;
   guildId: string;
   userId: string;

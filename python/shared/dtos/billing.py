@@ -1,7 +1,7 @@
-from . import BaseDTO, BigInt
+from . import BaseDTO, BaseEntityDTO, BigInt
 
 
-class BillingDTO(BaseDTO):
+class BillingDTO(BaseEntityDTO):
     billing_id: int
     user_id: BigInt
     name: str

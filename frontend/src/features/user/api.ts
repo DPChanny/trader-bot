@@ -1,5 +1,5 @@
 import type { UserDetailDTO } from "@features/user/dto";
-import type { PaymentDTO } from "@features/payment/dto";
+import type { PaymentDetailDTO } from "@features/payment/dto";
 import { USER_API_ENDPOINT } from "@utils/env";
 import { toCamelCase } from "@utils/dto";
 import { handleHTTPError } from "@utils/error";
@@ -18,13 +18,13 @@ export async function getMyUser(): Promise<UserDetailDTO | null> {
   return toCamelCase<UserDetailDTO>(json);
 }
 
-export async function getMyPayments(): Promise<PaymentDTO[]> {
+export async function getMyPayments(): Promise<PaymentDetailDTO[]> {
   const response = await fetch(`${USER_API_ENDPOINT}/@me/payment`, {
     headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHTTPError(response);
   const json = await response.json();
-  return toCamelCase<PaymentDTO[]>(json);
+  return toCamelCase<PaymentDetailDTO[]>(json);
 }
 
 export async function deleteMyUser(): Promise<void> {

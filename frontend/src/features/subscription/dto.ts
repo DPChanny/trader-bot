@@ -1,3 +1,5 @@
+import type { BaseEntityDTO } from "@utils/dto";
+
 export const Plan = {
   PLUS: 0,
   PRO: 1,
@@ -5,7 +7,7 @@ export const Plan = {
 
 export type Plan = (typeof Plan)[keyof typeof Plan];
 
-export interface SubscriptionDTO {
+export interface SubscriptionDTO extends BaseEntityDTO {
   subscriptionId: number;
   guildId: string;
   billingId: number | null;

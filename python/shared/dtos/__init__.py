@@ -1,4 +1,5 @@
 from typing import Annotated
+from datetime import datetime
 
 from pydantic import (
     BaseModel,
@@ -48,9 +49,15 @@ class BaseDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class BaseEntityDTO(BaseDTO):
+    created_at: datetime
+    updated_at: datetime
+
+
 __all__ = [
     "BigInt",
     "BaseDTO",
+    "BaseEntityDTO",
     "NameStr",
     "NullableNameStr",
     "NullableUrlStr",
