@@ -1,14 +1,18 @@
 import asyncio
+import contextlib
 import uuid
 from datetime import timedelta
-
-from loguru import logger
 
 from shared.dtos.subscription import Plan
 from shared.entities import Payment
 from shared.repositories.subscription_repository import SubscriptionRepository
 from shared.utils.db import get_session
-from shared.utils.error import HTTPError
+from shared.utils.error import (
+    AppError,
+    HTTPError,
+    UnexpectedErrorCode,
+    handle_app_error,
+)
 
 from .utils.toss import charge_billing_key
 
@@ -26,7 +30,7 @@ class SubscriptionManager:
 
     @classmethod
     async def setup(cls) -> None:
-        cls._task = asyncio.create_task(cls._run())
+        cls._task = asyncio.create_task(cls._main())
 
     @classmethod
     async def cleanup(cls) -> None:
@@ -35,13 +39,11 @@ class SubscriptionManager:
             await cls._task
 
     @classmethod
-    async def _run(cls) -> None:
-        try:
+    async def _main(cls) -> None:
+        with contextlib.suppress(asyncio.CancelledError):
             while True:
                 await asyncio.sleep(_RENEWAL_INTERVAL.total_seconds())
                 await cls._renew()
-        except asyncio.CancelledError:
-            pass
 
     @classmethod
     async def _renew(cls) -> None:
@@ -69,10 +71,8 @@ class SubscriptionManager:
                             amount,
                             order_name,
                         )
-                    except HTTPError:
-                        logger.warning(
-                            f"Renewal charge failed for subscription {sub.subscription_id}"
-                        )
+                    except HTTPError as e:
+                        handle_app_error(e)
                         continue
 
                     new_expires_at = sub.expires_at + _PLAN_PERIOD[plan]
@@ -89,5 +89,7 @@ class SubscriptionManager:
                             amount=amount,
                         )
                     )
-        except Exception:
-            logger.exception("Unexpected error during subscription renewal")
+        except Exception as e:
+            err = AppError(UnexpectedErrorCode.Internal)
+            err.__cause__ = e
+            handle_app_error(err)

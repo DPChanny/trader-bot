@@ -9,6 +9,7 @@
 import traceback
 from enum import IntEnum
 
+import httpx
 from fastapi.responses import JSONResponse
 from loguru import logger
 
@@ -153,8 +154,17 @@ def handle_app_error(error: AppError) -> None:
     _log_error(error, get_error_level(error))
 
 
+def log_external_error(response: httpx.Response) -> None:
+    logger.warning(
+        "external request failed | status={} body={}",
+        response.status_code,
+        response.text,
+    )
+
+
 def handle_http_error(error: HTTPError) -> JSONResponse:
-    _log_error(error, get_error_level(error))
+    if error.code != UnexpectedErrorCode.External:
+        _log_error(error, get_error_level(error))
     return JSONResponse(status_code=error.status_code, content={"code": error.code})
 
 

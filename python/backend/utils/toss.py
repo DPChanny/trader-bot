@@ -3,7 +3,7 @@ import base64
 import httpx
 
 from shared.utils.env import get_toss_secret
-from shared.utils.error import HTTPError, UnexpectedErrorCode
+from shared.utils.error import HTTPError, UnexpectedErrorCode, log_external_error
 
 
 _TOSS_API_URL = "https://api.tosspayments.com"
@@ -26,6 +26,7 @@ async def issue_billing_key(auth_key: str, customer_key: str) -> tuple[str, str]
             json={"authKey": auth_key, "customerKey": customer_key},
         )
         if response.status_code != 200:
+            log_external_error(response)
             raise HTTPError(UnexpectedErrorCode.External)
         data = response.json()
         billing_key = data["billingKey"]
@@ -54,6 +55,7 @@ async def charge_billing_key(
             },
         )
         if response.status_code != 200:
+            log_external_error(response)
             raise HTTPError(UnexpectedErrorCode.External)
         data = response.json()
         return data["paymentKey"], data["totalAmount"]
@@ -66,4 +68,5 @@ async def delete_billing_key(billing_key: str) -> None:
             headers={"Authorization": _get_authorization_header()},
         )
         if response.status_code != 200:
+            log_external_error(response)
             raise HTTPError(UnexpectedErrorCode.External)
