@@ -117,11 +117,11 @@ async def register_subscription_service(
 @http_service
 async def get_subscription_service(
     guild_id: int, session: AsyncSession
-) -> SubscriptionDTO:
+) -> SubscriptionDTO | None:
     sub_repo = SubscriptionRepository(session)
     subscription = await sub_repo.get_by_guild_id(guild_id)
     if subscription is None:
-        raise HTTPError(SubscriptionErrorCode.NotFound)
+        return None
     return SubscriptionDTO.model_validate(subscription)
 
 

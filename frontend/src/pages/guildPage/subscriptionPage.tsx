@@ -19,7 +19,6 @@ import {
 import { useBillings, useRequestBillingAuth } from "@features/billing/hook";
 import { useMyUser } from "@features/user/hook";
 import { Plan } from "@features/subscription/dto";
-import { BackendErrorCode } from "@utils/error";
 
 type SelectedPlan = Plan | null; // null = FREE
 
@@ -66,11 +65,8 @@ export function SubscriptionPage() {
   const navigate = useNavigate();
   const { data: user } = useMyUser();
 
-  const {
-    data: subscription,
-    isLoading: subLoading,
-    error: subError,
-  } = useSubscription(guildId);
+  const { data: subscription, isLoading: subLoading } =
+    useSubscription(guildId);
   const { data: billings, isLoading: billingsLoading } = useBillings();
   const { mutate: registerSubscription, isPending: isRegistering } =
     useRegisterSubscription();
@@ -83,14 +79,12 @@ export function SubscriptionPage() {
   );
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan>(Plan.PLUS);
 
-  const isNotFound = subError?.code === BackendErrorCode.Subscription.NotFound;
   const isCancelled = subscription != null && subscription.billingId === null;
   const isActive =
     subscription != null &&
     subscription.billingId !== null &&
     new Date(subscription.expiresAt) > new Date();
-  const hasSub = subscription != null && !isNotFound;
-  const isFree = !hasSub || isCancelled || !isActive;
+  const isFree = subscription === null || isCancelled || !isActive;
 
   const effectiveBillingId =
     selectedBillingId ?? billings?.[0]?.billingId ?? null;

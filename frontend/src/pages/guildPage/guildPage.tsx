@@ -14,7 +14,6 @@ import { useBillings } from "@features/billing/hook";
 import { useVerifyRole } from "@features/member/hook";
 import { Plan } from "@features/subscription/dto";
 import { Role } from "@features/member/dto";
-import { BackendErrorCode } from "@utils/error";
 import { MemberEditor } from "./memberEditor/memberEditor";
 
 const PLAN_LABEL: Record<Plan, string> = {
@@ -48,14 +47,12 @@ export function GuildPage() {
   } = useSubscription(guildId);
   const { data: billings } = useBillings();
 
-  const isNotFound = subError?.code === BackendErrorCode.Subscription.NotFound;
   const isCancelled = subscription != null && subscription.billingId === null;
   const isActive =
     subscription != null &&
     subscription.billingId !== null &&
     new Date(subscription.expiresAt) > new Date();
-  const hasSub = subscription != null && !isNotFound;
-  const isFree = !hasSub || isCancelled || !isActive;
+  const isFree = subscription === null || isCancelled || !isActive;
 
   return (
     <Page>
@@ -83,7 +80,7 @@ export function GuildPage() {
 
               {subLoading ? (
                 <Loading />
-              ) : subError && !isNotFound ? (
+              ) : subError ? (
                 <Error error={subError}>구독 정보를 불러오지 못했습니다</Error>
               ) : (
                 <Card

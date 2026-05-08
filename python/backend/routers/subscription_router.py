@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.subscription import RegisterSubscriptionDTO, SubscriptionDTO
@@ -33,7 +33,10 @@ async def get_subscription_route(
     session: AsyncSession = Depends(get_session),
     _: int = Depends(verify_access_token),
 ):
-    return await get_subscription_service(guild_id, session)
+    result = await get_subscription_service(guild_id, session)
+    if result is None:
+        return Response(status_code=204)
+    return result
 
 
 @subscription_router.delete("", status_code=204)

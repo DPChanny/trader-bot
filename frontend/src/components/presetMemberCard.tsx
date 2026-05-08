@@ -22,15 +22,7 @@ export function PresetMemberCard({ presetMember }: PresetMemberCardProps) {
       gap="xs"
     >
       <div className={styles.topRight}>
-        {tier && (
-          <Badge variantColor="red">
-            {tier.iconUrl ? (
-              <Image src={tier.iconUrl} alt={tier.name} variantSize="auto" />
-            ) : (
-              tier.name.charAt(0)
-            )}
-          </Badge>
-        )}
+        {tier && <Badge variantColor="red">{tier.name}</Badge>}
       </div>
 
       <Image
@@ -45,15 +37,7 @@ export function PresetMemberCard({ presetMember }: PresetMemberCardProps) {
       <Row center className={styles.positions}>
         {visiblePositions.map((pmp) => (
           <Badge key={pmp.positionId} variantColor="blue">
-            {pmp.position.iconUrl ? (
-              <Image
-                src={pmp.position.iconUrl}
-                alt={pmp.position.name}
-                variantSize="auto"
-              />
-            ) : (
-              pmp.position.name.charAt(0)
-            )}
+            {pmp.position.name}
           </Badge>
         ))}
       </Row>

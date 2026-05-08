@@ -14,7 +14,7 @@ export function MemberCard({ member }: MemberCardProps) {
   const displayName = member.alias || member.name || member.user.name;
   const avatarUrl = member.avatarUrl || member.user.avatarUrl;
   const roleEntry = getRoleEntries()[member.role];
-  const roleLabel = roleEntry.displayName.charAt(0);
+  const roleLabel = roleEntry.displayName;
   const roleColor = roleEntry.color;
 
   return (

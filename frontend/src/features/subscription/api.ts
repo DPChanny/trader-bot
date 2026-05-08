@@ -9,11 +9,12 @@ import { getAuthHeader, getJsonHeader, getHeaders } from "@utils/api";
 
 export async function getSubscription(
   guildId: string,
-): Promise<SubscriptionDTO> {
+): Promise<SubscriptionDTO | null> {
   const response = await fetch(getSubscriptionEndpoint(guildId), {
     headers: getHeaders(getAuthHeader()),
   });
   if (!response.ok) await handleHTTPError(response);
+  if (response.status === 204) return null;
   const json = await response.json();
   return toCamelCase<SubscriptionDTO>(json);
 }

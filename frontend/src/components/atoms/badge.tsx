@@ -24,7 +24,8 @@ const badgeVariants = cva(styles.badge, {
   },
 });
 
-export type BadgeProps = JSX.IntrinsicElements["span"] & {
+export type BadgeProps = Omit<JSX.IntrinsicElements["span"], "children"> & {
+  children: string;
   variantColor?: VariantProps<typeof badgeVariants>["variantColor"];
   variantSize?: VariantProps<typeof badgeVariants>["variantSize"];
 };
@@ -43,7 +44,7 @@ export function Badge({
 
   return (
     <span className={clsx(baseClass, className)} {...props}>
-      {children}
+      {children.charAt(0)}
     </span>
   );
 }

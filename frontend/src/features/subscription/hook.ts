@@ -16,7 +16,7 @@ import {
 
 export function useSubscription(
   guildId: string,
-): UseQueryResult<SubscriptionDTO, AppError> {
+): UseQueryResult<SubscriptionDTO | null, AppError> {
   return useQuery({
     queryKey: queryKeys.subscription(guildId),
     queryFn: () => getSubscription(guildId),
@@ -53,9 +53,10 @@ export function useCancelSubscription(): UseMutationResult<
   return useMutation({
     mutationFn: cancelSubscription,
     onSuccess: (_, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.subscription(variables.guildId),
-      });
+      queryClient.setQueryData<SubscriptionDTO | null>(
+        queryKeys.subscription(variables.guildId),
+        null,
+      );
     },
   });
 }
