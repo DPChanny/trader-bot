@@ -4,13 +4,11 @@ import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { NameTitle, Title, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
 import { EditButton } from "@components/atoms/button";
-import { Badge } from "@components/atoms/badge";
 import { Card } from "@components/surfaces/card";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
 import { useGuild } from "@features/guild/hook";
 import { useSubscription } from "@features/subscription/hook";
-import { useBillings } from "@features/billing/hook";
 import { useVerifyRole } from "@features/member/hook";
 import { Plan } from "@features/subscription/dto";
 import { Role } from "@features/member/dto";
@@ -45,7 +43,6 @@ export function GuildPage() {
     isLoading: subLoading,
     error: subError,
   } = useSubscription(guildId);
-  const { data: billings } = useBillings();
 
   const isCancelled = subscription != null && subscription.billingId === null;
   const isActive =
@@ -88,30 +85,13 @@ export function GuildPage() {
                     isFree ? "gray" : PLAN_COLOR[subscription!.plan]
                   }
                 >
-                  <Row justify="between" align="center">
-                    <Column gap="xs">
-                      <Text variantWeight="semibold">
-                        {isFree ? "FREE" : PLAN_LABEL[subscription!.plan]}
-                      </Text>
-                      <Text variantSize="small">
-                        만료일:{" "}
-                        {isFree ? "없음" : formatDate(subscription!.expiresAt)}
-                      </Text>
-                      <Text variantSize="small">
-                        결제 수단:{" "}
-                        {(() => {
-                          if (isFree) return "없음";
-                          const idx = billings?.findIndex(
-                            (b) => b.billingId === subscription!.billingId,
-                          );
-                          return idx !== undefined && idx >= 0
-                            ? `#${idx + 1}`
-                            : "없음";
-                        })()}
-                      </Text>
-                    </Column>
-                    {!isFree && <Badge variantColor="green">활성</Badge>}
-                  </Row>
+                  <Text variantWeight="semibold">
+                    {isFree ? "FREE" : PLAN_LABEL[subscription!.plan]}
+                  </Text>
+                  <Text variantSize="small">
+                    만료일:{" "}
+                    {isFree ? "없음" : formatDate(subscription!.expiresAt)}
+                  </Text>
                 </Card>
               )}
             </SecondarySection>

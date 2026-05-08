@@ -113,6 +113,7 @@ async def register_subscription_service(
             )
         )
 
+    await session.refresh(subscription)
     return SubscriptionDTO.model_validate(subscription)
 
 

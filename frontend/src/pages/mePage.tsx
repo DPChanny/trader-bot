@@ -8,7 +8,6 @@ import {
 } from "@components/surfaces/section";
 import { Title, Text } from "@components/atoms/text";
 import { PrimaryButton, DangerButton } from "@components/atoms/button";
-import { Badge } from "@components/atoms/badge";
 import { Card } from "@components/surfaces/card";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
@@ -68,23 +67,13 @@ function PaymentCard({ payment }: PaymentCardProps) {
 
   return (
     <Card direction="column" variantColor={PLAN_COLOR[payment.plan]}>
-      <Row justify="between" align="center">
-        <Badge variantColor={PLAN_COLOR[payment.plan]}>
-          {PLAN_LABEL[payment.plan]}
-        </Badge>
-        <Text variantSize="small" tone="accent">
-          {date}
-        </Text>
-      </Row>
-      <Row justify="between" align="center">
-        <Text variantSize="small">{payment.guild?.name ?? "알 수 없음"}</Text>
-        <Text variantSize="small" variantWeight="semibold">
-          {payment.amount.toLocaleString("ko-KR")}원
-        </Text>
-      </Row>
-      <Text variantSize="small" tone="accent">
-        {payment.billing?.name ?? "알 수 없음"}
+      <Text variantWeight="bold">
+        {`Trader Bot  ${PLAN_LABEL[payment.plan]} - ${payment.guild?.name ?? "알 수 없음"} `}
       </Text>
+      <Text>
+        {`${payment.billing?.name ?? "알 수 없음"} - ${payment.amount.toLocaleString("ko-KR")}원`}
+      </Text>
+      <Text variantSize="small">{date}</Text>
     </Card>
   );
 }

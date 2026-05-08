@@ -7,9 +7,11 @@ import {
   TertiarySection,
 } from "@components/surfaces/section";
 import { Title, Text } from "@components/atoms/text";
-import { Button, PrimaryButton } from "@components/atoms/button";
+import { Button, PrimaryButton, DangerButton } from "@components/atoms/button";
 import { Card } from "@components/surfaces/card";
+import { Badge } from "@components/atoms/badge";
 import { Loading } from "@components/molecules/loading";
+import { Error } from "@components/molecules/error";
 import { Footer } from "@components/footer";
 import {
   useSubscription,
@@ -21,6 +23,8 @@ import { useMyUser } from "@features/user/hook";
 import { Plan } from "@features/subscription/dto";
 
 type SelectedPlan = Plan | null; // null = FREE
+
+const FREE_COLOR = "blue" as const;
 
 const PLAN_COLOR: Record<Plan, "green" | "gold"> = {
   [Plan.PLUS]: "green",
@@ -68,10 +72,16 @@ export function SubscriptionPage() {
   const { data: subscription, isLoading: subLoading } =
     useSubscription(guildId);
   const { data: billings, isLoading: billingsLoading } = useBillings();
-  const { mutate: registerSubscription, isPending: isRegistering } =
-    useRegisterSubscription();
-  const { mutate: cancelSubscription, isPending: isCancelling } =
-    useCancelSubscription();
+  const {
+    mutate: registerSubscription,
+    isPending: isRegistering,
+    error: registerError,
+  } = useRegisterSubscription();
+  const {
+    mutate: cancelSubscription,
+    isPending: isCancelling,
+    error: cancelError,
+  } = useCancelSubscription();
   const addBilling = useRequestBillingAuth();
 
   const [selectedBillingId, setSelectedBillingId] = useState<number | null>(
@@ -79,58 +89,50 @@ export function SubscriptionPage() {
   );
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan>(Plan.PLUS);
 
-  const isCancelled = subscription != null && subscription.billingId === null;
-  const isActive =
-    subscription != null &&
-    subscription.billingId !== null &&
-    new Date(subscription.expiresAt) > new Date();
-  const isFree = subscription === null || isCancelled || !isActive;
+  const isFree =
+    subscription == null ||
+    subscription.billingId == null ||
+    new Date(subscription.expiresAt) <= new Date();
 
   const effectiveBillingId =
-    selectedBillingId ?? billings?.[0]?.billingId ?? null;
+    selectedBillingId ??
+    (isFree ? null : subscription?.billingId) ??
+    billings?.[0]?.billingId ??
+    null;
 
   const handleAddBilling = () => {
     if (!user) return;
     void addBilling({ customerKey: `u-${user.discordId}` });
   };
 
+  const handleDeactivate = () => {
+    cancelSubscription({ guildId });
+  };
+
   const handleSubscribe = () => {
-    if (selectedPlan === null) {
-      cancelSubscription(
-        { guildId },
-        {
-          onSuccess: () =>
-            void navigate({
-              to: "/guild/$guildId/member",
-              params: { guildId },
-            }),
-        },
-      );
-    } else {
-      if (effectiveBillingId === null) return;
-      registerSubscription(
-        { guildId, dto: { billingId: effectiveBillingId, plan: selectedPlan } },
-        {
-          onSuccess: () =>
-            void navigate({
-              to: "/guild/$guildId/member",
-              params: { guildId },
-            }),
-        },
-      );
-    }
+    if (selectedPlan === null || effectiveBillingId === null) return;
+    registerSubscription(
+      { guildId, dto: { billingId: effectiveBillingId, plan: selectedPlan } },
+      {
+        onSuccess: () =>
+          void navigate({
+            to: "/guild/$guildId/member",
+            params: { guildId },
+          }),
+      },
+    );
   };
 
   const isCurrentPlan =
-    selectedPlan === null
-      ? isFree
-      : !isFree &&
-        subscription?.plan === selectedPlan &&
-        subscription?.billingId === effectiveBillingId;
+    selectedPlan !== null &&
+    !isFree &&
+    subscription?.plan === selectedPlan &&
+    subscription?.billingId === effectiveBillingId;
 
-  const buttonDisabled =
+  const subscribeDisabled =
+    selectedPlan === null ||
     isCurrentPlan ||
-    (selectedPlan !== null && effectiveBillingId === null) ||
+    effectiveBillingId === null ||
     isRegistering ||
     isCancelling ||
     (subLoading && subscription === undefined);
@@ -152,7 +154,7 @@ export function SubscriptionPage() {
                     isPressed={selectedPlan === null}
                     onClick={() => setSelectedPlan(null)}
                   >
-                    <Card fill center variantColor="blue">
+                    <Card fill center variantColor={FREE_COLOR}>
                       <Text variantWeight="semibold">FREE</Text>
                       <Text variantSize="small">₩0/월</Text>
                     </Card>
@@ -196,29 +198,31 @@ export function SubscriptionPage() {
               </Card>
             </SecondarySection>
 
-            {selectedPlan !== null ? (
-              <SecondarySection fill gap="sm">
-                <Row justify="between" align="center">
-                  <Title>결제 수단</Title>
-                  <PrimaryButton
-                    variantSize="small"
-                    onClick={handleAddBilling}
-                    disabled={!user}
-                  >
-                    추가
-                  </PrimaryButton>
-                </Row>
-                {billingsLoading ? (
-                  <TertiarySection fill center>
-                    <Loading />
-                  </TertiarySection>
-                ) : !billings?.length ? (
-                  <TertiarySection fill center>
-                    <Text>등록된 결제 수단이 없습니다.</Text>
-                  </TertiarySection>
-                ) : (
-                  <TertiarySection fill gap="xs">
-                    {billings.map((b) => (
+            <SecondarySection fill gap="sm">
+              <Row justify="between" align="center">
+                <Title>결제 수단</Title>
+                <PrimaryButton
+                  variantSize="small"
+                  onClick={handleAddBilling}
+                  disabled={!user}
+                >
+                  추가
+                </PrimaryButton>
+              </Row>
+              {billingsLoading ? (
+                <TertiarySection fill center>
+                  <Loading />
+                </TertiarySection>
+              ) : !billings?.length ? (
+                <TertiarySection fill center>
+                  <Text>등록된 결제 수단이 없습니다.</Text>
+                </TertiarySection>
+              ) : (
+                <TertiarySection fill gap="xs">
+                  {billings.map((b) => {
+                    const isLinked =
+                      !isFree && b.billingId === subscription?.billingId;
+                    return (
                       <Card
                         key={b.billingId}
                         direction="row"
@@ -229,26 +233,47 @@ export function SubscriptionPage() {
                         onClick={() => setSelectedBillingId(b.billingId)}
                         style={{ cursor: "pointer" }}
                       >
-                        <Text>{b.name || "카드"}</Text>
+                        <Fill>
+                          <Text>{b.name || "카드"}</Text>
+                        </Fill>
+                        {isLinked && (
+                          <>
+                            <Badge variantColor="green">사용 중</Badge>
+                            <DangerButton
+                              variantTone="ghost"
+                              variantSize="small"
+                              disabled={isCancelling}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeactivate();
+                              }}
+                            >
+                              비활성화
+                            </DangerButton>
+                          </>
+                        )}
                       </Card>
-                    ))}
-                  </TertiarySection>
-                )}
-              </SecondarySection>
-            ) : null}
+                    );
+                  })}
+                </TertiarySection>
+              )}
+            </SecondarySection>
 
             <SecondarySection gap="xs">
-              {selectedPlan !== null && (
-                <Text variantSize="small" tone="accent">
-                  연결된 결제 수단으로 매월 자동 청구됩니다. 결제 수단 삭제를
-                  통해 언제든지 자동결제를 중단할 수 있습니다.
-                </Text>
+              {(registerError ?? cancelError) && (
+                <Error error={(registerError ?? cancelError)!}>
+                  처리 중 오류가 발생했습니다
+                </Error>
               )}
+              <Text variantSize="small" tone="accent">
+                연결된 결제 수단으로 매월 자동 청구됩니다. 결제 수단 삭제를 통해
+                언제든지 자동결제를 중단할 수 있습니다.
+              </Text>
               <Fill>
                 <PrimaryButton
                   variantSize="large"
                   onClick={handleSubscribe}
-                  disabled={buttonDisabled}
+                  disabled={subscribeDisabled}
                 >
                   구독
                 </PrimaryButton>
