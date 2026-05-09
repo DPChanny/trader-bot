@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timedelta
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
@@ -14,12 +14,11 @@ class SubscriptionRepository(BaseRepository):
         )
         return result.scalar_one_or_none()
 
-    async def get_renewables(self, buffer: timedelta) -> list[Subscription]:
-        cutoff = datetime.now(UTC) + buffer
+    async def get_expireds(self, today: datetime) -> list[Subscription]:
         result = await self.session.execute(
             select(Subscription)
             .join(Billing, Billing.billing_id == Subscription.billing_id)
-            .where(Subscription.expires_at <= cutoff)
+            .where(Subscription.expires_at <= today)
             .options(joinedload(Subscription.billing))
         )
         return list(result.scalars().all())

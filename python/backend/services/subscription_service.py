@@ -35,7 +35,7 @@ async def register_subscription_service(
     if billing is None:
         raise HTTPError(BillingErrorCode.NotFound)
 
-    now = datetime.now(UTC)
+    today = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
     has_valid = sub is not None and sub.is_valid
 
     if has_valid:
@@ -62,8 +62,7 @@ async def register_subscription_service(
     if not has_valid:
         amount = _PLAN_AMOUNT[dto.plan]
     elif dto.plan > plan:
-        remaining = sub.expires_at - now
-        ratio = remaining.total_seconds() / _PLAN_PERIOD[plan].total_seconds()
+        ratio = (sub.expires_at - today).days / _PLAN_PERIOD[plan].days
         amount = round((_PLAN_AMOUNT[dto.plan] - _PLAN_AMOUNT[plan]) * ratio)
 
     if amount is not None:
@@ -94,7 +93,7 @@ async def register_subscription_service(
             .values(billing_id=dto.billing_id, plan=int(dto.plan), next_plan=None)
         )
     else:
-        expires_at = now + _PLAN_PERIOD[dto.plan]
+        expires_at = today + _PLAN_PERIOD[dto.plan]
         if sub is None:
             sub = Subscription(
                 guild_id=guild_id,

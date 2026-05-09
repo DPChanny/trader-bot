@@ -15,8 +15,8 @@ import { Role } from "@features/member/dto";
 import { MemberEditor } from "./memberEditor/memberEditor";
 
 const PLAN_LABEL: Record<Plan, string> = {
-  [Plan.PLUS]: "Plus",
-  [Plan.PRO]: "Pro",
+  [Plan.PLUS]: "Trader Bot Plus ",
+  [Plan.PRO]: "Trader Bot Pro",
 };
 
 const PLAN_COLOR: Record<Plan, "green" | "gold"> = {
@@ -27,7 +27,6 @@ const PLAN_COLOR: Record<Plan, "green" | "gold"> = {
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("ko-KR", {
     dateStyle: "medium",
-    timeStyle: "short",
   }).format(new Date(iso));
 }
 
@@ -85,14 +84,12 @@ export function GuildPage() {
                     {isFree ? "FREE" : PLAN_LABEL[subscription!.plan]}
                   </Text>
                   <Text variantSize="small">
-                    다음 결제일:{" "}
-                    {isFree ? "없음" : formatDate(subscription!.expiresAt)}
+                    {isFree ? "없음" : formatDate(subscription!.expiresAt)} 까지
+                    {" -> "}
+                    {!isFree &&
+                      subscription!.nextPlan !== null &&
+                      PLAN_LABEL[subscription!.nextPlan!]}
                   </Text>
-                  {!isFree && subscription!.nextPlan !== null && (
-                    <Text variantSize="small">
-                      다음 결제 플랜: {PLAN_LABEL[subscription!.nextPlan!]}
-                    </Text>
-                  )}
                 </Card>
               )}
             </SecondarySection>
