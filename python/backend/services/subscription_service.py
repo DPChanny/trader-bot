@@ -9,6 +9,7 @@ from shared.dtos.subscription import Plan, RegisterSubscriptionDTO, Subscription
 from shared.entities import Payment, Subscription
 from shared.repositories.billing_repository import BillingRepository
 from shared.repositories.subscription_repository import SubscriptionRepository
+from shared.utils.db import get_session
 from shared.utils.error import BillingErrorCode, HTTPError, SubscriptionErrorCode
 from shared.utils.service import http_service
 
@@ -64,13 +65,30 @@ async def register_subscription_service(
         amount = _PLAN_AMOUNT[dto.plan]
 
     order_id = uuid.uuid4().hex
-    payment_key = await charge_billing_key(
-        billing.billing_key,
-        f"u-{user_id}",
-        order_id,
-        amount,
-        _PLAN_ORDER_NAME[dto.plan],
-    )
+    payment_key: str | None = None
+    try:
+        payment_key = await charge_billing_key(
+            billing.billing_key,
+            f"u-{user_id}",
+            order_id,
+            amount,
+            _PLAN_ORDER_NAME[dto.plan],
+        )
+    except Exception:
+        async for payment_session in get_session():
+            payment_session.add(
+                Payment(
+                    guild_id=guild_id,
+                    user_id=user_id,
+                    billing_id=dto.billing_id,
+                    order_id=order_id,
+                    payment_key=None,
+                    plan=int(dto.plan),
+                    amount=amount,
+                )
+            )
+        raise
+
     session.add(
         Payment(
             guild_id=guild_id,

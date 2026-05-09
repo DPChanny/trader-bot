@@ -1,6 +1,6 @@
 from pydantic import computed_field
 
-from . import BaseDTO, BaseEntityDTO, BigInt
+from . import BaseEntityDTO, BigInt
 
 
 class GuildDTO(BaseEntityDTO):

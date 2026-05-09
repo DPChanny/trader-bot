@@ -1,4 +1,4 @@
-from . import BaseDTO, BaseEntityDTO, BigInt
+from . import BaseEntityDTO, BigInt
 from .billing import BillingDTO
 from .guild import GuildDTO
 from .subscription import Plan
