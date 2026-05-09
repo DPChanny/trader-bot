@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Page, Column, Row } from "@components/atoms/layout";
+import { Page, Column, Row, Scroll } from "@components/atoms/layout";
 import {
   PrimarySection,
   SecondarySection,
@@ -15,7 +15,7 @@ import { Modal, ModalFooter } from "@components/modal";
 import {
   useBillings,
   useDeleteBilling,
-  useRequestBillingAuth,
+  useRequestBilling,
 } from "@features/billing/hook";
 import { useMyPayments, useDeleteMyUser, useMyUser } from "@features/user/hook";
 import { removeJWTToken } from "@features/auth/token";
@@ -29,8 +29,8 @@ const PLAN_LABEL: Record<Plan, string> = {
 };
 
 const PLAN_COLOR: Record<Plan, "gold" | "blue"> = {
-  [Plan.PLUS]: "gold",
-  [Plan.PRO]: "blue",
+  [Plan.PLUS]: "blue",
+  [Plan.PRO]: "gold",
 };
 
 type BillingCardProps = {
@@ -92,7 +92,8 @@ export function MePage() {
 
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
-  const addBilling = useRequestBillingAuth();
+  const { requestBilling: addBilling, error: addBillingError } =
+    useRequestBilling();
 
   const handleAddBilling = () => {
     if (!user) return;
@@ -112,79 +113,88 @@ export function MePage() {
     <Page>
       <Column align="center" fill>
         <PrimarySection width="page" minSize fill>
-          <SecondarySection fill gap="md">
-            <Row justify="between" align="center">
-              <Title align="start">결제 수단</Title>
-              <PrimaryButton
-                variantSize="small"
-                onClick={handleAddBilling}
-                disabled={!user}
-              >
-                추가
-              </PrimaryButton>
-            </Row>
+          <Scroll>
+            <SecondarySection fill gap="md">
+              <Row justify="between" align="center">
+                <Title align="start">결제 수단</Title>
+                <PrimaryButton
+                  variantSize="small"
+                  onClick={handleAddBilling}
+                  disabled={!user}
+                >
+                  추가
+                </PrimaryButton>
+              </Row>
 
-            {billingsLoading ? (
-              <TertiarySection fill>
-                <Loading />
-              </TertiarySection>
-            ) : billingsError ? (
-              <TertiarySection fill>
-                <Error error={billingsError}>
-                  결제 수단을 불러오지 못했습니다
+              {addBillingError && (
+                <Error error={addBillingError}>
+                  결제 수단 추가에 실패했습니다
                 </Error>
-              </TertiarySection>
-            ) : !billings?.length ? (
-              <TertiarySection fill center>
-                <Text>등록된 결제 수단이 없습니다.</Text>
-              </TertiarySection>
-            ) : (
-              <TertiarySection fill>
-                <Column gap="sm">
-                  {billings.map((b) => (
-                    <BillingCard
-                      key={b.billingId}
-                      billing={b}
-                      onDelete={() => deleteBilling({ billingId: b.billingId })}
-                      isDeleting={isDeleting}
-                    />
-                  ))}
-                </Column>
-              </TertiarySection>
-            )}
-            <Text tone="accent">
-              결제 수단을 등록하면 자동결제에 동의한 것으로 간주됩니다. 수단
-              삭제 시 해당 수단에 연결된 구독의 자동결제가 중단됩니다.
-            </Text>
-          </SecondarySection>
+              )}
+              {billingsLoading ? (
+                <TertiarySection fill>
+                  <Loading />
+                </TertiarySection>
+              ) : billingsError ? (
+                <TertiarySection fill>
+                  <Error error={billingsError}>
+                    결제 수단을 불러오지 못했습니다
+                  </Error>
+                </TertiarySection>
+              ) : !billings?.length ? (
+                <TertiarySection fill center>
+                  <Text>등록된 결제 수단이 없습니다.</Text>
+                </TertiarySection>
+              ) : (
+                <TertiarySection fill>
+                  <Column gap="sm">
+                    {billings.map((b) => (
+                      <BillingCard
+                        key={b.billingId}
+                        billing={b}
+                        onDelete={() =>
+                          deleteBilling({ billingId: b.billingId })
+                        }
+                        isDeleting={isDeleting}
+                      />
+                    ))}
+                  </Column>
+                </TertiarySection>
+              )}
+              <Text tone="accent">
+                결제 수단을 등록하면 자동결제에 동의한 것으로 간주됩니다. 수단
+                삭제 시 해당 수단에 연결된 구독의 자동결제가 중단됩니다.
+              </Text>
+            </SecondarySection>
 
-          <SecondarySection fill gap="md">
-            <Title align="start">결제 내역</Title>
-            {paymentsLoading ? (
-              <TertiarySection fill>
-                <Loading />
-              </TertiarySection>
-            ) : !(payments ?? []).length ? (
-              <TertiarySection fill center>
-                <Text>결제 내역이 없습니다.</Text>
-              </TertiarySection>
-            ) : (
-              <TertiarySection fill>
-                <Column gap="sm">
-                  {[...payments!].reverse().map((p) => (
-                    <PaymentCard key={p.paymentId} payment={p} />
-                  ))}
-                </Column>
-              </TertiarySection>
-            )}
-          </SecondarySection>
+            <SecondarySection fill gap="md">
+              <Title align="start">결제 내역</Title>
+              {paymentsLoading ? (
+                <TertiarySection fill>
+                  <Loading />
+                </TertiarySection>
+              ) : !(payments ?? []).length ? (
+                <TertiarySection fill center>
+                  <Text>결제 내역이 없습니다.</Text>
+                </TertiarySection>
+              ) : (
+                <TertiarySection fill>
+                  <Column gap="sm">
+                    {[...payments!].reverse().map((p) => (
+                      <PaymentCard key={p.paymentId} payment={p} />
+                    ))}
+                  </Column>
+                </TertiarySection>
+              )}
+            </SecondarySection>
 
-          <DangerButton
-            variantSize="small"
-            onClick={() => setShowWithdrawModal(true)}
-          >
-            초기화
-          </DangerButton>
+            <DangerButton
+              variantSize="small"
+              onClick={() => setShowWithdrawModal(true)}
+            >
+              초기화
+            </DangerButton>
+          </Scroll>
         </PrimarySection>
       </Column>
 

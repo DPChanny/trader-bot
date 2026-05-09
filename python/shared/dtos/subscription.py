@@ -16,6 +16,7 @@ class SubscriptionDTO(BaseEntityDTO):
     guild_id: BigInt
     billing_id: int | None
     plan: Plan
+    next_plan: Plan | None
     expires_at: datetime
 
 

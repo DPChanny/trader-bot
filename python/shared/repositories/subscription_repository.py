@@ -1,7 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
-from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import joinedload
 
 from ..entities import Billing, Subscription
@@ -14,23 +13,6 @@ class SubscriptionRepository(BaseRepository):
             select(Subscription).where(Subscription.guild_id == guild_id)
         )
         return result.scalar_one_or_none()
-
-    async def upsert(
-        self, guild_id: int, billing_id: int, plan: int, expires_at: datetime
-    ) -> Subscription:
-        stmt = pg_insert(Subscription).values(
-            guild_id=guild_id, billing_id=billing_id, plan=plan, expires_at=expires_at
-        )
-        stmt = stmt.on_conflict_do_update(
-            index_elements=["guild_id"],
-            set_={
-                "billing_id": stmt.excluded.billing_id,
-                "plan": stmt.excluded.plan,
-                "expires_at": stmt.excluded.expires_at,
-            },
-        ).returning(Subscription)
-        result = await self.session.execute(stmt)
-        return result.scalars().one()
 
     async def get_renewables(self, buffer: timedelta) -> list[Subscription]:
         cutoff = datetime.now(UTC) + buffer

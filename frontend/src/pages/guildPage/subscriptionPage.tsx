@@ -9,7 +9,6 @@ import {
 import { Title, Text } from "@components/atoms/text";
 import { Button, PrimaryButton, DangerButton } from "@components/atoms/button";
 import { Card } from "@components/surfaces/card";
-import { Badge } from "@components/atoms/badge";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
 import { Footer } from "@components/footer";
@@ -18,7 +17,7 @@ import {
   useRegisterSubscription,
   useCancelSubscription,
 } from "@features/subscription/hook";
-import { useBillings, useRequestBillingAuth } from "@features/billing/hook";
+import { useBillings, useRequestBilling } from "@features/billing/hook";
 import { useMyUser } from "@features/user/hook";
 import { Plan } from "@features/subscription/dto";
 
@@ -82,7 +81,8 @@ export function SubscriptionPage() {
     isPending: isCancelling,
     error: cancelError,
   } = useCancelSubscription();
-  const addBilling = useRequestBillingAuth();
+  const { requestBilling: addBilling, error: addBillingError } =
+    useRequestBilling();
 
   const [selectedBillingId, setSelectedBillingId] = useState<number | null>(
     null,
@@ -90,9 +90,7 @@ export function SubscriptionPage() {
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan>(Plan.PLUS);
 
   const isFree =
-    subscription == null ||
-    subscription.billingId == null ||
-    new Date(subscription.expiresAt) <= new Date();
+    subscription == null || new Date(subscription.expiresAt) <= new Date();
 
   const effectiveBillingId =
     selectedBillingId ??
@@ -123,11 +121,19 @@ export function SubscriptionPage() {
     );
   };
 
+  const effectivePlan = subscription?.nextPlan ?? subscription?.plan ?? null;
+
   const isCurrentPlan =
     selectedPlan !== null &&
     !isFree &&
-    subscription?.plan === selectedPlan &&
+    effectivePlan === selectedPlan &&
     subscription?.billingId === effectiveBillingId;
+
+  const isDowngrade =
+    selectedPlan !== null &&
+    !isFree &&
+    effectivePlan !== null &&
+    selectedPlan < effectivePlan;
 
   const subscribeDisabled =
     selectedPlan === null ||
@@ -179,9 +185,6 @@ export function SubscriptionPage() {
                   </Fill>
                 ))}
               </Row>
-            </SecondarySection>
-
-            <SecondarySection gap="sm">
               <Card variantColor={detail.color}>
                 <Column gap="md">
                   <Row justify="between" align="center">
@@ -219,55 +222,38 @@ export function SubscriptionPage() {
                 </TertiarySection>
               ) : (
                 <TertiarySection fill gap="xs">
-                  {billings.map((b) => {
-                    const isLinked =
-                      !isFree && b.billingId === subscription?.billingId;
-                    return (
-                      <Card
-                        key={b.billingId}
-                        direction="row"
-                        align="center"
-                        variantColor={
-                          effectiveBillingId === b.billingId ? "blue" : "gray"
-                        }
-                        onClick={() => setSelectedBillingId(b.billingId)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Fill>
-                          <Text>{b.name || "카드"}</Text>
-                        </Fill>
-                        {isLinked && (
-                          <>
-                            <Badge variantColor="green">사용 중</Badge>
-                            <DangerButton
-                              variantTone="ghost"
-                              variantSize="small"
-                              disabled={isCancelling}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeactivate();
-                              }}
-                            >
-                              비활성화
-                            </DangerButton>
-                          </>
-                        )}
-                      </Card>
-                    );
-                  })}
+                  {billings.map((b) => (
+                    <Card
+                      key={b.billingId}
+                      direction="row"
+                      align="center"
+                      variantColor={
+                        effectiveBillingId === b.billingId ? "blue" : "gray"
+                      }
+                      onClick={() => setSelectedBillingId(b.billingId)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <Fill>
+                        <Text>{b.name || "카드"}</Text>
+                      </Fill>
+                    </Card>
+                  ))}
                 </TertiarySection>
               )}
             </SecondarySection>
 
             <SecondarySection gap="xs">
-              {(registerError ?? cancelError) && (
-                <Error error={(registerError ?? cancelError)!}>
+              {(registerError ?? cancelError ?? addBillingError) && (
+                <Error
+                  error={(registerError ?? cancelError ?? addBillingError)!}
+                >
                   처리 중 오류가 발생했습니다
                 </Error>
               )}
               <Text variantSize="small" tone="accent">
-                연결된 결제 수단으로 매월 자동 청구됩니다. 결제 수단 삭제를 통해
-                언제든지 자동결제를 중단할 수 있습니다.
+                {isDowngrade
+                  ? "다운그레이드는 현재 구독 만료 후 다음 결제 주기부터 적용됩니다."
+                  : "연결된 결제 수단으로 매월 자동 청구됩니다. 결제 수단 삭제를 통해 언제든지 자동결제를 중단할 수 있습니다."}
               </Text>
               <Fill>
                 <PrimaryButton
@@ -275,9 +261,20 @@ export function SubscriptionPage() {
                   onClick={handleSubscribe}
                   disabled={subscribeDisabled}
                 >
-                  구독
+                  구독 시작
                 </PrimaryButton>
               </Fill>
+              {!isFree && (
+                <Fill>
+                  <DangerButton
+                    variantSize="large"
+                    onClick={handleDeactivate}
+                    disabled={isCancelling || isRegistering}
+                  >
+                    구독 중지
+                  </DangerButton>
+                </Fill>
+              )}
             </SecondarySection>
           </PrimarySection>
           <Footer />

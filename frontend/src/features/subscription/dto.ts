@@ -12,6 +12,7 @@ export interface SubscriptionDTO extends BaseEntityDTO {
   guildId: string;
   billingId: number | null;
   plan: Plan;
+  nextPlan: Plan | null;
   expiresAt: string;
 }
 

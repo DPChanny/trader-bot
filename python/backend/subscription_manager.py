@@ -3,8 +3,10 @@ import contextlib
 import uuid
 from datetime import timedelta
 
+from sqlalchemy import update
+
 from shared.dtos.subscription import Plan
-from shared.entities import Payment
+from shared.entities import Payment, Subscription
 from shared.repositories.subscription_repository import SubscriptionRepository
 from shared.utils.db import get_session
 from shared.utils.error import (
@@ -57,7 +59,9 @@ class SubscriptionManager:
                     if billing is None:
                         continue
 
-                    plan = Plan(sub.plan)
+                    plan = Plan(
+                        sub.next_plan if sub.next_plan is not None else sub.plan
+                    )
                     amount = _PLAN_AMOUNT[plan]
                     order_name = _PLAN_ORDER_NAME[plan]
                     order_id = uuid.uuid4().hex
@@ -75,9 +79,11 @@ class SubscriptionManager:
                         handle_app_error(e)
                         continue
 
-                    new_expires_at = sub.expires_at + _PLAN_PERIOD[plan]
-                    await sub_repo.upsert(
-                        sub.guild_id, sub.billing_id, int(plan), new_expires_at
+                    expires_at = sub.expires_at + _PLAN_PERIOD[plan]
+                    await session.execute(
+                        update(Subscription)
+                        .where(Subscription.subscription_id == sub.subscription_id)
+                        .values(plan=int(plan), next_plan=None, expires_at=expires_at)
                     )
                     session.add(
                         Payment(

@@ -41,7 +41,7 @@ export async function deleteBilling({
   if (!response.ok) await handleHTTPError(response);
 }
 
-export async function requestBillingAuth({
+export async function requestBilling({
   customerKey,
 }: {
   customerKey: string;

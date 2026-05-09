@@ -9,12 +9,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import type { BillingDTO } from "@features/billing/dto";
 import { AppError, FrontendErrorCode } from "@utils/error";
-import { queryKeys } from "@utils/query";
+import { queryKeys, queryStaleTimes } from "@utils/query";
 import {
   getBillings,
   registerBilling,
   deleteBilling,
-  requestBillingAuth,
+  requestBilling,
 } from "./api";
 
 export function useBillingCallback() {
@@ -31,7 +31,6 @@ export function useBillingCallback() {
     const authKey = params.get("authKey");
     const opener = window.opener as Window | null;
 
-    // v2: Toss redirects to failUrl with ?code=...&message=... on failure/cancel
     const code = params.get("code");
     if (code !== null) {
       if (opener) {
@@ -63,9 +62,9 @@ export function useBillingCallback() {
           );
           window.close();
         } else {
-          queryClient.setQueryData<BillingDTO[]>(queryKeys.billings(), (old) =>
-            old ? [...old, data] : [data],
-          );
+          void queryClient.invalidateQueries({
+            queryKey: queryKeys.billings(),
+          });
           const redirect =
             sessionStorage.getItem("billingAuthRedirect") ?? "/me";
           sessionStorage.removeItem("billingAuthRedirect");
@@ -92,29 +91,37 @@ export function useBillingCallback() {
   return { error };
 }
 
-export function useRequestBillingAuth() {
-  const queryClient = useQueryClient();
+export function useRequestBilling(): {
+  requestBilling: ({ customerKey }: { customerKey: string }) => Promise<void>;
+  error: AppError | null;
+} {
+  const [error, setError] = useState<AppError | null>(null);
 
-  return useCallback(
+  const request = useCallback(
     async ({ customerKey }: { customerKey: string }) => {
+      setError(null);
       try {
-        const billing = await requestBillingAuth({ customerKey });
-        queryClient.setQueryData<BillingDTO[]>(queryKeys.billings(), (old) =>
-          old ? [...old, billing] : [billing],
-        );
+        await requestBilling({ customerKey });
       } catch (e) {
-        if (e === null) return; // silently cancelled
-        throw e;
+        if (e === null) return;
+        setError(
+          e instanceof AppError
+            ? e
+            : new AppError(FrontendErrorCode.Unexpected.External),
+        );
       }
     },
-    [queryClient],
+    [],
   );
+
+  return { requestBilling: request, error };
 }
 
 export function useBillings(): UseQueryResult<BillingDTO[], AppError> {
   return useQuery({
     queryKey: queryKeys.billings(),
     queryFn: getBillings,
+    staleTime: queryStaleTimes.interactive,
   });
 }
 
@@ -128,10 +135,8 @@ export function useDeleteBilling(): UseMutationResult<
 
   return useMutation({
     mutationFn: deleteBilling,
-    onSuccess: (_, variables) => {
-      queryClient.setQueryData<BillingDTO[]>(queryKeys.billings(), (old) =>
-        old?.filter((b) => b.billingId !== variables.billingId),
-      );
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.billings() });
     },
   });
 }

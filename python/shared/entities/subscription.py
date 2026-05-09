@@ -23,6 +23,7 @@ class Subscription(Base):
         ForeignKey("billing.billing_id", ondelete="SET NULL")
     )
     plan: Mapped[int] = mapped_column(SmallInteger)
+    next_plan: Mapped[int | None] = mapped_column(SmallInteger)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     guild: Mapped[Guild] = relationship("Guild", viewonly=True)

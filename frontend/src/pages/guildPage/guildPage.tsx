@@ -36,7 +36,7 @@ export function GuildPage() {
   const navigate = useNavigate();
 
   const guild = useGuild(guildId);
-  const isAdmin = useVerifyRole(guildId, Role.ADMIN);
+  const isOwner = useVerifyRole(guildId, Role.OWNER);
 
   const {
     data: subscription,
@@ -44,12 +44,8 @@ export function GuildPage() {
     error: subError,
   } = useSubscription(guildId);
 
-  const isCancelled = subscription != null && subscription.billingId === null;
-  const isActive =
-    subscription != null &&
-    subscription.billingId !== null &&
-    new Date(subscription.expiresAt) > new Date();
-  const isFree = subscription === null || isCancelled || !isActive;
+  const isFree =
+    subscription == null || new Date(subscription.expiresAt) <= new Date();
 
   return (
     <Page>
@@ -62,7 +58,7 @@ export function GuildPage() {
             <SecondarySection gap="sm">
               <Row justify="between" align="center">
                 <Title>구독</Title>
-                {isAdmin && (
+                {isOwner && (
                   <EditButton
                     variantSize="small"
                     onClick={() =>
@@ -89,9 +85,14 @@ export function GuildPage() {
                     {isFree ? "FREE" : PLAN_LABEL[subscription!.plan]}
                   </Text>
                   <Text variantSize="small">
-                    만료일:{" "}
+                    다음 결제일:{" "}
                     {isFree ? "없음" : formatDate(subscription!.expiresAt)}
                   </Text>
+                  {!isFree && subscription!.nextPlan !== null && (
+                    <Text variantSize="small">
+                      다음 결제 플랜: {PLAN_LABEL[subscription!.nextPlan!]}
+                    </Text>
+                  )}
                 </Card>
               )}
             </SecondarySection>
