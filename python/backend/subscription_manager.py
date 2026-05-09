@@ -3,6 +3,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.subscription import Plan
 from shared.entities import Payment, Subscription
@@ -47,7 +48,13 @@ class SubscriptionManager:
                     subscriptions = await sub_repo.get_expireds(today)
 
                     for sub in subscriptions:
-                        await cls._renew(sub)
+                        try:
+                            async with session.begin_nested():
+                                await cls._renew(sub, today, session)
+                        except Exception as e:
+                            app_error = AppError(UnexpectedErrorCode.Internal)
+                            app_error.__cause__ = e
+                            handle_app_error(app_error)
             except asyncio.CancelledError:
                 return
             except Exception as e:
@@ -57,46 +64,40 @@ class SubscriptionManager:
             await asyncio.sleep(1)
 
     @classmethod
-    async def _renew(cls, sub: Subscription) -> None:
+    async def _renew(
+        cls, sub: Subscription, today: datetime, session: AsyncSession
+    ) -> None:
         billing = sub.billing
         if billing is None:
             return
 
-        try:
-            plan = Plan(sub.next_plan if sub.next_plan is not None else sub.plan)
-            amount = _PLAN_AMOUNT[plan]
-            order_id = uuid.uuid4().hex
+        plan = Plan(sub.next_plan if sub.next_plan is not None else sub.plan)
+        amount = _PLAN_AMOUNT[plan]
+        order_id = uuid.uuid4().hex
 
-            payment_key, amount = await charge_billing_key(
-                billing.billing_key,
-                f"u-{billing.user_id}",
-                order_id,
-                amount,
-                _PLAN_ORDER_NAME[plan],
+        payment_key = await charge_billing_key(
+            billing.billing_key,
+            f"u-{billing.user_id}",
+            order_id,
+            amount,
+            _PLAN_ORDER_NAME[plan],
+        )
+
+        await session.execute(
+            update(Subscription)
+            .where(Subscription.subscription_id == sub.subscription_id)
+            .values(
+                plan=int(plan), next_plan=None, expires_at=today + _PLAN_PERIOD[plan]
             )
-
-            async for session in get_session():
-                await session.execute(
-                    update(Subscription)
-                    .where(Subscription.subscription_id == sub.subscription_id)
-                    .values(
-                        plan=int(plan),
-                        next_plan=None,
-                        expires_at=datetime.now(UTC) + _PLAN_PERIOD[plan],
-                    )
-                )
-                session.add(
-                    Payment(
-                        guild_id=sub.guild_id,
-                        user_id=billing.user_id,
-                        billing_id=billing.billing_id,
-                        order_id=order_id,
-                        payment_key=payment_key,
-                        plan=int(plan),
-                        amount=amount,
-                    )
-                )
-        except Exception as e:
-            app_error = AppError(UnexpectedErrorCode.Internal)
-            app_error.__cause__ = e
-            handle_app_error(app_error)
+        )
+        session.add(
+            Payment(
+                guild_id=sub.guild_id,
+                user_id=billing.user_id,
+                billing_id=billing.billing_id,
+                order_id=order_id,
+                payment_key=payment_key,
+                plan=int(plan),
+                amount=amount,
+            )
+        )

@@ -57,34 +57,31 @@ async def register_subscription_service(
             await session.refresh(sub)
             return SubscriptionDTO.model_validate(sub)
 
-    amount: int | None = None
-
-    if not has_valid:
-        amount = _PLAN_AMOUNT[dto.plan]
-    elif dto.plan > plan:
+    if has_valid:
         ratio = (sub.expires_at - today).days / _PLAN_PERIOD[plan].days
         amount = round((_PLAN_AMOUNT[dto.plan] - _PLAN_AMOUNT[plan]) * ratio)
+    else:
+        amount = _PLAN_AMOUNT[dto.plan]
 
-    if amount is not None:
-        order_id = uuid.uuid4().hex
-        payment_key, amount = await charge_billing_key(
-            billing.billing_key,
-            f"u-{user_id}",
-            order_id,
-            amount,
-            _PLAN_ORDER_NAME[dto.plan],
+    order_id = uuid.uuid4().hex
+    payment_key = await charge_billing_key(
+        billing.billing_key,
+        f"u-{user_id}",
+        order_id,
+        amount,
+        _PLAN_ORDER_NAME[dto.plan],
+    )
+    session.add(
+        Payment(
+            guild_id=guild_id,
+            user_id=user_id,
+            billing_id=dto.billing_id,
+            order_id=order_id,
+            payment_key=payment_key,
+            plan=int(dto.plan),
+            amount=amount,
         )
-        session.add(
-            Payment(
-                guild_id=guild_id,
-                user_id=user_id,
-                billing_id=dto.billing_id,
-                order_id=order_id,
-                payment_key=payment_key,
-                plan=int(dto.plan),
-                amount=amount,
-            )
-        )
+    )
 
     if has_valid:
         await session.execute(

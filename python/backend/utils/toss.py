@@ -39,7 +39,7 @@ async def issue_billing_key(auth_key: str, customer_key: str) -> tuple[str, str]
 
 async def charge_billing_key(
     billing_key: str, customer_key: str, order_id: str, amount: int, order_name: str
-) -> tuple[str, int]:
+) -> str:
     async with httpx.AsyncClient() as client:
         response = await client.post(
             f"{_TOSS_API_URL}/v1/billing/{billing_key}",
@@ -58,7 +58,7 @@ async def charge_billing_key(
             log_external_error(response)
             raise HTTPError(UnexpectedErrorCode.External)
         data = response.json()
-        return data["paymentKey"], data["totalAmount"]
+        return data["paymentKey"]
 
 
 async def delete_billing_key(billing_key: str) -> None:
