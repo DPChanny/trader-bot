@@ -36,7 +36,7 @@ async def register_subscription_service(
         raise HTTPError(BillingErrorCode.NotFound)
 
     now = datetime.now(UTC)
-    has_valid = sub is not None and sub.expires_at > now
+    has_valid = sub is not None and sub.is_valid
 
     if has_valid:
         plan = Plan(sub.plan)
@@ -45,24 +45,14 @@ async def register_subscription_service(
         if dto.plan == next_plan and sub.billing_id == dto.billing_id:
             raise HTTPError(SubscriptionErrorCode.Duplicated)
 
-        if (
-            dto.plan == plan
-            and sub.next_plan is not None
-            and sub.billing_id == dto.billing_id
-        ):
+        if dto.plan <= plan:
             await session.execute(
                 update(Subscription)
                 .where(Subscription.subscription_id == sub.subscription_id)
-                .values(next_plan=None)
-            )
-            await session.refresh(sub)
-            return SubscriptionDTO.model_validate(sub)
-
-        if dto.plan < plan:
-            await session.execute(
-                update(Subscription)
-                .where(Subscription.subscription_id == sub.subscription_id)
-                .values(next_plan=int(dto.plan))
+                .values(
+                    billing_id=dto.billing_id,
+                    next_plan=None if dto.plan == plan else int(dto.plan),
+                )
             )
             await session.refresh(sub)
             return SubscriptionDTO.model_validate(sub)

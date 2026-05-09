@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import BigInteger, DateTime, ForeignKey, SmallInteger
@@ -28,3 +28,7 @@ class Subscription(Base):
 
     guild: Mapped[Guild] = relationship("Guild", viewonly=True)
     billing: Mapped[Billing | None] = relationship("Billing", viewonly=True)
+
+    @property
+    def is_valid(self) -> bool:
+        return self.expires_at > datetime.now(UTC)
