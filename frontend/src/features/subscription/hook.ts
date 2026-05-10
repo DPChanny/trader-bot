@@ -55,7 +55,7 @@ export function useCancelSubscription(): UseMutationResult<
     onSuccess: (_, variables) => {
       queryClient.setQueryData<SubscriptionDTO | null>(
         queryKeys.subscription(variables.guildId),
-        null,
+        (prev) => (prev != null ? { ...prev, billingId: null } : prev),
       );
     },
   });

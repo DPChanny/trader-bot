@@ -3,6 +3,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useInfiniteMembers } from "@features/member/hook";
 import { MemberGrid } from "@components/memberGrid";
 import {
+  PrimarySection,
   SecondarySection,
   TertiarySection,
 } from "@components/surfaces/section";
@@ -10,7 +11,7 @@ import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
 import { MemberPanel } from "./memberPanel";
 import { Title } from "@components/atoms/text";
-import { Row, Fill } from "@components/atoms/layout";
+import { Row } from "@components/atoms/layout";
 import { Input } from "@components/atoms/input";
 import type { MemberDetailDTO } from "@features/member/dto";
 
@@ -46,7 +47,7 @@ export function MemberEditor() {
 
   return (
     <>
-      <Fill overflow="hidden">
+      <PrimarySection fill>
         <SecondarySection fill>
           <Row gap="sm" align="center" justify="between">
             <Title>멤버 목록</Title>
@@ -74,7 +75,7 @@ export function MemberEditor() {
             />
           )}
         </SecondarySection>
-      </Fill>
+      </PrimarySection>
 
       {selectedMember && (
         <MemberPanel

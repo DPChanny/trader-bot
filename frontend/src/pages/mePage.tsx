@@ -65,8 +65,13 @@ function PaymentCard({ payment }: PaymentCardProps) {
     day: "numeric",
   });
 
+  const failed = payment.paymentKey === null;
+
   return (
-    <Card direction="column" variantColor={PLAN_COLOR[payment.plan]}>
+    <Card
+      direction="column"
+      variantColor={failed ? "red" : PLAN_COLOR[payment.plan]}
+    >
       <Text variantWeight="bold">
         {`Trader Bot  ${PLAN_LABEL[payment.plan]} - ${payment.guild?.name ?? "알 수 없음"} `}
       </Text>

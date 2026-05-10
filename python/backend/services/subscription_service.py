@@ -141,7 +141,7 @@ async def get_subscription_service(
 ) -> SubscriptionDTO | None:
     sub_repo = SubscriptionRepository(session)
     subscription = await sub_repo.get_by_guild_id(guild_id)
-    if subscription is None:
+    if subscription is None or not subscription.is_valid:
         return None
     return SubscriptionDTO.model_validate(subscription)
 
