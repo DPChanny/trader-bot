@@ -4,10 +4,12 @@ import { Page, Column, Fill, Row } from "@components/atoms/layout";
 import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { NameTitle, Title, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
-import { Button, PrimaryButton, DangerButton } from "@components/atoms/button";
+import { PrimaryButton } from "@components/atoms/button";
 import { Card } from "@components/surfaces/card";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
+import { Select } from "@components/atoms/select";
+import { InternalLink } from "@components/atoms/link";
 import { useGuild } from "@features/guild/hook";
 import {
   useSubscription,
@@ -32,8 +34,8 @@ const PLAN_COLOR: Record<Plan, "green" | "gold"> = {
 };
 
 const PLAN_AMOUNT: Record<Plan, number> = {
-  [Plan.PLUS]: 10000,
-  [Plan.PRO]: 20000,
+  [Plan.PLUS]: 10_000,
+  [Plan.PRO]: 20_000,
 };
 
 export function GuildPage() {
@@ -63,63 +65,61 @@ export function GuildPage() {
     useRequestBilling();
   const { data: user } = useMyUser();
 
-  const [confirmType, setConfirmType] = useState<"stop" | "upgrade" | null>(
+  const [editPlan, setEditPlan] = useState<Plan | null>(null);
+  const [editBillingId, setEditBillingId] = useState<number | "none" | null>(
     null,
   );
-  const [selectedBillingId, setSelectedBillingId] = useState<number | null>(
-    null,
-  );
-  const [selectedPlan, setSelectedPlan] = useState<Plan>(Plan.PLUS);
 
   // derived state
   const isActive = subscription != null;
   const hasBillingConn = isActive && subscription.billingId != null;
-  const isExpiring = isActive && !hasBillingConn;
   const hasDowngrade =
     hasBillingConn &&
     subscription?.nextPlan != null &&
     subscription?.nextPlan !== subscription?.plan;
-  const isNormal = hasBillingConn && !hasDowngrade;
   const isFree = !isActive;
 
-  const effectiveBillingId =
-    selectedBillingId ?? billings?.[0]?.billingId ?? null;
+  const s3Plan =
+    editPlan ?? subscription?.nextPlan ?? subscription?.plan ?? Plan.PLUS;
+  const s3EffectiveBillingId: number | "none" =
+    editBillingId !== null
+      ? editBillingId
+      : subscription?.billingId != null
+        ? subscription.billingId
+        : isFree
+          ? (billings?.[0]?.billingId ?? "none")
+          : "none";
 
-  const handleAddBilling = () => {
+  const handleAddBilling = async () => {
     if (!user) return;
-    void addBilling({ customerKey: `u-${user.discordId}` });
+    const billing = await addBilling({ customerKey: `u-${user.discordId}` });
+    if (billing) {
+      setEditBillingId(billing.billingId);
+    }
   };
 
-  const upgradeProration = (() => {
-    if (!isNormal || !subscription || subscription.plan !== Plan.PLUS) return 0;
-    const remaining = Math.max(
-      0,
-      Math.ceil(
-        (new Date(subscription.expiresAt).getTime() - Date.now()) /
-          (1000 * 60 * 60 * 24),
-      ),
-    );
-    return Math.round(
-      (PLAN_AMOUNT[Plan.PRO] - PLAN_AMOUNT[Plan.PLUS]) * (remaining / 30),
-    );
-  })();
-
-  const handleConfirm = () => {
-    if (!subscription) return;
-    if (confirmType === "upgrade") {
-      registerSubscription(
-        {
-          guildId,
-          dto: { billingId: subscription.billingId!, plan: Plan.PRO },
-        },
-        { onSuccess: () => setConfirmType(null) },
-      );
-    } else if (confirmType === "stop") {
+  const handleS3Save = () => {
+    if (s3EffectiveBillingId === "none") {
+      if (!isActive) return;
       cancelSubscription(
         { guildId },
-        { onSuccess: () => setConfirmType(null) },
+        {
+          onSuccess: () => {
+            setEditBillingId(null);
+          },
+        },
       );
+      return;
     }
+    registerSubscription(
+      { guildId, dto: { billingId: s3EffectiveBillingId, plan: s3Plan } },
+      {
+        onSuccess: () => {
+          setEditPlan(null);
+          setEditBillingId(null);
+        },
+      },
+    );
   };
 
   const statusText = (() => {
@@ -129,7 +129,7 @@ export function GuildPage() {
       month: "long",
       day: "numeric",
     });
-    if (isExpiring) return `${date} 만료 예정`;
+    if (!hasBillingConn) return `${date} 만료`;
     if (hasDowngrade && subscription.nextPlan != null)
       return `${date} ${PLAN_LABEL[subscription.nextPlan]} 자동 결제`;
     return `${date} 자동 결제`;
@@ -137,6 +137,34 @@ export function GuildPage() {
 
   const actionError = registerError ?? cancelError ?? addBillingError;
   const isBusy = isRegistering || isCancelling;
+
+  const immediateAmount = (() => {
+    if (s3EffectiveBillingId === "none") return null;
+    if (isActive && subscription && s3Plan > subscription.plan) {
+      const remaining = Math.max(
+        0,
+        new Date(subscription.expiresAt).getTime() - Date.now(),
+      );
+      const ratio = remaining / (30 * 24 * 60 * 60 * 1000);
+      return Math.round(
+        (PLAN_AMOUNT[s3Plan] - PLAN_AMOUNT[subscription.plan]) * ratio,
+      );
+    }
+    if (isFree) return PLAN_AMOUNT[s3Plan];
+    return null;
+  })();
+
+  const infoText =
+    s3EffectiveBillingId !== "none"
+      ? "자동 결제에 동의한 것으로 간주됩니다."
+      : null;
+
+  const buttonLabel =
+    immediateAmount != null
+      ? `₩${immediateAmount.toLocaleString("ko-KR")} 결제 후 ${hasBillingConn ? "저장" : "구독"}`
+      : isActive
+        ? "저장"
+        : "구독";
 
   return (
     <Page>
@@ -155,7 +183,6 @@ export function GuildPage() {
                 <Error error={subError}>구독 정보를 불러오지 못했습니다</Error>
               ) : (
                 <>
-                  {/* Status card */}
                   <Card
                     variantColor={
                       subscription ? PLAN_COLOR[subscription.plan] : "gray"
@@ -179,7 +206,6 @@ export function GuildPage() {
                         </Error>
                       )}
 
-                      {/* S1: FREE, no billing */}
                       {isFree && !billingsLoading && !billings?.length && (
                         <Column gap="xs">
                           <Text variantSize="small">
@@ -195,258 +221,91 @@ export function GuildPage() {
                         </Column>
                       )}
 
-                      {/* S2: FREE, has billing */}
-                      {isFree && !billingsLoading && !!billings?.length && (
-                        <Column gap="sm">
-                          <Row gap="xs">
-                            {([Plan.PLUS, Plan.PRO] as Plan[]).map((plan) => (
-                              <Button
-                                key={plan}
-                                variantTone="ghost"
-                                isPressed={selectedPlan === plan}
-                                onClick={() => setSelectedPlan(plan)}
-                              >
-                                {plan === Plan.PLUS
-                                  ? "Plus ₩10,000"
-                                  : "Pro ₩20,000"}
-                              </Button>
-                            ))}
-                          </Row>
-                          <Column gap="xs">
-                            {billings.map((b) => (
-                              <Button
-                                key={b.billingId}
-                                variantTone="ghost"
-                                variantSize="small"
-                                isPressed={effectiveBillingId === b.billingId}
-                                onClick={() =>
-                                  setSelectedBillingId(b.billingId)
-                                }
-                              >
-                                {b.name || "카드"}
-                              </Button>
-                            ))}
-                            <Button
-                              variantTone="ghost"
+                      {!billingsLoading && (!!billings?.length || isActive) && (
+                        <Column gap="xs">
+                          <Select
+                            value={String(s3Plan)}
+                            onChange={(e) =>
+                              setEditPlan(Number(e.target.value) as Plan)
+                            }
+                            variantSize="small"
+                          >
+                            <option value={String(Plan.PLUS)}>
+                              Plus ₩10,000/월
+                            </option>
+                            <option value={String(Plan.PRO)}>
+                              Pro ₩20,000/월
+                            </option>
+                          </Select>
+                          <Row gap="xs" align="center">
+                            <Select
+                              value={
+                                s3EffectiveBillingId === "none"
+                                  ? "none"
+                                  : String(s3EffectiveBillingId)
+                              }
+                              onChange={(e) => {
+                                const v = e.target.value;
+                                setEditBillingId(
+                                  v === "none" ? "none" : Number(v),
+                                );
+                              }}
                               variantSize="small"
+                              style={{ flex: 1 }}
+                            >
+                              {billings?.map((b) => (
+                                <option
+                                  key={b.billingId}
+                                  value={String(b.billingId)}
+                                >
+                                  {b.name || "카드"}
+                                </option>
+                              ))}
+                              {isActive &&
+                                !(
+                                  subscription && s3Plan > subscription.plan
+                                ) && (
+                                  <option value="none">자동 결제 없음</option>
+                                )}
+                            </Select>
+                            <PrimaryButton
+                              variantSize="small"
+                              variantContent="icon"
                               onClick={handleAddBilling}
                               disabled={!user}
                             >
-                              + 카드 추가
-                            </Button>
-                          </Column>
-                          <Text variantSize="small">
-                            구독 시 자동 결제에 동의한 것으로 간주됩니다.
-                          </Text>
+                              +
+                            </PrimaryButton>
+                          </Row>
+                          {infoText && (
+                            <Row gap="xs" align="center">
+                              <Text variantSize="small">{infoText}</Text>
+                              {immediateAmount != null && (
+                                <Text variantSize="small">
+                                  <InternalLink to="/terms-of-service">
+                                    이용약관
+                                  </InternalLink>
+                                </Text>
+                              )}
+                            </Row>
+                          )}
                           <PrimaryButton
-                            variantSize="large"
-                            onClick={() => {
-                              if (effectiveBillingId == null) return;
-                              registerSubscription({
-                                guildId,
-                                dto: {
-                                  billingId: effectiveBillingId,
-                                  plan: selectedPlan,
-                                },
-                              });
-                            }}
-                            disabled={isBusy || effectiveBillingId == null}
+                            variantSize="small"
+                            style={{ width: "100%" }}
+                            onClick={handleS3Save}
+                            disabled={
+                              isBusy ||
+                              (isActive
+                                ? editPlan === null && editBillingId === null
+                                : s3EffectiveBillingId === "none")
+                            }
                           >
-                            구독 시작
+                            {buttonLabel}
                           </PrimaryButton>
                         </Column>
                       )}
 
-                      {/* billings loading (S1/S2 undetermined) */}
                       {isFree && billingsLoading && <Loading />}
-
-                      {/* S3: Active, normal — actions */}
-                      {isNormal && subscription && confirmType == null && (
-                        <Column gap="xs">
-                          {subscription.plan === Plan.PLUS && (
-                            <PrimaryButton
-                              variantSize="small"
-                              onClick={() => setConfirmType("upgrade")}
-                              disabled={isBusy}
-                            >
-                              PRO로 업그레이드
-                            </PrimaryButton>
-                          )}
-                          {subscription.plan === Plan.PRO && (
-                            <Button
-                              variantTone="outline"
-                              variantSize="small"
-                              onClick={() => {
-                                if (!subscription.billingId) return;
-                                registerSubscription({
-                                  guildId,
-                                  dto: {
-                                    billingId: subscription.billingId,
-                                    plan: Plan.PLUS,
-                                  },
-                                });
-                              }}
-                              disabled={isBusy}
-                            >
-                              PLUS로 변경
-                            </Button>
-                          )}
-                          <DangerButton
-                            variantSize="small"
-                            onClick={() => setConfirmType("stop")}
-                            disabled={isBusy}
-                          >
-                            자동 결제 중지
-                          </DangerButton>
-                        </Column>
-                      )}
-
-                      {/* S3 confirm: upgrade */}
-                      {isNormal && confirmType === "upgrade" && (
-                        <Column gap="xs">
-                          <Text variantSize="small">
-                            {`지금 바로 ₩${upgradeProration.toLocaleString("ko-KR")}이 결제됩니다.`}
-                          </Text>
-                          <Row gap="xs">
-                            <PrimaryButton
-                              variantSize="small"
-                              onClick={handleConfirm}
-                              disabled={isRegistering}
-                            >
-                              결제
-                            </PrimaryButton>
-                            <Button
-                              variantTone="outline"
-                              variantSize="small"
-                              onClick={() => setConfirmType(null)}
-                            >
-                              취소
-                            </Button>
-                          </Row>
-                        </Column>
-                      )}
-
-                      {/* S3/S4 confirm: stop */}
-                      {(isNormal || hasDowngrade) && confirmType === "stop" && (
-                        <Column gap="xs">
-                          <Text variantSize="small">
-                            만료 후 Free로 전환됩니다.
-                          </Text>
-                          <Row gap="xs">
-                            <DangerButton
-                              variantSize="small"
-                              onClick={handleConfirm}
-                              disabled={isCancelling}
-                            >
-                              중지
-                            </DangerButton>
-                            <Button
-                              variantTone="outline"
-                              variantSize="small"
-                              onClick={() => setConfirmType(null)}
-                            >
-                              취소
-                            </Button>
-                          </Row>
-                        </Column>
-                      )}
-
-                      {/* S4: Downgrade pending */}
-                      {hasDowngrade && subscription && confirmType == null && (
-                        <Column gap="xs">
-                          <Button
-                            variantTone="outline"
-                            variantSize="small"
-                            onClick={() => {
-                              if (!subscription.billingId) return;
-                              registerSubscription({
-                                guildId,
-                                dto: {
-                                  billingId: subscription.billingId,
-                                  plan: subscription.plan,
-                                },
-                              });
-                            }}
-                            disabled={isBusy}
-                          >
-                            다운그레이드 취소
-                          </Button>
-                          <DangerButton
-                            variantSize="small"
-                            onClick={() => setConfirmType("stop")}
-                            disabled={isBusy}
-                          >
-                            자동 결제 중지
-                          </DangerButton>
-                        </Column>
-                      )}
-
-                      {/* S5: Expiring, no billing */}
-                      {isExpiring && !billingsLoading && !billings?.length && (
-                        <Column gap="xs">
-                          <Text variantSize="small">
-                            결제 수단을 등록하면 자동 갱신됩니다.
-                          </Text>
-                          <PrimaryButton
-                            variantSize="small"
-                            onClick={handleAddBilling}
-                            disabled={!user}
-                          >
-                            카드 등록
-                          </PrimaryButton>
-                        </Column>
-                      )}
-
-                      {/* S5: Expiring, has billing */}
-                      {isExpiring &&
-                        subscription &&
-                        !billingsLoading &&
-                        !!billings?.length && (
-                          <Column gap="sm">
-                            <Column gap="xs">
-                              {billings.map((b) => (
-                                <Button
-                                  key={b.billingId}
-                                  variantTone="ghost"
-                                  variantSize="small"
-                                  isPressed={effectiveBillingId === b.billingId}
-                                  onClick={() =>
-                                    setSelectedBillingId(b.billingId)
-                                  }
-                                >
-                                  {b.name || "카드"}
-                                </Button>
-                              ))}
-                              <Button
-                                variantTone="ghost"
-                                variantSize="small"
-                                onClick={handleAddBilling}
-                                disabled={!user}
-                              >
-                                + 카드 추가
-                              </Button>
-                            </Column>
-                            <PrimaryButton
-                              variantSize="large"
-                              onClick={() => {
-                                if (effectiveBillingId == null) return;
-                                registerSubscription({
-                                  guildId,
-                                  dto: {
-                                    billingId: effectiveBillingId,
-                                    plan: subscription.plan,
-                                  },
-                                });
-                              }}
-                              disabled={isBusy || effectiveBillingId == null}
-                            >
-                              자동 결제 활성화
-                            </PrimaryButton>
-                          </Column>
-                        )}
-
-                      {/* billings loading (S5 undetermined) */}
-                      {isExpiring && billingsLoading && <Loading />}
                     </Column>
                   )}
                 </>

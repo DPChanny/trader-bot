@@ -92,26 +92,37 @@ export function useBillingCallback() {
 }
 
 export function useRequestBilling(): {
-  requestBilling: ({ customerKey }: { customerKey: string }) => Promise<void>;
+  requestBilling: ({
+    customerKey,
+  }: {
+    customerKey: string;
+  }) => Promise<BillingDTO | null>;
   error: AppError | null;
 } {
   const [error, setError] = useState<AppError | null>(null);
+  const queryClient = useQueryClient();
 
   const request = useCallback(
     async ({ customerKey }: { customerKey: string }) => {
       setError(null);
       try {
-        await requestBilling({ customerKey });
+        const billing = await requestBilling({ customerKey });
+        queryClient.setQueryData<BillingDTO[]>(queryKeys.billings(), (prev) => [
+          ...(prev ?? []),
+          billing,
+        ]);
+        return billing;
       } catch (e) {
-        if (e === null) return;
+        if (e === null) return null;
         setError(
           e instanceof AppError
             ? e
             : new AppError(FrontendErrorCode.Unexpected.External),
         );
+        return null;
       }
     },
-    [],
+    [queryClient],
   );
 
   return { requestBilling: request, error };
