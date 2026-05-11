@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams } from "@tanstack/react-router";
+import { Route } from "@routes/guild/$guildId/member";
 import { Page, Column, Fill, Row } from "@components/atoms/layout";
 import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { NameTitle, Title, Text } from "@components/atoms/text";
@@ -17,7 +18,11 @@ import {
   useUpdateSubscription,
   useCancelSubscription,
 } from "@features/subscription/hook";
-import { useBillings, useRequestBilling } from "@features/billing/hook";
+import {
+  useBillings,
+  useRequestBilling,
+  useBillingCallback,
+} from "@features/billing/hook";
 import { useMyUser } from "@features/user/hook";
 import { useVerifyRole } from "@features/member/hook";
 import { Plan, type UpdateSubscriptionDTO } from "@features/subscription/dto";
@@ -70,8 +75,7 @@ function SubscriptionSection({ guildId, isOwner }: SubscriptionSectionProps) {
     error: registerError,
   } = useRegisterSubscription();
   const { data: billings, isLoading: billingsLoading } = useBillings();
-  const { requestBilling: addBilling, error: addBillingError } =
-    useRequestBilling();
+  const { requestBilling } = useRequestBilling();
   const { data: user } = useMyUser();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -117,13 +121,9 @@ function SubscriptionSection({ guildId, isOwner }: SubscriptionSectionProps) {
     );
   };
 
-  const handleAddBilling = async () => {
+  const handleRequestBilling = () => {
     if (!user) return;
-    const billing = await addBilling({ customerKey: `u-${user.discordId}` });
-    if (billing) {
-      setEditBillingId(billing.billingId);
-      setAgreed(false);
-    }
+    requestBilling({ customerKey: `u-${user.discordId}` });
   };
 
   const statusDate =
@@ -135,7 +135,7 @@ function SubscriptionSection({ guildId, isOwner }: SubscriptionSectionProps) {
         })
       : null;
   const statusText = statusDate != null ? `${statusDate} 만료` : null;
-  const actionError = registerError ?? addBillingError;
+  const actionError = registerError;
 
   return (
     <SecondarySection gap="sm">
@@ -230,7 +230,7 @@ function SubscriptionSection({ guildId, isOwner }: SubscriptionSectionProps) {
                       <PrimaryButton
                         variantSize="small"
                         variantContent="icon"
-                        onClick={handleAddBilling}
+                        onClick={handleRequestBilling}
                         disabled={!user}
                       >
                         +
@@ -239,7 +239,7 @@ function SubscriptionSection({ guildId, isOwner }: SubscriptionSectionProps) {
                   ) : (
                     <PrimaryButton
                       variantSize="small"
-                      onClick={handleAddBilling}
+                      onClick={handleRequestBilling}
                       disabled={!user}
                     >
                       결제 수단 추가
@@ -298,8 +298,7 @@ function BillingSection({ guildId }: { guildId: string }) {
     error: cancelError,
   } = useCancelSubscription();
   const { data: billings, isLoading: billingsLoading } = useBillings();
-  const { requestBilling: addBilling, error: addBillingError } =
-    useRequestBilling();
+  const { requestBilling } = useRequestBilling();
   const { data: user } = useMyUser();
 
   const [editPlan, setEditPlan] = useState<Plan | null>(null);
@@ -336,7 +335,7 @@ function BillingSection({ guildId }: { guildId: string }) {
         billingId !== (subscription.billingId ?? "none");
 
   const isBusy = isUpdating || isCancelling;
-  const actionError = updateError ?? cancelError ?? addBillingError;
+  const actionError = updateError ?? cancelError;
 
   const resetEdit = () => {
     setEditPlan(null);
@@ -354,13 +353,9 @@ function BillingSection({ guildId }: { guildId: string }) {
     updateSubscription({ guildId, dto }, { onSuccess: resetEdit });
   };
 
-  const handleAddBilling = async () => {
+  const handleRequestBilling = () => {
     if (!user) return;
-    const billing = await addBilling({ customerKey: `u-${user.discordId}` });
-    if (billing) {
-      setEditBillingId(billing.billingId);
-      setAgreed(false);
-    }
+    requestBilling({ customerKey: `u-${user.discordId}` });
   };
 
   return (
@@ -418,7 +413,7 @@ function BillingSection({ guildId }: { guildId: string }) {
                 <PrimaryButton
                   variantSize="small"
                   variantContent="icon"
-                  onClick={handleAddBilling}
+                  onClick={handleRequestBilling}
                   disabled={!user}
                 >
                   +
@@ -427,7 +422,7 @@ function BillingSection({ guildId }: { guildId: string }) {
             ) : (
               <PrimaryButton
                 variantSize="small"
-                onClick={handleAddBilling}
+                onClick={handleRequestBilling}
                 disabled={!user}
               >
                 결제 수단 추가
@@ -512,9 +507,14 @@ function PlanSection() {
 
 export function GuildPage() {
   const { guildId } = useParams({ strict: false }) as { guildId: string };
+  const { authKey, code } = Route.useSearch();
 
   const guild = useGuild(guildId);
   const isOwner = useVerifyRole(guildId, Role.OWNER);
+  const { error: billingCallbackError } = useBillingCallback({
+    authKey,
+    code,
+  });
 
   return (
     <Page>
@@ -523,6 +523,11 @@ export function GuildPage() {
         <Bar />
         <Fill overflow="auto">
           <Column gap="md" fill>
+            {billingCallbackError && (
+              <Error error={billingCallbackError}>
+                결제 수단 추가에 실패했습니다
+              </Error>
+            )}
             <SubscriptionSection guildId={guildId} isOwner={isOwner} />
             {isOwner && <BillingSection guildId={guildId} />}
             <PlanSection />

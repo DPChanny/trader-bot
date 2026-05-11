@@ -10,7 +10,8 @@
       "@styles/*": ["../src/styles/*"],
       "@features/*": ["../src/features/*"],
       "@hooks/*": ["../src/hooks/*"],
-      "@utils/*": ["../src/utils/*"]
+      "@utils/*": ["../src/utils/*"],
+      "@routes/*": ["../src/routes/*"]
     },
     "types": ["vite/client"],
 

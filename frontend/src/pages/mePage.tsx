@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { Route } from "@routes/me";
 import { Page, Column, Row, Scroll } from "@components/atoms/layout";
 import {
   PrimarySection,
@@ -15,6 +16,7 @@ import { Modal, ModalFooter } from "@components/modal";
 import {
   useBillings,
   useDeleteBilling,
+  useBillingCallback,
   useRequestBilling,
 } from "@features/billing/hook";
 import { useMyPayments, useDeleteMyUser, useMyUser } from "@features/user/hook";
@@ -85,6 +87,7 @@ function PaymentCard({ payment }: PaymentCardProps) {
 
 export function MePage() {
   const navigate = useNavigate();
+  const { authKey, code } = Route.useSearch();
   const { data: user } = useMyUser();
   const {
     data: billings,
@@ -97,12 +100,12 @@ export function MePage() {
 
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
-  const { requestBilling: addBilling, error: addBillingError } =
-    useRequestBilling();
+  const { error: billingCallbackError } = useBillingCallback({ authKey, code });
+  const { requestBilling } = useRequestBilling();
 
-  const handleAddBilling = () => {
+  const handleRequestBilling = () => {
     if (!user) return;
-    void addBilling({ customerKey: `u-${user.discordId}` });
+    requestBilling({ customerKey: `u-${user.discordId}` });
   };
 
   const handleWithdraw = () => {
@@ -123,15 +126,15 @@ export function MePage() {
               <Title align="start">결제 수단</Title>
               <PrimaryButton
                 variantSize="small"
-                onClick={handleAddBilling}
+                onClick={handleRequestBilling}
                 disabled={!user}
               >
                 추가
               </PrimaryButton>
             </Row>
 
-            {addBillingError && (
-              <Error error={addBillingError}>
+            {billingCallbackError && (
+              <Error error={billingCallbackError}>
                 결제 수단 추가에 실패했습니다
               </Error>
             )}

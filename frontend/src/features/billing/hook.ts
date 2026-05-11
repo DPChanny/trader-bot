@@ -6,7 +6,6 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import type { BillingDTO } from "@features/billing/dto";
 import { AppError, FrontendErrorCode } from "@utils/error";
 import { queryKeys, queryStaleTimes } from "@utils/query";
@@ -17,115 +16,67 @@ import {
   requestBilling,
 } from "./api";
 
-export function useBillingCallback() {
+export function useBillingCallback({
+  authKey,
+  code,
+}: {
+  authKey: string | undefined;
+  code: string | undefined;
+}): {
+  error: AppError | null;
+  isPending: boolean;
+} {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const called = useRef(false);
   const [error, setError] = useState<AppError | null>(null);
+  const [isPending, setIsPending] = useState(authKey !== undefined);
 
   useEffect(() => {
     if (called.current) return;
+    if (authKey === undefined && code === undefined) return;
     called.current = true;
 
-    const params = new URLSearchParams(window.location.search);
-    const authKey = params.get("authKey");
-    const opener = window.opener as Window | null;
-
-    const code = params.get("code");
-    if (code !== null) {
-      if (opener) {
-        const type =
-          code === "PAY_PROCESS_CANCELED"
-            ? "BILLING_AUTH_CANCELED"
-            : "BILLING_AUTH_ERROR";
-        opener.postMessage({ type }, window.location.origin);
-        window.close();
-      } else {
-        const redirect = sessionStorage.getItem("billingAuthRedirect") ?? "/me";
-        sessionStorage.removeItem("billingAuthRedirect");
-        void navigate({ to: redirect, replace: true });
+    if (code !== undefined) {
+      if (code !== "PAY_PROCESS_CANCELED") {
+        setError(new AppError(FrontendErrorCode.Unexpected.External));
       }
+      setIsPending(false);
       return;
     }
 
     if (!authKey) {
       setError(new AppError(FrontendErrorCode.Unexpected.External));
+      setIsPending(false);
       return;
     }
 
     registerBilling({ authKey })
-      .then((data) => {
-        if (opener) {
-          opener.postMessage(
-            { type: "BILLING_AUTH_SUCCESS", billing: data },
-            window.location.origin,
-          );
-          window.close();
-        } else {
-          void queryClient.invalidateQueries({
-            queryKey: queryKeys.billings(),
-          });
-          const redirect =
-            sessionStorage.getItem("billingAuthRedirect") ?? "/me";
-          sessionStorage.removeItem("billingAuthRedirect");
-          void navigate({ to: redirect, replace: true });
-        }
+      .then(() => {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.billings() });
       })
       .catch((e: unknown) => {
-        if (opener) {
-          opener.postMessage(
-            { type: "BILLING_AUTH_ERROR" },
-            window.location.origin,
-          );
-          window.close();
-        } else {
-          setError(
-            e instanceof AppError
-              ? e
-              : new AppError(FrontendErrorCode.Unexpected.External),
-          );
-        }
-      });
-  }, []);
-
-  return { error };
-}
-
-export function useRequestBilling(): {
-  requestBilling: ({
-    customerKey,
-  }: {
-    customerKey: string;
-  }) => Promise<BillingDTO | null>;
-  error: AppError | null;
-} {
-  const [error, setError] = useState<AppError | null>(null);
-  const queryClient = useQueryClient();
-
-  const request = useCallback(
-    async ({ customerKey }: { customerKey: string }) => {
-      setError(null);
-      try {
-        const billing = await requestBilling({ customerKey });
-        queryClient.setQueryData<BillingDTO[]>(queryKeys.billings(), (prev) => [
-          ...(prev ?? []),
-          billing,
-        ]);
-        return billing;
-      } catch (e) {
-        if (e === null) return null;
         setError(
           e instanceof AppError
             ? e
             : new AppError(FrontendErrorCode.Unexpected.External),
         );
-        return null;
-      }
-    },
-    [queryClient],
-  );
+      })
+      .finally(() => {
+        setIsPending(false);
+      });
+  }, []);
 
-  return { requestBilling: request, error };
+  return { error, isPending };
+}
+
+export function useRequestBilling(): {
+  requestBilling: ({ customerKey }: { customerKey: string }) => void;
+} {
+  const request = useCallback(({ customerKey }: { customerKey: string }) => {
+    void requestBilling({ customerKey });
+  }, []);
+
+  return { requestBilling: request };
 }
 
 export function useBillings(): UseQueryResult<BillingDTO[], AppError> {
