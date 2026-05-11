@@ -75,7 +75,7 @@ function PaymentCard({ payment }: PaymentCardProps) {
       <Text variantWeight="bold">
         {`Trader Bot  ${PLAN_LABEL[payment.plan]} - ${payment.guild?.name ?? "알 수 없음"} `}
       </Text>
-      <Text>
+      <Text variantSize="small">
         {`${payment.billing?.name ?? "알 수 없음"} - ${payment.amount.toLocaleString("ko-KR")}원`}
       </Text>
       <Text variantSize="small">{date}</Text>
@@ -117,89 +117,85 @@ export function MePage() {
   return (
     <Page>
       <Column align="center" fill>
-        <PrimarySection width="page" minSize fill>
-          <Scroll>
-            <SecondarySection fill gap="md">
-              <Row justify="between" align="center">
-                <Title align="start">결제 수단</Title>
-                <PrimaryButton
-                  variantSize="small"
-                  onClick={handleAddBilling}
-                  disabled={!user}
-                >
-                  추가
-                </PrimaryButton>
-              </Row>
+        <PrimarySection width="page" fill>
+          <SecondarySection fill minSize>
+            <Row justify="between" align="center">
+              <Title align="start">결제 수단</Title>
+              <PrimaryButton
+                variantSize="small"
+                onClick={handleAddBilling}
+                disabled={!user}
+              >
+                추가
+              </PrimaryButton>
+            </Row>
 
-              {addBillingError && (
-                <Error error={addBillingError}>
-                  결제 수단 추가에 실패했습니다
+            {addBillingError && (
+              <Error error={addBillingError}>
+                결제 수단 추가에 실패했습니다
+              </Error>
+            )}
+            {billingsLoading ? (
+              <TertiarySection fill>
+                <Loading />
+              </TertiarySection>
+            ) : billingsError ? (
+              <TertiarySection fill>
+                <Error error={billingsError}>
+                  결제 수단을 불러오지 못했습니다
                 </Error>
-              )}
-              {billingsLoading ? (
-                <TertiarySection fill>
-                  <Loading />
-                </TertiarySection>
-              ) : billingsError ? (
-                <TertiarySection fill>
-                  <Error error={billingsError}>
-                    결제 수단을 불러오지 못했습니다
-                  </Error>
-                </TertiarySection>
-              ) : !billings?.length ? (
-                <TertiarySection fill center>
-                  <Text>등록된 결제 수단이 없습니다.</Text>
-                </TertiarySection>
-              ) : (
-                <TertiarySection fill>
-                  <Column gap="sm">
-                    {billings.map((b) => (
-                      <BillingCard
-                        key={b.billingId}
-                        billing={b}
-                        onDelete={() =>
-                          deleteBilling({ billingId: b.billingId })
-                        }
-                        isDeleting={isDeleting}
-                      />
-                    ))}
-                  </Column>
-                </TertiarySection>
-              )}
-              <Text tone="accent">
-                결제 수단을 등록하면 자동결제에 동의한 것으로 간주됩니다. 수단
-                삭제 시 해당 수단에 연결된 구독의 자동결제가 중단됩니다.
-              </Text>
-            </SecondarySection>
+              </TertiarySection>
+            ) : !billings?.length ? (
+              <TertiarySection fill center>
+                <Text>등록된 결제 수단이 없습니다.</Text>
+              </TertiarySection>
+            ) : (
+              <TertiarySection fill>
+                <Column gap="sm">
+                  {billings.map((b) => (
+                    <BillingCard
+                      key={b.billingId}
+                      billing={b}
+                      onDelete={() => deleteBilling({ billingId: b.billingId })}
+                      isDeleting={isDeleting}
+                    />
+                  ))}
+                </Column>
+              </TertiarySection>
+            )}
+            <Text tone="accent">
+              결제 수단을 등록하면 자동결제에 동의한 것으로 간주됩니다. 수단
+              삭제 시 해당 수단에 연결된 구독의 자동결제가 중단됩니다.
+            </Text>
+          </SecondarySection>
 
-            <SecondarySection fill gap="md">
-              <Title align="start">결제 내역</Title>
-              {paymentsLoading ? (
-                <TertiarySection fill>
-                  <Loading />
-                </TertiarySection>
-              ) : !(payments ?? []).length ? (
-                <TertiarySection fill center>
-                  <Text>결제 내역이 없습니다.</Text>
-                </TertiarySection>
-              ) : (
-                <TertiarySection fill>
-                  <Column gap="sm">
-                    {[...payments!].reverse().map((p) => (
-                      <PaymentCard key={p.paymentId} payment={p} />
-                    ))}
-                  </Column>
-                </TertiarySection>
-              )}
-            </SecondarySection>
+          <SecondarySection fill minSize>
+            <Title align="start">결제 내역</Title>
+            {paymentsLoading ? (
+              <TertiarySection fill>
+                <Loading />
+              </TertiarySection>
+            ) : !(payments ?? []).length ? (
+              <TertiarySection fill center>
+                <Text>결제 내역이 없습니다.</Text>
+              </TertiarySection>
+            ) : (
+              <TertiarySection minSize>
+                <Scroll axis="y">
+                  {[...payments!].reverse().map((p) => (
+                    <PaymentCard key={p.paymentId} payment={p} />
+                  ))}
+                </Scroll>
+              </TertiarySection>
+            )}
+          </SecondarySection>
 
-            <DangerButton
-              variantSize="small"
-              onClick={() => setShowWithdrawModal(true)}
-            >
-              초기화
-            </DangerButton>
-          </Scroll>
+          <DangerButton
+            variantSize="small"
+            onClick={() => setShowWithdrawModal(true)}
+          >
+            초기화
+          </DangerButton>
         </PrimarySection>
       </Column>
 

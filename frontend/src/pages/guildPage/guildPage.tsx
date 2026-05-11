@@ -70,25 +70,23 @@ export function GuildPage() {
     null,
   );
 
-  // derived state
-  const isActive = subscription != null;
-  const hasBillingConn = isActive && subscription.billingId != null;
-  const hasDowngrade =
-    hasBillingConn &&
-    subscription?.nextPlan != null &&
-    subscription?.nextPlan !== subscription?.plan;
-  const isFree = !isActive;
-
-  const s3Plan =
+  const selectedPlan =
     editPlan ?? subscription?.nextPlan ?? subscription?.plan ?? Plan.PLUS;
-  const s3EffectiveBillingId: number | "none" =
-    editBillingId !== null
-      ? editBillingId
-      : subscription?.billingId != null
+
+  const canSelectNone =
+    subscription != null && selectedPlan <= subscription.plan;
+
+  const selectedBillingId: number | "none" = (() => {
+    const raw: number | "none" =
+      editBillingId ??
+      (subscription != null
         ? subscription.billingId
-        : isFree
-          ? (billings?.[0]?.billingId ?? "none")
-          : "none";
+        : billings?.[0]?.billingId) ??
+      "none";
+    return raw === "none" && !canSelectNone
+      ? (billings?.[0]?.billingId ?? "none")
+      : raw;
+  })();
 
   const handleAddBilling = async () => {
     if (!user) return;
@@ -98,21 +96,17 @@ export function GuildPage() {
     }
   };
 
-  const handleS3Save = () => {
-    if (s3EffectiveBillingId === "none") {
-      if (!isActive) return;
+  const handleSave = () => {
+    if (selectedBillingId === "none") {
+      if (!subscription) return;
       cancelSubscription(
         { guildId },
-        {
-          onSuccess: () => {
-            setEditBillingId(null);
-          },
-        },
+        { onSuccess: () => setEditBillingId(null) },
       );
       return;
     }
     registerSubscription(
-      { guildId, dto: { billingId: s3EffectiveBillingId, plan: s3Plan } },
+      { guildId, dto: { billingId: selectedBillingId, plan: selectedPlan } },
       {
         onSuccess: () => {
           setEditPlan(null);
@@ -122,49 +116,49 @@ export function GuildPage() {
     );
   };
 
-  const statusText = (() => {
-    if (!subscription) return null;
-    const date = new Date(subscription.expiresAt).toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    if (!hasBillingConn) return `${date} 만료`;
-    if (hasDowngrade && subscription.nextPlan != null)
-      return `${date} ${PLAN_LABEL[subscription.nextPlan]} 자동 결제`;
-    return `${date} 자동 결제`;
-  })();
+  const statusDate =
+    subscription != null
+      ? new Date(subscription.expiresAt).toLocaleDateString("ko-KR", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : null;
+
+  const statusText =
+    statusDate == null
+      ? null
+      : subscription!.billingId == null
+        ? `${statusDate} 만료`
+        : subscription!.nextPlan != null &&
+            subscription!.nextPlan !== subscription!.plan
+          ? `${statusDate} ${PLAN_LABEL[subscription!.nextPlan]} 자동 결제`
+          : `${statusDate} 자동 결제`;
 
   const actionError = registerError ?? cancelError ?? addBillingError;
   const isBusy = isRegistering || isCancelling;
 
-  const immediateAmount = (() => {
-    if (s3EffectiveBillingId === "none") return null;
-    if (isActive && subscription && s3Plan > subscription.plan) {
-      const remaining = Math.max(
-        0,
-        new Date(subscription.expiresAt).getTime() - Date.now(),
-      );
-      const ratio = remaining / (30 * 24 * 60 * 60 * 1000);
-      return Math.round(
-        (PLAN_AMOUNT[s3Plan] - PLAN_AMOUNT[subscription.plan]) * ratio,
-      );
-    }
-    if (isFree) return PLAN_AMOUNT[s3Plan];
-    return null;
-  })();
+  const immediateAmount: number | null =
+    selectedBillingId === "none"
+      ? null
+      : subscription != null && selectedPlan > subscription.plan
+        ? Math.round(
+            (PLAN_AMOUNT[selectedPlan] - PLAN_AMOUNT[subscription.plan]) *
+              (Math.max(
+                0,
+                new Date(subscription.expiresAt).getTime() - Date.now(),
+              ) /
+                (30 * 24 * 60 * 60 * 1000)),
+          )
+        : subscription == null
+          ? PLAN_AMOUNT[selectedPlan]
+          : null;
 
-  const infoText =
-    s3EffectiveBillingId !== "none"
-      ? "자동 결제에 동의한 것으로 간주됩니다."
-      : null;
-
+  const saveLabel = subscription != null ? "저장" : "구독";
   const buttonLabel =
     immediateAmount != null
-      ? `₩${immediateAmount.toLocaleString("ko-KR")} 결제 후 ${hasBillingConn ? "저장" : "구독"}`
-      : isActive
-        ? "저장"
-        : "구독";
+      ? `₩${immediateAmount.toLocaleString("ko-KR")} 결제 후 ${saveLabel}`
+      : saveLabel;
 
   return (
     <Page>
@@ -206,106 +200,107 @@ export function GuildPage() {
                         </Error>
                       )}
 
-                      {isFree && !billingsLoading && !billings?.length && (
-                        <Column gap="xs">
-                          <Text variantSize="small">
-                            구독을 시작하려면 결제 수단이 필요합니다.
-                          </Text>
-                          <PrimaryButton
-                            variantSize="small"
-                            onClick={handleAddBilling}
-                            disabled={!user}
-                          >
-                            카드 등록
-                          </PrimaryButton>
-                        </Column>
-                      )}
+                      {subscription == null && billingsLoading && <Loading />}
 
-                      {!billingsLoading && (!!billings?.length || isActive) && (
-                        <Column gap="xs">
-                          <Select
-                            value={String(s3Plan)}
-                            onChange={(e) =>
-                              setEditPlan(Number(e.target.value) as Plan)
-                            }
-                            variantSize="small"
-                          >
-                            <option value={String(Plan.PLUS)}>
-                              Plus ₩10,000/월
-                            </option>
-                            <option value={String(Plan.PRO)}>
-                              Pro ₩20,000/월
-                            </option>
-                          </Select>
-                          <Row gap="xs" align="center">
-                            <Select
-                              value={
-                                s3EffectiveBillingId === "none"
-                                  ? "none"
-                                  : String(s3EffectiveBillingId)
-                              }
-                              onChange={(e) => {
-                                const v = e.target.value;
-                                setEditBillingId(
-                                  v === "none" ? "none" : Number(v),
-                                );
-                              }}
-                              variantSize="small"
-                              style={{ flex: 1 }}
-                            >
-                              {billings?.map((b) => (
-                                <option
-                                  key={b.billingId}
-                                  value={String(b.billingId)}
-                                >
-                                  {b.name || "카드"}
-                                </option>
-                              ))}
-                              {isActive &&
-                                !(
-                                  subscription && s3Plan > subscription.plan
-                                ) && (
-                                  <option value="none">자동 결제 없음</option>
-                                )}
-                            </Select>
+                      {!billingsLoading &&
+                        !billings?.length &&
+                        subscription?.billingId == null && (
+                          <Column gap="xs">
+                            <Text variantSize="small">
+                              구독을 시작하려면 결제 수단이 필요합니다.
+                            </Text>
                             <PrimaryButton
                               variantSize="small"
-                              variantContent="icon"
                               onClick={handleAddBilling}
                               disabled={!user}
                             >
-                              +
+                              카드 등록
                             </PrimaryButton>
-                          </Row>
-                          {infoText && (
-                            <Row gap="xs" align="center">
-                              <Text variantSize="small">{infoText}</Text>
-                              {immediateAmount != null && (
-                                <Text variantSize="small">
-                                  <InternalLink to="/terms-of-service">
-                                    이용약관
-                                  </InternalLink>
-                                </Text>
-                              )}
-                            </Row>
-                          )}
-                          <PrimaryButton
-                            variantSize="small"
-                            style={{ width: "100%" }}
-                            onClick={handleS3Save}
-                            disabled={
-                              isBusy ||
-                              (isActive
-                                ? editPlan === null && editBillingId === null
-                                : s3EffectiveBillingId === "none")
-                            }
-                          >
-                            {buttonLabel}
-                          </PrimaryButton>
-                        </Column>
-                      )}
+                          </Column>
+                        )}
 
-                      {isFree && billingsLoading && <Loading />}
+                      {!billingsLoading &&
+                        (!!billings?.length ||
+                          subscription?.billingId != null) && (
+                          <Column gap="xs">
+                            <Select
+                              value={String(selectedPlan)}
+                              onChange={(e) =>
+                                setEditPlan(Number(e.target.value) as Plan)
+                              }
+                              variantSize="small"
+                            >
+                              <option value={String(Plan.PLUS)}>
+                                Plus ₩10,000/월
+                              </option>
+                              <option value={String(Plan.PRO)}>
+                                Pro ₩20,000/월
+                              </option>
+                            </Select>
+                            <Row gap="xs" align="center">
+                              <Select
+                                value={
+                                  selectedBillingId === "none"
+                                    ? "none"
+                                    : String(selectedBillingId)
+                                }
+                                onChange={(e) => {
+                                  const v = e.target.value;
+                                  setEditBillingId(
+                                    v === "none" ? "none" : Number(v),
+                                  );
+                                }}
+                                variantSize="small"
+                                style={{ flex: 1 }}
+                              >
+                                {billings?.map((b) => (
+                                  <option
+                                    key={b.billingId}
+                                    value={String(b.billingId)}
+                                  >
+                                    {b.name || "카드"}
+                                  </option>
+                                ))}
+                                {canSelectNone && (
+                                  <option value="none">자동 결제 없음</option>
+                                )}
+                              </Select>
+                              <PrimaryButton
+                                variantSize="small"
+                                variantContent="icon"
+                                onClick={handleAddBilling}
+                                disabled={!user}
+                              >
+                                +
+                              </PrimaryButton>
+                            </Row>
+                            {selectedBillingId !== "none" && (
+                              <Text variantSize="small">
+                                자동 결제에 동의한 것으로 간주됩니다.
+                                <InternalLink to="/terms-of-service">
+                                  이용약관
+                                </InternalLink>
+                              </Text>
+                            )}
+                            <PrimaryButton
+                              variantSize="small"
+                              style={{ width: "100%" }}
+                              onClick={handleSave}
+                              disabled={
+                                isBusy ||
+                                (subscription != null
+                                  ? selectedPlan ===
+                                      (subscription.nextPlan ??
+                                        subscription.plan) &&
+                                    selectedBillingId ===
+                                      (subscription.billingId ?? "none")
+                                  : selectedBillingId === "none")
+                              }
+                            >
+                              {buttonLabel}
+                            </PrimaryButton>
+                          </Column>
+                        )}
                     </Column>
                   )}
                 </>
