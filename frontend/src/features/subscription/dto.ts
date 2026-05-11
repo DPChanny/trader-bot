@@ -20,3 +20,8 @@ export interface RegisterSubscriptionDTO {
   billingId: number;
   plan: Plan;
 }
+
+export interface UpdateSubscriptionDTO {
+  billingId?: number;
+  nextPlan?: Plan | null;
+}

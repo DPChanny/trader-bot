@@ -60,6 +60,7 @@ class PresetErrorCode(IntEnum):
 
 class SubscriptionErrorCode(IntEnum):
     Duplicated = 4208
+    Invalid = 4209
     NotFound = 4410
 
 

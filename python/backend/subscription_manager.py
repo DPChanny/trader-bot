@@ -65,7 +65,7 @@ class SubscriptionManager:
         if billing is None:
             return
 
-        plan = Plan(sub.next_plan if sub.next_plan is not None else sub.plan)
+        plan = Plan(sub.next_plan) if sub.next_plan is not None else Plan(sub.plan)
         amount = _PLAN_AMOUNT[plan]
         order_id = uuid.uuid4().hex
         payment_key: str | None = None

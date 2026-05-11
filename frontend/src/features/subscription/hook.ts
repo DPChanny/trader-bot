@@ -11,6 +11,7 @@ import { queryKeys } from "@utils/query";
 import {
   getSubscription,
   registerSubscription,
+  updateSubscription,
   cancelSubscription,
 } from "./api";
 
@@ -33,6 +34,25 @@ export function useRegisterSubscription(): UseMutationResult<
 
   return useMutation({
     mutationFn: registerSubscription,
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<SubscriptionDTO>(
+        queryKeys.subscription(variables.guildId),
+        data,
+      );
+    },
+  });
+}
+
+export function useUpdateSubscription(): UseMutationResult<
+  Awaited<ReturnType<typeof updateSubscription>>,
+  AppError,
+  Parameters<typeof updateSubscription>[0],
+  unknown
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateSubscription,
     onSuccess: (data, variables) => {
       queryClient.setQueryData<SubscriptionDTO>(
         queryKeys.subscription(variables.guildId),

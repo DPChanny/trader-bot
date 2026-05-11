@@ -1,13 +1,18 @@
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.dtos.subscription import RegisterSubscriptionDTO, SubscriptionDTO
+from shared.dtos.subscription import (
+    RegisterSubscriptionDTO,
+    UpdateSubscriptionDTO,
+    SubscriptionDTO,
+)
 from shared.utils.db import get_session
 
 from ..services.subscription_service import (
     cancel_subscription_service,
     get_subscription_service,
     register_subscription_service,
+    update_subscription_service,
 )
 from ..utils.token import verify_access_token
 
@@ -25,6 +30,16 @@ async def register_subscription_route(
     user_id: int = Depends(verify_access_token),
 ):
     return await register_subscription_service(guild_id, user_id, dto, session)
+
+
+@subscription_router.patch("", response_model=SubscriptionDTO)
+async def update_subscription_route(
+    guild_id: int,
+    dto: UpdateSubscriptionDTO,
+    session: AsyncSession = Depends(get_session),
+    user_id: int = Depends(verify_access_token),
+):
+    return await update_subscription_service(guild_id, user_id, dto, session)
 
 
 @subscription_router.get("", response_model=SubscriptionDTO)

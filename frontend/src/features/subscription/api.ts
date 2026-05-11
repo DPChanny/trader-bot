@@ -1,6 +1,7 @@
 import type {
   SubscriptionDTO,
   RegisterSubscriptionDTO,
+  UpdateSubscriptionDTO,
 } from "@features/subscription/dto";
 import { getSubscriptionEndpoint } from "@utils/env";
 import { toCamelCase, toSnakeCase } from "@utils/dto";
@@ -28,6 +29,23 @@ export async function registerSubscription({
 }): Promise<SubscriptionDTO> {
   const response = await fetch(getSubscriptionEndpoint(guildId), {
     method: "POST",
+    headers: getHeaders(getAuthHeader(), getJsonHeader()),
+    body: JSON.stringify(toSnakeCase(dto)),
+  });
+  if (!response.ok) await handleHTTPError(response);
+  const json = await response.json();
+  return toCamelCase<SubscriptionDTO>(json);
+}
+
+export async function updateSubscription({
+  guildId,
+  dto,
+}: {
+  guildId: string;
+  dto: UpdateSubscriptionDTO;
+}): Promise<SubscriptionDTO> {
+  const response = await fetch(getSubscriptionEndpoint(guildId), {
+    method: "PATCH",
     headers: getHeaders(getAuthHeader(), getJsonHeader()),
     body: JSON.stringify(toSnakeCase(dto)),
   });

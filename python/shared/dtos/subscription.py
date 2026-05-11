@@ -23,3 +23,8 @@ class SubscriptionDTO(BaseEntityDTO):
 class RegisterSubscriptionDTO(BaseDTO):
     billing_id: int
     plan: Plan
+
+
+class UpdateSubscriptionDTO(BaseDTO):
+    billing_id: int | None = None
+    next_plan: Plan | None = None

@@ -1,3 +1,5 @@
+error code by http bound
+
 toss
     subscription
         worker -> task?
