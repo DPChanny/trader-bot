@@ -5,7 +5,7 @@ from shared.repositories.guild_repository import GuildRepository
 from shared.utils.error import GuildErrorCode, HTTPError
 from shared.utils.service import Event, http_service
 
-from ..utils.member import verify_role
+from ..utils.verify import verify_role
 
 
 @http_service

@@ -8,7 +8,7 @@ from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PositionErrorCode, PresetErrorCode
 from shared.utils.service import Event, http_service
 
-from ..utils.member import verify_role
+from ..utils.verify import verify_role
 
 
 @http_service

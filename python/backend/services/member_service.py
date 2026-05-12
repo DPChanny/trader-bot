@@ -6,7 +6,7 @@ from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import HTTPError, MemberErrorCode
 from shared.utils.service import Event, http_service
 
-from ..utils.member import verify_role
+from ..utils.verify import verify_role
 
 
 @http_service

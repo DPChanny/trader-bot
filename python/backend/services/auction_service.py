@@ -26,7 +26,7 @@ from shared.utils.service import Event, http_service, ws_service
 
 from ..auction import Auction, AuctionManager
 from ..utils.discord import send_channel_message
-from ..utils.member import verify_role
+from ..utils.verify import verify_role
 from ..utils.token import AccessToken
 
 

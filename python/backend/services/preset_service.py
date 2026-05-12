@@ -14,7 +14,7 @@ from shared.repositories.tier_repository import TierRepository
 from shared.utils.error import HTTPError, PresetErrorCode, ValidationErrorCode
 from shared.utils.service import Event, http_service
 
-from ..utils.member import verify_role
+from ..utils.verify import verify_role
 
 
 @http_service
