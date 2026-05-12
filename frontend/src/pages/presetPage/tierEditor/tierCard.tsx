@@ -29,7 +29,7 @@ export function TierCard({ tier }: TierCardProps) {
         {tier.iconUrl ? (
           <Image src={tier.iconUrl} alt={tier.name} variantSize="auto" />
         ) : (
-          tier.name.charAt(0)
+          tier.name
         )}
       </Badge>
       <Name>{tier.name}</Name>

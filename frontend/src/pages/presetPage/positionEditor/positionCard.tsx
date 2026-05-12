@@ -33,7 +33,7 @@ export function PositionCard({ position }: PositionCardProps) {
             variantSize="auto"
           />
         ) : (
-          position.name.charAt(0)
+          position.name
         )}
       </Badge>
       <Name>{position.name}</Name>

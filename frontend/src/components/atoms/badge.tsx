@@ -44,7 +44,7 @@ export function Badge({
 
   return (
     <span className={clsx(baseClass, className)} {...props}>
-      {children}
+      {typeof children === "string" ? children.charAt(0) : children}
     </span>
   );
 }
