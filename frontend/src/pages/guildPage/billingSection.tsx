@@ -108,12 +108,12 @@ export function BillingSection({ guildId }: { guildId: string }) {
             variantSize="small"
           >
             <option value={String(Plan.PLUS)}>
-              Trader Bot Plus (30일) ₩
-              {PLAN_AMOUNT[Plan.PLUS].toLocaleString("ko-KR")}/월
+              Trader Bot Plus ₩{PLAN_AMOUNT[Plan.PLUS].toLocaleString("ko-KR")}
+              /월(30일)
             </option>
             <option value={String(Plan.PRO)}>
-              Trader Bot Pro (30일) ₩
-              {PLAN_AMOUNT[Plan.PRO].toLocaleString("ko-KR")}/월
+              Trader Bot Pro ₩{PLAN_AMOUNT[Plan.PRO].toLocaleString("ko-KR")}
+              /월(30일)
             </option>
             <option value="">자동 결제 없음</option>
           </Select>

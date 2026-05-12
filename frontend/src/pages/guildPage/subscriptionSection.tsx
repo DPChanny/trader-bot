@@ -162,8 +162,8 @@ export function SubscriptionSection({
                       ) as Plan[]
                     ).map((p) => (
                       <option key={p} value={String(p)}>
-                        {PLAN_LABEL[p]} (30일) ₩
-                        {PLAN_AMOUNT[p].toLocaleString("ko-KR")}/월
+                        {PLAN_LABEL[p]} ₩
+                        {PLAN_AMOUNT[p].toLocaleString("ko-KR")}/월(30일)
                       </option>
                     ))}
                   </Select>
