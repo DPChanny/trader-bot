@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.billing import BillingDTO
 from shared.entities import Billing
 from shared.repositories.billing_repository import BillingRepository
-from shared.utils.error import BillingErrorCode, HTTPError
+from shared.repositories.user_repository import UserRepository
+from shared.utils.error import BillingErrorCode, HTTPError, UserErrorCode
 from shared.utils.service import http_service
 
 from ..utils.toss import delete_billing_key, issue_billing_key
@@ -20,8 +21,12 @@ async def get_billings_service(user_id: int, session: AsyncSession) -> list[Bill
 async def register_billing_service(
     user_id: int, auth_key: str, session: AsyncSession
 ) -> BillingDTO:
-    customer_key = f"u-{user_id}"
-    billing_key, name = await issue_billing_key(auth_key, customer_key)
+    user_repo = UserRepository(session)
+    user = await user_repo.get_by_id(user_id)
+    if user is None:
+        raise HTTPError(UserErrorCode.NotFound)
+
+    billing_key, name = await issue_billing_key(auth_key, user.customer_key)
 
     billing = Billing(user_id=user_id, billing_key=billing_key, name=name)
     session.add(billing)

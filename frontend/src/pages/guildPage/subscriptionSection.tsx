@@ -85,8 +85,7 @@ export function SubscriptionSection({
   };
 
   const handleRequestBilling = () => {
-    if (!user) return;
-    requestBilling({ customerKey: `u-${user.discordId}` });
+    requestBilling();
   };
 
   const statusDate =

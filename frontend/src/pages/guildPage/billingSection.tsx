@@ -80,8 +80,7 @@ export function BillingSection({ guildId }: { guildId: string }) {
   };
 
   const handleRequestBilling = () => {
-    if (!user) return;
-    requestBilling({ customerKey: `u-${user.discordId}` });
+    requestBilling();
   };
 
   return (

@@ -107,8 +107,7 @@ export function MePage() {
   const { requestBilling } = useRequestBilling();
 
   const handleRequestBilling = () => {
-    if (!user) return;
-    requestBilling({ customerKey: `u-${user.discordId}` });
+    requestBilling();
   };
 
   const handleWithdraw = () => {

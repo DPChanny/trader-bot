@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BillingDTO } from "@features/billing/dto";
+import { useMyUser } from "@features/user/hook";
 import { AppError, FrontendErrorCode, parseTossErrorCode } from "@utils/error";
 import { queryKeys, queryStaleTimes } from "@utils/query";
 import {
@@ -72,11 +73,13 @@ export function useBillingCallback({
 }
 
 export function useRequestBilling(): {
-  requestBilling: ({ customerKey }: { customerKey: string }) => void;
+  requestBilling: () => void;
 } {
-  const request = useCallback(({ customerKey }: { customerKey: string }) => {
-    void requestBilling({ customerKey });
-  }, []);
+  const { data: user } = useMyUser();
+  const request = useCallback(() => {
+    if (!user?.customerKey) return;
+    void requestBilling({ customerKey: user.customerKey });
+  }, [user]);
 
   return { requestBilling: request };
 }

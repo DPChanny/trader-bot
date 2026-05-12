@@ -7,5 +7,6 @@ export interface UserDTO extends BaseEntityDTO {
 }
 
 export interface UserDetailDTO extends UserDTO {
+  customerKey: string;
   avatarUrl: string | null;
 }

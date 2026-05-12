@@ -10,6 +10,8 @@ class UserDTO(BaseEntityDTO):
 
 
 class UserDetailDTO(UserDTO):
+    customer_key: str
+
     @computed_field
     @property
     def avatar_url(self) -> str | None:
