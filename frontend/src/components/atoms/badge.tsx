@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import styles from "@styles/components/atoms/badge.module.css";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { JSX } from "react";
+import type { JSX, ReactNode } from "react";
 
 const badgeVariants = cva(styles.badge, {
   variants: {
@@ -25,7 +25,7 @@ const badgeVariants = cva(styles.badge, {
 });
 
 export type BadgeProps = Omit<JSX.IntrinsicElements["span"], "children"> & {
-  children: string;
+  children: ReactNode;
   variantColor?: VariantProps<typeof badgeVariants>["variantColor"];
   variantSize?: VariantProps<typeof badgeVariants>["variantSize"];
 };
@@ -44,7 +44,7 @@ export function Badge({
 
   return (
     <span className={clsx(baseClass, className)} {...props}>
-      {children.charAt(0)}
+      {children}
     </span>
   );
 }

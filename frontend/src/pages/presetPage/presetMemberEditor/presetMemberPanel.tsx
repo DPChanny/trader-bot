@@ -79,6 +79,8 @@ export function PresetMemberPanel({
       presetMember.presetMemberPositions?.map((p) => ({
         positionId: p.positionId,
         presetMemberPositionId: p.presetMemberPositionId,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
       })) || [],
   );
   const [savedSnapshot, setSavedSnapshot] = useState(() => ({
@@ -98,6 +100,8 @@ export function PresetMemberPanel({
       presetMember.presetMemberPositions?.map((p) => ({
         positionId: p.positionId,
         presetMemberPositionId: p.presetMemberPositionId,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
       })) || [];
     setSelectedPositionIds(positionIds);
     setSavedPositionEntries(positionEntries);
@@ -223,6 +227,8 @@ export function PresetMemberPanel({
           {
             positionId: result.value.positionId,
             presetMemberPositionId: result.value.presetMemberPositionId,
+            createdAt: result.value.createdAt,
+            updatedAt: result.value.updatedAt,
           },
         ];
         savedPositionEntryMap.set(
@@ -296,6 +302,8 @@ export function PresetMemberPanel({
         presetMemberId: presetMember.presetMemberId,
         positionId: id,
         position,
+        createdAt: existingEntry?.createdAt ?? fallbackEntry?.createdAt ?? "",
+        updatedAt: existingEntry?.updatedAt ?? fallbackEntry?.updatedAt ?? "",
       };
     })
     .filter((p): p is NonNullable<typeof p> => p !== null);

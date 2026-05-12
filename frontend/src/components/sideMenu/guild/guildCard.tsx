@@ -14,6 +14,7 @@ export function GuildCard({ guild, isSelected }: GuildCardProps) {
     <InternalLink
       to="/guild/$guildId/member"
       params={{ guildId: guild.discordId }}
+      search={{ authKey: undefined, code: undefined }}
       aria-current={isSelected ? "page" : undefined}
     >
       <Card direction="row" align="center" justify="center">

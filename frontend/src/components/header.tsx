@@ -37,7 +37,10 @@ export function Header(props: HeaderProps) {
 
         {props.user ? (
           <Row align="center" gap="lg">
-            <InternalLink to="/me">
+            <InternalLink
+              to="/me"
+              search={{ authKey: undefined, code: undefined }}
+            >
               <Row align="center" gap="sm">
                 <Image
                   src={props.user.avatarUrl}
