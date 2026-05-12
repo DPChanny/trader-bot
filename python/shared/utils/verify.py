@@ -1,4 +1,5 @@
 from enum import IntEnum
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,13 +13,13 @@ from shared.utils.error import HTTPError, MemberErrorCode, SubscriptionErrorCode
 
 class Quota(IntEnum):
     PRESET_COUNT = 0
-    AUCTION_TIMER = 1
+    AUCTION_TTL = 1
 
 
-_PLAN_QUOTAS: dict[Plan | None, dict[Quota, int | None]] = {
-    None: {Quota.PRESET_COUNT: 1, Quota.AUCTION_TIMER: 10},
-    Plan.PLUS: {Quota.PRESET_COUNT: 5, Quota.AUCTION_TIMER: 30},
-    Plan.PRO: {Quota.PRESET_COUNT: None, Quota.AUCTION_TIMER: 60},
+_PLAN_QUOTAS: dict[Plan | None, dict[Quota, Any]] = {
+    None: {Quota.PRESET_COUNT: 1, Quota.AUCTION_TTL: 600},
+    Plan.PLUS: {Quota.PRESET_COUNT: 5, Quota.AUCTION_TTL: 1800},
+    Plan.PRO: {Quota.PRESET_COUNT: None, Quota.AUCTION_TTL: 3600},
 }
 
 
@@ -29,7 +30,7 @@ def _effective_plan(sub: Subscription | None) -> Plan | None:
 
 
 async def verify_role(
-    guild_id: int, user_id: int, db: AsyncSession, min_role: Role = Role.VIEWER
+    guild_id: int, user_id: int, db: AsyncSession, min_role: Role
 ) -> Role:
     member_repo = MemberRepository(db)
     member = await member_repo.get_by_user_id(user_id, guild_id)
@@ -58,3 +59,10 @@ async def verify_quota(
     limit = _PLAN_QUOTAS[plan][quota]
     if limit is not None and value > limit:
         raise HTTPError(SubscriptionErrorCode.Invalid)
+
+
+async def get_quota(guild_id: int, quota: Quota, db: AsyncSession) -> Any:
+    sub_repo = SubscriptionRepository(db)
+    sub = await sub_repo.get_by_guild_id(guild_id)
+    plan = _effective_plan(sub)
+    return _PLAN_QUOTAS[plan][quota]

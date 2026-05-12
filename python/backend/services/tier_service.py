@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import Role
+from shared.dtos.subscription import Plan
 from shared.dtos.tier import AddTierDTO, TierDTO, UpdateTierDTO
 from shared.entities import Tier
 from shared.repositories.preset_repository import PresetRepository
@@ -8,7 +9,7 @@ from shared.repositories.tier_repository import TierRepository
 from shared.utils.error import HTTPError, PresetErrorCode, TierErrorCode
 from shared.utils.service import Event, http_service
 
-from ..utils.verify import verify_role
+from shared.utils.verify import verify_plan, verify_role
 
 
 @http_service
@@ -44,6 +45,7 @@ async def add_tier_service(
     guild_id: int, user_id: int, preset_id: int, dto: AddTierDTO, session: AsyncSession
 ) -> TierDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
+    await verify_plan(guild_id, Plan.PLUS, session)
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
@@ -65,6 +67,7 @@ async def update_tier_service(
     session: AsyncSession,
 ) -> TierDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_plan(guild_id, Plan.PLUS, session)
 
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
@@ -87,6 +90,7 @@ async def delete_tier_service(
     event: Event,
 ) -> None:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
+    await verify_plan(guild_id, Plan.PLUS, session)
 
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)

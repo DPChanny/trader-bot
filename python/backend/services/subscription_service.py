@@ -17,8 +17,8 @@ from shared.repositories.subscription_repository import SubscriptionRepository
 from shared.utils.db import get_session
 from shared.utils.error import BillingErrorCode, HTTPError, SubscriptionErrorCode
 from shared.utils.service import http_service
+from shared.utils.verify import verify_role
 
-from ..utils.verify import verify_role
 from ..utils.toss import charge_billing_key
 
 
@@ -151,8 +151,9 @@ async def update_subscription_service(
 
 @http_service
 async def get_subscription_service(
-    guild_id: int, session: AsyncSession
+    guild_id: int, user_id: int, session: AsyncSession
 ) -> SubscriptionDTO | None:
+    await verify_role(guild_id, user_id, session, Role.VIEWER)
     sub_repo = SubscriptionRepository(session)
     subscription = await sub_repo.get_by_guild_id(guild_id)
     if subscription is None or not subscription.is_valid:

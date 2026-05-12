@@ -22,7 +22,7 @@ from shared.utils.error import (
 )
 from shared.utils.service import Event, http_service
 
-from ..utils.verify import verify_role
+from shared.utils.verify import verify_role
 
 
 @http_service

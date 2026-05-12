@@ -83,7 +83,7 @@ class AuctionManager:
             if auction_id in cls._auctions:
                 return
             repo = AuctionRepository(auction_id)
-            await repo.set(preset_snapshot=payload.preset_snapshot)
+            await repo.set(preset_snapshot=payload.preset_snapshot, ttl=payload.ttl)
             auction = await repo.get_detail()
             if not auction:
                 return

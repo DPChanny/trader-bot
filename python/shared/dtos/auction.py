@@ -142,6 +142,7 @@ class LeaderDisconnectedRequestPayloadDTO(BaseDTO):
 class CreateRequestPayloadDTO(BaseDTO):
     auction_id: BigInt
     preset_snapshot: PresetDetailDTO
+    ttl: int
 
 
 class BidErrorResponsePayloadDTO(BaseDTO):

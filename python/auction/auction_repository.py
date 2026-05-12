@@ -29,7 +29,7 @@ from .scripts import (
 
 
 class AuctionRepository(BaseAuctionRepository):
-    async def set(self, preset_snapshot: PresetDetailDTO) -> None:
+    async def set(self, preset_snapshot: PresetDetailDTO, ttl: int) -> None:
         leader_ids = [
             pm.member_id for pm in preset_snapshot.preset_members if pm.is_leader
         ]
@@ -59,15 +59,15 @@ class AuctionRepository(BaseAuctionRepository):
                     "preset_snapshot": preset_snapshot.model_dump_json(),
                 },
             )
-            pipe.expire(self._key(), 3600)
+            pipe.expire(self._key(), ttl)
             for team in teams:
                 pipe.hset(
                     self._key("teams"), str(team.leader_id), team.model_dump_json()
                 )
-            pipe.expire(self._key("teams"), 3600)
+            pipe.expire(self._key("teams"), ttl)
             if auction_queue:
                 pipe.rpush(self._key("auction_queue"), *auction_queue)
-                pipe.expire(self._key("auction_queue"), 3600)
+                pipe.expire(self._key("auction_queue"), ttl)
             pipe.delete(self._key("unsold_queue"))
             pipe.delete(self._key("bid"))
             await pipe.execute()

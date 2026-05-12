@@ -23,10 +23,10 @@ from shared.utils.error import (
     WSError,
 )
 from shared.utils.service import Event, http_service, ws_service
+from shared.utils.verify import Quota, get_quota, verify_role
 
 from ..auction import Auction, AuctionManager
 from ..utils.discord import send_channel_message
-from ..utils.verify import verify_role
 from ..utils.token import AccessToken
 
 
@@ -44,6 +44,8 @@ async def create_auction_service(
     if preset is None:
         raise HTTPError(PresetErrorCode.NotFound)
 
+    ttl = await get_quota(guild_id, Quota.AUCTION_TTL, session)
+
     preset_members = preset.preset_members
     leaders = [pm for pm in preset_members if pm.is_leader]
 
@@ -51,7 +53,9 @@ async def create_auction_service(
         raise HTTPError(ValidationErrorCode.Invalid)
 
     preset_snapshot = PresetDetailDTO.model_validate(preset)
-    auction = await AuctionManager.create_auction(preset_snapshot=preset_snapshot)
+    auction = await AuctionManager.create_auction(
+        preset_snapshot=preset_snapshot, ttl=ttl
+    )
 
     app_origin = get_app_origin()
     auction_url = (

@@ -6,7 +6,7 @@ from shared.repositories.member_repository import MemberRepository
 from shared.utils.error import HTTPError, MemberErrorCode
 from shared.utils.service import Event, http_service
 
-from ..utils.verify import verify_role
+from shared.utils.verify import verify_role
 
 
 @http_service
@@ -25,7 +25,7 @@ async def get_my_member_service(
 async def get_member_service(
     guild_id: int, user_id: int, member_id: int, session: AsyncSession, event: Event
 ) -> MemberDetailDTO:
-    await verify_role(guild_id, user_id, session)
+    await verify_role(guild_id, user_id, session, Role.VIEWER)
     member_repo = MemberRepository(session)
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
@@ -43,7 +43,7 @@ async def get_members_service(
     search: str | None = None,
     cursor: int | None = None,
 ) -> CursorPageDTO[MemberDetailDTO]:
-    await verify_role(guild_id, user_id, session)
+    await verify_role(guild_id, user_id, session, Role.VIEWER)
     member_repo = MemberRepository(session)
     members = await member_repo.get_all_by_guild_id(
         guild_id, search=search, cursor=cursor

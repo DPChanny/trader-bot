@@ -2,13 +2,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import Role
 from shared.dtos.position import AddPositionDTO, PositionDTO, UpdatePositionDTO
+from shared.dtos.subscription import Plan
 from shared.entities import Position
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.error import HTTPError, PositionErrorCode, PresetErrorCode
 from shared.utils.service import Event, http_service
-
-from ..utils.verify import verify_role
+from shared.utils.verify import verify_plan, verify_role
 
 
 @http_service
@@ -48,6 +48,7 @@ async def add_position_service(
     session: AsyncSession,
 ) -> PositionDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
+    await verify_plan(guild_id, Plan.PLUS, session)
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
@@ -69,6 +70,7 @@ async def update_position_service(
     session: AsyncSession,
 ) -> PositionDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_plan(guild_id, Plan.PLUS, session)
 
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
@@ -91,6 +93,7 @@ async def delete_position_service(
     event: Event,
 ) -> None:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
+    await verify_plan(guild_id, Plan.PLUS, session)
 
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)

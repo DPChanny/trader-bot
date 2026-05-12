@@ -7,14 +7,14 @@ from shared.dtos.preset import (
     PresetDTO,
     UpdatePresetDTO,
 )
+from shared.dtos.subscription import Plan
 from shared.entities import Position, Preset, Tier
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
 from shared.utils.error import HTTPError, PresetErrorCode, ValidationErrorCode
 from shared.utils.service import Event, http_service
-
-from ..utils.verify import verify_role
+from shared.utils.verify import Quota, verify_plan, verify_quota, verify_role
 
 
 @http_service
@@ -35,6 +35,11 @@ async def create_preset_service(
     guild_id: int, user_id: int, dto: CreatePresetDTO, session: AsyncSession
 ) -> PresetDTO:
     await verify_role(guild_id, user_id, session, Role.ADMIN)
+    await verify_plan(guild_id, Plan.PLUS, session)
+
+    preset_repo = PresetRepository(session)
+    presets = await preset_repo.get_all_by_guild_id(guild_id)
+    await verify_quota(guild_id, Quota.PRESET_COUNT, len(presets) + 1, session)
 
     preset = Preset(
         guild_id=guild_id,
@@ -69,6 +74,7 @@ async def update_preset_service(
     session: AsyncSession,
 ) -> PresetDTO:
     await verify_role(guild_id, user_id, session, Role.EDITOR)
+    await verify_plan(guild_id, Plan.PLUS, session)
 
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
@@ -115,6 +121,11 @@ async def copy_preset_service(
     await verify_role(dto.target_guild_id, user_id, session, Role.ADMIN)
 
     preset_repo = PresetRepository(session)
+    target_presets = await preset_repo.get_all_by_guild_id(dto.target_guild_id)
+    await verify_quota(
+        dto.target_guild_id, Quota.PRESET_COUNT, len(target_presets) + 1, session
+    )
+
     source_preset = await preset_repo.get_by_id(preset_id, guild_id)
     if source_preset is None:
         raise HTTPError(PresetErrorCode.NotFound)

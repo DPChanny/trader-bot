@@ -58,11 +58,13 @@ class AuctionManager:
             await repo.unsubscribe(cls._pubsub)
 
     @classmethod
-    async def create_auction(cls, preset_snapshot: PresetDetailDTO) -> Auction:
+    async def create_auction(
+        cls, preset_snapshot: PresetDetailDTO, ttl: int
+    ) -> Auction:
         auction_id = uuid.uuid4().int
 
         payload = CreateRequestPayloadDTO(
-            auction_id=auction_id, preset_snapshot=preset_snapshot
+            auction_id=auction_id, preset_snapshot=preset_snapshot, ttl=ttl
         )
         await AuctionRepository.publish_create_request(payload)
 
