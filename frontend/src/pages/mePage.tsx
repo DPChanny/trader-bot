@@ -169,10 +169,6 @@ export function MePage() {
                 </Column>
               </TertiarySection>
             )}
-            <Text tone="accent">
-              결제 수단을 등록하면 자동결제에 동의한 것으로 간주됩니다. 수단
-              삭제 시 해당 수단에 연결된 구독의 자동결제가 중단됩니다.
-            </Text>
           </SecondarySection>
 
           <SecondarySection fill minSize>
