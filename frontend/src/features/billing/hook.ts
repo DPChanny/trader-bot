@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BillingDTO } from "@features/billing/dto";
-import { AppError, FrontendErrorCode } from "@utils/error";
+import { AppError, FrontendErrorCode, parseTossErrorCode } from "@utils/error";
 import { queryKeys, queryStaleTimes } from "@utils/query";
 import {
   getBillings,
@@ -37,8 +37,10 @@ export function useBillingCallback({
     called.current = true;
 
     if (code !== undefined) {
-      if (code !== "PAY_PROCESS_CANCELED") {
-        setError(new AppError(FrontendErrorCode.Unexpected.External));
+      const silent =
+        code === "PAY_PROCESS_CANCELED" || code === "PAY_PROCESS_ABORTED";
+      if (!silent) {
+        setError(new AppError(parseTossErrorCode(code)));
       }
       setIsPending(false);
       return;

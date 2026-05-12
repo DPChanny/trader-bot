@@ -17,7 +17,6 @@ import { Route as AnnouncementRouteImport } from './routes/announcement'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GuildGuildIdMemberRouteImport } from './routes/guild/$guildId/member'
 import { Route as AuthLoginCallbackRouteImport } from './routes/auth/login/callback'
-import { Route as AuthBillingCallbackRouteImport } from './routes/auth/billing/callback'
 import { Route as GuildGuildIdPresetPresetIdRouteImport } from './routes/guild/$guildId/preset/$presetId'
 import { Route as GuildGuildIdPresetPresetIdIndexRouteImport } from './routes/guild/$guildId/preset/$presetId/index'
 import { Route as GuildGuildIdPresetPresetIdAuctionAuctionIdRouteImport } from './routes/guild/$guildId/preset/$presetId/auction/$auctionId'
@@ -62,11 +61,6 @@ const AuthLoginCallbackRoute = AuthLoginCallbackRouteImport.update({
   path: '/auth/login/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthBillingCallbackRoute = AuthBillingCallbackRouteImport.update({
-  id: '/auth/billing/callback',
-  path: '/auth/billing/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const GuildGuildIdPresetPresetIdRoute =
   GuildGuildIdPresetPresetIdRouteImport.update({
     id: '/guild/$guildId/preset/$presetId',
@@ -93,7 +87,6 @@ export interface FileRoutesByFullPath {
   '/patch': typeof PatchRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/terms-of-service': typeof TermsOfServiceRoute
-  '/auth/billing/callback': typeof AuthBillingCallbackRoute
   '/auth/login/callback': typeof AuthLoginCallbackRoute
   '/guild/$guildId/member': typeof GuildGuildIdMemberRoute
   '/guild/$guildId/preset/$presetId': typeof GuildGuildIdPresetPresetIdRouteWithChildren
@@ -107,7 +100,6 @@ export interface FileRoutesByTo {
   '/patch': typeof PatchRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/terms-of-service': typeof TermsOfServiceRoute
-  '/auth/billing/callback': typeof AuthBillingCallbackRoute
   '/auth/login/callback': typeof AuthLoginCallbackRoute
   '/guild/$guildId/member': typeof GuildGuildIdMemberRoute
   '/guild/$guildId/preset/$presetId': typeof GuildGuildIdPresetPresetIdIndexRoute
@@ -121,7 +113,6 @@ export interface FileRoutesById {
   '/patch': typeof PatchRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/terms-of-service': typeof TermsOfServiceRoute
-  '/auth/billing/callback': typeof AuthBillingCallbackRoute
   '/auth/login/callback': typeof AuthLoginCallbackRoute
   '/guild/$guildId/member': typeof GuildGuildIdMemberRoute
   '/guild/$guildId/preset/$presetId': typeof GuildGuildIdPresetPresetIdRouteWithChildren
@@ -137,7 +128,6 @@ export interface FileRouteTypes {
     | '/patch'
     | '/privacy-policy'
     | '/terms-of-service'
-    | '/auth/billing/callback'
     | '/auth/login/callback'
     | '/guild/$guildId/member'
     | '/guild/$guildId/preset/$presetId'
@@ -151,7 +141,6 @@ export interface FileRouteTypes {
     | '/patch'
     | '/privacy-policy'
     | '/terms-of-service'
-    | '/auth/billing/callback'
     | '/auth/login/callback'
     | '/guild/$guildId/member'
     | '/guild/$guildId/preset/$presetId'
@@ -164,7 +153,6 @@ export interface FileRouteTypes {
     | '/patch'
     | '/privacy-policy'
     | '/terms-of-service'
-    | '/auth/billing/callback'
     | '/auth/login/callback'
     | '/guild/$guildId/member'
     | '/guild/$guildId/preset/$presetId'
@@ -179,7 +167,6 @@ export interface RootRouteChildren {
   PatchRoute: typeof PatchRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   TermsOfServiceRoute: typeof TermsOfServiceRoute
-  AuthBillingCallbackRoute: typeof AuthBillingCallbackRoute
   AuthLoginCallbackRoute: typeof AuthLoginCallbackRoute
   GuildGuildIdMemberRoute: typeof GuildGuildIdMemberRoute
   GuildGuildIdPresetPresetIdRoute: typeof GuildGuildIdPresetPresetIdRouteWithChildren
@@ -243,13 +230,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/billing/callback': {
-      id: '/auth/billing/callback'
-      path: '/auth/billing/callback'
-      fullPath: '/auth/billing/callback'
-      preLoaderRoute: typeof AuthBillingCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/guild/$guildId/preset/$presetId': {
       id: '/guild/$guildId/preset/$presetId'
       path: '/guild/$guildId/preset/$presetId'
@@ -298,7 +278,6 @@ const rootRouteChildren: RootRouteChildren = {
   PatchRoute: PatchRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   TermsOfServiceRoute: TermsOfServiceRoute,
-  AuthBillingCallbackRoute: AuthBillingCallbackRoute,
   AuthLoginCallbackRoute: AuthLoginCallbackRoute,
   GuildGuildIdMemberRoute: GuildGuildIdMemberRoute,
   GuildGuildIdPresetPresetIdRoute: GuildGuildIdPresetPresetIdRouteWithChildren,

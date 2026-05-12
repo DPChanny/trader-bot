@@ -5,7 +5,7 @@ import { Page, Column, Fill, Row } from "@components/atoms/layout";
 import { PrimarySection, SecondarySection } from "@components/surfaces/section";
 import { NameTitle, Title, Text } from "@components/atoms/text";
 import { Bar } from "@components/atoms/bar";
-import { PrimaryButton } from "@components/atoms/button";
+import { PrimaryButton, DangerButton } from "@components/atoms/button";
 import { Card } from "@components/surfaces/card";
 import { Loading } from "@components/molecules/loading";
 import { Error } from "@components/molecules/error";
@@ -144,13 +144,13 @@ function SubscriptionSection({ guildId, isOwner }: SubscriptionSectionProps) {
         {isOwner &&
           canSubscribeOrUpgrade &&
           (isEditing ? (
-            <PrimaryButton
+            <DangerButton
               variantSize="small"
               onClick={closeEdit}
               disabled={isRegistering}
             >
               취소
-            </PrimaryButton>
+            </DangerButton>
           ) : (
             <PrimaryButton
               variantSize="small"
@@ -285,6 +285,8 @@ function SubscriptionSection({ guildId, isOwner }: SubscriptionSectionProps) {
 
 // ─── BillingSection ──────────────────────────────────────────────────────────
 
+type BillingEdit = { plan: Plan | null; billingId: number | null };
+
 function BillingSection({ guildId }: { guildId: string }) {
   const { data: subscription } = useSubscription(guildId);
   const {
@@ -301,55 +303,50 @@ function BillingSection({ guildId }: { guildId: string }) {
   const { requestBilling } = useRequestBilling();
   const { data: user } = useMyUser();
 
-  const [editPlan, setEditPlan] = useState<Plan | null>(null);
-  const [editBillingId, setEditBillingId] = useState<number | "none" | null>(
-    null,
-  );
+  const [edit, setEdit] = useState<BillingEdit | null>(null);
   const [agreed, setAgreed] = useState(false);
 
   if (subscription == null) return null;
 
-  const wantsNone = editBillingId === "none";
+  // 구독에 저장된 자동결제 값
+  const subPlan: Plan | null =
+    subscription.billingId != null
+      ? (subscription.nextPlan ?? subscription.plan ?? Plan.PLUS)
+      : null;
+  const subBillingId: number | null = subscription.billingId ?? null;
 
-  const plan: Plan | "none" = wantsNone
-    ? "none"
-    : (editPlan ?? subscription.nextPlan ?? subscription.plan ?? Plan.PLUS);
+  // 표시용 billingId: 저장된 카드가 목록에 없으면 첫 번째 카드로 대체
+  const resolvedBillingId: number | null =
+    subBillingId != null && billings?.some((b) => b.billingId === subBillingId)
+      ? subBillingId
+      : (billings?.[0]?.billingId ?? null);
 
-  const billingId: number | "none" = wantsNone
-    ? "none"
-    : (() => {
-        if (editBillingId != null) return editBillingId;
-        if (subscription.billingId != null) {
-          const exists = billings?.some(
-            (b) => b.billingId === subscription.billingId,
-          );
-          if (exists) return subscription.billingId;
-        }
-        return billings?.[0]?.billingId ?? "none";
-      })();
+  // edit이 있으면 편집값, 없으면 저장값
+  const plan: Plan | null = edit !== null ? edit.plan : subPlan;
+  const billingId: number | null =
+    edit !== null ? edit.billingId : resolvedBillingId;
 
+  // 저장값과 실제로 다를 때만 hasChange
   const hasChange =
-    plan === "none"
-      ? subscription.billingId != null
-      : plan !== (subscription.nextPlan ?? subscription.plan) ||
-        billingId !== (subscription.billingId ?? "none");
+    edit !== null &&
+    (edit.plan !== subPlan ||
+      (edit.plan !== null && edit.billingId !== subBillingId));
 
   const isBusy = isUpdating || isCancelling;
   const actionError = updateError ?? cancelError;
 
   const resetEdit = () => {
-    setEditPlan(null);
-    setEditBillingId(null);
+    setEdit(null);
     setAgreed(false);
   };
 
   const handleSave = () => {
-    if (billingId === "none") {
+    if (plan === null) {
       cancelSubscription({ guildId }, { onSuccess: resetEdit });
       return;
     }
-    const dto: UpdateSubscriptionDTO = { billingId };
-    dto.nextPlan = (plan as Plan) !== subscription.plan ? (plan as Plan) : null;
+    const dto: UpdateSubscriptionDTO = { billingId: billingId! };
+    dto.nextPlan = plan !== subscription.plan ? plan : null;
     updateSubscription({ guildId, dto }, { onSuccess: resetEdit });
   };
 
@@ -362,24 +359,22 @@ function BillingSection({ guildId }: { guildId: string }) {
     <SecondarySection gap="sm">
       <Title>자동 결제</Title>
 
-      {actionError && (
-        <Error error={actionError}>처리 중 오류가 발생했습니다</Error>
-      )}
       {billingsLoading ? (
         <Loading />
       ) : (
         <Column gap="xs">
+          {actionError && (
+            <Error error={actionError}>처리 중 오류가 발생했습니다</Error>
+          )}
           <Select
-            value={plan === "none" ? "none" : String(plan)}
+            value={plan === null ? "" : String(plan)}
             onChange={(e) => {
               const v = e.target.value;
-              if (v === "none") {
-                setEditBillingId("none");
-                setEditPlan(null);
-              } else {
-                if (editBillingId === "none") setEditBillingId(null);
-                setEditPlan(Number(v) as Plan);
-              }
+              setEdit(
+                v === ""
+                  ? { plan: null, billingId: null }
+                  : { plan: Number(v) as Plan, billingId },
+              );
               setAgreed(false);
             }}
             variantSize="small"
@@ -390,15 +385,15 @@ function BillingSection({ guildId }: { guildId: string }) {
             <option value={String(Plan.PRO)}>
               Trader Bot Pro (30일) ₩20,000/월
             </option>
-            <option value="none">자동 결제 없음</option>
+            <option value="">자동 결제 없음</option>
           </Select>
-          {plan !== "none" &&
+          {plan !== null &&
             (billings?.length ? (
               <Row gap="xs" align="center">
                 <Select
-                  value={String(billingId)}
+                  value={billingId != null ? String(billingId) : ""}
                   onChange={(e) => {
-                    setEditBillingId(Number(e.target.value));
+                    setEdit({ plan, billingId: Number(e.target.value) });
                     setAgreed(false);
                   }}
                   variantSize="small"
@@ -428,41 +423,45 @@ function BillingSection({ guildId }: { guildId: string }) {
                 결제 수단 추가
               </PrimaryButton>
             ))}
-          {plan !== "none" && (
+          {plan !== null && (
             <Text variantSize="small">
               만료일에 위 항목으로 자동 결제됩니다.
             </Text>
           )}
-          {plan !== "none" && (
-            <Row align="center" justify="center">
-              <input
-                type="checkbox"
-                id="autopay-agree"
-                checked={agreed}
-                onChange={(e) => setAgreed(e.target.checked)}
-              />
-              <label
-                htmlFor="autopay-agree"
-                style={{ fontSize: "0.75rem", cursor: "pointer" }}
+          {hasChange && (
+            <Column gap="xs">
+              {plan !== null && (
+                <Row align="center" justify="center">
+                  <input
+                    type="checkbox"
+                    id="autopay-agree"
+                    checked={agreed}
+                    onChange={(e) => setAgreed(e.target.checked)}
+                  />
+                  <label
+                    htmlFor="autopay-agree"
+                    style={{ fontSize: "0.75rem", cursor: "pointer" }}
+                  >
+                    자동 결제에 동의합니다. (
+                    <InternalLink to="/terms-of-service">이용약관</InternalLink>
+                    )
+                  </label>
+                </Row>
+              )}
+              <PrimaryButton
+                variantSize="small"
+                style={{ width: "100%" }}
+                onClick={handleSave}
+                disabled={
+                  isBusy ||
+                  (plan !== null && billingId === null) ||
+                  (plan !== null && !agreed)
+                }
               >
-                자동 결제에 동의합니다. (
-                <InternalLink to="/terms-of-service">이용약관</InternalLink>)
-              </label>
-            </Row>
+                저장
+              </PrimaryButton>
+            </Column>
           )}
-          <PrimaryButton
-            variantSize="small"
-            style={{ width: "100%" }}
-            onClick={handleSave}
-            disabled={
-              isBusy ||
-              !hasChange ||
-              (plan !== "none" && billingId === "none") ||
-              (plan !== "none" && !agreed)
-            }
-          >
-            저장
-          </PrimaryButton>
         </Column>
       )}
     </SecondarySection>

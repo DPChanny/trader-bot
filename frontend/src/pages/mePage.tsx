@@ -100,7 +100,10 @@ export function MePage() {
 
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
-  const { error: billingCallbackError } = useBillingCallback({ authKey, code });
+  const { error: billingCallbackError } = useBillingCallback({
+    authKey,
+    code,
+  });
   const { requestBilling } = useRequestBilling();
 
   const handleRequestBilling = () => {
@@ -183,7 +186,7 @@ export function MePage() {
                 <Text>결제 내역이 없습니다.</Text>
               </TertiarySection>
             ) : (
-              <TertiarySection minSize>
+              <TertiarySection fill>
                 <Scroll axis="y">
                   {[...payments!].reverse().map((p) => (
                     <PaymentCard key={p.paymentId} payment={p} />
