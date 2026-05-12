@@ -78,7 +78,7 @@ export function useRequestBilling(): {
   const { data: user } = useMyUser();
   const request = useCallback(() => {
     if (!user?.customerKey) return;
-    void requestBilling({ customerKey: user.customerKey });
+    void requestBilling({ customerKey: user.customerKey }).catch(() => {});
   }, [user]);
 
   return { requestBilling: request };
