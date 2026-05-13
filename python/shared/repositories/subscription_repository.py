@@ -19,6 +19,6 @@ class SubscriptionRepository(BaseRepository):
             select(Subscription)
             .join(Billing, Billing.billing_id == Subscription.billing_id)
             .where(Subscription.expires_at <= today)
-            .options(joinedload(Subscription.billing))
+            .options(joinedload(Subscription.billing).joinedload(Billing.user))
         )
         return list(result.scalars().all())

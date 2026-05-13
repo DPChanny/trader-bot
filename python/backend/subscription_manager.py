@@ -72,7 +72,7 @@ class SubscriptionManager:
         try:
             payment_key = await charge_billing_key(
                 billing.billing_key,
-                f"u-{billing.user_id}",
+                billing.user.customer_key,
                 order_id,
                 amount,
                 _PLAN_ORDER_NAME[plan],

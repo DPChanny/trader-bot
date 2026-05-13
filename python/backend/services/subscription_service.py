@@ -14,6 +14,7 @@ from shared.dtos.subscription import (
 from shared.entities import Payment, Subscription
 from shared.repositories.billing_repository import BillingRepository
 from shared.repositories.subscription_repository import SubscriptionRepository
+from shared.repositories.user_repository import UserRepository
 from shared.utils.db import get_session
 from shared.utils.error import BillingErrorCode, HTTPError, SubscriptionErrorCode
 from shared.utils.service import http_service
@@ -36,6 +37,9 @@ async def register_subscription_service(
     sub_repo = SubscriptionRepository(session)
     sub = await sub_repo.get_by_guild_id(guild_id)
 
+    user_repo = UserRepository(session)
+    user = await user_repo.get_by_id(user_id)
+
     billing_repo = BillingRepository(session)
     billing = await billing_repo.get_by_id(dto.billing_id, user_id)
     if billing is None:
@@ -57,7 +61,7 @@ async def register_subscription_service(
     try:
         payment_key = await charge_billing_key(
             billing.billing_key,
-            f"u-{user_id}",
+            user.customer_key,
             order_id,
             amount,
             _PLAN_ORDER_NAME[dto.plan],

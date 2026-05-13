@@ -10,7 +10,41 @@ import { Scroll } from "@components/atoms/layout";
 import { TertiarySection } from "@components/surfaces/section";
 import { Name } from "@components/atoms/text";
 import { useGuilds } from "@features/guild/hook";
-import { useCopyPreset } from "@features/preset/hook";
+import type { GuildDetailDTO } from "@features/guild/dto";
+import { useCopyPreset, usePresets } from "@features/preset/hook";
+import { Role } from "@features/member/dto";
+import { useVerifyRole } from "@features/member/hook";
+import { Quota, useVerifyQuota } from "@features/subscription/hook";
+
+interface CopyGuildButtonProps {
+  guild: GuildDetailDTO;
+  isPending: boolean;
+  onSelect: (targetGuildId: string) => void;
+}
+
+function CopyGuildButton({ guild, isPending, onSelect }: CopyGuildButtonProps) {
+  const presets = usePresets(guild.discordId);
+  const canAdmin = useVerifyRole(guild.discordId, Role.ADMIN);
+  const hasQuota = useVerifyQuota(
+    guild.discordId,
+    Quota.PRESET_COUNT,
+    (presets.data?.length ?? 0) + 1,
+  );
+
+  return (
+    <Button
+      key={guild.discordId}
+      variantTone="ghost"
+      onClick={() => onSelect(guild.discordId)}
+      disabled={isPending || !canAdmin || !hasQuota}
+    >
+      <Card direction="row" align="center" justify="center" fill>
+        <Image src={guild.iconUrl} alt={guild.name} />
+        <Name>{guild.name}</Name>
+      </Card>
+    </Button>
+  );
+}
 
 interface CopyPresetModalProps {
   onClose: () => void;
@@ -51,17 +85,12 @@ export function CopyPresetModal({ onClose }: CopyPresetModalProps) {
             <Error error={guilds.error}>서버 목록을 불러오지 못했습니다</Error>
           ) : (
             (guilds.data ?? []).map((guild) => (
-              <Button
+              <CopyGuildButton
                 key={guild.discordId}
-                variantTone="ghost"
-                onClick={() => handleSelectGuild(guild.discordId)}
-                disabled={copyPreset.isPending}
-              >
-                <Card direction="row" align="center" justify="center" fill>
-                  <Image src={guild.iconUrl} alt={guild.name} />
-                  <Name>{guild.name}</Name>
-                </Card>
-              </Button>
+                guild={guild}
+                isPending={copyPreset.isPending}
+                onSelect={handleSelectGuild}
+              />
             ))
           )}
         </Scroll>

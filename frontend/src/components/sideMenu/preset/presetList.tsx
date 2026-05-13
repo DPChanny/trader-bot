@@ -11,6 +11,12 @@ import { PresetCard } from "./presetCard";
 import { usePresets } from "@features/preset/hook";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
+import { Plan } from "@features/subscription/dto";
+import {
+  Quota,
+  useVerifyPlan,
+  useVerifyQuota,
+} from "@features/subscription/hook";
 
 import { Title } from "@components/atoms/text";
 
@@ -24,13 +30,22 @@ export function PresetList({ selectedPresetId }: PresetListProps) {
 
   const presets = usePresets(guildId);
   const canCreate = useVerifyRole(guildId, Role.ADMIN);
+  const hasPlan = useVerifyPlan(guildId, Plan.PLUS);
+  const hasQuota = useVerifyQuota(
+    guildId,
+    Quota.PRESET_COUNT,
+    (presets.data?.length ?? 0) + 1,
+  );
 
   return (
     <SecondarySection fill minSize>
       <Row justify="between" align="center">
         <Title>프리셋 관리</Title>
         {canCreate && (
-          <PrimaryButton onClick={() => setShowCreate(true)}>
+          <PrimaryButton
+            disabled={!hasPlan || !hasQuota}
+            onClick={() => setShowCreate(true)}
+          >
             생성
           </PrimaryButton>
         )}

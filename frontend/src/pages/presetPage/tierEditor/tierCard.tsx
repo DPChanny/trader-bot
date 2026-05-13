@@ -10,6 +10,8 @@ import { Name } from "@components/atoms/text";
 import type { TierDTO } from "@features/tier/dto";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
+import { Plan } from "@features/subscription/dto";
+import { useVerifyPlan } from "@features/subscription/hook";
 import { UpdateTierModal } from "./updateTierModal";
 import { DeleteTierModal } from "./deleteTierModal";
 
@@ -23,6 +25,7 @@ export function TierCard({ tier }: TierCardProps) {
   const [showDelete, setShowDelete] = useState(false);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   const canDelete = useVerifyRole(guildId, Role.ADMIN);
+  const hasPlan = useVerifyPlan(guildId, Plan.PLUS);
   return (
     <Card direction="row" justify="between" align="center">
       <Badge variantColor="red" variantSize="large">
@@ -39,12 +42,14 @@ export function TierCard({ tier }: TierCardProps) {
           {canEdit && (
             <EditButton
               variantSize="small"
+              disabled={!hasPlan}
               onClick={() => setShowUpdate(true)}
             />
           )}
           {canDelete && (
             <DeleteButton
               variantSize="small"
+              disabled={!hasPlan}
               onClick={() => setShowDelete(true)}
             />
           )}

@@ -4,6 +4,8 @@ import { usePreset } from "@features/preset/hook";
 import { useInfinitePresetMembers } from "@features/presetMember/hook";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
+import { Plan } from "@features/subscription/dto";
+import { useVerifyPlan } from "@features/subscription/hook";
 import { TierEditor } from "./tierEditor/tierEditor";
 import { PositionEditor } from "./positionEditor/positionEditor";
 import { PresetMemberEditor } from "./presetMemberEditor/presetMemberEditor";
@@ -44,6 +46,7 @@ export function PresetPage() {
   const canView = useVerifyRole(guildId, Role.VIEWER);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   const canAdmin = useVerifyRole(guildId, Role.ADMIN);
+  const hasPlan = useVerifyPlan(guildId, Plan.PLUS);
   const canCreateAuction = canAdmin;
   const teamSize = preset.data?.teamSize ?? 0;
   const leaderCount = allPresetMembers?.filter((pm) => pm.isLeader).length ?? 0;
@@ -84,6 +87,7 @@ export function PresetPage() {
               {canEdit && (
                 <EditButton
                   variantSize="medium"
+                  disabled={!hasPlan}
                   onClick={() => setShowUpdate(true)}
                 />
               )}

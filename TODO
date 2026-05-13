@@ -1,22 +1,2 @@
 error code by http bound
-
-toss
-    subscription
-        worker -> task?
-    payment
-        frontend
-
-worker refactor
-
-frontend public concur error
-
-docs
-    patch notes
-
-toss
-    market dashboard
-    test page
-    validation
-
-
-launch 0.5.0
+subscription repo 수준 삭제

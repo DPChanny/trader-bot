@@ -10,6 +10,8 @@ import { Name } from "@components/atoms/text";
 import type { PositionDTO } from "@features/position/dto";
 import { Role } from "@features/member/dto";
 import { useVerifyRole } from "@features/member/hook";
+import { Plan } from "@features/subscription/dto";
+import { useVerifyPlan } from "@features/subscription/hook";
 import { UpdatePositionModal } from "./updatePositionModal";
 import { DeletePositionModal } from "./deletePositionModal";
 
@@ -23,6 +25,7 @@ export function PositionCard({ position }: PositionCardProps) {
   const [showDelete, setShowDelete] = useState(false);
   const canEdit = useVerifyRole(guildId, Role.EDITOR);
   const canDelete = useVerifyRole(guildId, Role.ADMIN);
+  const hasPlan = useVerifyPlan(guildId, Plan.PLUS);
   return (
     <Card direction="row" justify="between" align="center">
       <Badge variantColor="blue" variantSize="large">
@@ -42,12 +45,14 @@ export function PositionCard({ position }: PositionCardProps) {
           {canEdit && (
             <EditButton
               variantSize="small"
+              disabled={!hasPlan}
               onClick={() => setShowUpdate(true)}
             />
           )}
           {canDelete && (
             <DeleteButton
               variantSize="small"
+              disabled={!hasPlan}
               onClick={() => setShowDelete(true)}
             />
           )}
