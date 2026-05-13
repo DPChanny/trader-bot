@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.member import MemberDetailDTO, MemberDTO, Role, UpdateMemberDTO
 from shared.dtos.page import CursorPageDTO
 from shared.repositories.member_repository import MemberRepository
-from shared.utils.error import HTTPError, MemberErrorCode
+from shared.utils.error import ForbiddenErrorCode, HTTPError, NotFoundErrorCode
 from shared.utils.service import Event, http_service
 
 from shared.utils.verify import verify_role
@@ -16,7 +16,7 @@ async def get_my_member_service(
     member_repo = MemberRepository(session)
     member = await member_repo.get_detail_by_user_id(user_id, guild_id)
     if member is None:
-        raise HTTPError(MemberErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Member)
     event.result = MemberDTO.model_validate(member)
     return MemberDetailDTO.model_validate(member)
 
@@ -29,7 +29,7 @@ async def get_member_service(
     member_repo = MemberRepository(session)
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
-        raise HTTPError(MemberErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Member)
     event.result = MemberDTO.model_validate(member)
     return MemberDetailDTO.model_validate(member)
 
@@ -76,12 +76,12 @@ async def update_member_service(
     member_repo = MemberRepository(session)
     member = await member_repo.get_detail_by_id(member_id, guild_id)
     if member is None:
-        raise HTTPError(MemberErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Member)
 
     if "role" in dto.model_fields_set and (
         member.role == Role.OWNER or dto.role == Role.OWNER
     ):
-        raise HTTPError(MemberErrorCode.ForbiddenRole)
+        raise HTTPError(ForbiddenErrorCode.MemberForbiddenRole)
 
     for key in dto.model_fields_set:
         setattr(member, key, getattr(dto, key))

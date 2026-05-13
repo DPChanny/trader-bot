@@ -17,8 +17,8 @@ from shared.dtos.auction import (
 from shared.utils.db import get_session
 from shared.utils.error import (
     AppErrorCode,
-    AuthErrorCode,
-    ValidationErrorCode,
+    InvalidErrorCode,
+    UnauthorizedErrorCode,
     WSError,
     handle_ws_error,
 )
@@ -50,11 +50,11 @@ async def create_auction_route(
 
 def _parse_event_envelope(text: str) -> AuctionClientEventEnvelopeDTO:
     if len(text) > 1024:
-        raise WSError(ValidationErrorCode.Invalid)
+        raise WSError(InvalidErrorCode.Request)
     try:
         return AuctionClientEventEnvelopeDTO.model_validate_json(text)
     except ValidationError, ValueError:
-        raise WSError(ValidationErrorCode.Invalid) from None
+        raise WSError(InvalidErrorCode.Request) from None
 
 
 def _parse_event_payload[TPayloadDTO: BaseModel](
@@ -79,9 +79,9 @@ async def auction_ws(
 
         auth_event = _parse_event_envelope(await ws.receive_text())
         if auth_event.type != AuctionClientEventType.AUTH:
-            raise WSError(AuthErrorCode.Unauthorized)
+            raise WSError(UnauthorizedErrorCode.Auth)
         auth_payload_dto = _parse_event_payload(
-            auth_event, AuthEventPayloadDTO, AuthErrorCode.Unauthorized
+            auth_event, AuthEventPayloadDTO, UnauthorizedErrorCode.Auth
         )
         auction, member_id = await connect_service(
             ws, auction_id, auth_payload_dto, session
@@ -91,12 +91,10 @@ async def auction_ws(
             try:
                 place_bid_event = _parse_event_envelope(await ws.receive_text())
                 if place_bid_event.type != AuctionClientEventType.PLACE_BID:
-                    raise WSError(ValidationErrorCode.Invalid)
+                    raise WSError(InvalidErrorCode.Request)
 
                 place_bid_payload_dto = _parse_event_payload(
-                    place_bid_event,
-                    PlaceBidEventPayloadDTO,
-                    ValidationErrorCode.Invalid,
+                    place_bid_event, PlaceBidEventPayloadDTO, InvalidErrorCode.Request
                 )
                 await place_bid_service(auction, member_id, place_bid_payload_dto)
             except WSError as e:

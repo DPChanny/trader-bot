@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.guild import GuildDTO
 from shared.repositories.guild_repository import GuildRepository
-from shared.utils.error import AppError, GuildErrorCode
+from shared.utils.error import AppError, NotFoundErrorCode
 from shared.utils.service import Event, bot_service
 
 
@@ -13,6 +13,6 @@ async def set_invite_channel_service(
     repo = GuildRepository(session)
     entity = await repo.get_by_id(guild_id)
     if entity is None:
-        raise AppError(GuildErrorCode.NotFound)
+        raise AppError(NotFoundErrorCode.Guild)
     entity.invite_channel_id = channel_id
     event.result = GuildDTO.model_validate(entity)

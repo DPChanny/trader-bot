@@ -21,7 +21,7 @@ from shared.dtos.auction import (
     StatusEventPayloadDTO,
 )
 from shared.dtos.preset import PresetDetailDTO
-from shared.utils.error import AuctionErrorCode, WSError
+from shared.utils.error import ForbiddenErrorCode, WSError
 
 from .auction_repository import AuctionRepository
 from .utils import log_server_event
@@ -83,7 +83,7 @@ class Auction:
 
     async def place_bid(self, dto: BidDTO) -> None:
         if dto.leader_id not in self._leader_member_ids:
-            raise WSError(AuctionErrorCode.BidNotLeader)
+            raise WSError(ForbiddenErrorCode.AuctionBidNotLeader)
         await self.repo.publish_request(AuctionRequestType.PLACE_BID, dto)
 
     async def handle_event(

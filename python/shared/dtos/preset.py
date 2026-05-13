@@ -1,6 +1,6 @@
 from pydantic import Field, model_validator
 
-from ..utils.error import HTTPError, ValidationErrorCode
+from ..utils.error import HTTPError, InvalidErrorCode
 from . import BaseDTO, BaseEntityDTO, BigInt, NameStr
 from .preset_member import PresetMemberDetailDTO
 
@@ -29,7 +29,7 @@ class CreatePresetDTO(BaseDTO):
     @model_validator(mode="after")
     def points_gte_team_size(self) -> CreatePresetDTO:
         if self.points < self.team_size:
-            raise HTTPError(ValidationErrorCode.Invalid)
+            raise HTTPError(InvalidErrorCode.Request)
         return self
 
 

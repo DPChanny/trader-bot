@@ -13,13 +13,7 @@ from shared.repositories.member_repository import MemberRepository
 from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
-from shared.utils.error import (
-    HTTPError,
-    MemberErrorCode,
-    PresetErrorCode,
-    PresetMemberErrorCode,
-    TierErrorCode,
-)
+from shared.utils.error import HTTPError, NotFoundErrorCode
 from shared.utils.service import Event, http_service
 
 from shared.utils.verify import verify_role
@@ -39,7 +33,7 @@ async def get_preset_members_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPError(PresetErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Preset)
 
     preset_member_repo = PresetMemberRepository(session)
     members = await preset_member_repo.get_all_detail_by_preset_id(
@@ -72,7 +66,7 @@ async def get_preset_member_service(
         preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
-        raise HTTPError(PresetMemberErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.PresetMember)
     event.result = PresetMemberDTO.model_validate(preset_member)
     return PresetMemberDetailDTO.model_validate(preset_member)
 
@@ -91,15 +85,15 @@ async def add_preset_member_service(
     member_repo = MemberRepository(session)
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPError(PresetErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Preset)
 
     if await member_repo.get_by_id(dto.member_id, guild_id) is None:
-        raise HTTPError(MemberErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Member)
 
     if dto.tier_id is not None:
         tier_repo = TierRepository(session)
         if await tier_repo.get_by_id(dto.tier_id, preset_id, guild_id) is None:
-            raise HTTPError(TierErrorCode.NotFound)
+            raise HTTPError(NotFoundErrorCode.Tier)
 
     preset_member_repo = PresetMemberRepository(session)
     preset_member = PresetMember(
@@ -116,7 +110,7 @@ async def add_preset_member_service(
         preset_member.preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
-        raise HTTPError(PresetMemberErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.PresetMember)
     event.result = PresetMemberDTO.model_validate(preset_member)
     return PresetMemberDetailDTO.model_validate(preset_member)
 
@@ -138,7 +132,7 @@ async def update_preset_member_service(
         preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
-        raise HTTPError(PresetMemberErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.PresetMember)
 
     tier_repo = TierRepository(session)
     for key in dto.model_fields_set:
@@ -146,7 +140,7 @@ async def update_preset_member_service(
         if key == "tier_id" and value is not None:
             tier = await tier_repo.get_by_id(value, preset_id, guild_id)
             if tier is None:
-                raise HTTPError(TierErrorCode.NotFound)
+                raise HTTPError(NotFoundErrorCode.Tier)
         setattr(preset_member, key, value)
 
     event.result = PresetMemberDTO.model_validate(preset_member)
@@ -169,7 +163,7 @@ async def delete_preset_member_service(
         preset_member_id, preset_id, guild_id
     )
     if preset_member is None:
-        raise HTTPError(PresetMemberErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.PresetMember)
 
     event.result = PresetMemberDTO.model_validate(preset_member)
     await session.delete(preset_member)

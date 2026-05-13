@@ -8,7 +8,7 @@ from shared.dtos.subscription import Plan
 from shared.entities import Subscription
 from shared.repositories.member_repository import MemberRepository
 from shared.repositories.subscription_repository import SubscriptionRepository
-from shared.utils.error import HTTPError, MemberErrorCode, SubscriptionErrorCode
+from shared.utils.error import ForbiddenErrorCode, HTTPError, NotFoundErrorCode
 
 
 class Quota(IntEnum):
@@ -35,9 +35,9 @@ async def verify_role(
     member_repo = MemberRepository(db)
     member = await member_repo.get_by_user_id(user_id, guild_id)
     if member is None:
-        raise HTTPError(MemberErrorCode.NotMember)
+        raise HTTPError(ForbiddenErrorCode.MemberNotMember)
     if Role(member.role) < min_role:
-        raise HTTPError(MemberErrorCode.InsufficientRole)
+        raise HTTPError(ForbiddenErrorCode.MemberInsufficientRole)
     return Role(member.role)
 
 
@@ -45,8 +45,10 @@ async def verify_plan(guild_id: int, min_plan: Plan, db: AsyncSession) -> Plan:
     sub_repo = SubscriptionRepository(db)
     sub = await sub_repo.get_by_guild_id(guild_id)
     plan = _effective_plan(sub)
-    if plan is None or plan < min_plan:
-        raise HTTPError(SubscriptionErrorCode.Invalid)
+    if plan is None:
+        raise HTTPError(NotFoundErrorCode.Subscription)
+    if plan < min_plan:
+        raise HTTPError(ForbiddenErrorCode.SubscriptionInsufficientPlan)
     return plan
 
 
@@ -58,7 +60,7 @@ async def verify_quota(
     plan = _effective_plan(sub)
     limit = _PLAN_QUOTAS[plan][quota]
     if limit is not None and value > limit:
-        raise HTTPError(SubscriptionErrorCode.Invalid)
+        raise HTTPError(ForbiddenErrorCode.SubscriptionInsufficientQuota)
 
 
 async def get_quota(guild_id: int, quota: Quota, db: AsyncSession) -> Any:

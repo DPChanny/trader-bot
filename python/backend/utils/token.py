@@ -8,7 +8,7 @@ import jwt
 from fastapi import Header
 
 from shared.utils.env import get_jwt_algorithm, get_jwt_secret
-from shared.utils.error import AuthErrorCode, HTTPError, TokenError, TokenErrorCode
+from shared.utils.error import AppError, HTTPError, UnauthorizedErrorCode
 from shared.utils.redis import get_redis
 
 
@@ -44,16 +44,16 @@ class JWTToken:
                 jwt_token, get_jwt_secret(), algorithms=[get_jwt_algorithm()]
             )
             if data.get("type") != cls._type:
-                raise TokenError(TokenErrorCode.IncorrectJWTToken)
+                raise AppError(UnauthorizedErrorCode.IncorrectToken)
             return cls.Payload(
                 user_id=data["user_id"],
                 expires_at=datetime.fromtimestamp(data["exp"], UTC),
                 type=data["type"],
             )
         except jwt.ExpiredSignatureError:
-            raise TokenError(TokenErrorCode.ExpiredJWTToken) from None
+            raise AppError(UnauthorizedErrorCode.ExpiredToken) from None
         except jwt.InvalidTokenError:
-            raise TokenError(TokenErrorCode.IncorrectJWTToken) from None
+            raise AppError(UnauthorizedErrorCode.IncorrectToken) from None
 
 
 class AccessToken(JWTToken):
@@ -87,7 +87,7 @@ class RedisToken:
         key = f"{cls._key}:{redis_token}"
         data = await r.getdel(key)
         if data is None:
-            raise TokenError(TokenErrorCode.ConsumeFailed)
+            raise AppError(UnauthorizedErrorCode.ConsumedToken)
         return json.loads(data)
 
 
@@ -102,15 +102,10 @@ class StateToken(RedisToken):
 
 
 async def verify_access_token(authorization: str = Header(None)) -> int:
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPError(UnauthorizedErrorCode.Auth)
+    token = authorization.removeprefix("Bearer ")
     try:
-        if not authorization:
-            raise HTTPError(AuthErrorCode.Unauthorized)
-        if not authorization.startswith("Bearer "):
-            raise HTTPError(AuthErrorCode.Unauthorized)
-        token = authorization.removeprefix("Bearer ")
         return AccessToken.decode(token).user_id
-    except TokenError as e:
-        error = HTTPError(e.code)
-        raise error from None
-    except HTTPError:
-        raise
+    except AppError as e:
+        raise HTTPError(UnauthorizedErrorCode(e.code)) from None

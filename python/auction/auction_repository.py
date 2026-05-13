@@ -17,7 +17,7 @@ from shared.dtos.auction import (
 )
 from shared.dtos.preset import PresetDetailDTO
 from shared.repositories.auction_repository import BaseAuctionRepository
-from shared.utils.error import AuctionErrorCode
+from shared.utils.error import InvalidErrorCode
 from shared.utils.redis import get_redis
 
 from .scripts import (
@@ -205,10 +205,10 @@ class AuctionRepository(BaseAuctionRepository):
             str(dto.amount),
             str(team_size),
             event,
-            str(AuctionErrorCode.BidTeamFull),
-            str(AuctionErrorCode.BidTooLow),
-            str(AuctionErrorCode.BidDuplicate),
-            str(AuctionErrorCode.BidTooHigh),
+            str(InvalidErrorCode.AuctionBidTeamFull),
+            str(InvalidErrorCode.AuctionBidTooLow),
+            str(InvalidErrorCode.AuctionBidDuplicate),
+            str(InvalidErrorCode.AuctionBidTooHigh),
         )
         if result != 0:
             await self.publish_bid_error(dto.leader_id, int(result))

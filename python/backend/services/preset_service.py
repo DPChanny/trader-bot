@@ -12,7 +12,7 @@ from shared.entities import Position, Preset, Tier
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
-from shared.utils.error import HTTPError, PresetErrorCode, ValidationErrorCode
+from shared.utils.error import HTTPError, InvalidErrorCode, NotFoundErrorCode
 from shared.utils.service import Event, http_service
 from shared.utils.verify import Quota, verify_plan, verify_quota, verify_role
 
@@ -26,7 +26,7 @@ async def get_preset_service(
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
-        raise HTTPError(PresetErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Preset)
     return PresetDTO.model_validate(preset)
 
 
@@ -79,14 +79,14 @@ async def update_preset_service(
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
-        raise HTTPError(PresetErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Preset)
 
     effective_points = dto.points if dto.points is not None else preset.points
     effective_team_size = (
         dto.team_size if dto.team_size is not None else preset.team_size
     )
     if effective_points < effective_team_size:
-        raise HTTPError(ValidationErrorCode.Invalid)
+        raise HTTPError(InvalidErrorCode.Request)
 
     for key in dto.model_fields_set:
         setattr(preset, key, getattr(dto, key))
@@ -103,7 +103,7 @@ async def delete_preset_service(
     preset_repo = PresetRepository(session)
     preset = await preset_repo.get_by_id(preset_id, guild_id)
     if preset is None:
-        raise HTTPError(PresetErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Preset)
 
     event.result = PresetDTO.model_validate(preset)
     await session.delete(preset)
@@ -128,7 +128,7 @@ async def copy_preset_service(
 
     source_preset = await preset_repo.get_by_id(preset_id, guild_id)
     if source_preset is None:
-        raise HTTPError(PresetErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Preset)
 
     target_preset = Preset(
         guild_id=dto.target_guild_id,

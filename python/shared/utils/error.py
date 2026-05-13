@@ -1,9 +1,11 @@
 """
-41xx 401 Auth
-42xx 422 Validation
-43xx 403 Forbidden
-44xx 404 Not found
-50xx 500 Unexpected
+401xx 401 Unauthorized
+403xx 403 Forbidden
+404xx 404 Not Found
+422xx 422 Invalid
+500xx 500 Unexpected
+
+xx00 = generic (no specific domain)
 """
 
 import traceback
@@ -16,100 +18,62 @@ from loguru import logger
 from .logging import Event
 
 
-class AuthErrorCode(IntEnum):
-    Unauthorized = 4101
+class UnauthorizedErrorCode(IntEnum):
+    Generic = 40100
+    Auth = 40101
+    IncorrectToken = 40102
+    ExpiredToken = 40103
+    ConsumedToken = 40104
 
 
-class TokenErrorCode(IntEnum):
-    IncorrectJWTToken = 4102
-    ExpiredJWTToken = 4103
-    ConsumeFailed = 4104
+class ForbiddenErrorCode(IntEnum):
+    Generic = 40300
+    AuctionBidNotLeader = 40301
+    MemberInsufficientRole = 40302
+    MemberForbiddenRole = 40303
+    MemberNotMember = 40304
+    SubscriptionInsufficientPlan = 40305
+    SubscriptionInsufficientQuota = 40306
 
 
-class ValidationErrorCode(IntEnum):
-    Invalid = 4201
+class NotFoundErrorCode(IntEnum):
+    Generic = 40400
+    Auction = 40401
+    Guild = 40402
+    Member = 40403
+    Position = 40404
+    Preset = 40405
+    PresetMember = 40406
+    PresetMemberPosition = 40407
+    Tier = 40408
+    User = 40409
+    Subscription = 40410
+    Billing = 40411
 
 
-class AuctionErrorCode(IntEnum):
-    BidTeamFull = 4203
-    BidTooLow = 4204
-    BidDuplicate = 4205
-    BidTooHigh = 4207
-    BidNotLeader = 4302
-    NotFound = 4401
-
-
-class GuildErrorCode(IntEnum):
-    NotFound = 4402
-
-
-class MemberErrorCode(IntEnum):
-    InsufficientRole = 4303
-    ForbiddenRole = 4304
-    NotMember = 4305
-    NotFound = 4403
-
-
-class PositionErrorCode(IntEnum):
-    NotFound = 4404
-
-
-class PresetErrorCode(IntEnum):
-    NotFound = 4405
-
-
-class SubscriptionErrorCode(IntEnum):
-    Duplicated = 4208
-    Invalid = 4209
-    NotFound = 4410
-
-
-class PresetMemberErrorCode(IntEnum):
-    NotFound = 4406
-
-
-class PresetMemberPositionErrorCode(IntEnum):
-    Duplicated = 4206
-    NotFound = 4407
-
-
-class TierErrorCode(IntEnum):
-    NotFound = 4408
-
-
-class UserErrorCode(IntEnum):
-    NotFound = 4409
-
-
-class BillingErrorCode(IntEnum):
-    NotFound = 4411
+class InvalidErrorCode(IntEnum):
+    Generic = 42200
+    Request = 42201
+    AuctionBidTeamFull = 42202
+    AuctionBidTooLow = 42203
+    AuctionBidDuplicate = 42204
+    AuctionBidTooHigh = 42205
+    PresetMemberPositionDuplicated = 42206
 
 
 class UnexpectedErrorCode(IntEnum):
-    Internal = 5001
-    External = 5002
+    Generic = 50000
+    Internal = 50001
+    External = 50002
 
 
 type AppErrorCode = (
-    AuthErrorCode
-    | TokenErrorCode
-    | ValidationErrorCode
-    | AuctionErrorCode
-    | GuildErrorCode
-    | MemberErrorCode
-    | PositionErrorCode
-    | PresetErrorCode
-    | PresetMemberErrorCode
-    | PresetMemberPositionErrorCode
-    | TierErrorCode
-    | UserErrorCode
+    UnauthorizedErrorCode
+    | ForbiddenErrorCode
+    | NotFoundErrorCode
+    | InvalidErrorCode
     | UnexpectedErrorCode
 )
-
-
-class TokenError(Exception):
-    def __init__(self, code: TokenErrorCode) -> None:
-        self.code = code
 
 
 class AppError(Exception):
@@ -121,9 +85,7 @@ class AppError(Exception):
 class HTTPError(AppError):
     def __init__(self, code: AppErrorCode) -> None:
         super().__init__(code)
-        self.status_code: int = {41: 401, 42: 422, 43: 403, 44: 404, 50: 500}[
-            self.code // 100
-        ]
+        self.status_code: int = self.code // 100
 
 
 class WSError(AppError):
@@ -134,7 +96,7 @@ class WSError(AppError):
 def get_error_level(error: AppError) -> str:
     if isinstance(error, HTTPError):
         return "ERROR" if error.status_code >= 500 else "WARNING"
-    return "ERROR" if error.code >= 5000 else "WARNING"
+    return "ERROR" if error.code >= 50000 else "WARNING"
 
 
 def _log_error(

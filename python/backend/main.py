@@ -10,8 +10,8 @@ from shared.utils.db import cleanup_db, setup_db
 from shared.utils.env import get_app_origin, get_log_dir
 from shared.utils.error import (
     HTTPError,
+    InvalidErrorCode,
     UnexpectedErrorCode,
-    ValidationErrorCode,
     handle_http_error,
 )
 from shared.utils.logging import HTTPLogger, WSLogger, setup_logging
@@ -65,7 +65,7 @@ async def http_error_handler(_: Request, exc: HTTPError) -> JSONResponse:
 async def validation_error_handler(
     _: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    error = HTTPError(ValidationErrorCode.Invalid)
+    error = HTTPError(InvalidErrorCode.Request)
     error.__cause__ = exc
     return handle_http_error(error)
 

@@ -6,7 +6,7 @@ from shared.dtos.subscription import Plan
 from shared.entities import Position
 from shared.repositories.position_repository import PositionRepository
 from shared.repositories.preset_repository import PresetRepository
-from shared.utils.error import HTTPError, PositionErrorCode, PresetErrorCode
+from shared.utils.error import HTTPError, NotFoundErrorCode
 from shared.utils.service import Event, http_service
 from shared.utils.verify import verify_plan, verify_role
 
@@ -19,7 +19,7 @@ async def get_positions_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPError(PresetErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Preset)
 
     position_repo = PositionRepository(session)
     positions = await position_repo.get_all_by_preset_id(preset_id, guild_id)
@@ -35,7 +35,7 @@ async def get_position_service(
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
-        raise HTTPError(PositionErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Position)
     return PositionDTO.model_validate(position)
 
 
@@ -52,7 +52,7 @@ async def add_position_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPError(PresetErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Preset)
 
     position = Position(preset_id=preset_id, name=dto.name, icon_url=dto.icon_url)
     session.add(position)
@@ -75,7 +75,7 @@ async def update_position_service(
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
-        raise HTTPError(PositionErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Position)
 
     for key in dto.model_fields_set:
         setattr(position, key, getattr(dto, key))
@@ -98,7 +98,7 @@ async def delete_position_service(
     position_repo = PositionRepository(session)
     position = await position_repo.get_by_id(position_id, preset_id, guild_id)
     if position is None:
-        raise HTTPError(PositionErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Position)
 
     event.result = PositionDTO.model_validate(position)
     await session.delete(position)

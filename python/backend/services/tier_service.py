@@ -6,7 +6,7 @@ from shared.dtos.tier import AddTierDTO, TierDTO, UpdateTierDTO
 from shared.entities import Tier
 from shared.repositories.preset_repository import PresetRepository
 from shared.repositories.tier_repository import TierRepository
-from shared.utils.error import HTTPError, PresetErrorCode, TierErrorCode
+from shared.utils.error import HTTPError, NotFoundErrorCode
 from shared.utils.service import Event, http_service
 
 from shared.utils.verify import verify_plan, verify_role
@@ -20,7 +20,7 @@ async def get_tiers_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPError(PresetErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Preset)
 
     tier_repo = TierRepository(session)
     tiers = await tier_repo.get_all_by_preset_id(preset_id, guild_id)
@@ -36,7 +36,7 @@ async def get_tier_service(
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
-        raise HTTPError(TierErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Tier)
     return TierDTO.model_validate(tier)
 
 
@@ -49,7 +49,7 @@ async def add_tier_service(
 
     preset_repo = PresetRepository(session)
     if await preset_repo.get_by_id(preset_id, guild_id) is None:
-        raise HTTPError(PresetErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Preset)
 
     tier = Tier(preset_id=preset_id, name=dto.name, icon_url=dto.icon_url)
     session.add(tier)
@@ -72,7 +72,7 @@ async def update_tier_service(
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
-        raise HTTPError(TierErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Tier)
 
     for key in dto.model_fields_set:
         setattr(tier, key, getattr(dto, key))
@@ -95,7 +95,7 @@ async def delete_tier_service(
     tier_repo = TierRepository(session)
     tier = await tier_repo.get_by_id(tier_id, preset_id, guild_id)
     if tier is None:
-        raise HTTPError(TierErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Tier)
 
     event.result = TierDTO.model_validate(tier)
     await session.delete(tier)

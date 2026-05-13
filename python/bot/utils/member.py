@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.dtos.member import MemberDTO, Role
 from shared.repositories.member_repository import MemberRepository
-from shared.utils.error import AppError, MemberErrorCode
+from shared.utils.error import AppError, NotFoundErrorCode
 
 from .user import sync_user
 
@@ -26,7 +26,7 @@ async def update_member_role(
     repo = MemberRepository(session)
     entity = await repo.get_by_user_id(user_id, guild_id)
     if entity is None:
-        raise AppError(MemberErrorCode.NotFound)
+        raise AppError(NotFoundErrorCode.Member)
 
     entity.role = role
 
@@ -39,7 +39,7 @@ async def sync_member_admin_role(
     repo = MemberRepository(session)
     entity = await repo.get_by_user_id(user_id, guild_id)
     if entity is None:
-        raise AppError(MemberErrorCode.NotFound)
+        raise AppError(NotFoundErrorCode.Member)
 
     if is_admin and entity.role < Role.ADMIN:
         entity.role = Role.ADMIN
@@ -63,7 +63,7 @@ async def delete_member(
     repo = MemberRepository(session)
     entity = await repo.get_by_user_id(user_id, guild_id)
     if entity is None:
-        raise AppError(MemberErrorCode.NotFound)
+        raise AppError(NotFoundErrorCode.Member)
     dto = MemberDTO.model_validate(entity)
     await session.delete(entity)
     return dto

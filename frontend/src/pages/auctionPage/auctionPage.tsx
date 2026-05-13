@@ -30,11 +30,11 @@ import {
 
 function isBidErrorCode(code: number): boolean {
   switch (code) {
-    case BackendErrorCode.Auction.BidTeamFull:
-    case BackendErrorCode.Auction.BidTooLow:
-    case BackendErrorCode.Auction.BidTooHigh:
-    case BackendErrorCode.Auction.BidDuplicate:
-    case BackendErrorCode.Auction.BidNotLeader:
+    case BackendErrorCode.Invalid.Auction.BidTeamFull:
+    case BackendErrorCode.Invalid.Auction.BidTooLow:
+    case BackendErrorCode.Invalid.Auction.BidTooHigh:
+    case BackendErrorCode.Invalid.Auction.BidDuplicate:
+    case BackendErrorCode.Forbidden.Auction.BidNotLeader:
       return true;
     default:
       return false;
@@ -43,7 +43,7 @@ function isBidErrorCode(code: number): boolean {
 
 function isModalErrorCode(code: number): boolean {
   return (
-    code === BackendErrorCode.Validation.Invalid ||
+    code === BackendErrorCode.Invalid.Request ||
     code === BackendErrorCode.Unexpected.Internal ||
     code === BackendErrorCode.Unexpected.External ||
     code === FrontendErrorCode.Validation.Invalid ||

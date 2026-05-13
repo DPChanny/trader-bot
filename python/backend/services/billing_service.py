@@ -4,7 +4,7 @@ from shared.dtos.billing import BillingDTO
 from shared.entities import Billing
 from shared.repositories.billing_repository import BillingRepository
 from shared.repositories.user_repository import UserRepository
-from shared.utils.error import BillingErrorCode, HTTPError, UserErrorCode
+from shared.utils.error import HTTPError, NotFoundErrorCode
 from shared.utils.service import http_service
 
 from ..utils.toss import delete_billing_key, issue_billing_key
@@ -24,7 +24,7 @@ async def register_billing_service(
     user_repo = UserRepository(session)
     user = await user_repo.get_by_id(user_id)
     if user is None:
-        raise HTTPError(UserErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.User)
 
     billing_key, name = await issue_billing_key(auth_key, user.customer_key)
 
@@ -43,7 +43,7 @@ async def delete_billing_service(
     billing_repo = BillingRepository(session)
     billing = await billing_repo.get_by_id(billing_id, user_id)
     if billing is None:
-        raise HTTPError(BillingErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Billing)
 
     await delete_billing_key(billing.billing_key)
     await session.delete(billing)

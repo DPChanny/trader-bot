@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shared.dtos.auth import ExchangeTokenDTO, JWTTokenDTO, RefreshTokenDTO
 from shared.repositories.user_repository import UserRepository
 from shared.utils.env import get_app_origin
-from shared.utils.error import HTTPError, TokenError
+from shared.utils.error import AppError, HTTPError, UnauthorizedErrorCode
 from shared.utils.service import http_service
 
 from ..utils.discord import get_login_url, get_me
@@ -42,8 +42,8 @@ async def login_callback_service(
         try:
             payload = await StateToken.consume(state_token)
             params["redirect"] = payload["redirect_path"]
-        except TokenError as e:
-            raise HTTPError(e.code) from None
+        except AppError as e:
+            raise HTTPError(UnauthorizedErrorCode(e.code)) from None
 
     redirect_url = (
         f"{get_app_origin()}/auth/login/callback?{urllib.parse.urlencode(params)}"
@@ -55,19 +55,19 @@ async def login_callback_service(
 async def exchange_token_service(dto: ExchangeTokenDTO) -> JWTTokenDTO:
     try:
         payload = await ExchangeToken.consume(dto.exchange_token)
-        return JWTTokenDTO(
-            access_token=payload["access_token"], refresh_token=payload["refresh_token"]
-        )
-    except TokenError as e:
-        raise HTTPError(e.code) from None
+    except AppError as e:
+        raise HTTPError(UnauthorizedErrorCode(e.code)) from None
+    return JWTTokenDTO(
+        access_token=payload["access_token"], refresh_token=payload["refresh_token"]
+    )
 
 
 @http_service
 async def refresh_token_service(dto: RefreshTokenDTO) -> JWTTokenDTO:
     try:
         rt_payload = RefreshToken.decode(dto.refresh_token)
-    except TokenError as e:
-        raise HTTPError(e.code) from None
+    except AppError as e:
+        raise HTTPError(UnauthorizedErrorCode(e.code)) from None
     access_token = AccessToken.create(rt_payload.user_id)
     new_refresh_token = RefreshToken.create(rt_payload.user_id)
     return JWTTokenDTO(access_token=access_token, refresh_token=new_refresh_token)

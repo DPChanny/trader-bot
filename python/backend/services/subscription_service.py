@@ -16,7 +16,7 @@ from shared.repositories.billing_repository import BillingRepository
 from shared.repositories.subscription_repository import SubscriptionRepository
 from shared.repositories.user_repository import UserRepository
 from shared.utils.db import get_session
-from shared.utils.error import BillingErrorCode, HTTPError, SubscriptionErrorCode
+from shared.utils.error import HTTPError, InvalidErrorCode, NotFoundErrorCode
 from shared.utils.service import http_service
 from shared.utils.verify import verify_role
 
@@ -43,14 +43,14 @@ async def register_subscription_service(
     billing_repo = BillingRepository(session)
     billing = await billing_repo.get_by_id(dto.billing_id, user_id)
     if billing is None:
-        raise HTTPError(BillingErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Billing)
 
     today = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
     has_valid = sub is not None and sub.is_valid
 
     if has_valid:
         if dto.plan <= Plan(sub.plan):
-            raise HTTPError(SubscriptionErrorCode.Invalid)
+            raise HTTPError(InvalidErrorCode.Request)
         ratio = (sub.expires_at - today).days / _PLAN_PERIOD[Plan(sub.plan)].days
         amount = round((_PLAN_AMOUNT[dto.plan] - _PLAN_AMOUNT[Plan(sub.plan)]) * ratio)
     else:
@@ -136,14 +136,14 @@ async def update_subscription_service(
     sub_repo = SubscriptionRepository(session)
     sub = await sub_repo.get_by_guild_id(guild_id)
     if sub is None or not sub.is_valid:
-        raise HTTPError(SubscriptionErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Subscription)
 
     if "billing_id" in dto.model_fields_set:
         if dto.billing_id is not None:
             billing_repo = BillingRepository(session)
             billing = await billing_repo.get_by_id(dto.billing_id, user_id)
             if billing is None:
-                raise HTTPError(BillingErrorCode.NotFound)
+                raise HTTPError(NotFoundErrorCode.Billing)
         sub.billing_id = dto.billing_id
 
     if "next_plan" in dto.model_fields_set:
@@ -174,9 +174,9 @@ async def cancel_subscription_service(
     sub_repo = SubscriptionRepository(session)
     subscription = await sub_repo.get_by_guild_id(guild_id)
     if subscription is None:
-        raise HTTPError(SubscriptionErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Subscription)
     if subscription.billing_id is None:
-        raise HTTPError(BillingErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Billing)
 
     await session.execute(
         update(Subscription)

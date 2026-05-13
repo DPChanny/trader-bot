@@ -13,12 +13,7 @@ from shared.repositories.preset_member_position_repository import (
     PresetMemberPositionRepository,
 )
 from shared.repositories.preset_member_repository import PresetMemberRepository
-from shared.utils.error import (
-    HTTPError,
-    PositionErrorCode,
-    PresetMemberErrorCode,
-    PresetMemberPositionErrorCode,
-)
+from shared.utils.error import HTTPError, InvalidErrorCode, NotFoundErrorCode
 from shared.utils.service import Event, http_service
 
 from shared.utils.verify import verify_role
@@ -41,11 +36,11 @@ async def add_preset_member_position_service(
         await preset_member_repo.get_by_id(preset_member_id, preset_id, guild_id)
         is None
     ):
-        raise HTTPError(PresetMemberErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.PresetMember)
 
     position_repo = PositionRepository(session)
     if await position_repo.get_by_id(dto.position_id, preset_id, guild_id) is None:
-        raise HTTPError(PositionErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Position)
 
     pmp_repo = PresetMemberPositionRepository(session)
     preset_member_position = PresetMemberPosition(
@@ -55,7 +50,7 @@ async def add_preset_member_position_service(
     try:
         await session.flush()
     except IntegrityError:
-        raise HTTPError(PresetMemberPositionErrorCode.Duplicated) from None
+        raise HTTPError(InvalidErrorCode.PresetMemberPositionDuplicated) from None
 
     preset_member_position = await pmp_repo.get_detail_by_id(
         preset_member_position.preset_member_position_id,
@@ -64,7 +59,7 @@ async def add_preset_member_position_service(
         guild_id,
     )
     if preset_member_position is None:
-        raise HTTPError(PresetMemberPositionErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.PresetMemberPosition)
 
     event.result = PresetMemberPositionDTO.model_validate(preset_member_position)
     return PresetMemberPositionDetailDTO.model_validate(preset_member_position)
@@ -87,7 +82,7 @@ async def delete_preset_member_position_service(
         preset_member_position_id, preset_member_id, preset_id, guild_id
     )
     if preset_member_position is None:
-        raise HTTPError(PresetMemberPositionErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.PresetMemberPosition)
 
     event.result = PresetMemberPositionDTO.model_validate(preset_member_position)
     await session.delete(preset_member_position)

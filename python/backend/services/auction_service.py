@@ -15,11 +15,10 @@ from shared.repositories.preset_member_repository import PresetMemberRepository
 from shared.repositories.preset_repository import PresetRepository
 from shared.utils.env import get_app_origin
 from shared.utils.error import (
-    AuctionErrorCode,
+    ForbiddenErrorCode,
     HTTPError,
-    PresetErrorCode,
-    TokenError,
-    ValidationErrorCode,
+    InvalidErrorCode,
+    NotFoundErrorCode,
     WSError,
 )
 from shared.utils.service import Event, http_service, ws_service
@@ -42,7 +41,7 @@ async def create_auction_service(
     preset = await preset_repo.get_detail_by_id(preset_id, guild_id)
 
     if preset is None:
-        raise HTTPError(PresetErrorCode.NotFound)
+        raise HTTPError(NotFoundErrorCode.Preset)
 
     ttl = await get_quota(guild_id, Quota.AUCTION_TTL, session)
 
@@ -50,7 +49,7 @@ async def create_auction_service(
     leaders = [pm for pm in preset_members if pm.is_leader]
 
     if len(leaders) < 2:
-        raise HTTPError(ValidationErrorCode.Invalid)
+        raise HTTPError(InvalidErrorCode.Request)
 
     preset_snapshot = PresetDetailDTO.model_validate(preset)
     auction = await AuctionManager.create_auction(
@@ -93,7 +92,7 @@ async def connect_service(
     auction = await AuctionManager.get_auction(auction_id)
 
     if not auction:
-        raise WSError(AuctionErrorCode.NotFound)
+        raise WSError(NotFoundErrorCode.Auction)
 
     access_token = dto.access_token
 
@@ -124,7 +123,7 @@ async def place_bid_service(
     auction: Auction, member_id: int | None, dto: PlaceBidEventPayloadDTO
 ) -> None:
     if member_id is None:
-        raise WSError(AuctionErrorCode.BidNotLeader)
+        raise WSError(ForbiddenErrorCode.AuctionBidNotLeader)
 
     await auction.place_bid(BidDTO(leader_id=member_id, amount=dto.amount))
 

@@ -28,68 +28,64 @@ export const FrontendErrorCode = {
 } as const;
 
 export const BackendErrorCode = {
-  Auth: {
-    Unauthorized: 4101,
+  Unauthorized: {
+    Generic: 40100,
+    Auth: 40101,
+    IncorrectToken: 40102,
+    ExpiredToken: 40103,
+    ConsumedToken: 40104,
   },
-  Token: {
-    IncorrectJWTToken: 4102,
-    ExpiredJWTToken: 4103,
-    ConsumeFailed: 4104,
+  Forbidden: {
+    Generic: 40300,
+    Auction: {
+      BidNotLeader: 40301,
+    },
+    Member: {
+      InsufficientRole: 40302,
+      ForbiddenRole: 40303,
+      NotMember: 40304,
+    },
+    Subscription: {
+      InsufficientPlan: 40305,
+      InsufficientQuota: 40306,
+    },
   },
-  Validation: {
-    Invalid: 4201,
+  NotFound: {
+    Generic: 40400,
+    Auction: 40401,
+    Guild: 40402,
+    Member: 40403,
+    Position: 40404,
+    Preset: 40405,
+    PresetMember: 40406,
+    PresetMemberPosition: 40407,
+    Tier: 40408,
+    User: 40409,
+    Subscription: 40410,
+    Billing: 40411,
   },
-  Auction: {
-    BidTeamFull: 4203,
-    BidTooLow: 4204,
-    BidDuplicate: 4205,
-    BidTooHigh: 4207,
-    BidNotLeader: 4302,
-    NotFound: 4401,
-  },
-  Guild: {
-    NotFound: 4402,
-  },
-  Member: {
-    InsufficientRole: 4303,
-    ForbiddenRole: 4304,
-    NotMember: 4305,
-    NotFound: 4403,
-  },
-  Position: {
-    NotFound: 4404,
-  },
-  Preset: {
-    NotFound: 4405,
-  },
-  PresetMember: {
-    NotFound: 4406,
-  },
-  PresetMemberPosition: {
-    Duplicated: 4206,
-    NotFound: 4407,
-  },
-  Tier: {
-    NotFound: 4408,
-  },
-  User: {
-    NotFound: 4409,
-  },
-  Billing: {
-    NotFound: 4411,
-  },
-  Subscription: {
-    Duplicated: 4208,
-    NotFound: 4410,
+  Invalid: {
+    Generic: 42200,
+    Request: 42201,
+    Auction: {
+      BidTeamFull: 42202,
+      BidTooLow: 42203,
+      BidDuplicate: 42204,
+      BidTooHigh: 42205,
+    },
+    PresetMemberPosition: {
+      Duplicated: 42206,
+    },
   },
   Unexpected: {
-    Internal: 5001,
-    External: 5002,
+    Generic: 50000,
+    Internal: 50001,
+    External: 50002,
   },
 } as const;
 
 export function isBackendErrorCode(code: number): boolean {
-  return (code >= 400 && code < 600) || (code >= 4000 && code < 6000);
+  return code >= 40000 && code < 60000;
 }
 
 export function isFrontendErrorCode(code: number): boolean {
@@ -98,69 +94,64 @@ export function isFrontendErrorCode(code: number): boolean {
 
 function getErrorMessage(code: number): string {
   switch (code) {
-    case BackendErrorCode.Auth.Unauthorized:
+    case BackendErrorCode.Unauthorized.Auth:
       return "로그인이 필요합니다";
-    case BackendErrorCode.Token.IncorrectJWTToken:
+    case BackendErrorCode.Unauthorized.IncorrectToken:
       return "잘못된 JWT 토큰입니다";
-    case BackendErrorCode.Token.ExpiredJWTToken:
+    case BackendErrorCode.Unauthorized.ExpiredToken:
       return "만료된 JWT 토큰입니다";
-    case BackendErrorCode.Token.ConsumeFailed:
+    case BackendErrorCode.Unauthorized.ConsumedToken:
       return "토큰 사용에 실패했습니다";
 
-    case BackendErrorCode.Validation.Invalid:
+    case BackendErrorCode.Invalid.Request:
       return "유효하지 않은 입력입니다";
 
-    case BackendErrorCode.Auction.BidTeamFull:
+    case BackendErrorCode.Invalid.Auction.BidTeamFull:
       return "팀 인원이 가득 차 입찰할 수 없습니다";
-    case BackendErrorCode.Auction.BidTooLow:
+    case BackendErrorCode.Invalid.Auction.BidTooLow:
       return "현재 입찰 포인트보다 높게 입찰해야 합니다";
-    case BackendErrorCode.Auction.BidDuplicate:
+    case BackendErrorCode.Invalid.Auction.BidDuplicate:
       return "현재 입찰 중인 팀장은 재입찰할 수 없습니다";
-    case BackendErrorCode.Auction.BidTooHigh:
+    case BackendErrorCode.Invalid.Auction.BidTooHigh:
       return "최대 입찰 가능 금액을 초과했습니다";
-    case BackendErrorCode.Auction.BidNotLeader:
-      return "팀장이 아니면 입찰할 수 없습니다";
-    case BackendErrorCode.Auction.NotFound:
-      return "경매가 만료되었거나 존재하지 않습니다";
-
-    case BackendErrorCode.Guild.NotFound:
-      return "서버를 찾을 수 없습니다";
-
-    case BackendErrorCode.Member.InsufficientRole:
-      return "역할의 권한이 부족합니다";
-    case BackendErrorCode.Member.ForbiddenRole:
-      return "소유자 역할은 수정할 수 없습니다";
-    case BackendErrorCode.Member.NotMember:
-      return "서버의 멤버가 아닙니다";
-    case BackendErrorCode.Member.NotFound:
-      return "멤버를 찾을 수 없습니다";
-
-    case BackendErrorCode.Position.NotFound:
-      return "포지션을 찾을 수 없습니다";
-
-    case BackendErrorCode.Preset.NotFound:
-      return "프리셋을 찾을 수 없습니다";
-
-    case BackendErrorCode.PresetMember.NotFound:
-      return "프리셋 멤버를 찾을 수 없습니다";
-
-    case BackendErrorCode.PresetMemberPosition.Duplicated:
+    case BackendErrorCode.Invalid.PresetMemberPosition.Duplicated:
       return "이미 존재하는 프리셋 멤버 포지션입니다";
-    case BackendErrorCode.PresetMemberPosition.NotFound:
+
+    case BackendErrorCode.Forbidden.Subscription.InsufficientPlan:
+      return "현재 구독 플랜에서 사용할 수 없는 기능입니다";
+    case BackendErrorCode.Forbidden.Subscription.InsufficientQuota:
+      return "현재 구독 플랜의 한도를 초과했습니다";
+
+    case BackendErrorCode.Forbidden.Auction.BidNotLeader:
+      return "팀장이 아니면 입찰할 수 없습니다";
+    case BackendErrorCode.Forbidden.Member.InsufficientRole:
+      return "역할의 권한이 부족합니다";
+    case BackendErrorCode.Forbidden.Member.ForbiddenRole:
+      return "소유자 역할은 수정할 수 없습니다";
+    case BackendErrorCode.Forbidden.Member.NotMember:
+      return "서버의 멤버가 아닙니다";
+
+    case BackendErrorCode.NotFound.Auction:
+      return "경매가 만료되었거나 존재하지 않습니다";
+    case BackendErrorCode.NotFound.Guild:
+      return "서버를 찾을 수 없습니다";
+    case BackendErrorCode.NotFound.Member:
+      return "멤버를 찾을 수 없습니다";
+    case BackendErrorCode.NotFound.Position:
+      return "포지션을 찾을 수 없습니다";
+    case BackendErrorCode.NotFound.Preset:
+      return "프리셋을 찾을 수 없습니다";
+    case BackendErrorCode.NotFound.PresetMember:
+      return "프리셋 멤버를 찾을 수 없습니다";
+    case BackendErrorCode.NotFound.PresetMemberPosition:
       return "프리셋 멤버 포지션을 찾을 수 없습니다";
-
-    case BackendErrorCode.Tier.NotFound:
+    case BackendErrorCode.NotFound.Tier:
       return "티어를 찾을 수 없습니다";
-
-    case BackendErrorCode.User.NotFound:
+    case BackendErrorCode.NotFound.User:
       return "사용자를 찾을 수 없습니다";
-
-    case BackendErrorCode.Billing.NotFound:
+    case BackendErrorCode.NotFound.Billing:
       return "결제 수단을 찾을 수 없습니다";
-
-    case BackendErrorCode.Subscription.Duplicated:
-      return "이미 동일한 구독이 존재합니다";
-    case BackendErrorCode.Subscription.NotFound:
+    case BackendErrorCode.NotFound.Subscription:
       return "구독을 찾을 수 없습니다";
 
     case BackendErrorCode.Unexpected.Internal:

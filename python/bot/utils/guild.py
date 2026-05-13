@@ -8,7 +8,7 @@ from shared.entities import Member
 from shared.repositories.guild_repository import GuildRepository
 from shared.repositories.member_repository import MemberRepository
 from shared.repositories.user_repository import UserRepository
-from shared.utils.error import AppError, GuildErrorCode
+from shared.utils.error import AppError, NotFoundErrorCode
 
 
 async def upsert_guild(guild: DiscordGuild, session: AsyncSession) -> GuildDTO:
@@ -25,7 +25,7 @@ async def delete_guild(guild_id: int, session: AsyncSession) -> GuildDTO:
     repo = GuildRepository(session)
     entity = await repo.get_by_id(guild_id)
     if entity is None:
-        raise AppError(GuildErrorCode.NotFound)
+        raise AppError(NotFoundErrorCode.Guild)
     dto = GuildDTO.model_validate(entity)
     await session.delete(entity)
     return dto
