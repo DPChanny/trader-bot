@@ -155,7 +155,7 @@ export function MePage() {
                 <Text>등록된 결제 수단이 없습니다.</Text>
               </TertiarySection>
             ) : (
-              <TertiarySection fill>
+              <TertiarySection fill minSize>
                 <Column gap="sm">
                   {billings.map((b) => (
                     <BillingCard
@@ -181,7 +181,7 @@ export function MePage() {
                 <Text>결제 내역이 없습니다.</Text>
               </TertiarySection>
             ) : (
-              <TertiarySection fill>
+              <TertiarySection fill minSize>
                 <Scroll axis="y">
                   {[...payments!].reverse().map((p) => (
                     <PaymentCard key={p.paymentId} payment={p} />
